@@ -82,13 +82,28 @@ export default function SalonForm() {
         type: "salon",
       };
       
+      console.log("Submitting salon data:", salonData);
+      
       // Submit to API
       const response = await apiRequest("POST", "/api/salons", salonData);
       const result = await response.json();
       
+      console.log("Salon created successfully:", result);
+      
+      // Ensure we have a valid ID before proceeding
+      if (!result.id) {
+        throw new Error("No salon ID received from server");
+      }
+      
       // Store the salon ID for redirection
       setSalonId(result.id);
       setShowSuccess(true);
+      
+      // Invalidate the salon queries to ensure fresh data on the dashboard
+      import("@/lib/queryClient").then(({ queryClient }) => {
+        queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/salons', result.id.toString()] });
+      });
       
       // Start countdown for auto-redirect
       let count = 5;
@@ -98,14 +113,16 @@ export default function SalonForm() {
         
         if (count <= 0) {
           clearInterval(interval);
+          console.log("Redirecting to salon dashboard:", `/salon/${result.id}`);
           setLocation(`/salon/${result.id}`);
         }
       }, 1000);
       
     } catch (error) {
+      console.error("Error creating salon:", error);
       toast({
         title: "Error",
-        description: "There was a problem submitting your registration.",
+        description: "There was a problem submitting your registration. Please try again.",
         variant: "destructive",
       });
     }

@@ -1,16 +1,67 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
+import { useEffect } from "react";
+import type { Salon } from "@shared/schema";
+
+// Define a type for the social media object that might be in the API response
+interface SocialMediaItem {
+  platform: string;
+  handle: string;
+}
+
+// Define an interface for the Salon response that includes all necessary fields
+interface SalonResponse {
+  id: number;
+  name: string;
+  ownerName: string;
+  phone: string;
+  email: string;
+  socialMedia?: SocialMediaItem[] | null;
+  type: string;
+  createdAt: string;
+}
 
 export default function SalonDashboard() {
   const { id } = useParams();
+  const [, setLocation] = useLocation();
   
-  const { data: salon, isLoading, error } = useQuery({
-    queryKey: [`/api/salons/${id}`],
+  // Enhanced query configuration with proper query key structure and error handling
+  const { 
+    data: salon, 
+    isLoading, 
+    error,
+    refetch 
+  } = useQuery<SalonResponse>({
+    queryKey: ['/api/salons', id],
+    queryFn: async () => {
+      try {
+        if (!id) throw new Error("No salon ID provided");
+        
+        const response = await fetch(`/api/salons/${id}`);
+        if (!response.ok) {
+          throw new Error(`Error fetching salon: ${response.status}`);
+        }
+        return response.json();
+      } catch (err) {
+        console.error("Error fetching salon data:", err);
+        throw err;
+      }
+    },
     refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    enabled: !!id, // Only run the query if we have an ID
   });
+  
+  // Auto-redirect if no ID is provided
+  useEffect(() => {
+    if (!id) {
+      setLocation('/');
+    }
+  }, [id, setLocation]);
   
   if (isLoading) {
     return (
@@ -50,8 +101,39 @@ export default function SalonDashboard() {
         {/* Hero Section for Slug Page */}
         <section className="bg-[#FEE1E8] py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="font-playfair font-bold text-3xl mb-4">Salon Dashboard</h2>
-            <p className="text-gray-600">Manage your salon profile, services, and client appointments.</p>
+            <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+              <div>
+                <h2 className="font-playfair font-bold text-3xl mb-2">{salon.name}</h2>
+                <p className="text-gray-700 text-lg">Welcome back, {salon.ownerName}!</p>
+                <p className="text-gray-600 mt-2">Manage your salon profile, services, and client appointments.</p>
+              </div>
+              <div className="bg-white rounded-lg p-4 shadow-sm mt-4 md:mt-0">
+                <div className="flex flex-col space-y-2">
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-pink-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                    </svg>
+                    <span className="text-sm">{salon.phone}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-pink-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                    </svg>
+                    <span className="text-sm">{salon.email}</span>
+                  </div>
+                  {salon.socialMedia && salon.socialMedia.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {salon.socialMedia.map((social: any) => (
+                        <span key={social.platform} className="inline-flex items-center text-xs text-gray-700">
+                          <span className="font-medium mr-1">{social.platform}:</span> {social.handle}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </section>
         
