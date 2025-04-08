@@ -123,9 +123,8 @@ export default function ClientForm() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} placeholder="Full Name" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -137,11 +136,10 @@ export default function ClientForm() {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cell Phone</FormLabel>
                   <FormControl>
                     <Input 
                       {...field} 
-                      placeholder="(XXX) XXX-XXXX" 
+                      placeholder="Cell Phone" 
                       onChange={(e) => {
                         const formatted = formatPhoneNumber(e.target.value);
                         field.onChange(formatted);
@@ -158,9 +156,8 @@ export default function ClientForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input {...field} type="email" />
+                    <Input {...field} type="email" placeholder="Email" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -172,7 +169,7 @@ export default function ClientForm() {
               name="isCurrentClient"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Are you a current client?</FormLabel>
+                  <div className="text-sm mb-1">Are you a current client?</div>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -183,13 +180,13 @@ export default function ClientForm() {
                         <FormControl>
                           <RadioGroupItem value="yes" />
                         </FormControl>
-                        <FormLabel className="font-normal">Yes</FormLabel>
+                        <FormLabel className="font-normal text-sm">Yes</FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
                           <RadioGroupItem value="no" />
                         </FormControl>
-                        <FormLabel className="font-normal">No</FormLabel>
+                        <FormLabel className="font-normal text-sm">No</FormLabel>
                       </FormItem>
                     </RadioGroup>
                   </FormControl>
@@ -203,9 +200,8 @@ export default function ClientForm() {
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes (Optional)</FormLabel>
                   <FormControl>
-                    <Textarea {...field} rows={3} />
+                    <Textarea {...field} rows={3} placeholder="Notes (Optional)" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -217,8 +213,8 @@ export default function ClientForm() {
               name="favoriteServices"
               render={() => (
                 <FormItem>
-                  <FormLabel className="block text-sm font-medium text-gray-700 mb-3">My Favorite Services</FormLabel>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="text-sm mb-1">My Favorite Services</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {services.map((service) => (
                       <FormField
                         key={service}
@@ -228,7 +224,7 @@ export default function ClientForm() {
                           return (
                             <FormItem
                               key={service}
-                              className="service-option flex items-center p-3 border border-gray-200 rounded-lg hover:border-[#FF92A5] cursor-pointer transition-colors"
+                              className="service-option flex items-center p-2 border border-gray-200 rounded-lg hover:border-[#FF92A5] cursor-pointer transition-colors"
                               onClick={() => {
                                 const currentValue = field.value || [];
                                 const newValue = currentValue.includes(service)
@@ -250,9 +246,9 @@ export default function ClientForm() {
                                   className="mr-2"
                                 />
                               </FormControl>
-                              <FormLabel className="text-sm text-gray-700 cursor-pointer flex-grow">
+                              <span className="text-xs text-gray-700 cursor-pointer flex-grow">
                                 {service}
-                              </FormLabel>
+                              </span>
                             </FormItem>
                           );
                         }}
