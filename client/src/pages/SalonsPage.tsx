@@ -99,8 +99,8 @@ export default function SalonsPage() {
                   {/* Expandable content - conditionally visible */}
                   {expandedCards[salon.id] && (
                     <>
-                      {/* Email and social media */}
-                      <div className="flex flex-wrap items-center gap-2 text-xs mt-2 border-t border-pink-100 pt-1">
+                      {/* Email and social media - centered */}
+                      <div className="flex flex-wrap justify-center items-center gap-2 text-xs mt-2 border-t border-pink-100 pt-1">
                         <span>{salon.email}</span>
                         
                         {salon.socialMedia && Array.isArray(salon.socialMedia) && salon.socialMedia.length > 0 && (
