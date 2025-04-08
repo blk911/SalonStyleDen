@@ -1,0 +1,354 @@
+import { useQuery } from "@tanstack/react-query";
+import { useParams, useLocation } from "wouter";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { useEffect } from "react";
+
+// Define a type for social media
+interface SocialMediaItem {
+  platform: string;
+  handle: string;
+}
+
+// Define service type
+interface Service {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  duration: number; // in minutes
+  featured: boolean;
+}
+
+// Define promo type
+interface Promo {
+  id: number;
+  title: string;
+  description: string;
+  endDate: string | null; // null means ongoing
+}
+
+// Define our salon type for the public page
+interface SalonType {
+  id: number;
+  name: string;
+  ownerName: string;
+  phone: string;
+  email: string;
+  socialMedia?: SocialMediaItem[] | null;
+  type: string;
+  createdAt: string;
+  // These would come from additional queries or be added to the salon object
+  services?: Service[];
+  promos?: Promo[];
+}
+
+export default function SalonPublicPage() {
+  const { id } = useParams();
+  const [, setLocation] = useLocation();
+  
+  // Enhanced query configuration with proper query key structure and error handling
+  const { 
+    data: salon, 
+    isLoading, 
+    error 
+  } = useQuery<SalonType>({
+    queryKey: ['/api/salons', id],
+    queryFn: async () => {
+      try {
+        if (!id) throw new Error("No salon ID provided");
+        
+        const response = await fetch(`/api/salons/${id}`);
+        if (!response.ok) {
+          throw new Error(`Error fetching salon: ${response.status}`);
+        }
+        
+        const salonData = await response.json();
+        
+        // For now, we'll mock services and promos
+        // These would be actual API calls in production
+        const mockServices: Service[] = [
+          {
+            id: 1,
+            name: "Classic Manicure",
+            description: "Nail shaping, cuticle care, hand massage, and polish application",
+            price: 30,
+            duration: 45,
+            featured: true
+          },
+          {
+            id: 2,
+            name: "Chic French Tips",
+            description: "Classic French manicure with elegant white tips",
+            price: 35,
+            duration: 50,
+            featured: false
+          },
+          {
+            id: 3,
+            name: "Luxe Gel Manicure",
+            description: "Long-lasting gel polish with nail prep and cuticle care",
+            price: 45,
+            duration: 60,
+            featured: true
+          }
+        ];
+        
+        const mockPromos: Promo[] = [
+          {
+            id: 1,
+            title: "Summer Special",
+            description: "20% off all manicures",
+            endDate: "2025-07-31"
+          },
+          {
+            id: 2,
+            title: "New Client Offer",
+            description: "Free nail art with any service",
+            endDate: null
+          },
+          {
+            id: 3,
+            title: "Bring a Friend",
+            description: "25% off for you and a friend",
+            endDate: "2025-08-15"
+          }
+        ];
+        
+        // Add mock data to salon object
+        // In production, these would come from real API calls
+        return {
+          ...salonData,
+          services: mockServices,
+          promos: mockPromos
+        };
+      } catch (err) {
+        console.error("Error fetching salon data:", err);
+        throw err;
+      }
+    },
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    staleTime: 30000, // Consider data fresh for 30 seconds
+    enabled: !!id, // Only run the query if we have an ID
+  });
+  
+  // Auto-redirect if no ID is provided
+  useEffect(() => {
+    if (!id) {
+      setLocation('/salons');
+    }
+  }, [id, setLocation]);
+  
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center text-sm">
+            <p>Loading...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+  
+  if (error || !salon) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-grow flex items-center justify-center">
+          <Card className="w-full max-w-sm mx-2 shadow-sm">
+            <CardContent className="p-2">
+              <h2 className="text-sm font-bold text-red-500">Error</h2>
+              <p className="text-xs mt-1">There was a problem loading this salon. Please try again later.</p>
+            </CardContent>
+          </Card>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-grow">
+        {/* Hero section with salon name and basic info */}
+        <section className="bg-[#FEE1E8] py-3">
+          <div className="container mx-auto px-2">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+              <div>
+                <h1 className="font-bold text-xl leading-tight">{salon.name}</h1>
+                <p className="text-gray-700 text-sm">
+                  <span className="font-medium">Owner:</span> {salon.ownerName}
+                </p>
+              </div>
+              <div className="bg-white rounded px-2 py-1 shadow-sm text-xs w-full sm:w-auto">
+                <div className="content-section">
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-pink-500 mr-1 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                    </svg>
+                    <span className="truncate">{salon.phone}</span>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-pink-500 mr-1 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                    </svg>
+                    <span className="truncate">{salon.email}</span>
+                  </div>
+                </div>
+                
+                {salon.socialMedia && Array.isArray(salon.socialMedia) && salon.socialMedia.length > 0 && (
+                  <div className="content-section vspace-xs border-t border-gray-100 pt-1">
+                    {salon.socialMedia.map((social) => (
+                      <Badge key={social.platform} variant="outline" className="text-mini py-0 px-1">
+                        {social.platform}: {social.handle}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Current Promotions */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <Card className="shadow-sm">
+              <CardContent className="p-2">
+                <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Current Promotions</h2>
+                
+                <div className="grid-cols-responsive">
+                  {salon.promos && salon.promos.map((promo) => (
+                    <div key={promo.id} className="border border-pink-100 rounded overflow-hidden shadow-sm">
+                      <div className="bg-[#FEE1E8] h-16 flex items-center justify-center">
+                        <span className="font-medium text-compact text-center px-1">{promo.title}</span>
+                      </div>
+                      <div className="card-content">
+                        <p className="text-mini text-gray-600">{promo.description}</p>
+                        <div className="flex justify-end items-center vspace-xs">
+                          <span className="text-micro">
+                            {promo.endDate ? `Ends: ${new Date(promo.endDate).toLocaleDateString()}` : 'Ongoing'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+        
+        {/* Services List */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <Card className="shadow-sm">
+              <CardContent className="p-2">
+                <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Our Services</h2>
+                
+                <div className="flex flex-col gap-2">
+                  {salon.services && salon.services.map((service) => (
+                    <div 
+                      key={service.id} 
+                      className={`border rounded p-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-medium text-compact">{service.name}</h3>
+                          <p className="text-mini text-gray-600">{service.description}</p>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-bold text-compact">${service.price}</span>
+                          <p className="text-micro">{service.duration} min</p>
+                        </div>
+                      </div>
+                      
+                      {service.featured && (
+                        <Badge className="mt-1 bg-[#FF92A5] text-white border-0 text-mini">
+                          Featured
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="button-container vspace-sm">
+                  <Button 
+                    className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs"
+                  >
+                    Book Appointment
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+        
+        {/* Business Hours - Placeholder for now */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <Card className="shadow-sm">
+              <CardContent className="p-2">
+                <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Business Hours</h2>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1 text-mini">
+                  <div className="border rounded p-1">
+                    <p className="font-medium">Monday</p>
+                    <p>9:00 AM - 5:00 PM</p>
+                  </div>
+                  <div className="border rounded p-1">
+                    <p className="font-medium">Tuesday</p>
+                    <p>9:00 AM - 5:00 PM</p>
+                  </div>
+                  <div className="border rounded p-1">
+                    <p className="font-medium">Wednesday</p>
+                    <p>9:00 AM - 5:00 PM</p>
+                  </div>
+                  <div className="border rounded p-1">
+                    <p className="font-medium">Thursday</p>
+                    <p>9:00 AM - 5:00 PM</p>
+                  </div>
+                  <div className="border rounded p-1">
+                    <p className="font-medium">Friday</p>
+                    <p>9:00 AM - 5:00 PM</p>
+                  </div>
+                  <div className="border rounded p-1">
+                    <p className="font-medium">Saturday</p>
+                    <p>10:00 AM - 4:00 PM</p>
+                  </div>
+                  <div className="border rounded p-1">
+                    <p className="font-medium">Sunday</p>
+                    <p>Closed</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+        
+        {/* CTA Section */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <div className="bg-[#FEE1E8] rounded p-3 text-center">
+              <h2 className="font-bold text-sm mb-2">Ready to look gorgeous?</h2>
+              <p className="text-mini mb-2">Book your appointment at {salon.name} today!</p>
+              <Button className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white">Book Now</Button>
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  );
+}

@@ -1,9 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
+import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
+import WeeklySchedule, { DaySchedule } from "@/components/dashboard/WeeklySchedule";
+import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSalonInfo";
+import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
+import EditableService, { ServiceData } from "@/components/dashboard/EditableService";
 
 // Define a type for the social media object that might be in the API response
 interface SocialMediaItem {
@@ -26,6 +32,117 @@ interface SalonType {
 export default function SalonDashboard() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
+  
+  // States for services, promos, and schedule
+  const [services, setServices] = useState<ServiceData[]>([
+    {
+      id: 1,
+      name: "Classic Manicure",
+      description: "Nail shaping, cuticle care, hand massage, and polish application",
+      price: 30,
+      duration: 45,
+      featured: true
+    },
+    {
+      id: 2,
+      name: "Chic French Tips",
+      description: "Classic French manicure with elegant white tips",
+      price: 35,
+      duration: 50,
+      featured: false
+    },
+    {
+      id: 3,
+      name: "Luxe Gel Manicure",
+      description: "Long-lasting gel polish with nail prep and cuticle care",
+      price: 45,
+      duration: 60,
+      featured: true
+    }
+  ]);
+
+  const [promos, setPromos] = useState<PromoData[]>([
+    {
+      id: 1,
+      title: "Summer Special",
+      description: "20% off all manicures",
+      endDate: "2025-07-31"
+    },
+    {
+      id: 2,
+      title: "New Client Offer",
+      description: "Free nail art with any service",
+      endDate: null
+    },
+    {
+      id: 3,
+      title: "Bring a Friend",
+      description: "25% off for you and a friend",
+      endDate: "2025-08-15"
+    }
+  ]);
+
+  // State for adding new service/promo
+  const [isAddingService, setIsAddingService] = useState(false);
+  const [isAddingPromo, setIsAddingPromo] = useState(false);
+
+  // Weekly schedule state
+  const [weeklySchedule, setWeeklySchedule] = useState<DaySchedule[]>([
+    { dayOfWeek: 0, dayName: "Sunday", isOpen: false, openTime: "10:00", closeTime: "18:00" },
+    { dayOfWeek: 1, dayName: "Monday", isOpen: true, openTime: "09:00", closeTime: "17:00" },
+    { dayOfWeek: 2, dayName: "Tuesday", isOpen: true, openTime: "09:00", closeTime: "17:00" },
+    { dayOfWeek: 3, dayName: "Wednesday", isOpen: true, openTime: "09:00", closeTime: "17:00" },
+    { dayOfWeek: 4, dayName: "Thursday", isOpen: true, openTime: "09:00", closeTime: "17:00" },
+    { dayOfWeek: 5, dayName: "Friday", isOpen: true, openTime: "09:00", closeTime: "17:00" },
+    { dayOfWeek: 6, dayName: "Saturday", isOpen: true, openTime: "10:00", closeTime: "16:00" },
+  ]);
+  
+  // Handler functions for services, promos, and salon info
+  const handleSaveSalonInfo = (updatedSalon: SalonInfo) => {
+    // In a real app, this would be an API call
+    console.log("Saving salon info:", updatedSalon);
+    // For now, just refresh the data
+    refetch();
+  };
+
+  const handleSaveService = (updatedService: ServiceData) => {
+    setServices(prev => 
+      prev.map(service => service.id === updatedService.id ? updatedService : service)
+    );
+  };
+
+  const handleAddService = (newService: ServiceData) => {
+    // In a real app, this would be an API call that returns the new ID
+    const newId = Math.max(...services.map(s => s.id), 0) + 1;
+    setServices(prev => [...prev, { ...newService, id: newId }]);
+    setIsAddingService(false);
+  };
+
+  const handleDeleteService = (id: number) => {
+    setServices(prev => prev.filter(service => service.id !== id));
+  };
+
+  const handleSavePromo = (updatedPromo: PromoData) => {
+    setPromos(prev => 
+      prev.map(promo => promo.id === updatedPromo.id ? updatedPromo : promo)
+    );
+  };
+
+  const handleAddPromo = (newPromo: PromoData) => {
+    // In a real app, this would be an API call that returns the new ID
+    const newId = Math.max(...promos.map(p => p.id), 0) + 1;
+    setPromos(prev => [...prev, { ...newPromo, id: newId }]);
+    setIsAddingPromo(false);
+  };
+
+  const handleDeletePromo = (id: number) => {
+    setPromos(prev => prev.filter(promo => promo.id !== id));
+  };
+
+  const handleSaveSchedule = () => {
+    // In a real app, this would be an API call
+    console.log("Saving schedule:", weeklySchedule);
+  };
   
   // Enhanced query configuration with proper query key structure and error handling
   const { 
@@ -133,127 +250,136 @@ export default function SalonDashboard() {
           </div>
         </section>
         
-        {/* Condensed Content Section */}
+        {/* Salon Info Section with Editable Component */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <EditableSalonInfo
+              salon={salon}
+              onSave={handleSaveSalonInfo}
+            />
+          </div>
+        </section>
+        
+        {/* Weekly Schedule Section */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <WeeklySchedule
+              salonId={salon.id}
+              initialSchedule={weeklySchedule}
+              onScheduleSaved={handleSaveSchedule}
+            />
+          </div>
+        </section>
+        
+        {/* Services Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
             <Card className="rounded shadow-sm">
               <CardContent className="p-2">
-                <div className="text-sm">
-                  <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center">
-                    <h3 className="font-medium text-sm">Salon Dashboard</h3>
-                    <span className="text-[10px] text-gray-500">Registered {new Date(salon.createdAt).toLocaleDateString()}</span>
-                  </div>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-medium text-sm">Services</h3>
+                  <Button 
+                    size="sm" 
+                    className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-xs h-7 px-2"
+                    onClick={() => setIsAddingService(true)}
+                  >
+                    + Add Service
+                  </Button>
+                </div>
+                
+                <div className="space-y-2">
+                  {/* Add new service form */}
+                  {isAddingService && (
+                    <EditableService
+                      service={{
+                        id: 0,
+                        name: "",
+                        description: "",
+                        price: 0,
+                        duration: 30,
+                        featured: false
+                      }}
+                      onSave={handleAddService}
+                      onDelete={() => setIsAddingService(false)}
+                    />
+                  )}
                   
-                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 text-xs mt-2">
-                    <div className="bg-[#FEE1E8] p-1 rounded">
-                      <h4 className="font-medium text-xs">Quick Actions</h4>
-                      <ul className="text-[10px] space-y-0 mt-1">
-                        <li>▸ Update profile</li>
-                        <li>▸ Add services</li>
-                        <li>▸ Set availability</li>
-                      </ul>
-                    </div>
-                    
-                    <div className="bg-gray-50 p-1 rounded">
-                      <h4 className="font-medium text-xs">Stats</h4>
-                      <ul className="text-[10px] space-y-0 mt-1">
-                        <li>▸ 0 bookings</li>
-                        <li>▸ 0 reviews</li>
-                        <li>▸ Profile 25% complete</li>
-                      </ul>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-2 border-t border-gray-100 pt-1">
-                    <h4 className="text-xs font-medium">Salon Details</h4>
-                    <div className="grid grid-cols-1 xs:grid-cols-2 gap-x-2 gap-y-1 mt-1 text-[10px]">
-                      <div><span className="font-medium">Name:</span> {salon.name}</div>
-                      <div><span className="font-medium">Owner:</span> {salon.ownerName}</div>
-                      <div><span className="font-medium">Phone:</span> {salon.phone}</div>
-                      <div><span className="font-medium">Email:</span> {salon.email}</div>
-                    </div>
-                    
-                    {salon.socialMedia && Array.isArray(salon.socialMedia) && salon.socialMedia.length > 0 && (
-                      <div className="mt-1">
-                        <span className="text-[10px] font-medium">Social:</span>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {salon.socialMedia.map((social: SocialMediaItem) => (
-                            <span 
-                              key={social.platform} 
-                              className="inline-flex items-center px-1 py-0 rounded text-[10px] bg-gray-100"
-                            >
-                              {social.platform}: {social.handle}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  {/* Existing services */}
+                  {services.map(service => (
+                    <EditableService
+                      key={service.id}
+                      service={service}
+                      onSave={handleSaveService}
+                      onDelete={handleDeleteService}
+                    />
+                  ))}
                 </div>
               </CardContent>
             </Card>
           </div>
         </section>
         
-        {/* Promotions Section - Three Column Layout */}
+        {/* Promotions Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
             <Card className="rounded shadow-sm">
               <CardContent className="p-2">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium text-sm">Current Promotions</h3>
-                  <button className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-[10px] px-2 py-0.5 rounded-sm">
+                  <Button 
+                    size="sm" 
+                    className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-xs h-7 px-2"
+                    onClick={() => setIsAddingPromo(true)}
+                  >
                     + Add Promo
-                  </button>
+                  </Button>
                 </div>
                 
-                {/* Three Column Promo Grid */}
+                {/* Add new promo form */}
+                {isAddingPromo && (
+                  <div className="mb-3">
+                    <EditablePromo
+                      promo={{
+                        id: 0,
+                        title: "",
+                        description: "",
+                        endDate: null
+                      }}
+                      onSave={handleAddPromo}
+                      onDelete={() => setIsAddingPromo(false)}
+                    />
+                  </div>
+                )}
+                
+                {/* Promo Grid */}
                 <div className="grid-cols-responsive">
-                  {/* Promo Placeholder 1 */}
-                  <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-48">
-                    <div className="bg-[#FEE1E8] h-24 flex items-center justify-center">
-                      <span className="text-mini text-pink-700">Promo Image</span>
-                    </div>
-                    <div className="card-content">
-                      <h4 className="font-medium text-compact">Summer Special</h4>
-                      <p className="text-mini text-gray-600">20% off all manicures</p>
-                      <div className="flex justify-between items-center vspace-xs">
-                        <span className="text-micro">Ends: 7/31/25</span>
-                        <button className="text-micro text-pink-500 hover:text-pink-700">Edit</button>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Promo Placeholder 2 */}
-                  <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-48">
-                    <div className="bg-[#FEE1E8] h-24 flex items-center justify-center">
-                      <span className="text-mini text-pink-700">Promo Image</span>
-                    </div>
-                    <div className="card-content">
-                      <h4 className="font-medium text-compact">New Client Offer</h4>
-                      <p className="text-mini text-gray-600">Free nail art with any service</p>
-                      <div className="flex justify-between items-center vspace-xs">
-                        <span className="text-micro">Ongoing</span>
-                        <button className="text-micro text-pink-500 hover:text-pink-700">Edit</button>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Promo Placeholder 3 */}
-                  <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-48">
-                    <div className="bg-[#FEE1E8] h-24 flex items-center justify-center">
-                      <span className="text-mini text-pink-700">Promo Image</span>
-                    </div>
-                    <div className="card-content">
-                      <h4 className="font-medium text-compact">Bring a Friend</h4>
-                      <p className="text-mini text-gray-600">25% off for you and a friend</p>
-                      <div className="flex justify-between items-center vspace-xs">
-                        <span className="text-micro">Ends: 8/15/25</span>
-                        <button className="text-micro text-pink-500 hover:text-pink-700">Edit</button>
-                      </div>
-                    </div>
-                  </div>
+                  {promos.map(promo => (
+                    <EditablePromo
+                      key={promo.id}
+                      promo={promo}
+                      onSave={handleSavePromo}
+                      onDelete={handleDeletePromo}
+                    />
+                  ))}
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+        
+        {/* Public Page Preview Section */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <Card className="rounded shadow-sm">
+              <CardContent className="p-2 text-center">
+                <h3 className="font-medium text-sm mb-2">Preview Your Public Page</h3>
+                <p className="text-xs mb-2">See how clients will view your salon's information, services, and promotions.</p>
+                <Button 
+                  className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-xs"
+                  onClick={() => window.open(`/salon/${salon.id}`, '_blank')}
+                >
+                  View Public Page
+                </Button>
               </CardContent>
             </Card>
           </div>
