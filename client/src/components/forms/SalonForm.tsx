@@ -129,9 +129,8 @@ export default function SalonForm() {
               name="salonName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Salon Name</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} placeholder="Salon Name" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -143,9 +142,8 @@ export default function SalonForm() {
               name="ownerName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Owner Name</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} placeholder="Owner Name" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -157,11 +155,10 @@ export default function SalonForm() {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cell Phone</FormLabel>
                   <FormControl>
                     <Input 
                       {...field} 
-                      placeholder="(XXX) XXX-XXXX" 
+                      placeholder="Cell Phone" 
                       onChange={(e) => {
                         const formatted = formatPhoneNumber(e.target.value);
                         field.onChange(formatted);
@@ -178,9 +175,8 @@ export default function SalonForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input {...field} type="email" />
+                    <Input {...field} type="email" placeholder="Email" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
