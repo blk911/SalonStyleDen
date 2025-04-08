@@ -114,6 +114,44 @@ export default function SalonsPage() {
                         )}
                       </div>
                       
+                      {/* Promo placeholder container - 3 columns */}
+                      <div className="mt-2 border-t border-pink-100 pt-2">
+                        <div className="grid grid-cols-1 xs:grid-cols-3 gap-2">
+                          {/* Promo 1 */}
+                          <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-[100px]">
+                            <div className="bg-[#FEE1E8] h-12 flex items-center justify-center">
+                              <span className="text-[9px] text-pink-700">Promo Image</span>
+                            </div>
+                            <div className="p-1">
+                              <h5 className="font-medium text-[10px]">Summer Special</h5>
+                              <p className="text-[8px] text-gray-600">20% off manicures</p>
+                            </div>
+                          </div>
+                          
+                          {/* Promo 2 */}
+                          <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-[100px]">
+                            <div className="bg-[#FEE1E8] h-12 flex items-center justify-center">
+                              <span className="text-[9px] text-pink-700">Promo Image</span>
+                            </div>
+                            <div className="p-1">
+                              <h5 className="font-medium text-[10px]">New Clients</h5>
+                              <p className="text-[8px] text-gray-600">Free nail art</p>
+                            </div>
+                          </div>
+                          
+                          {/* Promo 3 */}
+                          <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-[100px]">
+                            <div className="bg-[#FEE1E8] h-12 flex items-center justify-center">
+                              <span className="text-[9px] text-pink-700">Promo Image</span>
+                            </div>
+                            <div className="p-1">
+                              <h5 className="font-medium text-[10px]">Friends Deal</h5>
+                              <p className="text-[8px] text-gray-600">25% off for 2+</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
                       {/* View salon button */}
                       <div className="mt-2 text-center">
                         <Link href={`/salon/${salon.id}`}>
