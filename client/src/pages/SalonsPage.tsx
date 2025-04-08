@@ -74,11 +74,19 @@ export default function SalonsPage() {
                 className="border-b border-gray-200 py-2 first:pt-0 last:border-b-0"
               >
                 <div className="cursor-pointer" onClick={() => toggleCard(salon.id)}>
-                  {/* Header section - always visible */}
-                  <div className="flex justify-between w-full">
-                    <h3 className="font-bold text-base leading-tight text-[#FF92A5]">{salon.name}</h3>
+                  {/* Header section - always visible with salon name, owner, and phone on the same line */}
+                  <div className="flex flex-wrap items-center justify-between w-full">
+                    <div className="flex flex-1 items-center gap-2 overflow-hidden">
+                      <h3 className="font-bold text-base leading-tight text-[#FF92A5] truncate">{salon.name}</h3>
+                      <div className="flex items-center text-xs text-gray-600 whitespace-nowrap">
+                        <span className="mx-1 text-gray-300">|</span>
+                        <span className="mr-1">{salon.ownerName}</span> 
+                        <span className="mr-1">•</span>
+                        <span className="truncate">{salon.phone}</span>
+                      </div>
+                    </div>
                     <button 
-                      className="text-[10px] text-gray-400 hover:text-gray-600 w-8 text-center" 
+                      className="text-[10px] text-gray-400 hover:text-gray-600 w-8 text-center ml-1" 
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleCard(salon.id);
@@ -86,13 +94,6 @@ export default function SalonsPage() {
                     >
                       {expandedCards[salon.id] ? '▲ hide' : '▼ show'}
                     </button>
-                  </div>
-                  
-                  {/* Owner and phone - always visible */}
-                  <div className="flex items-center text-xs text-gray-600 mt-1">
-                    <span className="mr-1">{salon.ownerName}</span> 
-                    <span className="mr-1">•</span>
-                    <span className="truncate">{salon.phone}</span>
                   </div>
                   
                   {/* Expandable content - conditionally visible */}
