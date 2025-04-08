@@ -28,75 +28,72 @@ export default function SalonsPage() {
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="flex-1">
-        <div className="container mx-auto px-2 py-4">
-          <h1 className="text-2xl font-bold mb-2 text-center text-[#FF92A5]">Den Be Baby! Salons</h1>
-          <Separator className="my-2" />
+        <div className="container mx-auto px-2 py-2">
+          <h1 className="text-xl font-bold mb-1 text-center text-[#FF92A5]">Den Be Baby! Salons</h1>
+          <Separator className="my-1" />
           
           {isLoading && (
-            <div className="flex justify-center items-center h-32">
+            <div className="flex justify-center items-center h-16 text-sm">
               <p className="text-gray-500">Loading salons...</p>
             </div>
           )}
           
           {error && (
-            <div className="flex justify-center items-center h-32">
+            <div className="flex justify-center items-center h-16 text-sm">
               <p className="text-red-500">Error loading salons. Please try again later.</p>
             </div>
           )}
           
           {salons && salons.length === 0 && (
-            <div className="flex justify-center items-center h-32">
+            <div className="flex justify-center items-center h-16 text-sm">
               <p className="text-gray-500">No salons available at the moment. Check back soon!</p>
             </div>
           )}
           
-          <div className="flex flex-col space-y-2 mt-2">
+          <div className="flex flex-col space-y-1 mt-2">
             {salons?.map((salon) => (
-              <Card key={salon.id} className="overflow-hidden hover:shadow-sm transition-shadow border border-gray-200">
-                <CardContent className="p-3">
-                  <div 
-                    className="flex justify-between items-center cursor-pointer" 
-                    onClick={() => toggleCard(salon.id)}
-                  >
-                    <div>
-                      <h3 className="font-bold text-lg">{salon.name}</h3>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <span className="mr-1">{salon.ownerName}</span> • 
-                        <span className="ml-1">{salon.phone}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200 mr-2">
-                        Salon
-                      </Badge>
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        width="16" 
-                        height="16" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        className={`transition-transform ${expandedCards[salon.id] ? 'rotate-180' : ''}`}
-                      >
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                      </svg>
+              <div 
+                key={salon.id} 
+                className="border-b border-gray-200 py-2 first:pt-0 last:border-b-0"
+              >
+                <div className="flex justify-between items-center">
+                  <div className="flex-grow cursor-pointer" onClick={() => toggleCard(salon.id)}>
+                    <h3 className="font-bold text-base leading-tight text-[#FF92A5]">{salon.name}</h3>
+                    <div className="flex items-center text-xs text-gray-600">
+                      <span>{salon.ownerName}</span> 
+                      <span className="mx-1">•</span>
+                      <span>{salon.phone}</span>
                     </div>
                   </div>
-                  
-                  {/* Expandable section */}
-                  {expandedCards[salon.id] && (
-                    <div className="mt-2 pt-2 border-t border-gray-100">
-                      <p className="text-sm mb-1"><span className="font-medium">Email:</span> {salon.email}</p>
-                      
+                  <div className="flex items-center gap-2">
+                    <Badge 
+                      variant="outline" 
+                      className="bg-[#FF92A5] text-white border-[#FF92A5] text-xs px-2 py-0 h-5 cursor-pointer hover:bg-[#ff7a92]"
+                      onClick={() => toggleCard(salon.id)}
+                    >
+                      VIEW
+                    </Badge>
+                    <button 
+                      className="text-[10px] text-gray-400 hover:text-gray-600 w-8 text-center" 
+                      onClick={() => toggleCard(salon.id)}
+                    >
+                      {expandedCards[salon.id] ? '▲ hide' : '▼ show'}
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Expandable section */}
+                {expandedCards[salon.id] && (
+                  <div className="mt-1 pl-2 border-l-2 border-pink-100 ml-1">
+                    <div className="grid grid-cols-1 gap-1 text-xs">
+                      <p><span className="font-medium text-gray-600">Email:</span> {salon.email}</p>
+                      <p><span className="font-medium text-gray-600">Type:</span> {salon.type}</p>
                       {salon.socialMedia && salon.socialMedia.length > 0 && (
-                        <div className="mt-2">
-                          <h4 className="text-xs font-semibold mb-1">Social Media</h4>
+                        <div>
+                          <p className="font-medium text-gray-600 mt-1 mb-0.5">Social Media:</p>
                           <div className="flex flex-wrap gap-1">
                             {Array.isArray(salon.socialMedia) && salon.socialMedia.map((item: any, index: number) => (
-                              <Badge key={index} variant="secondary" className="text-xs py-0 px-1">
+                              <Badge key={index} variant="outline" className="text-[10px] py-0 px-1 bg-white border-pink-200 text-pink-700">
                                 {item.platform}: {item.handle}
                               </Badge>
                             ))}
@@ -104,17 +101,16 @@ export default function SalonsPage() {
                         </div>
                       )}
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
           
-          <div className="mt-6 text-center">
-            <h2 className="text-lg font-semibold mb-2">Are you a salon owner?</h2>
-            <p className="mb-3 text-sm">Join our network of professional salons and reach more clients.</p>
+          <div className="mt-3 mb-2 text-center">
+            <p className="text-xs mb-2">Join our network of professional salons today!</p>
             <Link href="/">
-              <a className="inline-block px-4 py-2 bg-[#FF92A5] text-white rounded-md hover:bg-[#ff7a92] transition-colors text-sm">
+              <a className="inline-block px-3 py-1 bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92] transition-colors text-xs">
                 Register Your Salon
               </a>
             </Link>
