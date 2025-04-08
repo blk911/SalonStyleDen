@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { type Salon } from "@shared/schema";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import { Separator } from "@/components/ui/separator";
@@ -8,8 +7,26 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { useState } from "react";
 
+// Define social media item interface
+interface SocialMediaItem {
+  platform: string;
+  handle: string;
+}
+
+// Define our own Salon type for the frontend
+interface SalonType {
+  id: number;
+  name: string;
+  ownerName: string;
+  phone: string;
+  email: string;
+  socialMedia?: SocialMediaItem[] | null;
+  type: string;
+  createdAt: string;
+}
+
 export default function SalonsPage() {
-  const { data: salons, isLoading, error } = useQuery<Salon[]>({
+  const { data: salons, isLoading, error } = useQuery<SalonType[]>({
     queryKey: ["/api/salons"],
   });
   
@@ -56,16 +73,16 @@ export default function SalonsPage() {
                 key={salon.id} 
                 className="border-b border-gray-200 py-2 first:pt-0 last:border-b-0"
               >
-                <div className="flex justify-between items-center">
-                  <div className="flex-grow cursor-pointer" onClick={() => toggleCard(salon.id)}>
+                <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-1">
+                  <div className="flex-grow cursor-pointer w-full" onClick={() => toggleCard(salon.id)}>
                     <h3 className="font-bold text-base leading-tight text-[#FF92A5]">{salon.name}</h3>
-                    <div className="flex items-center text-xs text-gray-600">
-                      <span>{salon.ownerName}</span> 
-                      <span className="mx-1">•</span>
-                      <span>{salon.phone}</span>
+                    <div className="flex flex-wrap items-center text-xs text-gray-600">
+                      <span className="mr-1">{salon.ownerName}</span> 
+                      <span className="mr-1">•</span>
+                      <span className="truncate">{salon.phone}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 self-end xs:self-auto">
                     <Badge 
                       variant="outline" 
                       className="bg-[#FF92A5] text-white border-[#FF92A5] text-xs px-2 py-0 h-5 cursor-pointer hover:bg-[#ff7a92]"
@@ -88,11 +105,11 @@ export default function SalonsPage() {
                     <div className="grid grid-cols-1 gap-1 text-xs">
                       <p><span className="font-medium text-gray-600">Email:</span> {salon.email}</p>
                       <p><span className="font-medium text-gray-600">Type:</span> {salon.type}</p>
-                      {salon.socialMedia && salon.socialMedia.length > 0 && (
+                      {salon.socialMedia && Array.isArray(salon.socialMedia) && salon.socialMedia.length > 0 && (
                         <div>
                           <p className="font-medium text-gray-600 mt-1 mb-0.5">Social Media:</p>
                           <div className="flex flex-wrap gap-1">
-                            {Array.isArray(salon.socialMedia) && salon.socialMedia.map((item: any, index: number) => (
+                            {salon.socialMedia.map((item, index) => (
                               <Badge key={index} variant="outline" className="text-[10px] py-0 px-1 bg-white border-pink-200 text-pink-700">
                                 {item.platform}: {item.handle}
                               </Badge>
