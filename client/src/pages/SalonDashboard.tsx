@@ -194,6 +194,70 @@ export default function SalonDashboard() {
             </Card>
           </div>
         </section>
+        
+        {/* Promotions Section - Three Column Layout */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <Card className="rounded shadow-sm">
+              <CardContent className="p-2">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-medium text-sm">Current Promotions</h3>
+                  <button className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-[10px] px-2 py-0.5 rounded-sm">
+                    + Add Promo
+                  </button>
+                </div>
+                
+                {/* Three Column Promo Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                  {/* Promo Placeholder 1 */}
+                  <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-48">
+                    <div className="bg-[#FEE1E8] h-24 flex items-center justify-center">
+                      <span className="text-[10px] text-pink-700">Promo Image</span>
+                    </div>
+                    <div className="p-1">
+                      <h4 className="font-medium text-xs">Summer Special</h4>
+                      <p className="text-[10px] text-gray-600">20% off all manicures</p>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-[9px] text-gray-500">Ends: 7/31/25</span>
+                        <button className="text-[9px] text-pink-500 hover:text-pink-700">Edit</button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Promo Placeholder 2 */}
+                  <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-48">
+                    <div className="bg-[#FEE1E8] h-24 flex items-center justify-center">
+                      <span className="text-[10px] text-pink-700">Promo Image</span>
+                    </div>
+                    <div className="p-1">
+                      <h4 className="font-medium text-xs">New Client Offer</h4>
+                      <p className="text-[10px] text-gray-600">Free nail art with any service</p>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-[9px] text-gray-500">Ongoing</span>
+                        <button className="text-[9px] text-pink-500 hover:text-pink-700">Edit</button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Promo Placeholder 3 */}
+                  <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-48">
+                    <div className="bg-[#FEE1E8] h-24 flex items-center justify-center">
+                      <span className="text-[10px] text-pink-700">Promo Image</span>
+                    </div>
+                    <div className="p-1">
+                      <h4 className="font-medium text-xs">Bring a Friend</h4>
+                      <p className="text-[10px] text-gray-600">25% off for you and a friend</p>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-[9px] text-gray-500">Ends: 8/15/25</span>
+                        <button className="text-[9px] text-pink-500 hover:text-pink-700">Edit</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
       </main>
       <Footer />
     </div>
