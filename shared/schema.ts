@@ -1,12 +1,14 @@
-import { pgTable, text, serial, integer, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 
 // Basic user schema (common fields for salon and client)
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Salon schema
@@ -18,6 +20,7 @@ export const salons = pgTable("salons", {
   email: text("email").notNull(),
   socialMedia: jsonb("social_media"), // Stores array of {platform, handle}
   type: text("type").notNull().default("salon"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Client schema
@@ -30,7 +33,28 @@ export const clients = pgTable("clients", {
   notes: text("notes"),
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
   type: text("type").notNull().default("client"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
+
+// Define relations
+export const usersRelations = relations(users, ({ many }) => ({
+  salons: many(salons),
+  clients: many(clients),
+}));
+
+export const salonsRelations = relations(salons, ({ one }) => ({
+  user: one(users, {
+    fields: [salons.id],
+    references: [users.id],
+  }),
+}));
+
+export const clientsRelations = relations(clients, ({ one }) => ({
+  user: one(users, {
+    fields: [clients.id],
+    references: [users.id],
+  }),
+}));
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users);

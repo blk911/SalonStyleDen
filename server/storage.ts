@@ -3,6 +3,8 @@ import {
   salons, type Salon, type InsertSalon,
   clients, type Client, type InsertClient
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -21,86 +23,73 @@ export interface IStorage {
   getAllClients(): Promise<Client[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private salons: Map<number, Salon>;
-  private clients: Map<number, Client>;
-  private userCurrentId: number;
-  private salonCurrentId: number;
-  private clientCurrentId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.salons = new Map();
-    this.clients = new Map();
-    this.userCurrentId = 1;
-    this.salonCurrentId = 1;
-    this.clientCurrentId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   // User methods
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const results = await db.select().from(users).where(eq(users.id, id));
+    return results.length > 0 ? results[0] : undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const results = await db.select().from(users).where(eq(users.username, username));
+    return results.length > 0 ? results[0] : undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.userCurrentId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const result = await db.insert(users).values({
+      ...insertUser,
+      createdAt: new Date()
+    }).returning();
+    return result[0];
   }
-  
+
   // Salon methods
   async getSalon(id: number): Promise<Salon | undefined> {
-    return this.salons.get(id);
+    const results = await db.select().from(salons).where(eq(salons.id, id));
+    return results.length > 0 ? results[0] : undefined;
   }
-  
+
   async createSalon(insertSalon: InsertSalon): Promise<Salon> {
-    const id = this.salonCurrentId++;
-    // Ensure type is always set
-    const salon: Salon = { 
-      ...insertSalon, 
-      id,
+    // Ensure required fields are set
+    const salonData = {
+      ...insertSalon,
       type: "salon",
-      socialMedia: insertSalon.socialMedia || null
+      socialMedia: insertSalon.socialMedia || null,
+      createdAt: new Date()
     };
-    this.salons.set(id, salon);
-    return salon;
+    
+    const result = await db.insert(salons).values(salonData).returning();
+    return result[0];
   }
-  
+
   async getAllSalons(): Promise<Salon[]> {
-    return Array.from(this.salons.values());
+    return await db.select().from(salons);
   }
-  
+
   // Client methods
   async getClient(id: number): Promise<Client | undefined> {
-    return this.clients.get(id);
+    const results = await db.select().from(clients).where(eq(clients.id, id));
+    return results.length > 0 ? results[0] : undefined;
   }
-  
+
   async createClient(insertClient: InsertClient): Promise<Client> {
-    const id = this.clientCurrentId++;
-    // Ensure all required fields are set
-    const client: Client = { 
-      ...insertClient, 
-      id,
+    // Ensure required fields are set
+    const clientData = {
+      ...insertClient,
       type: "client",
       isCurrentClient: insertClient.isCurrentClient ?? false,
       notes: insertClient.notes || null,
-      favoriteServices: insertClient.favoriteServices || null
+      favoriteServices: insertClient.favoriteServices || null,
+      createdAt: new Date()
     };
-    this.clients.set(id, client);
-    return client;
+    
+    const result = await db.insert(clients).values(clientData).returning();
+    return result[0];
   }
-  
+
   async getAllClients(): Promise<Client[]> {
-    return Array.from(this.clients.values());
+    return await db.select().from(clients);
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
