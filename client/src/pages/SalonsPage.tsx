@@ -100,6 +100,12 @@ export default function SalonsPage() {
                           </div>
                         </div>
                       )}
+                      
+                      <Link href={`/salon/${salon.id}`}>
+                        <a className="mt-2 bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs py-1 px-2 rounded-sm inline-block">
+                          View {salon.name} BEN ME, BABY! PAGE
+                        </a>
+                      </Link>
                     </div>
                   </div>
                 )}
