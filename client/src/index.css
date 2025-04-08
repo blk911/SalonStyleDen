@@ -11,3 +11,36 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+/* Reduce padding site-wide */
+@layer components {
+  /* Reduce container paddings */
+  .container {
+    @apply px-2 py-2;
+  }
+  
+  /* Form specific padding reductions */
+  form {
+    @apply p-2;
+  }
+  
+  /* Input field padding adjustments */
+  input, select, textarea {
+    @apply px-2 py-1;
+  }
+  
+  /* Card and panel padding reductions */
+  .card, .form-container {
+    @apply p-2;
+  }
+  
+  /* Navigation components */
+  nav, header, footer {
+    @apply px-2 py-1;
+  }
+  
+  /* Button padding adjustment */
+  button {
+    @apply px-2 py-1;
+  }
+}
