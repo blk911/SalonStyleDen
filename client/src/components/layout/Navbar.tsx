@@ -23,9 +23,14 @@ export default function Navbar() {
             <Link href="/">
               <a className="px-3 py-2 text-sm font-medium hover:text-[#FF92A5]">Home</a>
             </Link>
+            <Link href="/salons">
+              <a className="px-3 py-2 text-sm font-medium hover:text-[#FF92A5]">Salons</a>
+            </Link>
+            <Link href="/promos">
+              <a className="px-3 py-2 text-sm font-medium hover:text-[#FF92A5]">VMB Promos</a>
+            </Link>
             <a href="#" className="px-3 py-2 text-sm font-medium hover:text-[#FF92A5]">Services</a>
             <a href="#" className="px-3 py-2 text-sm font-medium hover:text-[#FF92A5]">About</a>
-            <a href="#" className="px-3 py-2 text-sm font-medium hover:text-[#FF92A5]">Contact</a>
           </div>
           <div className="flex items-center sm:hidden">
             <button
@@ -46,9 +51,14 @@ export default function Navbar() {
           <Link href="/">
             <a className="block px-3 py-2 text-base font-medium hover:text-[#FF92A5]">Home</a>
           </Link>
+          <Link href="/salons">
+            <a className="block px-3 py-2 text-base font-medium hover:text-[#FF92A5]">Salons</a>
+          </Link>
+          <Link href="/promos">
+            <a className="block px-3 py-2 text-base font-medium hover:text-[#FF92A5]">VMB Promos</a>
+          </Link>
           <a href="#" className="block px-3 py-2 text-base font-medium hover:text-[#FF92A5]">Services</a>
           <a href="#" className="block px-3 py-2 text-base font-medium hover:text-[#FF92A5]">About</a>
-          <a href="#" className="block px-3 py-2 text-base font-medium hover:text-[#FF92A5]">Contact</a>
         </div>
       </div>
     </nav>
