@@ -73,7 +73,8 @@ export default function SalonsPage() {
                 key={salon.id} 
                 className="border-b border-gray-200 py-2 first:pt-0 last:border-b-0"
               >
-                <div className="flex flex-col gap-1 cursor-pointer" onClick={() => toggleCard(salon.id)}>
+                <div className="cursor-pointer" onClick={() => toggleCard(salon.id)}>
+                  {/* Header section - always visible */}
                   <div className="flex justify-between w-full">
                     <h3 className="font-bold text-base leading-tight text-[#FF92A5]">{salon.name}</h3>
                     <button 
@@ -86,39 +87,43 @@ export default function SalonsPage() {
                       {expandedCards[salon.id] ? '▲ hide' : '▼ show'}
                     </button>
                   </div>
-                  <div className="flex items-center text-xs text-gray-600">
+                  
+                  {/* Owner and phone - always visible */}
+                  <div className="flex items-center text-xs text-gray-600 mt-1">
                     <span className="mr-1">{salon.ownerName}</span> 
                     <span className="mr-1">•</span>
                     <span className="truncate">{salon.phone}</span>
                   </div>
-                </div>
-                
-                {/* Expandable section */}
-                {expandedCards[salon.id] && (
-                  <div className="mt-1 pl-2 border-l-2 border-pink-100 ml-1">
-                    <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <span>{salon.email}</span>
+                  
+                  {/* Expandable content - conditionally visible */}
+                  {expandedCards[salon.id] && (
+                    <>
+                      {/* Email and social media */}
+                      <div className="flex flex-wrap items-center gap-2 text-xs mt-2 border-t border-pink-100 pt-1">
+                        <span>{salon.email}</span>
+                        
+                        {salon.socialMedia && Array.isArray(salon.socialMedia) && salon.socialMedia.length > 0 && (
+                          <>
+                            {salon.socialMedia.map((item, index) => (
+                              <Badge key={index} variant="outline" className="text-[10px] py-0 px-1 bg-white border-pink-200 text-pink-700">
+                                {item.platform}: {item.handle}
+                              </Badge>
+                            ))}
+                          </>
+                        )}
+                      </div>
                       
-                      {salon.socialMedia && Array.isArray(salon.socialMedia) && salon.socialMedia.length > 0 && (
-                        <>
-                          {salon.socialMedia.map((item, index) => (
-                            <Badge key={index} variant="outline" className="text-[10px] py-0 px-1 bg-white border-pink-200 text-pink-700">
-                              {item.platform}: {item.handle}
-                            </Badge>
-                          ))}
-                        </>
-                      )}
-                    </div>
-                    
-                    <div className="mt-2 text-center">
-                      <Link href={`/salon/${salon.id}`}>
-                        <a className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs py-1 px-2 rounded-sm inline-block">
-                          View {salon.name} BEN ME, BABY! PAGE
-                        </a>
-                      </Link>
-                    </div>
-                  </div>
-                )}
+                      {/* View salon button */}
+                      <div className="mt-2 text-center">
+                        <Link href={`/salon/${salon.id}`}>
+                          <a className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs py-1 px-2 rounded-sm inline-block">
+                            View {salon.name} BEN ME, BABY! PAGE
+                          </a>
+                        </Link>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             ))}
           </div>
