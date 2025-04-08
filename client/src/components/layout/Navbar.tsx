@@ -10,35 +10,35 @@ export default function Navbar() {
   
   return (
     <nav className="bg-white shadow-soft">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+        <div className="flex justify-between h-14">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
-                <a className="font-playfair font-bold text-2xl text-[#FF92A5]">Den Be Baby!</a>
+                <a className="font-playfair font-bold text-xl text-[#FF92A5]">Den Be Baby!</a>
               </Link>
             </div>
           </div>
-          <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-8">
+          <div className="hidden sm:ml-4 sm:flex sm:items-center space-x-6">
             <Link href="/">
-              <a className="px-3 py-2 text-sm font-medium hover:text-[#FF92A5]">Home</a>
+              <a className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5]">Home</a>
             </Link>
             <Link href="/salons">
-              <a className="px-3 py-2 text-sm font-medium hover:text-[#FF92A5]">Salons</a>
+              <a className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5]">Salons</a>
             </Link>
             <Link href="/promos">
-              <a className="px-3 py-2 text-sm font-medium hover:text-[#FF92A5]">VMB Promos</a>
+              <a className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5]">VMB Promos</a>
             </Link>
-            <a href="#" className="px-3 py-2 text-sm font-medium hover:text-[#FF92A5]">Services</a>
-            <a href="#" className="px-3 py-2 text-sm font-medium hover:text-[#FF92A5]">About</a>
+            <a href="#" className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5]">Services</a>
+            <a href="#" className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5]">About</a>
           </div>
           <div className="flex items-center sm:hidden">
             <button
               type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-[#FF92A5] focus:outline-none"
+              className="inline-flex items-center justify-center p-1 rounded-md text-gray-700 hover:text-[#FF92A5] focus:outline-none"
               onClick={toggleMobileMenu}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
@@ -47,18 +47,18 @@ export default function Navbar() {
       </div>
       {/* Mobile menu */}
       <div className={`sm:hidden ${mobileMenuOpen ? "block" : "hidden"}`}>
-        <div className="px-2 pt-2 pb-3 space-y-1">
+        <div className="px-2 pt-1 pb-2 space-y-1">
           <Link href="/">
-            <a className="block px-3 py-2 text-base font-medium hover:text-[#FF92A5]">Home</a>
+            <a className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5]">Home</a>
           </Link>
           <Link href="/salons">
-            <a className="block px-3 py-2 text-base font-medium hover:text-[#FF92A5]">Salons</a>
+            <a className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5]">Salons</a>
           </Link>
           <Link href="/promos">
-            <a className="block px-3 py-2 text-base font-medium hover:text-[#FF92A5]">VMB Promos</a>
+            <a className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5]">VMB Promos</a>
           </Link>
-          <a href="#" className="block px-3 py-2 text-base font-medium hover:text-[#FF92A5]">Services</a>
-          <a href="#" className="block px-3 py-2 text-base font-medium hover:text-[#FF92A5]">About</a>
+          <a href="#" className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5]">Services</a>
+          <a href="#" className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5]">About</a>
         </div>
       </div>
     </nav>

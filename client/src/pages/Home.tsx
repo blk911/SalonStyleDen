@@ -30,8 +30,8 @@ export default function Home() {
           onSalonClick={showSalonForm} 
           onClientClick={showClientForm} 
         />
-        <section className="py-12 lg:py-16">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-4 lg:py-8">
+          <div className="max-w-3xl mx-auto px-2 sm:px-4 lg:px-6">
             {activeForm === "salon" && (
               <div id="salon-form-container">
                 <SalonForm />

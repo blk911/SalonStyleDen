@@ -99,15 +99,15 @@ export default function SalonDashboard() {
       <Navbar />
       <main className="flex-grow">
         {/* Hero Section for Slug Page */}
-        <section className="bg-[#FEE1E8] py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+        <section className="bg-[#FEE1E8] py-6">
+          <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-3">
               <div>
-                <h2 className="font-playfair font-bold text-3xl mb-2">{salon.name}</h2>
+                <h2 className="font-playfair font-bold text-2xl mb-1">{salon.name}</h2>
                 <p className="text-gray-700 text-lg">Welcome back, {salon.ownerName}!</p>
-                <p className="text-gray-600 mt-2">Manage your salon profile, services, and client appointments.</p>
+                <p className="text-gray-600 mt-1">Manage your salon profile, services, and client appointments.</p>
               </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm mt-4 md:mt-0">
+              <div className="bg-white rounded-lg p-3 shadow-sm mt-3 md:mt-0">
                 <div className="flex flex-col space-y-2">
                   <div className="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-pink-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -138,17 +138,17 @@ export default function SalonDashboard() {
         </section>
         
         {/* Content Section for Slug Page */}
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-6">
+          <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
             <Card className="rounded-xl shadow-soft">
-              <CardContent className="p-8">
+              <CardContent className="p-4">
                 <div className="prose max-w-none">
-                  <h3 className="text-2xl font-semibold mb-4">Welcome to Your Salon Dashboard</h3>
+                  <h3 className="text-xl font-semibold mb-2">Welcome to Your Salon Dashboard</h3>
                   <p>Thank you for registering your salon with Den Be Baby! Here you can manage your salon profile and services.</p>
                   
-                  <div className="bg-[#FEE1E8] p-4 rounded-lg mt-6">
+                  <div className="bg-[#FEE1E8] p-3 rounded-lg mt-4">
                     <h4 className="font-medium">Quick Actions</h4>
-                    <ul className="mt-2 space-y-1">
+                    <ul className="mt-1 space-y-1">
                       <li>▸ Complete your salon profile</li>
                       <li>▸ Add your service offerings</li>
                       <li>▸ Set your availability calendar</li>
@@ -156,8 +156,8 @@ export default function SalonDashboard() {
                     </ul>
                   </div>
                   
-                  <div className="mt-8">
-                    <h4 className="text-xl font-semibold mb-4">Your Salon Details</h4>
+                  <div className="mt-4">
+                    <h4 className="text-lg font-semibold mb-2">Your Salon Details</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <p className="font-medium">Salon Name:</p>
