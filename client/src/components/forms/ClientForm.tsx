@@ -1,0 +1,295 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
+import { apiRequest } from "@/lib/queryClient";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { formatPhoneNumber } from "@/lib/utils";
+import VerificationModal from "@/components/shared/VerificationModal";
+import SuccessModal from "@/components/shared/SuccessModal";
+
+// Available salon services
+const services = [
+  "Classic Manicure",
+  "Chic French Tips",
+  "Luxe Gel Manicure",
+  "Sculpted Acrylics",
+  "Deluxe Spa Pedicure",
+  "Bespoke Nail Art",
+];
+
+// Form schema with validation
+const clientFormSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  phone: z.string().min(14, { message: "Please enter a valid phone number" }),
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  isCurrentClient: z.enum(["yes", "no"]),
+  notes: z.string().optional(),
+  favoriteServices: z.array(z.string()).optional(),
+});
+
+type ClientFormValues = z.infer<typeof clientFormSchema>;
+
+export default function ClientForm() {
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(5);
+  const [clientId, setClientId] = useState<number | null>(null);
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+
+  const form = useForm<ClientFormValues>({
+    resolver: zodResolver(clientFormSchema),
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+      isCurrentClient: "no",
+      notes: "",
+      favoriteServices: [],
+    },
+  });
+
+  const onSubmit = (data: ClientFormValues) => {
+    setIsVerifying(true);
+  };
+
+  const handleVerificationConfirm = async (data: ClientFormValues) => {
+    setIsVerifying(false);
+    
+    try {
+      // Transform the data for the API
+      const clientData = {
+        name: data.name,
+        phone: data.phone,
+        email: data.email,
+        isCurrentClient: data.isCurrentClient === "yes",
+        notes: data.notes,
+        favoriteServices: data.favoriteServices || [],
+        type: "client",
+      };
+      
+      // Submit to API
+      const response = await apiRequest("POST", "/api/clients", clientData);
+      const result = await response.json();
+      
+      // Store the client ID for redirection
+      setClientId(result.id);
+      setShowSuccess(true);
+      
+      // Start countdown for auto-redirect
+      let count = 5;
+      const interval = setInterval(() => {
+        count--;
+        setCountdown(count);
+        
+        if (count <= 0) {
+          clearInterval(interval);
+          setLocation(`/client/${result.id}`);
+        }
+      }, 1000);
+      
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was a problem submitting your registration.",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  const handleGoToDashboard = () => {
+    if (clientId) {
+      setLocation(`/client/${clientId}`);
+    }
+  };
+
+  return (
+    <>
+      <div className="bg-white rounded-xl shadow-soft p-8 mb-10">
+        <h3 className="font-playfair font-bold text-2xl mb-6 text-center">Client Registration</h3>
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cell Phone</FormLabel>
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      placeholder="(XXX) XXX-XXXX" 
+                      onChange={(e) => {
+                        const formatted = formatPhoneNumber(e.target.value);
+                        field.onChange(formatted);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="email" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="isCurrentClient"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Are you a current client?</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex space-x-4"
+                    >
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <RadioGroupItem value="yes" />
+                        </FormControl>
+                        <FormLabel className="font-normal">Yes</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <RadioGroupItem value="no" />
+                        </FormControl>
+                        <FormLabel className="font-normal">No</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} rows={3} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="favoriteServices"
+              render={() => (
+                <FormItem>
+                  <FormLabel className="block text-sm font-medium text-gray-700 mb-3">My Favorite Services</FormLabel>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {services.map((service) => (
+                      <FormField
+                        key={service}
+                        control={form.control}
+                        name="favoriteServices"
+                        render={({ field }) => {
+                          return (
+                            <FormItem
+                              key={service}
+                              className="service-option flex items-center p-3 border border-gray-200 rounded-lg hover:border-[#FF92A5] cursor-pointer transition-colors"
+                              onClick={() => {
+                                const currentValue = field.value || [];
+                                const newValue = currentValue.includes(service)
+                                  ? currentValue.filter((item) => item !== service)
+                                  : [...currentValue, service];
+                                field.onChange(newValue);
+                              }}
+                            >
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes(service)}
+                                  onCheckedChange={(checked) => {
+                                    const currentValue = field.value || [];
+                                    const newValue = checked
+                                      ? [...currentValue, service]
+                                      : currentValue.filter((item) => item !== service);
+                                    field.onChange(newValue);
+                                  }}
+                                  className="mr-2"
+                                />
+                              </FormControl>
+                              <FormLabel className="text-sm text-gray-700 cursor-pointer flex-grow">
+                                {service}
+                              </FormLabel>
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    ))}
+                  </div>
+                </FormItem>
+              )}
+            />
+            
+            <div className="pt-4">
+              <Button type="submit" className="w-full bg-[#FF92A5] hover:bg-[#E57C8E]">
+                Register as Client
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
+      
+      {/* Verification Modal */}
+      {isVerifying && (
+        <VerificationModal
+          data={form.getValues()}
+          type="client"
+          onConfirm={handleVerificationConfirm}
+          onEdit={() => setIsVerifying(false)}
+        />
+      )}
+      
+      {/* Success Modal */}
+      {showSuccess && (
+        <SuccessModal
+          type="client"
+          countdown={countdown}
+          onRedirect={handleGoToDashboard}
+        />
+      )}
+    </>
+  );
+}
