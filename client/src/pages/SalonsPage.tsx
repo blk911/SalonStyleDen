@@ -73,29 +73,23 @@ export default function SalonsPage() {
                 key={salon.id} 
                 className="border-b border-gray-200 py-2 first:pt-0 last:border-b-0"
               >
-                <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-1">
-                  <div className="flex-grow cursor-pointer w-full" onClick={() => toggleCard(salon.id)}>
+                <div className="flex flex-col gap-1 cursor-pointer" onClick={() => toggleCard(salon.id)}>
+                  <div className="flex justify-between w-full">
                     <h3 className="font-bold text-base leading-tight text-[#FF92A5]">{salon.name}</h3>
-                    <div className="flex flex-wrap items-center text-xs text-gray-600">
-                      <span className="mr-1">{salon.ownerName}</span> 
-                      <span className="mr-1">•</span>
-                      <span className="truncate">{salon.phone}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 self-end xs:self-auto">
-                    <Badge 
-                      variant="outline" 
-                      className="bg-[#FF92A5] text-white border-[#FF92A5] text-xs px-2 py-0 h-5 cursor-pointer hover:bg-[#ff7a92]"
-                      onClick={() => toggleCard(salon.id)}
-                    >
-                      VIEW
-                    </Badge>
                     <button 
                       className="text-[10px] text-gray-400 hover:text-gray-600 w-8 text-center" 
-                      onClick={() => toggleCard(salon.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleCard(salon.id);
+                      }}
                     >
                       {expandedCards[salon.id] ? '▲ hide' : '▼ show'}
                     </button>
+                  </div>
+                  <div className="flex items-center text-xs text-gray-600">
+                    <span className="mr-1">{salon.ownerName}</span> 
+                    <span className="mr-1">•</span>
+                    <span className="truncate">{salon.phone}</span>
                   </div>
                 </div>
                 
