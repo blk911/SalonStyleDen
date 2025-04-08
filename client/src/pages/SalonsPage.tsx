@@ -100,13 +100,13 @@ export default function SalonsPage() {
                   {expandedCards[salon.id] && (
                     <>
                       {/* Email and social media - centered */}
-                      <div className="flex flex-wrap justify-center items-center gap-2 text-xs mt-2 border-t border-pink-100 pt-1">
+                      <div className="content-section section-divider">
                         <span>{salon.email}</span>
                         
                         {salon.socialMedia && Array.isArray(salon.socialMedia) && salon.socialMedia.length > 0 && (
                           <>
                             {salon.socialMedia.map((item, index) => (
-                              <Badge key={index} variant="outline" className="text-[10px] py-0 px-1 bg-white border-pink-200 text-pink-700">
+                              <Badge key={index} variant="outline" className="text-mini py-0 px-1 bg-white border-pink-200 text-pink-700">
                                 {item.platform}: {item.handle}
                               </Badge>
                             ))}
@@ -115,45 +115,45 @@ export default function SalonsPage() {
                       </div>
                       
                       {/* Promo placeholder container - 3 columns */}
-                      <div className="mt-2 border-t border-pink-100 pt-2">
-                        <div className="grid grid-cols-1 xs:grid-cols-3 gap-2">
+                      <div className="section-divider">
+                        <div className="grid-cols-responsive">
                           {/* Promo 1 */}
                           <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-[100px]">
                             <div className="bg-[#FEE1E8] h-12 flex items-center justify-center">
-                              <span className="text-[9px] text-pink-700">Promo Image</span>
+                              <span className="text-micro">Promo Image</span>
                             </div>
-                            <div className="p-1">
-                              <h5 className="font-medium text-[10px]">Summer Special</h5>
-                              <p className="text-[8px] text-gray-600">20% off manicures</p>
+                            <div className="card-content">
+                              <h5 className="font-medium text-mini">Summer Special</h5>
+                              <p className="text-micro">20% off manicures</p>
                             </div>
                           </div>
                           
                           {/* Promo 2 */}
                           <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-[100px]">
                             <div className="bg-[#FEE1E8] h-12 flex items-center justify-center">
-                              <span className="text-[9px] text-pink-700">Promo Image</span>
+                              <span className="text-micro">Promo Image</span>
                             </div>
-                            <div className="p-1">
-                              <h5 className="font-medium text-[10px]">New Clients</h5>
-                              <p className="text-[8px] text-gray-600">Free nail art</p>
+                            <div className="card-content">
+                              <h5 className="font-medium text-mini">New Clients</h5>
+                              <p className="text-micro">Free nail art</p>
                             </div>
                           </div>
                           
                           {/* Promo 3 */}
                           <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-[100px]">
                             <div className="bg-[#FEE1E8] h-12 flex items-center justify-center">
-                              <span className="text-[9px] text-pink-700">Promo Image</span>
+                              <span className="text-micro">Promo Image</span>
                             </div>
-                            <div className="p-1">
-                              <h5 className="font-medium text-[10px]">Friends Deal</h5>
-                              <p className="text-[8px] text-gray-600">25% off for 2+</p>
+                            <div className="card-content">
+                              <h5 className="font-medium text-mini">Friends Deal</h5>
+                              <p className="text-micro">25% off for 2+</p>
                             </div>
                           </div>
                         </div>
                       </div>
                       
                       {/* View salon button */}
-                      <div className="mt-2 text-center">
+                      <div className="button-container">
                         <Link href={`/salon/${salon.id}`}>
                           <a className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs py-1 px-2 rounded-sm inline-block">
                             View {salon.name} BEN ME, BABY! PAGE

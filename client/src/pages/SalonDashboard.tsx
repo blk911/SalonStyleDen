@@ -120,9 +120,9 @@ export default function SalonDashboard() {
                   <span className="truncate">{salon.email}</span>
                 </div>
                 {salon.socialMedia && Array.isArray(salon.socialMedia) && salon.socialMedia.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1">
+                  <div className="content-section vspace-xs">
                     {salon.socialMedia.map((social: SocialMediaItem) => (
-                      <span key={social.platform} className="text-[10px] text-gray-700">
+                      <span key={social.platform} className="text-mini text-gray-700">
                         <span className="font-medium">{social.platform}:</span> {social.handle}
                       </span>
                     ))}
@@ -208,18 +208,18 @@ export default function SalonDashboard() {
                 </div>
                 
                 {/* Three Column Promo Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                <div className="grid-cols-responsive">
                   {/* Promo Placeholder 1 */}
                   <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-48">
                     <div className="bg-[#FEE1E8] h-24 flex items-center justify-center">
-                      <span className="text-[10px] text-pink-700">Promo Image</span>
+                      <span className="text-mini text-pink-700">Promo Image</span>
                     </div>
-                    <div className="p-1">
-                      <h4 className="font-medium text-xs">Summer Special</h4>
-                      <p className="text-[10px] text-gray-600">20% off all manicures</p>
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="text-[9px] text-gray-500">Ends: 7/31/25</span>
-                        <button className="text-[9px] text-pink-500 hover:text-pink-700">Edit</button>
+                    <div className="card-content">
+                      <h4 className="font-medium text-compact">Summer Special</h4>
+                      <p className="text-mini text-gray-600">20% off all manicures</p>
+                      <div className="flex justify-between items-center vspace-xs">
+                        <span className="text-micro">Ends: 7/31/25</span>
+                        <button className="text-micro text-pink-500 hover:text-pink-700">Edit</button>
                       </div>
                     </div>
                   </div>
@@ -227,14 +227,14 @@ export default function SalonDashboard() {
                   {/* Promo Placeholder 2 */}
                   <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-48">
                     <div className="bg-[#FEE1E8] h-24 flex items-center justify-center">
-                      <span className="text-[10px] text-pink-700">Promo Image</span>
+                      <span className="text-mini text-pink-700">Promo Image</span>
                     </div>
-                    <div className="p-1">
-                      <h4 className="font-medium text-xs">New Client Offer</h4>
-                      <p className="text-[10px] text-gray-600">Free nail art with any service</p>
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="text-[9px] text-gray-500">Ongoing</span>
-                        <button className="text-[9px] text-pink-500 hover:text-pink-700">Edit</button>
+                    <div className="card-content">
+                      <h4 className="font-medium text-compact">New Client Offer</h4>
+                      <p className="text-mini text-gray-600">Free nail art with any service</p>
+                      <div className="flex justify-between items-center vspace-xs">
+                        <span className="text-micro">Ongoing</span>
+                        <button className="text-micro text-pink-500 hover:text-pink-700">Edit</button>
                       </div>
                     </div>
                   </div>
@@ -242,14 +242,14 @@ export default function SalonDashboard() {
                   {/* Promo Placeholder 3 */}
                   <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-48">
                     <div className="bg-[#FEE1E8] h-24 flex items-center justify-center">
-                      <span className="text-[10px] text-pink-700">Promo Image</span>
+                      <span className="text-mini text-pink-700">Promo Image</span>
                     </div>
-                    <div className="p-1">
-                      <h4 className="font-medium text-xs">Bring a Friend</h4>
-                      <p className="text-[10px] text-gray-600">25% off for you and a friend</p>
-                      <div className="flex justify-between items-center mt-1">
-                        <span className="text-[9px] text-gray-500">Ends: 8/15/25</span>
-                        <button className="text-[9px] text-pink-500 hover:text-pink-700">Edit</button>
+                    <div className="card-content">
+                      <h4 className="font-medium text-compact">Bring a Friend</h4>
+                      <p className="text-mini text-gray-600">25% off for you and a friend</p>
+                      <div className="flex justify-between items-center vspace-xs">
+                        <span className="text-micro">Ends: 8/15/25</span>
+                        <button className="text-micro text-pink-500 hover:text-pink-700">Edit</button>
                       </div>
                     </div>
                   </div>

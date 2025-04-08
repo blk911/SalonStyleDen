@@ -12,7 +12,7 @@
   }
 }
 
-/* Reduce padding site-wide */
+/* Site-wide styling */
 @layer components {
   /* Reduce container paddings */
   .container {
@@ -42,5 +42,52 @@
   /* Button padding adjustment */
   button {
     @apply px-2 py-1;
+  }
+  
+  /* Centered content sections */
+  .content-section {
+    @apply flex flex-wrap justify-center items-center gap-2 text-xs;
+  }
+  
+  /* Standardized card styles */
+  .card-content {
+    @apply p-1;
+  }
+  
+  /* Compact text styles */
+  .text-compact {
+    @apply text-xs;
+  }
+  
+  .text-mini {
+    @apply text-[10px];
+  }
+  
+  .text-micro {
+    @apply text-[9px] text-gray-500;
+  }
+  
+  /* Standard vertical spacing */
+  .vspace-xs {
+    @apply mt-1;
+  }
+  
+  .vspace-sm {
+    @apply mt-2;
+  }
+  
+  /* Section dividers */
+  .section-divider {
+    @apply border-t border-pink-100 pt-1 mt-2;
+  }
+  
+  /* Centered button containers */
+  .button-container {
+    @apply mt-2 text-center;
+  }
+  
+  /* Content grids */
+  .grid-cols-responsive {
+    @apply grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-2;
   }
 }
