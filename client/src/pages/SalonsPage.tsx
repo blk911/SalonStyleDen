@@ -96,24 +96,23 @@ export default function SalonsPage() {
                 {/* Expandable section */}
                 {expandedCards[salon.id] && (
                   <div className="mt-1 pl-2 border-l-2 border-pink-100 ml-1">
-                    <div className="grid grid-cols-1 gap-1 text-xs">
-                      <p><span className="font-medium text-gray-600">Email:</span> {salon.email}</p>
-                      <p><span className="font-medium text-gray-600">Type:</span> {salon.type}</p>
-                      {salon.socialMedia && Array.isArray(salon.socialMedia) && salon.socialMedia.length > 0 && (
-                        <div>
-                          <p className="font-medium text-gray-600 mt-1 mb-0.5">Social Media:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {salon.socialMedia.map((item, index) => (
-                              <Badge key={index} variant="outline" className="text-[10px] py-0 px-1 bg-white border-pink-200 text-pink-700">
-                                {item.platform}: {item.handle}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <span>{salon.email}</span>
                       
+                      {salon.socialMedia && Array.isArray(salon.socialMedia) && salon.socialMedia.length > 0 && (
+                        <>
+                          {salon.socialMedia.map((item, index) => (
+                            <Badge key={index} variant="outline" className="text-[10px] py-0 px-1 bg-white border-pink-200 text-pink-700">
+                              {item.platform}: {item.handle}
+                            </Badge>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                    
+                    <div className="mt-2 text-center">
                       <Link href={`/salon/${salon.id}`}>
-                        <a className="mt-2 bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs py-1 px-2 rounded-sm inline-block">
+                        <a className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs py-1 px-2 rounded-sm inline-block">
                           View {salon.name} BEN ME, BABY! PAGE
                         </a>
                       </Link>
