@@ -15,7 +15,7 @@ export default function Navbar() {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
-                <a className="font-playfair font-bold text-xl text-[#FF92A5]">Den Be Baby!</a>
+                <a className="font-playfair font-bold text-xl text-[#FF92A5]">Ven Me, Baby!</a>
               </Link>
             </div>
           </div>

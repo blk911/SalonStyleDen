@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <h3 className="font-playfair text-lg font-semibold mb-2">Den Be Baby!</h3>
+            <h3 className="font-playfair text-lg font-semibold mb-2">Ven Me, Baby!</h3>
             <p className="text-gray-300 text-sm">Your premier destination for exceptional hair services and beauty expertise.</p>
             <div className="flex space-x-3 mt-4">
               <a href="#" className="text-gray-300 hover:text-white transition">
@@ -55,13 +55,13 @@ export default function Footer() {
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                   <polyline points="22,6 12,13 2,6" />
                 </svg>
-                hello@denbebaby.com
+                hello@venmebaby.com
               </p>
             </address>
           </div>
         </div>
         <div className="border-t border-gray-700 mt-6 pt-4 text-center text-sm text-gray-400">
-          <p>&copy; {new Date().getFullYear()} Den Be Baby! All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Ven Me, Baby! All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -62,7 +62,7 @@ export default function ClientDashboard() {
               <CardContent className="p-8">
                 <div className="prose max-w-none">
                   <h3 className="text-2xl font-semibold mb-4">Welcome to Your Client Dashboard</h3>
-                  <p>Thank you for registering with Den Be Baby! We're excited to serve you with amazing beauty services.</p>
+                  <p>Thank you for registering with Ven Me, Baby! We're excited to serve you with amazing beauty services.</p>
                   
                   <div className="bg-[#FEE1E8] p-4 rounded-lg mt-6">
                     <h4 className="font-medium">Quick Actions</h4>
