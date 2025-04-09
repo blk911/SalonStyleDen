@@ -5,7 +5,8 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { useState } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { GoogleMap, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 
 // Define social media item interface
 interface SocialMediaItem {
@@ -29,6 +30,43 @@ interface SalonType {
   createdAt: string;
 }
 
+// Libraries for Google Maps
+const libraries = ["places"];
+
+// Map options
+const mapContainerStyle = {
+  width: "100%",
+  height: "400px"
+};
+
+// Default center coordinates for 80122 (Littleton, CO)
+const defaultCenter = {
+  lat: 39.5800,
+  lng: -104.9730
+};
+
+// Default zoom level
+const defaultZoom = 11;
+
+// Geocode an address to get coordinates
+const geocodeAddress = async (address: string): Promise<{lat: number, lng: number} | null> => {
+  try {
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=AIzaSyBeTURHmJiWYtMEvtShDlCCEXr6lDu7obE`
+    );
+    const data = await response.json();
+    
+    if (data.results && data.results.length > 0) {
+      const { lat, lng } = data.results[0].geometry.location;
+      return { lat, lng };
+    }
+    return null;
+  } catch (error) {
+    console.error("Error geocoding address:", error);
+    return null;
+  }
+};
+
 export default function SalonsPage() {
   const { data: salons, isLoading, error } = useQuery<SalonType[]>({
     queryKey: ["/api/salons"],
@@ -40,6 +78,29 @@ export default function SalonsPage() {
   // State to toggle map visibility
   const [showMap, setShowMap] = useState<boolean>(true);
   
+  // State for selected marker in Google Maps
+  const [selectedSalon, setSelectedSalon] = useState<SalonType | null>(null);
+
+  // State for salon markers
+  const [salonMarkers, setSalonMarkers] = useState<Array<{id: number, name: string, position: {lat: number, lng: number}}>>([]);
+  
+  // State for search input
+  const [searchZip, setSearchZip] = useState<string>("80122");
+
+  // Load Google Maps script
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: "AIzaSyBeTURHmJiWYtMEvtShDlCCEXr6lDu7obE",
+    libraries: libraries as any,
+  });
+
+  // Reference to map instance
+  const mapRef = useRef<google.maps.Map | null>(null);
+  
+  // Callback when map loads
+  const onMapLoad = useCallback((map: google.maps.Map) => {
+    mapRef.current = map;
+  }, []);
+
   // Toggle function for expanding/collapsing salon details
   const toggleCard = (salonId: number) => {
     setExpandedCards(prev => ({
@@ -52,6 +113,46 @@ export default function SalonsPage() {
   const toggleMap = () => {
     setShowMap(prev => !prev);
   };
+
+  // Handle search
+  const handleSearch = () => {
+    if (searchZip) {
+      geocodeAddress(`${searchZip}, CO`).then(location => {
+        if (location && mapRef.current) {
+          mapRef.current.panTo({ lat: location.lat, lng: location.lng });
+          mapRef.current.setZoom(13);
+        }
+      });
+    }
+  };
+
+  // Effect to geocode salon addresses when salons data is loaded
+  useEffect(() => {
+    if (salons && salons.length > 0) {
+      const geocodeAndSetMarkers = async () => {
+        const markers = await Promise.all(
+          salons.map(async (salon) => {
+            const fullAddress = `${salon.address}, ${salon.city}, ${salon.state} ${salon.zipCode}`;
+            const position = await geocodeAddress(fullAddress);
+            
+            if (position) {
+              return {
+                id: salon.id,
+                name: salon.name,
+                position
+              };
+            }
+            return null;
+          })
+        );
+        
+        // Filter out null values and set markers
+        setSalonMarkers(markers.filter(Boolean) as any);
+      };
+      
+      geocodeAndSetMarkers();
+    }
+  }, [salons]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -83,6 +184,8 @@ export default function SalonsPage() {
                   <div className="mb-3">
                     <input 
                       type="text" 
+                      value={searchZip}
+                      onChange={(e) => setSearchZip(e.target.value)}
                       placeholder="Enter zip code or city..." 
                       className="w-full px-3 py-2 border border-gray-200 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-pink-300"
                     />
@@ -91,7 +194,10 @@ export default function SalonsPage() {
                   {/* Distance Filter */}
                   <div className="mb-3">
                     <label className="block text-xs text-gray-600 mb-1">Distance</label>
-                    <select className="w-full px-3 py-2 border border-gray-200 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-pink-300">
+                    <select 
+                      className="w-full px-3 py-2 border border-gray-200 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-pink-300"
+                      defaultValue="10"
+                    >
                       <option value="5">Within 5 miles</option>
                       <option value="10">Within 10 miles</option>
                       <option value="15">Within 15 miles</option>
@@ -119,18 +225,66 @@ export default function SalonsPage() {
                   </div>
                   
                   {/* Apply Button */}
-                  <button className="w-full bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-xs py-2 rounded-md">
+                  <button 
+                    onClick={handleSearch}
+                    className="w-full bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-xs py-2 rounded-md"
+                  >
                     Search Salons
                   </button>
                 </div>
                 
                 {/* Right Column - Map Display */}
-                <div className="w-full md:w-2/3 h-64 md:h-auto bg-gray-100 flex items-center justify-center">
-                  <div className="text-center p-4">
-                    <p className="text-sm text-gray-500 mb-2">Google Maps API Integration</p>
-                    <p className="text-xs text-gray-400">Map will display salon locations with pins</p>
-                    <p className="text-xs text-gray-400 mt-1">Salons with addresses will appear on the map</p>
-                  </div>
+                <div className="w-full md:w-2/3 h-64 md:h-[400px]">
+                  {loadError && (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                      <p className="text-red-500 text-sm">Error loading Google Maps. Please try again later.</p>
+                    </div>
+                  )}
+                  
+                  {!isLoaded && (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                      <p className="text-gray-500 text-sm">Loading map...</p>
+                    </div>
+                  )}
+                  
+                  {isLoaded && (
+                    <GoogleMap
+                      mapContainerStyle={mapContainerStyle}
+                      zoom={defaultZoom}
+                      center={defaultCenter}
+                      onLoad={onMapLoad}
+                    >
+                      {salonMarkers.map((marker) => (
+                        <Marker
+                          key={marker.id}
+                          position={marker.position}
+                          onClick={() => {
+                            const salon = salons?.find(s => s.id === marker.id);
+                            if (salon) setSelectedSalon(salon);
+                          }}
+                        />
+                      ))}
+                      
+                      {selectedSalon && (
+                        <InfoWindow
+                          position={salonMarkers.find(m => m.id === selectedSalon.id)?.position as google.maps.LatLngLiteral}
+                          onCloseClick={() => setSelectedSalon(null)}
+                        >
+                          <div className="p-1">
+                            <h3 className="font-bold text-sm text-[#FF92A5]">{selectedSalon.name}</h3>
+                            <p className="text-xs mt-1">{selectedSalon.address}</p>
+                            <p className="text-xs">{selectedSalon.city}, {selectedSalon.state} {selectedSalon.zipCode}</p>
+                            <p className="text-xs mt-1">{selectedSalon.phone}</p>
+                            <Link href={`/salon/${selectedSalon.id}`}>
+                              <a className="text-[10px] text-blue-500 hover:text-blue-700">
+                                View Salon Page
+                              </a>
+                            </Link>
+                          </div>
+                        </InfoWindow>
+                      )}
+                    </GoogleMap>
+                  )}
                 </div>
               </div>
             )}
