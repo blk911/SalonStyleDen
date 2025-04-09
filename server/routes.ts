@@ -24,6 +24,8 @@ const clientInputSchema = z.object({
   isCurrentClient: z.boolean(),
   notes: z.string().optional(),
   favoriteServices: z.array(z.string()).optional(),
+  salonId: z.number().optional(),
+  salonName: z.string().optional(),
   type: z.literal("client")
 });
 

@@ -4,10 +4,25 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 
+// Define client interface
+interface ClientData {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  isCurrentClient: boolean;
+  notes?: string;
+  favoriteServices?: string[];
+  salonId?: number;
+  salonName?: string;
+  type: string;
+  createdAt: string;
+}
+
 export default function ClientDashboard() {
   const { id } = useParams();
   
-  const { data: client, isLoading, error } = useQuery({
+  const { data: client, isLoading, error } = useQuery<ClientData>({
     queryKey: [`/api/clients/${id}`],
     refetchOnMount: true,
   });
@@ -62,7 +77,11 @@ export default function ClientDashboard() {
               <CardContent className="p-8">
                 <div className="prose max-w-none">
                   <h3 className="text-2xl font-semibold mb-4">Welcome to Your Client Dashboard</h3>
-                  <p>Thank you for registering with Ven Me, Baby! We're excited to serve you with amazing beauty services.</p>
+                  <p>
+                    Thank you for registering with Ven Me, Baby!
+                    {client?.salonName && ` You're currently associated with ${client.salonName}.`}
+                    We're excited to serve you with amazing beauty services.
+                  </p>
                   
                   <div className="bg-[#FEE1E8] p-4 rounded-lg mt-6">
                     <h4 className="font-medium">Quick Actions</h4>
@@ -79,30 +98,42 @@ export default function ClientDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <p className="font-medium">Name:</p>
-                        <p className="text-gray-700">{client.name}</p>
+                        <p className="text-gray-700">{client?.name}</p>
                       </div>
                       <div>
                         <p className="font-medium">Phone:</p>
-                        <p className="text-gray-700">{client.phone}</p>
+                        <p className="text-gray-700">{client?.phone}</p>
                       </div>
                       <div>
                         <p className="font-medium">Email:</p>
-                        <p className="text-gray-700">{client.email}</p>
+                        <p className="text-gray-700">{client?.email}</p>
                       </div>
                       <div>
                         <p className="font-medium">Current Client:</p>
-                        <p className="text-gray-700">{client.isCurrentClient ? "Yes" : "No"}</p>
+                        <p className="text-gray-700">{client?.isCurrentClient ? "Yes" : "No"}</p>
                       </div>
+                      {client?.salonName && (
+                        <div>
+                          <p className="font-medium">Preferred Salon:</p>
+                          <p className="text-gray-700">{client.salonName}</p>
+                        </div>
+                      )}
+                      {client?.salonId && (
+                        <div>
+                          <p className="font-medium">Salon ID:</p>
+                          <p className="text-gray-700">{client.salonId}</p>
+                        </div>
+                      )}
                     </div>
                     
-                    {client.notes && (
+                    {client?.notes && (
                       <div className="mt-4">
                         <p className="font-medium">Notes:</p>
                         <p className="text-gray-700">{client.notes}</p>
                       </div>
                     )}
                     
-                    {client.favoriteServices && client.favoriteServices.length > 0 && (
+                    {client?.favoriteServices && client.favoriteServices.length > 0 && (
                       <div className="mt-4">
                         <p className="font-medium">Favorite Services:</p>
                         <div className="flex flex-wrap gap-2 mt-2">

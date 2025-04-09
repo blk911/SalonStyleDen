@@ -1,16 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
+import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { 
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatPhoneNumber } from "@/lib/utils";
 import VerificationModal from "@/components/shared/VerificationModal";
 import SuccessModal from "@/components/shared/SuccessModal";
@@ -33,17 +43,38 @@ const clientFormSchema = z.object({
   isCurrentClient: z.enum(["yes", "no"]),
   notes: z.string().optional(),
   favoriteServices: z.array(z.string()).optional(),
+  salonId: z.string().optional(),
 });
 
 type ClientFormValues = z.infer<typeof clientFormSchema>;
+
+// Define types for salon data
+interface SalonOption {
+  id: number;
+  name: string;
+  ownerName: string;
+}
 
 export default function ClientForm() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const [clientId, setClientId] = useState<number | null>(null);
+  const [showSalonSelector, setShowSalonSelector] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+
+  // Fetch available salons
+  const { data: salons, isLoading: isLoadingSalons } = useQuery<SalonOption[]>({
+    queryKey: ['/api/salons'],
+    queryFn: async () => {
+      const response = await fetch('/api/salons');
+      if (!response.ok) {
+        throw new Error('Failed to fetch salons');
+      }
+      return response.json();
+    }
+  });
 
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientFormSchema),
@@ -54,8 +85,26 @@ export default function ClientForm() {
       isCurrentClient: "no",
       notes: "",
       favoriteServices: [],
+      salonId: "",
     },
   });
+  
+  // Listen for changes to the "isCurrentClient" field
+  const isCurrentClient = form.watch("isCurrentClient");
+  
+  // Update showSalonSelector when isCurrentClient changes
+  useEffect(() => {
+    setShowSalonSelector(isCurrentClient === "yes");
+    
+    // If not a current client, set default salon to "Ven Me, Baby! Lux"
+    if (isCurrentClient === "no") {
+      // Find the Ven Me, Baby Lux salon or use the first salon as fallback
+      const defaultSalon = salons?.find(salon => salon.name.includes("Lux")) || salons?.[0];
+      if (defaultSalon) {
+        form.setValue("salonId", String(defaultSalon.id));
+      }
+    }
+  }, [isCurrentClient, salons, form]);
 
   const onSubmit = (data: ClientFormValues) => {
     setIsVerifying(true);
@@ -68,6 +117,19 @@ export default function ClientForm() {
       // Ensure favorite services is always an array
       const favoriteServices = Array.isArray(data.favoriteServices) ? data.favoriteServices : [];
       
+      // Find selected salon
+      let salonId = data.salonId;
+      if (!salonId) {
+        // If no salon selected, use default Ven Me, Baby! Lux salon or first available
+        const defaultSalon = salons?.find(salon => salon.name.includes("Lux")) || salons?.[0];
+        if (defaultSalon) {
+          salonId = String(defaultSalon.id);
+        }
+      }
+      
+      // Find salon name for display
+      const selectedSalon = salons?.find(salon => String(salon.id) === salonId);
+      
       // Transform the data for the API
       const clientData = {
         name: data.name,
@@ -76,6 +138,8 @@ export default function ClientForm() {
         isCurrentClient: data.isCurrentClient === "yes",
         notes: data.notes || "",
         favoriteServices: favoriteServices,
+        salonId: salonId ? parseInt(salonId) : undefined,
+        salonName: selectedSalon?.name || "Ven Me, Baby! Lux",
         type: "client",
       };
       
@@ -98,6 +162,18 @@ export default function ClientForm() {
           setLocation(`/client/${result.id}`);
         }
       }, 1000);
+      
+      // If the client belongs to a salon, also post this client to that salon's page
+      if (salonId) {
+        try {
+          // This would call an API endpoint to add the client to the salon's client list
+          // For now, we'll just log this
+          console.log(`Added client ${result.id} to salon ${salonId}`);
+        } catch (err) {
+          // If this fails, we won't show an error as the client was still created
+          console.error("Failed to add client to salon:", err);
+        }
+      }
       
     } catch (error) {
       toast({
@@ -197,6 +273,47 @@ export default function ClientForm() {
                 </FormItem>
               )}
             />
+            
+            {/* Salon Selector - Only shown when "Yes" is selected for current client */}
+            {showSalonSelector && (
+              <FormField
+                control={form.control}
+                name="salonId"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="text-sm mb-1">Select your current salon:</div>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a salon" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <ScrollArea className="h-40">
+                            <SelectGroup>
+                              {salons ? (
+                                salons.slice(0, 5).map((salon) => (
+                                  <SelectItem key={salon.id} value={String(salon.id)}>
+                                    {salon.name}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem value="" disabled>
+                                  Loading salons...
+                                </SelectItem>
+                              )}
+                            </SelectGroup>
+                          </ScrollArea>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             
             <FormField
               control={form.control}

@@ -38,6 +38,8 @@ export const clients = pgTable("clients", {
   isCurrentClient: boolean("is_current_client").notNull().default(false),
   notes: text("notes"),
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
+  salonId: integer("salon_id"), // Reference to salon if client belongs to one
+  salonName: text("salon_name"), // Name of the salon for display purposes
   type: text("type").notNull().default("client"),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -48,17 +50,22 @@ export const usersRelations = relations(users, ({ many }) => ({
   clients: many(clients),
 }));
 
-export const salonsRelations = relations(salons, ({ one }) => ({
+export const salonsRelations = relations(salons, ({ one, many }) => ({
   user: one(users, {
     fields: [salons.id],
     references: [users.id],
   }),
+  clients: many(clients),
 }));
 
 export const clientsRelations = relations(clients, ({ one }) => ({
   user: one(users, {
     fields: [clients.id],
     references: [users.id],
+  }),
+  salon: one(salons, {
+    fields: [clients.salonId],
+    references: [salons.id],
   }),
 }));
 
