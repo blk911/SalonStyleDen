@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { getImageUrl } from "@/lib/utils";
 
 // Service type definition
 export interface ServiceData {
@@ -144,9 +145,14 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
         <div className="mt-3 mb-3 text-center">
           {service.gifUrl ? (
             <img 
-              src={service.gifUrl} 
+              src={getImageUrl(service.gifUrl)} 
               alt={`${service.name} preview`} 
               className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = `https://picsum.photos/400/300?random=${service.id}`;
+                target.onerror = null; // Prevent infinite error loop
+              }}
             />
           ) : (
             <div className="h-28 w-full flex items-center justify-center border border-dashed border-gray-200 rounded bg-gray-50">
@@ -211,9 +217,14 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
             {editedService.gifUrl ? (
               <div className="relative inline-block">
                 <img 
-                  src={editedService.gifUrl} 
+                  src={getImageUrl(editedService.gifUrl)} 
                   alt="Preview" 
                   className="h-28 max-w-full object-contain rounded border border-pink-100 mx-auto"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = `https://picsum.photos/400/300?random=${service.id}`;
+                    target.onerror = null; // Prevent infinite error loop
+                  }}
                 />
                 <Button
                   type="button"

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useEffect } from "react";
+import { getImageUrl } from "@/lib/utils";
 
 // Define a type for social media
 interface SocialMediaItem {
@@ -287,9 +288,14 @@ export default function SalonPublicPage() {
                       <div className="mt-3 mb-3 text-center">
                         {service.gifUrl ? (
                           <img 
-                            src={service.gifUrl} 
+                            src={getImageUrl(service.gifUrl)} 
                             alt={`${service.name} preview`} 
                             className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = `https://picsum.photos/400/300?random=${service.id}`;
+                              target.onerror = null; // Prevent infinite error loop
+                            }}
                           />
                         ) : (
                           <div className="h-28 w-full flex items-center justify-center border border-dashed border-gray-100 rounded bg-gray-50">
