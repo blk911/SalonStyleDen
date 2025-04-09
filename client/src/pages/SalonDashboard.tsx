@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 import WeeklySchedule, { DaySchedule } from "@/components/dashboard/WeeklySchedule";
 import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSalonInfo";
 import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
@@ -32,6 +33,7 @@ interface SalonType {
 export default function SalonDashboard() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
   
   // States for services, promos, and schedule
   const [services, setServices] = useState<ServiceData[]>([
@@ -139,6 +141,66 @@ export default function SalonDashboard() {
     setPromos(prev => prev.filter(promo => promo.id !== id));
   };
 
+  const handleAddDefaultServices = () => {
+    // Define the default style options
+    const defaultServices = [
+      {
+        name: "French Tips / Touch-Up",
+        description: "Classic white tips or quick polish refresh.",
+        price: 40,
+        duration: 30,
+        featured: true,
+        gifUrl: ""
+      },
+      {
+        name: "Luxe Gel Manicure",
+        description: "Glossy, chip-free color with lasting shine.",
+        price: 55,
+        duration: 45,
+        featured: true,
+        gifUrl: ""
+      },
+      {
+        name: "Sculpted Acrylics",
+        description: "Custom-shaped acrylics for bold length.",
+        price: 70,
+        duration: 60,
+        featured: true,
+        gifUrl: ""
+      },
+      {
+        name: "Glam Me! Custom Design",
+        description: "Fully custom art, gems, 3D extras.",
+        price: 125,
+        duration: 90,
+        featured: true,
+        gifUrl: ""
+      }
+    ];
+
+    // Add all default services at once with new IDs
+    setServices(prev => {
+      // Find the highest current ID
+      const maxId = Math.max(...prev.map(s => s.id), 0);
+      
+      // Create new services with sequential IDs
+      const newServices = defaultServices.map((service, index) => ({
+        ...service,
+        id: maxId + index + 1
+      }));
+      
+      // Return the combined array
+      return [...prev, ...newServices];
+    });
+
+    // Show a toast notification
+    toast({
+      title: "Default styles added!",
+      description: "Four standard style options have been added to your salon.",
+      duration: 3000
+    });
+  };
+
   const handleSaveSchedule = () => {
     // In a real app, this would be an API call
     console.log("Saving schedule:", weeklySchedule);
@@ -243,14 +305,24 @@ export default function SalonDashboard() {
               <CardContent className="p-2">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium text-sm">Ven Me, Baby! Style Options</h3>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
-                    onClick={() => setIsAddingService(true)}
-                  >
-                    + Add Style Option
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-xs h-7 border-purple-200 text-purple-700 hover:bg-purple-50"
+                      onClick={() => handleAddDefaultServices()}
+                    >
+                      Add Default Styles
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
+                      onClick={() => setIsAddingService(true)}
+                    >
+                      + Custom Style
+                    </Button>
+                  </div>
                 </div>
                 
                 <div className="space-y-2">

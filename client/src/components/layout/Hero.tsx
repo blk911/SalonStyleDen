@@ -1,10 +1,9 @@
 type HeroProps = {
   onSalonClick: () => void;
   onClientClick: () => void;
-  onPublicPageClick?: () => void;
 };
 
-export default function Hero({ onSalonClick, onClientClick, onPublicPageClick }: HeroProps) {
+export default function Hero({ onSalonClick, onClientClick }: HeroProps) {
   return (
     <section className="bg-[#FEE1E8] py-6 lg:py-10">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
@@ -29,14 +28,6 @@ export default function Hero({ onSalonClick, onClientClick, onPublicPageClick }:
             >
               I'm a Client
             </button>
-            {onPublicPageClick && (
-              <button
-                onClick={onPublicPageClick}
-                className="bg-white hover:bg-gray-50 text-purple-600 border-2 border-purple-600 font-medium py-2 px-6 rounded-lg transition duration-300 transform hover:scale-105 shadow-md"
-              >
-                Public Page
-              </button>
-            )}
           </div>
         </div>
       </div>
