@@ -107,29 +107,29 @@ export default function WeeklySchedule({
           className="flex justify-between items-center cursor-pointer" 
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <div className="flex items-center gap-2">
-            <Clock className="h-3 w-3 text-pink-500" />
+          <div className="flex items-center gap-1">
             <h3 className="font-medium text-sm">Weekly Schedule</h3>
             {isSaved && !isExpanded && (
-              <span className="text-xs text-gray-500">({getScheduleSummary()})</span>
+              <span className="text-mini text-gray-500 ml-1">({getScheduleSummary()})</span>
             )}
           </div>
           <div className="flex items-center gap-2">
             {showSuccess && (
-              <span className="text-green-500 text-xs">Schedule saved!</span>
+              <span className="text-green-500 text-mini">Schedule saved!</span>
             )}
             {isExpanded ? (
               <>
                 <Button 
                   size="sm" 
-                  className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-xs h-7 px-2"
+                  className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
+                  variant="outline"
                   disabled={isSubmitting}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleSaveSchedule();
                   }}
                 >
-                  {isSubmitting ? 'Saving...' : 'Save Schedule'}
+                  {isSubmitting ? 'Saving...' : 'Save'}
                 </Button>
                 <ChevronUp className="h-4 w-4 text-gray-400" />
               </>
@@ -141,61 +141,53 @@ export default function WeeklySchedule({
         
         {isExpanded && (
           <>
-            <div className="grid grid-cols-1 gap-1 max-h-[320px] overflow-auto pr-1 mt-2">
-              {schedule.map((day, index) => (
-                <div 
-                  key={day.dayOfWeek} 
-                  className={`border ${day.isOpen ? 'border-pink-100' : 'border-gray-200 bg-gray-50'} rounded-sm p-1`}
-                >
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <Switch 
-                        id={`day-${day.dayOfWeek}`}
-                        checked={day.isOpen}
-                        onCheckedChange={(checked) => updateDay({ isOpen: checked }, index)}
-                        className="data-[state=checked]:bg-[#FF92A5]"
-                      />
-                      <Label htmlFor={`day-${day.dayOfWeek}`} className="text-xs font-medium">
-                        {day.dayName}
-                      </Label>
-                    </div>
-                    
-                    {day.isOpen && (
-                      <div className="flex items-center gap-1 text-xs">
-                        <select 
-                          value={day.openTime}
-                          onChange={(e) => updateDay({ openTime: e.target.value }, index)}
-                          className="border border-gray-200 rounded-sm p-0.5 text-xs"
-                        >
-                          {["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00"].map(time => (
-                            <option key={time} value={time}>{time}</option>
-                          ))}
-                        </select>
-                        <span>to</span>
-                        <select 
-                          value={day.closeTime}
-                          onChange={(e) => updateDay({ closeTime: e.target.value }, index)}
-                          className="border border-gray-200 rounded-sm p-0.5 text-xs"
-                        >
-                          {["13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"].map(time => (
-                            <option key={time} value={time}>{time}</option>
-                          ))}
-                        </select>
+            <div className="mt-2 pt-1 border-t border-gray-100">
+              <div className="grid grid-cols-1 gap-1 max-h-[320px] overflow-auto pr-1">
+                {schedule.map((day, index) => (
+                  <div 
+                    key={day.dayOfWeek} 
+                    className={`border ${day.isOpen ? 'border-pink-100' : 'border-gray-200 bg-gray-50'} rounded-sm p-1`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <Switch 
+                          id={`day-${day.dayOfWeek}`}
+                          checked={day.isOpen}
+                          onCheckedChange={(checked) => updateDay({ isOpen: checked }, index)}
+                          className="data-[state=checked]:bg-[#FF92A5]"
+                        />
+                        <Label htmlFor={`day-${day.dayOfWeek}`} className="text-xs font-medium">
+                          {day.dayName}
+                        </Label>
                       </div>
-                    )}
+                      
+                      {day.isOpen && (
+                        <div className="flex items-center gap-1 text-xs">
+                          <select 
+                            value={day.openTime}
+                            onChange={(e) => updateDay({ openTime: e.target.value }, index)}
+                            className="border border-gray-200 rounded-sm p-0.5 text-xs"
+                          >
+                            {["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00"].map(time => (
+                              <option key={time} value={time}>{time}</option>
+                            ))}
+                          </select>
+                          <span>to</span>
+                          <select 
+                            value={day.closeTime}
+                            onChange={(e) => updateDay({ closeTime: e.target.value }, index)}
+                            className="border border-gray-200 rounded-sm p-0.5 text-xs"
+                          >
+                            {["13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"].map(time => (
+                              <option key={time} value={time}>{time}</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-2 text-center">
-              <Button 
-                className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-xs"
-                disabled={isSubmitting}
-                onClick={handleSaveSchedule}
-              >
-                {isSubmitting ? 'Saving...' : 'Save Schedule'}
-              </Button>
+                ))}
+              </div>
             </div>
           </>
         )}

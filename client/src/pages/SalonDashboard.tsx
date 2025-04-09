@@ -269,7 +269,8 @@ export default function SalonDashboard() {
                   <h3 className="font-medium text-sm">Services</h3>
                   <Button 
                     size="sm" 
-                    className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-xs h-7 px-2"
+                    variant="outline" 
+                    className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
                     onClick={() => setIsAddingService(true)}
                   >
                     + Add Service
@@ -328,7 +329,8 @@ export default function SalonDashboard() {
                   <h3 className="font-medium text-sm">Current Promotions</h3>
                   <Button 
                     size="sm" 
-                    className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-xs h-7 px-2"
+                    variant="outline" 
+                    className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
                     onClick={() => setIsAddingPromo(true)}
                   >
                     + Add Promo
@@ -375,7 +377,8 @@ export default function SalonDashboard() {
                 <h3 className="font-medium text-sm mb-2">Preview Your Public Page</h3>
                 <p className="text-xs mb-2">See how clients will view your salon's information, services, and promotions.</p>
                 <Button 
-                  className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-xs"
+                  variant="outline"
+                  className="text-xs h-8 border-pink-200 text-pink-700 hover:bg-pink-50"
                   onClick={() => window.open(`/salon/${salon.id}`, '_blank')}
                 >
                   View Public Page
