@@ -423,6 +423,14 @@ export default function SalonsPage() {
                       zoom={defaultZoom}
                       center={defaultCenter}
                       onLoad={onMapLoad}
+                      options={{
+                        scrollwheel: true,
+                        zoomControl: true,
+                        streetViewControl: false,
+                        draggable: true,
+                        mapTypeControl: false,
+                        fullscreenControl: true,
+                      }}
                     >
                       {salonMarkers.map((marker) => (
                         <Marker
