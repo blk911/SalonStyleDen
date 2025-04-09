@@ -119,8 +119,8 @@ export default function SalonsPage() {
   // State to track which salon cards are expanded
   const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({});
   
-  // State to toggle map visibility
-  const [showMap, setShowMap] = useState<boolean>(true);
+  // State to toggle map visibility - hidden by default
+  const [showMap, setShowMap] = useState<boolean>(false);
   
   // State for selected marker in Google Maps
   const [selectedSalon, setSelectedSalon] = useState<SalonType | null>(null);
@@ -174,6 +174,11 @@ export default function SalonsPage() {
 
   // Handle search
   const handleSearch = () => {
+    // Show map when search is performed
+    if (!showMap) {
+      setShowMap(true);
+    }
+    
     if (selectedLocation) {
       // Find the selected location in options to get state if needed
       const locationOption = locationOptions.find(option => option.value === selectedLocation);
