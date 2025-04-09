@@ -260,17 +260,6 @@ export default function SalonDashboard() {
           </div>
         </section>
         
-        {/* Weekly Schedule Section */}
-        <section className="py-2">
-          <div className="container mx-auto px-2">
-            <WeeklySchedule
-              salonId={salon.id}
-              initialSchedule={weeklySchedule}
-              onScheduleSaved={handleSaveSchedule}
-            />
-          </div>
-        </section>
-        
         {/* Services Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
@@ -316,6 +305,17 @@ export default function SalonDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </section>
+        
+        {/* Weekly Schedule Section */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <WeeklySchedule
+              salonId={salon.id}
+              initialSchedule={weeklySchedule}
+              onScheduleSaved={handleSaveSchedule}
+            />
           </div>
         </section>
         
