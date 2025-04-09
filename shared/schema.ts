@@ -20,6 +20,10 @@ export const salons = pgTable("salons", {
   email: text("email").notNull(),
   socialMedia: jsonb("social_media"), // Stores array of {platform, handle}
   type: text("type").notNull().default("salon"),
+  address: text("address"), // Street address
+  city: text("city"),
+  state: text("state"),
+  zipCode: text("zip_code"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

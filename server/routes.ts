@@ -2,6 +2,7 @@ import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
+import { importSalons, importClients } from "./utils/importData";
 
 // Validation schemas
 const salonInputSchema = z.object({
@@ -135,6 +136,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error retrieving client:', error);
       res.status(500).json({ error: "Failed to retrieve client" });
+    }
+  });
+
+  // Bulk import routes
+  apiRouter.post("/import/salons", async (req: Request, res: Response) => {
+    try {
+      console.log('Bulk import salons request received');
+      
+      if (!Array.isArray(req.body)) {
+        return res.status(400).json({ error: "Request body must be an array of salon objects" });
+      }
+      
+      const importedSalons = await importSalons(req.body);
+      console.log(`Successfully imported ${importedSalons.length} salons`);
+      
+      res.status(201).json({ 
+        message: `Successfully imported ${importedSalons.length} salons`,
+        salons: importedSalons
+      });
+    } catch (error) {
+      console.error('Error importing salons:', error);
+      res.status(500).json({ error: "Failed to import salons", details: String(error) });
+    }
+  });
+  
+  apiRouter.post("/import/clients", async (req: Request, res: Response) => {
+    try {
+      console.log('Bulk import clients request received');
+      
+      if (!Array.isArray(req.body)) {
+        return res.status(400).json({ error: "Request body must be an array of client objects" });
+      }
+      
+      const importedClients = await importClients(req.body);
+      console.log(`Successfully imported ${importedClients.length} clients`);
+      
+      res.status(201).json({ 
+        message: `Successfully imported ${importedClients.length} clients`,
+        clients: importedClients
+      });
+    } catch (error) {
+      console.error('Error importing clients:', error);
+      res.status(500).json({ error: "Failed to import clients", details: String(error) });
     }
   });
 
