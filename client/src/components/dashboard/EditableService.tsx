@@ -12,6 +12,7 @@ export interface ServiceData {
   id: number;
   name: string;
   description: string;
+  gifUrl?: string;
   price: number;
   duration: number; // in minutes
   featured: boolean;
@@ -90,6 +91,16 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
           </div>
         </div>
         
+        {service.gifUrl && (
+          <div className="mt-1 mb-1 text-center">
+            <img 
+              src={service.gifUrl} 
+              alt={`${service.name} preview`} 
+              className="inline-block rounded max-h-20 max-w-full object-contain"
+            />
+          </div>
+        )}
+        
         <div className="flex justify-between items-center mt-1">
           {service.featured && (
             <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
@@ -135,6 +146,18 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
             onChange={handleTextChange}
             className="text-xs min-h-[60px]"
             placeholder="Describe the style option"
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="gifUrl" className="text-xs">GIF URL</Label>
+          <Input
+            id="gifUrl"
+            name="gifUrl"
+            value={editedService.gifUrl || ""}
+            onChange={handleTextChange}
+            className="text-xs h-8"
+            placeholder="Enter a URL for a style preview GIF"
           />
         </div>
         

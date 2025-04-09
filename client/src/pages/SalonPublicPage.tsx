@@ -22,6 +22,7 @@ interface Service {
   price: number;
   duration: number; // in minutes
   featured: boolean;
+  gifUrl?: string;
 }
 
 // Define promo type
@@ -78,23 +79,44 @@ export default function SalonPublicPage() {
             description: "Nail shaping, cuticle care, hand massage, and polish application",
             price: 30,
             duration: 45,
-            featured: true
+            featured: true,
+            gifUrl: "https://media2.giphy.com/media/l0HlDEOQcQkXZvuEg/giphy.gif"
           },
           {
             id: 2,
-            name: "Chic French Tips",
-            description: "Classic French manicure with elegant white tips",
-            price: 35,
+            name: "French Tips / Touch-Up",
+            description: "Classic white tips or quick polish refresh",
+            price: 40,
             duration: 50,
-            featured: false
+            featured: false,
+            gifUrl: "https://media.giphy.com/media/3o7btNa0RUYa5E7iiQ/giphy.gif"
           },
           {
             id: 3,
             name: "Luxe Gel Manicure",
-            description: "Long-lasting gel polish with nail prep and cuticle care",
-            price: 45,
+            description: "Glossy, chip-free color with lasting shine",
+            price: 55,
             duration: 60,
-            featured: true
+            featured: true,
+            gifUrl: "https://media.giphy.com/media/xT9DPzhNGA8MKjxwFG/giphy.gif"
+          },
+          {
+            id: 4,
+            name: "Sculpted Acrylics",
+            description: "Full-coverage acrylic extensions with custom shaping",
+            price: 70,
+            duration: 75,
+            featured: false,
+            gifUrl: "https://media.giphy.com/media/3oriNYucxHfpksjf7W/giphy.gif"
+          },
+          {
+            id: 5,
+            name: "Glam Me! Custom Design",
+            description: "Artistic nail art with crystals, gold leaf, and specialty effects",
+            price: 125,
+            duration: 90,
+            featured: true,
+            gifUrl: "https://media.giphy.com/media/3og0Iz2nXIHdgNQ06Q/giphy.gif"
           }
         ];
         
@@ -273,6 +295,16 @@ export default function SalonPublicPage() {
                           <p className="text-micro">{service.duration} min</p>
                         </div>
                       </div>
+                      
+                      {service.gifUrl && (
+                        <div className="mt-1 mb-1 text-center">
+                          <img 
+                            src={service.gifUrl} 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded max-h-24 max-w-full object-contain"
+                          />
+                        </div>
+                      )}
                       
                       {service.featured && (
                         <Badge className="mt-1 bg-[#FF92A5] text-white border-0 text-mini">

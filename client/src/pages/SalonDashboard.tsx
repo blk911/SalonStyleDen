@@ -261,6 +261,7 @@ export default function SalonDashboard() {
                         id: 0,
                         name: "",
                         description: "",
+                        gifUrl: "",
                         price: 0,
                         duration: 30,
                         featured: false
