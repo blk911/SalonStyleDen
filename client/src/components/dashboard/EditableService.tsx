@@ -79,7 +79,7 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
   // Display mode (not editing)
   if (!isEditing) {
     return (
-      <div className={`border rounded p-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}>
+      <div className={`border rounded px-2 py-3 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}>
         <div className="flex justify-between items-start">
           <div>
             <h3 className="font-medium text-compact">{service.name}</h3>
@@ -91,15 +91,15 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
           </div>
         </div>
         
-        <div className="mt-2 mb-2 text-center">
+        <div className="mt-3 mb-3 text-center">
           {service.gifUrl ? (
             <img 
               src={service.gifUrl} 
               alt={`${service.name} preview`} 
-              className="inline-block rounded h-20 max-w-full object-contain mx-auto border border-pink-100"
+              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
             />
           ) : (
-            <div className="h-20 w-full flex items-center justify-center border border-dashed border-gray-200 rounded bg-gray-50">
+            <div className="h-28 w-full flex items-center justify-center border border-dashed border-gray-200 rounded bg-gray-50">
               <span className="text-xs text-gray-400">No image preview</span>
             </div>
           )}
@@ -125,7 +125,7 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
 
   // Edit mode
   return (
-    <Card className="border border-pink-300 shadow-sm p-2">
+    <Card className="border border-pink-300 shadow-sm px-2 py-3">
       <h4 className="font-medium text-sm mb-2">Edit Style Option</h4>
       
       <div className="space-y-2">

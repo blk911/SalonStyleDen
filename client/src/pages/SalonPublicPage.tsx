@@ -283,7 +283,7 @@ export default function SalonPublicPage() {
                   {salon.services && salon.services.map((service) => (
                     <div 
                       key={service.id} 
-                      className={`border rounded p-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
+                      className={`border rounded px-2 py-3 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
                     >
                       <div className="flex justify-between items-start">
                         <div>
@@ -296,15 +296,15 @@ export default function SalonPublicPage() {
                         </div>
                       </div>
                       
-                      <div className="mt-2 mb-2 text-center">
+                      <div className="mt-3 mb-3 text-center">
                         {service.gifUrl ? (
                           <img 
                             src={service.gifUrl} 
                             alt={`${service.name} preview`} 
-                            className="inline-block rounded h-20 max-w-full object-contain mx-auto border border-pink-100"
+                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
                           />
                         ) : (
-                          <div className="h-20 w-full flex items-center justify-center border border-dashed border-gray-100 rounded bg-gray-50">
+                          <div className="h-28 w-full flex items-center justify-center border border-dashed border-gray-100 rounded bg-gray-50">
                             <span className="text-xs text-gray-300">No image preview</span>
                           </div>
                         )}
