@@ -223,6 +223,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Endpoint for handling service images
+  apiRouter.post("/images/service", async (req: Request, res: Response) => {
+    try {
+      // This endpoint accepts base64 encoded images from the frontend
+      const { imageData, serviceId, salonId } = req.body;
+      
+      if (!imageData || !serviceId || !salonId) {
+        return res.status(400).json({ error: "Missing required data" });
+      }
+      
+      // In a real implementation, we would:
+      // 1. Decode the base64 image
+      // 2. Save it to a file or cloud storage (S3, etc.)
+      // 3. Store the URL in the database
+      
+      // For now, we'll just acknowledge receipt of the image
+      console.log(`Received image for service ${serviceId} in salon ${salonId}`);
+      
+      // Return a dummy URL for the frontend to use
+      const imageUrl = `/images/service_${serviceId}_${Date.now()}.jpg`;
+      
+      res.json({ 
+        success: true, 
+        message: "Image processed successfully",
+        imageUrl
+      });
+    } catch (error) {
+      console.error('Error processing image:', error);
+      res.status(500).json({ error: "Failed to process image" });
+    }
+  });
+
   // Endpoint to ensure a Tiffany salon exists (for demonstration purposes)
   apiRouter.post("/seed/tiffany-salon", async (req: Request, res: Response) => {
     try {

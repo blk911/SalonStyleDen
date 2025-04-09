@@ -46,13 +46,63 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
     setEditedService(prev => ({ ...prev, featured }));
   };
 
+  // Handle image upload
+  const handleImageUpload = async (imageData: string): Promise<string | null> => {
+    try {
+      // Skip API call if the image hasn't changed (starts with http) or is empty
+      if (!imageData || (imageData && (imageData.startsWith('http') || !imageData.startsWith('data:')))) {
+        return imageData;
+      }
+      
+      // Call our image upload API endpoint
+      const response = await fetch('/api/images/service', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          imageData,
+          serviceId: service.id,
+          salonId: 1, // Use actual salon ID in production
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+      
+      const data = await response.json();
+      console.log('Image upload response:', data);
+      
+      return data.imageUrl || null;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      return null;
+    }
+  };
+  
   // Handle save
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
-      // In a real app, this would be an API call
-      await new Promise(r => setTimeout(r, 300)); // Simulate API call
-      onSave(editedService);
+      // Process image upload if there's a base64 image
+      if (editedService.gifUrl && editedService.gifUrl.startsWith('data:')) {
+        const uploadedImageUrl = await handleImageUpload(editedService.gifUrl);
+        if (uploadedImageUrl) {
+          setEditedService(prev => ({ ...prev, gifUrl: uploadedImageUrl }));
+          // Save with the new URL
+          onSave({
+            ...editedService,
+            gifUrl: uploadedImageUrl
+          });
+        } else {
+          onSave(editedService);
+        }
+      } else {
+        // No image to process, just save as is
+        onSave(editedService);
+      }
+      
       setIsEditing(false);
     } catch (error) {
       console.error("Failed to save style option:", error);
