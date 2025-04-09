@@ -143,16 +143,29 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
         </div>
         
         <div className="mt-3 mb-3 text-center">
-          {service.gifUrl ? (
+          {service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
             <img 
-              src={getImageUrl(service.gifUrl)} 
+              src="/attached_assets/image_1744235634250.png" 
               alt={`${service.name} preview`} 
               className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = `https://picsum.photos/400/300?random=${service.id}`;
-                target.onerror = null; // Prevent infinite error loop
-              }}
+            />
+          ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
+            <img 
+              src="/attached_assets/image_1744235862752.png" 
+              alt={`${service.name} preview`} 
+              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+            />
+          ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
+            <img 
+              src="/attached_assets/image_1744235634250.png" 
+              alt={`${service.name} preview`} 
+              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+            />
+          ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
+            <img 
+              src="/attached_assets/image_1744235862752.png" 
+              alt={`${service.name} preview`} 
+              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
             />
           ) : (
             <div className="h-28 w-full flex items-center justify-center border border-dashed border-gray-200 rounded bg-gray-50">
@@ -214,17 +227,63 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
           
           {/* Current Image Preview */}
           <div className="text-center">
-            {editedService.gifUrl ? (
+            {editedService.name.toLowerCase().includes('french') || editedService.name.toLowerCase().includes('tips') ? (
               <div className="relative inline-block">
                 <img 
-                  src={getImageUrl(editedService.gifUrl)} 
+                  src="/attached_assets/image_1744235634250.png" 
                   alt="Preview" 
                   className="h-28 max-w-full object-contain rounded border border-pink-100 mx-auto"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = `https://picsum.photos/400/300?random=${service.id}`;
-                    target.onerror = null; // Prevent infinite error loop
-                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="absolute top-1 right-1 h-6 w-6 p-0 rounded-full bg-white/80 hover:bg-white text-gray-600"
+                  onClick={() => setEditedService(prev => ({ ...prev, gifUrl: "" }))}
+                >
+                  ×
+                </Button>
+              </div>
+            ) : editedService.name.toLowerCase().includes('gel') || editedService.name.toLowerCase().includes('manicure') || editedService.name.toLowerCase().includes('lux') ? (
+              <div className="relative inline-block">
+                <img 
+                  src="/attached_assets/image_1744235862752.png" 
+                  alt="Preview" 
+                  className="h-28 max-w-full object-contain rounded border border-pink-100 mx-auto"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="absolute top-1 right-1 h-6 w-6 p-0 rounded-full bg-white/80 hover:bg-white text-gray-600"
+                  onClick={() => setEditedService(prev => ({ ...prev, gifUrl: "" }))}
+                >
+                  ×
+                </Button>
+              </div>
+            ) : editedService.name.toLowerCase().includes('sculpt') || editedService.name.toLowerCase().includes('acrylic') ? (
+              <div className="relative inline-block">
+                <img 
+                  src="/attached_assets/image_1744235634250.png" 
+                  alt="Preview" 
+                  className="h-28 max-w-full object-contain rounded border border-pink-100 mx-auto"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="absolute top-1 right-1 h-6 w-6 p-0 rounded-full bg-white/80 hover:bg-white text-gray-600"
+                  onClick={() => setEditedService(prev => ({ ...prev, gifUrl: "" }))}
+                >
+                  ×
+                </Button>
+              </div>
+            ) : editedService.name.toLowerCase().includes('glam') || editedService.name.toLowerCase().includes('custom') || editedService.name.toLowerCase().includes('design') ? (
+              <div className="relative inline-block">
+                <img 
+                  src="/attached_assets/image_1744235862752.png" 
+                  alt="Preview" 
+                  className="h-28 max-w-full object-contain rounded border border-pink-100 mx-auto"
                 />
                 <Button
                   type="button"

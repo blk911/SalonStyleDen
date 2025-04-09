@@ -30,10 +30,17 @@ export function getImageUrl(url?: string): string {
     return url;
   }
   
-  // Fall back to placeholder images if we have URL problems
-  if (url.startsWith('/images/')) {
-    return `https://picsum.photos/400/300?random=${Date.now()}`;
+  // Map service names to our specific uploaded images
+  if (url.toLowerCase().includes('french') || url.toLowerCase().includes('tips')) {
+    return '/attached_assets/image_1744235634250.png';
+  } else if (url.toLowerCase().includes('gel') || url.toLowerCase().includes('manicure') || url.toLowerCase().includes('lux')) {
+    return '/attached_assets/image_1744235862752.png';
+  } else if (url.toLowerCase().includes('acrylic') || url.toLowerCase().includes('sculpt')) {
+    return '/attached_assets/image_1744235634250.png';
+  } else if (url.toLowerCase().includes('custom') || url.toLowerCase().includes('design') || url.toLowerCase().includes('glam')) {
+    return '/attached_assets/image_1744235862752.png';
   }
   
-  return url;
+  // Default fallback to one of our salon images
+  return '/attached_assets/image_1744160806057.png';
 }
