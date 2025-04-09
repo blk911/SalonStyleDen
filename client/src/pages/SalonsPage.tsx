@@ -7,6 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Define social media item interface
 interface SocialMediaItem {
@@ -29,6 +33,43 @@ interface SalonType {
   zipCode?: string;
   createdAt: string;
 }
+
+// Define location item for search
+interface LocationItem {
+  value: string;
+  label: string;
+  type: "state" | "city" | "zip";
+  state?: string;
+}
+
+// Predefined location options
+const locationOptions: LocationItem[] = [
+  // States
+  { value: "CO", label: "Colorado", type: "state" },
+  { value: "NM", label: "New Mexico", type: "state" },
+  { value: "TX", label: "Texas", type: "state" },
+  { value: "OK", label: "Oklahoma", type: "state" },
+  { value: "WY", label: "Wyoming", type: "state" },
+  
+  // Colorado Cities
+  { value: "Denver", label: "Denver", type: "city", state: "CO" },
+  { value: "Fort Collins", label: "Fort Collins", type: "city", state: "CO" },
+  { value: "Colorado Springs", label: "Colorado Springs", type: "city", state: "CO" },
+  { value: "Pueblo", label: "Pueblo", type: "city", state: "CO" },
+  { value: "Lakewood", label: "Lakewood", type: "city", state: "CO" },
+  { value: "Lone Tree", label: "Lone Tree", type: "city", state: "CO" },
+  { value: "Greenwood Village", label: "Greenwood Village", type: "city", state: "CO" },
+  { value: "Englewood", label: "Englewood", type: "city", state: "CO" },
+  
+  // Wyoming Cities
+  { value: "Cheyenne", label: "Cheyenne", type: "city", state: "WY" },
+  
+  // Common ZIP codes
+  { value: "80014", label: "80014 - Aurora", type: "zip", state: "CO" },
+  { value: "80202", label: "80202 - Downtown Denver", type: "zip", state: "CO" },
+  { value: "80238", label: "80238 - Stapleton", type: "zip", state: "CO" },
+  { value: "80301", label: "80301 - Boulder", type: "zip", state: "CO" },
+];
 
 // Libraries for Google Maps
 const libraries = ["places"];
@@ -87,8 +128,9 @@ export default function SalonsPage() {
   // State for salon markers
   const [salonMarkers, setSalonMarkers] = useState<Array<{id: number, name: string, position: {lat: number, lng: number}}>>([]);
   
-  // State for search input
-  const [searchZip, setSearchZip] = useState<string>("Denver");
+  // State for location selection
+  const [selectedLocation, setSelectedLocation] = useState<string>("Denver");
+  const [isLocationOpen, setIsLocationOpen] = useState(false);
 
   // Load Google Maps script
   const { isLoaded, loadError } = useLoadScript({
@@ -132,8 +174,12 @@ export default function SalonsPage() {
 
   // Handle search
   const handleSearch = () => {
-    if (searchZip) {
-      geocodeAddress(`${searchZip}, CO`).then(location => {
+    if (selectedLocation) {
+      // Find the selected location in options to get state if needed
+      const locationOption = locationOptions.find(option => option.value === selectedLocation);
+      const state = locationOption?.state || "CO"; // Default to CO if not found
+      
+      geocodeAddress(`${selectedLocation}, ${state}`).then(location => {
         if (location && mapRef.current) {
           mapRef.current.panTo({ lat: location.lat, lng: location.lng });
           mapRef.current.setZoom(13);
@@ -196,45 +242,115 @@ export default function SalonsPage() {
               <div className="flex flex-col md:flex-row">
                 {/* Left Column - Map Controls */}
                 <div className="w-full md:w-1/3 p-3 border-r border-pink-100">
-                  {/* Search Input */}
-                  <div className="mb-2">
-                    <div className="flex">
-                      <input 
-                        type="text" 
-                        value={searchZip}
-                        onChange={(e) => setSearchZip(e.target.value)}
-                        placeholder="Enter zip code or city..." 
-                        className="flex-1 px-3 py-2 border border-gray-200 rounded-l-md text-xs focus:outline-none focus:ring-1 focus:ring-pink-300"
-                        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                      />
-                      <button
-                        onClick={handleSearch}
-                        className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white px-3 py-2 rounded-r-md text-xs"
-                      >
-                        Go
-                      </button>
-                    </div>
-                    
-                    {/* Quick City Buttons */}
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {["Denver", "Lakewood", "Lone Tree", "Greenwood Village", "Englewood"].map((city) => (
+                  {/* Location Combobox */}
+                  <div className="mb-4">
+                    <label className="block text-xs text-gray-600 mb-1">Location (City, ZIP, or State)</label>
+                    <Popover open={isLocationOpen} onOpenChange={setIsLocationOpen}>
+                      <div className="flex">
+                        <PopoverTrigger asChild>
+                          <button
+                            role="combobox"
+                            aria-expanded={isLocationOpen}
+                            className="flex-1 flex items-center justify-between rounded-l-md border border-gray-200 bg-white px-3 py-2 text-xs shadow-sm focus:outline-none hover:bg-slate-50"
+                          >
+                            {selectedLocation || "Select location..."}
+                            <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                          </button>
+                        </PopoverTrigger>
                         <button
-                          key={city}
-                          onClick={() => {
-                            setSearchZip(city);
-                            geocodeAddress(`${city}, CO`).then(location => {
-                              if (location && mapRef.current) {
-                                mapRef.current.panTo({ lat: location.lat, lng: location.lng });
-                                mapRef.current.setZoom(13);
-                              }
-                            });
-                          }}
-                          className="text-[9px] px-2 py-1 bg-[#FFE8EC] hover:bg-[#ffd8df] text-[#662b39] rounded-md border border-pink-100"
+                          onClick={handleSearch}
+                          className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white px-3 py-2 rounded-r-md text-xs"
                         >
-                          {city}
+                          Go
                         </button>
-                      ))}
-                    </div>
+                      </div>
+                      <PopoverContent className="w-[200px] p-0 max-h-[280px] overflow-auto">
+                        <Command>
+                          <CommandInput placeholder="Search location..." className="h-9 text-xs" />
+                          <CommandList>
+                            <CommandEmpty>No location found.</CommandEmpty>
+                            <CommandGroup heading="States">
+                              {locationOptions
+                                .filter((option) => option.type === "state")
+                                .map((option) => (
+                                  <CommandItem
+                                    key={option.value}
+                                    value={option.value}
+                                    onSelect={(currentValue) => {
+                                      setSelectedLocation(currentValue);
+                                      setIsLocationOpen(false);
+                                      handleSearch();
+                                    }}
+                                    className="text-xs"
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-3 w-3",
+                                        selectedLocation === option.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {option.label}
+                                  </CommandItem>
+                                ))}
+                            </CommandGroup>
+                            <CommandGroup heading="Cities">
+                              {locationOptions
+                                .filter((option) => option.type === "city")
+                                .map((option) => (
+                                  <CommandItem
+                                    key={option.value}
+                                    value={option.value}
+                                    onSelect={(currentValue) => {
+                                      setSelectedLocation(currentValue);
+                                      setIsLocationOpen(false);
+                                      handleSearch();
+                                    }}
+                                    className="text-xs"
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-3 w-3",
+                                        selectedLocation === option.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {option.label} {option.state && `(${option.state})`}
+                                  </CommandItem>
+                                ))}
+                            </CommandGroup>
+                            <CommandGroup heading="ZIP Codes">
+                              {locationOptions
+                                .filter((option) => option.type === "zip")
+                                .map((option) => (
+                                  <CommandItem
+                                    key={option.value}
+                                    value={option.value}
+                                    onSelect={(currentValue) => {
+                                      setSelectedLocation(currentValue);
+                                      setIsLocationOpen(false);
+                                      handleSearch();
+                                    }}
+                                    className="text-xs"
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-3 w-3",
+                                        selectedLocation === option.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {option.label}
+                                  </CommandItem>
+                                ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   
                   {/* Distance Filter */}
