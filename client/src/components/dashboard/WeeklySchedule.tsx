@@ -104,20 +104,22 @@ export default function WeeklySchedule({
     <Card className="shadow-sm">
       <CardContent className="p-3 text-center">
         <div 
-          className="flex flex-col items-center cursor-pointer" 
+          className="flex justify-between items-start cursor-pointer" 
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <h3 className="font-semibold text-base text-pink-800">Hours of Operation</h3>
-          {isSaved && !isExpanded && (
-            <div className="mt-1">
-              <p className="text-sm text-gray-600 font-medium">{getScheduleSummary()}</p>
-            </div>
-          )}
+          <div className="text-center w-full">
+            <h3 className="font-semibold text-base text-pink-800 w-full text-center">Hours of Operation</h3>
+            {isSaved && !isExpanded && (
+              <div className="mt-1">
+                <p className="text-sm text-gray-600 font-medium">{getScheduleSummary()}</p>
+              </div>
+            )}
+          </div>
           
           {isExpanded ? (
             <Button 
               size="sm" 
-              className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50 mt-2"
+              className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
               variant="outline"
               disabled={isSubmitting}
               onClick={(e) => {
@@ -125,15 +127,15 @@ export default function WeeklySchedule({
                 handleSaveSchedule();
               }}
             >
-              {showSuccess ? 'Saved!' : isSubmitting ? 'Saving...' : 'Save Schedule'}
+              {showSuccess ? 'Saved!' : isSubmitting ? 'Saving...' : 'Save'}
             </Button>
           ) : (
             <Button 
               variant="outline" 
               size="sm"
-              className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50 mt-2"
+              className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
             >
-              Edit Schedule
+              Edit
             </Button>
           )}
         </div>
