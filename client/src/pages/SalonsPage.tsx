@@ -39,10 +39,10 @@ const mapContainerStyle = {
   height: "400px"
 };
 
-// Default center coordinates for 80122 (Littleton, CO)
+// Default center coordinates for Denver Metro Area
 const defaultCenter = {
-  lat: 39.5800,
-  lng: -104.9730
+  lat: 39.7392,
+  lng: -104.9903
 };
 
 // Default zoom level
@@ -85,7 +85,7 @@ export default function SalonsPage() {
   const [salonMarkers, setSalonMarkers] = useState<Array<{id: number, name: string, position: {lat: number, lng: number}}>>([]);
   
   // State for search input
-  const [searchZip, setSearchZip] = useState<string>("80122");
+  const [searchZip, setSearchZip] = useState<string>("Denver");
 
   // Load Google Maps script
   const { isLoaded, loadError } = useLoadScript({
