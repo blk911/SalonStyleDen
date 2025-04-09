@@ -102,81 +102,80 @@ export default function WeeklySchedule({
 
   return (
     <Card className="shadow-sm">
-      <CardContent className="p-3 text-center">
+      <CardContent className="p-2">
         <div 
-          className="flex justify-between items-start cursor-pointer" 
+          className="flex justify-between items-center cursor-pointer" 
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <div className="text-center w-full">
-            <h3 className="font-semibold text-base text-pink-800 w-full text-center">Hours of Operation</h3>
+          <div>
+            <h3 className="font-medium text-sm">Weekly Schedule</h3>
             {isSaved && !isExpanded && (
-              <div className="mt-1">
-                <p className="text-sm text-gray-600 font-medium">{getScheduleSummary()}</p>
-              </div>
+              <p className="text-mini text-gray-500">{getScheduleSummary()}</p>
             )}
           </div>
-          
-          {isExpanded ? (
-            <Button 
-              size="sm" 
-              className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
-              variant="outline"
-              disabled={isSubmitting}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSaveSchedule();
-              }}
-            >
-              {showSuccess ? 'Saved!' : isSubmitting ? 'Saving...' : 'Save'}
-            </Button>
-          ) : (
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
-            >
-              Edit
-            </Button>
-          )}
+          <div>
+            {isExpanded ? (
+              <Button 
+                size="sm" 
+                className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSaveSchedule();
+                }}
+              >
+                {showSuccess ? 'Saved!' : isSubmitting ? 'Saving...' : 'Save'}
+              </Button>
+            ) : (
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
+              >
+                Edit
+              </Button>
+            )}
+          </div>
         </div>
         
         {isExpanded && (
-          <div className="mt-3 pt-2 border-t border-gray-100">
-            <div className="grid grid-cols-1 gap-2 max-h-[320px] overflow-auto pr-1">
+          <div className="mt-2 pt-1 border-t border-gray-100">
+            <div className="grid grid-cols-1 gap-1 max-h-[320px] overflow-auto pr-1">
               {schedule.map((day, index) => (
                 <div 
                   key={day.dayOfWeek} 
-                  className={`border ${day.isOpen ? 'border-pink-100 bg-pink-50/30' : 'border-gray-200 bg-gray-50'} rounded p-2.5 flex flex-col items-center gap-2`}
+                  className={`border ${day.isOpen ? 'border-pink-100 bg-pink-50/30' : 'border-gray-200 bg-gray-50'} rounded p-1.5 flex justify-between items-center`}
                 >
-                  <div className="flex items-center gap-3 w-full justify-center">
+                  <div className="flex items-center gap-2">
                     <Switch 
                       id={`day-${day.dayOfWeek}`}
                       checked={day.isOpen}
                       onCheckedChange={(checked) => updateDay({ isOpen: checked }, index)}
                       className="data-[state=checked]:bg-[#FF92A5]"
                     />
-                    <Label htmlFor={`day-${day.dayOfWeek}`} className="text-sm font-medium text-gray-700 min-w-[100px] text-center">
+                    <Label htmlFor={`day-${day.dayOfWeek}`} className="text-xs font-medium min-w-[80px]">
                       {day.dayName}
                     </Label>
                   </div>
                   
-                  {day.isOpen ? (
-                    <div className="flex items-center justify-center">
-                      <div className="bg-white rounded-md border border-gray-200 px-2 py-1 flex items-center">
+                  {day.isOpen && (
+                    <div className="flex items-center text-xs">
+                      <div className="flex items-center bg-white rounded border border-gray-200 px-1">
                         <select 
                           value={day.openTime}
                           onChange={(e) => updateDay({ openTime: e.target.value }, index)}
-                          className="border-0 bg-transparent p-1 text-xs outline-none min-w-[60px] text-gray-700 text-center"
+                          className="border-0 bg-transparent p-1 text-xs outline-none min-w-[60px]"
                         >
                           {["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00"].map(time => (
                             <option key={time} value={time}>{time}</option>
                           ))}
                         </select>
-                        <span className="text-gray-400 px-2">—</span>
+                        <span className="text-gray-400 px-1">to</span>
                         <select 
                           value={day.closeTime}
                           onChange={(e) => updateDay({ closeTime: e.target.value }, index)}
-                          className="border-0 bg-transparent p-1 text-xs outline-none min-w-[60px] text-gray-700 text-center"
+                          className="border-0 bg-transparent p-1 text-xs outline-none min-w-[60px]"
                         >
                           {["13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"].map(time => (
                             <option key={time} value={time}>{time}</option>
@@ -184,8 +183,6 @@ export default function WeeklySchedule({
                         </select>
                       </div>
                     </div>
-                  ) : (
-                    <span className="text-xs text-gray-500 italic">Closed</span>
                   )}
                 </div>
               ))}
