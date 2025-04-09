@@ -48,6 +48,9 @@ const defaultCenter = {
 // Default zoom level
 const defaultZoom = 11;
 
+// Custom marker icon - will be defined after Google Maps is loaded
+let markerIcon: any = null;
+
 // Geocode an address to get coordinates
 const geocodeAddress = async (address: string): Promise<{lat: number, lng: number} | null> => {
   try {
@@ -99,6 +102,19 @@ export default function SalonsPage() {
   // Callback when map loads
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
+    
+    // Initialize the marker icon now that Google Maps is loaded
+    markerIcon = {
+      url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36">
+          <path d="M12,2C8.4,2,6,3.4,6,8v12c0,2.2,2.6,4,6,4s6-1.8,6-4V8C18,3.4,15.6,2,12,2z M12,4c1.6,0,2.6,0.4,3.2,1H8.8 C9.4,4.4,10.4,4,12,4z M16,20c0,1.1-1.8,2-4,2s-4-0.9-4-2v-2h8V20z M16,16H8V8h8V16z" fill="#662b39" stroke="#ffffff" stroke-width="2"/>
+          <circle cx="12" cy="12" r="4" fill="#FF92A5" stroke="#ffffff" stroke-width="1"/>
+        </svg>
+      `),
+      scaledSize: new google.maps.Size(40, 40),
+      anchor: new google.maps.Point(20, 40),
+      labelOrigin: new google.maps.Point(12, 10)
+    };
   }, []);
 
   // Toggle function for expanding/collapsing salon details
@@ -181,14 +197,44 @@ export default function SalonsPage() {
                 {/* Left Column - Map Controls */}
                 <div className="w-full md:w-1/3 p-3 border-r border-pink-100">
                   {/* Search Input */}
-                  <div className="mb-3">
-                    <input 
-                      type="text" 
-                      value={searchZip}
-                      onChange={(e) => setSearchZip(e.target.value)}
-                      placeholder="Enter zip code or city..." 
-                      className="w-full px-3 py-2 border border-gray-200 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-pink-300"
-                    />
+                  <div className="mb-2">
+                    <div className="flex">
+                      <input 
+                        type="text" 
+                        value={searchZip}
+                        onChange={(e) => setSearchZip(e.target.value)}
+                        placeholder="Enter zip code or city..." 
+                        className="flex-1 px-3 py-2 border border-gray-200 rounded-l-md text-xs focus:outline-none focus:ring-1 focus:ring-pink-300"
+                        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                      />
+                      <button
+                        onClick={handleSearch}
+                        className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white px-3 py-2 rounded-r-md text-xs"
+                      >
+                        Go
+                      </button>
+                    </div>
+                    
+                    {/* Quick City Buttons */}
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {["Denver", "Lakewood", "Lone Tree", "Greenwood Village", "Englewood"].map((city) => (
+                        <button
+                          key={city}
+                          onClick={() => {
+                            setSearchZip(city);
+                            geocodeAddress(`${city}, CO`).then(location => {
+                              if (location && mapRef.current) {
+                                mapRef.current.panTo({ lat: location.lat, lng: location.lng });
+                                mapRef.current.setZoom(13);
+                              }
+                            });
+                          }}
+                          className="text-[9px] px-2 py-1 bg-[#FFE8EC] hover:bg-[#ffd8df] text-[#662b39] rounded-md border border-pink-100"
+                        >
+                          {city}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   
                   {/* Distance Filter */}
@@ -210,16 +256,24 @@ export default function SalonsPage() {
                     <h4 className="text-xs font-medium text-gray-600 mb-1">Filter By Services</h4>
                     <div className="space-y-1">
                       <div className="flex items-center">
-                        <input type="checkbox" id="filter-manicure" className="mr-2 h-3 w-3" />
-                        <label htmlFor="filter-manicure" className="text-xs text-gray-600">Manicure</label>
+                        <input type="checkbox" id="filter-nails" className="mr-2 h-3 w-3" />
+                        <label htmlFor="filter-nails" className="text-xs text-gray-600">Nails</label>
                       </div>
                       <div className="flex items-center">
-                        <input type="checkbox" id="filter-pedicure" className="mr-2 h-3 w-3" />
-                        <label htmlFor="filter-pedicure" className="text-xs text-gray-600">Pedicure</label>
+                        <input type="checkbox" id="filter-manpedi" className="mr-2 h-3 w-3" />
+                        <label htmlFor="filter-manpedi" className="text-xs text-gray-600">Mani/Pedi</label>
                       </div>
                       <div className="flex items-center">
-                        <input type="checkbox" id="filter-gel" className="mr-2 h-3 w-3" />
-                        <label htmlFor="filter-gel" className="text-xs text-gray-600">Gel Polish</label>
+                        <input type="checkbox" id="filter-hair" className="mr-2 h-3 w-3" />
+                        <label htmlFor="filter-hair" className="text-xs text-gray-600">Hair Stylist</label>
+                      </div>
+                      <div className="flex items-center">
+                        <input type="checkbox" id="filter-massage" className="mr-2 h-3 w-3" />
+                        <label htmlFor="filter-massage" className="text-xs text-gray-600">Massage</label>
+                      </div>
+                      <div className="flex items-center">
+                        <input type="checkbox" id="filter-dayspa" className="mr-2 h-3 w-3" />
+                        <label htmlFor="filter-dayspa" className="text-xs text-gray-600">Day Spa</label>
                       </div>
                     </div>
                   </div>
@@ -258,6 +312,7 @@ export default function SalonsPage() {
                         <Marker
                           key={marker.id}
                           position={marker.position}
+                          icon={markerIcon}
                           onClick={() => {
                             const salon = salons?.find(s => s.id === marker.id);
                             if (salon) setSelectedSalon(salon);
