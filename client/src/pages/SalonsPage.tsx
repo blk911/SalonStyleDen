@@ -49,6 +49,69 @@ export default function SalonsPage() {
           <h1 className="text-xl font-bold mb-1 text-center text-[#FF92A5]">Den Be Baby! Salons</h1>
           <Separator className="my-1" />
           
+          {/* Map Feature Section - Two Column Layout */}
+          <div className="bg-white rounded-lg shadow-sm border border-pink-100 my-3 overflow-hidden">
+            <div className="flex flex-col md:flex-row">
+              {/* Left Column - Map Controls */}
+              <div className="w-full md:w-1/3 p-3 border-r border-pink-100">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Find Salons Near You</h3>
+                
+                {/* Search Input */}
+                <div className="mb-3">
+                  <input 
+                    type="text" 
+                    placeholder="Enter zip code or city..." 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-pink-300"
+                  />
+                </div>
+                
+                {/* Distance Filter */}
+                <div className="mb-3">
+                  <label className="block text-xs text-gray-600 mb-1">Distance</label>
+                  <select className="w-full px-3 py-2 border border-gray-200 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-pink-300">
+                    <option value="5">Within 5 miles</option>
+                    <option value="10">Within 10 miles</option>
+                    <option value="15">Within 15 miles</option>
+                    <option value="25">Within 25 miles</option>
+                  </select>
+                </div>
+                
+                {/* Filter Options */}
+                <div className="mb-3">
+                  <h4 className="text-xs font-medium text-gray-600 mb-1">Filter By Services</h4>
+                  <div className="space-y-1">
+                    <div className="flex items-center">
+                      <input type="checkbox" id="filter-manicure" className="mr-2 h-3 w-3" />
+                      <label htmlFor="filter-manicure" className="text-xs text-gray-600">Manicure</label>
+                    </div>
+                    <div className="flex items-center">
+                      <input type="checkbox" id="filter-pedicure" className="mr-2 h-3 w-3" />
+                      <label htmlFor="filter-pedicure" className="text-xs text-gray-600">Pedicure</label>
+                    </div>
+                    <div className="flex items-center">
+                      <input type="checkbox" id="filter-gel" className="mr-2 h-3 w-3" />
+                      <label htmlFor="filter-gel" className="text-xs text-gray-600">Gel Polish</label>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Apply Button */}
+                <button className="w-full bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-xs py-2 rounded-md">
+                  Search Salons
+                </button>
+              </div>
+              
+              {/* Right Column - Map Display */}
+              <div className="w-full md:w-2/3 h-64 md:h-auto bg-gray-100 flex items-center justify-center">
+                <div className="text-center p-4">
+                  <p className="text-sm text-gray-500 mb-2">Google Maps API Integration</p>
+                  <p className="text-xs text-gray-400">Map will display salon locations with pins</p>
+                  <p className="text-xs text-gray-400 mt-1">Salons with addresses will appear on the map</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           {isLoading && (
             <div className="flex justify-center items-center h-16 text-sm">
               <p className="text-gray-500">Loading salons...</p>
