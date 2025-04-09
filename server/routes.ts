@@ -223,6 +223,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Endpoint to ensure a Tiffany salon exists (for demonstration purposes)
+  apiRouter.post("/seed/tiffany-salon", async (req: Request, res: Response) => {
+    try {
+      // Check if a Tiffany salon already exists
+      const allSalons = await storage.getAllSalons();
+      const tiffanySalon = allSalons.find(
+        salon => salon.name.toLowerCase().includes('tiffany') || 
+                salon.ownerName.toLowerCase().includes('tiffany')
+      );
+      
+      if (tiffanySalon) {
+        return res.json({ 
+          message: "Tiffany's salon already exists", 
+          salon: tiffanySalon 
+        });
+      }
+      
+      // Create a new Tiffany salon
+      const newTiffanySalon = await storage.createSalon({
+        name: "Tiffany's 5280 Nails Studio",
+        ownerName: "Tiffany Nguyen",
+        phone: "(720) 555-5280",
+        email: "tiffany@5280nails.com",
+        type: "salon",
+        socialMedia: [
+          { platform: "Instagram", handle: "@tiffany5280nails" },
+          { platform: "Facebook", handle: "Tiffany5280Nails" }
+        ],
+        address: "1234 Cherry Creek Mall Dr",
+        city: "Denver",
+        state: "CO",
+        zipCode: "80246"
+      });
+      
+      return res.status(201).json({ 
+        message: "Created new Tiffany salon", 
+        salon: newTiffanySalon 
+      });
+    } catch (error) {
+      console.error('Error creating Tiffany salon:', error);
+      res.status(500).json({ error: "Failed to create Tiffany salon", details: String(error) });
+    }
+  });
+
   apiRouter.post("/import/clients", async (req: Request, res: Response) => {
     try {
       console.log('Bulk import clients request received');

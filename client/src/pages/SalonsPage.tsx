@@ -493,16 +493,36 @@ export default function SalonsPage() {
           )}
           
           <div className="flex flex-col space-y-1 mt-2">
-            {salons?.map((salon) => (
+            {salons?.sort((a, b) => {
+              // Prioritize any salon with "Tiffany" in the name or owner name
+              const aTiffany = (a.name.toLowerCase().includes('tiffany') || a.ownerName.toLowerCase().includes('tiffany'));
+              const bTiffany = (b.name.toLowerCase().includes('tiffany') || b.ownerName.toLowerCase().includes('tiffany'));
+              
+              // If one has Tiffany and the other doesn't, the one with Tiffany comes first
+              if (aTiffany && !bTiffany) return -1;
+              if (!aTiffany && bTiffany) return 1;
+              
+              // Otherwise, sort by name
+              return a.name.localeCompare(b.name);
+            }).map((salon) => (
               <div 
                 key={salon.id} 
-                className="border-b border-gray-200 py-2 first:pt-0 last:border-b-0"
+                className={`border-b border-gray-200 py-2 first:pt-0 last:border-b-0 ${
+                  salon.name.toLowerCase().includes('tiffany') || salon.ownerName.toLowerCase().includes('tiffany') 
+                    ? 'bg-[#FFF0F5] rounded-md shadow-sm border border-pink-200 my-1 p-2' 
+                    : ''
+                }`}
               >
                 <div className="cursor-pointer" onClick={() => toggleCard(salon.id)}>
                   {/* Header section - always visible with salon name, owner, and phone on the same line */}
                   <div className="flex flex-wrap items-center justify-between w-full">
                     <div className="flex flex-1 items-center gap-2 overflow-hidden">
-                      <h3 className="font-bold text-base leading-tight text-[#FF92A5] truncate">{salon.name}</h3>
+                      <div className="flex items-center">
+                        <h3 className="font-bold text-base leading-tight text-[#FF92A5] truncate">{salon.name}</h3>
+                        {(salon.name.toLowerCase().includes('tiffany') || salon.ownerName.toLowerCase().includes('tiffany')) && (
+                          <Badge className="ml-2 bg-[#FF92A5] text-white text-[10px] py-0">FEATURED</Badge>
+                        )}
+                      </div>
                       <div className="flex items-center text-xs text-gray-600 whitespace-nowrap">
                         <span className="mx-1 text-gray-300">|</span>
                         <span className="mr-1">{salon.ownerName}</span> 
