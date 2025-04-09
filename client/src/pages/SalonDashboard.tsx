@@ -236,25 +236,25 @@ export default function SalonDashboard() {
           </div>
         </section>
         
-        {/* Services Section */}
+        {/* Ven Me, Baby! Style Options Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
             <Card className="rounded shadow-sm">
               <CardContent className="p-2">
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium text-sm">Services</h3>
+                  <h3 className="font-medium text-sm">Ven Me, Baby! Style Options</h3>
                   <Button 
                     size="sm" 
                     variant="outline" 
                     className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
                     onClick={() => setIsAddingService(true)}
                   >
-                    + Add Service
+                    + Add Style Option
                   </Button>
                 </div>
                 
                 <div className="space-y-2">
-                  {/* Add new service form */}
+                  {/* Add new style option form */}
                   {isAddingService && (
                     <EditableService
                       service={{
@@ -270,7 +270,7 @@ export default function SalonDashboard() {
                     />
                   )}
                   
-                  {/* Existing services */}
+                  {/* Existing style options */}
                   {services.map(service => (
                     <EditableService
                       key={service.id}
@@ -351,7 +351,7 @@ export default function SalonDashboard() {
             <Card className="rounded shadow-sm">
               <CardContent className="p-2 text-center">
                 <h3 className="font-medium text-sm mb-2">Preview Your Public Page</h3>
-                <p className="text-xs mb-2">See how clients will view your salon's information, services, and promotions.</p>
+                <p className="text-xs mb-2">See how clients will view your salon's information, style options, and promotions.</p>
                 <Button 
                   variant="outline"
                   className="text-xs h-8 border-pink-200 text-pink-700 hover:bg-pink-50"

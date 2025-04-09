@@ -250,12 +250,12 @@ export default function SalonPublicPage() {
           </div>
         </section>
         
-        {/* Services List */}
+        {/* Ven Me, Baby! Style Options List */}
         <section className="py-2">
           <div className="container mx-auto px-2">
             <Card className="shadow-sm">
               <CardContent className="p-2">
-                <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Our Services</h2>
+                <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Ven Me, Baby! Style Options</h2>
                 
                 <div className="flex flex-col gap-2">
                   {salon.services && salon.services.map((service) => (

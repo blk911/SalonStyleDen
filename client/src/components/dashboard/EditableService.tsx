@@ -54,7 +54,7 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
       onSave(editedService);
       setIsEditing(false);
     } catch (error) {
-      console.error("Failed to save service:", error);
+      console.error("Failed to save style option:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -64,13 +64,13 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
   const handleDelete = async () => {
     if (!onDelete) return;
     
-    if (window.confirm("Are you sure you want to delete this service?")) {
+    if (window.confirm("Are you sure you want to delete this style option?")) {
       try {
         // In a real app, this would be an API call
         await new Promise(r => setTimeout(r, 300)); // Simulate API call
         onDelete(service.id);
       } catch (error) {
-        console.error("Failed to delete service:", error);
+        console.error("Failed to delete style option:", error);
       }
     }
   };
@@ -111,18 +111,18 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
   // Edit mode
   return (
     <Card className="border border-pink-300 shadow-sm p-2">
-      <h4 className="font-medium text-sm mb-2">Edit Service</h4>
+      <h4 className="font-medium text-sm mb-2">Edit Style Option</h4>
       
       <div className="space-y-2">
         <div>
-          <Label htmlFor="name" className="text-xs">Service Name</Label>
+          <Label htmlFor="name" className="text-xs">Style Option Name</Label>
           <Input
             id="name"
             name="name"
             value={editedService.name}
             onChange={handleTextChange}
             className="text-xs h-8"
-            placeholder="Service name"
+            placeholder="Style option name"
           />
         </div>
         
@@ -134,7 +134,7 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
             value={editedService.description}
             onChange={handleTextChange}
             className="text-xs min-h-[60px]"
-            placeholder="Describe the service"
+            placeholder="Describe the style option"
           />
         </div>
         
@@ -176,7 +176,7 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
             className="data-[state=checked]:bg-[#FF92A5]"
           />
           <Label htmlFor="featured" className="text-xs cursor-pointer">
-            Featured service (highlighted to clients)
+            Featured style option (highlighted to clients)
           </Label>
         </div>
       </div>
