@@ -74,9 +74,16 @@ export default function VerificationModal({ data, type, onConfirm, onEdit }: Ver
                   <>
                     <dt className="col-span-1 font-medium">Favorite Services:</dt>
                     <dd className="col-span-2">
-                      {data.favoriteServices.map((service: string) => (
-                        <div key={service}>{service}</div>
-                      ))}
+                      <div className="flex flex-wrap gap-1">
+                        {data.favoriteServices.map((service: string) => (
+                          <span 
+                            key={service} 
+                            className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-pink-50 text-pink-600 border border-pink-100"
+                          >
+                            {service}
+                          </span>
+                        ))}
+                      </div>
                     </dd>
                   </>
                 )}

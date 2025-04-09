@@ -73,16 +73,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createClient(insertClient: InsertClient): Promise<Client> {
-    // Ensure required fields are set
+    // Ensure required fields are set with proper formatting
     const clientData = {
       ...insertClient,
       type: "client",
       isCurrentClient: insertClient.isCurrentClient ?? false,
       notes: insertClient.notes || null,
-      favoriteServices: insertClient.favoriteServices || null,
+      // Make sure favoriteServices is always an array in the database
+      favoriteServices: Array.isArray(insertClient.favoriteServices) && insertClient.favoriteServices.length > 0 
+        ? insertClient.favoriteServices 
+        : [],
       createdAt: new Date()
     };
     
+    console.log('Creating client with data:', clientData);
     const result = await db.insert(clients).values(clientData).returning();
     return result[0];
   }

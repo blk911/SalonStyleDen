@@ -65,14 +65,17 @@ export default function ClientForm() {
     setIsVerifying(false);
     
     try {
+      // Ensure favorite services is always an array
+      const favoriteServices = Array.isArray(data.favoriteServices) ? data.favoriteServices : [];
+      
       // Transform the data for the API
       const clientData = {
         name: data.name,
         phone: data.phone,
         email: data.email,
         isCurrentClient: data.isCurrentClient === "yes",
-        notes: data.notes,
-        favoriteServices: data.favoriteServices || [],
+        notes: data.notes || "",
+        favoriteServices: favoriteServices,
         type: "client",
       };
       
@@ -211,50 +214,51 @@ export default function ClientForm() {
             <FormField
               control={form.control}
               name="favoriteServices"
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
                   <div className="text-sm mb-1">My Favorite Services</div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {services.map((service) => (
-                      <FormField
-                        key={service}
-                        control={form.control}
-                        name="favoriteServices"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={service}
-                              className="service-option flex items-center p-2 border border-gray-200 rounded-lg hover:border-[#FF92A5] cursor-pointer transition-colors"
-                              onClick={() => {
-                                const currentValue = field.value || [];
-                                const newValue = currentValue.includes(service)
-                                  ? currentValue.filter((item) => item !== service)
-                                  : [...currentValue, service];
+                    {services.map((service) => {
+                      // Check if service is in the current value array
+                      const isSelected = field.value?.includes(service) || false;
+                      
+                      return (
+                        <div
+                          key={service}
+                          className={`service-option flex items-center p-2 border ${isSelected ? 'border-[#FF92A5] bg-pink-50' : 'border-gray-200'} rounded-lg hover:border-[#FF92A5] cursor-pointer transition-colors`}
+                          onClick={() => {
+                            const currentValue = Array.isArray(field.value) ? field.value : [];
+                            const newValue = isSelected
+                              ? currentValue.filter(item => item !== service)
+                              : [...currentValue, service];
+                            
+                            // Update form value
+                            field.onChange(newValue);
+                          }}
+                        >
+                          <FormControl>
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={(checked) => {
+                                const currentValue = Array.isArray(field.value) ? field.value : [];
+                                const newValue = checked
+                                  ? [...currentValue, service]
+                                  : currentValue.filter(item => item !== service);
+                                
+                                // Update form value  
                                 field.onChange(newValue);
                               }}
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(service)}
-                                  onCheckedChange={(checked) => {
-                                    const currentValue = field.value || [];
-                                    const newValue = checked
-                                      ? [...currentValue, service]
-                                      : currentValue.filter((item) => item !== service);
-                                    field.onChange(newValue);
-                                  }}
-                                  className="mr-2"
-                                />
-                              </FormControl>
-                              <span className="text-xs text-gray-700 cursor-pointer flex-grow">
-                                {service}
-                              </span>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
+                              className="mr-2 data-[state=checked]:bg-pink-500 data-[state=checked]:text-white"
+                            />
+                          </FormControl>
+                          <span className="text-xs text-gray-700 cursor-pointer flex-grow">
+                            {service}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
