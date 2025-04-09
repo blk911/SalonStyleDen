@@ -18,6 +18,10 @@ export interface SalonInfo {
   ownerName: string;
   phone: string;
   email: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
   socialMedia?: SocialMediaItem[] | null;
   type?: string;
 }
@@ -116,6 +120,17 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
             <div>
               <span className="font-medium">Email:</span> {salon.email}
             </div>
+            {salon.address && (
+              <div>
+                <span className="font-medium">Address:</span> {salon.address}
+              </div>
+            )}
+            {(salon.city || salon.state || salon.zipCode) && (
+              <div>
+                <span className="font-medium">Location:</span> 
+                {salon.city}{salon.city && salon.state ? ', ' : ''}{salon.state} {salon.zipCode}
+              </div>
+            )}
           </div>
           
           {salon.socialMedia && salon.socialMedia.length > 0 && (
@@ -189,6 +204,56 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               onChange={handleChange}
               className="text-xs h-8"
             />
+          </div>
+          
+          <div className="md:col-span-2">
+            <Label htmlFor="address" className="text-xs">Street Address</Label>
+            <Input
+              id="address"
+              name="address"
+              value={editedSalon.address || ''}
+              onChange={handleChange}
+              className="text-xs h-8"
+              placeholder="123 Main Street"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="city" className="text-xs">City</Label>
+            <Input
+              id="city"
+              name="city"
+              value={editedSalon.city || ''}
+              onChange={handleChange}
+              className="text-xs h-8"
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label htmlFor="state" className="text-xs">State</Label>
+              <Input
+                id="state"
+                name="state"
+                value={editedSalon.state || ''}
+                onChange={handleChange}
+                className="text-xs h-8"
+                placeholder="CA"
+                maxLength={2}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="zipCode" className="text-xs">Zip Code</Label>
+              <Input
+                id="zipCode"
+                name="zipCode"
+                value={editedSalon.zipCode || ''}
+                onChange={handleChange}
+                className="text-xs h-8"
+                placeholder="12345"
+              />
+            </div>
           </div>
         </div>
         
