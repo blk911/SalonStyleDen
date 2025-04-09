@@ -22,6 +22,10 @@ interface SalonType {
   email: string;
   socialMedia?: SocialMediaItem[] | null;
   type: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
   createdAt: string;
 }
 
