@@ -296,15 +296,19 @@ export default function SalonPublicPage() {
                         </div>
                       </div>
                       
-                      {service.gifUrl && (
-                        <div className="mt-1 mb-1 text-center">
+                      <div className="mt-2 mb-2 text-center">
+                        {service.gifUrl ? (
                           <img 
                             src={service.gifUrl} 
                             alt={`${service.name} preview`} 
-                            className="inline-block rounded max-h-24 max-w-full object-contain"
+                            className="inline-block rounded h-20 max-w-full object-contain mx-auto border border-pink-100"
                           />
-                        </div>
-                      )}
+                        ) : (
+                          <div className="h-20 w-full flex items-center justify-center border border-dashed border-gray-100 rounded bg-gray-50">
+                            <span className="text-xs text-gray-300">No image preview</span>
+                          </div>
+                        )}
+                      </div>
                       
                       {service.featured && (
                         <Badge className="mt-1 bg-[#FF92A5] text-white border-0 text-mini">

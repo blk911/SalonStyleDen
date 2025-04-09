@@ -91,15 +91,19 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
           </div>
         </div>
         
-        {service.gifUrl && (
-          <div className="mt-1 mb-1 text-center">
+        <div className="mt-2 mb-2 text-center">
+          {service.gifUrl ? (
             <img 
               src={service.gifUrl} 
               alt={`${service.name} preview`} 
-              className="inline-block rounded max-h-20 max-w-full object-contain"
+              className="inline-block rounded h-20 max-w-full object-contain mx-auto border border-pink-100"
             />
-          </div>
-        )}
+          ) : (
+            <div className="h-20 w-full flex items-center justify-center border border-dashed border-gray-200 rounded bg-gray-50">
+              <span className="text-xs text-gray-400">No image preview</span>
+            </div>
+          )}
+        </div>
         
         <div className="flex justify-between items-center mt-1">
           {service.featured && (
@@ -149,16 +153,75 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
           />
         </div>
         
-        <div>
-          <Label htmlFor="gifUrl" className="text-xs">GIF URL</Label>
-          <Input
-            id="gifUrl"
-            name="gifUrl"
-            value={editedService.gifUrl || ""}
-            onChange={handleTextChange}
-            className="text-xs h-8"
-            placeholder="Enter a URL for a style preview GIF"
-          />
+        <div className="space-y-2">
+          <Label htmlFor="gifUrl" className="text-xs">Style Image Preview</Label>
+          
+          {/* Current Image Preview */}
+          <div className="text-center">
+            {editedService.gifUrl ? (
+              <div className="relative inline-block">
+                <img 
+                  src={editedService.gifUrl} 
+                  alt="Preview" 
+                  className="h-28 max-w-full object-contain rounded border border-pink-100 mx-auto"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="absolute top-1 right-1 h-6 w-6 p-0 rounded-full bg-white/80 hover:bg-white text-gray-600"
+                  onClick={() => setEditedService(prev => ({ ...prev, gifUrl: "" }))}
+                >
+                  ×
+                </Button>
+              </div>
+            ) : (
+              <div className="h-28 w-full flex flex-col items-center justify-center border border-dashed border-gray-200 rounded bg-gray-50">
+                <span className="text-xs text-gray-500">No image selected</span>
+                <span className="text-xs text-gray-400 mt-1">Upload an image or enter URL below</span>
+              </div>
+            )}
+          </div>
+          
+          {/* File Upload Input */}
+          <div className="flex flex-col">
+            <Label htmlFor="imageUpload" className="text-xs text-gray-600">Upload Image</Label>
+            <Input
+              id="imageUpload"
+              type="file"
+              accept="image/*"
+              className="text-xs h-8 mt-1"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (event: ProgressEvent<FileReader>) => {
+                    const target = event.target as FileReader;
+                    if (target && target.result) {
+                      setEditedService(prev => ({ 
+                        ...prev, 
+                        gifUrl: target.result as string 
+                      }));
+                    }
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
+          </div>
+          
+          {/* URL Input Option */}
+          <div className="flex flex-col mt-2">
+            <Label htmlFor="gifUrl" className="text-xs text-gray-600">Or Enter Image URL</Label>
+            <Input
+              id="gifUrl"
+              name="gifUrl"
+              value={editedService.gifUrl || ""}
+              onChange={handleTextChange}
+              className="text-xs h-8 mt-1"
+              placeholder="https://example.com/image.gif"
+            />
+          </div>
         </div>
         
         <div className="grid grid-cols-2 gap-2">

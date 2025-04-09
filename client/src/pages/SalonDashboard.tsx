@@ -44,7 +44,7 @@ export default function SalonDashboard() {
       price: 40,
       duration: 30,
       featured: true,
-      gifUrl: ""
+      gifUrl: "https://i.pinimg.com/originals/d8/a8/95/d8a895078a8f73e6be3af12b28fa6afa.gif"
     },
     {
       id: 2,
@@ -53,7 +53,7 @@ export default function SalonDashboard() {
       price: 55,
       duration: 45,
       featured: true,
-      gifUrl: ""
+      gifUrl: "https://i.pinimg.com/originals/8d/8e/a1/8d8ea1d328198e3a702762a7d75d4a79.gif"
     },
     {
       id: 3,
@@ -62,7 +62,7 @@ export default function SalonDashboard() {
       price: 70,
       duration: 60,
       featured: true,
-      gifUrl: ""
+      gifUrl: "https://i.pinimg.com/originals/7f/26/e7/7f26e74b9bd52f59295fd7473a2b36ff.gif"
     },
     {
       id: 4,
@@ -71,7 +71,7 @@ export default function SalonDashboard() {
       price: 125,
       duration: 90,
       featured: true,
-      gifUrl: ""
+      gifUrl: "https://i.pinimg.com/originals/95/c2/64/95c264e66b4b17e68258429e80facc92.gif"
     }
   ]);
 
@@ -160,7 +160,7 @@ export default function SalonDashboard() {
         price: 40,
         duration: 30,
         featured: true,
-        gifUrl: ""
+        gifUrl: "https://i.pinimg.com/originals/d8/a8/95/d8a895078a8f73e6be3af12b28fa6afa.gif"
       },
       {
         name: "Luxe Gel Manicure",
@@ -168,7 +168,7 @@ export default function SalonDashboard() {
         price: 55,
         duration: 45,
         featured: true,
-        gifUrl: ""
+        gifUrl: "https://i.pinimg.com/originals/8d/8e/a1/8d8ea1d328198e3a702762a7d75d4a79.gif"
       },
       {
         name: "Sculpted Acrylics",
@@ -176,7 +176,7 @@ export default function SalonDashboard() {
         price: 70,
         duration: 60,
         featured: true,
-        gifUrl: ""
+        gifUrl: "https://i.pinimg.com/originals/7f/26/e7/7f26e74b9bd52f59295fd7473a2b36ff.gif"
       },
       {
         name: "Glam Me! Custom Design",
@@ -184,7 +184,7 @@ export default function SalonDashboard() {
         price: 125,
         duration: 90,
         featured: true,
-        gifUrl: ""
+        gifUrl: "https://i.pinimg.com/originals/95/c2/64/95c264e66b4b17e68258429e80facc92.gif"
       }
     ];
 
