@@ -39,27 +39,39 @@ export default function SalonDashboard() {
   const [services, setServices] = useState<ServiceData[]>([
     {
       id: 1,
-      name: "Classic Manicure",
-      description: "Nail shaping, cuticle care, hand massage, and polish application",
-      price: 30,
-      duration: 45,
-      featured: true
+      name: "French Tips / Touch-Up",
+      description: "Classic white tips or quick polish refresh.",
+      price: 40,
+      duration: 30,
+      featured: true,
+      gifUrl: ""
     },
     {
       id: 2,
-      name: "Chic French Tips",
-      description: "Classic French manicure with elegant white tips",
-      price: 35,
-      duration: 50,
-      featured: false
+      name: "Luxe Gel Manicure",
+      description: "Glossy, chip-free color with lasting shine.",
+      price: 55,
+      duration: 45,
+      featured: true,
+      gifUrl: ""
     },
     {
       id: 3,
-      name: "Luxe Gel Manicure",
-      description: "Long-lasting gel polish with nail prep and cuticle care",
-      price: 45,
+      name: "Sculpted Acrylics",
+      description: "Custom-shaped acrylics for bold length.",
+      price: 70,
       duration: 60,
-      featured: true
+      featured: true,
+      gifUrl: ""
+    },
+    {
+      id: 4,
+      name: "Glam Me! Custom Design",
+      description: "Fully custom art, gems, 3D extras.",
+      price: 125,
+      duration: 90,
+      featured: true,
+      gifUrl: ""
     }
   ]);
 
@@ -84,8 +96,7 @@ export default function SalonDashboard() {
     }
   ]);
 
-  // State for adding new service/promo
-  const [isAddingService, setIsAddingService] = useState(false);
+  // State for adding new promo
   const [isAddingPromo, setIsAddingPromo] = useState(false);
 
   // Weekly schedule state
@@ -117,7 +128,6 @@ export default function SalonDashboard() {
     // In a real app, this would be an API call that returns the new ID
     const newId = Math.max(...services.map(s => s.id), 0) + 1;
     setServices(prev => [...prev, { ...newService, id: newId }]);
-    setIsAddingService(false);
   };
 
   const handleDeleteService = (id: number) => {
@@ -178,25 +188,20 @@ export default function SalonDashboard() {
       }
     ];
 
-    // Add all default services at once with new IDs
-    setServices(prev => {
-      // Find the highest current ID
-      const maxId = Math.max(...prev.map(s => s.id), 0);
-      
-      // Create new services with sequential IDs
-      const newServices = defaultServices.map((service, index) => ({
-        ...service,
-        id: maxId + index + 1
-      }));
-      
-      // Return the combined array
-      return [...prev, ...newServices];
-    });
+    // Replace existing services with default ones
+    // Starting with ID 1 for clean numbering
+    const newServices = defaultServices.map((service, index) => ({
+      ...service,
+      id: index + 1
+    }));
+    
+    // Set the services state to only contain the default services
+    setServices(newServices);
 
     // Show a toast notification
     toast({
-      title: "Default styles added!",
-      description: "Four standard style options have been added to your salon.",
+      title: "Default styles reset!",
+      description: "Style options have been reset to the four standard options.",
       duration: 3000
     });
   };
@@ -305,44 +310,17 @@ export default function SalonDashboard() {
               <CardContent className="p-2">
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium text-sm">Ven Me, Baby! Style Options</h3>
-                  <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="text-xs h-7 border-purple-200 text-purple-700 hover:bg-purple-50"
-                      onClick={() => handleAddDefaultServices()}
-                    >
-                      Add Default Styles
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
-                      onClick={() => setIsAddingService(true)}
-                    >
-                      + Custom Style
-                    </Button>
-                  </div>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="text-xs h-7 border-purple-200 text-purple-700 hover:bg-purple-50"
+                    onClick={() => handleAddDefaultServices()}
+                  >
+                    Reset Default Styles
+                  </Button>
                 </div>
                 
                 <div className="space-y-2">
-                  {/* Add new style option form */}
-                  {isAddingService && (
-                    <EditableService
-                      service={{
-                        id: 0,
-                        name: "",
-                        description: "",
-                        gifUrl: "",
-                        price: 0,
-                        duration: 30,
-                        featured: false
-                      }}
-                      onSave={handleAddService}
-                      onDelete={() => setIsAddingService(false)}
-                    />
-                  )}
-                  
                   {/* Existing style options */}
                   {services.map(service => (
                     <EditableService
