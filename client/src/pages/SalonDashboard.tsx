@@ -146,6 +146,14 @@ export default function SalonDashboard() {
         throw new Error('Failed to save service to database');
       }
       
+      // Get the updated salon data (including services)
+      const updatedSalonData = await response.json();
+      
+      // Update local state with the data from server
+      if (updatedSalonData.services && Array.isArray(updatedSalonData.services)) {
+        setServices(updatedSalonData.services);
+      }
+      
       // Display success message
       toast({
         title: "Service updated",
@@ -189,6 +197,14 @@ export default function SalonDashboard() {
         throw new Error('Failed to save new service to database');
       }
       
+      // Get the updated salon data (including services)
+      const updatedSalonData = await response.json();
+      
+      // Update local state with the data from server
+      if (updatedSalonData.services && Array.isArray(updatedSalonData.services)) {
+        setServices(updatedSalonData.services);
+      }
+      
       toast({
         title: "Service added",
         description: "Your new style option has been added.",
@@ -225,6 +241,14 @@ export default function SalonDashboard() {
       
       if (!response.ok) {
         throw new Error('Failed to delete service from database');
+      }
+      
+      // Get the updated salon data (including services)
+      const updatedSalonData = await response.json();
+      
+      // Update local state with the data from server
+      if (updatedSalonData.services && Array.isArray(updatedSalonData.services)) {
+        setServices(updatedSalonData.services);
       }
       
       toast({
@@ -432,6 +456,14 @@ export default function SalonDashboard() {
       
       if (!response.ok) {
         throw new Error('Failed to save default services to database');
+      }
+      
+      // Get the updated salon data (including services)
+      const updatedSalonData = await response.json();
+      
+      // Update local state with the data from server
+      if (updatedSalonData.services && Array.isArray(updatedSalonData.services)) {
+        setServices(updatedSalonData.services);
       }
       
       // Show a toast notification

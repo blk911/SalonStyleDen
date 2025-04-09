@@ -241,8 +241,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // For now, we'll just acknowledge receipt of the image
       console.log(`Received image for service ${serviceId} in salon ${salonId}`);
       
-      // Return a dummy URL for the frontend to use
-      const imageUrl = `/images/service_${serviceId}_${Date.now()}.jpg`;
+      // Return a real image URL for testing purposes
+      // In a production application, we would store the actual uploaded image
+      // and return its URL. For now, we'll use placeholder images 
+      const imageUrl = `https://picsum.photos/400/300?random=${serviceId}_${Date.now()}`;
       
       res.json({ 
         success: true, 
