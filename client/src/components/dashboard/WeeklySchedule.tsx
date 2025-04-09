@@ -25,12 +25,12 @@ interface WeeklyScheduleProps {
 // Default weekly schedule template
 const defaultWeeklySchedule: DaySchedule[] = [
   { dayOfWeek: 0, dayName: "Sunday", isOpen: false, openTime: "10:00", closeTime: "18:00" },
-  { dayOfWeek: 1, dayName: "Monday", isOpen: true, openTime: "09:00", closeTime: "17:00" },
-  { dayOfWeek: 2, dayName: "Tuesday", isOpen: true, openTime: "09:00", closeTime: "17:00" },
-  { dayOfWeek: 3, dayName: "Wednesday", isOpen: true, openTime: "09:00", closeTime: "17:00" },
-  { dayOfWeek: 4, dayName: "Thursday", isOpen: true, openTime: "09:00", closeTime: "17:00" },
-  { dayOfWeek: 5, dayName: "Friday", isOpen: true, openTime: "09:00", closeTime: "17:00" },
-  { dayOfWeek: 6, dayName: "Saturday", isOpen: true, openTime: "10:00", closeTime: "16:00" },
+  { dayOfWeek: 1, dayName: "Monday", isOpen: true, openTime: "09:00", closeTime: "19:00" },
+  { dayOfWeek: 2, dayName: "Tuesday", isOpen: true, openTime: "09:00", closeTime: "19:00" },
+  { dayOfWeek: 3, dayName: "Wednesday", isOpen: true, openTime: "09:00", closeTime: "19:00" },
+  { dayOfWeek: 4, dayName: "Thursday", isOpen: true, openTime: "09:00", closeTime: "20:00" },
+  { dayOfWeek: 5, dayName: "Friday", isOpen: true, openTime: "09:00", closeTime: "20:00" },
+  { dayOfWeek: 6, dayName: "Saturday", isOpen: true, openTime: "10:00", closeTime: "18:00" },
 ];
 
 export default function WeeklySchedule({ 
@@ -165,21 +165,31 @@ export default function WeeklySchedule({
                         <select 
                           value={day.openTime}
                           onChange={(e) => updateDay({ openTime: e.target.value }, index)}
-                          className="border-0 bg-transparent p-1 text-xs outline-none min-w-[60px]"
+                          className="border-0 bg-transparent p-1 text-xs outline-none min-w-[65px]"
                         >
-                          {["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00"].map(time => (
-                            <option key={time} value={time}>{time}</option>
-                          ))}
+                          {["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00"].map(time => {
+                            const hour = parseInt(time.split(':')[0]);
+                            const ampm = hour >= 12 ? 'PM' : 'AM';
+                            const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+                            return (
+                              <option key={time} value={time}>{`${displayHour}:00 ${ampm}`}</option>
+                            );
+                          })}
                         </select>
                         <span className="text-gray-400 px-1">to</span>
                         <select 
                           value={day.closeTime}
                           onChange={(e) => updateDay({ closeTime: e.target.value }, index)}
-                          className="border-0 bg-transparent p-1 text-xs outline-none min-w-[60px]"
+                          className="border-0 bg-transparent p-1 text-xs outline-none min-w-[65px]"
                         >
-                          {["13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"].map(time => (
-                            <option key={time} value={time}>{time}</option>
-                          ))}
+                          {["13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"].map(time => {
+                            const hour = parseInt(time.split(':')[0]);
+                            const ampm = hour >= 12 ? 'PM' : 'AM';
+                            const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+                            return (
+                              <option key={time} value={time}>{`${displayHour}:00 ${ampm}`}</option>
+                            );
+                          })}
                         </select>
                       </div>
                     </div>
