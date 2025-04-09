@@ -73,6 +73,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Update salon services
+  apiRouter.post("/salons/:id/services", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      // Get the services array from request body
+      const { services } = req.body;
+      if (!Array.isArray(services)) {
+        return res.status(400).json({ error: "Services must be an array" });
+      }
+      
+      // Get the salon first
+      const salon = await storage.getSalon(id);
+      if (!salon) {
+        return res.status(404).json({ error: "Salon not found" });
+      }
+      
+      // Update the salon with the new services
+      const updatedSalon = await storage.updateSalonServices(id, services);
+      
+      res.json(updatedSalon);
+    } catch (error) {
+      console.error('Error updating salon services:', error);
+      res.status(500).json({ error: "Failed to update salon services" });
+    }
+  });
+  
+  // Update salon promos
+  apiRouter.post("/salons/:id/promos", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      // Get the promos array from request body
+      const { promos } = req.body;
+      if (!Array.isArray(promos)) {
+        return res.status(400).json({ error: "Promos must be an array" });
+      }
+      
+      // Get the salon first
+      const salon = await storage.getSalon(id);
+      if (!salon) {
+        return res.status(404).json({ error: "Salon not found" });
+      }
+      
+      // Update the salon with the new promos
+      const updatedSalon = await storage.updateSalonPromos(id, promos);
+      
+      res.json(updatedSalon);
+    } catch (error) {
+      console.error('Error updating salon promos:', error);
+      res.status(500).json({ error: "Failed to update salon promos" });
+    }
+  });
+  
   // Client routes
   apiRouter.post("/clients", async (req: Request, res: Response) => {
     try {

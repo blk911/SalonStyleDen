@@ -118,40 +118,260 @@ export default function SalonDashboard() {
     refetch();
   };
 
-  const handleSaveService = (updatedService: ServiceData) => {
+  const handleSaveService = async (updatedService: ServiceData) => {
+    // Update in local state first
     setServices(prev => 
       prev.map(service => service.id === updatedService.id ? updatedService : service)
     );
+    
+    // Then send to API to persist
+    try {
+      if (!id) return;
+      
+      // Get the current services
+      const updatedServices = services.map(service => 
+        service.id === updatedService.id ? updatedService : service
+      );
+      
+      // Save to database via API
+      const response = await fetch(`/api/salons/${id}/services`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ services: updatedServices })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save service to database');
+      }
+      
+      // Display success message
+      toast({
+        title: "Service updated",
+        description: "Your style option has been saved to the database.",
+        duration: 3000
+      });
+      
+    } catch (error) {
+      console.error('Error saving service:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save your style option. Please try again.",
+        variant: "destructive",
+        duration: 3000
+      });
+    }
   };
 
-  const handleAddService = (newService: ServiceData) => {
-    // In a real app, this would be an API call that returns the new ID
+  const handleAddService = async (newService: ServiceData) => {
+    // Generate a new ID locally
     const newId = Math.max(...services.map(s => s.id), 0) + 1;
-    setServices(prev => [...prev, { ...newService, id: newId }]);
+    const serviceWithId = { ...newService, id: newId };
+    
+    // Update local state
+    const updatedServices = [...services, serviceWithId];
+    setServices(updatedServices);
+    
+    // Save to API
+    try {
+      if (!id) return;
+      
+      const response = await fetch(`/api/salons/${id}/services`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ services: updatedServices })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save new service to database');
+      }
+      
+      toast({
+        title: "Service added",
+        description: "Your new style option has been added.",
+        duration: 3000
+      });
+      
+    } catch (error) {
+      console.error('Error adding service:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add your new style option. Please try again.",
+        variant: "destructive",
+        duration: 3000
+      });
+    }
   };
 
-  const handleDeleteService = (id: number) => {
-    setServices(prev => prev.filter(service => service.id !== id));
+  const handleDeleteService = async (id: number) => {
+    // Update local state
+    const updatedServices = services.filter(service => service.id !== id);
+    setServices(updatedServices);
+    
+    // Save to API
+    try {
+      if (!salon?.id) return;
+      
+      const response = await fetch(`/api/salons/${salon.id}/services`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ services: updatedServices })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete service from database');
+      }
+      
+      toast({
+        title: "Service deleted",
+        description: "The style option has been removed.",
+        duration: 3000
+      });
+      
+    } catch (error) {
+      console.error('Error deleting service:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete the style option. Please try again.",
+        variant: "destructive",
+        duration: 3000
+      });
+    }
   };
 
-  const handleSavePromo = (updatedPromo: PromoData) => {
+  const handleSavePromo = async (updatedPromo: PromoData) => {
+    // Update in local state first
     setPromos(prev => 
       prev.map(promo => promo.id === updatedPromo.id ? updatedPromo : promo)
     );
+    
+    // Then save to API
+    try {
+      if (!id) return;
+      
+      // Get the current promos with the updated one
+      const updatedPromos = promos.map(promo => 
+        promo.id === updatedPromo.id ? updatedPromo : promo
+      );
+      
+      // Save to database via API
+      const response = await fetch(`/api/salons/${id}/promos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ promos: updatedPromos })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save promo to database');
+      }
+      
+      // Display success message
+      toast({
+        title: "Promotion updated",
+        description: "Your promotion has been saved to the database.",
+        duration: 3000
+      });
+      
+    } catch (error) {
+      console.error('Error saving promo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save your promotion. Please try again.",
+        variant: "destructive",
+        duration: 3000
+      });
+    }
   };
 
-  const handleAddPromo = (newPromo: PromoData) => {
-    // In a real app, this would be an API call that returns the new ID
+  const handleAddPromo = async (newPromo: PromoData) => {
+    // Generate a new ID locally
     const newId = Math.max(...promos.map(p => p.id), 0) + 1;
-    setPromos(prev => [...prev, { ...newPromo, id: newId }]);
+    const promoWithId = { ...newPromo, id: newId };
+    
+    // Update local state
+    const updatedPromos = [...promos, promoWithId];
+    setPromos(updatedPromos);
     setIsAddingPromo(false);
+    
+    // Save to API
+    try {
+      if (!id) return;
+      
+      const response = await fetch(`/api/salons/${id}/promos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ promos: updatedPromos })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save new promo to database');
+      }
+      
+      toast({
+        title: "Promotion added",
+        description: "Your new promotion has been added.",
+        duration: 3000
+      });
+      
+    } catch (error) {
+      console.error('Error adding promo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add your new promotion. Please try again.",
+        variant: "destructive",
+        duration: 3000
+      });
+    }
   };
 
-  const handleDeletePromo = (id: number) => {
-    setPromos(prev => prev.filter(promo => promo.id !== id));
+  const handleDeletePromo = async (id: number) => {
+    // Update local state
+    const updatedPromos = promos.filter(promo => promo.id !== id);
+    setPromos(updatedPromos);
+    
+    // Save to API
+    try {
+      if (!salon?.id) return;
+      
+      const response = await fetch(`/api/salons/${salon.id}/promos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ promos: updatedPromos })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete promo from database');
+      }
+      
+      toast({
+        title: "Promotion deleted",
+        description: "The promotion has been removed.",
+        duration: 3000
+      });
+      
+    } catch (error) {
+      console.error('Error deleting promo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete the promotion. Please try again.",
+        variant: "destructive",
+        duration: 3000
+      });
+    }
   };
 
-  const handleAddDefaultServices = () => {
+  const handleAddDefaultServices = async () => {
     // Define the default style options
     const defaultServices = [
       {
@@ -198,12 +418,38 @@ export default function SalonDashboard() {
     // Set the services state to only contain the default services
     setServices(newServices);
 
-    // Show a toast notification
-    toast({
-      title: "Default styles reset!",
-      description: "Style options have been reset to the four standard options.",
-      duration: 3000
-    });
+    // Save to API
+    try {
+      if (!id) return;
+      
+      const response = await fetch(`/api/salons/${id}/services`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ services: newServices })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save default services to database');
+      }
+      
+      // Show a toast notification
+      toast({
+        title: "Default styles reset!",
+        description: "Style options have been reset to the four standard options.",
+        duration: 3000
+      });
+      
+    } catch (error) {
+      console.error('Error saving default services:', error);
+      toast({
+        title: "Error",
+        description: "Reset applied locally, but failed to save to database.",
+        variant: "destructive",
+        duration: 3000
+      });
+    }
   };
 
   const handleSaveSchedule = () => {

@@ -16,6 +16,8 @@ export interface IStorage {
   getSalon(id: number): Promise<Salon | undefined>;
   createSalon(salon: InsertSalon): Promise<Salon>;
   getAllSalons(): Promise<Salon[]>;
+  updateSalonServices(id: number, services: any[]): Promise<Salon>;
+  updateSalonPromos(id: number, promos: any[]): Promise<Salon>;
   
   // Client methods
   getClient(id: number): Promise<Client | undefined>;
@@ -64,6 +66,28 @@ export class DatabaseStorage implements IStorage {
 
   async getAllSalons(): Promise<Salon[]> {
     return await db.select().from(salons);
+  }
+  
+  async updateSalonServices(id: number, services: any[]): Promise<Salon> {
+    // Update salon services
+    const result = await db
+      .update(salons)
+      .set({ services: services })
+      .where(eq(salons.id, id))
+      .returning();
+    
+    return result[0];
+  }
+  
+  async updateSalonPromos(id: number, promos: any[]): Promise<Salon> {
+    // Update salon promos
+    const result = await db
+      .update(salons)
+      .set({ promos: promos })
+      .where(eq(salons.id, id))
+      .returning();
+    
+    return result[0];
   }
 
   // Client methods

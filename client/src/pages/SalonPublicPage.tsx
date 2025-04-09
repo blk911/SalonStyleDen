@@ -70,57 +70,48 @@ export default function SalonPublicPage() {
         
         const salonData = await response.json();
         
-        // For now, we'll mock services and promos
-        // These would be actual API calls in production
-        const mockServices: Service[] = [
+        // Use the services from the API if available, or provide defaults
+        const defaultServices: Service[] = [
           {
             id: 1,
-            name: "Classic Manicure",
-            description: "Nail shaping, cuticle care, hand massage, and polish application",
-            price: 30,
-            duration: 45,
+            name: "French Tips / Touch-Up",
+            description: "Classic white tips or quick polish refresh.",
+            price: 40,
+            duration: 30,
             featured: true,
-            gifUrl: "https://media2.giphy.com/media/l0HlDEOQcQkXZvuEg/giphy.gif"
+            gifUrl: "https://i.pinimg.com/originals/d8/a8/95/d8a895078a8f73e6be3af12b28fa6afa.gif"
           },
           {
             id: 2,
-            name: "French Tips / Touch-Up",
-            description: "Classic white tips or quick polish refresh",
-            price: 40,
-            duration: 50,
-            featured: false,
-            gifUrl: "https://media.giphy.com/media/3o7btNa0RUYa5E7iiQ/giphy.gif"
+            name: "Luxe Gel Manicure",
+            description: "Glossy, chip-free color with lasting shine.",
+            price: 55,
+            duration: 45,
+            featured: true,
+            gifUrl: "https://i.pinimg.com/originals/8d/8e/a1/8d8ea1d328198e3a702762a7d75d4a79.gif"
           },
           {
             id: 3,
-            name: "Luxe Gel Manicure",
-            description: "Glossy, chip-free color with lasting shine",
-            price: 55,
+            name: "Sculpted Acrylics",
+            description: "Custom-shaped acrylics for bold length.",
+            price: 70,
             duration: 60,
             featured: true,
-            gifUrl: "https://media.giphy.com/media/xT9DPzhNGA8MKjxwFG/giphy.gif"
+            gifUrl: "https://i.pinimg.com/originals/7f/26/e7/7f26e74b9bd52f59295fd7473a2b36ff.gif"
           },
           {
             id: 4,
-            name: "Sculpted Acrylics",
-            description: "Full-coverage acrylic extensions with custom shaping",
-            price: 70,
-            duration: 75,
-            featured: false,
-            gifUrl: "https://media.giphy.com/media/3oriNYucxHfpksjf7W/giphy.gif"
-          },
-          {
-            id: 5,
             name: "Glam Me! Custom Design",
-            description: "Artistic nail art with crystals, gold leaf, and specialty effects",
+            description: "Fully custom art, gems, 3D extras.",
             price: 125,
             duration: 90,
             featured: true,
-            gifUrl: "https://media.giphy.com/media/3og0Iz2nXIHdgNQ06Q/giphy.gif"
+            gifUrl: "https://i.pinimg.com/originals/95/c2/64/95c264e66b4b17e68258429e80facc92.gif"
           }
         ];
         
-        const mockPromos: Promo[] = [
+        // Default promos if none exist in database
+        const defaultPromos: Promo[] = [
           {
             id: 1,
             title: "Summer Special",
@@ -132,21 +123,18 @@ export default function SalonPublicPage() {
             title: "New Client Offer",
             description: "Free nail art with any service",
             endDate: null
-          },
-          {
-            id: 3,
-            title: "Bring a Friend",
-            description: "25% off for you and a friend",
-            endDate: "2025-08-15"
           }
         ];
         
-        // Add mock data to salon object
-        // In production, these would come from real API calls
+        // Add real data from the database if available, otherwise use defaults
         return {
           ...salonData,
-          services: mockServices,
-          promos: mockPromos
+          services: Array.isArray(salonData.services) && salonData.services.length > 0 
+            ? salonData.services 
+            : defaultServices,
+          promos: Array.isArray(salonData.promos) && salonData.promos.length > 0 
+            ? salonData.promos 
+            : defaultPromos
         };
       } catch (err) {
         console.error("Error fetching salon data:", err);

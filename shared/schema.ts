@@ -24,6 +24,8 @@ export const salons = pgTable("salons", {
   city: text("city"),
   state: text("state"),
   zipCode: text("zip_code"),
+  services: jsonb("services"), // Stores array of service objects
+  promos: jsonb("promos"), // Stores array of promo objects
   createdAt: timestamp("created_at").defaultNow(),
 });
 
