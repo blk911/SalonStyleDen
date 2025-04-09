@@ -102,43 +102,40 @@ export default function WeeklySchedule({
 
   return (
     <Card className="shadow-sm">
-      <CardContent className="p-3">
+      <CardContent className="p-3 text-center">
         <div 
-          className="flex justify-between items-start cursor-pointer" 
+          className="flex flex-col items-center cursor-pointer" 
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <div className="flex-1">
-            <h3 className="font-semibold text-base text-pink-800">Hours of Operation</h3>
-            {isSaved && !isExpanded && (
-              <div className="flex items-center mt-1">
-                <p className="text-sm text-gray-600 font-medium">{getScheduleSummary()}</p>
-              </div>
-            )}
-          </div>
-          <div>
-            {isExpanded ? (
-              <Button 
-                size="sm" 
-                className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
-                variant="outline"
-                disabled={isSubmitting}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSaveSchedule();
-                }}
-              >
-                {showSuccess ? 'Saved!' : isSubmitting ? 'Saving...' : 'Save'}
-              </Button>
-            ) : (
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
-              >
-                Edit
-              </Button>
-            )}
-          </div>
+          <h3 className="font-semibold text-base text-pink-800">Hours of Operation</h3>
+          {isSaved && !isExpanded && (
+            <div className="mt-1">
+              <p className="text-sm text-gray-600 font-medium">{getScheduleSummary()}</p>
+            </div>
+          )}
+          
+          {isExpanded ? (
+            <Button 
+              size="sm" 
+              className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50 mt-2"
+              variant="outline"
+              disabled={isSubmitting}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSaveSchedule();
+              }}
+            >
+              {showSuccess ? 'Saved!' : isSubmitting ? 'Saving...' : 'Save Schedule'}
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50 mt-2"
+            >
+              Edit Schedule
+            </Button>
+          )}
         </div>
         
         {isExpanded && (
@@ -147,27 +144,27 @@ export default function WeeklySchedule({
               {schedule.map((day, index) => (
                 <div 
                   key={day.dayOfWeek} 
-                  className={`border ${day.isOpen ? 'border-pink-100 bg-pink-50/30' : 'border-gray-200 bg-gray-50'} rounded p-2.5 flex justify-between items-center`}
+                  className={`border ${day.isOpen ? 'border-pink-100 bg-pink-50/30' : 'border-gray-200 bg-gray-50'} rounded p-2.5 flex flex-col items-center gap-2`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 w-full justify-center">
                     <Switch 
                       id={`day-${day.dayOfWeek}`}
                       checked={day.isOpen}
                       onCheckedChange={(checked) => updateDay({ isOpen: checked }, index)}
                       className="data-[state=checked]:bg-[#FF92A5]"
                     />
-                    <Label htmlFor={`day-${day.dayOfWeek}`} className="text-sm font-medium text-gray-700 min-w-[100px]">
+                    <Label htmlFor={`day-${day.dayOfWeek}`} className="text-sm font-medium text-gray-700 min-w-[100px] text-center">
                       {day.dayName}
                     </Label>
                   </div>
                   
                   {day.isOpen ? (
-                    <div className="flex items-center">
+                    <div className="flex items-center justify-center">
                       <div className="bg-white rounded-md border border-gray-200 px-2 py-1 flex items-center">
                         <select 
                           value={day.openTime}
                           onChange={(e) => updateDay({ openTime: e.target.value }, index)}
-                          className="border-0 bg-transparent p-1 text-xs outline-none min-w-[60px] text-gray-700"
+                          className="border-0 bg-transparent p-1 text-xs outline-none min-w-[60px] text-gray-700 text-center"
                         >
                           {["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00"].map(time => (
                             <option key={time} value={time}>{time}</option>
@@ -177,7 +174,7 @@ export default function WeeklySchedule({
                         <select 
                           value={day.closeTime}
                           onChange={(e) => updateDay({ closeTime: e.target.value }, index)}
-                          className="border-0 bg-transparent p-1 text-xs outline-none min-w-[60px] text-gray-700"
+                          className="border-0 bg-transparent p-1 text-xs outline-none min-w-[60px] text-gray-700 text-center"
                         >
                           {["13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00"].map(time => (
                             <option key={time} value={time}>{time}</option>
@@ -186,7 +183,7 @@ export default function WeeklySchedule({
                       </div>
                     </div>
                   ) : (
-                    <span className="text-xs text-gray-500 italic pr-2">Closed</span>
+                    <span className="text-xs text-gray-500 italic">Closed</span>
                   )}
                 </div>
               ))}
