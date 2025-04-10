@@ -428,7 +428,7 @@ export default function ClientForm() {
                         <FormLabel 
                           className={`font-semibold text-sm ${field.value === "no" ? "text-pink-600" : "text-gray-600"}`}
                         >
-                          No
+                          No! SIGN ME UP!!
                         </FormLabel>
                       </FormItem>
                     </RadioGroup>
