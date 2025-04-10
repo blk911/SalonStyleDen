@@ -69,12 +69,19 @@ export default function ClientForm() {
   const { data: salons, isLoading: isLoadingSalons } = useQuery<SalonOption[]>({
     queryKey: ['/api/salons'],
     queryFn: async () => {
+      console.log('Fetching salons for client form...');
       const response = await fetch('/api/salons');
       if (!response.ok) {
+        console.error('Failed to fetch salons:', response.status, response.statusText);
         throw new Error('Failed to fetch salons');
       }
-      return response.json();
-    }
+      const data = await response.json();
+      console.log('Salon data loaded:', data);
+      return data;
+    },
+    // Make sure this query runs on component mount and data is fresh
+    staleTime: 0,
+    refetchOnMount: true
   });
 
   const form = useForm<ClientFormValues>({
@@ -333,54 +340,88 @@ export default function ClientForm() {
               name="isCurrentClient"
               render={({ field }) => (
                 <FormItem>
-                  <div className="text-sm mb-1">Are you a current client?</div>
+                  <div className="text-sm mb-1 font-medium">Are you a current client?</div>
                   <FormControl>
                     <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      onValueChange={(value) => {
+                        console.log(`Client status changed to: ${value}`);
+                        field.onChange(value);
+                      }}
+                      value={field.value}
                       className="flex space-x-4"
                     >
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
-                          <RadioGroupItem value="yes" />
+                          <RadioGroupItem 
+                            value="yes" 
+                            className="border-pink-500 text-pink-500" 
+                          />
                         </FormControl>
-                        <FormLabel className="font-normal text-sm">Yes</FormLabel>
+                        <FormLabel 
+                          className={`font-semibold text-sm ${field.value === "yes" ? "text-pink-600" : "text-gray-600"}`}
+                          onClick={() => field.onChange("yes")}
+                        >
+                          Yes - I visit a salon regularly
+                        </FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
                           <RadioGroupItem value="no" />
                         </FormControl>
-                        <FormLabel className="font-normal text-sm">No</FormLabel>
+                        <FormLabel 
+                          className={`font-semibold text-sm ${field.value === "no" ? "text-pink-600" : "text-gray-600"}`}
+                          onClick={() => field.onChange("no")}
+                        >
+                          No - New client
+                        </FormLabel>
                       </FormItem>
                     </RadioGroup>
                   </FormControl>
+                  {field.value === "yes" && (
+                    <p className="text-xs text-pink-500 mt-1">
+                      Select your salon below
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
             />
             
-            {/* Salon Selector - Always shown but conditional based on isCurrentClient */}
+            {/* Salon Selector - Always shown but with different styling based on isCurrentClient */}
             <FormField
               control={form.control}
               name="salonId"
               render={({ field }) => (
                 <FormItem>
-                  <div className="text-sm mb-1">
-                    {isCurrentClient === "yes" ? "Select your current salon:" : "Default salon:"}
+                  <div className="text-sm mb-1 font-medium">
+                    {isCurrentClient === "yes" ? (
+                      <span className="text-pink-600">Select your current salon:</span>
+                    ) : (
+                      <span className="text-gray-500">Default salon:</span>
+                    )}
                   </div>
                   <FormControl>
                     <Select
-                      onValueChange={field.onChange}
+                      onValueChange={(value) => {
+                        console.log(`Salon dropdown selection changed to: ${value}`);
+                        field.onChange(value);
+                      }}
                       value={field.value}
                       disabled={isCurrentClient === "no"} // Disable if not a current client
                     >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a salon" />
+                      <SelectTrigger 
+                        className={`w-full ${isCurrentClient === "yes" ? "border-pink-400 bg-pink-50" : "border-gray-200 bg-gray-100"}`}
+                      >
+                        <SelectValue placeholder={isCurrentClient === "yes" ? "Choose your salon" : "Auto-selected"} />
                       </SelectTrigger>
                       <SelectContent>
-                        <ScrollArea className="h-40">
+                        <ScrollArea className="h-48">
                           <SelectGroup>
-                            {salons && salons.length > 0 ? (
+                            {isLoadingSalons ? (
+                              <SelectItem value="loading" disabled>
+                                Loading salon list...
+                              </SelectItem>
+                            ) : salons && salons.length > 0 ? (
                               salons.map((salon) => (
                                 <SelectItem key={salon.id} value={String(salon.id)}>
                                   {salon.name}
@@ -388,7 +429,7 @@ export default function ClientForm() {
                               ))
                             ) : (
                               <SelectItem value="loading" disabled>
-                                Loading salons...
+                                No salons available
                               </SelectItem>
                             )}
                           </SelectGroup>
@@ -396,6 +437,11 @@ export default function ClientForm() {
                       </SelectContent>
                     </Select>
                   </FormControl>
+                  {isCurrentClient === "yes" && (
+                    <p className="text-xs text-pink-500 mt-1">
+                      Please select the salon where you currently get services
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
