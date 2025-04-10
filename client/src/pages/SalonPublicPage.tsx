@@ -71,6 +71,23 @@ export default function SalonPublicPage() {
         
         const salonData = await response.json();
         
+        // Gets the appropriate image URL based on service name
+        const getImageUrlForService = (serviceName: string): string => {
+          const name = serviceName.toLowerCase();
+          
+          if (name.includes('french') || name.includes('tips')) {
+            return '/assets/french-tips.png';
+          } else if (name.includes('gel') || name.includes('manicure') || name.includes('lux')) {
+            return '/assets/gel-manicure.png';
+          } else if (name.includes('sculpt') || name.includes('acrylic')) {
+            return '/assets/sculpted-acrylics.png';
+          } else if (name.includes('glam') || name.includes('custom') || name.includes('design')) {
+            return '/assets/glam-design.png';
+          } else {
+            return '/assets/salon-card.png'; // Default fallback
+          }
+        };
+        
         // Use the services from the API if available, or provide defaults
         const defaultServices: Service[] = [
           {
@@ -127,12 +144,23 @@ export default function SalonPublicPage() {
           }
         ];
         
+        // Make sure any services from the API have the correct image paths
+        let processedServices = defaultServices;
+        
+        if (Array.isArray(salonData.services) && salonData.services.length > 0) {
+          processedServices = salonData.services.map(service => {
+            // For each service, ensure it has the correct gifUrl based on its name
+            return {
+              ...service,
+              gifUrl: service.gifUrl || getImageUrlForService(service.name)
+            };
+          });
+        }
+        
         // Add real data from the database if available, otherwise use defaults
         return {
           ...salonData,
-          services: Array.isArray(salonData.services) && salonData.services.length > 0 
-            ? salonData.services 
-            : defaultServices,
+          services: processedServices,
           promos: Array.isArray(salonData.promos) && salonData.promos.length > 0 
             ? salonData.promos 
             : defaultPromos
