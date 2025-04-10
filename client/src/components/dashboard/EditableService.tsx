@@ -217,23 +217,7 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
           />
         </div>
         
-        <div className="space-y-2">
-          <Label htmlFor="serviceImage" className="text-xs">Style Image Preview</Label>
-          
-          {/* Service-specific Image Preview */}
-          <div className="text-center">
-            <div className="relative inline-block">
-              <img 
-                src={getDefaultImageUrl(editedService.name)}
-                alt="Preview" 
-                className="h-28 max-w-full object-contain rounded border border-pink-100 mx-auto"
-              />
-              <p className="mt-2 text-xs text-gray-500">
-                Image is automatically set based on service type
-              </p>
-            </div>
-          </div>
-        </div>
+        {/* Image section has been removed */}
         
         <div className="grid grid-cols-2 gap-2">
           <div>
