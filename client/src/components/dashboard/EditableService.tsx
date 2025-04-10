@@ -53,20 +53,60 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
       // Handle Windows file paths
       if (imageData && (imageData.includes(':\\') || imageData.includes('C:'))) {
         console.log('Windows path detected in service:', imageData);
-        // Return the Windows path - it will be handled by getImageUrl
+        
+        // For Windows paths, we need to upload the file
+        // Since we can't directly access the file from the browser,
+        // we'll use the fallback mapping to local assets for now
+        console.log('Using fallback image mapping for Windows path');
+        
+        if (editedService.name.toLowerCase().includes('french') || editedService.name.toLowerCase().includes('tips')) {
+          return '/assets/french-tips.png';
+        } else if (editedService.name.toLowerCase().includes('gel') || editedService.name.toLowerCase().includes('manicure')) {
+          return '/assets/gel-manicure.png';
+        } else {
+          return '/assets/salon-card.png';
+        }
+      }
+      
+      // Skip API call if the image hasn't changed (starts with http or /uploads) or is empty
+      if (!imageData || 
+          (imageData.startsWith('http') || 
+           imageData.startsWith('/uploads') || 
+           imageData.startsWith('/assets') || 
+           !imageData.startsWith('data:'))) {
         return imageData;
       }
       
-      // Skip API call if the image hasn't changed (starts with http) or is empty
-      if (!imageData || (imageData && (imageData.startsWith('http') || !imageData.startsWith('data:')))) {
-        return imageData;
+      // We have a base64 image, upload it to server
+      console.log('Uploading base64 image to server...');
+      
+      // Convert base64 to blob
+      const res = await fetch(imageData);
+      const blob = await res.blob();
+      
+      // Create form data
+      const formData = new FormData();
+      formData.append('file', blob, 'service-image.png');
+      
+      // Upload to server
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload image');
       }
       
-      // This API endpoint is no longer used, but we're keeping the function structure
-      // for future implementation or if a real API endpoint is added later
-      console.log('Using fallback image mapping for:', imageData);
+      const uploadResult = await uploadResponse.json();
+      console.log('Image upload successful:', uploadResult);
       
-      // Map to our local assets based on service name
+      // Return the URL from the server
+      return uploadResult.url;
+    } catch (error) {
+      console.error('Error handling image:', error);
+      
+      // Use fallback in case of error
       if (editedService.name.toLowerCase().includes('french') || editedService.name.toLowerCase().includes('tips')) {
         return '/assets/french-tips.png';
       } else if (editedService.name.toLowerCase().includes('gel') || editedService.name.toLowerCase().includes('manicure')) {
@@ -74,9 +114,6 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
       } else {
         return '/assets/salon-card.png';
       }
-    } catch (error) {
-      console.error('Error handling image:', error);
-      return null;
     }
   };
   
@@ -157,7 +194,27 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
         </div>
         
         <div className="mt-3 mb-3 text-center">
-          {service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
+          {service.gifUrl && !service.gifUrl.includes(':\\') && !service.gifUrl.includes('C:') ? (
+            <img 
+              src={service.gifUrl.startsWith('/uploads') || service.gifUrl.startsWith('/assets') || service.gifUrl.startsWith('http') ? service.gifUrl : `/assets/salon-card.png`}
+              alt={`${service.name} preview`} 
+              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+              onError={(e) => {
+                // Fallback if image doesn't load
+                const target = e.target as HTMLImageElement;
+                console.log('Image failed to load:', target.src);
+                
+                // Set fallback based on service name
+                if (service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips')) {
+                  target.src = '/assets/french-tips.png';
+                } else if (service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure')) {
+                  target.src = '/assets/gel-manicure.png';
+                } else {
+                  target.src = '/assets/salon-card.png';
+                }
+              }}
+            />
+          ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
             <img 
               src="/assets/french-tips.png" 
               alt={`${service.name} preview`} 
@@ -241,7 +298,45 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
           
           {/* Current Image Preview */}
           <div className="text-center">
-            {editedService.name.toLowerCase().includes('french') || editedService.name.toLowerCase().includes('tips') ? (
+            {editedService.gifUrl && !editedService.gifUrl.includes(':\\') && !editedService.gifUrl.includes('C:') && (
+             (editedService.gifUrl.startsWith('/uploads') || 
+              editedService.gifUrl.startsWith('/assets') || 
+              editedService.gifUrl.startsWith('http') ||
+              editedService.gifUrl.startsWith('data:'))) ? (
+              <div className="relative inline-block">
+                <img 
+                  src={editedService.gifUrl.startsWith('data:') ? editedService.gifUrl : 
+                       (editedService.gifUrl.startsWith('/uploads') || 
+                        editedService.gifUrl.startsWith('/assets') || 
+                        editedService.gifUrl.startsWith('http')) ? editedService.gifUrl : '/assets/salon-card.png'}
+                  alt="Preview" 
+                  className="h-28 max-w-full object-contain rounded border border-pink-100 mx-auto"
+                  onError={(e) => {
+                    // Fallback if image doesn't load
+                    const target = e.target as HTMLImageElement;
+                    console.log('Edit mode: Image failed to load:', target.src);
+                    
+                    // Set fallback based on service name
+                    if (editedService.name.toLowerCase().includes('french') || editedService.name.toLowerCase().includes('tips')) {
+                      target.src = '/assets/french-tips.png';
+                    } else if (editedService.name.toLowerCase().includes('gel') || editedService.name.toLowerCase().includes('manicure')) {
+                      target.src = '/assets/gel-manicure.png';
+                    } else {
+                      target.src = '/assets/salon-card.png';
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="absolute top-1 right-1 h-6 w-6 p-0 rounded-full bg-white/80 hover:bg-white text-gray-600"
+                  onClick={() => setEditedService(prev => ({ ...prev, gifUrl: "" }))}
+                >
+                  ×
+                </Button>
+              </div>
+            ) : editedService.name.toLowerCase().includes('french') || editedService.name.toLowerCase().includes('tips') ? (
               <div className="relative inline-block">
                 <img 
                   src="/assets/french-tips.png" 
