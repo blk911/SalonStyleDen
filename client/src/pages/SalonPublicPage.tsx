@@ -319,13 +319,12 @@ export default function SalonPublicPage() {
                       </div>
                       
                       <div className="mt-3 mb-3 text-center">
-                        {service.gifUrl && !service.gifUrl.includes(':\\') && !service.gifUrl.includes('C:') ? (
+                        {service.gifUrl ? (
                           <img 
-                            src={service.gifUrl.startsWith('/uploads') || service.gifUrl.startsWith('/assets') || service.gifUrl.startsWith('http') ? service.gifUrl : `/assets/salon-card.png`}
+                            src={getImageUrl(service.gifUrl)}
                             alt={`${service.name} preview`} 
                             className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
                             onError={(e) => {
-                              // Fallback if image doesn't load
                               const target = e.target as HTMLImageElement;
                               console.log('Image failed to load:', target.src);
                               
@@ -334,6 +333,10 @@ export default function SalonPublicPage() {
                                 target.src = '/assets/french-tips.png';
                               } else if (service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure')) {
                                 target.src = '/assets/gel-manicure.png';
+                              } else if (service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic')) {
+                                target.src = '/assets/sculpted-acrylics.png';
+                              } else if (service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design')) {
+                                target.src = '/assets/glam-design.png';
                               } else {
                                 target.src = '/assets/salon-card.png';
                               }
@@ -356,17 +359,17 @@ export default function SalonPublicPage() {
                           />
                         ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
                           <img 
-                            src="/assets/french-tips.png" 
+                            src="/assets/sculpted-acrylics.png" 
                             alt={`${service.name} preview`} 
                             className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                            onLoad={() => { console.log('French Tips image loaded for:', service.name); }}
+                            onLoad={() => { console.log('Sculpted Acrylics image loaded for:', service.name); }}
                           />
                         ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
                           <img 
-                            src="/assets/gel-manicure.png" 
+                            src="/assets/glam-design.png" 
                             alt={`${service.name} preview`} 
                             className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                            onLoad={() => { console.log('Gel Manicure image loaded for:', service.name); }}
+                            onLoad={() => { console.log('Glam Design image loaded for:', service.name); }}
                           />
                         ) : (
                           <div className="h-28 w-full flex items-center justify-center border border-dashed border-gray-200 rounded bg-gray-50">

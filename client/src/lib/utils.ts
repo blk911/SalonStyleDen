@@ -32,8 +32,25 @@ export function getImageUrl(url?: string): string {
   }
   
   // If it's a proper URL from our uploads directory or assets, return as is
-  if (url.startsWith('/uploads/') || url.startsWith('/assets/') || url.startsWith('http')) {
+  if (url.startsWith('/uploads/') || url.startsWith('/assets/')) {
     return url;
+  }
+  
+  // Handle external URLs - replace with our local assets
+  if (url.startsWith('http')) {
+    // Match service type from the URL if possible
+    if (url.toLowerCase().includes('french') || url.toLowerCase().includes('tips')) {
+      return '/assets/french-tips.png';
+    } else if (url.toLowerCase().includes('gel') || url.toLowerCase().includes('manicure')) {
+      return '/assets/gel-manicure.png';
+    } else if (url.toLowerCase().includes('acrylic') || url.toLowerCase().includes('sculpt')) {
+      return '/assets/sculpted-acrylics.png';
+    } else if (url.toLowerCase().includes('custom') || url.toLowerCase().includes('design') || url.toLowerCase().includes('glam')) {
+      return '/assets/glam-design.png';
+    }
+    
+    // Default fallback for external URLs
+    return '/assets/salon-card.png';
   }
   
   // Handle Windows paths (convert to web URLs)
@@ -47,9 +64,9 @@ export function getImageUrl(url?: string): string {
     } else if (filename.includes('gel') || filename.includes('manicure')) {
       return '/assets/gel-manicure.png';
     } else if (filename.includes('acrylic') || filename.includes('sculpt')) {
-      return '/assets/french-tips.png';
+      return '/assets/sculpted-acrylics.png';
     } else if (filename.includes('custom') || filename.includes('design') || filename.includes('glam')) {
-      return '/assets/gel-manicure.png';
+      return '/assets/glam-design.png';
     }
     
     // If we can't match the filename, use a default
@@ -62,11 +79,11 @@ export function getImageUrl(url?: string): string {
   } else if (url.toLowerCase().includes('gel') || url.toLowerCase().includes('manicure') || url.toLowerCase().includes('lux')) {
     return '/assets/gel-manicure.png';
   } else if (url.toLowerCase().includes('acrylic') || url.toLowerCase().includes('sculpt')) {
-    return '/assets/french-tips.png';
+    return '/assets/sculpted-acrylics.png';
   } else if (url.toLowerCase().includes('custom') || url.toLowerCase().includes('design') || url.toLowerCase().includes('glam')) {
-    return '/assets/gel-manicure.png';
+    return '/assets/glam-design.png';
   }
   
-  // Default fallback to one of our salon images
+  // Default fallback to our salon card image
   return '/assets/salon-card.png';
 }

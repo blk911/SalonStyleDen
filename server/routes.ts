@@ -333,17 +333,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Create a local URL based on service name
           let localUrl;
           if (service.name.toLowerCase().includes('french') || 
-              service.name.toLowerCase().includes('tips') ||
-              service.name.toLowerCase().includes('acrylic') || 
-              service.name.toLowerCase().includes('sculpt')) {
+              service.name.toLowerCase().includes('tips')) {
             localUrl = '/assets/french-tips.png';
           } else if (service.name.toLowerCase().includes('gel') || 
                      service.name.toLowerCase().includes('manicure') || 
-                     service.name.toLowerCase().includes('lux') ||
-                     service.name.toLowerCase().includes('custom') || 
-                     service.name.toLowerCase().includes('design') || 
-                     service.name.toLowerCase().includes('glam')) {
+                     service.name.toLowerCase().includes('lux')) {
             localUrl = '/assets/gel-manicure.png';
+          } else if (service.name.toLowerCase().includes('acrylic') || 
+                    service.name.toLowerCase().includes('sculpt')) {
+            localUrl = '/assets/sculpted-acrylics.png';
+          } else if (service.name.toLowerCase().includes('custom') || 
+                    service.name.toLowerCase().includes('design') || 
+                    service.name.toLowerCase().includes('glam')) {
+            localUrl = '/assets/glam-design.png';
           } else {
             localUrl = '/assets/salon-card.png';
           }
