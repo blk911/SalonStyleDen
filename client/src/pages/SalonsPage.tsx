@@ -615,9 +615,9 @@ export default function SalonsPage() {
           <div className="mt-3 mb-2 text-center">
             <p className="text-xs mb-2">Join our network of professional salons today!</p>
             <Link href="/">
-              <a className="inline-block px-3 py-1 bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92] transition-colors text-xs">
+              <div className="inline-block px-3 py-1 bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92] transition-colors text-xs cursor-pointer">
                 Register Your Salon
-              </a>
+              </div>
             </Link>
           </div>
         </div>
