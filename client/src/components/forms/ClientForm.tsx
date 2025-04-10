@@ -428,7 +428,7 @@ export default function ClientForm() {
                         <FormLabel 
                           className={`font-semibold text-sm ${field.value === "no" ? "text-pink-600" : "text-gray-600"}`}
                         >
-                          No - New client
+                          No
                         </FormLabel>
                       </FormItem>
                     </RadioGroup>
@@ -468,7 +468,7 @@ export default function ClientForm() {
                             : "border-gray-200 bg-gray-100 opacity-70"
                         }`}
                       >
-                        <SelectValue placeholder={isCurrentClient === "yes" ? "Tap to pick your salon" : "Auto-selected"} />
+                        <SelectValue placeholder={isCurrentClient === "yes" ? "Choose your salon" : "Auto-selected"} />
                         {isCurrentClient === "yes" && (
                           <span className="text-pink-500 animate-pulse">▼</span>
                         )}
@@ -520,7 +520,7 @@ export default function ClientForm() {
                   </FormControl>
                   {isCurrentClient === "yes" && (
                     <p className="text-xs text-pink-500 mt-1">
-                      Please tell us where you currently get services
+                      Please select the salon where you currently get services
                     </p>
                   )}
                   <FormMessage />
@@ -546,7 +546,7 @@ export default function ClientForm() {
               name="favoriteServices"
               render={({ field }) => (
                 <FormItem>
-                  <div className="text-sm mb-1">My Favorite Services</div>
+                  <div className="text-sm mb-1">Favorite Services</div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {services.map((service) => {
                       // Check if service is in the current value array
