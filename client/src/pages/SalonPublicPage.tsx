@@ -223,23 +223,23 @@ export default function SalonPublicPage() {
         {/* Hero section with salon name and basic info */}
         <section className="bg-[#FEE1E8] py-3">
           <div className="container mx-auto px-2 text-center">
-            <h1 className="font-bold text-4xl text-pink-500 leading-tight mb-2">{salon.name}</h1>
-            <p className="text-gray-700 text-xl mb-4">
-              Welcome... I'm {salon.ownerName}! Let me know how I can serve you!
-            </p>
-            <div className="flex justify-center gap-3 mt-2 mb-4">
-              <button
-                onClick={() => setLocation("/register/salon")}
-                className="bg-[#FF92A5] hover:bg-[#E57C8E] text-white font-medium py-2 px-6 rounded-lg text-sm transition duration-300 transform hover:scale-105 shadow-md"
-              >
-                I'm a Salon Owner
-              </button>
-              <button
-                onClick={() => setLocation("/register/client")}
-                className="bg-white hover:bg-gray-50 text-[#FF92A5] border-2 border-[#FF92A5] font-medium py-2 px-6 rounded-lg text-sm transition duration-300 transform hover:scale-105 shadow-md"
-              >
-                I'm a Client
-              </button>
+            <div className="relative">
+              <h1 className="font-bold text-4xl text-pink-500 leading-tight mb-2">{salon.name}</h1>
+              <p className="text-gray-700 text-xl mb-4">
+                Welcome... I'm {salon.ownerName}! Let me know how I can serve you!
+              </p>
+              <div className="absolute top-0 right-0">
+                <button
+                  onClick={() => setLocation(`/dashboard/salon/${salon.id}`)}
+                  className="bg-white hover:bg-gray-50 text-pink-500 border border-pink-300 font-medium py-1 px-3 rounded-md text-xs transition duration-300 shadow-sm flex items-center gap-1"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil">
+                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                    <path d="m15 5 4 4"/>
+                  </svg>
+                  Edit
+                </button>
+              </div>
             </div>
           </div>
           <div className="container mx-auto px-2">
