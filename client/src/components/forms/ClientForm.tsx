@@ -468,7 +468,7 @@ export default function ClientForm() {
                             : "border-gray-200 bg-gray-100 opacity-70"
                         }`}
                       >
-                        <SelectValue placeholder={isCurrentClient === "yes" ? "Choose your salon" : "Auto-selected"} />
+                        <SelectValue placeholder={isCurrentClient === "yes" ? "Tap to pick your salon" : "Auto-selected"} />
                         {isCurrentClient === "yes" && (
                           <span className="text-pink-500 animate-pulse">▼</span>
                         )}
@@ -520,7 +520,7 @@ export default function ClientForm() {
                   </FormControl>
                   {isCurrentClient === "yes" && (
                     <p className="text-xs text-pink-500 mt-1">
-                      Please select the salon where you currently get services
+                      Please tell us where you currently get services
                     </p>
                   )}
                   <FormMessage />
@@ -586,7 +586,7 @@ export default function ClientForm() {
             
             <div className="pt-4">
               <Button type="submit" className="w-full bg-[#FF92A5] hover:bg-[#E57C8E]">
-                Register as Client
+                Sign me up! Ven Me, Baby!
               </Button>
             </div>
           </form>
