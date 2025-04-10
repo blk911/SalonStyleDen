@@ -158,12 +158,27 @@ export default function SalonPublicPage() {
         }
         
         // Add real data from the database if available, otherwise use defaults
+        
+        // Log promos received from the API
+        console.log('SalonPublicPage - Raw salon data from API:', salonData);
+        
+        if (salonData.promos) {
+          console.log('SalonPublicPage - Promos received from API:', JSON.stringify(salonData.promos));
+        } else {
+          console.log('SalonPublicPage - No promos received from API, using defaults');
+        }
+        
+        // Ensure we're correctly handling promos
+        const promos = Array.isArray(salonData.promos) && salonData.promos.length > 0 
+          ? salonData.promos 
+          : defaultPromos;
+          
+        console.log('SalonPublicPage - Final promos being displayed:', JSON.stringify(promos));
+        
         return {
           ...salonData,
           services: processedServices,
-          promos: Array.isArray(salonData.promos) && salonData.promos.length > 0 
-            ? salonData.promos 
-            : defaultPromos
+          promos: promos
         };
       } catch (err) {
         console.error("Error fetching salon data:", err);

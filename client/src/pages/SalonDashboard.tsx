@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest, getQueryFn } from "@/lib/queryClient";
+import { apiRequest, getQueryFn, queryClient } from "@/lib/queryClient";
 import WeeklySchedule, { DaySchedule } from "@/components/dashboard/WeeklySchedule";
 import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSalonInfo";
 import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
@@ -294,6 +294,8 @@ export default function SalonDashboard() {
       prev.map(promo => promo.id === updatedPromo.id ? updatedPromo : promo)
     );
     
+    console.log('SalonDashboard - Saving updated promo:', updatedPromo);
+    
     // Then save to API
     try {
       if (!id) return;
@@ -303,11 +305,18 @@ export default function SalonDashboard() {
         promo.id === updatedPromo.id ? updatedPromo : promo
       );
       
+      console.log('SalonDashboard - All promos being saved:', updatedPromos);
+      
       // Save to database via API
-      await apiRequest(`/api/salons/${id}/promos`, {
+      const response = await apiRequest(`/api/salons/${id}/promos`, {
         method: 'POST',
         data: { promos: updatedPromos }
       });
+      
+      console.log('SalonDashboard - API response after saving promo:', response);
+      
+      // Manually invalidate the salon query to force a refresh
+      queryClient.invalidateQueries({ queryKey: ['/api/salons', id] });
       
       // Display success message
       toast({
@@ -337,14 +346,24 @@ export default function SalonDashboard() {
     setPromos(updatedPromos);
     setIsAddingPromo(false);
     
+    console.log('SalonDashboard - Adding new promo:', promoWithId);
+    console.log('SalonDashboard - Updated promos list:', updatedPromos);
+    
     // Save to API
     try {
       if (!id) return;
       
-      await apiRequest(`/api/salons/${id}/promos`, {
+      console.log('SalonDashboard - Sending API request to update promos for salon', id);
+      
+      const response = await apiRequest(`/api/salons/${id}/promos`, {
         method: 'POST',
         data: { promos: updatedPromos }
       });
+      
+      console.log('SalonDashboard - API response after adding promo:', response);
+      
+      // Manually invalidate the salon query to force a refresh
+      queryClient.invalidateQueries({ queryKey: ['/api/salons', id] });
       
       toast({
         title: "Promotion added",
@@ -368,14 +387,22 @@ export default function SalonDashboard() {
     const updatedPromos = promos.filter(promo => promo.id !== id);
     setPromos(updatedPromos);
     
+    console.log('SalonDashboard - Deleting promo with id:', id);
+    console.log('SalonDashboard - Updated promos after deletion:', updatedPromos);
+    
     // Save to API
     try {
       if (!salon?.id) return;
       
-      await apiRequest(`/api/salons/${salon.id}/promos`, {
+      const response = await apiRequest(`/api/salons/${salon.id}/promos`, {
         method: 'POST',
         data: { promos: updatedPromos }
       });
+      
+      console.log('SalonDashboard - API response after deleting promo:', response);
+      
+      // Manually invalidate the salon query to force a refresh
+      queryClient.invalidateQueries({ queryKey: ['/api/salons', salon.id] });
       
       toast({
         title: "Promotion deleted",
