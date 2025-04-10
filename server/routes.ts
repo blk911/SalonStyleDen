@@ -1,8 +1,31 @@
-import express, { type Express, Request, Response } from "express";
+import express, { type Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage as dbStorage } from "./storage";
 import { z } from "zod";
 import { importSalons, importClients } from "./utils/importData";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
+// Set up multer for file uploads
+const uploadDir = path.join(process.cwd(), 'client/public/uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const multerStorage = multer.diskStorage({
+  destination: function (req: Express.Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) {
+    cb(null, uploadDir);
+  },
+  filename: function (req: Express.Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) {
+    // Create a unique filename with timestamp
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({ storage: multerStorage });
 
 // Validation schemas
 const salonInputSchema = z.object({
@@ -37,7 +60,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.post("/salons", async (req: Request, res: Response) => {
     try {
       const validatedData = salonInputSchema.parse(req.body);
-      const salon = await storage.createSalon(validatedData);
+      const salon = await dbStorage.createSalon(validatedData);
       res.status(201).json(salon);
     } catch (error) {
       if (error instanceof z.ZodError) {
