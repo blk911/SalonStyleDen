@@ -69,6 +69,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Salon not found" });
       }
       
+      // Debug services data in salon
+      console.log(`DEBUG - GET salon/${id} - Retrieved salon:`, salon.name);
+      if (salon.services && Array.isArray(salon.services)) {
+        console.log(`DEBUG - GET salon/${id} - Salon has ${salon.services.length} services`);
+        salon.services.forEach((service: any, idx: number) => {
+          console.log(`DEBUG - Service ${idx} (${service.name}) has gifUrl:`, service.gifUrl);
+        });
+      } else {
+        console.log(`DEBUG - GET salon/${id} - Salon has no services array`);
+      }
+      
       res.json(salon);
     } catch (error) {
       res.status(500).json({ error: "Failed to retrieve salon" });
