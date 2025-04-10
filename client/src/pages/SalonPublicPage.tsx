@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import Hero from "@/components/layout/Hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -221,18 +220,30 @@ export default function SalonPublicPage() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow">
-        {/* Hero section with welcome message */}
-        <Hero 
-          onSalonClick={() => setLocation("/register/salon")} 
-          onClientClick={() => setLocation("/register/client")}
-          salonName={salon.name}
-          salonOwnerName={salon.ownerName}
-        />
-        
-        {/* Salon contact info */}
+        {/* Hero section with salon name and basic info */}
         <section className="bg-[#FEE1E8] py-3">
+          <div className="container mx-auto px-2 text-center">
+            <h1 className="font-bold text-4xl text-pink-500 leading-tight mb-2">{salon.name}</h1>
+            <p className="text-gray-700 text-xl mb-4">
+              Welcome... I'm {salon.ownerName}! Let me know how I can serve you!
+            </p>
+            <div className="flex justify-center gap-3 mt-2 mb-4">
+              <button
+                onClick={() => setLocation("/register/salon")}
+                className="bg-[#FF92A5] hover:bg-[#E57C8E] text-white font-medium py-2 px-6 rounded-lg text-sm transition duration-300 transform hover:scale-105 shadow-md"
+              >
+                I'm a Salon Owner
+              </button>
+              <button
+                onClick={() => setLocation("/register/client")}
+                className="bg-white hover:bg-gray-50 text-[#FF92A5] border-2 border-[#FF92A5] font-medium py-2 px-6 rounded-lg text-sm transition duration-300 transform hover:scale-105 shadow-md"
+              >
+                I'm a Client
+              </button>
+            </div>
+          </div>
           <div className="container mx-auto px-2">
-            <div className="flex justify-end">
+            <div className="flex justify-center">
               <div className="bg-white rounded px-2 py-1 shadow-sm text-xs w-full sm:w-auto">
                 <div className="content-section">
                   <div className="flex items-center">
