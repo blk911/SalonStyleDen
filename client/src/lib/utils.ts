@@ -30,6 +30,26 @@ export function getImageUrl(url?: string): string {
     return url;
   }
   
+  // Handle Windows paths (convert to web URLs)
+  if (url.includes(':\\') || url.includes('C:')) {
+    console.log('Converting Windows path:', url);
+    // Extract just the filename from the Windows path
+    const filename = url.split('\\').pop()?.toLowerCase() || '';
+    
+    if (filename.includes('french') || filename.includes('tips')) {
+      return '/assets/french-tips.png';
+    } else if (filename.includes('gel') || filename.includes('manicure')) {
+      return '/assets/gel-manicure.png';
+    } else if (filename.includes('acrylic') || filename.includes('sculpt')) {
+      return '/assets/french-tips.png';
+    } else if (filename.includes('custom') || filename.includes('design') || filename.includes('glam')) {
+      return '/assets/gel-manicure.png';
+    }
+    
+    // If we can't match the filename, use a default
+    return '/assets/salon-card.png';
+  }
+  
   // Map service names to our specific uploaded images
   if (url.toLowerCase().includes('french') || url.toLowerCase().includes('tips')) {
     return '/assets/french-tips.png';

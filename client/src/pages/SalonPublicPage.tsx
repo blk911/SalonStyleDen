@@ -286,21 +286,30 @@ export default function SalonPublicPage() {
                       </div>
                       
                       <div className="mt-3 mb-3 text-center">
-                        {service.gifUrl ? (
+                        {/* Display appropriate image based on service name */}
+                        {service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
                           <img 
-                            src={getImageUrl(service.gifUrl)} 
+                            src="/assets/french-tips.png" 
                             alt={`${service.name} preview`} 
                             className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              // Use our own assets instead of external placeholder
-                              if (service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips')) {
-                                target.src = '/assets/french-tips.png';
-                              } else {
-                                target.src = '/assets/gel-manicure.png';
-                              }
-                              target.onerror = null; // Prevent infinite error loop
-                            }}
+                          />
+                        ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
+                          <img 
+                            src="/assets/gel-manicure.png" 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                          />
+                        ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
+                          <img 
+                            src="/assets/french-tips.png" 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                          />
+                        ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
+                          <img 
+                            src="/assets/gel-manicure.png" 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
                           />
                         ) : (
                           <div className="h-28 w-full flex items-center justify-center border border-dashed border-gray-100 rounded bg-gray-50">

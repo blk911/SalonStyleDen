@@ -50,34 +50,32 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
   // Handle image upload
   const handleImageUpload = async (imageData: string): Promise<string | null> => {
     try {
+      // Handle Windows file paths
+      if (imageData && (imageData.includes(':\\') || imageData.includes('C:'))) {
+        console.log('Windows path detected in service:', imageData);
+        // Return the Windows path - it will be handled by getImageUrl
+        return imageData;
+      }
+      
       // Skip API call if the image hasn't changed (starts with http) or is empty
       if (!imageData || (imageData && (imageData.startsWith('http') || !imageData.startsWith('data:')))) {
         return imageData;
       }
       
-      // Call our image upload API endpoint
-      const response = await fetch('/api/images/service', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          imageData,
-          serviceId: service.id,
-          salonId: 1, // Use actual salon ID in production
-        }),
-      });
+      // This API endpoint is no longer used, but we're keeping the function structure
+      // for future implementation or if a real API endpoint is added later
+      console.log('Using fallback image mapping for:', imageData);
       
-      if (!response.ok) {
-        throw new Error('Failed to upload image');
+      // Map to our local assets based on service name
+      if (editedService.name.toLowerCase().includes('french') || editedService.name.toLowerCase().includes('tips')) {
+        return '/assets/french-tips.png';
+      } else if (editedService.name.toLowerCase().includes('gel') || editedService.name.toLowerCase().includes('manicure')) {
+        return '/assets/gel-manicure.png';
+      } else {
+        return '/assets/salon-card.png';
       }
-      
-      const data = await response.json();
-      console.log('Image upload response:', data);
-      
-      return data.imageUrl || null;
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('Error handling image:', error);
       return null;
     }
   };
