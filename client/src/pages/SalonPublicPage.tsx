@@ -155,6 +155,39 @@ export default function SalonPublicPage() {
     }
   }, [id, setLocation]);
   
+  // Run image migration if we detect old URLs
+  useEffect(() => {
+    if (salon && salon.services) {
+      // Check if any service has an external URL or Windows path
+      const needsMigration = salon.services.some(service => 
+        service.gifUrl && (
+          service.gifUrl.includes(':\\') || 
+          service.gifUrl.includes('C:') || 
+          service.gifUrl.includes('pinimg.com')
+        )
+      );
+      
+      if (needsMigration) {
+        console.log('Detected old image URLs, running migration...');
+        fetch('/api/migrate/service-images', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Migration complete:', data);
+          // Reload the page to get the updated data
+          window.location.reload();
+        })
+        .catch(error => {
+          console.error('Migration failed:', error);
+        });
+      }
+    }
+  }, [salon]);
+  
   if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen">

@@ -303,6 +303,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Data migration endpoint for fixing stored image URLs - used by both API and direct HTML page
+  app.post("/api/migrate/service-images", async (req: Request, res: Response) => {
+    try {
+      console.log('Starting migration of service images to local assets');
+      
+      // Get all salons
+      const allSalons = await storage.getAllSalons();
+      let totalUpdated = 0;
+      
+      // Process each salon
+      for (const salon of allSalons) {
+        if (!salon.services || !Array.isArray(salon.services) || salon.services.length === 0) {
+          console.log(`Salon ${salon.id} has no services, skipping`);
+          continue;
+        }
+        
+        console.log(`Processing salon ${salon.id} (${salon.name}) with ${salon.services.length} services`);
+        
+        // Update each service to use a local asset
+        const updatedServices = salon.services.map(service => {
+          // Skip if already a local asset
+          if (service.gifUrl && (
+              service.gifUrl.startsWith('/assets/') || 
+              service.gifUrl.startsWith('/uploads/'))) {
+            return service;
+          }
+          
+          // Create a local URL based on service name
+          let localUrl;
+          if (service.name.toLowerCase().includes('french') || 
+              service.name.toLowerCase().includes('tips') ||
+              service.name.toLowerCase().includes('acrylic') || 
+              service.name.toLowerCase().includes('sculpt')) {
+            localUrl = '/assets/french-tips.png';
+          } else if (service.name.toLowerCase().includes('gel') || 
+                     service.name.toLowerCase().includes('manicure') || 
+                     service.name.toLowerCase().includes('lux') ||
+                     service.name.toLowerCase().includes('custom') || 
+                     service.name.toLowerCase().includes('design') || 
+                     service.name.toLowerCase().includes('glam')) {
+            localUrl = '/assets/gel-manicure.png';
+          } else {
+            localUrl = '/assets/salon-card.png';
+          }
+          
+          console.log(`Migrating service ${service.id} (${service.name}) image from ${service.gifUrl} to ${localUrl}`);
+          totalUpdated++;
+          
+          return {
+            ...service,
+            gifUrl: localUrl
+          };
+        });
+        
+        // Save the updated services
+        await storage.updateSalonServices(salon.id, updatedServices);
+        console.log(`Updated ${updatedServices.length} services for salon ${salon.id}`);
+      }
+      
+      res.json({ 
+        success: true, 
+        message: `Successfully migrated ${totalUpdated} service images to local assets` 
+      });
+    } catch (error) {
+      console.error('Error migrating service images:', error);
+      res.status(500).json({ error: "Failed to migrate service images", details: String(error) });
+    }
+  });
+
   // (Removed unused service image endpoint)
 
   // Endpoint to ensure a Tiffany salon exists (for demonstration purposes)
