@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import WeeklySchedule, { DaySchedule } from "@/components/dashboard/WeeklySchedule";
 import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSalonInfo";
 import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
@@ -307,17 +308,10 @@ export default function SalonDashboard() {
       );
       
       // Save to database via API
-      const response = await fetch(`/api/salons/${id}/promos`, {
+      await apiRequest(`/api/salons/${id}/promos`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ promos: updatedPromos })
+        data: { promos: updatedPromos }
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to save promo to database');
-      }
       
       // Display success message
       toast({
@@ -351,17 +345,10 @@ export default function SalonDashboard() {
     try {
       if (!id) return;
       
-      const response = await fetch(`/api/salons/${id}/promos`, {
+      await apiRequest(`/api/salons/${id}/promos`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ promos: updatedPromos })
+        data: { promos: updatedPromos }
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to save new promo to database');
-      }
       
       toast({
         title: "Promotion added",
@@ -389,17 +376,10 @@ export default function SalonDashboard() {
     try {
       if (!salon?.id) return;
       
-      const response = await fetch(`/api/salons/${salon.id}/promos`, {
+      await apiRequest(`/api/salons/${salon.id}/promos`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ promos: updatedPromos })
+        data: { promos: updatedPromos }
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to delete promo from database');
-      }
       
       toast({
         title: "Promotion deleted",
@@ -469,20 +449,11 @@ export default function SalonDashboard() {
     try {
       if (!id) return;
       
-      const response = await fetch(`/api/salons/${id}/services`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ services: newServices })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to save default services to database');
-      }
-      
       // Get the updated salon data (including services)
-      const updatedSalonData = await response.json();
+      const updatedSalonData = await apiRequest(`/api/salons/${id}/services`, {
+        method: 'POST',
+        data: { services: newServices }
+      });
       
       // Update local state with the data from server
       if (updatedSalonData.services && Array.isArray(updatedSalonData.services)) {

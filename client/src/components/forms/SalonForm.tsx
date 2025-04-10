@@ -85,8 +85,10 @@ export default function SalonForm() {
       console.log("Submitting salon data:", salonData);
       
       // Submit to API
-      const response = await apiRequest("POST", "/api/salons", salonData);
-      const result = await response.json();
+      const result = await apiRequest("/api/salons", {
+        method: "POST",
+        data: salonData
+      });
       
       console.log("Salon created successfully:", result);
       
