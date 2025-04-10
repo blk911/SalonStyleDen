@@ -141,8 +141,33 @@ export default function PromosPage() {
 }
 
 function PromoCard({ promo }: { promo: any }) {
+  // Function to get appropriate image based on promo title
+  const getPromoImage = (title: string) => {
+    const lowerTitle = title.toLowerCase();
+    if (lowerTitle.includes('spring') || lowerTitle.includes('special')) {
+      return '/assets/summer-french-tips.png';
+    } else if (lowerTitle.includes('new') || lowerTitle.includes('client') || lowerTitle.includes('first')) {
+      return '/assets/spring-lavender.png';
+    } else if (lowerTitle.includes('friend') || lowerTitle.includes('refer') || lowerTitle.includes('bring')) {
+      return '/assets/bff-promo.png';
+    }
+    // Default placeholder
+    return null;
+  };
+  
+  const promoImage = getPromoImage(promo.title);
+  
   return (
     <Card className={`overflow-hidden ${promo.isVip ? 'border-pink-300 bg-pink-50/30' : ''}`}>
+      {promoImage && (
+        <div className="w-full h-40 overflow-hidden">
+          <img 
+            src={promoImage} 
+            alt={promo.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg font-bold">{promo.title}</CardTitle>
@@ -155,8 +180,8 @@ function PromoCard({ promo }: { promo: any }) {
         <CardDescription>Valid until: {promo.validUntil}</CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-sm mb-3">{promo.description}</p>
-        <div className="flex flex-wrap gap-2 mt-2">
+        <p className="text-sm mb-3 text-center">{promo.description}</p>
+        <div className="flex flex-wrap gap-2 mt-2 justify-center">
           <Badge variant="outline" className="text-xs">
             {promo.discount} off
           </Badge>

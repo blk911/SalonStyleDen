@@ -272,12 +272,35 @@ export default function SalonPublicPage() {
                 <div className="grid-cols-responsive">
                   {salon.promos && salon.promos.map((promo) => (
                     <div key={promo.id} className="border border-pink-100 rounded overflow-hidden shadow-sm">
-                      <div className="bg-[#FEE1E8] h-16 flex items-center justify-center">
-                        <span className="font-medium text-compact text-center px-1">{promo.title}</span>
+                      <div className="h-32 flex items-center justify-center">
+                        {promo.title.toLowerCase().includes('summer') ? (
+                          <img 
+                            src="/assets/summer-french-tips.png" 
+                            alt={promo.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : promo.title.toLowerCase().includes('new client') ? (
+                          <img 
+                            src="/assets/spring-lavender.png" 
+                            alt={promo.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : promo.title.toLowerCase().includes('friend') || promo.title.toLowerCase().includes('bff') || promo.title.toLowerCase().includes('bring') ? (
+                          <img 
+                            src="/assets/bff-promo.png" 
+                            alt={promo.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="bg-[#FEE1E8] h-full w-full flex items-center justify-center">
+                            <span className="font-medium text-compact text-center px-1">{promo.title}</span>
+                          </div>
+                        )}
                       </div>
                       <div className="card-content">
-                        <p className="text-mini text-gray-600">{promo.description}</p>
-                        <div className="flex justify-end items-center vspace-xs">
+                        <h4 className="font-medium text-compact text-center">{promo.title}</h4>
+                        <p className="text-mini text-gray-600 text-center">{promo.description}</p>
+                        <div className="flex justify-center items-center vspace-xs">
                           <span className="text-micro">
                             {promo.endDate ? `Ends: ${new Date(promo.endDate).toLocaleDateString()}` : 'Ongoing'}
                           </span>
