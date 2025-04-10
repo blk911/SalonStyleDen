@@ -433,11 +433,7 @@ export default function ClientForm() {
                       </FormItem>
                     </RadioGroup>
                   </FormControl>
-                  {field.value === "yes" && (
-                    <p className="text-xs text-pink-500 mt-1">
-                      Select your salon below
-                    </p>
-                  )}
+                  {/* No text guidance needed here */}
                   <FormMessage />
                 </FormItem>
               )}
