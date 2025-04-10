@@ -11,6 +11,9 @@ app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 // Serve files from attached_assets directory
 app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
 
+// Serve files from client/public/assets directory
+app.use('/assets', express.static(path.join(process.cwd(), 'client/public/assets')));
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
