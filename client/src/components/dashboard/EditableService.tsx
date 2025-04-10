@@ -114,36 +114,36 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
           </div>
         </div>
         
-        <div className="mt-3 mb-3 text-center">
+        <div className="mt-1.5 mb-1.5 text-center">
           {service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
             <img 
               src="/assets/french-tips.png" 
               alt={`${service.name} preview`} 
-              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+              className="inline-block rounded h-[90px] max-w-full object-contain mx-auto border border-pink-100"
             />
           ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
             <img 
               src="/assets/daisy-gel-manicure.png"
               alt={`${service.name} preview`} 
-              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+              className="inline-block rounded h-[90px] max-w-full object-contain mx-auto border border-pink-100"
             />
           ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
             <img 
               src="/assets/sculpted-white-acrylic.png" 
               alt={`${service.name} preview`} 
-              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+              className="inline-block rounded h-[90px] max-w-full object-contain mx-auto border border-pink-100"
             />
           ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
             <img 
               src="/assets/custom-glam-lv.png" 
               alt={`${service.name} preview`} 
-              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+              className="inline-block rounded h-[90px] max-w-full object-contain mx-auto border border-pink-100"
             />
           ) : (
             <img 
               src="/assets/salon-card.png" 
               alt={`${service.name} preview`} 
-              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+              className="inline-block rounded h-[90px] max-w-full object-contain mx-auto border border-pink-100"
             />
           )}
         </div>
