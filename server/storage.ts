@@ -65,7 +65,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllSalons(): Promise<Salon[]> {
-    return await db.select().from(salons);
+    try {
+      console.log('DatabaseStorage.getAllSalons - Attempting to fetch all salons');
+      const result = await db.select().from(salons);
+      console.log(`DatabaseStorage.getAllSalons - Successfully retrieved ${result.length} salons`);
+      return result;
+    } catch (error) {
+      console.error('DatabaseStorage.getAllSalons - Error fetching salons:', error);
+      throw error; // Re-throw to let the route handler catch it
+    }
   }
   
   async updateSalonServices(id: number, services: any[]): Promise<Salon> {

@@ -102,9 +102,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   apiRouter.get("/salons", async (req: Request, res: Response) => {
     try {
+      console.log('GET /salons - Attempting to fetch all salons');
       const salons = await storage.getAllSalons();
+      console.log('GET /salons - Retrieved salons:', salons);
       res.json(salons);
     } catch (error) {
+      console.error('GET /salons - Error:', error);
       res.status(500).json({ error: "Failed to retrieve salons" });
     }
   });
