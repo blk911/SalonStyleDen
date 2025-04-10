@@ -23,6 +23,7 @@ interface Service {
   price: number;
   duration: number; // in minutes
   featured: boolean;
+  gifUrl?: string; // Add back the optional gifUrl property
 }
 
 // Define promo type
@@ -78,7 +79,8 @@ export default function SalonPublicPage() {
             description: "Classic white tips or quick polish refresh.",
             price: 40,
             duration: 30,
-            featured: true
+            featured: true,
+            gifUrl: "/assets/french-tips.png"
           },
           {
             id: 2,
@@ -86,7 +88,8 @@ export default function SalonPublicPage() {
             description: "Glossy, chip-free color with lasting shine.",
             price: 55,
             duration: 45,
-            featured: true
+            featured: true,
+            gifUrl: "/assets/gel-manicure.png"
           },
           {
             id: 3,
@@ -94,7 +97,8 @@ export default function SalonPublicPage() {
             description: "Custom-shaped acrylics for bold length.",
             price: 70,
             duration: 60,
-            featured: true
+            featured: true,
+            gifUrl: "/assets/sculpted-acrylics.png"
           },
           {
             id: 4,
@@ -102,7 +106,8 @@ export default function SalonPublicPage() {
             description: "Fully custom art, gems, 3D extras.",
             price: 125,
             duration: 90,
-            featured: true
+            featured: true,
+            gifUrl: "/assets/glam-design.png"
           }
         ];
         
@@ -282,7 +287,45 @@ export default function SalonPublicPage() {
                         </div>
                       </div>
                       
-                      {/* Images have been removed as requested */}
+                      <div className="mt-3 mb-3 text-center">
+                        {service.gifUrl ? (
+                          <img 
+                            src={service.gifUrl}
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                          />
+                        ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
+                          <img 
+                            src="/assets/french-tips.png" 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                          />
+                        ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
+                          <img 
+                            src="/assets/gel-manicure.png" 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                          />
+                        ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
+                          <img 
+                            src="/assets/sculpted-acrylics.png" 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                          />
+                        ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
+                          <img 
+                            src="/assets/glam-design.png" 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                          />
+                        ) : (
+                          <img 
+                            src="/assets/salon-card.png" 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                          />
+                        )}
+                      </div>
                       
                       {service.featured && (
                         <Badge className="mt-1 bg-[#FF92A5] text-white border-0 text-mini">

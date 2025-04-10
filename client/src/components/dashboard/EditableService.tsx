@@ -15,6 +15,7 @@ export interface ServiceData {
   price: number;
   duration: number; // in minutes
   featured: boolean;
+  gifUrl?: string; // Optional image URL for the service
 }
 
 interface EditableServiceProps {
