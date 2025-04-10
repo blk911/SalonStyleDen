@@ -84,10 +84,24 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
+      console.log('DEBUG - Saving service with gifUrl:', editedService.gifUrl);
+      
+      // Handle Windows file path directly
+      if (editedService.gifUrl && (editedService.gifUrl.includes(':\\') || editedService.gifUrl.includes('C:'))) {
+        console.log('DEBUG - Detected Windows file path in save:', editedService.gifUrl);
+        
+        // Just pass the Windows path through - we'll handle it in the display component
+        onSave(editedService);
+        setIsEditing(false);
+        return;
+      }
+      
       // Process image upload if there's a base64 image
       if (editedService.gifUrl && editedService.gifUrl.startsWith('data:')) {
+        console.log('DEBUG - Processing base64 image data');
         const uploadedImageUrl = await handleImageUpload(editedService.gifUrl);
         if (uploadedImageUrl) {
+          console.log('DEBUG - Image upload success, new URL:', uploadedImageUrl);
           setEditedService(prev => ({ ...prev, gifUrl: uploadedImageUrl }));
           // Save with the new URL
           onSave({
@@ -95,10 +109,12 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
             gifUrl: uploadedImageUrl
           });
         } else {
+          console.log('DEBUG - Image upload failed, saving without change');
           onSave(editedService);
         }
       } else {
         // No image to process, just save as is
+        console.log('DEBUG - No image processing needed, saving as is');
         onSave(editedService);
       }
       

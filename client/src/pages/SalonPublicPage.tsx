@@ -286,36 +286,78 @@ export default function SalonPublicPage() {
                       </div>
                       
                       <div className="mt-3 mb-3 text-center">
-                        {/* Display appropriate image based on service name */}
-                        {service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
-                          <img 
-                            src="/assets/french-tips.png" 
-                            alt={`${service.name} preview`} 
-                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                          />
-                        ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
-                          <img 
-                            src="/assets/gel-manicure.png" 
-                            alt={`${service.name} preview`} 
-                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                          />
-                        ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
-                          <img 
-                            src="/assets/french-tips.png" 
-                            alt={`${service.name} preview`} 
-                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                          />
-                        ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
-                          <img 
-                            src="/assets/gel-manicure.png" 
-                            alt={`${service.name} preview`} 
-                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                          />
-                        ) : (
-                          <div className="h-28 w-full flex items-center justify-center border border-dashed border-gray-100 rounded bg-gray-50">
-                            <span className="text-xs text-gray-300">No image preview</span>
-                          </div>
-                        )}
+                        {(() => {
+                          // Debug the gifUrl value
+                          console.log(`DEBUG - Service ${service.id} "${service.name}" gifUrl:`, service.gifUrl);
+                          
+                          // Check for Windows file paths
+                          if (service.gifUrl && (service.gifUrl.includes(':\\') || service.gifUrl.includes('C:'))) {
+                            console.log('DEBUG - Found Windows path in service:', service.gifUrl);
+                            
+                            // Extract filename to make smarter decisions
+                            const filename = service.gifUrl.split('\\').pop()?.toLowerCase() || '';
+                            console.log('DEBUG - Extracted filename:', filename);
+                            
+                            if (filename.includes('french') || filename.includes('tips')) {
+                              return (
+                                <img 
+                                  src="/assets/french-tips.png" 
+                                  alt={`${service.name} preview`} 
+                                  className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                                />
+                              );
+                            } else if (filename.includes('gel') || filename.includes('manicure')) {
+                              return (
+                                <img 
+                                  src="/assets/gel-manicure.png" 
+                                  alt={`${service.name} preview`} 
+                                  className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                                />
+                              );
+                            }
+                          }
+                          
+                          // Fall back to service name-based logic if no Windows path or no match
+                          if (service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips')) {
+                            return (
+                              <img 
+                                src="/assets/french-tips.png" 
+                                alt={`${service.name} preview`} 
+                                className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                              />
+                            );
+                          } else if (service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux')) {
+                            return (
+                              <img 
+                                src="/assets/gel-manicure.png" 
+                                alt={`${service.name} preview`} 
+                                className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                              />
+                            );
+                          } else if (service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic')) {
+                            return (
+                              <img 
+                                src="/assets/french-tips.png" 
+                                alt={`${service.name} preview`} 
+                                className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                              />
+                            );
+                          } else if (service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design')) {
+                            return (
+                              <img 
+                                src="/assets/gel-manicure.png" 
+                                alt={`${service.name} preview`} 
+                                className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                              />
+                            );
+                          } else {
+                            return (
+                              <div className="h-28 w-full flex items-center justify-center border border-dashed border-gray-100 rounded bg-gray-50">
+                                <span className="text-xs text-gray-300">No image preview</span>
+                              </div>
+                            );
+                          }
+                        })()}
                       </div>
                       
                       {service.featured && (

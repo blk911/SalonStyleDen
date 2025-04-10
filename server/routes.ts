@@ -89,6 +89,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Services must be an array" });
       }
       
+      // Debug logs for Windows paths in services
+      console.log('DEBUG - Processing services before save:');
+      services.forEach((service, index) => {
+        if (service.gifUrl && (service.gifUrl.includes(':\\') || service.gifUrl.includes('C:'))) {
+          console.log(`DEBUG - Service ${index} has Windows path:`, service.gifUrl);
+          
+          // Extract the filename from the Windows path for logging
+          const filename = service.gifUrl.split('\\').pop() || '';
+          console.log(`DEBUG - Extracted filename: "${filename}"`);
+          
+          // Don't modify the path - we'll handle it in the frontend
+        }
+      });
+      
       // Get the salon first
       const salon = await storage.getSalon(id);
       if (!salon) {
@@ -97,6 +111,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Update the salon with the new services
       const updatedSalon = await storage.updateSalonServices(id, services);
+      
+      // Log what's being sent back to client
+      console.log('DEBUG - Updated salon services - sending back to client');
       
       res.json(updatedSalon);
     } catch (error) {
