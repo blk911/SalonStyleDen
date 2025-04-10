@@ -1,6 +1,6 @@
 import express, { type Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
-import { storage as dbStorage } from "./storage";
+import { storage } from "./storage";
 import { z } from "zod";
 import { importSalons, importClients } from "./utils/importData";
 import multer from "multer";
@@ -53,14 +53,43 @@ const clientInputSchema = z.object({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Create uploads directory if it doesn't exist
+  const uploadDir = path.join(process.cwd(), 'client/public/uploads');
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log('Created uploads directory:', uploadDir);
+  }
+
   // API endpoints prefix
   const apiRouter = express.Router();
+  
+  // File upload endpoint for service images
+  apiRouter.post("/upload", upload.single('file'), (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+      
+      // File was uploaded successfully, return the path that can be accessed publicly
+      const relativePath = `/uploads/${req.file.filename}`;
+      console.log(`Uploaded file saved to ${req.file.path} (public URL: ${relativePath})`);
+      
+      return res.json({ 
+        url: relativePath,
+        originalName: req.file.originalname,
+        size: req.file.size
+      });
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      res.status(500).json({ error: "Failed to upload file" });
+    }
+  });
   
   // Salon routes
   apiRouter.post("/salons", async (req: Request, res: Response) => {
     try {
       const validatedData = salonInputSchema.parse(req.body);
-      const salon = await dbStorage.createSalon(validatedData);
+      const salon = await storage.createSalon(validatedData);
       res.status(201).json(salon);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -282,7 +311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if a Tiffany salon already exists
       const allSalons = await storage.getAllSalons();
       const tiffanySalon = allSalons.find(
-        salon => salon.name.toLowerCase().includes('tiffany') || 
+        (salon: any) => salon.name.toLowerCase().includes('tiffany') || 
                 salon.ownerName.toLowerCase().includes('tiffany')
       );
       
