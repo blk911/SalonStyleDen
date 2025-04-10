@@ -86,7 +86,7 @@ export default function ClientForm() {
       isCurrentClient: "no",
       notes: "",
       favoriteServices: [],
-      salonId: "",
+      salonId: "loading", // Will be updated once salons are loaded
       salonName: "",
     },
   });
@@ -94,6 +94,33 @@ export default function ClientForm() {
   // Listen for changes to the "isCurrentClient" field
   const isCurrentClient = form.watch("isCurrentClient");
   
+  // When salons are loaded, set default salon
+  useEffect(() => {
+    if (salons && salons.length > 0 && form.getValues("salonId") === "loading") {
+      // First try to find a salon with "Ven Me" and "Lux" in the name
+      const venMeLuxSalon = salons.find(salon => 
+        salon.name.includes("Ven Me") && salon.name.includes("Lux")
+      );
+      
+      // Then try to find any salon with "Lux" in the name
+      const luxSalon = salons.find(salon => salon.name.includes("Lux"));
+      
+      // Finally, fall back to Tiffany's salon or the first salon
+      const tiffanySalon = salons.find(salon => 
+        salon.name.includes("Tiffany") || salon.ownerName.includes("Tiffany")
+      );
+      
+      // Choose the most appropriate default salon
+      const defaultSalon = venMeLuxSalon || luxSalon || tiffanySalon || salons[0];
+      
+      if (defaultSalon) {
+        form.setValue("salonId", String(defaultSalon.id));
+        form.setValue("salonName", defaultSalon.name);
+        console.log(`Set initial default salon to: ${defaultSalon.name} (ID: ${defaultSalon.id})`);
+      }
+    }
+  }, [salons, form]);
+
   // Handle changes to isCurrentClient status
   useEffect(() => {
     // Update the visibility flag for the UI (now always visible but conditionally disabled)
@@ -119,6 +146,7 @@ export default function ClientForm() {
       
       if (defaultSalon) {
         form.setValue("salonId", String(defaultSalon.id));
+        form.setValue("salonName", defaultSalon.name);
         console.log(`Set default salon to: ${defaultSalon.name} (ID: ${defaultSalon.id})`);
       }
     }
@@ -162,8 +190,8 @@ export default function ClientForm() {
       // Find selected salon ID
       let salonId = data.salonId;
       
-      // If no salon selected or invalid salon ID, use default salon
-      if (!salonId || !salons?.some(salon => String(salon.id) === salonId)) {
+      // If no salon selected or invalid salon ID or is still loading, use default salon
+      if (!salonId || salonId === "loading" || !salons?.some(salon => String(salon.id) === salonId)) {
         // Find the most appropriate default salon
         const venMeLuxSalon = salons?.find(salon => 
           salon.name.includes("Ven Me") && salon.name.includes("Lux")
@@ -194,7 +222,8 @@ export default function ClientForm() {
         isCurrentClient: data.isCurrentClient === "yes",
         notes: data.notes || "",
         favoriteServices: favoriteServices,
-        salonId: salonId ? parseInt(salonId) : undefined,
+        // Make sure we don't try to parse "loading" as an integer
+        salonId: salonId && salonId !== "loading" ? parseInt(salonId) : undefined,
         salonName: salonName,
         type: "client",
       };
@@ -358,7 +387,7 @@ export default function ClientForm() {
                                 </SelectItem>
                               ))
                             ) : (
-                              <SelectItem value="" disabled>
+                              <SelectItem value="loading" disabled>
                                 Loading salons...
                               </SelectItem>
                             )}
