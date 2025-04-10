@@ -260,8 +260,10 @@ export default function ClientForm() {
       };
       
       // Submit to API
-      const response = await apiRequest("POST", "/api/clients", clientData);
-      const result = await response.json();
+      const result = await apiRequest("/api/clients", {
+        method: "POST",
+        data: clientData
+      });
       
       // Store the client ID for redirection
       setClientId(result.id);

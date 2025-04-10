@@ -107,7 +107,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
         method: 'POST',
         body: formData,
         // Don't set Content-Type header for FormData
-      } as RequestInit);
+      });
       
       // Update the salon object with the new photo URL
       if (response && response.filePath) {
@@ -165,9 +165,19 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
           <div className="flex justify-between items-start mb-2">
             <div className="text-center w-full">
               <h3 className="font-semibold text-base text-pink-800 w-full text-center">{salon.name}</h3>
-              <div className="flex items-center mt-1 justify-center">
-                <p className="text-sm text-gray-600 font-medium">{salon.ownerName}</p>
-                <span className="text-xs text-gray-500 ml-1">• Owner</span>
+              <div className="flex flex-col items-center mt-2 gap-2">
+                {salon.ownerPhotoUrl && (
+                  <Avatar className="h-16 w-16 border-2 border-pink-100">
+                    <AvatarImage src={getImageUrl(salon.ownerPhotoUrl)} alt={salon.ownerName} />
+                    <AvatarFallback className="bg-pink-50 text-pink-500">
+                      {salon.ownerName?.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                <div className="flex items-center justify-center">
+                  <p className="text-sm text-gray-600 font-medium">{salon.ownerName}</p>
+                  <span className="text-xs text-gray-500 ml-1">• Owner</span>
+                </div>
               </div>
             </div>
             <Button 
