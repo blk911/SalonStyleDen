@@ -286,48 +286,51 @@ export default function SalonPublicPage() {
                       </div>
                       
                       <div className="mt-3 mb-3 text-center">
-                        {(() => {
-                          // Debug the gifUrl value
+                        {/* Simplified approach - just show the image for the first service */}
+                        {service.id === 1 && (
+                          <div>
+                            <p className="text-xs mb-1">Debug: Windows path detected</p>
+                            <img 
+                              src="/assets/french-tips.png" 
+                              alt="French Tips preview" 
+                              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100 border-2 border-red-500"
+                              onError={(e) => { console.error('Image failed to load:', e); }}
+                              onLoad={() => { console.log('French Tips image loaded successfully'); }}
+                            />
+                          </div>
+                        )}
+                          
+                        {/* Service 2 - Gel Manicure */}
+                        {service.id === 2 && (
+                          <div>
+                            <p className="text-xs mb-1">Debug: External URL</p>
+                            <img 
+                              src="/assets/gel-manicure.png" 
+                              alt="Gel Manicure preview" 
+                              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100 border-2 border-blue-500"
+                              onError={(e) => { console.error('Image failed to load:', e); }}
+                              onLoad={() => { console.log('Gel Manicure image loaded successfully'); }}
+                            />
+                          </div>
+                        )}
+                          
+                        {/* Services 3 & 4 - Keep using the original code for testing */}
+                        {(service.id === 3 || service.id === 4) && (() => {
                           console.log(`DEBUG - SalonPublicPage - Service ${service.id} "${service.name}" gifUrl:`, service.gifUrl);
                           
-                          // Check for Windows file paths
-                          if (service.gifUrl && (service.gifUrl.includes(':\\') || service.gifUrl.includes('C:'))) {
-                            console.log('DEBUG - Found Windows path in service:', service.gifUrl);
-                            
-                            // Extract filename to make smarter decisions
-                            const filename = service.gifUrl.split('\\').pop()?.toLowerCase() || '';
-                            console.log('DEBUG - Extracted filename:', filename);
-                            
-                            // Debug the path we'll use for the image
-                            const imagePath = filename.includes('french') || filename.includes('tips') 
-                              ? "/assets/french-tips.png"
-                              : "/assets/gel-manicure.png";
-                            
-                            console.log('DEBUG - Using image path:', imagePath);
-                            console.log('DEBUG - Full image element will be:', 
-                              `<img src="${imagePath}" alt="${service.name} preview" class="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100" />`);
-                            
-                            if (filename.includes('french') || filename.includes('tips')) {
-                              return (
+                          if (service.gifUrl && service.gifUrl.includes('https')) {
+                            return (
+                              <div>
+                                <p className="text-xs mb-1">Debug: Direct GIF URL</p>
                                 <img 
-                                  src="/assets/french-tips.png" 
-                                  alt={`${service.name} preview`} 
+                                  src={service.gifUrl} 
+                                  alt={`${service.name} preview`}
                                   className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                                  onError={(e) => { console.error('Image failed to load:', e); }}
-                                  onLoad={() => { console.log('Image loaded successfully for:', service.name); }}
+                                  onError={(e) => { console.error('Online GIF failed to load:', e); }}
+                                  onLoad={() => { console.log('Online GIF loaded successfully for:', service.name); }}
                                 />
-                              );
-                            } else if (filename.includes('gel') || filename.includes('manicure')) {
-                              return (
-                                <img 
-                                  src="/assets/gel-manicure.png" 
-                                  alt={`${service.name} preview`} 
-                                  className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                                  onError={(e) => { console.error('Image failed to load:', e); }}
-                                  onLoad={() => { console.log('Image loaded successfully for:', service.name); }}
-                                />
-                              );
-                            }
+                              </div>
+                            );
                           }
                           
                           // Fall back to service name-based logic if no Windows path or no match
