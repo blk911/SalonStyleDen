@@ -141,11 +141,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (salon.promos && Array.isArray(salon.promos)) {
         console.log(`DEBUG - GET salon/${id} - Salon has ${salon.promos.length} promotions:`);
         console.log(`DEBUG - GET salon/${id} - Promotions:`, JSON.stringify(salon.promos));
+        
+        // Check if we already have a "Bring a Friend" promo - if not, add it back
+        const hasBringAFriendPromo = salon.promos.some(
+          promo => promo.title.includes('Friend') || promo.description.includes('friend')
+        );
+        
+        if (!hasBringAFriendPromo) {
+          console.log(`DEBUG - GET salon/${id} - Adding back the missing "Bring a Friend" promotion`);
+          salon.promos.push({
+            id: Math.max(...salon.promos.map(p => p.id), 0) + 1, // Generate next ID
+            title: "Bring a Friend Reward",
+            description: "Bring a friend and you both get 20% off your next visit!",
+            endDate: null // Ongoing promotion
+          });
+        }
       } else {
         console.log(`DEBUG - GET salon/${id} - Salon has no promotions array`);
         
         // Only add default promotions when we really need them (no promos at all)
-        // but don't override existing promos that may have been saved
         salon.promos = [
           {
             id: 1,
@@ -157,6 +171,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             id: 2,
             title: "New Client Discount",
             description: "First-time clients receive 15% off any service. Welcome to our nail family!",
+            endDate: null // Ongoing promotion
+          },
+          {
+            id: 3,
+            title: "Bring a Friend Reward",
+            description: "Bring a friend and you both get 20% off your next visit!",
             endDate: null // Ongoing promotion
           }
         ];
