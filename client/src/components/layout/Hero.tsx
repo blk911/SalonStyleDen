@@ -1,17 +1,24 @@
 type HeroProps = {
   onSalonClick: () => void;
   onClientClick: () => void;
+  salonName?: string;
+  salonOwnerName?: string;
 };
 
-export default function Hero({ onSalonClick, onClientClick }: HeroProps) {
+export default function Hero({ 
+  onSalonClick, 
+  onClientClick, 
+  salonName = "Ven Me, Baby!", 
+  salonOwnerName = "Tiffany" 
+}: HeroProps) {
   return (
     <section className="bg-[#FEE1E8] py-6 lg:py-10">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
         <h2 className="font-playfair font-bold text-3xl md:text-4xl lg:text-5xl text-gray-900 leading-tight">
-          Where Beauty Meets <span className="text-[#FF92A5]">Expertise</span>
+          <span className="text-[#FF92A5]">{salonName}</span>
         </h2>
-        <p className="mt-2 text-lg text-gray-600 max-w-2xl mx-auto">
-          Discover a sanctuary where style is personalized and beauty is celebrated. Your journey to stunning hair begins here.
+        <p className="mt-3 text-xl text-gray-800 max-w-2xl mx-auto font-medium">
+          Welcome... I'm {salonOwnerName}! Let me know how I can serve you!
         </p>
         <div className="mt-6">
           <p className="font-bold text-xl mb-2">Register Now</p>
