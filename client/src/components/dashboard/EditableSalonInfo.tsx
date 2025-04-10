@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatPhoneNumber } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatPhoneNumber, getImageUrl } from "@/lib/utils";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 // Social media item interface
 export interface SocialMediaItem {
@@ -24,6 +27,7 @@ export interface SalonInfo {
   zipCode?: string;
   socialMedia?: SocialMediaItem[] | null;
   type?: string;
+  ownerPhotoUrl?: string;
 }
 
 interface EditableSalonInfoProps {
@@ -37,6 +41,9 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [socialPlatform, setSocialPlatform] = useState("");
   const [socialHandle, setSocialHandle] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
   
   // Social media platform options
   const platformOptions = ["Instagram", "Facebook", "Twitter", "TikTok", "Snapchat", "Pinterest"];
@@ -72,6 +79,66 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
     const newSocialMedia = [...(editedSalon.socialMedia || [])];
     newSocialMedia.splice(index, 1);
     setEditedSalon(prev => ({ ...prev, socialMedia: newSocialMedia }));
+  };
+  
+  // Handle photo upload
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Only accept image files
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file (JPEG, PNG, etc.)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Upload the file
+      const response = await apiRequest<{filePath: string}>('/api/upload', {
+        method: 'POST',
+        body: formData,
+        // Don't set Content-Type header for FormData
+      } as RequestInit);
+      
+      // Update the salon object with the new photo URL
+      if (response && response.filePath) {
+        setEditedSalon(prev => ({ 
+          ...prev, 
+          ownerPhotoUrl: response.filePath 
+        }));
+        
+        toast({
+          title: "Photo uploaded",
+          description: "Your photo has been uploaded successfully.",
+          variant: "default"
+        });
+      }
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload photo. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Trigger the file input click
+  const triggerFileUpload = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
   
   // Handle form submission
@@ -180,6 +247,44 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-medium text-sm">Edit Salon</h3>
           <div className="h-px bg-gray-200 flex-grow mx-2"></div>
+        </div>
+        
+        {/* Owner Photo Upload Section */}
+        <div className="mb-3 flex flex-col items-center">
+          <div className="flex justify-between items-center w-full mb-2">
+            <h4 className="text-xs text-gray-500">Owner Photo</h4>
+            <div className="h-px bg-gray-200 flex-grow mx-2"></div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Avatar className="h-16 w-16 border-2 border-pink-100">
+              <AvatarImage src={getImageUrl(editedSalon.ownerPhotoUrl)} alt={editedSalon.ownerName} />
+              <AvatarFallback className="bg-pink-50 text-pink-500">
+                {editedSalon.ownerName?.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="flex flex-col gap-1">
+              <Button 
+                type="button" 
+                size="sm" 
+                variant="outline"
+                className="h-8 text-xs"
+                onClick={triggerFileUpload}
+                disabled={isUploading}
+              >
+                {isUploading ? 'Uploading...' : 'Upload Photo'}
+              </Button>
+              <p className="text-xs text-gray-500">JPG, PNG, or GIF (max 2MB)</p>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handlePhotoUpload} 
+                className="hidden" 
+                accept="image/*"
+              />
+            </div>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
