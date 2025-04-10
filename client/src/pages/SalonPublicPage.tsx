@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import Hero from "@/components/layout/Hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -220,16 +221,18 @@ export default function SalonPublicPage() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow">
-        {/* Hero section with salon name and basic info */}
+        {/* Hero section with welcome message */}
+        <Hero 
+          onSalonClick={() => setLocation("/register/salon")} 
+          onClientClick={() => setLocation("/register/client")}
+          salonName={salon.name}
+          salonOwnerName={salon.ownerName}
+        />
+        
+        {/* Salon contact info */}
         <section className="bg-[#FEE1E8] py-3">
           <div className="container mx-auto px-2">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-              <div>
-                <h1 className="font-bold text-xl leading-tight">{salon.name}</h1>
-                <p className="text-gray-700 text-sm">
-                  <span className="font-medium">Owner:</span> {salon.ownerName}
-                </p>
-              </div>
+            <div className="flex justify-end">
               <div className="bg-white rounded px-2 py-1 shadow-sm text-xs w-full sm:w-auto">
                 <div className="content-section">
                   <div className="flex items-center">
