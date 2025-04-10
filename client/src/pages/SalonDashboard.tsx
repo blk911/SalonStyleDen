@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, getQueryFn } from "@/lib/queryClient";
 import WeeklySchedule, { DaySchedule } from "@/components/dashboard/WeeklySchedule";
 import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSalonInfo";
 import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
@@ -112,11 +112,35 @@ export default function SalonDashboard() {
   ]);
   
   // Handler functions for services, promos, and salon info
-  const handleSaveSalonInfo = (updatedSalon: SalonInfo) => {
-    // In a real app, this would be an API call
-    console.log("Saving salon info:", updatedSalon);
-    // For now, just refresh the data
-    refetch();
+  const handleSaveSalonInfo = async (updatedSalon: SalonInfo) => {
+    try {
+      if (!id) return;
+      
+      // Save updated salon info via API
+      await apiRequest(`/api/salons/${id}`, {
+        method: 'PUT',
+        data: updatedSalon
+      });
+      
+      // Refresh the salon data
+      refetch();
+      
+      // Display success message
+      toast({
+        title: "Salon information updated",
+        description: "Your salon details have been saved.",
+        duration: 3000
+      });
+      
+    } catch (error) {
+      console.error('Error saving salon info:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save your salon information. Please try again.",
+        variant: "destructive",
+        duration: 3000
+      });
+    }
   };
 
   const handleSaveService = async (updatedService: ServiceData) => {
@@ -134,21 +158,11 @@ export default function SalonDashboard() {
         service.id === updatedService.id ? updatedService : service
       );
       
-      // Save to database via API
-      const response = await fetch(`/api/salons/${id}/services`, {
+      // Save to database via API and get the updated salon data
+      const updatedSalonData = await apiRequest(`/api/salons/${id}/services`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ services: updatedServices })
+        data: { services: updatedServices }
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to save service to database');
-      }
-      
-      // Get the updated salon data (including services)
-      const updatedSalonData = await response.json();
       
       // Update local state with the data from server
       if (updatedSalonData.services && Array.isArray(updatedSalonData.services)) {
@@ -209,20 +223,11 @@ export default function SalonDashboard() {
     try {
       if (!id) return;
       
-      const response = await fetch(`/api/salons/${id}/services`, {
+      // Save to database via API and get the updated salon data
+      const updatedSalonData = await apiRequest(`/api/salons/${id}/services`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ services: updatedServices })
+        data: { services: updatedServices }
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to save new service to database');
-      }
-      
-      // Get the updated salon data (including services)
-      const updatedSalonData = await response.json();
       
       // Update local state with the data from server
       if (updatedSalonData.services && Array.isArray(updatedSalonData.services)) {
@@ -255,20 +260,11 @@ export default function SalonDashboard() {
     try {
       if (!salon?.id) return;
       
-      const response = await fetch(`/api/salons/${salon.id}/services`, {
+      // Save to database via API and get the updated salon data
+      const updatedSalonData = await apiRequest(`/api/salons/${salon.id}/services`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ services: updatedServices })
+        data: { services: updatedServices }
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to delete service from database');
-      }
-      
-      // Get the updated salon data (including services)
-      const updatedSalonData = await response.json();
       
       // Update local state with the data from server
       if (updatedSalonData.services && Array.isArray(updatedSalonData.services)) {
@@ -491,20 +487,9 @@ export default function SalonDashboard() {
     refetch 
   } = useQuery<SalonType>({
     queryKey: ['/api/salons', id],
-    queryFn: async () => {
-      try {
-        if (!id) throw new Error("No salon ID provided");
-        
-        const response = await fetch(`/api/salons/${id}`);
-        if (!response.ok) {
-          throw new Error(`Error fetching salon: ${response.status}`);
-        }
-        return response.json();
-      } catch (err) {
-        console.error("Error fetching salon data:", err);
-        throw err;
-      }
-    },
+    queryFn: getQueryFn<SalonType>({
+      on401: "throw"
+    }),
     refetchOnMount: true,
     refetchOnWindowFocus: false,
     staleTime: 30000, // Consider data fresh for 30 seconds
