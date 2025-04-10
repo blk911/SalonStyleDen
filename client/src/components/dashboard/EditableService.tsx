@@ -103,47 +103,46 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
   if (!isEditing) {
     return (
       <div className={`border rounded px-2 py-3 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}>
-        <div className="flex items-start">
-          <div className="w-2/3">
-            <h3 className="font-medium text-compact">{service.name}</h3>
-            <p className="text-mini text-gray-600">{service.description}</p>
-          </div>
-          <div className="w-1/3 text-right">
-            <span className="font-bold text-compact">${service.price.toFixed(2)}</span>
+        <h3 className="font-medium text-compact">{service.name}</h3>
+        <p className="text-mini text-gray-600">{service.description}</p>
+        
+        <div className="flex justify-between items-center mt-2">
+          <div>
+            <div className="font-bold text-compact">${service.price.toFixed(2)}</div>
             <p className="text-micro">{service.duration} min</p>
           </div>
         </div>
         
-        <div className="mt-1.5 mb-1.5 text-center">
+        <div className="mt-2 text-center">
           {service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
             <img 
               src="/assets/french-tips.png" 
               alt={`${service.name} preview`} 
-              className="inline-block rounded h-[90px] max-w-full object-contain mx-auto border border-pink-100"
+              className="inline-block rounded h-20 max-w-full object-contain"
             />
           ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
             <img 
               src="/assets/daisy-gel-manicure.png"
               alt={`${service.name} preview`} 
-              className="inline-block rounded h-[90px] max-w-full object-contain mx-auto border border-pink-100"
+              className="inline-block rounded h-20 max-w-full object-contain"
             />
           ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
             <img 
               src="/assets/sculpted-white-acrylic.png" 
               alt={`${service.name} preview`} 
-              className="inline-block rounded h-[90px] max-w-full object-contain mx-auto border border-pink-100"
+              className="inline-block rounded h-20 max-w-full object-contain"
             />
           ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
             <img 
               src="/assets/custom-glam-lv.png" 
               alt={`${service.name} preview`} 
-              className="inline-block rounded h-[90px] max-w-full object-contain mx-auto border border-pink-100"
+              className="inline-block rounded h-20 max-w-full object-contain"
             />
           ) : (
             <img 
               src="/assets/salon-card.png" 
               alt={`${service.name} preview`} 
-              className="inline-block rounded h-[90px] max-w-full object-contain mx-auto border border-pink-100"
+              className="inline-block rounded h-20 max-w-full object-contain"
             />
           )}
         </div>

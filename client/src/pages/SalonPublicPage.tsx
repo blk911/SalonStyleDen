@@ -298,73 +298,67 @@ export default function SalonPublicPage() {
               <CardContent className="p-2">
                 <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Ven Me, Baby! Style Options</h2>
                 
-                <div className="flex flex-col gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {salon.services && salon.services.map((service) => (
                     <div 
                       key={service.id} 
                       className={`border rounded px-2 py-3 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
                     >
-                      <div className="flex">
-                        {/* Left side - 66% width with info */}
-                        <div className="w-2/3 pr-2">
-                          <div>
-                            <h3 className="font-medium text-compact">{service.name}</h3>
-                            <p className="text-mini text-gray-600">{service.description}</p>
-                          </div>
-                          
-                          <div className="mt-1">
-                            <span className="font-bold text-compact">${service.price}</span>
-                            <p className="text-micro">{service.duration} min</p>
-                          </div>
+                      <h3 className="font-medium text-compact">{service.name}</h3>
+                      <p className="text-mini text-gray-600">{service.description}</p>
+                      
+                      <div className="flex justify-between items-center mt-2">
+                        <div>
+                          <div className="font-bold text-compact">${service.price}</div>
+                          <p className="text-micro">{service.duration} min</p>
                         </div>
                         
-                        {/* Right side - 33% width with image */}
-                        <div className="w-1/3 flex items-center justify-center">
-                          {service.gifUrl ? (
-                            <img 
-                              src={service.gifUrl}
-                              alt={`${service.name} preview`} 
-                              className="rounded h-[90px] max-w-full object-contain border border-pink-100"
-                            />
-                          ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
-                            <img 
-                              src="/assets/french-tips.png" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-[90px] max-w-full object-contain border border-pink-100"
-                            />
-                          ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
-                            <img 
-                              src="/assets/daisy-gel-manicure.png" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-[90px] max-w-full object-contain border border-pink-100"
-                            />
-                          ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
-                            <img 
-                              src="/assets/sculpted-white-acrylic.png" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-[90px] max-w-full object-contain border border-pink-100"
-                            />
-                          ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
-                            <img 
-                              src="/assets/custom-glam-lv.png" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-[90px] max-w-full object-contain border border-pink-100"
-                            />
-                          ) : (
-                            <img 
-                              src="/assets/salon-card.png" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-[90px] max-w-full object-contain border border-pink-100"
-                            />
-                          )}
-                        </div>
+                        {service.featured && (
+                          <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
+                            Featured
+                          </Badge>
+                        )}
                       </div>
                       
-                      {service.featured && (
-                        <Badge className="mt-1 bg-[#FF92A5] text-white border-0 text-mini">
-                          Featured
-                        </Badge>
-                      )}
+                      <div className="mt-2 text-center">
+                        {service.gifUrl ? (
+                          <img 
+                            src={service.gifUrl}
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-20 max-w-full object-contain"
+                          />
+                        ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
+                          <img 
+                            src="/assets/french-tips.png" 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-20 max-w-full object-contain"
+                          />
+                        ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
+                          <img 
+                            src="/assets/daisy-gel-manicure.png" 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-20 max-w-full object-contain"
+                          />
+                        ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
+                          <img 
+                            src="/assets/sculpted-white-acrylic.png" 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-20 max-w-full object-contain"
+                          />
+                        ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
+                          <img 
+                            src="/assets/custom-glam-lv.png" 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-20 max-w-full object-contain"
+                          />
+                        ) : (
+                          <img 
+                            src="/assets/salon-card.png" 
+                            alt={`${service.name} preview`} 
+                            className="inline-block rounded h-20 max-w-full object-contain"
+                          />
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
