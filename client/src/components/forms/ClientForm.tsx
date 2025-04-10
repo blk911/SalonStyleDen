@@ -451,7 +451,7 @@ export default function ClientForm() {
                 <FormItem>
                   <div className="text-sm mb-1 font-medium">
                     {isCurrentClient === "yes" ? (
-                      <span className="text-pink-600">Select your current salon:</span>
+                      <span className="text-pink-600"></span>
                     ) : (
                       <span className="text-gray-500"></span>
                     )}
