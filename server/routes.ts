@@ -132,6 +132,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`DEBUG - GET salon/${id} - Salon has no services array`);
       }
       
+      // Add default promotions if none exist
+      if (!salon.promos || !Array.isArray(salon.promos) || salon.promos.length === 0) {
+        salon.promos = [
+          {
+            id: 1,
+            title: "Summer French Tips Special",
+            description: "Get stunning French tips with pearl accents. Perfect for summer elegance!",
+            endDate: null // Ongoing promotion
+          },
+          {
+            id: 2,
+            title: "New Client Discount",
+            description: "First-time clients receive 15% off any service. Welcome to our nail family!",
+            endDate: null // Ongoing promotion
+          },
+          {
+            id: 3,
+            title: "Bring a Friend Reward",
+            description: "Bring a friend and you both get 20% off your next visit!",
+            endDate: null // Ongoing promotion
+          }
+        ];
+      }
+      
       res.json(salon);
     } catch (error) {
       res.status(500).json({ error: "Failed to retrieve salon" });
