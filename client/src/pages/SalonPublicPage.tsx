@@ -288,7 +288,7 @@ export default function SalonPublicPage() {
                       <div className="mt-3 mb-3 text-center">
                         {(() => {
                           // Debug the gifUrl value
-                          console.log(`DEBUG - Service ${service.id} "${service.name}" gifUrl:`, service.gifUrl);
+                          console.log(`DEBUG - SalonPublicPage - Service ${service.id} "${service.name}" gifUrl:`, service.gifUrl);
                           
                           // Check for Windows file paths
                           if (service.gifUrl && (service.gifUrl.includes(':\\') || service.gifUrl.includes('C:'))) {
