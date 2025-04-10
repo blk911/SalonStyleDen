@@ -15,22 +15,22 @@ export default function Navbar() {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
-                <a className="font-playfair font-bold text-xl text-[#FF92A5]">Ven Me, Baby!</a>
+                <div className="font-playfair font-bold text-xl text-[#FF92A5] cursor-pointer">Ven Me, Baby!</div>
               </Link>
             </div>
           </div>
           <div className="hidden sm:ml-4 sm:flex sm:items-center space-x-6">
             <Link href="/">
-              <a className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5]">Home</a>
+              <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home</div>
             </Link>
             <Link href="/salons">
-              <a className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5]">Salons</a>
+              <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
             </Link>
             <Link href="/promos">
-              <a className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5]">VMB Promos</a>
+              <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">VMB Promos</div>
             </Link>
-            <a href="#" className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5]">Services</a>
-            <a href="#" className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5]">About</a>
+            <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Services</div>
+            <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
           </div>
           <div className="flex items-center sm:hidden">
             <button
@@ -49,16 +49,16 @@ export default function Navbar() {
       <div className={`sm:hidden ${mobileMenuOpen ? "block" : "hidden"}`}>
         <div className="px-2 pt-1 pb-2 space-y-1">
           <Link href="/">
-            <a className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5]">Home</a>
+            <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">Home</div>
           </Link>
           <Link href="/salons">
-            <a className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5]">Salons</a>
+            <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
           </Link>
           <Link href="/promos">
-            <a className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5]">VMB Promos</a>
+            <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">VMB Promos</div>
           </Link>
-          <a href="#" className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5]">Services</a>
-          <a href="#" className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5]">About</a>
+          <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">Services</div>
+          <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
         </div>
       </div>
     </nav>
