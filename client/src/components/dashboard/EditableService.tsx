@@ -54,13 +54,13 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
   };
   
   // Gets the appropriate image URL based on service name
-  const getImageUrlForService = (serviceName: string): string => {
+  const getImageUrlForService = (serviceName: string): string | undefined => {
     const name = serviceName.toLowerCase();
     
     if (name.includes('french') || name.includes('tips')) {
       return '/assets/french-tips.png';
     } else if (name.includes('gel') || name.includes('manicure') || name.includes('lux')) {
-      return '/assets/gel-manicure.png';
+      return '/assets/luxe-gel-daisies.png'; // Using the new luxe gel image
     } else if (name.includes('sculpt') || name.includes('acrylic')) {
       return '/assets/sculpted-acrylics.png';
     } else if (name.includes('glam') || name.includes('custom') || name.includes('design')) {
@@ -128,7 +128,7 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
             />
           ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
             <img 
-              src={gelManicureImg} 
+              src="/assets/luxe-gel-daisies.png"
               alt={`${service.name} preview`} 
               className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
             />
