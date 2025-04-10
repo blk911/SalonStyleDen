@@ -415,7 +415,7 @@ export default function ClientForm() {
                         <FormLabel 
                           className={`font-semibold text-sm ${field.value === "yes" ? "text-pink-600" : "text-gray-600"}`}
                         >
-                          Yes - I visit a salon regularly
+                          Yes! My Ven Me, Baby! Salon is:
                         </FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-2">
@@ -453,7 +453,7 @@ export default function ClientForm() {
                     {isCurrentClient === "yes" ? (
                       <span className="text-pink-600">Select your current salon:</span>
                     ) : (
-                      <span className="text-gray-500">Default salon:</span>
+                      <span className="text-gray-500"></span>
                     )}
                   </div>
                   <FormControl>
