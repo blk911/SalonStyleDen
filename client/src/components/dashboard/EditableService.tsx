@@ -103,12 +103,12 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
   if (!isEditing) {
     return (
       <div className={`border rounded px-2 py-3 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}>
-        <div className="flex justify-between items-start">
-          <div>
+        <div className="flex items-start">
+          <div className="w-2/3">
             <h3 className="font-medium text-compact">{service.name}</h3>
             <p className="text-mini text-gray-600">{service.description}</p>
           </div>
-          <div className="text-right">
+          <div className="w-1/3 text-right">
             <span className="font-bold text-compact">${service.price.toFixed(2)}</span>
             <p className="text-micro">{service.duration} min</p>
           </div>
