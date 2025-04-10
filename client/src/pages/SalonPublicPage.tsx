@@ -305,17 +305,17 @@ export default function SalonPublicPage() {
                       className={`border rounded px-2 py-3 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
                     >
                       <div className="flex">
-                        {/* Left side - Content (66%) */}
-                        <div className="w-2/3">
+                        {/* Left side */}
+                        <div className="w-3/4">
                           <h3 className="font-medium text-compact">{service.name}</h3>
                           <p className="text-mini text-gray-600">{service.description}</p>
                           
-                          <div className="mt-2 flex justify-between items-center">
-                            <div>
-                              <div className="font-bold text-compact">${service.price}</div>
-                              <p className="text-micro">{service.duration} min</p>
-                            </div>
-                            
+                          <div className="mt-1">
+                            <span className="inline-block font-bold text-compact pr-2">${service.price}</span>
+                            <span className="inline-block text-micro">{service.duration} min</span>
+                          </div>
+                          
+                          <div className="mt-1">
                             {service.featured && (
                               <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
                                 Featured
@@ -324,8 +324,8 @@ export default function SalonPublicPage() {
                           </div>
                         </div>
                         
-                        {/* Right side - Image (33%) */}
-                        <div className="w-1/3 flex items-center justify-center">
+                        {/* Right side - Image (25%) */}
+                        <div className="w-1/4 flex items-center justify-center">
                           {service.gifUrl ? (
                             <img 
                               src={service.gifUrl}

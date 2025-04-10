@@ -104,21 +104,34 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
     return (
       <div className={`border rounded px-2 py-3 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}>
         <div className="flex">
-          {/* Left side - Content (66%) */}
-          <div className="w-2/3">
+          {/* Left side */}
+          <div className="w-3/4">
             <h3 className="font-medium text-compact">{service.name}</h3>
             <p className="text-mini text-gray-600">{service.description}</p>
             
-            <div className="mt-2 flex justify-between items-center">
-              <div>
-                <div className="font-bold text-compact">${service.price.toFixed(2)}</div>
-                <p className="text-micro">{service.duration} min</p>
-              </div>
+            <div className="mt-1">
+              <span className="inline-block font-bold text-compact pr-2">${service.price.toFixed(2)}</span>
+              <span className="inline-block text-micro">{service.duration} min</span>
+            </div>
+            
+            <div className="mt-1 flex justify-between items-center">
+              {service.featured && (
+                <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
+                  Featured
+                </Badge>
+              )}
+              <Button 
+                variant="link" 
+                className="text-micro text-pink-500 hover:text-pink-700 p-0 h-auto"
+                onClick={() => setIsEditing(true)}
+              >
+                Edit
+              </Button>
             </div>
           </div>
           
-          {/* Right side - Image (33%) */}
-          <div className="w-1/3 flex items-center justify-center">
+          {/* Right side - Image (25%) */}
+          <div className="w-1/4 flex items-center justify-center">
             {service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
               <img 
                 src="/assets/french-tips.png" 
@@ -151,21 +164,6 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
               />
             )}
           </div>
-        </div>
-        
-        <div className="flex justify-between items-center">
-          {service.featured && (
-            <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
-              Featured
-            </Badge>
-          )}
-          <Button 
-            variant="link" 
-            className="text-micro text-pink-500 hover:text-pink-700 p-0 h-auto ml-auto"
-            onClick={() => setIsEditing(true)}
-          >
-            Edit
-          </Button>
         </div>
       </div>
     );
