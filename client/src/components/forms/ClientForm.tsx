@@ -414,7 +414,6 @@ export default function ClientForm() {
                         </FormControl>
                         <FormLabel 
                           className={`font-semibold text-sm ${field.value === "yes" ? "text-pink-600" : "text-gray-600"}`}
-                          onClick={() => field.onChange("yes")}
                         >
                           Yes - I visit a salon regularly
                         </FormLabel>
@@ -428,7 +427,6 @@ export default function ClientForm() {
                         </FormControl>
                         <FormLabel 
                           className={`font-semibold text-sm ${field.value === "no" ? "text-pink-600" : "text-gray-600"}`}
-                          onClick={() => field.onChange("no")}
                         >
                           No - New client
                         </FormLabel>
@@ -562,15 +560,6 @@ export default function ClientForm() {
                         <div
                           key={service}
                           className={`service-option flex items-center p-2 border ${isSelected ? 'border-[#FF92A5] bg-pink-50' : 'border-gray-200'} rounded-lg hover:border-[#FF92A5] cursor-pointer transition-colors`}
-                          onClick={() => {
-                            const currentValue = Array.isArray(field.value) ? field.value : [];
-                            const newValue = isSelected
-                              ? currentValue.filter(item => item !== service)
-                              : [...currentValue, service];
-                            
-                            // Update form value
-                            field.onChange(newValue);
-                          }}
                         >
                           <FormControl>
                             <Checkbox
