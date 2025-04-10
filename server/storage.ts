@@ -88,14 +88,26 @@ export class DatabaseStorage implements IStorage {
   }
   
   async updateSalonPromos(id: number, promos: any[]): Promise<Salon> {
-    // Update salon promos
-    const result = await db
-      .update(salons)
-      .set({ promos: promos })
-      .where(eq(salons.id, id))
-      .returning();
+    console.log(`DatabaseStorage.updateSalonPromos - Updating promos for salon ID ${id}`);
+    console.log('DatabaseStorage.updateSalonPromos - Promos to save:', JSON.stringify(promos));
     
-    return result[0];
+    try {
+      // Update salon promos
+      const result = await db
+        .update(salons)
+        .set({ promos: promos })
+        .where(eq(salons.id, id))
+        .returning();
+      
+      console.log(`DatabaseStorage.updateSalonPromos - Update successful`);
+      console.log('DatabaseStorage.updateSalonPromos - Updated salon has promos:', 
+        result[0].promos ? JSON.stringify(result[0].promos) : 'No promos');
+      
+      return result[0];
+    } catch (error) {
+      console.error('DatabaseStorage.updateSalonPromos - Error updating promos:', error);
+      throw error;
+    }
   }
 
   // Client methods

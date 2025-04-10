@@ -216,24 +216,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.post("/salons/:id/promos", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
+      console.log(`DEBUG - POST /salons/${id}/promos - Starting update request`);
+      
       if (isNaN(id)) {
+        console.log(`DEBUG - POST /salons/${id}/promos - Invalid ID format`);
         return res.status(400).json({ error: "Invalid ID format" });
       }
       
       // Get the promos array from request body
       const { promos } = req.body;
+      console.log(`DEBUG - POST /salons/${id}/promos - Received promos:`, JSON.stringify(promos));
+      
       if (!Array.isArray(promos)) {
+        console.log(`DEBUG - POST /salons/${id}/promos - Error: Promos is not an array`, typeof promos);
         return res.status(400).json({ error: "Promos must be an array" });
       }
       
       // Get the salon first
+      console.log(`DEBUG - POST /salons/${id}/promos - Retrieving salon`);
       const salon = await storage.getSalon(id);
+      
       if (!salon) {
+        console.log(`DEBUG - POST /salons/${id}/promos - Salon not found`);
         return res.status(404).json({ error: "Salon not found" });
       }
       
+      console.log(`DEBUG - POST /salons/${id}/promos - Found salon:`, salon.name);
+      if (salon.promos) {
+        console.log(`DEBUG - POST /salons/${id}/promos - Current promos:`, JSON.stringify(salon.promos));
+      } else {
+        console.log(`DEBUG - POST /salons/${id}/promos - No existing promos`);
+      }
+      
       // Update the salon with the new promos
+      console.log(`DEBUG - POST /salons/${id}/promos - Updating promos in database`);
       const updatedSalon = await storage.updateSalonPromos(id, promos);
+      
+      console.log(`DEBUG - POST /salons/${id}/promos - Update successful, returning updated salon`);
+      if (updatedSalon.promos) {
+        console.log(`DEBUG - POST /salons/${id}/promos - New promos:`, JSON.stringify(updatedSalon.promos));
+      } else {
+        console.log(`DEBUG - POST /salons/${id}/promos - Warning: Updated salon has no promos`);
+      }
       
       res.json(updatedSalon);
     } catch (error) {
