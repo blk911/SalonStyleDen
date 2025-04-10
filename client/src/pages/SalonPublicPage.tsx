@@ -293,7 +293,12 @@ export default function SalonPublicPage() {
                             className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              target.src = `https://picsum.photos/400/300?random=${service.id}`;
+                              // Use our own assets instead of external placeholder
+                              if (service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips')) {
+                                target.src = '/assets/french-tips.png';
+                              } else {
+                                target.src = '/assets/gel-manicure.png';
+                              }
                               target.onerror = null; // Prevent infinite error loop
                             }}
                           />

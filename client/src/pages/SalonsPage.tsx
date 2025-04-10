@@ -600,9 +600,9 @@ export default function SalonsPage() {
                       {/* View salon button */}
                       <div className="button-container">
                         <Link href={`/salon/${salon.id}`}>
-                          <a className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs py-1 px-2 rounded-sm inline-block">
+                          <div className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs py-1 px-2 rounded-sm inline-block cursor-pointer">
                             View {salon.name} VEN ME, BABY! PAGE
-                          </a>
+                          </div>
                         </Link>
                       </div>
                     </>

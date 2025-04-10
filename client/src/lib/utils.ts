@@ -32,15 +32,15 @@ export function getImageUrl(url?: string): string {
   
   // Map service names to our specific uploaded images
   if (url.toLowerCase().includes('french') || url.toLowerCase().includes('tips')) {
-    return '/attached_assets/image_1744235634250.png';
+    return '/assets/french-tips.png';
   } else if (url.toLowerCase().includes('gel') || url.toLowerCase().includes('manicure') || url.toLowerCase().includes('lux')) {
-    return '/attached_assets/image_1744235862752.png';
+    return '/assets/gel-manicure.png';
   } else if (url.toLowerCase().includes('acrylic') || url.toLowerCase().includes('sculpt')) {
-    return '/attached_assets/image_1744235634250.png';
+    return '/assets/french-tips.png';
   } else if (url.toLowerCase().includes('custom') || url.toLowerCase().includes('design') || url.toLowerCase().includes('glam')) {
-    return '/attached_assets/image_1744235862752.png';
+    return '/assets/gel-manicure.png';
   }
   
   // Default fallback to one of our salon images
-  return '/attached_assets/image_1744160806057.png';
+  return '/assets/salon-card.png';
 }
