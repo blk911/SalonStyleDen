@@ -98,7 +98,7 @@ export default function SalonPublicPage() {
             price: 70,
             duration: 60,
             featured: true,
-            gifUrl: "/assets/french-tips.png"
+            gifUrl: "/assets/sculpted-acrylics.png"
           },
           {
             id: 4,
@@ -107,7 +107,7 @@ export default function SalonPublicPage() {
             price: 125,
             duration: 90,
             featured: true,
-            gifUrl: "/assets/gel-manicure.png"
+            gifUrl: "/assets/glam-design.png"
           }
         ];
         
@@ -155,36 +155,28 @@ export default function SalonPublicPage() {
     }
   }, [id, setLocation]);
   
-  // Run image migration if we detect old URLs
+  // Force migration of service images on load (will ensure all images use local assets)
   useEffect(() => {
     if (salon && salon.services) {
-      // Check if any service has an external URL or Windows path
-      const needsMigration = salon.services.some(service => 
-        service.gifUrl && (
-          service.gifUrl.includes(':\\') || 
-          service.gifUrl.includes('C:') || 
-          service.gifUrl.includes('pinimg.com')
-        )
-      );
-      
-      if (needsMigration) {
-        console.log('Detected old image URLs, running migration...');
-        fetch('/api/migrate/service-images', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          console.log('Migration complete:', data);
-          // Reload the page to get the updated data
+      // Always run the migration to ensure consistent image paths
+      console.log('Ensuring all services use local image assets...');
+      fetch('/api/migrate/service-images', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Migration complete:', data);
+        if (data.success && data.message.includes('Successfully migrated') && parseInt(data.message.split(' ')[2]) > 0) {
+          // Only reload if actual migrations happened
           window.location.reload();
-        })
-        .catch(error => {
-          console.error('Migration failed:', error);
-        });
-      }
+        }
+      })
+      .catch(error => {
+        console.error('Migration failed:', error);
+      });
     }
   }, [salon]);
   
