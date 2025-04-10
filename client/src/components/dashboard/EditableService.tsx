@@ -7,12 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 
-// Import the images directly from assets
-import frenchTipsImg from '@/assets/french-tips.png';
-import gelManicureImg from '@/assets/gel-manicure.png';
-import sculptedAcrylicsImg from '@/assets/sculpted-acrylics.png';
-import glamDesignImg from '@/assets/glam-design.png';
-import salonCardImg from '@/assets/salon-card.png';
+// Using direct asset URLs for consistent image handling
 
 // Service type definition
 export interface ServiceData {
@@ -60,11 +55,11 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
     if (name.includes('french') || name.includes('tips')) {
       return '/assets/french-tips.png';
     } else if (name.includes('gel') || name.includes('manicure') || name.includes('lux')) {
-      return '/assets/luxe-gel-daisies.png'; // Using the new luxe gel image
+      return '/assets/daisy-gel-manicure.png'; // Using the new luxe gel image
     } else if (name.includes('sculpt') || name.includes('acrylic')) {
-      return '/assets/sculpted-acrylics.png';
+      return '/assets/sculpted-white-acrylic.png';
     } else if (name.includes('glam') || name.includes('custom') || name.includes('design')) {
-      return '/assets/glam-design.png';
+      return '/assets/custom-glam-lv.png';
     } else {
       return '/assets/salon-card.png'; // Default fallback
     }
@@ -122,31 +117,31 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
         <div className="mt-3 mb-3 text-center">
           {service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
             <img 
-              src={frenchTipsImg} 
+              src="/assets/french-tips.png" 
               alt={`${service.name} preview`} 
               className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
             />
           ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
             <img 
-              src="/assets/luxe-gel-daisies.png"
+              src="/assets/daisy-gel-manicure.png"
               alt={`${service.name} preview`} 
               className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
             />
           ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
             <img 
-              src={sculptedAcrylicsImg} 
+              src="/assets/sculpted-white-acrylic.png" 
               alt={`${service.name} preview`} 
               className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
             />
           ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
             <img 
-              src={glamDesignImg} 
+              src="/assets/custom-glam-lv.png" 
               alt={`${service.name} preview`} 
               className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
             />
           ) : (
             <img 
-              src={salonCardImg} 
+              src="/assets/salon-card.png" 
               alt={`${service.name} preview`} 
               className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
             />
