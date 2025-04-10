@@ -46,11 +46,34 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
     setEditedService(prev => ({ ...prev, featured }));
   };
   
+  // Gets the appropriate image URL based on service name
+  const getImageUrlForService = (serviceName: string): string => {
+    const name = serviceName.toLowerCase();
+    
+    if (name.includes('french') || name.includes('tips')) {
+      return '/assets/french-tips.png';
+    } else if (name.includes('gel') || name.includes('manicure') || name.includes('lux')) {
+      return '/assets/gel-manicure.png';
+    } else if (name.includes('sculpt') || name.includes('acrylic')) {
+      return '/assets/sculpted-acrylics.png';
+    } else if (name.includes('glam') || name.includes('custom') || name.includes('design')) {
+      return '/assets/glam-design.png';
+    } else {
+      return '/assets/salon-card.png'; // Default fallback
+    }
+  };
+  
   // Handle save
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
-      onSave(editedService);
+      // Auto-assign the gifUrl based on the service name
+      const serviceToSave = {
+        ...editedService,
+        gifUrl: getImageUrlForService(editedService.name)
+      };
+      
+      onSave(serviceToSave);
       setIsEditing(false);
     } catch (error) {
       console.error("Failed to save style option:", error);
@@ -89,7 +112,47 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
           </div>
         </div>
         
-        <div className="flex justify-between items-center mt-3">
+        <div className="mt-3 mb-3 text-center">
+          {service.gifUrl ? (
+            <img 
+              src={service.gifUrl}
+              alt={`${service.name} preview`} 
+              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+            />
+          ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
+            <img 
+              src="/assets/french-tips.png" 
+              alt={`${service.name} preview`} 
+              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+            />
+          ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
+            <img 
+              src="/assets/gel-manicure.png" 
+              alt={`${service.name} preview`} 
+              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+            />
+          ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
+            <img 
+              src="/assets/sculpted-acrylics.png" 
+              alt={`${service.name} preview`} 
+              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+            />
+          ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
+            <img 
+              src="/assets/glam-design.png" 
+              alt={`${service.name} preview`} 
+              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+            />
+          ) : (
+            <img 
+              src="/assets/salon-card.png" 
+              alt={`${service.name} preview`} 
+              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+            />
+          )}
+        </div>
+        
+        <div className="flex justify-between items-center">
           {service.featured && (
             <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
               Featured
