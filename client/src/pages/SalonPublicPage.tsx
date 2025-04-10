@@ -23,7 +23,6 @@ interface Service {
   price: number;
   duration: number; // in minutes
   featured: boolean;
-  gifUrl?: string;
 }
 
 // Define promo type
@@ -79,8 +78,7 @@ export default function SalonPublicPage() {
             description: "Classic white tips or quick polish refresh.",
             price: 40,
             duration: 30,
-            featured: true,
-            gifUrl: "/assets/french-tips.png"
+            featured: true
           },
           {
             id: 2,
@@ -88,8 +86,7 @@ export default function SalonPublicPage() {
             description: "Glossy, chip-free color with lasting shine.",
             price: 55,
             duration: 45,
-            featured: true,
-            gifUrl: "/assets/gel-manicure.png"
+            featured: true
           },
           {
             id: 3,
@@ -97,8 +94,7 @@ export default function SalonPublicPage() {
             description: "Custom-shaped acrylics for bold length.",
             price: 70,
             duration: 60,
-            featured: true,
-            gifUrl: "/assets/sculpted-acrylics.png"
+            featured: true
           },
           {
             id: 4,
@@ -106,8 +102,7 @@ export default function SalonPublicPage() {
             description: "Fully custom art, gems, 3D extras.",
             price: 125,
             duration: 90,
-            featured: true,
-            gifUrl: "/assets/glam-design.png"
+            featured: true
           }
         ];
         
@@ -155,30 +150,7 @@ export default function SalonPublicPage() {
     }
   }, [id, setLocation]);
   
-  // Force migration of service images on load (will ensure all images use local assets)
-  useEffect(() => {
-    if (salon && salon.services) {
-      // Always run the migration to ensure consistent image paths
-      console.log('Ensuring all services use local image assets...');
-      fetch('/api/migrate/service-images', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Migration complete:', data);
-        if (data.success && data.message.includes('Successfully migrated') && parseInt(data.message.split(' ')[2]) > 0) {
-          // Only reload if actual migrations happened
-          window.location.reload();
-        }
-      })
-      .catch(error => {
-        console.error('Migration failed:', error);
-      });
-    }
-  }, [salon]);
+  // Images have been removed, so we don't need migration code
   
   if (isLoading) {
     return (
@@ -310,65 +282,7 @@ export default function SalonPublicPage() {
                         </div>
                       </div>
                       
-                      <div className="mt-3 mb-3 text-center">
-                        {service.gifUrl ? (
-                          <img 
-                            src={getImageUrl(service.gifUrl)}
-                            alt={`${service.name} preview`} 
-                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              console.log('Image failed to load:', target.src);
-                              
-                              // Set fallback based on service name
-                              if (service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips')) {
-                                target.src = '/assets/french-tips.png';
-                              } else if (service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure')) {
-                                target.src = '/assets/gel-manicure.png';
-                              } else if (service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic')) {
-                                target.src = '/assets/sculpted-acrylics.png';
-                              } else if (service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design')) {
-                                target.src = '/assets/glam-design.png';
-                              } else {
-                                target.src = '/assets/salon-card.png';
-                              }
-                            }}
-                            onLoad={() => { console.log('Image loaded successfully for:', service.name); }}
-                          />
-                        ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
-                          <img 
-                            src="/assets/french-tips.png" 
-                            alt={`${service.name} preview`} 
-                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                            onLoad={() => { console.log('French Tips image loaded for:', service.name); }}
-                          />
-                        ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
-                          <img 
-                            src="/assets/gel-manicure.png" 
-                            alt={`${service.name} preview`} 
-                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                            onLoad={() => { console.log('Gel Manicure image loaded for:', service.name); }}
-                          />
-                        ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
-                          <img 
-                            src="/assets/sculpted-acrylics.png" 
-                            alt={`${service.name} preview`} 
-                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                            onLoad={() => { console.log('Sculpted Acrylics image loaded for:', service.name); }}
-                          />
-                        ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
-                          <img 
-                            src="/assets/glam-design.png" 
-                            alt={`${service.name} preview`} 
-                            className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-                            onLoad={() => { console.log('Glam Design image loaded for:', service.name); }}
-                          />
-                        ) : (
-                          <div className="h-28 w-full flex items-center justify-center border border-dashed border-gray-200 rounded bg-gray-50">
-                            <span className="text-xs text-gray-400">No image preview</span>
-                          </div>
-                        )}
-                      </div>
+                      {/* Images have been removed as requested */}
                       
                       {service.featured && (
                         <Badge className="mt-1 bg-[#FF92A5] text-white border-0 text-mini">

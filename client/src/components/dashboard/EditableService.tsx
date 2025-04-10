@@ -6,14 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { getImageUrl } from "@/lib/utils";
 
 // Service type definition
 export interface ServiceData {
   id: number;
   name: string;
   description: string;
-  gifUrl?: string;
   price: number;
   duration: number; // in minutes
   featured: boolean;
@@ -47,34 +45,11 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
     setEditedService(prev => ({ ...prev, featured }));
   };
   
-  // Get default image URL based on service name
-  const getDefaultImageUrl = (serviceName: string): string => {
-    if (serviceName.toLowerCase().includes('french') || serviceName.toLowerCase().includes('tips')) {
-      return '/assets/french-tips.png';
-    } else if (serviceName.toLowerCase().includes('gel') || serviceName.toLowerCase().includes('manicure') || serviceName.toLowerCase().includes('lux')) {
-      return '/assets/gel-manicure.png';
-    } else if (serviceName.toLowerCase().includes('acrylic') || serviceName.toLowerCase().includes('sculpt')) {
-      return '/assets/sculpted-acrylics.png';
-    } else if (serviceName.toLowerCase().includes('custom') || serviceName.toLowerCase().includes('design') || serviceName.toLowerCase().includes('glam')) {
-      return '/assets/glam-design.png';
-    } else {
-      return '/assets/salon-card.png';
-    }
-  };
-  
   // Handle save
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
-      // For simplicity, use default images based on service name
-      // This avoids upload issues for now
-      const defaultImageUrl = getDefaultImageUrl(editedService.name);
-      
-      onSave({
-        ...editedService,
-        gifUrl: defaultImageUrl
-      });
-      
+      onSave(editedService);
       setIsEditing(false);
     } catch (error) {
       console.error("Failed to save style option:", error);
@@ -113,63 +88,7 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
           </div>
         </div>
         
-        <div className="mt-3 mb-3 text-center">
-          {service.gifUrl ? (
-            <img 
-              src={getImageUrl(service.gifUrl)}
-              alt={`${service.name} preview`} 
-              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-              onError={(e) => {
-                // Fallback if image doesn't load
-                const target = e.target as HTMLImageElement;
-                console.log('Image failed to load:', target.src);
-                
-                // Set fallback based on service name
-                if (service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips')) {
-                  target.src = '/assets/french-tips.png';
-                } else if (service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux')) {
-                  target.src = '/assets/gel-manicure.png';
-                } else if (service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic')) {
-                  target.src = '/assets/sculpted-acrylics.png';
-                } else if (service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design')) {
-                  target.src = '/assets/glam-design.png';
-                } else {
-                  target.src = '/assets/salon-card.png';
-                }
-              }}
-            />
-          ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
-            <img 
-              src="/assets/french-tips.png" 
-              alt={`${service.name} preview`} 
-              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-            />
-          ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
-            <img 
-              src="/assets/gel-manicure.png" 
-              alt={`${service.name} preview`} 
-              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-            />
-          ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
-            <img 
-              src="/assets/sculpted-acrylics.png" 
-              alt={`${service.name} preview`} 
-              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-            />
-          ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
-            <img 
-              src="/assets/glam-design.png" 
-              alt={`${service.name} preview`} 
-              className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
-            />
-          ) : (
-            <div className="h-28 w-full flex items-center justify-center border border-dashed border-gray-200 rounded bg-gray-50">
-              <span className="text-xs text-gray-400">No image preview</span>
-            </div>
-          )}
-        </div>
-        
-        <div className="flex justify-between items-center mt-1">
+        <div className="flex justify-between items-center mt-3">
           {service.featured && (
             <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
               Featured
@@ -216,8 +135,6 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
             placeholder="Describe the style option"
           />
         </div>
-        
-        {/* Image section has been removed */}
         
         <div className="grid grid-cols-2 gap-2">
           <div>
