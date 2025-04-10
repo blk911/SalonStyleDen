@@ -25,14 +25,20 @@ export function formatPhoneNumber(value: string): string {
 export function getImageUrl(url?: string): string {
   if (!url) return '';
   
-  // If it's a data URL or already a complete URL, return as is
-  if (url.startsWith('data:') || url.startsWith('http')) {
+  // If it's a data URL, return as is (should never happen in production)
+  if (url.startsWith('data:')) {
+    console.log('Warning: Data URL encountered, this should be uploaded:', url.substring(0, 30) + '...');
+    return url;
+  }
+  
+  // If it's a proper URL from our uploads directory or assets, return as is
+  if (url.startsWith('/uploads/') || url.startsWith('/assets/') || url.startsWith('http')) {
     return url;
   }
   
   // Handle Windows paths (convert to web URLs)
   if (url.includes(':\\') || url.includes('C:')) {
-    console.log('Converting Windows path:', url);
+    console.log('Converting Windows path to local asset:', url);
     // Extract just the filename from the Windows path
     const filename = url.split('\\').pop()?.toLowerCase() || '';
     
@@ -50,7 +56,7 @@ export function getImageUrl(url?: string): string {
     return '/assets/salon-card.png';
   }
   
-  // Map service names to our specific uploaded images
+  // Map service names to our specific uploaded images as a last resort fallback
   if (url.toLowerCase().includes('french') || url.toLowerCase().includes('tips')) {
     return '/assets/french-tips.png';
   } else if (url.toLowerCase().includes('gel') || url.toLowerCase().includes('manicure') || url.toLowerCase().includes('lux')) {
