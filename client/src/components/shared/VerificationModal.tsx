@@ -61,6 +61,12 @@ export default function VerificationModal({ data, type, onConfirm, onEdit }: Ver
                 <dt className="col-span-1 font-medium">Current Client:</dt>
                 <dd className="col-span-2">{data.isCurrentClient === "yes" ? "Yes" : "No"}</dd>
                 
+                {/* Show salon information */}
+                <dt className="col-span-1 font-medium">Salon:</dt>
+                <dd className="col-span-2">
+                  {data.salonName || (data.salonId ? `Salon #${data.salonId}` : "Ven Me, Baby! Lux")}
+                </dd>
+                
                 {/* Notes if any */}
                 {data.notes && (
                   <>

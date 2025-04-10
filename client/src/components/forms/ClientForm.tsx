@@ -44,6 +44,7 @@ const clientFormSchema = z.object({
   notes: z.string().optional(),
   favoriteServices: z.array(z.string()).optional(),
   salonId: z.string().optional(),
+  salonName: z.string().optional(), // Added for verification display purposes
 });
 
 type ClientFormValues = z.infer<typeof clientFormSchema>;
@@ -86,27 +87,68 @@ export default function ClientForm() {
       notes: "",
       favoriteServices: [],
       salonId: "",
+      salonName: "",
     },
   });
   
   // Listen for changes to the "isCurrentClient" field
   const isCurrentClient = form.watch("isCurrentClient");
   
-  // Update showSalonSelector when isCurrentClient changes
+  // Handle changes to isCurrentClient status
   useEffect(() => {
+    // Update the visibility flag for the UI (now always visible but conditionally disabled)
     setShowSalonSelector(isCurrentClient === "yes");
     
-    // If not a current client, set default salon to "Ven Me, Baby! Lux"
-    if (isCurrentClient === "no") {
-      // Find the Ven Me, Baby Lux salon or use the first salon as fallback
-      const defaultSalon = salons?.find(salon => salon.name.includes("Lux")) || salons?.[0];
+    // If not a current client, set default salon to one with "Lux" in the name
+    if (isCurrentClient === "no" && salons && salons.length > 0) {
+      // First try to find a salon with "Ven Me" and "Lux" in the name
+      const venMeLuxSalon = salons.find(salon => 
+        salon.name.includes("Ven Me") && salon.name.includes("Lux")
+      );
+      
+      // Then try to find any salon with "Lux" in the name
+      const luxSalon = salons.find(salon => salon.name.includes("Lux"));
+      
+      // Finally, fall back to the first salon or Tiffany's salon if available
+      const tiffanySalon = salons.find(salon => 
+        salon.name.includes("Tiffany") || salon.ownerName.includes("Tiffany")
+      );
+      
+      // Choose the most appropriate default salon
+      const defaultSalon = venMeLuxSalon || luxSalon || tiffanySalon || salons[0];
+      
       if (defaultSalon) {
         form.setValue("salonId", String(defaultSalon.id));
+        console.log(`Set default salon to: ${defaultSalon.name} (ID: ${defaultSalon.id})`);
       }
     }
   }, [isCurrentClient, salons, form]);
 
   const onSubmit = (data: ClientFormValues) => {
+    // Find selected salon to include salon name in verification
+    if (data.salonId && salons) {
+      const selectedSalon = salons.find(salon => String(salon.id) === data.salonId);
+      if (selectedSalon) {
+        // Add the salon name to the form data for verification display
+        const enrichedData = {
+          ...data,
+          salonName: selectedSalon.name
+        };
+        // Update the form values with the enriched data including salon name
+        form.setValue("salonName", selectedSalon.name);
+        console.log(`Added salon name to form data: ${selectedSalon.name}`);
+      }
+    } else if (salons && salons.length > 0) {
+      // Default salon selection
+      const defaultSalon = salons.find(salon => salon.name.includes("Ven Me")) || 
+                          salons.find(salon => salon.name.includes("Lux")) || 
+                          salons[0];
+      if (defaultSalon) {
+        form.setValue("salonName", defaultSalon.name);
+        console.log(`Added default salon name to form data: ${defaultSalon.name}`);
+      }
+    }
+    
     setIsVerifying(true);
   };
 
@@ -117,18 +159,32 @@ export default function ClientForm() {
       // Ensure favorite services is always an array
       const favoriteServices = Array.isArray(data.favoriteServices) ? data.favoriteServices : [];
       
-      // Find selected salon
+      // Find selected salon ID
       let salonId = data.salonId;
-      if (!salonId) {
-        // If no salon selected, use default Ven Me, Baby! Lux salon or first available
-        const defaultSalon = salons?.find(salon => salon.name.includes("Lux")) || salons?.[0];
+      
+      // If no salon selected or invalid salon ID, use default salon
+      if (!salonId || !salons?.some(salon => String(salon.id) === salonId)) {
+        // Find the most appropriate default salon
+        const venMeLuxSalon = salons?.find(salon => 
+          salon.name.includes("Ven Me") && salon.name.includes("Lux")
+        );
+        const luxSalon = salons?.find(salon => salon.name.includes("Lux"));
+        const tiffanySalon = salons?.find(salon => 
+          salon.name.includes("Tiffany") || salon.ownerName.includes("Tiffany")
+        );
+        const defaultSalon = venMeLuxSalon || luxSalon || tiffanySalon || salons?.[0];
+        
         if (defaultSalon) {
           salonId = String(defaultSalon.id);
+          console.log(`Using default salon: ${defaultSalon.name} (ID: ${defaultSalon.id})`);
         }
       }
       
       // Find salon name for display
       const selectedSalon = salons?.find(salon => String(salon.id) === salonId);
+      const salonName = selectedSalon?.name || "Ven Me, Baby! Lux";
+      
+      console.log(`Client will be associated with salon: ${salonName} (ID: ${salonId})`);
       
       // Transform the data for the API
       const clientData = {
@@ -139,7 +195,7 @@ export default function ClientForm() {
         notes: data.notes || "",
         favoriteServices: favoriteServices,
         salonId: salonId ? parseInt(salonId) : undefined,
-        salonName: selectedSalon?.name || "Ven Me, Baby! Lux",
+        salonName: salonName,
         type: "client",
       };
       
@@ -274,46 +330,47 @@ export default function ClientForm() {
               )}
             />
             
-            {/* Salon Selector - Only shown when "Yes" is selected for current client */}
-            {showSalonSelector && (
-              <FormField
-                control={form.control}
-                name="salonId"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="text-sm mb-1">Select your current salon:</div>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a salon" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <ScrollArea className="h-40">
-                            <SelectGroup>
-                              {salons ? (
-                                salons.slice(0, 5).map((salon) => (
-                                  <SelectItem key={salon.id} value={String(salon.id)}>
-                                    {salon.name}
-                                  </SelectItem>
-                                ))
-                              ) : (
-                                <SelectItem value="" disabled>
-                                  Loading salons...
+            {/* Salon Selector - Always shown but conditional based on isCurrentClient */}
+            <FormField
+              control={form.control}
+              name="salonId"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="text-sm mb-1">
+                    {isCurrentClient === "yes" ? "Select your current salon:" : "Default salon:"}
+                  </div>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={isCurrentClient === "no"} // Disable if not a current client
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a salon" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <ScrollArea className="h-40">
+                          <SelectGroup>
+                            {salons && salons.length > 0 ? (
+                              salons.map((salon) => (
+                                <SelectItem key={salon.id} value={String(salon.id)}>
+                                  {salon.name}
                                 </SelectItem>
-                              )}
-                            </SelectGroup>
-                          </ScrollArea>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+                              ))
+                            ) : (
+                              <SelectItem value="" disabled>
+                                Loading salons...
+                              </SelectItem>
+                            )}
+                          </SelectGroup>
+                        </ScrollArea>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             
             <FormField
               control={form.control}
