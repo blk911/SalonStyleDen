@@ -354,7 +354,7 @@ export default function ClientForm() {
                         <FormControl>
                           <RadioGroupItem 
                             value="yes" 
-                            className="border-pink-500 text-pink-500" 
+                            className={field.value === "yes" ? "border-pink-500 bg-pink-500 text-white" : ""}
                           />
                         </FormControl>
                         <FormLabel 
@@ -366,7 +366,10 @@ export default function ClientForm() {
                       </FormItem>
                       <FormItem className="flex items-center space-x-2">
                         <FormControl>
-                          <RadioGroupItem value="no" />
+                          <RadioGroupItem 
+                            value="no" 
+                            className={field.value === "no" ? "border-pink-500 bg-pink-500 text-white" : ""}
+                          />
                         </FormControl>
                         <FormLabel 
                           className={`font-semibold text-sm ${field.value === "no" ? "text-pink-600" : "text-gray-600"}`}
@@ -410,9 +413,16 @@ export default function ClientForm() {
                       disabled={isCurrentClient === "no"} // Disable if not a current client
                     >
                       <SelectTrigger 
-                        className={`w-full ${isCurrentClient === "yes" ? "border-pink-400 bg-pink-50" : "border-gray-200 bg-gray-100"}`}
+                        className={`w-full transition-all duration-300 ${
+                          isCurrentClient === "yes" 
+                            ? "border-pink-500 border-2 bg-pink-50 shadow-md ring-2 ring-pink-200" 
+                            : "border-gray-200 bg-gray-100 opacity-70"
+                        }`}
                       >
                         <SelectValue placeholder={isCurrentClient === "yes" ? "Choose your salon" : "Auto-selected"} />
+                        {isCurrentClient === "yes" && (
+                          <span className="text-pink-500 animate-pulse">▼</span>
+                        )}
                       </SelectTrigger>
                       <SelectContent>
                         <ScrollArea className="h-48">

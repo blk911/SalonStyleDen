@@ -444,6 +444,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint to ensure a Ven Me, Baby! LTD salon exists
+  apiRouter.post("/seed/ven-me-ltd", async (req: Request, res: Response) => {
+    try {
+      // Check if the Ven Me salon already exists
+      const allSalons = await storage.getAllSalons();
+      const venMeSalon = allSalons.find(
+        (salon: any) => salon.name.toLowerCase().includes('ven me') || 
+                  salon.name.toLowerCase().includes('vmb')
+      );
+      
+      if (venMeSalon) {
+        return res.json({ 
+          message: "Ven Me, Baby! LTD salon already exists", 
+          salon: venMeSalon 
+        });
+      }
+      
+      // Create a new Ven Me, Baby! LTD salon
+      const newVenMeSalon = await storage.createSalon({
+        name: "Ven Me, Baby! LTD",
+        ownerName: "Admin",
+        phone: "(303) 555-9000",
+        email: "contact@venmebaby.com",
+        type: "salon",
+        socialMedia: [
+          { platform: "Instagram", handle: "@venmebaby" },
+          { platform: "Website", handle: "https://venmebaby.com" }
+        ],
+        address: "500 16th Street Mall",
+        city: "Denver",
+        state: "CO",
+        zipCode: "80202"
+      });
+
+      // Add default services to the salon
+      const services = [
+        {
+          id: 1,
+          name: "French Tips / Touch-Up",
+          description: "Classic white-tipped manicure or touch-up service",
+          price: 40,
+          duration: 30,
+          featured: true,
+          gifUrl: "/assets/french_tips.jpg"
+        },
+        {
+          id: 2,
+          name: "Luxe Gel Manicure",
+          description: "Premium gel polish with extended wear and shine",
+          price: 55,
+          duration: 45,
+          featured: true,
+          gifUrl: "/assets/Luxe_Gel_Manicure_1744299210155.png"
+        },
+        {
+          id: 3,
+          name: "Sculpted Acrylics",
+          description: "Beautiful, durable acrylic nails expertly applied",
+          price: 70,
+          duration: 60,
+          featured: false,
+          gifUrl: "/assets/Sculpted_Acrylics_1744299183531.png"
+        },
+        {
+          id: 4,
+          name: "Glam Me! Custom Design",
+          description: "Artistic custom nail designs for any occasion",
+          price: 125,
+          duration: 90,
+          featured: true,
+          gifUrl: "/assets/Glam_Me!_Custom_Design_1744299155324.png"
+        }
+      ];
+
+      // Add default promotions
+      const promos = [
+        {
+          id: 1,
+          title: "Welcome to Ven Me, Baby!",
+          description: "New clients receive 20% off their first visit!",
+          endDate: null
+        },
+        {
+          id: 2,
+          title: "Summer Special Package",
+          description: "Book our summer package and get a complementary toe polish!",
+          endDate: "2025-08-31"
+        }
+      ];
+
+      // Update the salon with services and promos
+      await storage.updateSalonServices(newVenMeSalon.id, services);
+      await storage.updateSalonPromos(newVenMeSalon.id, promos);
+      
+      return res.status(201).json({ 
+        message: "Created Ven Me, Baby! LTD salon with services and promos", 
+        salon: newVenMeSalon 
+      });
+    } catch (error) {
+      console.error('Error creating Ven Me, Baby! LTD salon:', error);
+      res.status(500).json({ error: "Failed to create Ven Me, Baby! LTD salon", details: String(error) });
+    }
+  });
+
   apiRouter.post("/import/clients", async (req: Request, res: Response) => {
     try {
       console.log('Bulk import clients request received');
