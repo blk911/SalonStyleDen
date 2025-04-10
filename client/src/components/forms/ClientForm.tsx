@@ -104,21 +104,28 @@ export default function ClientForm() {
   // When salons are loaded, set default salon
   useEffect(() => {
     if (salons && salons.length > 0 && form.getValues("salonId") === "loading") {
-      // First try to find a salon with "Ven Me" and "Lux" in the name
-      const venMeLuxSalon = salons.find(salon => 
-        salon.name.includes("Ven Me") && salon.name.includes("Lux")
+      // First try to find a salon with "Ven Me" in the name
+      const venMeSalon = salons.find(salon => 
+        salon.name.includes("Ven Me")
+      );
+      
+      // Then try to find a salon with "VMB" in the name
+      const vmbSalon = salons.find(salon => 
+        salon.name.includes("VMB")
       );
       
       // Then try to find any salon with "Lux" in the name
-      const luxSalon = salons.find(salon => salon.name.includes("Lux"));
+      const luxSalon = salons.find(salon => 
+        salon.name.includes("Lux")
+      );
       
       // Finally, fall back to Tiffany's salon or the first salon
       const tiffanySalon = salons.find(salon => 
         salon.name.includes("Tiffany") || salon.ownerName.includes("Tiffany")
       );
       
-      // Choose the most appropriate default salon
-      const defaultSalon = venMeLuxSalon || luxSalon || tiffanySalon || salons[0];
+      // Choose the most appropriate default salon - prioritize Ven Me, Baby! LTD
+      const defaultSalon = venMeSalon || vmbSalon || luxSalon || tiffanySalon || salons[0];
       
       if (defaultSalon) {
         form.setValue("salonId", String(defaultSalon.id));
@@ -133,9 +140,19 @@ export default function ClientForm() {
     // Update the visibility flag for the UI (now always visible but conditionally disabled)
     setShowSalonSelector(isCurrentClient === "yes");
     
-    // If not a current client, set default salon to one with "Lux" in the name
+    // If not a current client, set default salon to Ven Me, Baby! LTD
     if (isCurrentClient === "no" && salons && salons.length > 0) {
-      // First try to find a salon with "Ven Me" and "Lux" in the name
+      // First try to find a salon with "Ven Me" in the name - highest priority
+      const venMeSalon = salons.find(salon => 
+        salon.name.includes("Ven Me")
+      );
+      
+      // Then try to find a salon with "VMB" in the name
+      const vmbSalon = salons.find(salon => 
+        salon.name.includes("VMB")
+      );
+      
+      // Then try to find a salon with both "Ven Me" and "Lux" in the name
       const venMeLuxSalon = salons.find(salon => 
         salon.name.includes("Ven Me") && salon.name.includes("Lux")
       );
@@ -148,8 +165,8 @@ export default function ClientForm() {
         salon.name.includes("Tiffany") || salon.ownerName.includes("Tiffany")
       );
       
-      // Choose the most appropriate default salon
-      const defaultSalon = venMeLuxSalon || luxSalon || tiffanySalon || salons[0];
+      // Choose the most appropriate default salon - ensure Ven Me, Baby! LTD is top priority
+      const defaultSalon = venMeSalon || vmbSalon || venMeLuxSalon || luxSalon || tiffanySalon || salons[0];
       
       if (defaultSalon) {
         form.setValue("salonId", String(defaultSalon.id));
@@ -174,8 +191,9 @@ export default function ClientForm() {
         console.log(`Added salon name to form data: ${selectedSalon.name}`);
       }
     } else if (salons && salons.length > 0) {
-      // Default salon selection
+      // Default salon selection - prioritize Ven Me, Baby! LTD
       const defaultSalon = salons.find(salon => salon.name.includes("Ven Me")) || 
+                          salons.find(salon => salon.name.includes("VMB")) || 
                           salons.find(salon => salon.name.includes("Lux")) || 
                           salons[0];
       if (defaultSalon) {
@@ -199,7 +217,13 @@ export default function ClientForm() {
       
       // If no salon selected or invalid salon ID or is still loading, use default salon
       if (!salonId || salonId === "loading" || !salons?.some(salon => String(salon.id) === salonId)) {
-        // Find the most appropriate default salon
+        // Find the most appropriate default salon - prioritize Ven Me, Baby! LTD
+        const venMeSalon = salons?.find(salon => 
+          salon.name.includes("Ven Me")
+        );
+        const vmbSalon = salons?.find(salon => 
+          salon.name.includes("VMB")
+        );
         const venMeLuxSalon = salons?.find(salon => 
           salon.name.includes("Ven Me") && salon.name.includes("Lux")
         );
@@ -207,7 +231,7 @@ export default function ClientForm() {
         const tiffanySalon = salons?.find(salon => 
           salon.name.includes("Tiffany") || salon.ownerName.includes("Tiffany")
         );
-        const defaultSalon = venMeLuxSalon || luxSalon || tiffanySalon || salons?.[0];
+        const defaultSalon = venMeSalon || vmbSalon || venMeLuxSalon || luxSalon || tiffanySalon || salons?.[0];
         
         if (defaultSalon) {
           salonId = String(defaultSalon.id);
@@ -432,11 +456,33 @@ export default function ClientForm() {
                                 Loading salon list...
                               </SelectItem>
                             ) : salons && salons.length > 0 ? (
-                              salons.map((salon) => (
-                                <SelectItem key={salon.id} value={String(salon.id)}>
-                                  {salon.name}
-                                </SelectItem>
-                              ))
+                              // Prioritize "Ven Me, Baby! LTD" at the top of the list
+                              [
+                                // First display any Ven Me, Baby! salons
+                                ...salons
+                                  .filter(salon => 
+                                    salon.name.includes("Ven Me") || 
+                                    salon.name.includes("VMB"))
+                                  .map((salon) => (
+                                    <SelectItem 
+                                      key={salon.id} 
+                                      value={String(salon.id)}
+                                      className="font-semibold text-pink-600 bg-pink-50"
+                                    >
+                                      ★ {salon.name}
+                                    </SelectItem>
+                                  )),
+                                // Then display all other salons
+                                ...salons
+                                  .filter(salon => 
+                                    !(salon.name.includes("Ven Me") || 
+                                      salon.name.includes("VMB")))
+                                  .map((salon) => (
+                                    <SelectItem key={salon.id} value={String(salon.id)}>
+                                      {salon.name}
+                                    </SelectItem>
+                                  ))
+                              ]
                             ) : (
                               <SelectItem value="loading" disabled>
                                 No salons available
