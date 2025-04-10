@@ -124,8 +124,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Salon not found" });
       }
       
-      // Debug services data in salon
+      // Debug data in salon
       console.log(`DEBUG - GET salon/${id} - Retrieved salon:`, salon.name);
+      
+      // Debug services data in salon
       if (salon.services && Array.isArray(salon.services)) {
         console.log(`DEBUG - GET salon/${id} - Salon has ${salon.services.length} services`);
         salon.services.forEach((service: any, idx: number) => {
@@ -135,8 +137,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`DEBUG - GET salon/${id} - Salon has no services array`);
       }
       
-      // Add default promotions if none exist
-      if (!salon.promos || !Array.isArray(salon.promos) || salon.promos.length === 0) {
+      // Debug promotions data in salon
+      if (salon.promos && Array.isArray(salon.promos)) {
+        console.log(`DEBUG - GET salon/${id} - Salon has ${salon.promos.length} promotions:`);
+        console.log(`DEBUG - GET salon/${id} - Promotions:`, JSON.stringify(salon.promos));
+      } else {
+        console.log(`DEBUG - GET salon/${id} - Salon has no promotions array`);
+        
+        // Only add default promotions when we really need them (no promos at all)
+        // but don't override existing promos that may have been saved
         salon.promos = [
           {
             id: 1,
@@ -149,18 +158,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             title: "New Client Discount",
             description: "First-time clients receive 15% off any service. Welcome to our nail family!",
             endDate: null // Ongoing promotion
-          },
-          {
-            id: 3,
-            title: "Bring a Friend Reward",
-            description: "Bring a friend and you both get 20% off your next visit!",
-            endDate: null // Ongoing promotion
           }
         ];
+        console.log(`DEBUG - GET salon/${id} - Added default promotions`);
       }
       
       res.json(salon);
     } catch (error) {
+      console.error('Error retrieving salon:', error);
       res.status(500).json({ error: "Failed to retrieve salon" });
     }
   });

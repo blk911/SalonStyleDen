@@ -29,6 +29,8 @@ interface SalonType {
   socialMedia?: SocialMediaItem[] | null;
   type: string;
   createdAt: string;
+  services?: ServiceData[];
+  promos?: PromoData[];
 }
 
 export default function SalonDashboard() {
@@ -529,6 +531,27 @@ export default function SalonDashboard() {
       setLocation('/');
     }
   }, [id, setLocation]);
+  
+  // Update local state when salon data changes
+  useEffect(() => {
+    if (salon) {
+      console.log('SalonDashboard - Salon data loaded:', salon);
+      
+      // Update services if available
+      if (salon.services && Array.isArray(salon.services)) {
+        console.log('SalonDashboard - Setting services from salon data:', salon.services);
+        setServices(salon.services);
+      }
+      
+      // Update promos if available
+      if (salon.promos && Array.isArray(salon.promos)) {
+        console.log('SalonDashboard - Setting promos from salon data:', salon.promos);
+        setPromos(salon.promos);
+      } else {
+        console.log('SalonDashboard - No promos in salon data');
+      }
+    }
+  }, [salon]);
   
   if (isLoading) {
     return (
