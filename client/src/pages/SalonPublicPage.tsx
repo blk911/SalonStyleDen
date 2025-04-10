@@ -311,7 +311,7 @@ export default function SalonPublicPage() {
                           <p className="text-mini text-gray-600">{service.description}</p>
                           
                           <div className="mt-1">
-                            <span className="inline-block font-bold text-compact pr-2">${service.price}</span>
+                            <span className="inline-block font-bold text-compact pr-2">${Math.round(service.price)}</span>
                             <span className="inline-block text-micro">{service.duration} min</span>
                           </div>
                           

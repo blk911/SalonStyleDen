@@ -69,9 +69,10 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
-      // Auto-assign the gifUrl based on the service name
+      // Auto-assign the gifUrl based on the service name and round price to whole dollars
       const serviceToSave = {
         ...editedService,
+        price: Math.round(editedService.price),
         gifUrl: getImageUrlForService(editedService.name)
       };
       
@@ -110,7 +111,7 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
             <p className="text-mini text-gray-600">{service.description}</p>
             
             <div className="mt-1">
-              <span className="inline-block font-bold text-compact pr-2">${service.price.toFixed(2)}</span>
+              <span className="inline-block font-bold text-compact pr-2">${Math.round(service.price)}</span>
               <span className="inline-block text-micro">{service.duration} min</span>
             </div>
             
@@ -207,7 +208,7 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
               name="price"
               type="number"
               min="0"
-              step="0.01"
+              step="1"
               value={editedService.price}
               onChange={handleNumberChange}
               className="text-xs h-8"
