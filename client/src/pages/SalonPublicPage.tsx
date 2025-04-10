@@ -298,12 +298,23 @@ export default function SalonPublicPage() {
                             const filename = service.gifUrl.split('\\').pop()?.toLowerCase() || '';
                             console.log('DEBUG - Extracted filename:', filename);
                             
+                            // Debug the path we'll use for the image
+                            const imagePath = filename.includes('french') || filename.includes('tips') 
+                              ? "/assets/french-tips.png"
+                              : "/assets/gel-manicure.png";
+                            
+                            console.log('DEBUG - Using image path:', imagePath);
+                            console.log('DEBUG - Full image element will be:', 
+                              `<img src="${imagePath}" alt="${service.name} preview" class="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100" />`);
+                            
                             if (filename.includes('french') || filename.includes('tips')) {
                               return (
                                 <img 
                                   src="/assets/french-tips.png" 
                                   alt={`${service.name} preview`} 
                                   className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                                  onError={(e) => { console.error('Image failed to load:', e); }}
+                                  onLoad={() => { console.log('Image loaded successfully for:', service.name); }}
                                 />
                               );
                             } else if (filename.includes('gel') || filename.includes('manicure')) {
@@ -312,6 +323,8 @@ export default function SalonPublicPage() {
                                   src="/assets/gel-manicure.png" 
                                   alt={`${service.name} preview`} 
                                   className="inline-block rounded h-28 max-w-full object-contain mx-auto border border-pink-100"
+                                  onError={(e) => { console.error('Image failed to load:', e); }}
+                                  onLoad={() => { console.log('Image loaded successfully for:', service.name); }}
                                 />
                               );
                             }
