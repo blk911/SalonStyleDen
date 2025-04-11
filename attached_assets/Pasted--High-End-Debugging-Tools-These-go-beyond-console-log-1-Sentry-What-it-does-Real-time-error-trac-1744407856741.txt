@@ -1,0 +1,64 @@
+ High-End Debugging Tools
+These go beyond console.log:
+
+1. Sentry
+What it does: Real-time error tracking for frontend and backend.
+
+Why use it: Captures stack traces, user context, release tracking, and gives a timeline of events.
+
+Supports: JavaScript/TypeScript, Python, Node, Go, Rust, etc.
+
+2. Replay.io (for JS/TS)
+What it does: Records browser sessions with time travel debugging.
+
+Why use it: Like a DVR for debugging bugs visually—see logs, DOM changes, network requests.
+
+3. Chrome DevTools / VSCode Debugger
+If you're not maximizing breakpoints, watch expressions, or stepping through code inside your IDE, you're leaving power on the table.
+
+4. LogRocket
+Session replay + frontend analytics + console/network inspection in production apps.
+
+🧹 Directory & Repo Cleanup Tools
+These are about keeping your repo lean, clean, and mean:
+
+5. git-clean-branches
+CLI Tool: Deletes local branches not on remote or merged.
+
+Install: npm install -g git-clean-branches
+
+6. npkill
+What it does: Finds and removes large node_modules directories across your system.
+
+Install: npm i -g npkill
+
+7. .gitignore Management:
+Tools like gitignore.io generate tailored .gitignore files for any stack or IDE combo.
+
+8. lint-staged + husky
+Pre-commit Cleanup: Run linters/formatters only on staged files.
+
+Use for: Auto-fixing code, cleaning whitespace, formatting before push.
+
+9. fslint / czkawka (Linux/Mac)
+GUI/CLI tools to find duplicates, empty dirs, bad symlinks in project folders.
+
+🛠️ Code Quality & Maintenance
+10. ESLint / Prettier / Stylelint
+Combine these to auto-fix and lint JS/TS/CSS consistently.
+
+11. SonarQube (or SonarCloud)
+Static code analysis engine with advanced bug/smell/security detection.
+
+Works great in CI pipelines.
+
+12. TypeScript + Strict Mode
+For JS projects, this is a huge jump in quality and reduces debug time down the road.
+
+🧼 Bonus Tools for Deep Repo Cleaning
+depcheck: Find unused npm dependencies.
+
+madge: Visualize module dependency graphs and detect circular deps.
+
+webpack-bundle-analyzer: If you're dealing with bloated bundles.
+
