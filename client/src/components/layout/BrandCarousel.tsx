@@ -15,10 +15,10 @@ const carouselItems = [
   {
     title: "💎 Why This Matters for You",
     content: [
-      "Prepaid Appointments = Revenue Locked In",
-      "Clients Feel Seen + Empowered",
-      "Men Get an Elegant Assist",
-      "You Become the Salon That \"Gets It\""
+      { text: "Prepaid Appointments", isBold: true, suffix: " = Revenue Locked In" },
+      { text: "Clients Feel Seen", isBold: true, suffix: " + Empowered" },
+      { text: "Men Get an Elegant Assist", isBold: true },
+      { text: "You Become the Salon That \"Gets It\"", isBold: true }
     ]
   },
   {
@@ -115,6 +115,14 @@ export default function BrandCarousel() {
                       );
                     }
                     
+                    if (typeof line === 'object' && line.isBold) {
+                      return (
+                        <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">
+                          <span className="font-bold">{line.text}</span>
+                          {line.suffix}
+                        </p>
+                      );
+                    }
                     return (
                       <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">
                         {line}
