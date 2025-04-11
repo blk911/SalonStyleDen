@@ -17,7 +17,7 @@ export default function Navbar() {
               <Link href="/">
                 <div className="flex items-center justify-center h-[200px] cursor-pointer">
                   <img 
-                    src="/assets/LOGO1.png" 
+                    src="/assets/logos/vmb-logo.png" 
                     alt="VMB Logo" 
                     className="h-[200px] w-auto object-contain"
                     onLoad={() => console.log("Logo loaded successfully")}
