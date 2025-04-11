@@ -1,7 +1,19 @@
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Check } from "lucide-react";
+import { ReactNode } from "react";
 
-const carouselItems = [
+type ContentItem =
+  | string
+  | { text: string; isBold: boolean; suffix?: string }
+  | Array<{ text: string; isBold: boolean }>
+  | string[];
+
+type CarouselItemType = {
+  title: string;
+  content: ContentItem[];
+};
+
+const carouselItems: CarouselItemType[] = [
   {
     title: "👩‍💼 Here's How It Works:",
     content: [
@@ -50,12 +62,12 @@ const carouselItems = [
   {
     title: "Ven Me Baby is not a brand.",
     content: [
-      ["It's the beautiful middle", "", " between asking and ignoring,"],
+      ["It's the ", "beautiful middle", " between asking and ignoring,"],
       ["", "between forgetting", " and showing up."],
       "",
-      ["It's ", "not", " a gift card."],
-      ["It's a gesture she initiates", "", "—and he finishes."],
-      ["It's ", "attention", " translated into care."]
+      ["It's ", "not a gift card", "."],
+      ["It's a ", "gesture she initiates", "—and he finishes."],
+      ["It's ", "attention", " translated; it's ", "care", "."]
     ]
   },
   {
@@ -78,6 +90,75 @@ const carouselItems = [
 ];
 
 export default function BrandCarousel() {
+  const renderContentItem = (item: ContentItem, index: number): ReactNode => {
+    // Case 1: String array with 4 elements - special case for "attention translated; it's care"
+    if (Array.isArray(item) && typeof item[0] === 'string' && item.length === 4) {
+      return (
+        <p key={index} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
+          {item[0]}
+          <span className="font-bold">{item[1]}</span>
+          {item[2]}
+          <span className="font-bold">{item[3]}</span>
+        </p>
+      );
+    }
+    
+    // Case 2: String array with 3 elements - standard format with one bold part
+    if (Array.isArray(item) && typeof item[0] === 'string' && item.length === 3) {
+      return (
+        <p key={index} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
+          {item[0]}
+          <span className="font-bold">{item[1]}</span>
+          {item[2]}
+        </p>
+      );
+    }
+    
+    // Case 3: Object array for paired bold/normal text
+    if (Array.isArray(item) && item.length > 0 && typeof item[0] === 'object' && 'text' in item[0]) {
+      return (
+        <div key={index} className="mb-4">
+          <p className="text-lg font-bold text-gray-700 leading-relaxed tracking-wide mb-1">
+            {item[0].text}
+          </p>
+          {item[1] && (
+            <p className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
+              {item[1].text}
+            </p>
+          )}
+        </div>
+      );
+    }
+    
+    // Case 4: Object with text property - for the items with isBold flag
+    if (typeof item === 'object' && !Array.isArray(item) && 'text' in item) {
+      return (
+        <p key={index} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
+          {item.isBold ? <span className="font-bold">{item.text}</span> : item.text}
+          {item.suffix && item.suffix}
+        </p>
+      );
+    }
+    
+    // Case 5: Simple string with checkmark
+    if (typeof item === 'string' && item.startsWith('✔️')) {
+      return (
+        <p key={index} className="text-lg text-gray-700 leading-relaxed tracking-wide flex items-center gap-2 mb-8">
+          <Check className="h-5 w-5 text-green-500" strokeWidth={3} />
+          {item.replace('✔️', '')}
+        </p>
+      );
+    }
+    
+    // Case 6: Simple string (catch-all for other string types)
+    if (typeof item === 'string') {
+      return <p key={index} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">{item}</p>;
+    }
+    
+    // Fallback
+    return null;
+  };
+
   return (
     <div className="py-3 relative max-w-3xl mx-auto">
       <Carousel
@@ -95,49 +176,7 @@ export default function BrandCarousel() {
               <div className="min-h-[500px] w-[90%] mx-auto p-6 rounded-2xl bg-gradient-to-br from-white via-white/95 to-pink-50/90 backdrop-blur-sm border border-pink-100 shadow-2xl hover:shadow-pink-100/20 transition-all flex flex-col justify-center">
                 <h3 className="text-4xl mb-8 text-[#FF92A5] leading-tight text-center">{item.title}</h3>
                 <div className="space-y-6 flex-grow">
-                  {item.content.map((line, i) => {
-                    if (Array.isArray(line) && line.length === 3) {
-                      return (
-                        <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
-                          {line[0]}
-                          <span className="font-bold">{line[1]}</span>
-                          {line[2]}
-                        </p>
-                      );
-                    }
-                    if (Array.isArray(line)) {
-                      return (
-                        <div key={i} className="mb-4">
-                          <p className="text-lg font-bold text-gray-700 leading-relaxed tracking-wide mb-1">
-                            {line[0].text}
-                          </p>
-                          <p className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
-                            {line[1].text}
-                          </p>
-                        </div>
-                      );
-                    }
-                    if (typeof line === 'object' && line.text) {
-                      return (
-                        <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
-                          {line.isBold ? <span className="font-bold">{line.text}</span> : line.text}
-                          {line.suffix && line.suffix}
-                        </p>
-                      );
-                    }
-                    if (typeof line === 'string') {
-                      if (line.startsWith('✔️')) {
-                        return (
-                          <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide flex items-center gap-2 mb-8">
-                            <Check className="h-5 w-5 text-green-500" strokeWidth={3} />
-                            {line.replace('✔️', '')}
-                          </p>
-                        );
-                      }
-                      return <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">{line}</p>;
-                    }
-                    return null;
-                  })}
+                  {item.content.map((contentItem, i) => renderContentItem(contentItem, i))}
                 </div>
               </div>
             </CarouselItem>
