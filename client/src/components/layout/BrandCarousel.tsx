@@ -1,4 +1,3 @@
-
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Check } from "lucide-react";
 
@@ -90,44 +89,26 @@ export default function BrandCarousel() {
                 <h3 className="text-4xl font-bold mb-8 text-[#FF92A5] leading-tight text-center">{item.title}</h3>
                 <div className="space-y-6 flex-grow">
                   {item.content.map((line, i) => {
-                    if (typeof line === 'string' && line.startsWith('✔️')) {
-                      return (
-                        <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide flex items-center gap-2">
-                          <Check className="h-5 w-5 text-green-500" strokeWidth={3} />
-                          {line.replace('✔️', '')}
-                        </p>
-                      );
-                    }
-                    
-                    if (line.includes('through your app')) {
+                    if (typeof line === 'object' && line.text) {
                       return (
                         <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">
-                          Your client selects a curated service offer <span className="font-bold">through your app, site, or QR in-salon.</span>
+                          {line.isBold ? <span className="font-bold">{line.text}</span> : line.text}
+                          {line.suffix && line.suffix}
                         </p>
                       );
                     }
-                    
-                    if (line.includes('Prepaid Appointments')) {
-                      return (
-                        <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">
-                          <span className="font-bold">Prepaid Appointments</span> = Revenue Locked In
-                        </p>
-                      );
+                    if (typeof line === 'string') {
+                      if (line.startsWith('✔️')) {
+                        return (
+                          <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide flex items-center gap-2">
+                            <Check className="h-5 w-5 text-green-500" strokeWidth={3} />
+                            {line.replace('✔️', '')}
+                          </p>
+                        );
+                      }
+                      return <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">{line}</p>;
                     }
-                    
-                    if (typeof line === 'object' && line.isBold) {
-                      return (
-                        <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">
-                          <span className="font-bold">{line.text}</span>
-                          {line.suffix}
-                        </p>
-                      );
-                    }
-                    return (
-                      <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">
-                        {line}
-                      </p>
-                    );
+                    return null;
                   })}
                 </div>
               </div>
