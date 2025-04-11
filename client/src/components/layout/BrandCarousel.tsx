@@ -5,11 +5,11 @@ const carouselItems = [
   {
     title: "Why It Works—Because It's Real.",
     content: [
-      "**Because gift cards are obsolete.**",
+      "Because gift cards are obsolete.",
       "In a connected world, beauty should be personal, not plastic.",
-      "**Because men don't shop. They respond.**",
+      "Because men don't shop. They respond.",
       "Ven Me Baby is a gentle invitation to show he cares—with ease.",
-      "**Because she shouldn't have to ask twice.**",
+      "Because she shouldn't have to ask twice.",
       "Now she doesn't. She chooses, he confirms, and the salon is booked."
     ]
   },
@@ -71,7 +71,7 @@ export default function BrandCarousel() {
                 <h3 className="text-3xl font-semibold mb-8 text-[#FF92A5] leading-tight text-center">{item.title}</h3>
                 <div className="space-y-6 flex-grow">
                   {item.content.map((line, i) => (
-                    <p key={i} className="text-lg text-gray-700 leading-[0.75] font-light tracking-wide">{line}</p>
+                    <p key={i} className={`text-lg text-gray-700 leading-[0.75] tracking-wide ${line.startsWith('Because') ? 'font-bold' : 'font-light'}`}>{line}</p>
                   ))}
                 </div>
               </div>
