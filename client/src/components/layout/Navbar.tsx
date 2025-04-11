@@ -20,10 +20,12 @@ export default function Navbar() {
                     src="/assets/LOGO1.png" 
                     alt="VMB Logo" 
                     className="h-[60px] w-auto object-contain"
+                    onLoad={() => console.log("Logo loaded successfully")}
                     onError={(e) => {
+                      console.log("Logo failed to load");
                       e.currentTarget.style.display = 'none';
                       // Added a sibling element to display fallback text
-                      e.currentTarget.parentNode.insertAdjacentHTML('beforeend', '<div class="font-bold text-2xl text-[#FF92A5]">VMB</div>');
+                      e.currentTarget.parentNode.insertAdjacentHTML('beforeend', '<div class="font-bold text-2xl text-[#FF92A5]">Ven Me, Baby!</div>');
                     }}
                   />
                 </div>
