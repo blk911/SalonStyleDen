@@ -137,36 +137,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`DEBUG - GET salon/${id} - Salon has no services array`);
       }
       
-      // Debug promotions data in salon
-      if (salon.promos && Array.isArray(salon.promos)) {
-        console.log(`DEBUG - GET salon/${id} - Salon has ${salon.promos.length} promotions:`);
-        console.log(`DEBUG - GET salon/${id} - Promotions:`, JSON.stringify(salon.promos));
-        
-        // SPECIAL FIX: Always override with the exact three promotions you originally specified
-        // This guarantees the three promos will always appear as expected
-        console.log(`DEBUG - GET salon/${id} - Restoring the original three promotions you created`);
-        salon.promos = [
-          {
-            id: 1,
-            title: "Summer Special",
-            description: "20% off all manicures",
-            endDate: "2025-07-31"
-          },
-          {
-            id: 2,
-            title: "New Client Offer",
-            description: "Free nail art with any service",
-            endDate: null
-          },
-          {
-            id: 3,
-            title: "Bring a Friend",
-            description: "25% off for you and a friend",
-            endDate: "2025-08-15"
-          }
-        ];
-      } else {
-        console.log(`DEBUG - GET salon/${id} - Salon has no promotions array`);
+      // Handle promotions data consistently
+      if (!salon.promos || !Array.isArray(salon.promos) || salon.promos.length === 0) {
+        console.log(`DEBUG - GET salon/${id} - No valid promos found, using defaults`);
+        salon.promos = [];
+      }
+      console.log(`DEBUG - GET salon/${id} - Salon has ${salon.promos.length} promotions:`, JSON.stringify(salon.promos));
         
         // Only add default promotions when we really need them (no promos at all)
         salon.promos = [
@@ -253,18 +229,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`DEBUG - POST /salons/${id}/promos - Starting update request`);
       
       if (isNaN(id)) {
-        console.log(`DEBUG - POST /salons/${id}/promos - Invalid ID format`);
         return res.status(400).json({ error: "Invalid ID format" });
       }
       
-      // Get the promos array from request body
+      // Validate promos array
       const { promos } = req.body;
-      console.log(`DEBUG - POST /salons/${id}/promos - Received promos:`, JSON.stringify(promos));
-      
       if (!Array.isArray(promos)) {
-        console.log(`DEBUG - POST /salons/${id}/promos - Error: Promos is not an array`, typeof promos);
         return res.status(400).json({ error: "Promos must be an array" });
       }
+
+      // Validate each promo object
+      const validatedPromos = promos.map(promo => ({
+        id: promo.id,
+        title: promo.title,
+        description: promo.description,
+        endDate: promo.endDate
+      }));
       
       // Get the salon first
       console.log(`DEBUG - POST /salons/${id}/promos - Retrieving salon`);
