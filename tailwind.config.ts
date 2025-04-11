@@ -93,7 +93,7 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       fontFamily: {
-        sans: ['Inter', "var(--font-sans)"],
+        sans: ["var(--font-sans)"],
         'great-vibes': ['Great Vibes', 'cursive'],
       },
     },
