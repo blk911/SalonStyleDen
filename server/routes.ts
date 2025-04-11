@@ -62,18 +62,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // API endpoints prefix
   const apiRouter = express.Router();
-  
+
   // File upload endpoint for service images
   apiRouter.post("/upload", upload.single('file'), (req: Request, res: Response) => {
     try {
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
-      
+
       // File was uploaded successfully, return the path that can be accessed publicly
       const relativePath = `/uploads/${req.file.filename}`;
       console.log(`Uploaded file saved to ${req.file.path} (public URL: ${relativePath})`);
-      
+
       return res.json({ 
         url: relativePath,
         originalName: req.file.originalname,
@@ -84,7 +84,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to upload file" });
     }
   });
-  
+
   // Salon routes
   apiRouter.post("/salons", async (req: Request, res: Response) => {
     try {
@@ -99,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
   });
-  
+
   apiRouter.get("/salons", async (req: Request, res: Response) => {
     try {
       console.log('GET /salons - Attempting to fetch all salons');
@@ -111,22 +111,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to retrieve salons" });
     }
   });
-  
+
   apiRouter.get("/salons/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid ID format" });
       }
-      
+
       const salon = await storage.getSalon(id);
       if (!salon) {
         return res.status(404).json({ error: "Salon not found" });
       }
-      
+
       // Debug data in salon
       console.log(`DEBUG - GET salon/${id} - Retrieved salon:`, salon.name);
-      
+
       // Debug services data in salon
       if (salon.services && Array.isArray(salon.services)) {
         console.log(`DEBUG - GET salon/${id} - Salon has ${salon.services.length} services`);
@@ -136,14 +136,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         console.log(`DEBUG - GET salon/${id} - Salon has no services array`);
       }
-      
+
       // Handle promotions data consistently
       if (!salon.promos || !Array.isArray(salon.promos) || salon.promos.length === 0) {
         console.log(`DEBUG - GET salon/${id} - No valid promos found, using defaults`);
         salon.promos = [];
       }
       console.log(`DEBUG - GET salon/${id} - Salon has ${salon.promos.length} promotions:`, JSON.stringify(salon.promos));
-        
+
         // Only add default promotions when we really need them (no promos at all)
         salon.promos = [
           {
@@ -167,14 +167,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ];
         console.log(`DEBUG - GET salon/${id} - Added default promotions`);
       }
-      
+
       res.json(salon);
     } catch (error) {
       console.error('Error retrieving salon:', error);
       res.status(500).json({ error: "Failed to retrieve salon" });
     }
   });
-  
+
   // Update salon services
   apiRouter.post("/salons/:id/services", async (req: Request, res: Response) => {
     try {
@@ -182,59 +182,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid ID format" });
       }
-      
+
       // Get the services array from request body
       const { services } = req.body;
       if (!Array.isArray(services)) {
         return res.status(400).json({ error: "Services must be an array" });
       }
-      
+
       // Debug logs for Windows paths in services
       console.log('DEBUG - Processing services before save:');
       services.forEach((service, index) => {
         if (service.gifUrl && (service.gifUrl.includes(':\\') || service.gifUrl.includes('C:'))) {
           console.log(`DEBUG - Service ${index} has Windows path:`, service.gifUrl);
-          
+
           // Extract the filename from the Windows path for logging
           const filename = service.gifUrl.split('\\').pop() || '';
           console.log(`DEBUG - Extracted filename: "${filename}"`);
-          
+
           // Don't modify the path - we'll handle it in the frontend
         }
       });
-      
+
       // Get the salon first
       const salon = await storage.getSalon(id);
       if (!salon) {
         return res.status(404).json({ error: "Salon not found" });
       }
-      
+
       // Update the salon with the new services
       const updatedSalon = await storage.updateSalonServices(id, services);
-      
+
       // Log what's being sent back to client
       console.log('DEBUG - Updated salon services - sending back to client');
-      
+
       res.json(updatedSalon);
     } catch (error) {
       console.error('Error updating salon services:', error);
       res.status(500).json({ error: "Failed to update salon services" });
     }
   });
-  
+
   // Update salon promos
   apiRouter.post("/salons/:id/promos", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       console.log(`DEBUG - POST /salons/${id}/promos - Starting update request`);
-      
+
       if (isNaN(id)) {
+        console.log(`DEBUG - POST /salons/${id}/promos - Invalid ID format`);
         return res.status(400).json({ error: "Invalid ID format" });
       }
-      
-      // Validate promos array
+
+      // Get the promos array from request body
       const { promos } = req.body;
+      console.log(`DEBUG - POST /salons/${id}/promos - Received promos:`, JSON.stringify(promos));
+
+      // Validate promos array
       if (!Array.isArray(promos)) {
+        console.log(`DEBUG - POST /salons/${id}/promos - Error: Promos is not an array`, typeof promos);
         return res.status(400).json({ error: "Promos must be an array" });
       }
 
@@ -243,61 +248,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: promo.id,
         title: promo.title,
         description: promo.description,
-        endDate: promo.endDate
+        endDate: promo.endDate || null
       }));
-      
+
       // Get the salon first
       console.log(`DEBUG - POST /salons/${id}/promos - Retrieving salon`);
       const salon = await storage.getSalon(id);
-      
+
       if (!salon) {
         console.log(`DEBUG - POST /salons/${id}/promos - Salon not found`);
         return res.status(404).json({ error: "Salon not found" });
       }
-      
+
       console.log(`DEBUG - POST /salons/${id}/promos - Found salon:`, salon.name);
       if (salon.promos) {
         console.log(`DEBUG - POST /salons/${id}/promos - Current promos:`, JSON.stringify(salon.promos));
       } else {
         console.log(`DEBUG - POST /salons/${id}/promos - No existing promos`);
       }
-      
+
       // Update the salon with the new promos
       console.log(`DEBUG - POST /salons/${id}/promos - Updating promos in database`);
-      const updatedSalon = await storage.updateSalonPromos(id, promos);
-      
+      const updatedSalon = await storage.updateSalonPromos(id, validatedPromos); // Use validatedPromos here
+
       console.log(`DEBUG - POST /salons/${id}/promos - Update successful, returning updated salon`);
       if (updatedSalon.promos) {
         console.log(`DEBUG - POST /salons/${id}/promos - New promos:`, JSON.stringify(updatedSalon.promos));
       } else {
         console.log(`DEBUG - POST /salons/${id}/promos - Warning: Updated salon has no promos`);
       }
-      
+
       res.json(updatedSalon);
     } catch (error) {
       console.error('Error updating salon promos:', error);
       res.status(500).json({ error: "Failed to update salon promos" });
     }
   });
-  
+
   // Client routes
   apiRouter.post("/clients", async (req: Request, res: Response) => {
     try {
       console.log('Received client registration data:', req.body);
-      
+
       // Validate and parse client input data
       const validatedData = clientInputSchema.parse(req.body);
       console.log('Validated client data:', validatedData);
-      
+
       // Create client in database
       const client = await storage.createClient(validatedData);
       console.log('Created client with ID:', client.id);
-      
+
       // Return the client data
       res.status(201).json(client);
     } catch (error) {
       console.error('Error creating client:', error);
-      
+
       if (error instanceof z.ZodError) {
         console.error('Validation error:', error.errors);
         res.status(400).json({ error: error.errors });
@@ -306,7 +311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
   });
-  
+
   apiRouter.get("/clients", async (req: Request, res: Response) => {
     try {
       const clients = await storage.getAllClients();
@@ -315,7 +320,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to retrieve clients" });
     }
   });
-  
+
   apiRouter.get("/clients/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
@@ -323,22 +328,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error('Invalid client ID format:', req.params.id);
         return res.status(400).json({ error: "Invalid ID format" });
       }
-      
+
       console.log('Fetching client with ID:', id);
       const client = await storage.getClient(id);
-      
+
       if (!client) {
         console.error('Client not found with ID:', id);
         return res.status(404).json({ error: "Client not found" });
       }
-      
+
       // Log retrieved client data with favorite services
       console.log('Retrieved client:', {
         id: client.id,
         name: client.name,
         favoriteServices: client.favoriteServices
       });
-      
+
       res.json(client);
     } catch (error) {
       console.error('Error retrieving client:', error);
@@ -350,14 +355,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.post("/import/salons", async (req: Request, res: Response) => {
     try {
       console.log('Bulk import salons request received');
-      
+
       if (!Array.isArray(req.body)) {
         return res.status(400).json({ error: "Request body must be an array of salon objects" });
       }
-      
+
       const importedSalons = await importSalons(req.body);
       console.log(`Successfully imported ${importedSalons.length} salons`);
-      
+
       res.status(201).json({ 
         message: `Successfully imported ${importedSalons.length} salons`,
         salons: importedSalons
@@ -367,25 +372,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to import salons", details: String(error) });
     }
   });
-  
+
   // Data migration endpoint for fixing stored image URLs - used by both API and direct HTML page
   app.post("/api/migrate/service-images", async (req: Request, res: Response) => {
     try {
       console.log('Starting migration of service images to local assets');
-      
+
       // Get all salons
       const allSalons = await storage.getAllSalons();
       let totalUpdated = 0;
-      
+
       // Process each salon
       for (const salon of allSalons) {
         if (!salon.services || !Array.isArray(salon.services) || salon.services.length === 0) {
           console.log(`Salon ${salon.id} has no services, skipping`);
           continue;
         }
-        
+
         console.log(`Processing salon ${salon.id} (${salon.name}) with ${salon.services.length} services`);
-        
+
         // Update each service to use a local asset
         const updatedServices = salon.services.map(service => {
           // Skip if already a local asset
@@ -394,7 +399,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               service.gifUrl.startsWith('/uploads/'))) {
             return service;
           }
-          
+
           // Create a local URL based on service name
           let localUrl;
           if (service.name.toLowerCase().includes('french') || 
@@ -414,21 +419,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
           } else {
             localUrl = '/assets/salon-card.png';
           }
-          
+
           console.log(`Migrating service ${service.id} (${service.name}) image from ${service.gifUrl} to ${localUrl}`);
           totalUpdated++;
-          
+
           return {
             ...service,
             gifUrl: localUrl
           };
         });
-        
+
         // Save the updated services
         await storage.updateSalonServices(salon.id, updatedServices);
         console.log(`Updated ${updatedServices.length} services for salon ${salon.id}`);
       }
-      
+
       res.json({ 
         success: true, 
         message: `Successfully migrated ${totalUpdated} service images to local assets` 
@@ -450,14 +455,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         (salon: any) => salon.name.toLowerCase().includes('tiffany') || 
                 salon.ownerName.toLowerCase().includes('tiffany')
       );
-      
+
       if (tiffanySalon) {
         return res.json({ 
           message: "Tiffany's salon already exists", 
           salon: tiffanySalon 
         });
       }
-      
+
       // Create a new Tiffany salon
       const newTiffanySalon = await storage.createSalon({
         name: "Tiffany's 5280 Nails Studio",
@@ -474,7 +479,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         state: "CO",
         zipCode: "80246"
       });
-      
+
       return res.status(201).json({ 
         message: "Created new Tiffany salon", 
         salon: newTiffanySalon 
@@ -494,14 +499,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         (salon: any) => salon.name.toLowerCase().includes('ven me') || 
                   salon.name.toLowerCase().includes('vmb')
       );
-      
+
       if (venMeSalon) {
         return res.json({ 
           message: "Ven Me, Baby! LTD salon already exists", 
           salon: venMeSalon 
         });
       }
-      
+
       // Create a new Ven Me, Baby! LTD salon
       const newVenMeSalon = await storage.createSalon({
         name: "Ven Me, Baby! LTD",
@@ -578,7 +583,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update the salon with services and promos
       await storage.updateSalonServices(newVenMeSalon.id, services);
       await storage.updateSalonPromos(newVenMeSalon.id, promos);
-      
+
       return res.status(201).json({ 
         message: "Created Ven Me, Baby! LTD salon with services and promos", 
         salon: newVenMeSalon 
@@ -592,14 +597,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.post("/import/clients", async (req: Request, res: Response) => {
     try {
       console.log('Bulk import clients request received');
-      
+
       if (!Array.isArray(req.body)) {
         return res.status(400).json({ error: "Request body must be an array of client objects" });
       }
-      
+
       const importedClients = await importClients(req.body);
       console.log(`Successfully imported ${importedClients.length} clients`);
-      
+
       res.status(201).json({ 
         message: `Successfully imported ${importedClients.length} clients`,
         clients: importedClients
