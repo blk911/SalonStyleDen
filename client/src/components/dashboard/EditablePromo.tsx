@@ -99,9 +99,9 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
         <div className="h-32 flex items-center justify-center">
           {promo.title.toLowerCase().includes('summer') ? (
             <img 
-              src="/assets/logos/summer-french-tips.png"
+              src="/assets/logos/vmb-script-logo.png"
               alt={promo.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain p-4"
               onError={(e) => {
                 console.error(`Failed to load image for promo: ${promo.title}`);
                 e.currentTarget.src = '/assets/logos/vmb-logo.png';
@@ -109,9 +109,9 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
             />
           ) : promo.title.toLowerCase().includes('new client') ? (
             <img 
-              src="/assets/logos/spring-lavender.png"
+              src="/assets/logos/vmb-script-logo.png"
               alt={promo.title} 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain p-4"
               onError={(e) => {
                 console.error(`Failed to load image for promo: ${promo.title}`);
                 e.currentTarget.src = '/assets/logos/vmb-logo.png';
@@ -119,9 +119,9 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
             />
           ) : promo.title.toLowerCase().includes('friend') || promo.title.toLowerCase().includes('bff') || promo.title.toLowerCase().includes('bring') ? (
             <img 
-              src="/assets/logos/bff-promo.png"
+              src="/assets/logos/vmb-script-logo.png"
               alt={promo.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain p-4"
               onError={(e) => {
                 console.error(`Failed to load image for promo: ${promo.title}`);
                 e.currentTarget.src = '/assets/logos/vmb-logo.png';
