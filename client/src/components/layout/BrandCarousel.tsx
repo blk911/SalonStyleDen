@@ -51,7 +51,7 @@ const carouselItems = [
 
 export default function BrandCarousel() {
   return (
-    <div className="py-16 bg-gradient-to-b from-pink-50/50 to-transparent">
+    <div className="py-3 bg-gradient-to-b from-pink-50/50 to-transparent">
       <Carousel
         opts={{
           align: "start",
