@@ -88,11 +88,39 @@ export default function BrandCarousel() {
               <div className="min-h-[500px] w-[90%] mx-auto p-6 rounded-2xl bg-gradient-to-br from-white via-white/95 to-pink-50/90 backdrop-blur-sm border border-pink-100 shadow-2xl hover:shadow-pink-100/20 transition-all flex flex-col justify-center">
                 <h3 className="text-4xl font-bold mb-8 text-[#FF92A5] leading-tight text-center">{item.title}</h3>
                 <div className="space-y-6 flex-grow">
-                  {item.content.map((line, i) => (
-                    <p key={i} className={`text-2xl text-gray-700 leading-[0.75] tracking-wide flex items-center gap-2 font-bold`}>
-                      {line.startsWith('✔️') ? <Check className="h-5 w-5 text-green-500" strokeWidth={3} /> : null}
-                      {line.replace('✔️', '')}
-                    </p>
+                  {item.content.map((line, i) => {
+                    if (line.startsWith('✔️')) {
+                      return (
+                        <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide flex items-center gap-2">
+                          <Check className="h-5 w-5 text-green-500" strokeWidth={3} />
+                          {line.replace('✔️', '')}
+                        </p>
+                      );
+                    }
+                    
+                    if (line.includes('through your app')) {
+                      return (
+                        <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">
+                          Your client selects a curated service offer <span className="font-bold">through your app, site, or QR in-salon.</span>
+                        </p>
+                      );
+                    }
+                    
+                    if (line.includes('Prepaid Appointments')) {
+                      return (
+                        <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">
+                          <span className="font-bold">Prepaid Appointments</span> = Revenue Locked In
+                        </p>
+                      );
+                    }
+                    
+                    return (
+                      <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">
+                        {line}
+                      </p>
+                    );
+                  })}
+                </div>
                   ))}
                 </div>
               </div>
