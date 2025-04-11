@@ -1,3 +1,4 @@
+
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Check } from "lucide-react";
 
@@ -120,8 +121,6 @@ export default function BrandCarousel() {
                       </p>
                     );
                   })}
-                </div>
-                  ))}
                 </div>
               </div>
             </CarouselItem>
