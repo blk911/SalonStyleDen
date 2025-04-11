@@ -18,7 +18,10 @@ export default function Hero({
           <span className="text-[#FF92A5]">{salonName}</span>
         </h2>
         <p className="mt-3 text-xl text-gray-800 max-w-2xl mx-auto font-medium">
-          Welcome... I'm {salonOwnerName}! Let me know how I can serve you!
+          Welcome to Ven Me, Baby! Gifting made easy!
+        </p>
+        <p className="mt-2 text-xl text-gray-800 max-w-2xl mx-auto font-medium">
+          You get glam'd, he gets to show you the love! or not?
         </p>
         <div className="mt-6">
           <p className="font-bold text-xl mb-2">Register Now</p>
