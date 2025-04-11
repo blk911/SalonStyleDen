@@ -15,12 +15,13 @@ export default function Navbar() {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
-                <div className="flex items-center justify-center h-[60px] cursor-pointer">
+                <div className="flex items-center justify-center h-[225px] cursor-pointer">
                   <img 
                     src="/assets/LOGO1.png" 
                     alt="VMB Logo" 
-                    className="h-[60px] w-auto object-contain"
+                    className="h-[225px] w-auto object-contain"
                     onError={(e) => {
+                      console.log('Logo failed to load, showing text fallback');
                       const parent = e.currentTarget.parentElement;
                       if (parent) {
                         parent.innerHTML = '<div class="font-bold text-2xl text-[#FF92A5]">VMB</div>';
