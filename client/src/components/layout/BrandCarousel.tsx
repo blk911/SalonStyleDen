@@ -98,10 +98,10 @@ export default function BrandCarousel() {
                     if (Array.isArray(line)) {
                       return (
                         <div key={i} className="mb-4">
-                          <p className="text-lg font-bold text-gray-700 leading-none tracking-wide">
+                          <p className="text-lg font-bold text-gray-700 leading-relaxed tracking-wide mb-1">
                             {line[0].text}
                           </p>
-                          <p className="text-lg text-gray-700 leading-none tracking-wide">
+                          <p className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
                             {line[1].text}
                           </p>
                         </div>
@@ -109,7 +109,7 @@ export default function BrandCarousel() {
                     }
                     if (typeof line === 'object' && line.text) {
                       return (
-                        <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">
+                        <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
                           {line.isBold ? <span className="font-bold">{line.text}</span> : line.text}
                           {line.suffix && line.suffix}
                         </p>
@@ -118,13 +118,13 @@ export default function BrandCarousel() {
                     if (typeof line === 'string') {
                       if (line.startsWith('✔️')) {
                         return (
-                          <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide flex items-center gap-2">
+                          <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide flex items-center gap-2 mb-8">
                             <Check className="h-5 w-5 text-green-500" strokeWidth={3} />
                             {line.replace('✔️', '')}
                           </p>
                         );
                       }
-                      return <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">{line}</p>;
+                      return <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">{line}</p>;
                     }
                     return null;
                   })}
