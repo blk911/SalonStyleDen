@@ -141,9 +141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!salon.promos || !Array.isArray(salon.promos) || salon.promos.length === 0) {
         console.log(`DEBUG - GET salon/${id} - No valid promos found, using defaults`);
         salon.promos = [];
-      }
-      console.log(`DEBUG - GET salon/${id} - Salon has ${salon.promos.length} promotions:`, JSON.stringify(salon.promos));
-
+        
         // Only add default promotions when we really need them (no promos at all)
         salon.promos = [
           {
@@ -167,6 +165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ];
         console.log(`DEBUG - GET salon/${id} - Added default promotions`);
       }
+      console.log(`DEBUG - GET salon/${id} - Salon has ${salon.promos.length} promotions:`, JSON.stringify(salon.promos));
 
       res.json(salon);
     } catch (error) {
