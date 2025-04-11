@@ -23,12 +23,12 @@ const carouselItems = [
   {
     title: "Why It Works—Because It's Real.",
     content: [
-      { text: "Because gift cards are obsolete.", isBold: true },
-      { text: "In a connected world, beauty should be personal, not plastic." },
-      { text: "Because men don't shop. They respond.", isBold: true },
-      { text: "Ven Me Baby is a gentle invitation to show he cares—with ease." },
-      { text: "Because she shouldn't have to ask twice.", isBold: true },
-      { text: "Now she doesn't. She chooses, he confirms, and the salon is booked." }
+      { text: "Because gift cards are obsolete.", isBold: true, noSpaceAfter: true },
+      { text: "In a connected world, beauty should be personal, not plastic.", noSpaceAfter: false },
+      { text: "Because men don't shop. They respond.", isBold: true, noSpaceAfter: true },
+      { text: "Ven Me Baby is a gentle invitation to show he cares—with ease.", noSpaceAfter: false },
+      { text: "Because she shouldn't have to ask twice.", isBold: true, noSpaceAfter: true },
+      { text: "Now she doesn't. She chooses, he confirms, and the salon is booked.", noSpaceAfter: false }
     ]
   },
   {
@@ -116,7 +116,7 @@ export default function BrandCarousel() {
                       );
                     }
                     return (
-                      <p key={i} className="text-lg text-gray-700 leading-none tracking-wide mb-4">
+                      <p key={i} className={`text-lg text-gray-700 leading-none tracking-wide ${line.noSpaceAfter ? 'mb-1' : 'mb-4'}`}>
                         {line.text}
                       </p>
                     );
