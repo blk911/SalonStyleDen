@@ -559,39 +559,26 @@ export default function SalonsPage() {
                         )}
                       </div>
                       
-                      {/* Promo placeholder container - 3 columns */}
+                      {/* Promo container - 2 columns */}
                       <div className="section-divider">
-                        <div className="grid-cols-responsive">
-                          {/* Promo 1 */}
-                          <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-[100px]">
-                            <div className="bg-[#FEE1E8] h-12 flex items-center justify-center">
-                              <span className="text-micro">Promo Image</span>
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* Left Promo Card */}
+                          <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-[120px]">
+                            <div className="bg-[#FEE1E8] h-16 flex items-center justify-center">
+                              <span className="text-micro">Placeholder Image</span>
                             </div>
-                            <div className="card-content">
-                              <h5 className="font-medium text-mini">Summer Special</h5>
-                              <p className="text-micro">20% off manicures</p>
-                            </div>
-                          </div>
-                          
-                          {/* Promo 2 */}
-                          <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-[100px]">
-                            <div className="bg-[#FEE1E8] h-12 flex items-center justify-center">
-                              <span className="text-micro">Promo Image</span>
-                            </div>
-                            <div className="card-content">
-                              <h5 className="font-medium text-mini">New Clients</h5>
-                              <p className="text-micro">Free nail art</p>
+                            <div className="p-2">
+                              <h5 className="font-medium text-mini text-center">Left Promo</h5>
                             </div>
                           </div>
                           
-                          {/* Promo 3 */}
-                          <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-[100px]">
-                            <div className="bg-[#FEE1E8] h-12 flex items-center justify-center">
-                              <span className="text-micro">Promo Image</span>
+                          {/* Right Promo Card */}
+                          <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-[120px]">
+                            <div className="bg-[#FEE1E8] h-16 flex items-center justify-center">
+                              <span className="text-micro">Placeholder Image</span>
                             </div>
-                            <div className="card-content">
-                              <h5 className="font-medium text-mini">Friends Deal</h5>
-                              <p className="text-micro">25% off for 2+</p>
+                            <div className="p-2">
+                              <h5 className="font-medium text-mini text-center">Right Promo</h5>
                             </div>
                           </div>
                         </div>
