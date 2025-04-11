@@ -11,16 +11,12 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-soft">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
-        <div className="flex justify-between" style={{ maxHeight: '225px' }}>
+        <div className="flex justify-between h-14">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
-                <div className="flex items-center justify-center cursor-pointer">
-                  <img 
-                    src="/assets/LOGO1.png" 
-                    alt="VMB Logo" 
-                    className="h-[225px] w-auto object-contain"
-                  />
+                <div className="flex items-center justify-center h-[60px] cursor-pointer">
+                  <div className="font-bold text-2xl text-[#FF92A5]">VMB</div>
                 </div>
               </Link>
             </div>
