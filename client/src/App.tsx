@@ -9,6 +9,7 @@ import SalonPublicPage from "@/pages/SalonPublicPage";
 import ClientDashboard from "@/pages/ClientDashboard";
 import SalonsPage from "@/pages/SalonsPage";
 import PromosPage from "@/pages/PromosPage";
+import Sitemap from "@/pages/Sitemap";
 
 function Router() {
   return (
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/client/:id" component={ClientDashboard} />
       <Route path="/salons" component={SalonsPage} />
       <Route path="/promos" component={PromosPage} />
+      <Route path="/sitemap" component={Sitemap} />
       <Route component={NotFound} />
     </Switch>
   );
