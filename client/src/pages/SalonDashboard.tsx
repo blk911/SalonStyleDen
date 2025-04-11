@@ -37,7 +37,7 @@ export default function SalonDashboard() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  
+
   // States for services, promos, and schedule
   const [services, setServices] = useState<ServiceData[]>([
     {
@@ -112,28 +112,28 @@ export default function SalonDashboard() {
     { dayOfWeek: 5, dayName: "Friday", isOpen: true, openTime: "09:00", closeTime: "17:00" },
     { dayOfWeek: 6, dayName: "Saturday", isOpen: true, openTime: "10:00", closeTime: "16:00" },
   ]);
-  
+
   // Handler functions for services, promos, and salon info
   const handleSaveSalonInfo = async (updatedSalon: SalonInfo) => {
     try {
       if (!id) return;
-      
+
       // Save updated salon info via API
       await apiRequest(`/api/salons/${id}`, {
         method: 'PUT',
         data: updatedSalon
       });
-      
+
       // Refresh the salon data
       refetch();
-      
+
       // Display success message
       toast({
         title: "Salon information updated",
         description: "Your salon details have been saved.",
         duration: 3000
       });
-      
+
     } catch (error) {
       console.error('Error saving salon info:', error);
       toast({
@@ -150,34 +150,34 @@ export default function SalonDashboard() {
     setServices(prev => 
       prev.map(service => service.id === updatedService.id ? updatedService : service)
     );
-    
+
     // Then send to API to persist
     try {
       if (!id) return;
-      
+
       // Get the current services
       const updatedServices = services.map(service => 
         service.id === updatedService.id ? updatedService : service
       );
-      
+
       // Save to database via API and get the updated salon data
       const updatedSalonData = await apiRequest(`/api/salons/${id}/services`, {
         method: 'POST',
         data: { services: updatedServices }
       });
-      
+
       // Update local state with the data from server
       if (updatedSalonData.services && Array.isArray(updatedSalonData.services)) {
         setServices(updatedSalonData.services);
       }
-      
+
       // Display success message
       toast({
         title: "Service updated",
         description: "Your style option has been saved to the database.",
         duration: 3000
       });
-      
+
     } catch (error) {
       console.error('Error saving service:', error);
       toast({
@@ -192,7 +192,7 @@ export default function SalonDashboard() {
   // Gets the appropriate image URL based on service name
   const getImageUrlForService = (serviceName: string): string => {
     const name = serviceName.toLowerCase();
-    
+
     if (name.includes('french') || name.includes('tips')) {
       return '/assets/french-tips.png';
     } else if (name.includes('gel') || name.includes('manicure') || name.includes('lux')) {
@@ -209,39 +209,39 @@ export default function SalonDashboard() {
   const handleAddService = async (newService: ServiceData) => {
     // Generate a new ID locally
     const newId = Math.max(...services.map(s => s.id), 0) + 1;
-    
+
     // Auto-assign the appropriate image URL based on the service name
     const serviceWithImageAndId = { 
       ...newService, 
       id: newId,
       gifUrl: getImageUrlForService(newService.name)
     };
-    
+
     // Update local state
     const updatedServices = [...services, serviceWithImageAndId];
     setServices(updatedServices);
-    
+
     // Save to API
     try {
       if (!id) return;
-      
+
       // Save to database via API and get the updated salon data
       const updatedSalonData = await apiRequest(`/api/salons/${id}/services`, {
         method: 'POST',
         data: { services: updatedServices }
       });
-      
+
       // Update local state with the data from server
       if (updatedSalonData.services && Array.isArray(updatedSalonData.services)) {
         setServices(updatedSalonData.services);
       }
-      
+
       toast({
         title: "Service added",
         description: "Your new style option has been added.",
         duration: 3000
       });
-      
+
     } catch (error) {
       console.error('Error adding service:', error);
       toast({
@@ -257,28 +257,28 @@ export default function SalonDashboard() {
     // Update local state
     const updatedServices = services.filter(service => service.id !== id);
     setServices(updatedServices);
-    
+
     // Save to API
     try {
       if (!salon?.id) return;
-      
+
       // Save to database via API and get the updated salon data
       const updatedSalonData = await apiRequest(`/api/salons/${salon.id}/services`, {
         method: 'POST',
         data: { services: updatedServices }
       });
-      
+
       // Update local state with the data from server
       if (updatedSalonData.services && Array.isArray(updatedSalonData.services)) {
         setServices(updatedSalonData.services);
       }
-      
+
       toast({
         title: "Service deleted",
         description: "The style option has been removed.",
         duration: 3000
       });
-      
+
     } catch (error) {
       console.error('Error deleting service:', error);
       toast({
@@ -291,42 +291,32 @@ export default function SalonDashboard() {
   };
 
   const handleSavePromo = async (updatedPromo: PromoData) => {
-    // Update in local state first
-    setPromos(prev => 
-      prev.map(promo => promo.id === updatedPromo.id ? updatedPromo : promo)
-    );
-    
-    console.log('SalonDashboard - Saving updated promo:', updatedPromo);
-    
-    // Then save to API
     try {
-      if (!id) return;
-      
-      // Get the current promos with the updated one
-      const updatedPromos = promos.map(promo => 
-        promo.id === updatedPromo.id ? updatedPromo : promo
+      console.log("SalonDashboard - Updating promo:", updatedPromo);
+
+      // Update local state
+      const newPromos = promos.map(p => 
+        p.id === updatedPromo.id ? updatedPromo : p
       );
-      
-      console.log('SalonDashboard - All promos being saved:', updatedPromos);
-      
-      // Save to database via API
+      setPromos(newPromos);
+
+      // Update promos on the server
       const response = await apiRequest(`/api/salons/${id}/promos`, {
         method: 'POST',
-        data: { promos: updatedPromos }
+        data: { promos: newPromos }
       });
-      
-      console.log('SalonDashboard - API response after saving promo:', response);
-      
-      // Manually invalidate the salon query to force a refresh
-      queryClient.invalidateQueries({ queryKey: ['/api/salons', id] });
-      
-      // Display success message
+
+      console.log("SalonDashboard - Server response:", response);
+
+      // Invalidate queries to refresh data
+      await queryClient.invalidateQueries(['/api/salons', id]);
+
       toast({
         title: "Promotion updated",
         description: "Your promotion has been saved to the database.",
         duration: 3000
       });
-      
+
     } catch (error) {
       console.error('Error saving promo:', error);
       toast({
@@ -342,37 +332,37 @@ export default function SalonDashboard() {
     // Generate a new ID locally
     const newId = Math.max(...promos.map(p => p.id), 0) + 1;
     const promoWithId = { ...newPromo, id: newId };
-    
+
     // Update local state
     const updatedPromos = [...promos, promoWithId];
     setPromos(updatedPromos);
     setIsAddingPromo(false);
-    
+
     console.log('SalonDashboard - Adding new promo:', promoWithId);
     console.log('SalonDashboard - Updated promos list:', updatedPromos);
-    
+
     // Save to API
     try {
       if (!id) return;
-      
+
       console.log('SalonDashboard - Sending API request to update promos for salon', id);
-      
+
       const response = await apiRequest(`/api/salons/${id}/promos`, {
         method: 'POST',
         data: { promos: updatedPromos }
       });
-      
+
       console.log('SalonDashboard - API response after adding promo:', response);
-      
+
       // Manually invalidate the salon query to force a refresh
       queryClient.invalidateQueries({ queryKey: ['/api/salons', id] });
-      
+
       toast({
         title: "Promotion added",
         description: "Your new promotion has been added.",
         duration: 3000
       });
-      
+
     } catch (error) {
       console.error('Error adding promo:', error);
       toast({
@@ -388,30 +378,30 @@ export default function SalonDashboard() {
     // Update local state
     const updatedPromos = promos.filter(promo => promo.id !== id);
     setPromos(updatedPromos);
-    
+
     console.log('SalonDashboard - Deleting promo with id:', id);
     console.log('SalonDashboard - Updated promos after deletion:', updatedPromos);
-    
+
     // Save to API
     try {
       if (!salon?.id) return;
-      
+
       const response = await apiRequest(`/api/salons/${salon.id}/promos`, {
         method: 'POST',
         data: { promos: updatedPromos }
       });
-      
+
       console.log('SalonDashboard - API response after deleting promo:', response);
-      
+
       // Manually invalidate the salon query to force a refresh
       queryClient.invalidateQueries({ queryKey: ['/api/salons', salon.id] });
-      
+
       toast({
         title: "Promotion deleted",
         description: "The promotion has been removed.",
         duration: 3000
       });
-      
+
     } catch (error) {
       console.error('Error deleting promo:', error);
       toast({
@@ -466,32 +456,32 @@ export default function SalonDashboard() {
       ...service,
       id: index + 1
     }));
-    
+
     // Set the services state to only contain the default services
     setServices(newServices);
 
     // Save to API
     try {
       if (!id) return;
-      
+
       // Get the updated salon data (including services)
       const updatedSalonData = await apiRequest(`/api/salons/${id}/services`, {
         method: 'POST',
         data: { services: newServices }
       });
-      
+
       // Update local state with the data from server
       if (updatedSalonData.services && Array.isArray(updatedSalonData.services)) {
         setServices(updatedSalonData.services);
       }
-      
+
       // Show a toast notification
       toast({
         title: "Default styles reset!",
         description: "Style options have been reset to the four standard options.",
         duration: 3000
       });
-      
+
     } catch (error) {
       console.error('Error saving default services:', error);
       toast({
@@ -507,7 +497,7 @@ export default function SalonDashboard() {
     // In a real app, this would be an API call
     console.log("Saving schedule:", weeklySchedule);
   };
-  
+
   // Enhanced query configuration with proper query key structure and error handling
   const { 
     data: salon, 
@@ -524,25 +514,25 @@ export default function SalonDashboard() {
     staleTime: 30000, // Consider data fresh for 30 seconds
     enabled: !!id, // Only run the query if we have an ID
   });
-  
+
   // Auto-redirect if no ID is provided
   useEffect(() => {
     if (!id) {
       setLocation('/');
     }
   }, [id, setLocation]);
-  
+
   // Update local state when salon data changes
   useEffect(() => {
     if (salon) {
       console.log('SalonDashboard - Salon data loaded:', salon);
-      
+
       // Update services if available
       if (salon.services && Array.isArray(salon.services)) {
         console.log('SalonDashboard - Setting services from salon data:', salon.services);
         setServices(salon.services);
       }
-      
+
       // Update promos if available
       if (salon.promos && Array.isArray(salon.promos)) {
         console.log('SalonDashboard - Setting promos from salon data:', salon.promos);
@@ -552,7 +542,7 @@ export default function SalonDashboard() {
       }
     }
   }, [salon]);
-  
+
   if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -566,7 +556,7 @@ export default function SalonDashboard() {
       </div>
     );
   }
-  
+
   if (error || !salon) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -599,7 +589,7 @@ export default function SalonDashboard() {
             </div>
           </div>
         </section>
-        
+
         {/* Salon Info Section with Editable Component */}
         <section className="py-2">
           <div className="container mx-auto px-2">
@@ -609,7 +599,7 @@ export default function SalonDashboard() {
             />
           </div>
         </section>
-        
+
         {/* Ven Me, Baby! Style Options Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
@@ -626,7 +616,7 @@ export default function SalonDashboard() {
                     Reset Default Styles
                   </Button>
                 </div>
-                
+
                 <div className="space-y-2">
                   {/* Existing style options */}
                   {services.map(service => (
@@ -642,7 +632,7 @@ export default function SalonDashboard() {
             </Card>
           </div>
         </section>
-        
+
         {/* Weekly Schedule Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
@@ -653,7 +643,7 @@ export default function SalonDashboard() {
             />
           </div>
         </section>
-        
+
         {/* Promotions Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
@@ -670,7 +660,7 @@ export default function SalonDashboard() {
                     + Add Promo
                   </Button>
                 </div>
-                
+
                 {/* Add new promo form */}
                 {isAddingPromo && (
                   <div className="mb-3">
@@ -686,7 +676,7 @@ export default function SalonDashboard() {
                     />
                   </div>
                 )}
-                
+
                 {/* Promo Grid */}
                 <div className="grid-cols-responsive">
                   {promos.map(promo => (
@@ -702,7 +692,7 @@ export default function SalonDashboard() {
             </Card>
           </div>
         </section>
-        
+
         {/* Public Page Preview Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">

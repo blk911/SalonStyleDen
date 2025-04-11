@@ -238,7 +238,16 @@ export default function SalonPublicPage() {
         {/* Hero section with salon name and basic info */}
         <section className="bg-[#FEE1E8] py-3">
           <div className="container mx-auto px-2 text-center">
-            <div className="relative">
+            <div className="relative flex flex-col items-center">
+              {salon.ownerPhotoUrl && (
+                <div className="mb-4">
+                  <img 
+                    src={getImageUrl(salon.ownerPhotoUrl)}
+                    alt={`${salon.ownerName}'s photo`}
+                    className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm"
+                  />
+                </div>
+              )}
               <h1 className="font-bold text-4xl text-pink-500 leading-tight mb-2">{salon.name}</h1>
               <p className="text-gray-700 text-xl mb-4">
                 Welcome... I'm {salon.ownerName}! Let me know how I can serve you!

@@ -52,17 +52,21 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
-      // In a real app, this would be an API call
-      await new Promise(r => setTimeout(r, 300)); // Simulate API call
+      // Validate promo data
+      if (!editedPromo.title || !editedPromo.description) {
+        throw new Error("Title and description are required");
+      }
       
       // Prepare the final promo data
       const finalPromo = {
         ...editedPromo,
-        endDate: isEndDateEnabled ? editedPromo.endDate : null
+        endDate: isEndDateEnabled ? editedPromo.endDate : null,
+        id: promo.id // Ensure we maintain the original ID
       };
       
       // Call the onSave callback
-      onSave(finalPromo);
+      await onSave(finalPromo);
+      console.log("Promo saved successfully:", finalPromo);
       
       // Exit edit mode
       setIsEditing(false);
