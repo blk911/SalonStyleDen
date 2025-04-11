@@ -3,11 +3,11 @@ import { Link } from "wouter";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
-
+  
   return (
     <nav className="bg-white shadow-soft">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
@@ -20,6 +20,10 @@ export default function Navbar() {
                     src="/assets/LOGO1.png" 
                     alt="VMB Logo" 
                     className="h-[225px] w-auto object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = '/assets/salon-card.png';
+                      console.error('Logo failed to load');
+                    }}
                   />
                 </div>
               </Link>
