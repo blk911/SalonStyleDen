@@ -11,15 +11,15 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-soft">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
-        <div className="flex justify-between h-[200px]">
+        <div className="flex justify-between h-[136px]">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
-                <div className="flex items-center justify-center h-[150px] cursor-pointer">
+                <div className="flex items-center justify-center h-[130px] cursor-pointer">
                   <img 
                     src="/assets/logos/vmb-logo.png" 
                     alt="VMB Logo" 
-                    className="h-[150px] w-auto object-contain"
+                    className="h-[130px] w-auto object-contain"
                     onLoad={() => console.log("Logo loaded successfully")}
                     onError={(e) => {
                       console.log("Logo failed to load");
