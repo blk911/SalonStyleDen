@@ -68,7 +68,7 @@ export default function BrandCarousel() {
                 <h3 className="text-2xl font-semibold mb-6 text-[#FF92A5] leading-relaxed">{item.title}</h3>
                 <div className="space-y-4 flex-grow">
                   {item.content.map((line, i) => (
-                    <p key={i} className="text-base text-gray-700 leading-relaxed font-light">{line}</p>
+                    <p key={i} className="text-base text-gray-700 leading-none font-light">{line}</p>
                   ))}
                 </div>
               </div>
