@@ -73,8 +73,8 @@ const carouselItems: CarouselItemType[] = [
   {
     title: "It's not a gift card.",
     content: [
-      "It's a gesture she initiates—and he finishes.",
-      "It's attention, translated into care."
+      ["It's a ", "gesture she initiates", "—and he finishes."],
+      ["It's ", "attention", " translated; it's ", "care", "."]
     ]
   },
   {
@@ -166,7 +166,7 @@ export default function BrandCarousel() {
           align: "center",
           loop: true,
           slidesToScroll: 1,
-          startIndex: 0,
+          startIndex: 4, // Start at the "Ven Me Baby is not a brand" slide
         }}
         className="w-full relative"
       >
