@@ -14,15 +14,9 @@ export default function Hero({
   return (
     <section className="bg-[#FEE1E8] py-6 lg:py-10">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
-        <h2 className="font-playfair font-bold text-3xl md:text-4xl lg:text-5xl text-gray-900 leading-tight">
-          <span className="text-[#FF92A5]">{salonName}</span>
-        </h2>
-        <p className="font-playfair text-3xl md:text-4xl lg:text-5xl text-[#FF92A5] leading-tight tracking-[0.75px]">
-          Welcome to Ven Me, Baby! Gifting made easy!
-        </p>
-        <p className="mt-3 text-xl text-gray-800 max-w-2xl mx-auto font-medium tracking-[0.75px]">
-          You get glam'd, he gets to show you the love! or not?
-        </p>
+        <p>{salonName}</p> {/*Replaced h2 with p and removed styling*/}
+        <p>Welcome to Ven Me, Baby! Gifting made easy!</p> {/*Replaced h2 with p and removed styling*/}
+        <p>You get glam'd, he gets to show you the love! or not?</p> {/*Removed styling*/}
         <div className="mt-6">
           <p className="font-bold text-xl mb-2">Register Now</p>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
