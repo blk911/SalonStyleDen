@@ -15,7 +15,10 @@ export default function Navbar() {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
-                <div className="font-playfair font-bold text-xl text-[#FF92A5] cursor-pointer">Ven Me, Baby!</div>
+                <div className="flex flex-col items-center justify-center h-[60px] w-[125px] cursor-pointer">
+                  <div className="font-playfair font-bold text-2xl leading-none text-gray-900">VMB</div>
+                  <div className="font-great-vibes text-lg text-[#FF92A5] mt-1">Ven Me, Baby</div>
+                </div>
               </Link>
             </div>
           </div>
