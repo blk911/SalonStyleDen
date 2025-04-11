@@ -7,6 +7,7 @@ const carouselItems = [
     content: [
       { text: "Your client selects a curated service offer", isBold: true, suffix: " through your app, site, or QR in-salon." },
       { text: "She sends it directly", isBold: true, suffix: "—to her partner, admirer, husband, whoever wants to say \"yes\" without guessing." },
+      { text: "He recieves your Ven Me, Baby! gift request,", isBold: true, suffix: " timing is everything, she is booked, but has an opening, you are thinking about him, now thinking about YOU!" },
       { text: "He can be a HERO!", isBold: true, suffix: " Select the pay method, hit enter, be a HERO! It meets your customer, over there, on their phone...in their life!" },
       { text: "You receive confirmation and prepayment", isBold: true, suffix: "—no gift cards, no chasing, no \"she said he would.\"" }
     ]
