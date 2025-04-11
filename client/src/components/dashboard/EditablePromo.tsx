@@ -129,7 +129,7 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
             />
           ) : (
             <img 
-              src="/assets/logos/vmb-logo.png"
+              src="/assets/vmb-logo.png"
               alt={promo.title}
               className="w-full h-auto"
               onError={(e) => console.error(`Failed to load image for promo: ${promo.title}`)}
