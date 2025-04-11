@@ -50,12 +50,12 @@ const carouselItems = [
   {
     title: "Ven Me Baby is not a brand.",
     content: [
-      ["It's the beautiful middle", "", " between asking and ignoring,"],
-      ["", "between forgetting", " and showing up."],
+      "It's the <b>beautiful middle</b> between asking and ignoring,",
+      "<b>between</b> forgetting and showing up.",
       "",
-      ["It's ", "not", " a gift card."],
-      ["It's a gesture she initiates", "", "—and he finishes."],
-      ["It's ", "attention", " translated into care."]
+      "It's <b>not</b> a gift card.",
+      "It's <b>a gesture</b> she initiates—and he finishes.",
+      "It's <b>attention</b>, translated into care."
     ]
   },
   {
@@ -96,15 +96,6 @@ export default function BrandCarousel() {
                 <h3 className="text-4xl mb-8 text-[#FF92A5] leading-tight text-center">{item.title}</h3>
                 <div className="space-y-6 flex-grow">
                   {item.content.map((line, i) => {
-                    if (Array.isArray(line) && line.length === 3) {
-                      return (
-                        <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
-                          {line[0]}
-                          <span className="font-bold">{line[1]}</span>
-                          {line[2]}
-                        </p>
-                      );
-                    }
                     if (Array.isArray(line)) {
                       return (
                         <div key={i} className="mb-4">
