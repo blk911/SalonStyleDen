@@ -56,18 +56,18 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
       if (!editedPromo.title || !editedPromo.description) {
         throw new Error("Title and description are required");
       }
-      
+
       // Prepare the final promo data
       const finalPromo = {
         ...editedPromo,
         endDate: isEndDateEnabled ? editedPromo.endDate : null,
         id: promo.id // Ensure we maintain the original ID
       };
-      
+
       // Call the onSave callback
       await onSave(finalPromo);
       console.log("Promo saved successfully:", finalPromo);
-      
+
       // Exit edit mode
       setIsEditing(false);
     } catch (error) {
@@ -80,7 +80,7 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
   // Handle delete
   const handleDelete = async () => {
     if (!onDelete) return;
-    
+
     if (window.confirm("Are you sure you want to delete this promotion?")) {
       try {
         // In a real app, this would be an API call
@@ -128,9 +128,12 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
               }}
             />
           ) : (
-            <div className="bg-[#FEE1E8] h-full w-full flex items-center justify-center">
-              <span className="font-medium text-compact text-center px-1">{promo.title}</span>
-            </div>
+            <img 
+              src="/assets/logos/vmb-logo.png"
+              alt={promo.title}
+              className="w-full h-auto"
+              onError={(e) => console.error(`Failed to load image for promo: ${promo.title}`)}
+            />
           )}
         </div>
         <div className="card-content p-2">
@@ -157,7 +160,7 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
   return (
     <Card className="border border-pink-300 shadow-sm p-2">
       <h4 className="font-medium text-sm mb-2">Edit Promotion</h4>
-      
+
       <div className="space-y-2">
         <div>
           <Label htmlFor="title" className="text-xs">Title</Label>
@@ -170,7 +173,7 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
             placeholder="Promotion title"
           />
         </div>
-        
+
         <div>
           <Label htmlFor="description" className="text-xs">Description</Label>
           <Textarea
@@ -182,7 +185,7 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
             placeholder="Describe your promotion"
           />
         </div>
-        
+
         <div className="flex items-center gap-2">
           <input 
             type="checkbox" 
@@ -193,7 +196,7 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
           />
           <Label htmlFor="hasEndDate" className="text-xs cursor-pointer">Has end date</Label>
         </div>
-        
+
         {isEndDateEnabled && (
           <div>
             <Label htmlFor="endDate" className="text-xs">End Date</Label>
@@ -208,7 +211,7 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
           </div>
         )}
       </div>
-      
+
       <div className="flex justify-between mt-3">
         <div>
           {onDelete && (
