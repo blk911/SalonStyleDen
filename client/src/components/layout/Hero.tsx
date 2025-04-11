@@ -14,7 +14,18 @@ export default function Hero({
   return (
     <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-3 lg:py-3">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
-        <p className="text-[#c4005a] text-4xl font-['Great_Vibes'] mb-8">Ven Me, Baby</p>
+        <div className="flex justify-center mb-6">
+          <img 
+            src="/assets/logos/vmb-script-logo.png" 
+            alt="Ven Me, Baby" 
+            className="h-16 md:h-20 w-auto"
+            onError={(e) => {
+              console.error("Failed to load script logo");
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentNode.innerHTML += '<p className="text-[#c4005a] text-4xl font-[\'Great_Vibes\'] mb-8">Ven Me, Baby</p>';
+            }}
+          />
+        </div>
         <p className="text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
           Because beauty doesn't wait. Let her choose the glam.
           <br />LET HIM SAY YES
