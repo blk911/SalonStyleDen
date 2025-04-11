@@ -3,91 +3,33 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply border-border;
+  body {
+    @apply bg-pink-50 text-gray-800 font-serif antialiased;
   }
 
-  body {
-    @apply font-sans antialiased bg-background text-foreground;
+  h1, h2, h3 {
+    @apply font-serif italic tracking-wide;
   }
 }
 
-/* Site-wide styling */
 @layer components {
-  /* Reduce container paddings */
-  .container {
-    @apply px-2 py-2;
-  }
-  
-  /* Form specific padding reductions */
-  form {
-    @apply p-2;
-  }
-  
-  /* Input field padding adjustments */
-  input, select, textarea {
-    @apply px-2 py-1;
-  }
-  
-  /* Card and panel padding reductions */
   .card, .form-container {
-    @apply p-2;
+    @apply bg-white shadow-xl p-6 border border-pink-200 rounded-xl;
   }
-  
-  /* Navigation components */
-  nav, header, footer {
-    @apply px-2 py-1;
-  }
-  
-  /* Button padding adjustment */
+
   button {
-    @apply px-2 py-1;
+    @apply bg-white border border-pink-400 text-pink-600 hover:bg-pink-600 hover:text-white transition-all duration-300 ease-in-out rounded-full px-5 py-2 font-light;
   }
-  
-  /* Centered content sections */
-  .content-section {
-    @apply flex flex-wrap justify-center items-center gap-2 text-xs;
+
+  .logo {
+    @apply text-5xl font-serif italic text-pink-700 tracking-tight;
   }
-  
-  /* Standardized card styles */
-  .card-content {
-    @apply p-1;
-  }
-  
-  /* Compact text styles */
-  .text-compact {
-    @apply text-xs;
-  }
-  
-  .text-mini {
-    @apply text-[10px];
-  }
-  
-  .text-micro {
-    @apply text-[9px] text-gray-500;
-  }
-  
-  /* Standard vertical spacing */
-  .vspace-xs {
-    @apply mt-1;
-  }
-  
-  .vspace-sm {
-    @apply mt-2;
-  }
-  
-  /* Section dividers */
+
   .section-divider {
-    @apply border-t border-pink-100 pt-1 mt-2;
+    @apply border-t border-pink-300 pt-2 mt-6;
   }
-  
-  /* Centered button containers */
-  .button-container {
-    @apply mt-2 text-center;
-  }
-  
-  /* Content grids */
-  .grid-cols-responsive {
-    @apply grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-2;
+
+  .content-section {
+    @apply max-w-4xl mx-auto px-4 py-10 text-center;
   }
 }
