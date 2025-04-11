@@ -1,6 +1,5 @@
 
-import { Link } from "wouter";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 const carouselItems = [
   {
@@ -51,30 +50,30 @@ const carouselItems = [
 
 export default function BrandCarousel() {
   return (
-    <div className="py-3 bg-gradient-to-b from-pink-50/50 to-transparent">
+    <div className="py-3 relative max-w-3xl mx-auto">
       <Carousel
         opts={{
-          align: "start",
+          align: "center",
           loop: true,
-          skipSnaps: false,
-          containScroll: "trimSnaps"
         }}
-        className="w-full max-w-6xl mx-auto px-4"
+        className="w-full"
       >
-        <CarouselContent className="-ml-4">
+        <CarouselContent>
           {carouselItems.map((item, index) => (
-            <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
-              <div className="min-h-[400px] p-8 rounded-xl bg-white/90 backdrop-blur-sm border border-pink-100 shadow-lg hover:shadow-xl transition-all flex flex-col">
-                <h3 className="text-2xl font-semibold mb-6 text-[#FF92A5] leading-relaxed">{item.title}</h3>
-                <div className="space-y-4 flex-grow">
+            <CarouselItem key={index}>
+              <div className="min-h-[400px] p-12 rounded-2xl bg-gradient-to-br from-white via-white/95 to-pink-50/90 backdrop-blur-sm border border-pink-100 shadow-2xl hover:shadow-pink-100/20 transition-all flex flex-col">
+                <h3 className="text-3xl font-semibold mb-8 text-[#FF92A5] leading-tight">{item.title}</h3>
+                <div className="space-y-6 flex-grow">
                   {item.content.map((line, i) => (
-                    <p key={i} className="text-base text-gray-700 leading-none font-light">{line}</p>
+                    <p key={i} className="text-lg text-gray-700 leading-none font-light tracking-wide">{line}</p>
                   ))}
                 </div>
               </div>
             </CarouselItem>
           ))}
         </CarouselContent>
+        <CarouselPrevious className="absolute -left-12 bg-white hover:bg-pink-50 border-pink-100" />
+        <CarouselNext className="absolute -right-12 bg-white hover:bg-pink-50 border-pink-100" />
       </Carousel>
     </div>
   );
