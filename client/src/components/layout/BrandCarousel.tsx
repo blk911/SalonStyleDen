@@ -24,16 +24,16 @@ const carouselItems = [
     title: "Why It Works—Because It's Real.",
     content: [
       [
-        { text: "Because perfect timing is everything.", isBold: true },
-        { text: "She's thinking of you, has an opening today, and knows exactly what she wants.", isBold: false }
+        { text: "Because gift cards are obsolete.", isBold: true },
+        { text: "In a connected world, beauty should be personal, not plastic.", isBold: false }
       ],
       [
-        { text: "Because connection matters more than convenience.", isBold: true },
-        { text: "A Ven Me Baby request shows you're in each other's thoughts.", isBold: false }
+        { text: "Because men don't shop. They respond.", isBold: true },
+        { text: "Ven Me Baby is a gentle invitation to show he cares—with ease.", isBold: false }
       ],
       [
-        { text: "Because spontaneous care speaks volumes.", isBold: true },
-        { text: "She's ready, you're thoughtful, and her appointment is secured.", isBold: false }
+        { text: "Because she shouldn't have to ask twice.", isBold: true },
+        { text: "Now she doesn't. She chooses, he confirms, and the salon is booked.", isBold: false }
       ]
     ]
   },
