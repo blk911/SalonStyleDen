@@ -19,7 +19,7 @@ export default function Navbar() {
                   <img 
                     src="/assets/LOGO1.png" 
                     alt="VMB Logo" 
-                    className="h-[200px] w-auto object-contain"
+                    className="h-[150px] w-auto object-contain"
                     onLoad={() => console.log("Logo loaded successfully")}
                     onError={(e) => {
                       console.log("Logo failed to load");
