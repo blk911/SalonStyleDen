@@ -3,11 +3,11 @@ import { Link } from "wouter";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
-  
+
   return (
     <nav className="bg-white shadow-soft">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
@@ -21,10 +21,9 @@ export default function Navbar() {
                     alt="VMB Logo" 
                     className="h-[60px] w-auto object-contain"
                     onError={(e) => {
-                      const parent = e.currentTarget.parentElement;
-                      if (parent) {
-                        parent.innerHTML = '<div class="font-bold text-2xl text-[#FF92A5]">VMB</div>';
-                      }
+                      e.currentTarget.style.display = 'none';
+                      // Added a sibling element to display fallback text
+                      e.currentTarget.parentNode.insertAdjacentHTML('beforeend', '<div class="font-bold text-2xl text-[#FF92A5]">VMB</div>');
                     }}
                   />
                 </div>
