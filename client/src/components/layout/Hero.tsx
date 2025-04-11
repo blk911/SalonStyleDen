@@ -17,8 +17,11 @@ export default function Hero({
         <h2 className="font-playfair font-bold text-3xl md:text-4xl lg:text-5xl text-gray-900 leading-tight">
           <span className="text-[#FF92A5]">{salonName}</span>
         </h2>
-        <p className="mt-3 text-xl text-gray-800 max-w-2xl mx-auto font-medium">
-          Welcome... I'm {salonOwnerName}! Let me know how I can serve you!
+        <h2 className="font-playfair font-bold text-3xl md:text-4xl lg:text-5xl text-[#FF92A5] leading-tight tracking-[0.75px]">
+          Welcome to Ven Me, Baby! Gifting made easy!
+        </h2>
+        <p className="mt-3 text-xl text-gray-800 max-w-2xl mx-auto font-medium tracking-[0.75px]">
+          You get glam'd, he gets to show you the love! or not?
         </p>
         <div className="mt-6">
           <p className="font-bold text-xl mb-2">Register Now</p>
