@@ -313,7 +313,7 @@ export default function SalonPublicPage() {
                       <div className="h-32 flex items-center justify-center">
                         {promo.title.toLowerCase().includes('summer') ? (
                           <img 
-                            src="/assets/summer-french-tips.png" 
+                            src="/assets/logos/summer-french-tips.png" 
                             alt={promo.title}
                             className="w-full h-full object-cover"
                             onError={(e) => {
