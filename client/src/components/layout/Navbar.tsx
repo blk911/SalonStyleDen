@@ -21,8 +21,8 @@ export default function Navbar() {
                     alt="VMB Logo" 
                     className="h-[225px] w-auto object-contain"
                     onError={(e) => {
-                      e.currentTarget.src = '/assets/salon-card.png';
                       console.error('Logo failed to load');
+                      e.currentTarget.src = '/assets/salon-card.png';
                     }}
                   />
                 </div>
