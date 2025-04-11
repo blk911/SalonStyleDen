@@ -50,11 +50,11 @@ const carouselItems = [
   {
     title: "Ven Me Baby is not a brand.",
     content: [
-      ["It's the beautiful middle", "", " between asking and ignoring,"],
-      ["", "between forgetting", " and showing up."],
+      ["It's the ", "beautiful middle", " between asking and ignoring,"],
+      ["", "between", " forgetting and showing up."],
       "",
       ["It's ", "not", " a gift card."],
-      ["It's a gesture she initiates", "", "—and he finishes."],
+      ["It's ", "a gesture", " she initiates—and he finishes."],
       ["It's ", "attention", " translated into care."]
     ]
   },
