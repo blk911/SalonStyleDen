@@ -14,7 +14,6 @@ export default function Hero({
   return (
     <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-20 lg:py-24">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
-        <h1 className="text-6xl font-semibold tracking-wide mb-2">VMB</h1>
         <p className="text-[#c4005a] text-4xl font-['Great_Vibes'] mb-8">Ven Me, Baby</p>
         <p className="text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
           Because beauty doesn't wait. Let her choose the glam. Let him say yes.
