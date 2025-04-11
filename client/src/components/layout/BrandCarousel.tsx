@@ -3,6 +3,24 @@ import { Check } from "lucide-react";
 
 const carouselItems = [
   {
+    title: "👩‍💼 Here's How It Works:",
+    content: [
+      "Your client selects a curated service offer through your app, site, or QR in-salon.",
+      "She sends it directly—to her partner, admirer, husband, whoever wants to say \"yes\" without guessing.",
+      "He receives a beautifully worded message (crafted by us) and can pay in one tap.",
+      "You receive confirmation and prepayment—no gift cards, no chasing, no \"she said he would.\""
+    ]
+  },
+  {
+    title: "💎 Why This Matters for You",
+    content: [
+      "Prepaid Appointments = Revenue Locked In",
+      "Clients Feel Seen + Empowered",
+      "Men Get an Elegant Assist",
+      "You Become the Salon That \"Gets It\""
+    ]
+  },
+  {
     title: "Why It Works—Because It's Real.",
     content: [
       "Because gift cards are obsolete.",
