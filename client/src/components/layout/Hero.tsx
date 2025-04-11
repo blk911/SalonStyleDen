@@ -14,9 +14,12 @@ export default function Hero({
   return (
     <section className="bg-[#FEE1E8] py-6 lg:py-10">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
-        <p>{salonName}</p>
-        <p>Welcome to <span className="text-[#FF92A5]">Ven Me, Baby!</span> Gifting made easy!</p>
-        <p>You get glam'd, he gets to show you the love! or not?</p>
+        <h2 className="font-playfair font-bold text-3xl md:text-4xl lg:text-5xl text-gray-900 leading-tight">
+          <span className="text-[#FF92A5]">{salonName}</span>
+        </h2>
+        <p className="mt-3 text-xl text-gray-800 max-w-2xl mx-auto font-medium">
+          Welcome... I'm {salonOwnerName}! Let me know how I can serve you!
+        </p>
         <div className="mt-6">
           <p className="font-bold text-xl mb-2">Register Now</p>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
