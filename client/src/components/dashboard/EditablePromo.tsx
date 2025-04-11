@@ -99,7 +99,7 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
         <div className="h-32 flex items-center justify-center">
           {promo.title.toLowerCase().includes('summer') ? (
             <img 
-              src="/assets/logos/summer-french-tips.png"
+              src="/assets/summer-french-tips.png"
               alt={promo.title}
               className="w-full h-full object-cover"
               onError={(e) => {
@@ -109,7 +109,7 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
             />
           ) : promo.title.toLowerCase().includes('new client') ? (
             <img 
-              src="/assets/logos/spring-lavender.png"
+              src="/assets/spring-lavender.png"
               alt={promo.title} 
               className="w-full h-full object-cover"
               onError={(e) => {
@@ -119,7 +119,7 @@ export default function EditablePromo({ promo, onSave, onDelete }: EditablePromo
             />
           ) : promo.title.toLowerCase().includes('friend') || promo.title.toLowerCase().includes('bff') || promo.title.toLowerCase().includes('bring') ? (
             <img 
-              src="/assets/logos/bff-promo.png"
+              src="/assets/bff-promo.png"
               alt={promo.title}
               className="w-full h-full object-cover"
               onError={(e) => {
