@@ -14,7 +14,7 @@ export default function Hero({
   return (
     <section className="bg-[#FEE1E8] py-6 lg:py-10">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
-        <p>{salonName}</p>
+        <p>Ven Me, Baby!</p>
         <p>Welcome to <span className="text-[#FF92A5]">Ven Me, Baby!</span> Gifting made easy!</p>
         <p>You get glam'd, he gets to show you the love! or not?</p>
         <div className="mt-6">
