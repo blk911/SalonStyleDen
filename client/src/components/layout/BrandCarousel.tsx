@@ -23,12 +23,18 @@ const carouselItems = [
   {
     title: "Why It Works—Because It's Real.",
     content: [
-      "Because gift cards are obsolete.",
-      "In a connected world, beauty should be personal, not plastic.",
-      "Because men don't shop. They respond.",
-      "Ven Me Baby is a gentle invitation to show he cares—with ease.",
-      "Because she shouldn't have to ask twice.",
-      "Now she doesn't. She chooses, he confirms, and the salon is booked."
+      [
+        { text: "Because gift cards are obsolete.", isBold: true },
+        { text: "In a connected world, beauty should be personal, not plastic.", isBold: false }
+      ],
+      [
+        { text: "Because men don't shop. They respond.", isBold: true },
+        { text: "Ven Me Baby is a gentle invitation to show he cares—with ease.", isBold: false }
+      ],
+      [
+        { text: "Because she shouldn't have to ask twice.", isBold: true },
+        { text: "Now she doesn't. She chooses, he confirms, and the salon is booked.", isBold: false }
+      ]
     ]
   },
   {
@@ -89,6 +95,18 @@ export default function BrandCarousel() {
                 <h3 className="text-4xl font-bold mb-8 text-[#FF92A5] leading-tight text-center">{item.title}</h3>
                 <div className="space-y-6 flex-grow">
                   {item.content.map((line, i) => {
+                    if (Array.isArray(line)) {
+                      return (
+                        <div key={i} className="mb-4">
+                          <p className="text-lg font-bold text-gray-700 leading-none tracking-wide">
+                            {line[0].text}
+                          </p>
+                          <p className="text-lg text-gray-700 leading-none tracking-wide">
+                            {line[1].text}
+                          </p>
+                        </div>
+                      );
+                    }
                     if (typeof line === 'object' && line.text) {
                       return (
                         <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">
