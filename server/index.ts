@@ -2,11 +2,18 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from 'path';
+import { initServerMonitoring, sentryRequestHandler, sentryErrorHandler } from "./monitoring";
+
+// Initialize Sentry for server-side error tracking
+initServerMonitoring();
 
 const app = express();
 // Increase payload size limit to 50MB for handling larger requests
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+
+// Add Sentry request handler (before all middleware)
+app.use(sentryRequestHandler);
 
 // Serve files from attached_assets directory
 app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
@@ -47,12 +54,16 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Add Sentry error handler (after routes, before express error handler)
+  app.use(sentryErrorHandler);
+  
+  // Standard Express error handler
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
     res.status(status).json({ message });
-    throw err;
+    console.error('Express error handler:', err);
   });
 
   // importantly only setup vite in development and after
