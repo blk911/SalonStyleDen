@@ -1,49 +1,39 @@
-# BENCHMARK RESTORE POINT - April 10, 2025
+
+# BENCHMARK RESTORE POINT - April 2024
 
 ## System State
-This file marks a benchmark restore point for the "Ven Me, Baby!" salon application. All core functionality is working correctly at this point.
+- Hero section updated with new design and spacing
+- BrandCarousel component implementation
+- Navbar and Footer components styled
+- Client registration flow working
+- Salon owner registration implemented
 
 ## Working Features
-- Main salon listing page with filtering functionality
-- Salon public profiles with service and promotion display
-- Salon dashboard for owners with service and promotion management
-- Client registration form with current/new client options
-- Scheduling system and weekly calendar
-- Promotion display and management (3 core promotions restored)
-- Service/style options with proper images
+- Landing page with styled Hero section
+- Navigation system
+- Footer with links
+- Client/Salon owner role selection
+- Brand showcase carousel
 
-## Database State
-- Salon table initialized with example salons
-- Client table operational
-- Services correctly attached to salons
-- Promotions display properly (forced display of 3 standard promotions)
-
-## Critical Fixes Applied
-- Fixed routing issue between salon dashboard and public pages
-- Added cache invalidation for promotion updates
-- Restored the three standard promotions:
-  1. "Summer Special" (20% off all manicures)
-  2. "New Client Offer" (Free nail art with any service)
-  3. "Bring a Friend" (25% off for you and a friend)
-- Implemented debug logging throughout API endpoints
-- Enhanced error handling and user feedback
+## Component States
+- Hero.tsx: Updated with new gradient background and spacing
+- BrandCarousel.tsx: Implemented with image slides
+- Navbar.tsx: Styled and responsive
+- Footer.tsx: Updated with links and styling
 
 ## Restore Instructions
-If you need to return to this exact state of the application:
-1. Reference this commit/version
-2. The key files that define the application behavior:
-   - client/src/pages/SalonDashboard.tsx
-   - client/src/pages/SalonPublicPage.tsx
-   - server/routes.ts (contains promotion restoration logic)
-   - server/storage.ts
-   - shared/schema.ts
+1. Reference this commit
+2. Key files:
+   - client/src/components/layout/Hero.tsx
+   - client/src/components/layout/BrandCarousel.tsx
+   - client/src/components/layout/Navbar.tsx
+   - client/src/components/layout/Footer.tsx
 
-## Rebuild Instructions
-If a complete rebuild is necessary:
-1. Ensure PostgreSQL database is provisioned
-2. Run `npm install` to restore dependencies
-3. Start the application with `npm run dev`
-4. No additional migration steps needed as the database structure is handled by the ORM
+## UI State
+- Landing page layout finalized
+- Brand images implemented
+- Navigation structure complete
+- Registration forms accessible
 
 ## Timestamp
-Benchmark created: April 10, 2025 at 7:45 PM MDT
+Benchmark created: April 2024
