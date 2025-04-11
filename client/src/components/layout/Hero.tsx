@@ -15,7 +15,7 @@ export default function Hero({
     <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-3 lg:py-3">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
         <div className="flex justify-center mb-6">
-          <h1 className="text-4xl md:text-5xl">
+          <h1 className="text-5xl md:text-6xl">
             <span className="font-serif">Ven Me, </span>
             <span className="font-serif text-[#FF92A5]">Baby!</span>
           </h1>
