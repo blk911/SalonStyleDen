@@ -313,21 +313,33 @@ export default function SalonPublicPage() {
                       <div className="h-32 flex items-center justify-center">
                         {promo.title.toLowerCase().includes('summer') ? (
                           <img 
-                            src="/assets/summer-french-tips.png" 
+                            src="/assets/logos/summer-french-tips.png" 
                             alt={promo.title}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              console.error(`Failed to load image for promo: ${promo.title}`);
+                              e.currentTarget.src = '/assets/logos/vmb-logo.png';
+                            }}
                           />
                         ) : promo.title.toLowerCase().includes('new client') ? (
                           <img 
-                            src="/assets/spring-lavender.png" 
+                            src="/assets/logos/spring-lavender.png" 
                             alt={promo.title}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              console.error(`Failed to load image for promo: ${promo.title}`);
+                              e.currentTarget.src = '/assets/logos/vmb-logo.png';
+                            }}
                           />
                         ) : promo.title.toLowerCase().includes('friend') || promo.title.toLowerCase().includes('bff') || promo.title.toLowerCase().includes('bring') ? (
                           <img 
-                            src="/assets/bff-promo.png" 
+                            src="/assets/logos/bff-promo.png" 
                             alt={promo.title}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              console.error(`Failed to load image for promo: ${promo.title}`);
+                              e.currentTarget.src = '/assets/logos/vmb-logo.png';
+                            }}
                           />
                         ) : (
                           <div className="bg-[#FEE1E8] h-full w-full flex items-center justify-center">
