@@ -12,7 +12,7 @@ export default function Hero({
   salonOwnerName = "Tiffany" 
 }: HeroProps) {
   return (
-    <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-20 lg:py-24">
+    <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-3 lg:py-3">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
         <p className="text-[#c4005a] text-4xl font-['Great_Vibes'] mb-8">Ven Me, Baby</p>
         <p className="text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
