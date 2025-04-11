@@ -52,7 +52,7 @@ interface SalonType {
 export default function SalonPublicPage() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
-  
+
   // Enhanced query configuration with proper query key structure and error handling
   const { 
     data: salon, 
@@ -63,18 +63,18 @@ export default function SalonPublicPage() {
     queryFn: async () => {
       try {
         if (!id) throw new Error("No salon ID provided");
-        
+
         const response = await fetch(`/api/salons/${id}`);
         if (!response.ok) {
           throw new Error(`Error fetching salon: ${response.status}`);
         }
-        
+
         const salonData = await response.json();
-        
+
         // Gets the appropriate image URL based on service name
         const getImageUrlForService = (serviceName: string): string => {
           const name = serviceName.toLowerCase();
-          
+
           if (name.includes('french') || name.includes('tips')) {
             return '/assets/french-tips.png';
           } else if (name.includes('gel') || name.includes('manicure') || name.includes('lux')) {
@@ -87,7 +87,7 @@ export default function SalonPublicPage() {
             return '/assets/salon-card.png'; // Default fallback
           }
         };
-        
+
         // Use the services from the API if available, or provide defaults
         const defaultServices: Service[] = [
           {
@@ -127,7 +127,7 @@ export default function SalonPublicPage() {
             gifUrl: "/assets/glam-design.png"
           }
         ];
-        
+
         // Default promos if none exist in database
         const defaultPromos: Promo[] = [
           {
@@ -143,10 +143,10 @@ export default function SalonPublicPage() {
             endDate: null
           }
         ];
-        
+
         // Make sure any services from the API have the correct image paths
         let processedServices = defaultServices;
-        
+
         if (Array.isArray(salonData.services) && salonData.services.length > 0) {
           processedServices = salonData.services.map((service: Service) => {
             // For each service, ensure it has the correct gifUrl based on its name
@@ -156,25 +156,25 @@ export default function SalonPublicPage() {
             };
           });
         }
-        
+
         // Add real data from the database if available, otherwise use defaults
-        
+
         // Log promos received from the API
         console.log('SalonPublicPage - Raw salon data from API:', salonData);
-        
+
         if (salonData.promos) {
           console.log('SalonPublicPage - Promos received from API:', JSON.stringify(salonData.promos));
         } else {
           console.log('SalonPublicPage - No promos received from API, using defaults');
         }
-        
+
         // Ensure we're correctly handling promos
         const promos = Array.isArray(salonData.promos) && salonData.promos.length > 0 
           ? salonData.promos 
           : defaultPromos;
-          
+
         console.log('SalonPublicPage - Final promos being displayed:', JSON.stringify(promos));
-        
+
         return {
           ...salonData,
           services: processedServices,
@@ -190,16 +190,16 @@ export default function SalonPublicPage() {
     staleTime: 30000, // Consider data fresh for 30 seconds
     enabled: !!id, // Only run the query if we have an ID
   });
-  
+
   // Auto-redirect if no ID is provided
   useEffect(() => {
     if (!id) {
       setLocation('/salons');
     }
   }, [id, setLocation]);
-  
+
   // Images have been removed, so we don't need migration code
-  
+
   if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -213,7 +213,7 @@ export default function SalonPublicPage() {
       </div>
     );
   }
-  
+
   if (error || !salon) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -276,7 +276,7 @@ export default function SalonPublicPage() {
                     </svg>
                     <span className="truncate">{salon.phone}</span>
                   </div>
-                  
+
                   <div className="flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-pink-500 mr-1 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
@@ -285,7 +285,7 @@ export default function SalonPublicPage() {
                     <span className="truncate">{salon.email}</span>
                   </div>
                 </div>
-                
+
                 {salon.socialMedia && Array.isArray(salon.socialMedia) && salon.socialMedia.length > 0 && (
                   <div className="content-section vspace-xs border-t border-gray-100 pt-1">
                     {salon.socialMedia.map((social) => (
@@ -299,21 +299,21 @@ export default function SalonPublicPage() {
             </div>
           </div>
         </section>
-        
+
         {/* Current Promotions */}
         <section className="py-2">
           <div className="container mx-auto px-2">
             <Card className="shadow-sm">
               <CardContent className="p-2">
                 <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Current Promotions</h2>
-                
+
                 <div className="grid-cols-responsive">
                   {salon.promos && salon.promos.map((promo) => (
                     <div key={promo.id} className="border border-pink-100 rounded overflow-hidden shadow-sm">
                       <div className="h-32 flex items-center justify-center">
                         {promo.title.toLowerCase().includes('summer') ? (
                           <img 
-                            src="/assets/summer-french-tips.png" 
+                            src="/assets/logos/summer-french-tips.png" 
                             alt={promo.title}
                             className="w-full h-full object-cover"
                             onError={(e) => {
@@ -333,7 +333,7 @@ export default function SalonPublicPage() {
                           />
                         ) : promo.title.toLowerCase().includes('friend') || promo.title.toLowerCase().includes('bff') || promo.title.toLowerCase().includes('bring') ? (
                           <img 
-                            src="/assets/logos/bff-promo.png" 
+                            src="/assets/logos/bff-promo.png"
                             alt={promo.title}
                             className="w-full h-full object-cover"
                             onError={(e) => {
@@ -363,14 +363,14 @@ export default function SalonPublicPage() {
             </Card>
           </div>
         </section>
-        
+
         {/* Ven Me, Baby! Style Options List */}
         <section className="py-2">
           <div className="container mx-auto px-2">
             <Card className="shadow-sm">
               <CardContent className="p-2">
                 <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Ven Me, Baby! Style Options</h2>
-                
+
                 <div className="flex flex-col gap-2">
                   {salon.services && salon.services.map((service) => (
                     <div 
@@ -382,12 +382,12 @@ export default function SalonPublicPage() {
                         <div className="w-3/4">
                           <h3 className="font-medium text-compact">{service.name}</h3>
                           <p className="text-mini text-gray-600">{service.description}</p>
-                          
+
                           <div className="mt-1">
                             <span className="inline-block font-bold text-compact pr-2">${Math.round(service.price)}</span>
                             <span className="inline-block text-micro">{service.duration} min</span>
                           </div>
-                          
+
                           <div className="mt-1">
                             {service.featured && (
                               <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
@@ -396,7 +396,7 @@ export default function SalonPublicPage() {
                             )}
                           </div>
                         </div>
-                        
+
                         {/* Right side - Image (25%) */}
                         <div className="w-1/4 flex items-center justify-center">
                           {service.gifUrl ? (
@@ -441,7 +441,7 @@ export default function SalonPublicPage() {
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="button-container vspace-sm">
                   <Button 
                     className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs"
@@ -453,14 +453,14 @@ export default function SalonPublicPage() {
             </Card>
           </div>
         </section>
-        
+
         {/* Business Hours - Placeholder for now */}
         <section className="py-2">
           <div className="container mx-auto px-2">
             <Card className="shadow-sm">
               <CardContent className="p-2">
                 <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Business Hours</h2>
-                
+
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1 text-mini">
                   <div className="border rounded p-1">
                     <p className="font-medium">Monday</p>
@@ -495,7 +495,7 @@ export default function SalonPublicPage() {
             </Card>
           </div>
         </section>
-        
+
         {/* CTA Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
