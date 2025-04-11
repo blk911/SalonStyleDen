@@ -90,7 +90,7 @@ export default function BrandCarousel() {
                 <h3 className="text-4xl font-bold mb-8 text-[#FF92A5] leading-tight text-center">{item.title}</h3>
                 <div className="space-y-6 flex-grow">
                   {item.content.map((line, i) => {
-                    if (line.startsWith('✔️')) {
+                    if (typeof line === 'string' && line.startsWith('✔️')) {
                       return (
                         <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide flex items-center gap-2">
                           <Check className="h-5 w-5 text-green-500" strokeWidth={3} />
