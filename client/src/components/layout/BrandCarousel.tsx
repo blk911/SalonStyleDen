@@ -14,12 +14,12 @@ const carouselItems = [
     ]
   },
   {
-    title: "This Is Luxury That Moves.",
+    title: "What It Does:",
     content: [
-      "Not loud. Not flashy.",
-      "But intimate. Timed.",
-      "Undeniably modern.",
-      "And always prepaid."
+      "✔️ Turns indecision into action",
+      "✔️ Turns \"maybe later\" into prepaid now",
+      "✔️ Eliminates no-shows with upfront commitment",
+      "✔️ Connects directly to the client's real-life relationships"
     ]
   },
   {
