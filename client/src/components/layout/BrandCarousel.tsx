@@ -1,3 +1,4 @@
+
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 const carouselItems = [
@@ -48,15 +49,6 @@ const carouselItems = [
       "This is the new standard.",
       "This is Ven Me Baby."
     ]
-  },
-  {
-    title: "What It Does:",
-    content: [
-      "<span style='color:green;'>✓</span> Turns indecision into action",
-      "<span style='color:green;'>✓</span> Turns \"maybe later\" into prepaid now",
-      "<span style='color:green;'>✓</span> Eliminates no-shows with upfront commitment",
-      "<span style='color:green;'>✓</span> Connects directly to the client's real-life relationships"
-    ]
   }
 ];
 
@@ -79,7 +71,7 @@ export default function BrandCarousel() {
                 <h3 className="text-3xl font-semibold mb-8 text-[#FF92A5] leading-tight text-center">{item.title}</h3>
                 <div className="space-y-6 flex-grow">
                   {item.content.map((line, i) => (
-                    <p key={i} className={`text-lg text-gray-700 leading-[0.75] tracking-wide ${line.startsWith('Because') ? 'font-bold' : 'font-light'}`} dangerouslySetInnerHTML={{ __html: line }}></p>
+                    <p key={i} className={`text-lg text-gray-700 leading-[0.75] tracking-wide ${line.startsWith('Because') ? 'font-bold' : 'font-light'}`}>{line}</p>
                   ))}
                 </div>
               </div>
