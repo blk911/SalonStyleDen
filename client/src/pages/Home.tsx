@@ -5,6 +5,8 @@ import Footer from "@/components/layout/Footer";
 import BrandCarousel from "@/components/layout/BrandCarousel";
 import SalonForm from "@/components/forms/SalonForm";
 import ClientForm from "@/components/forms/ClientForm";
+import ErrorDemo from "@/components/demo/ErrorDemo";
+import { ErrorBoundary } from "@/lib/monitoring";
 
 export default function Home() {
   const [activeForm, setActiveForm] = useState<"salon" | "client" | null>(null);
@@ -47,6 +49,16 @@ export default function Home() {
                 <ClientForm />
               </div>
             )}
+            
+            {/* Error tracking demo component wrapped in ErrorBoundary */}
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold mb-2 text-center">Code Quality & Monitoring Demo</h2>
+              <ErrorBoundary fallback={<div className="p-4 bg-red-100 text-red-700 rounded">
+                🚨 Error captured by Sentry! Check your Sentry dashboard.
+              </div>}>
+                <ErrorDemo />
+              </ErrorBoundary>
+            </div>
           </div>
         </section>
       </main>

@@ -25,9 +25,10 @@ export const initSentry = () => {
 
 // Initialize LogRocket
 export const initLogRocket = () => {
-  // Only initialize if an app ID is provided
-  if (import.meta.env.VITE_LOGROCKET_APP_ID) {
-    LogRocket.init(import.meta.env.VITE_LOGROCKET_APP_ID);
+  try {
+    // Initialize with direct app ID
+    LogRocket.init('es73p2/vmbaby');
+    console.log('LogRocket initialized successfully');
     
     // Integration with Sentry
     LogRocket.getSessionURL(sessionURL => {
@@ -38,6 +39,8 @@ export const initLogRocket = () => {
         level: 'info'
       });
     });
+  } catch (error) {
+    console.error('Failed to initialize LogRocket:', error);
   }
 };
 
@@ -58,16 +61,18 @@ export const logError = (error: Error, context?: Record<string, any>) => {
 
 // Custom event logger
 export const logEvent = (eventName: string, data?: Record<string, any>) => {
-  // Log to LogRocket if available
-  if (import.meta.env.VITE_LOGROCKET_APP_ID) {
+  try {
+    // Log to LogRocket
     LogRocket.track(eventName, data);
+    
+    // Log to Sentry
+    Sentry.captureMessage(`EVENT: ${eventName}`, {
+      level: 'info',
+      extra: data,
+    });
+  } catch (error) {
+    console.error('Error logging event:', error);
   }
-  
-  // Log to Sentry
-  Sentry.captureMessage(`EVENT: ${eventName}`, {
-    level: 'info',
-    extra: data,
-  });
 };
 
 // Initialize all monitoring tools
