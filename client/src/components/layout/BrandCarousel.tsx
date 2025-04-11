@@ -59,13 +59,15 @@ export default function BrandCarousel() {
         opts={{
           align: "center",
           loop: true,
+          slidesToScroll: 1,
+          startIndex: 0,
         }}
-        className="w-full"
+        className="w-full relative"
       >
         <CarouselContent>
           {carouselItems.map((item, index) => (
             <CarouselItem key={index}>
-              <div className="min-h-[400px] p-3 rounded-2xl bg-gradient-to-br from-white via-white/95 to-pink-50/90 backdrop-blur-sm border border-pink-100 shadow-2xl hover:shadow-pink-100/20 transition-all flex flex-col">
+              <div className="min-h-[500px] w-[90%] mx-auto p-6 rounded-2xl bg-gradient-to-br from-white via-white/95 to-pink-50/90 backdrop-blur-sm border border-pink-100 shadow-2xl hover:shadow-pink-100/20 transition-all flex flex-col justify-center">
                 <h3 className="text-3xl font-semibold mb-8 text-[#FF92A5] leading-tight text-center">{item.title}</h3>
                 <div className="space-y-6 flex-grow">
                   {item.content.map((line, i) => (
