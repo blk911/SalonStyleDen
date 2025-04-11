@@ -5,10 +5,10 @@ const carouselItems = [
   {
     title: "👩‍💼 Here's How It Works:",
     content: [
-      "Your client selects a curated service offer through your app, site, or QR in-salon.",
-      "She sends it directly—to her partner, admirer, husband, whoever wants to say \"yes\" without guessing.",
-      "He receives a beautifully worded message (crafted by us) and can pay in one tap.",
-      "You receive confirmation and prepayment—no gift cards, no chasing, no \"she said he would.\""
+      { text: "Your client selects a curated service offer", isBold: true, suffix: " through your app, site, or QR in-salon." },
+      { text: "She sends it directly", isBold: true, suffix: "—to her partner, admirer, husband, whoever wants to say \"yes\" without guessing." },
+      { text: "He receives a beautifully worded message", isBold: true, suffix: " (crafted by us) and can pay in one tap." },
+      { text: "You receive confirmation and prepayment", isBold: true, suffix: "—no gift cards, no chasing, no \"she said he would.\"" }
     ]
   },
   {
