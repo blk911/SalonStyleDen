@@ -110,13 +110,13 @@ export default function BrandCarousel() {
                     }
                     if (line.isBold) {
                       return (
-                        <p key={i} className="text-lg font-bold text-gray-700 leading-none tracking-wide mb-1">
+                        <p key={i} className="text-lg font-bold text-gray-700 leading-none tracking-wide mb-0">
                           {line.text}
                         </p>
                       );
                     }
                     return (
-                      <p key={i} className={`text-lg text-gray-700 leading-none tracking-wide ${line.noSpaceAfter ? 'mb-1' : 'mb-4'}`}>
+                      <p key={i} className={`text-lg text-gray-700 leading-none tracking-wide ${line.noSpaceAfter ? 'mb-0' : 'mb-6'}`}>
                         {line.text}
                       </p>
                     );
