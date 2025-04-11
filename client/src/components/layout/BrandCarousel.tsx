@@ -1,5 +1,5 @@
-
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Check } from "lucide-react";
 
 const carouselItems = [
   {
@@ -71,7 +71,10 @@ export default function BrandCarousel() {
                 <h3 className="text-3xl font-semibold mb-8 text-[#FF92A5] leading-tight text-center">{item.title}</h3>
                 <div className="space-y-6 flex-grow">
                   {item.content.map((line, i) => (
-                    <p key={i} className={`text-lg text-gray-700 leading-[0.75] tracking-wide ${line.startsWith('Because') ? 'font-bold' : 'font-light'}`}>{line}</p>
+                    <p key={i} className={`text-lg text-gray-700 leading-[0.75] tracking-wide flex items-center gap-2 ${line.startsWith('Because') ? 'font-bold' : 'font-light'}`}>
+                      {line.startsWith('✔️') ? <Check className="h-5 w-5 text-green-500" strokeWidth={3} /> : null}
+                      {line.replace('✔️', '')}
+                    </p>
                   ))}
                 </div>
               </div>
