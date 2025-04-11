@@ -23,12 +23,12 @@ const carouselItems = [
   {
     title: "Why It Works—Because It's Real.",
     content: [
-      { text: "Because gift cards are obsolete.", isBold: true },
-      { text: "In a connected world, beauty should be personal, not plastic." },
-      { text: "Because men don't shop. They respond.", isBold: true },
-      { text: "Ven Me Baby is a gentle invitation to show he cares—with ease." },
-      { text: "Because she shouldn't have to ask twice.", isBold: true },
-      { text: "Now she doesn't. She chooses, he confirms, and the salon is booked." }
+      "Because gift cards are obsolete.",
+      "In a connected world, beauty should be personal, not plastic.",
+      "Because men don't shop. They respond.",
+      "Ven Me Baby is a gentle invitation to show he cares—with ease.",
+      "Because she shouldn't have to ask twice.",
+      "Now she doesn't. She chooses, he confirms, and the salon is booked."
     ]
   },
   {
@@ -97,7 +97,7 @@ export default function BrandCarousel() {
                         </p>
                       );
                     }
-                    if (typeof line === 'object' && !line.text) {
+                    if (typeof line === 'string') {
                       if (line.startsWith('✔️')) {
                         return (
                           <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide flex items-center gap-2">
@@ -108,18 +108,6 @@ export default function BrandCarousel() {
                       }
                       return <p key={i} className="text-lg text-gray-700 leading-normal tracking-wide">{line}</p>;
                     }
-                    if (line.isBold) {
-                      return (
-                        <p key={i} className="text-lg font-bold text-gray-700 leading-none tracking-wide mb-1">
-                          {line.text}
-                        </p>
-                      );
-                    }
-                    return (
-                      <p key={i} className="text-lg text-gray-700 leading-none tracking-wide mb-4">
-                        {line.text}
-                      </p>
-                    );
                     return null;
                   })}
                 </div>
