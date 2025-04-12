@@ -10,6 +10,7 @@ import ClientDashboard from "@/pages/ClientDashboard";
 import SalonsPage from "@/pages/SalonsPage";
 import PromosPage from "@/pages/PromosPage";
 import Sitemap from "@/pages/Sitemap";
+import AdminDashboard from "@/pages/AdminDashboard";
 
 function Router() {
   return (
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/salons" component={SalonsPage} />
       <Route path="/promos" component={PromosPage} />
       <Route path="/sitemap" component={Sitemap} />
+      <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
   );

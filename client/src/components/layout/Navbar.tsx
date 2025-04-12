@@ -1,6 +1,24 @@
 import { useState } from "react";
 import { Link } from "wouter";
 
+// Placeholder Admin Dashboard component
+const AdminDash = () => {
+  return (
+    <div>
+      <h1>Admin Dashboard</h1>
+      <h2>Clients</h2>
+      <div>
+        {/* Simple spreadsheet-like layout for clients would go here */}
+      </div>
+      <h2>Salons</h2>
+      <div>
+        {/* Simple spreadsheet-like layout for salons would go here */}
+      </div>
+    </div>
+  );
+};
+
+
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -20,15 +38,14 @@ export default function Navbar() {
                     <span className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
                     <span className="ml-2 text-xs text-green-600">Live</span>
                   </div>
-                  <img 
-                    src="/assets/logos/vmb-logo.png" 
-                    alt="VMB Logo" 
+                  <img
+                    src="/assets/logos/vmb-logo.png"
+                    alt="VMB Logo"
                     className="h-[130px] w-auto object-contain"
                     onLoad={() => console.log("Logo loaded successfully")}
                     onError={(e) => {
                       console.log("Logo failed to load");
                       e.currentTarget.style.display = 'none';
-                      // Added a sibling element to display fallback text
                       e.currentTarget.parentNode.insertAdjacentHTML('beforeend', '<div class="font-bold text-2xl text-[#FF92A5]">Ven Me, Baby!</div>');
                     }}
                   />
@@ -46,7 +63,13 @@ export default function Navbar() {
             <Link href="/promos">
               <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">VMB Promos</div>
             </Link>
-            <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Services</div>
+            <Link href="/clients">
+              <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
+            </Link>
+            {/* Temporary Admin Button */}
+            <Link href="/admin">
+              <div className="px-2 py-1 text-sm font-medium bg-pink-50 text-pink-600 hover:bg-pink-100 cursor-pointer">Admin</div>
+            </Link>
             <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
           </div>
           <div className="flex items-center sm:hidden">
@@ -74,7 +97,12 @@ export default function Navbar() {
           <Link href="/promos">
             <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">VMB Promos</div>
           </Link>
-          <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">Services</div>
+          <Link href="/clients">
+            <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
+          </Link>
+          <Link href="/admin">
+            <div className="block px-2 py-1 text-base font-medium bg-pink-50 text-pink-600 hover:bg-pink-100 cursor-pointer">Admin</div>
+          </Link>
           <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
         </div>
       </div>
