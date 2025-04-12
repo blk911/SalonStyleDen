@@ -2,6 +2,8 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from 'path';
+import { startupMonitor } from './startup-monitor'; // Import the startup monitor utility
+
 
 const app = express();
 // Increase payload size limit to 50MB for handling larger requests
@@ -69,23 +71,24 @@ app.use((req, res, next) => {
   // It is the only port that is not firewalled.
   const port = 5000;
 
-  // Create the server
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  // Verify server startup
+  await startupMonitor.verifyService('HTTP Server', async () => {
+    return new Promise((resolve) => {
+      server.listen({
+        port,
+        host: "0.0.0.0",
+      }, () => {
+        log(`serving on port ${port}`);
+        resolve(true);
+      });
+
+      server.on('error', (error) => {
+        log(`Server error: ${error.message}`);
+        resolve(false);
+      });
+    });
   });
 
-  // Add error handler for port conflicts
-  server.on('error', (error: any) => {
-    if (error.code === 'EADDRINUSE') {
-      log(`Port ${port} in use, attempting to retry...`);
-      setTimeout(() => {
-        server.close();
-        server.listen(port);
-      }, 1000);
-    }
-  });
+  // Log startup status
+  startupMonitor.logStatus();
 })();
