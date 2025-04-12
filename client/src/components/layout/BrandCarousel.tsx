@@ -3,7 +3,7 @@ import { Check } from "lucide-react";
 
 const carouselItems = [
   {
-    title: "👩‍💼 How VMB Works:",
+    title: "How VMB Works:",
     content: [
       { text: "Your client selects a curated service offer", isBold: true, suffix: " through your app, site, or QR in-salon." },
       { text: "She sends it directly", isBold: true, suffix: "—to her partner, admirer, husband, whoever wants to say \"yes\" without guessing." },
