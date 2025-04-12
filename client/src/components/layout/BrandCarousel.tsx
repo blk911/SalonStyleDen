@@ -39,12 +39,11 @@ const carouselItems = [
     ]
   },
   {
-    title: "What It Does:",
+    title: "Ven Me, Baby! Makes Gifting Make Sense",
     content: [
-      "✔️ Turns indecision into action",
-      "✔️ Turns \"maybe later\" into prepaid now",
-      "✔️ Eliminates no-shows with upfront commitment",
-      "✔️ Connects directly to the client's real-life relationships"
+      ["", "Men do not buy gift cards;", " Timing matters; fit her schedule!"],
+      ["", "Clients promo salon with their inner circle;", " Ven Me, Baby! clients promote your offers!"],
+      ["", "Ven Me Baby! Promos are pre-paid;", " Reduce no-shows and cancellations"]
     ]
   },
   {
