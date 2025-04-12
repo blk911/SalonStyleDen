@@ -41,9 +41,9 @@ const carouselItems = [
   {
     title: "Ven Me, Baby! Makes Gifting Make Sense",
     content: [
-      ["", "Men do not buy gift cards;", " Timing matters; fit her schedule!"],
-      ["", "Clients promo salon with their inner circle;", " Ven Me, Baby! clients promote your offers!"],
-      ["", "Ven Me Baby! Promos are pre-paid;", " Reduce no-shows and cancellations"]
+      ["", "Men do not buy gift cards;\n", "Timing matters; fit her schedule!"],
+      ["", "Clients promo salon with their inner circle;\n", "Ven Me, Baby! clients promote your offers!"],
+      ["", "Ven Me Baby! Promos are pre-paid;\n", "Reduce no-shows and cancellations"]
     ]
   },
   {
