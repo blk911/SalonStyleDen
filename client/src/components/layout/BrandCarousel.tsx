@@ -1,5 +1,6 @@
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Check } from "lucide-react";
+import LogoText from '../shared/LogoText'; // Added import statement
 
 const carouselItems = [
   {
@@ -66,7 +67,7 @@ const carouselItems = [
       ["It's ", "attention", " translated into care."]
     ]
   },
-  ];
+];
 
 export default function BrandCarousel() {
   return (
@@ -85,10 +86,10 @@ export default function BrandCarousel() {
             <CarouselItem key={index}>
               <div className="min-h-[500px] w-[90%] mx-auto p-6 rounded-2xl bg-gradient-to-br from-white via-white/95 to-pink-50/90 backdrop-blur-sm border border-pink-100 shadow-2xl hover:shadow-pink-100/20 transition-all flex flex-col justify-center">
                 <h3 className="text-4xl mb-8 text-[#FF92A5] leading-tight text-center">
-                {item.title}
-                {item.titleComponent}
-                {item.titleSuffix}
-              </h3>
+                  {item.title}
+                  {item.titleComponent}
+                  {item.titleSuffix}
+                </h3>
                 <div className="space-y-6 flex-grow">
                   {item.content.map((line, i) => {
                     if (Array.isArray(line) && line.length === 3) {
