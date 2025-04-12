@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import Link from 'next/link'; // Added import for Link component
+import { Link } from 'wouter'; // Added import for Link component
 
 
 interface Client {
