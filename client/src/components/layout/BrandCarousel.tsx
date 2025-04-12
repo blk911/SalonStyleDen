@@ -66,24 +66,7 @@ const carouselItems = [
       ["It's ", "attention", " translated into care."]
     ]
   },
-  {
-    title: "It's not a gift card.",
-    content: [
-      "It's a gesture she initiates—and he finishes.",
-      "It's attention, translated into care."
-    ]
-  },
-  {
-    title: "For Those Who Know.",
-    content: [
-      "For Women Who Know.",
-      "For Men Who Want to Get It Right.",
-      "For Salons That Don't Have Time to Chase.",
-      "This is the new standard.",
-      "This is Ven Me Baby."
-    ]
-  }
-];
+  ];
 
 export default function BrandCarousel() {
   return (
