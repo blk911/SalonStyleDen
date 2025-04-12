@@ -70,14 +70,13 @@ export default function AdminDashboard() {
                       {clients?.filter(client => client.isCurrentClient).map((client) => (
                         <TableRow 
                           key={client.id}
-                          className="cursor-pointer hover:bg-gray-50 max-h-[30px]"
-                          onClick={() => setLocation(`/client/${client.id}`)}
+                          className="hover:bg-gray-50 h-[30px]"
                         >
-                          <TableCell className="max-h-[30px] py-1">{client.name}</TableCell>
-                          <TableCell className="max-h-[30px] py-1">{client.email}</TableCell>
-                          <TableCell className="max-h-[30px] py-1">{client.phone}</TableCell>
-                          <TableCell className="max-h-[30px] py-1">{client.salonName || 'N/A'}</TableCell>
-                          <TableCell className="max-h-[30px] py-1 text-right">
+                          <TableCell className="py-0">{client.name}</TableCell>
+                          <TableCell className="py-0">{client.email}</TableCell>
+                          <TableCell className="py-0">{client.phone}</TableCell>
+                          <TableCell className="py-0">{client.salonName || 'N/A'}</TableCell>
+                          <TableCell className="py-0 text-right">
                             <Link href={`/client/${client.id}`}>
                               <button className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]">
                                 View Client
