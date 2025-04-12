@@ -25,10 +25,10 @@ const carouselItems = [
     content: [
       ["", "Because gift cards", " are obsolete."],
       "In a connected world, beauty should be personal, not plastic.",
-      ["", "Because men don't shop", ". They respond."],
+      ["", "Because men don't show", ". They respond."],
       "Ven Me Baby is a gentle invitation to show he cares—with ease.",
       ["", "Because she", " shouldn't have to ask twice."],
-      "Now she doesn't. She chooses, he confirms, and the salon is booked."
+      ["", "It's attention", " translated; ", "it's care", ""]
     ]
   },
   {
