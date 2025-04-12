@@ -11,7 +11,7 @@ const LogoText: React.FC<LogoTextProps> = ({ children, size = 'inherit', classNa
   return (
     <span className={`logo-text ${className}`}>
       <span className="font-serif">{children.split('Baby!')[0]}</span>
-      <span className="font-serif text-[#FF92A5]">Baby!</span>
+      <span className="font-serif text-[#FF92A5] italic">Baby!</span>
     </span>
   );
 };
