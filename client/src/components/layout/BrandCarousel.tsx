@@ -3,11 +3,11 @@ import { Check } from "lucide-react";
 
 const carouselItems = [
   {
-    title: "How VMB Works:",
+    title: 'How ', titleComponent: <LogoText size="inherit">Ven Me, Baby!</LogoText>, titleSuffix: ' Works:',
     content: [
       { text: "Your client selects a curated service offer", isBold: true, suffix: " through your app, site, or QR in-salon." },
       { text: "She sends it directly", isBold: true, suffix: "—to her partner, admirer, husband, whoever wants to say \"yes\" without guessing." },
-      { text: "He recieves your Ven Me, Baby! gift request,", isBold: true, suffix: " timing is everything, she is booked, but has an opening, you are thinking about him, now thinking about YOU!" },
+      { text: "He receives your ", textComponent: <LogoText size="inherit">Ven Me, Baby!</LogoText>, isBold: true, suffix: " gift request, timing is everything, she is booked, but has an opening, you are thinking about him, now thinking about YOU!" },
       { text: "He can be a HERO!", isBold: true, suffix: " Select the pay method, hit enter, be a HERO! It meets your customer, over there, on their phone...in their life!" },
       { text: "You receive confirmation and prepayment", isBold: true, suffix: "—no gift cards, no chasing, no \"she said he would.\"" }
     ]
@@ -84,7 +84,11 @@ export default function BrandCarousel() {
           {carouselItems.map((item, index) => (
             <CarouselItem key={index}>
               <div className="min-h-[500px] w-[90%] mx-auto p-6 rounded-2xl bg-gradient-to-br from-white via-white/95 to-pink-50/90 backdrop-blur-sm border border-pink-100 shadow-2xl hover:shadow-pink-100/20 transition-all flex flex-col justify-center">
-                <h3 className="text-4xl mb-8 text-[#FF92A5] leading-tight text-center">{item.title}</h3>
+                <h3 className="text-4xl mb-8 text-[#FF92A5] leading-tight text-center">
+                {item.title}
+                {item.titleComponent}
+                {item.titleSuffix}
+              </h3>
                 <div className="space-y-6 flex-grow">
                   {item.content.map((line, i) => {
                     if (Array.isArray(line) && line.length === 3) {
@@ -111,7 +115,7 @@ export default function BrandCarousel() {
                     if (typeof line === 'object' && line.text) {
                       return (
                         <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
-                          {line.isBold ? <span className="font-bold">{line.text}</span> : line.text}
+                          {line.isBold ? <span className="font-bold">{line.text}{line.textComponent}</span> : line.text}
                           {line.suffix && line.suffix}
                         </p>
                       );
