@@ -22,7 +22,7 @@ const carouselItems = [
     ]
   },
   {
-    title: "Why It Works—Because It's Real.",
+    title: "It Works Because it's—REAL!",
     content: [
       [
         { text: "Because perfect timing is everything.", isBold: true },
