@@ -62,11 +62,21 @@ export default function ClientDashboard() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow">
-        {/* Hero Section for Slug Page */}
-        <section className="bg-[#FEE1E8] py-12">
+        {/* Hero Section with Client Info */}
+        <section className="bg-[#FEE1E8] py-3">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="font-playfair font-bold text-3xl mb-4">Client Dashboard</h2>
-            <p className="text-gray-600">Manage your profile, appointments, and favorite services.</p>
+            <div className="flex flex-col md:flex-row items-center justify-between">
+              <div>
+                <h2 className="font-playfair font-bold text-3xl mb-2">{client.name}</h2>
+                <p className="text-gray-600 mb-2">Member since {new Date(client.createdAt).toLocaleDateString()}</p>
+              </div>
+              <div className="flex items-center bg-white/50 rounded-lg p-4 shadow-soft">
+                <div className="text-right">
+                  <p className="text-sm text-gray-600 mb-1">Preferred Salon</p>
+                  <p className="font-medium text-pink-600">{client.salonName}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
         
