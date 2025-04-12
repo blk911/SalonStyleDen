@@ -58,24 +58,24 @@ export default function AdminDashboard() {
                 <ScrollArea className="h-[400px]">
                   <Table>
                     <TableHeader>
-                      <TableRow className="h-5">
-                        <TableHead className="h-5 py-0">Name</TableHead>
-                        <TableHead className="h-5 py-0">Email</TableHead>
-                        <TableHead className="h-5 py-0">Phone</TableHead>
-                        <TableHead className="h-5 py-0">Salon</TableHead>
+                      <TableRow className="max-h-[30px]">
+                        <TableHead className="max-h-[30px] py-1">Name</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Email</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Phone</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Salon</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {clients?.filter(client => client.isCurrentClient).map((client) => (
                         <TableRow 
                           key={client.id}
-                          className="cursor-pointer hover:bg-gray-50 h-5"
+                          className="cursor-pointer hover:bg-gray-50 max-h-[30px]"
                           onClick={() => setLocation(`/client/${client.id}`)}
                         >
-                          <TableCell className="h-5 py-0">{client.name}</TableCell>
-                          <TableCell className="h-5 py-0">{client.email}</TableCell>
-                          <TableCell className="h-5 py-0">{client.phone}</TableCell>
-                          <TableCell className="h-5 py-0">{client.salonName || 'N/A'}</TableCell>
+                          <TableCell className="max-h-[30px] py-1">{client.name}</TableCell>
+                          <TableCell className="max-h-[30px] py-1">{client.email}</TableCell>
+                          <TableCell className="max-h-[30px] py-1">{client.phone}</TableCell>
+                          <TableCell className="max-h-[30px] py-1">{client.salonName || 'N/A'}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
