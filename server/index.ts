@@ -68,21 +68,6 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 5000;
-  import { ensurePortAvailable, setupPortMonitoring } from './monitor-ports';
-
-  // Ensure port is available before starting
-  await ensurePortAvailable(port);
-
-  // Setup monitoring
-  setupPortMonitoring(port);
-
-  // Handle graceful shutdown
-  process.on('SIGTERM', () => {
-    server.close(() => {
-      log('Server gracefully terminated');
-      process.exit(0);
-    });
-  });
 
   server.listen({
     port,
