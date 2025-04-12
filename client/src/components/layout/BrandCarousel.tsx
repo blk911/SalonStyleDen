@@ -24,9 +24,9 @@ const carouselItems = [
     title: "Why It Works—Because It's Real.",
     content: [
       ["", "Because gift cards", " are obsolete."],
-      "In a connected world, beauty should be personal, not plastic.",
+      ["In a connected world, beauty should be personal, not plastic."],
       ["", "Because men don't show", ". They respond."],
-      "Ven Me Baby is a gentle invitation to show he cares—with ease.",
+      ["Ven Me Baby is a gentle invitation to show he cares—with ease."],
       ["", "Because she", " shouldn't have to ask twice."],
       ["", "It's attention", " translated; ", "it's care", ""]
     ]
