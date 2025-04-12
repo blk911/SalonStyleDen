@@ -15,7 +15,11 @@ export default function Navbar() {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/">
-                <div className="flex items-center justify-center h-[130px] cursor-pointer">
+                <div className="flex items-center justify-center h-[130px] cursor-pointer relative">
+                  <div className="absolute top-2 right-2 flex items-center">
+                    <span className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span className="ml-2 text-xs text-green-600">Live</span>
+                  </div>
                   <img 
                     src="/assets/logos/vmb-logo.png" 
                     alt="VMB Logo" 
