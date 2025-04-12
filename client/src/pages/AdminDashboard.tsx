@@ -54,34 +54,28 @@ export default function AdminDashboard() {
             {/* Clients Table */}
             <Card>
               <CardContent className="p-4">
-                <h2 className="text-xl font-semibold mb-4">Clients</h2>
+                <h2 className="text-xl font-semibold mb-4">Current Clients</h2>
                 <ScrollArea className="h-[400px]">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Phone</TableHead>
-                        <TableHead>Salon</TableHead>
-                        <TableHead>Status</TableHead>
+                      <TableRow className="h-5">
+                        <TableHead className="h-5 py-0">Name</TableHead>
+                        <TableHead className="h-5 py-0">Email</TableHead>
+                        <TableHead className="h-5 py-0">Phone</TableHead>
+                        <TableHead className="h-5 py-0">Salon</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {clients?.map((client) => (
+                      {clients?.filter(client => client.isCurrentClient).map((client) => (
                         <TableRow 
                           key={client.id}
-                          className="cursor-pointer hover:bg-gray-50"
+                          className="cursor-pointer hover:bg-gray-50 h-5"
                           onClick={() => setLocation(`/client/${client.id}`)}
                         >
-                          <TableCell>{client.id}</TableCell>
-                          <TableCell>{client.name}</TableCell>
-                          <TableCell>{client.email}</TableCell>
-                          <TableCell>{client.phone}</TableCell>
-                          <TableCell>{client.salonName || 'N/A'}</TableCell>
-                          <TableCell>
-                            {client.isCurrentClient ? 'Active' : 'Pending'}
-                          </TableCell>
+                          <TableCell className="h-5 py-0">{client.name}</TableCell>
+                          <TableCell className="h-5 py-0">{client.email}</TableCell>
+                          <TableCell className="h-5 py-0">{client.phone}</TableCell>
+                          <TableCell className="h-5 py-0">{client.salonName || 'N/A'}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
