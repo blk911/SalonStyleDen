@@ -5,6 +5,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function handleApiError(error: unknown) {
+  console.error('API Error:', error);
+  return {
+    error: error instanceof Error ? error.message : 'An unexpected error occurred'
+  };
+}
+
+export function validateResponse<T>(response: T | null): T {
+  if (!response) {
+    throw new Error('Invalid response received');
+  }
+  return response;
+}
+
 export function formatPhoneNumber(value: string): string {
   // Remove non-digit characters
   const digits = value.replace(/\D/g, '');

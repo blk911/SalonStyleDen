@@ -104,11 +104,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('GET /salons - Attempting to fetch all salons');
       const salons = await storage.getAllSalons();
-      console.log('GET /salons - Retrieved salons:', salons);
+      console.log(`GET /salons - Successfully retrieved ${salons.length} salons`);
       res.json(salons);
     } catch (error) {
       console.error('GET /salons - Error:', error);
-      res.status(500).json({ error: "Failed to retrieve salons" });
+      res.status(500).json({ error: 'Failed to fetch salons' });
     }
   });
 
@@ -142,7 +142,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`DEBUG - GET salon/${id} - No valid promos array, initializing`);
         salon.promos = [];
       }
-      
+
       console.log(`DEBUG - GET salon/${id} - Current promos:`, JSON.stringify(salon.promos));
       console.log(`DEBUG - GET salon/${id} - Salon has ${salon.promos.length} promotions:`, JSON.stringify(salon.promos));
 

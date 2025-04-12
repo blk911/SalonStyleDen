@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import Navbar from "@/components/layout/Navbar";
@@ -6,6 +5,8 @@ import Footer from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import Link from 'next/link'; // Added import for Link component
+
 
 interface Client {
   id: number;
@@ -27,21 +28,42 @@ interface Salon {
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
 
-  const { data: clients } = useQuery<Client[]>({
-    queryKey: ['/api/clients'],
+  const { data: clients, error: clientError, isLoading: clientIsLoading } = useQuery({
+    queryKey: ['clients'],
     queryFn: async () => {
-      const response = await fetch('/api/clients');
-      return response.json();
+      try {
+        const response = await fetch('/api/clients');
+        if (!response.ok) {
+          throw new Error('Failed to fetch clients');
+        }
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching clients:', error);
+        throw error;
+      }
     },
   });
 
-  const { data: salons } = useQuery<Salon[]>({
-    queryKey: ['/api/salons'],
+  const { data: salons, error: salonError, isLoading: salonIsLoading } = useQuery({
+    queryKey: ['salons'],
     queryFn: async () => {
-      const response = await fetch('/api/salons');
-      return response.json();
+      try {
+        const response = await fetch('/api/salons');
+        if (!response.ok) {
+          throw new Error('Failed to fetch salons');
+        }
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching salons:', error);
+        throw error;
+      }
     },
   });
+
+  if (clientIsLoading || salonIsLoading) return <div>Loading...</div>;
+  if (clientError) return <div>Error loading clients: {clientError.message}</div>;
+  if (salonError) return <div>Error loading salons: {salonError.message}</div>;
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -49,7 +71,7 @@ export default function AdminDashboard() {
       <main className="flex-grow p-4">
         <div className="container mx-auto">
           <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
-          
+
           <div className="grid gap-6">
             {/* Clients Table */}
             <Card>
@@ -68,7 +90,7 @@ export default function AdminDashboard() {
                     </TableHeader>
                     <TableBody>
                       {clients?.filter(client => client.isCurrentClient).map((client) => (
-                        <TableRow 
+                        <TableRow
                           key={client.id}
                           className="hover:bg-gray-50 h-[30px]"
                         >
@@ -108,7 +130,7 @@ export default function AdminDashboard() {
                     </TableHeader>
                     <TableBody>
                       {salons?.map((salon) => (
-                        <TableRow 
+                        <TableRow
                           key={salon.id}
                           className="cursor-pointer hover:bg-gray-50"
                           onClick={() => setLocation(`/salon/${salon.id}`)}
