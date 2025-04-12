@@ -13,7 +13,7 @@ const carouselItems = [
     ]
   },
   {
-    title: "💎 Why This Matters for You",
+    title: "VMB Promos help your business!",
     content: [
       { text: "Prepaid Appointments", isBold: true, suffix: " = Revenue Locked In" },
       { text: "Clients Feel Seen", isBold: true, suffix: " + Empowered" },
