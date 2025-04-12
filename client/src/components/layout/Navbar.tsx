@@ -70,9 +70,6 @@ export default function Navbar() {
             <Link href="/admin">
               <div className="px-2 py-1 text-sm font-medium bg-pink-50 text-pink-600 hover:bg-pink-100 cursor-pointer">Admin</div>
             </Link>
-            <Link href="/client">
-              <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer ml-auto">Client Page</div>
-            </Link> {/* Added Client Page link, right-aligned */}
             <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
           </div>
           <div className="flex items-center sm:hidden">
