@@ -69,6 +69,7 @@ app.use((req, res, next) => {
   // It is the only port that is not firewalled.
   const port = 5000;
 
+  // Create the server
   server.listen({
     port,
     host: "0.0.0.0",
@@ -77,12 +78,14 @@ app.use((req, res, next) => {
     log(`serving on port ${port}`);
   });
 
-  // Add error handler
-  server.on('error', async (error: any) => {
+  // Add error handler for port conflicts
+  server.on('error', (error: any) => {
     if (error.code === 'EADDRINUSE') {
-      log(`Port ${port} in use, attempting to free...`);
-      await ensurePortAvailable(port);
-      server.listen(port);
+      log(`Port ${port} in use, attempting to retry...`);
+      setTimeout(() => {
+        server.close();
+        server.listen(port);
+      }, 1000);
     }
   });
 })();
