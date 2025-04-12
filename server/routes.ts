@@ -138,33 +138,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Handle promotions data consistently
-      if (!salon.promos || !Array.isArray(salon.promos) || salon.promos.length === 0) {
-        console.log(`DEBUG - GET salon/${id} - No valid promos found, using defaults`);
+      if (!salon.promos || !Array.isArray(salon.promos)) {
+        console.log(`DEBUG - GET salon/${id} - No valid promos array, initializing`);
         salon.promos = [];
-        
-        // Only add default promotions when we really need them (no promos at all)
-        salon.promos = [
-          {
-            id: 1,
-            title: "Summer Special",
-            description: "20% off all manicures",
-            endDate: "2025-07-31"
-          },
-          {
-            id: 2,
-            title: "New Client Offer",
-            description: "Free nail art with any service",
-            endDate: null
-          },
-          {
-            id: 3,
-            title: "Bring a Friend",
-            description: "25% off for you and a friend",
-            endDate: "2025-08-15"
-          }
-        ];
-        console.log(`DEBUG - GET salon/${id} - Added default promotions`);
       }
+      
+      console.log(`DEBUG - GET salon/${id} - Current promos:`, JSON.stringify(salon.promos));
       console.log(`DEBUG - GET salon/${id} - Salon has ${salon.promos.length} promotions:`, JSON.stringify(salon.promos));
 
       res.json(salon);

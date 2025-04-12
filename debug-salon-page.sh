@@ -174,5 +174,37 @@ check_server_logs "promos" 100
 # Confirm if the update was successful
 debug_database_query "SELECT id, name, promos FROM salons WHERE id = 1;" "Verify Tiffany's salon promos after update"
 
+
+# Added section from edited code:
+echo -e "\n${BLUE}=== Direct Promo Routing Test ===${NC}"
+echo "Testing salon page promotion routing..."
+
+# Test salon GET endpoint
+curl -X GET http://localhost:5000/api/salons/1 | jq '.promos'
+
+# Test promo updates
+curl -X POST http://localhost:5000/api/salons/1/promos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "promos": [
+      {
+        "id": 1,
+        "title": "Summer French Tips Special",
+        "description": "Get stunning French tips with pearl accents. Perfect for summer elegance!",
+        "endDate": null
+      },
+      {
+        "id": 2,
+        "title": "Spring Blossom Special", 
+        "description": "Celebrate spring with floral nail art designs at 15% off!",
+        "endDate": "2025-06-30"
+      }
+    ]
+  }'
+
+echo "Verifying promo updates..."
+curl -X GET http://localhost:5000/api/salons/1 | jq '.promos'
+
+
 echo -e "\n${MAGENTA}Debug session completed at: $(date)${NC}"
 echo -e "${MAGENTA}Check the trace_*.log files for detailed request/response information${NC}"
