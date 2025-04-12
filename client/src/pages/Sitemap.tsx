@@ -13,6 +13,7 @@ export default function Sitemap() {
             <h2 className="text-xl font-semibold mb-4">/ (Root)</h2>
             <ul className="space-y-2 pl-6 border-l-2 border-pink-200">
               <li><Link href="/" className="text-pink-600 hover:underline">Home Page</Link></li>
+              <li><Link href="/promos" className="text-pink-600 hover:underline">Promotions Page</Link></li>
             </ul>
           </section>
 
@@ -24,7 +25,7 @@ export default function Sitemap() {
               <li className="pl-4 border-l border-pink-100">
                 <span className="text-gray-600">/:id (Dynamic Routes)</span>
                 <ul className="pl-4 mt-2 space-y-2">
-                  <li><Link href="/salons/1" className="text-pink-600 hover:underline">Public Salon Profile</Link></li>
+                  <li><Link href="/salon/1" className="text-pink-600 hover:underline">Public Salon Profile</Link></li>
                   <li><Link href="/dashboard/salon/1" className="text-pink-600 hover:underline">Salon Dashboard</Link></li>
                 </ul>
               </li>
@@ -35,6 +36,7 @@ export default function Sitemap() {
           <section>
             <h2 className="text-xl font-semibold mb-4">/client</h2>
             <ul className="space-y-2 pl-6 border-l-2 border-pink-200">
+              <li><Link href="/register/client" className="text-pink-600 hover:underline">Client Registration</Link></li>
               <li className="pl-4 border-l border-pink-100">
                 <span className="text-gray-600">/:id (Dynamic Routes)</span>
                 <ul className="pl-4 mt-2">
@@ -44,15 +46,7 @@ export default function Sitemap() {
             </ul>
           </section>
 
-          {/* Promotions Section */}
-          <section>
-            <h2 className="text-xl font-semibold mb-4">/promos</h2>
-            <ul className="space-y-2 pl-6 border-l-2 border-pink-200">
-              <li><Link href="/promos" className="text-pink-600 hover:underline">Promotions Page</Link></li>
-            </ul>
-          </section>
-
-          {/* API Endpoints */}
+          {/* API Documentation */}
           <section>
             <h2 className="text-xl font-semibold mb-4">/api</h2>
             <ul className="space-y-2 pl-6 border-l-2 border-gray-200 text-sm font-mono">
@@ -80,6 +74,7 @@ export default function Sitemap() {
                     <span>/:id</span>
                     <ul className="pl-4">
                       <li>GET - Get client details</li>
+                      <li>PUT - Update client details</li>
                     </ul>
                   </li>
                 </ul>
