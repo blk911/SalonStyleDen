@@ -84,7 +84,7 @@ export default function ClientDashboard() {
         <section className="py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Card className="rounded-xl shadow-soft">
-              <CardContent className="p-8">
+              <CardContent className="px-8 py-2">
                 <div className="prose max-w-none">
                   <h3 className="text-2xl font-semibold mb-4">Welcome to Your Client Dashboard</h3>
                   <p>
