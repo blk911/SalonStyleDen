@@ -9,6 +9,20 @@ interface HealthCheck {
 
 class StartupMonitor {
   private checks: HealthCheck[] = [];
+  
+  async checkPortAvailable(port: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      const server = require('net').createServer();
+      server.once('error', () => {
+        resolve(false);
+      });
+      server.once('listening', () => {
+        server.close();
+        resolve(true);
+      });
+      server.listen(port, '0.0.0.0');
+    });
+  }
 
   async verifyService(service: string, checkFn: () => Promise<boolean>) {
     try {
