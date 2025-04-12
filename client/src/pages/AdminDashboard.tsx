@@ -63,6 +63,7 @@ export default function AdminDashboard() {
                         <TableHead className="max-h-[30px] py-1">Email</TableHead>
                         <TableHead className="max-h-[30px] py-1">Phone</TableHead>
                         <TableHead className="max-h-[30px] py-1">Salon</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-right">Client Page</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -76,6 +77,13 @@ export default function AdminDashboard() {
                           <TableCell className="max-h-[30px] py-1">{client.email}</TableCell>
                           <TableCell className="max-h-[30px] py-1">{client.phone}</TableCell>
                           <TableCell className="max-h-[30px] py-1">{client.salonName || 'N/A'}</TableCell>
+                          <TableCell className="max-h-[30px] py-1 text-right">
+                            <Link href={`/client/${client.id}`}>
+                              <button className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]">
+                                View Client
+                              </button>
+                            </Link>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
