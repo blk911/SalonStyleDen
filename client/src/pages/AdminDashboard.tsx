@@ -206,7 +206,7 @@ export default function AdminDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {clients?.filter(client => client.isCurrentClient).map((client) => (
+                      {clients?.filter((client: Client) => client.isCurrentClient).map((client: Client) => (
                         <TableRow
                           key={client.id}
                           className="hover:bg-gray-50 h-[30px]"
@@ -256,7 +256,7 @@ export default function AdminDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {salons?.map((salon) => (
+                      {salons?.map((salon: Salon) => (
                         <TableRow
                           key={salon.id}
                           className="cursor-pointer hover:bg-gray-50"
