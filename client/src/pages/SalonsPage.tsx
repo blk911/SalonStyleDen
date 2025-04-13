@@ -50,7 +50,7 @@ const locationOptions: LocationItem[] = [
   { value: "TX", label: "Texas", type: "state" },
   { value: "OK", label: "Oklahoma", type: "state" },
   { value: "WY", label: "Wyoming", type: "state" },
-  
+
   // Colorado Cities
   { value: "Denver", label: "Denver", type: "city", state: "CO" },
   { value: "Fort Collins", label: "Fort Collins", type: "city", state: "CO" },
@@ -60,10 +60,10 @@ const locationOptions: LocationItem[] = [
   { value: "Lone Tree", label: "Lone Tree", type: "city", state: "CO" },
   { value: "Greenwood Village", label: "Greenwood Village", type: "city", state: "CO" },
   { value: "Englewood", label: "Englewood", type: "city", state: "CO" },
-  
+
   // Wyoming Cities
   { value: "Cheyenne", label: "Cheyenne", type: "city", state: "WY" },
-  
+
   // Common ZIP codes
   { value: "80014", label: "80014 - Aurora", type: "zip", state: "CO" },
   { value: "80202", label: "80202 - Downtown Denver", type: "zip", state: "CO" },
@@ -99,7 +99,7 @@ const geocodeAddress = async (address: string): Promise<{lat: number, lng: numbe
       `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=AIzaSyBeTURHmJiWYtMEvtShDlCCEXr6lDu7obE`
     );
     const data = await response.json();
-    
+
     if (data.results && data.results.length > 0) {
       const { lat, lng } = data.results[0].geometry.location;
       return { lat, lng };
@@ -115,19 +115,19 @@ export default function SalonsPage() {
   const { data: salons, isLoading, error } = useQuery<SalonType[]>({
     queryKey: ["/api/salons"],
   });
-  
+
   // State to track which salon cards are expanded
   const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({});
-  
+
   // State to toggle map visibility - hidden by default
   const [showMap, setShowMap] = useState<boolean>(false);
-  
+
   // State for selected marker in Google Maps
   const [selectedSalon, setSelectedSalon] = useState<SalonType | null>(null);
 
   // State for salon markers
   const [salonMarkers, setSalonMarkers] = useState<Array<{id: number, name: string, position: {lat: number, lng: number}}>>([]);
-  
+
   // State for location selection
   const [selectedLocation, setSelectedLocation] = useState<string>("Denver");
   const [isLocationOpen, setIsLocationOpen] = useState(false);
@@ -140,11 +140,11 @@ export default function SalonsPage() {
 
   // Reference to map instance
   const mapRef = useRef<google.maps.Map | null>(null);
-  
+
   // Callback when map loads
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
-    
+
     // Initialize the marker icon now that Google Maps is loaded
     markerIcon = {
       url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
@@ -166,7 +166,7 @@ export default function SalonsPage() {
       [salonId]: !prev[salonId]
     }));
   };
-  
+
   // Toggle map visibility
   const toggleMap = () => {
     setShowMap(prev => !prev);
@@ -178,12 +178,12 @@ export default function SalonsPage() {
     if (!showMap) {
       setShowMap(true);
     }
-    
+
     if (selectedLocation) {
       // Find the selected location in options to get state if needed
       const locationOption = locationOptions.find(option => option.value === selectedLocation);
       const state = locationOption?.state || "CO"; // Default to CO if not found
-      
+
       geocodeAddress(`${selectedLocation}, ${state}`).then(location => {
         if (location && mapRef.current) {
           mapRef.current.panTo({ lat: location.lat, lng: location.lng });
@@ -201,7 +201,7 @@ export default function SalonsPage() {
           salons.map(async (salon) => {
             const fullAddress = `${salon.address}, ${salon.city}, ${salon.state} ${salon.zipCode}`;
             const position = await geocodeAddress(fullAddress);
-            
+
             if (position) {
               return {
                 id: salon.id,
@@ -212,11 +212,11 @@ export default function SalonsPage() {
             return null;
           })
         );
-        
+
         // Filter out null values and set markers
         setSalonMarkers(markers.filter(Boolean) as any);
       };
-      
+
       geocodeAndSetMarkers();
     }
   }, [salons]);
@@ -228,7 +228,7 @@ export default function SalonsPage() {
         <div className="container mx-auto px-2 py-2">
           <h1 className="text-xl font-bold mb-1 text-center text-[#FF92A5]">Ven Me, Baby! Salons</h1>
           <Separator className="my-1" />
-          
+
           {/* Map Feature Section with Toggle */}
           <div className="bg-white rounded-lg shadow-sm border border-pink-100 my-3 overflow-hidden">
             {/* Map Header with Toggle Button */}
@@ -241,7 +241,7 @@ export default function SalonsPage() {
                 {showMap ? '▲ HIDE MAP' : '▼ SHOW MAP'}
               </button>
             </div>
-            
+
             {/* Collapsible Map Content */}
             {showMap && (
               <div className="flex flex-col md:flex-row">
@@ -357,7 +357,7 @@ export default function SalonsPage() {
                       </PopoverContent>
                     </Popover>
                   </div>
-                  
+
                   {/* Distance Filter */}
                   <div className="mb-3">
                     <label className="block text-xs text-gray-600 mb-1">Distance</label>
@@ -371,7 +371,7 @@ export default function SalonsPage() {
                       <option value="25">Within 25 miles</option>
                     </select>
                   </div>
-                  
+
                   {/* Filter Options */}
                   <div className="mb-3">
                     <h4 className="text-xs font-medium text-gray-600 mb-1">Filter By Services</h4>
@@ -398,7 +398,7 @@ export default function SalonsPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Apply Button */}
                   <button 
                     onClick={handleSearch}
@@ -407,7 +407,7 @@ export default function SalonsPage() {
                     Search Salons
                   </button>
                 </div>
-                
+
                 {/* Right Column - Map Display */}
                 <div className="w-full md:w-2/3 h-64 md:h-[400px]">
                   {loadError && (
@@ -415,13 +415,13 @@ export default function SalonsPage() {
                       <p className="text-red-500 text-sm">Error loading Google Maps. Please try again later.</p>
                     </div>
                   )}
-                  
+
                   {!isLoaded && (
                     <div className="w-full h-full flex items-center justify-center bg-gray-100">
                       <p className="text-gray-500 text-sm">Loading map...</p>
                     </div>
                   )}
-                  
+
                   {isLoaded && (
                     <GoogleMap
                       mapContainerStyle={mapContainerStyle}
@@ -448,7 +448,7 @@ export default function SalonsPage() {
                           }}
                         />
                       ))}
-                      
+
                       {selectedSalon && (
                         <InfoWindow
                           position={salonMarkers.find(m => m.id === selectedSalon.id)?.position as google.maps.LatLngLiteral}
@@ -473,35 +473,35 @@ export default function SalonsPage() {
               </div>
             )}
           </div>
-          
+
           {isLoading && (
             <div className="flex justify-center items-center h-16 text-sm">
               <p className="text-gray-500">Loading salons...</p>
             </div>
           )}
-          
+
           {error && (
             <div className="flex justify-center items-center h-16 text-sm">
               <p className="text-red-500">Error loading salons. Please try again later.</p>
             </div>
           )}
-          
+
           {salons && salons.length === 0 && (
             <div className="flex justify-center items-center h-16 text-sm">
               <p className="text-gray-500">No salons available at the moment. Check back soon!</p>
             </div>
           )}
-          
+
           <div className="flex flex-col space-y-1 mt-2">
             {salons?.sort((a, b) => {
               // Prioritize any salon with "Tiffany" in the name or owner name
               const aTiffany = (a.name.toLowerCase().includes('tiffany') || a.ownerName.toLowerCase().includes('tiffany'));
               const bTiffany = (b.name.toLowerCase().includes('tiffany') || b.ownerName.toLowerCase().includes('tiffany'));
-              
+
               // If one has Tiffany and the other doesn't, the one with Tiffany comes first
               if (aTiffany && !bTiffany) return -1;
               if (!aTiffany && bTiffany) return 1;
-              
+
               // Otherwise, sort by name
               return a.name.localeCompare(b.name);
             }).map((salon) => (
@@ -540,14 +540,14 @@ export default function SalonsPage() {
                       {expandedCards[salon.id] ? '▲ hide' : '▼ show'}
                     </button>
                   </div>
-                  
+
                   {/* Expandable content - conditionally visible */}
                   {expandedCards[salon.id] && (
                     <>
                       {/* Email and social media - centered */}
                       <div className="content-section section-divider">
                         <span>{salon.email}</span>
-                        
+
                         {salon.socialMedia && Array.isArray(salon.socialMedia) && salon.socialMedia.length > 0 && (
                           <>
                             {salon.socialMedia.map((item, index) => (
@@ -558,7 +558,7 @@ export default function SalonsPage() {
                           </>
                         )}
                       </div>
-                      
+
                       {/* Promo container - 2 columns */}
                       <div className="section-divider">
                         <div className="grid grid-cols-2 gap-4">
@@ -571,7 +571,7 @@ export default function SalonsPage() {
                               <h5 className="font-medium text-mini text-center">Left Promo</h5>
                             </div>
                           </div>
-                          
+
                           {/* Right Promo Card */}
                           <div className="border border-pink-100 rounded overflow-hidden shadow-sm h-[120px]">
                             <div className="bg-[#FEE1E8] h-16 flex items-center justify-center">
@@ -583,7 +583,7 @@ export default function SalonsPage() {
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* View salon button */}
                       <div className="button-container">
                         <Link href={`/salon/${salon.id}`}>
@@ -598,7 +598,7 @@ export default function SalonsPage() {
               </div>
             ))}
           </div>
-          
+
           <div className="mt-3 mb-2 text-center">
             <p className="text-xs mb-2">Join our network of professional salons today!</p>
             <Link href="/">
