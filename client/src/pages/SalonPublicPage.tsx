@@ -335,7 +335,7 @@ export default function SalonPublicPage() {
                           <img 
                             src="/assets/logos/bff-promo.png" 
                             alt={promo.title}
-                            className="w-full h-full object-cover rounded-t-sm"
+                            className="w-full h-full object-cover"
                             onError={(e) => {
                               console.error(`Failed to load image for promo: ${promo.title}`);
                               e.currentTarget.src = '/assets/salon-card.png';
