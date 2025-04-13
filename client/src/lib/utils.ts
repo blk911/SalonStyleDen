@@ -98,6 +98,6 @@ export function getImageUrl(url?: string): string {
     return '/assets/glam-design.png';
   }
   
-  // Default fallback to french tips image
-  return '/assets/french-tips.png';
+  // Default fallback to our salon card image
+  return '/assets/salon-card.png';
 }
