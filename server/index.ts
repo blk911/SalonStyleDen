@@ -13,6 +13,15 @@ app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 // Serve files from attached_assets directory
 app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
 
+import { errorMonitor } from './error-monitor';
+
+// Error monitoring middleware
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  errorMonitor.logError('backend', err);
+  next(err);
+});
+
+
 // Serve files from client/public/assets directory
 app.use('/assets', express.static(path.join(process.cwd(), 'client/public/assets')));
 

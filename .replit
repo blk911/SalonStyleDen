@@ -49,3 +49,20 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Monitor System"
+author = 29677669
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node test-all-components.js"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./test-app.sh"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./test-salon-endpoints.sh"
