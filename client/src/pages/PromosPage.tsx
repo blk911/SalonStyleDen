@@ -149,7 +149,7 @@ function PromoCard({ promo }: { promo: any }) {
     } else if (lowerTitle.includes('new') || lowerTitle.includes('client') || lowerTitle.includes('first')) {
       return '/assets/spring-lavender.png';
     } else if (lowerTitle.includes('friend') || lowerTitle.includes('refer') || lowerTitle.includes('bring')) {
-      return '/assets/bff-promo.png';
+      return '/assets/logos/bff-promo.png';
     }
     // Default placeholder
     return null;
