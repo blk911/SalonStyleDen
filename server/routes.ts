@@ -159,11 +159,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       ];
 
-      // Use existing promos or fallback to standards if none exist
-      if (!salon.promos || salon.promos.length === 0) {
-        console.log(`DEBUG - GET salon/${id} - No promos found, using standards`);
-        salon.promos = standardPromos;
-      }
+      // Always ensure the three standard promotions are present
+      console.log(`DEBUG - GET salon/${id} - Restoring standard promotions`);
+      salon.promos = standardPromos;
 
       console.log(`DEBUG - GET salon/${id} - Current promos:`, JSON.stringify(salon.promos));
       console.log(`DEBUG - GET salon/${id} - Salon has ${salon.promos.length} promotions:`, JSON.stringify(salon.promos));

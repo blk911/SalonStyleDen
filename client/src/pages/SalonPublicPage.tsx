@@ -169,7 +169,9 @@ export default function SalonPublicPage() {
         }
 
         // Ensure we're correctly handling promos
-        const promos = salonData.promos || []; // Use salon's actual promos from database
+        const promos = Array.isArray(salonData.promos) && salonData.promos.length > 0 
+          ? salonData.promos 
+          : defaultPromos;
 
         console.log('SalonPublicPage - Final promos being displayed:', JSON.stringify(promos));
 
@@ -331,7 +333,7 @@ export default function SalonPublicPage() {
                           />
                         ) : promo.title.toLowerCase().includes('friend') || promo.title.toLowerCase().includes('bff') || promo.title.toLowerCase().includes('bring') ? (
                           <img 
-                            src="/assets/BRING_FRIEND_2.JPG" 
+                            src="/assets/logos/bff-promo.png" 
                             alt={promo.title}
                             className="w-full h-full object-cover rounded-t-sm"
                             onError={(e) => {
