@@ -380,71 +380,71 @@ export default function SalonPublicPage() {
               <CardContent className="p-2">
                 <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Ven Me, Baby! Style Options</h2>
 
-                <div className="flex flex-col gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {salon.services && salon.services.map((service) => (
                     <div 
                       key={service.id} 
                       className={`border rounded px-2 py-3 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
                     >
-                      <div className="flex">
-                        {/* Left side */}
-                        <div className="w-3/4">
+                      <div className="flex flex-col items-center">
+                        {/* Image */}
+                        <div className="w-full flex items-center justify-center mb-2">
+                          {service.gifUrl ? (
+                            <img 
+                              src={service.gifUrl}
+                              alt={`${service.name} preview`} 
+                              className="rounded h-24 max-w-full object-contain"
+                            />
+                          ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
+                            <img 
+                              src="/assets/french_tips.jpg" 
+                              alt={`${service.name} preview`} 
+                              className="rounded h-24 max-w-full object-contain"
+                            />
+                          ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') ? (
+                            <img 
+                              src="/assets/Luxe_Gel_Manicure_1744299210155.png" 
+                              alt={`${service.name} preview`} 
+                              className="rounded h-24 max-w-full object-contain"
+                            />
+                          ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
+                            <img 
+                              src="/assets/Sculpted_Acrylics_1744299183531.png" 
+                              alt={`${service.name} preview`} 
+                              className="rounded h-24 max-w-full object-contain"
+                            />
+                          ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') ? (
+                            <img 
+                              src="/assets/Glam_Me!_Custom_Design_1744299155324.png" 
+                              alt={`${service.name} preview`} 
+                              className="rounded h-24 max-w-full object-contain"
+                            />
+                          ) : (
+                            <img 
+                              src="/assets/VMB LOGO sized1.png" 
+                              alt={`${service.name} preview`} 
+                              className="rounded h-24 max-w-full object-contain"
+                            />
+                          )}
+                        </div>
+                        
+                        {/* Text */}
+                        <div className="w-full text-center">
                           <h3 className="font-medium text-compact">{service.name}</h3>
                           <p className="text-mini text-gray-600">{service.description}</p>
 
-                          <div className="mt-1">
-                            <span className="inline-block font-bold text-compact pr-2">${Math.round(service.price)}</span>
-                            <span className="inline-block text-micro">{service.duration} min</span>
+                          <div className="mt-1 flex justify-center items-center gap-2">
+                            <span className="font-bold text-compact">${Math.round(service.price)}</span>
+                            <span className="text-micro">{service.duration} min</span>
                           </div>
 
-                          <div className="mt-1">
+                          <div className="mt-1 flex justify-center">
                             {service.featured && (
                               <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
                                 Featured
                               </Badge>
                             )}
                           </div>
-                        </div>
-
-                        {/* Right side - Image (25%) */}
-                        <div className="w-1/4 flex items-center justify-center">
-                          {service.gifUrl ? (
-                            <img 
-                              src={service.gifUrl}
-                              alt={`${service.name} preview`} 
-                              className="rounded h-20 max-w-full object-contain"
-                            />
-                          ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
-                            <img 
-                              src="/assets/french_tips.jpg" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-20 max-w-full object-contain"
-                            />
-                          ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
-                            <img 
-                              src="/assets/Luxe_Gel_Manicure_1744299210155.png" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-20 max-w-full object-contain"
-                            />
-                          ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
-                            <img 
-                              src="/assets/Sculpted_Acrylics_1744299183531.png" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-20 max-w-full object-contain"
-                            />
-                          ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
-                            <img 
-                              src="/assets/Glam_Me!_Custom_Design_1744299155324.png" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-20 max-w-full object-contain"
-                            />
-                          ) : (
-                            <img 
-                              src="/assets/VMB LOGO sized1.png" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-20 max-w-full object-contain"
-                            />
-                          )}
                         </div>
                       </div>
                     </div>
