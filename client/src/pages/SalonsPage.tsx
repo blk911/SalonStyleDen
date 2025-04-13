@@ -584,11 +584,11 @@ export default function SalonsPage() {
                               {/* Right Side - Image */}
                               <div className="w-1/3 flex items-center justify-end pl-2">
                                 <img 
-                                  src="/assets/french_tips.jpg" 
+                                  src="/attached_assets/french tips_1744251568593.jpg" 
                                   alt="French Tips preview" 
                                   className="rounded h-20 w-20 object-cover"
                                   onError={(e) => {
-                                    e.currentTarget.src = '/assets/VMB LOGO sized1.png';
+                                    e.currentTarget.src = '/attached_assets/LOGO1.png';
                                   }}
                                 />
                               </div>
@@ -616,11 +616,11 @@ export default function SalonsPage() {
                               {/* Right Side - Image */}
                               <div className="w-1/3 flex items-center justify-end pl-2">
                                 <img 
-                                  src="/assets/Luxe_Gel_Manicure_1744299210155.png" 
+                                  src="/attached_assets/image_1744299446778.png" 
                                   alt="Luxe Gel Manicure preview" 
                                   className="rounded h-20 w-20 object-cover"
                                   onError={(e) => {
-                                    e.currentTarget.src = '/assets/VMB LOGO sized1.png';
+                                    e.currentTarget.src = '/attached_assets/LOGO1.png';
                                   }}
                                 />
                               </div>
@@ -648,11 +648,11 @@ export default function SalonsPage() {
                               {/* Right Side - Image */}
                               <div className="w-1/3 flex items-center justify-end pl-2">
                                 <img 
-                                  src="/assets/Sculpted_Acrylics_1744299183531.png" 
+                                  src="/attached_assets/image_1744301171436.png" 
                                   alt="Sculpted Acrylics preview" 
                                   className="rounded h-20 w-20 object-cover"
                                   onError={(e) => {
-                                    e.currentTarget.src = '/assets/VMB LOGO sized1.png';
+                                    e.currentTarget.src = '/attached_assets/LOGO1.png';
                                   }}
                                 />
                               </div>
@@ -680,11 +680,11 @@ export default function SalonsPage() {
                               {/* Right Side - Image */}
                               <div className="w-1/3 flex items-center justify-end pl-2">
                                 <img 
-                                  src="/assets/Glam_Me!_Custom_Design_1744299155324.png" 
+                                  src="/attached_assets/Glam_Me!_Custom_Design_1744299155324.png" 
                                   alt="Glam Me! Custom Design preview" 
                                   className="rounded h-20 w-20 object-cover"
                                   onError={(e) => {
-                                    e.currentTarget.src = '/assets/VMB LOGO sized1.png';
+                                    e.currentTarget.src = '/attached_assets/LOGO1.png';
                                   }}
                                 />
                               </div>
