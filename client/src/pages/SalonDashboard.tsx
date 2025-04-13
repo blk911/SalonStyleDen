@@ -292,7 +292,8 @@ export default function SalonDashboard() {
 
   const handleSavePromo = async (updatedPromo: PromoData) => {
     try {
-      console.log("SalonDashboard - Updating promo:", updatedPromo);
+      console.log("SalonDashboard - Updating promo:", JSON.stringify(updatedPromo));
+      console.log("SalonDashboard - Current promos state:", JSON.stringify(promos));
 
       // Update local state
       const newPromos = promos.map(p => 
