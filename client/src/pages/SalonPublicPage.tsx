@@ -321,32 +321,32 @@ export default function SalonPublicPage() {
                         <div className="h-32 flex items-center justify-center">
                           {promo.title.toLowerCase().includes('summer') || promo.title.toLowerCase().includes('french') ? (
                             <img 
-                              src="/assets/french_tips.jpg" 
+                              src="/assets/French_Tips.png" 
                               alt={promo.title}
                               className="w-full h-full object-cover"
                               onError={(e) => {
                                 console.error(`Failed to load image for promo: ${promo.title}`);
-                                e.currentTarget.src = '/assets/VMB LOGO sized1.png';
+                                e.currentTarget.src = '/assets/VMB_LOGO.png';
                               }}
                             />
                           ) : promo.title.toLowerCase().includes('new client') || promo.title.toLowerCase().includes('spring') ? (
                             <img 
-                              src="/assets/Luxe_Gel_Manicure_1744299210155.png" 
+                              src="/assets/Luxe_Gel_Manicure.png" 
                               alt={promo.title}
                               className="w-full h-full object-cover"
                               onError={(e) => {
                                 console.error(`Failed to load image for promo: ${promo.title}`);
-                                e.currentTarget.src = '/assets/VMB LOGO sized1.png';
+                                e.currentTarget.src = '/assets/VMB_LOGO.png';
                               }}
                             />
                           ) : promo.title.toLowerCase().includes('friend') || promo.title.toLowerCase().includes('bff') || promo.title.toLowerCase().includes('bring') ? (
                             <img 
-                              src="/assets/BRING_FRIEND_2.JPG" 
+                              src="/assets/Bring_Friend.png" 
                               alt={promo.title}
                               className="w-full h-full object-cover rounded-t-sm"
                               onError={(e) => {
                                 console.error(`Failed to load image for promo: ${promo.title}`);
-                                e.currentTarget.src = '/assets/VMB LOGO sized1.png';
+                                e.currentTarget.src = '/assets/VMB_LOGO.png';
                               }}
                             />
                           ) : (
@@ -416,7 +416,7 @@ export default function SalonPublicPage() {
                             />
                           ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
                             <img 
-                              src="/assets/french_tips.jpg" 
+                              src="/assets/French_Tips.png" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 w-20 object-cover"
                             />
