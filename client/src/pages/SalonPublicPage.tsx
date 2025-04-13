@@ -416,25 +416,25 @@ export default function SalonPublicPage() {
                             />
                           ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
                             <img 
-                              src="/assets/french_tips.jpg" 
+                              src="/attached_assets/french tips_1744251568593.jpg" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 w-20 object-cover"
                             />
                           ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') ? (
                             <img 
-                              src="/assets/Luxe_Gel_Manicure_1744299210155.png" 
+                              src="/attached_assets/image_1744299446778.png" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 w-20 object-cover"
                             />
                           ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
                             <img 
-                              src="/assets/Sculpted_Acrylics_1744299183531.png" 
+                              src="/attached_assets/image_1744301171436.png" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 w-20 object-cover"
                             />
                           ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') ? (
                             <img 
-                              src="/assets/Glam_Me!_Custom_Design_1744299155324.png" 
+                              src="/attached_assets/Glam_Me!_Custom_Design_1744299155324.png" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 w-20 object-cover"
                             />
