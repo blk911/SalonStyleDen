@@ -416,31 +416,31 @@ export default function SalonPublicPage() {
                             />
                           ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
                             <img 
-                              src="/attached_assets/french tips_1744251568593.jpg" 
+                              src="/assets/french_tips.jpg" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 w-20 object-cover"
                             />
                           ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') ? (
                             <img 
-                              src="/attached_assets/image_1744299446778.png" 
+                              src="/assets/Luxe_Gel_Manicure.png" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 w-20 object-cover"
                             />
                           ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
                             <img 
-                              src="/attached_assets/image_1744301171436.png" 
+                              src="/assets/Sculpted_Acrylics.png" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 w-20 object-cover"
                             />
                           ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') ? (
                             <img 
-                              src="/attached_assets/Glam_Me!_Custom_Design_1744299155324.png" 
+                              src="/assets/Glam_Me_Custom_Design.png" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 w-20 object-cover"
                             />
                           ) : (
                             <img 
-                              src="/attached_assets/VMB LOGO sized1.png" 
+                              src="/assets/VMB_LOGO.png" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 w-20 object-cover"
                             />
