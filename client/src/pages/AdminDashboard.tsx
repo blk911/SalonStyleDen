@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Link } from 'wouter'; // Added import for Link component
+import { Link } from 'wouter';
 
 
 interface Client {
@@ -15,6 +15,7 @@ interface Client {
   phone: string;
   salonName?: string;
   isCurrentClient: boolean;
+  salonId?: number; // Added salonId to Client interface
 }
 
 interface Salon {
@@ -85,7 +86,7 @@ export default function AdminDashboard() {
                         <TableHead className="max-h-[30px] py-1">Email</TableHead>
                         <TableHead className="max-h-[30px] py-1">Phone</TableHead>
                         <TableHead className="max-h-[30px] py-1">Salon</TableHead>
-                        <TableHead className="max-h-[30px] py-1 text-right">Client Page</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead> {/* Changed header text */}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -99,11 +100,20 @@ export default function AdminDashboard() {
                           <TableCell className="py-0">{client.phone}</TableCell>
                           <TableCell className="py-0">{client.salonName || 'N/A'}</TableCell>
                           <TableCell className="py-0 text-right">
-                            <Link href={`/client/${client.id}`}>
-                              <button className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]">
-                                View Client
-                              </button>
-                            </Link>
+                            <div className="flex justify-end gap-1">
+                              <Link href={`/client/${client.id}`}>
+                                <button className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]">
+                                  Client Page
+                                </button>
+                              </Link>
+                              {client.salonId && (
+                                <Link href={`/salon/${client.salonId}`}>
+                                  <button className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200">
+                                    Salon Page
+                                  </button>
+                                </Link>
+                              )}
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
