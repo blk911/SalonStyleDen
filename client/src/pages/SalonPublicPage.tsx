@@ -169,9 +169,7 @@ export default function SalonPublicPage() {
         }
 
         // Ensure we're correctly handling promos
-        const promos = Array.isArray(salonData.promos) && salonData.promos.length > 0 
-          ? salonData.promos 
-          : defaultPromos;
+        const promos = salonData.promos || []; // Use salon's actual promos from database
 
         console.log('SalonPublicPage - Final promos being displayed:', JSON.stringify(promos));
 
