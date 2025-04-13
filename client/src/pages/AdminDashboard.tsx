@@ -136,6 +136,7 @@ export default function AdminDashboard() {
                         <TableHead>Owner</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Phone</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -143,13 +144,22 @@ export default function AdminDashboard() {
                         <TableRow
                           key={salon.id}
                           className="cursor-pointer hover:bg-gray-50"
-                          onClick={() => setLocation(`/salon/${salon.id}`)}
+                          //onClick={() => setLocation(`/salon/${salon.id}`)}
                         >
                           <TableCell>{salon.id}</TableCell>
                           <TableCell>{salon.name}</TableCell>
                           <TableCell>{salon.ownerName}</TableCell>
                           <TableCell>{salon.email}</TableCell>
                           <TableCell>{salon.phone}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-1">
+                              <Link href={`/salon/${salon.id}`}>
+                                <button className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200">
+                                  Salon Page
+                                </button>
+                              </Link>
+                            </div>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
