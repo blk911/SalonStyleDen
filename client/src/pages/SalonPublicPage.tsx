@@ -84,7 +84,7 @@ export default function SalonPublicPage() {
           } else if (name.includes('glam') || name.includes('custom') || name.includes('design')) {
             return '/assets/custom-glam-lv.png';
           } else {
-            return '/assets/salon-card.png'; // Default fallback
+            return '/assets/french-tips.png'; // Default fallback
           }
         };
 
