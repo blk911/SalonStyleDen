@@ -1,9 +1,9 @@
-import React, { ErrorInfo } from 'react';
+import React, { ErrorInfo, useEffect } from 'react';
 import { Switch, Route, Link } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import { logError } from "@/lib/monitoring";
+import { logError, initMonitoring } from "@/lib/monitoring";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import SalonDashboard from "@/pages/SalonDashboard";
@@ -30,18 +30,31 @@ function Router() {
   );
 }
 
-class ErrorBoundary extends React.Component {
-  state = { hasError: false, error: null };
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
 
-  static getDerivedStateFromError(error) {
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    logError('frontend', error);
     console.error('React Error Boundary caught an error:', error, errorInfo);
   }
 
-  render() {
+  render(): React.ReactNode {
     if (this.state.hasError) {
       return (
         <div style={{ padding: '20px', color: 'red' }}>
@@ -55,6 +68,11 @@ class ErrorBoundary extends React.Component {
 }
 
 function App() {
+  // Initialize error monitoring on app startup
+  useEffect(() => {
+    initMonitoring();
+  }, []);
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
