@@ -79,77 +79,109 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-semibold mb-4">Ven Me, Baby! Style Options</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-3 flex flex-col items-center">
-                    <img 
-                      src="/assets/french_tips.jpg" 
-                      alt="French Tips" 
-                      className="w-full h-32 object-cover rounded mb-2"
-                      onError={(e) => {
-                        e.currentTarget.src = '/assets/VMB LOGO sized1.png';
-                      }}
-                    />
-                    <h3 className="font-medium text-center">French Tips / Touch-Up</h3>
-                    <p className="text-xs text-gray-600 text-center mb-2">Classic white tips or quick polish refresh.</p>
-                    <div className="flex justify-between w-full items-center">
-                      <span className="font-bold">$40</span>
-                      <span className="text-xs">30 min</span>
+                  <CardContent className="p-2">
+                    <div className="flex">
+                      {/* Left Side - Text */}
+                      <div className="w-2/3 text-left pr-2">
+                        <h3 className="font-medium">French Tips / Touch-Up</h3>
+                        <p className="text-xs text-gray-600 mb-2">Classic white tips or quick polish refresh.</p>
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold">$40</span>
+                          <span className="text-xs">30 min</span>
+                        </div>
+                      </div>
+                      {/* Right Side - Image */}
+                      <div className="w-1/3 flex items-center justify-end pl-2">
+                        <img 
+                          src="/assets/french_tips.jpg" 
+                          alt="French Tips" 
+                          className="rounded h-20 w-20 object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = '/assets/VMB LOGO sized1.png';
+                          }}
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-3 flex flex-col items-center">
-                    <img 
-                      src="/assets/Luxe_Gel_Manicure_1744299210155.png" 
-                      alt="Luxe Gel Manicure" 
-                      className="w-full h-32 object-cover rounded mb-2"
-                      onError={(e) => {
-                        e.currentTarget.src = '/assets/VMB LOGO sized1.png';
-                      }}
-                    />
-                    <h3 className="font-medium text-center">Luxe Gel Manicure</h3>
-                    <p className="text-xs text-gray-600 text-center mb-2">Glossy, chip-free color with lasting shine.</p>
-                    <div className="flex justify-between w-full items-center">
-                      <span className="font-bold">$55</span>
-                      <span className="text-xs">45 min</span>
+                  <CardContent className="p-2">
+                    <div className="flex">
+                      {/* Left Side - Text */}
+                      <div className="w-2/3 text-left pr-2">
+                        <h3 className="font-medium">Luxe Gel Manicure</h3>
+                        <p className="text-xs text-gray-600 mb-2">Glossy, chip-free color with lasting shine.</p>
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold">$55</span>
+                          <span className="text-xs">45 min</span>
+                        </div>
+                      </div>
+                      {/* Right Side - Image */}
+                      <div className="w-1/3 flex items-center justify-end pl-2">
+                        <img 
+                          src="/assets/Luxe_Gel_Manicure_1744299210155.png" 
+                          alt="Luxe Gel Manicure" 
+                          className="rounded h-20 w-20 object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = '/assets/VMB LOGO sized1.png';
+                          }}
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-3 flex flex-col items-center">
-                    <img 
-                      src="/assets/Sculpted_Acrylics_1744299183531.png" 
-                      alt="Sculpted Acrylics" 
-                      className="w-full h-32 object-cover rounded mb-2"
-                      onError={(e) => {
-                        e.currentTarget.src = '/assets/VMB LOGO sized1.png';
-                      }}
-                    />
-                    <h3 className="font-medium text-center">Sculpted Acrylics</h3>
-                    <p className="text-xs text-gray-600 text-center mb-2">Custom-shaped acrylics for bold length.</p>
-                    <div className="flex justify-between w-full items-center">
-                      <span className="font-bold">$70</span>
-                      <span className="text-xs">60 min</span>
+                  <CardContent className="p-2">
+                    <div className="flex">
+                      {/* Left Side - Text */}
+                      <div className="w-2/3 text-left pr-2">
+                        <h3 className="font-medium">Sculpted Acrylics</h3>
+                        <p className="text-xs text-gray-600 mb-2">Custom-shaped acrylics for bold length.</p>
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold">$70</span>
+                          <span className="text-xs">60 min</span>
+                        </div>
+                      </div>
+                      {/* Right Side - Image */}
+                      <div className="w-1/3 flex items-center justify-end pl-2">
+                        <img 
+                          src="/assets/Sculpted_Acrylics_1744299183531.png" 
+                          alt="Sculpted Acrylics" 
+                          className="rounded h-20 w-20 object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = '/assets/VMB LOGO sized1.png';
+                          }}
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-3 flex flex-col items-center">
-                    <img 
-                      src="/assets/Glam_Me!_Custom_Design_1744299155324.png" 
-                      alt="Glam Me! Custom Design" 
-                      className="w-full h-32 object-cover rounded mb-2"
-                      onError={(e) => {
-                        e.currentTarget.src = '/assets/VMB LOGO sized1.png';
-                      }}
-                    />
-                    <h3 className="font-medium text-center">Glam Me! Custom Design</h3>
-                    <p className="text-xs text-gray-600 text-center mb-2">Fully custom art, gems, 3D extras.</p>
-                    <div className="flex justify-between w-full items-center">
-                      <span className="font-bold">$125+</span>
-                      <span className="text-xs">90 min</span>
+                  <CardContent className="p-2">
+                    <div className="flex">
+                      {/* Left Side - Text */}
+                      <div className="w-2/3 text-left pr-2">
+                        <h3 className="font-medium">Glam Me! Custom Design</h3>
+                        <p className="text-xs text-gray-600 mb-2">Fully custom art, gems, 3D extras.</p>
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold">$125+</span>
+                          <span className="text-xs">90 min</span>
+                        </div>
+                      </div>
+                      {/* Right Side - Image */}
+                      <div className="w-1/3 flex items-center justify-end pl-2">
+                        <img 
+                          src="/assets/Glam_Me!_Custom_Design_1744299155324.png" 
+                          alt="Glam Me! Custom Design" 
+                          className="rounded h-20 w-20 object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = '/assets/VMB LOGO sized1.png';
+                          }}
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

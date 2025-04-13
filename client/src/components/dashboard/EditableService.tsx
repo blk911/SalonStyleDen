@@ -103,16 +103,16 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
   // Display mode (not editing)
   if (!isEditing) {
     return (
-      <div className={`border rounded px-2 py-3 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}>
+      <div className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}>
         <div className="flex">
-          {/* Left side */}
-          <div className="w-3/4">
+          {/* Left side - Text (2/3) */}
+          <div className="w-2/3 text-left pr-2">
             <h3 className="font-medium text-compact">{service.name}</h3>
             <p className="text-mini text-gray-600">{service.description}</p>
             
-            <div className="mt-1">
-              <span className="inline-block font-bold text-compact pr-2">${Math.round(service.price)}</span>
-              <span className="inline-block text-micro">{service.duration} min</span>
+            <div className="mt-1 flex items-center gap-2">
+              <span className="font-bold text-compact">${Math.round(service.price)}</span>
+              <span className="text-micro">{service.duration} min</span>
             </div>
             
             <div className="mt-1 flex justify-between items-center">
@@ -131,37 +131,37 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
             </div>
           </div>
           
-          {/* Right side - Image (25%) */}
-          <div className="w-1/4 flex items-center justify-center">
+          {/* Right side - Image (1/3) */}
+          <div className="w-1/3 flex items-center justify-end pl-2">
             {service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
               <img 
                 src="/assets/french-tips.png" 
                 alt={`${service.name} preview`} 
-                className="rounded h-20 max-w-full object-contain"
+                className="rounded h-20 w-20 object-cover"
               />
             ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
               <img 
                 src="/assets/daisy-gel-manicure.png"
                 alt={`${service.name} preview`} 
-                className="rounded h-20 max-w-full object-contain"
+                className="rounded h-20 w-20 object-cover"
               />
             ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
               <img 
                 src="/assets/sculpted-white-acrylic.png" 
                 alt={`${service.name} preview`} 
-                className="rounded h-20 max-w-full object-contain"
+                className="rounded h-20 w-20 object-cover"
               />
             ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
               <img 
                 src="/assets/custom-glam-lv.png" 
                 alt={`${service.name} preview`} 
-                className="rounded h-20 max-w-full object-contain"
+                className="rounded h-20 w-20 object-cover"
               />
             ) : (
               <img 
                 src="/assets/salon-card.png" 
                 alt={`${service.name} preview`} 
-                className="rounded h-20 max-w-full object-contain"
+                className="rounded h-20 w-20 object-cover"
               />
             )}
           </div>

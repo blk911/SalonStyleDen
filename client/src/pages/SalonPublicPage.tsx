@@ -384,67 +384,67 @@ export default function SalonPublicPage() {
                   {salon.services && salon.services.map((service) => (
                     <div 
                       key={service.id} 
-                      className={`border rounded px-2 py-3 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
+                      className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
                     >
-                      <div className="flex flex-col items-center">
-                        {/* Image */}
-                        <div className="w-full flex items-center justify-center mb-2">
-                          {service.gifUrl ? (
-                            <img 
-                              src={service.gifUrl}
-                              alt={`${service.name} preview`} 
-                              className="rounded h-24 max-w-full object-contain"
-                            />
-                          ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
-                            <img 
-                              src="/assets/french_tips.jpg" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-24 max-w-full object-contain"
-                            />
-                          ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') ? (
-                            <img 
-                              src="/assets/Luxe_Gel_Manicure_1744299210155.png" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-24 max-w-full object-contain"
-                            />
-                          ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
-                            <img 
-                              src="/assets/Sculpted_Acrylics_1744299183531.png" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-24 max-w-full object-contain"
-                            />
-                          ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') ? (
-                            <img 
-                              src="/assets/Glam_Me!_Custom_Design_1744299155324.png" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-24 max-w-full object-contain"
-                            />
-                          ) : (
-                            <img 
-                              src="/assets/VMB LOGO sized1.png" 
-                              alt={`${service.name} preview`} 
-                              className="rounded h-24 max-w-full object-contain"
-                            />
-                          )}
-                        </div>
-                        
-                        {/* Text */}
-                        <div className="w-full text-center">
+                      <div className="flex">
+                        {/* Left Side - Text */}
+                        <div className="w-2/3 text-left pr-2">
                           <h3 className="font-medium text-compact">{service.name}</h3>
                           <p className="text-mini text-gray-600">{service.description}</p>
 
-                          <div className="mt-1 flex justify-center items-center gap-2">
+                          <div className="mt-1 flex items-center gap-2">
                             <span className="font-bold text-compact">${Math.round(service.price)}</span>
                             <span className="text-micro">{service.duration} min</span>
                           </div>
 
-                          <div className="mt-1 flex justify-center">
+                          <div className="mt-1">
                             {service.featured && (
                               <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
                                 Featured
                               </Badge>
                             )}
                           </div>
+                        </div>
+                        
+                        {/* Right Side - Image */}
+                        <div className="w-1/3 flex items-center justify-end pl-2">
+                          {service.gifUrl ? (
+                            <img 
+                              src={service.gifUrl}
+                              alt={`${service.name} preview`} 
+                              className="rounded h-20 w-20 object-cover"
+                            />
+                          ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
+                            <img 
+                              src="/assets/french_tips.jpg" 
+                              alt={`${service.name} preview`} 
+                              className="rounded h-20 w-20 object-cover"
+                            />
+                          ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') ? (
+                            <img 
+                              src="/assets/Luxe_Gel_Manicure_1744299210155.png" 
+                              alt={`${service.name} preview`} 
+                              className="rounded h-20 w-20 object-cover"
+                            />
+                          ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
+                            <img 
+                              src="/assets/Sculpted_Acrylics_1744299183531.png" 
+                              alt={`${service.name} preview`} 
+                              className="rounded h-20 w-20 object-cover"
+                            />
+                          ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') ? (
+                            <img 
+                              src="/assets/Glam_Me!_Custom_Design_1744299155324.png" 
+                              alt={`${service.name} preview`} 
+                              className="rounded h-20 w-20 object-cover"
+                            />
+                          ) : (
+                            <img 
+                              src="/assets/VMB LOGO sized1.png" 
+                              alt={`${service.name} preview`} 
+                              className="rounded h-20 w-20 object-cover"
+                            />
+                          )}
                         </div>
                       </div>
                     </div>
