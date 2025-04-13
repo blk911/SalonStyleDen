@@ -333,9 +333,9 @@ export default function SalonPublicPage() {
                           />
                         ) : promo.title.toLowerCase().includes('friend') || promo.title.toLowerCase().includes('bff') || promo.title.toLowerCase().includes('bring') ? (
                           <img 
-                            src="/assets/french-tips.png" 
+                            src="/assets/logos/bff-promo.png" 
                             alt={promo.title}
-                            className="w-full h-full object-cover rounded-t-sm"
+                            className="w-full h-full object-cover"
                             onError={(e) => {
                               console.error(`Failed to load image for promo: ${promo.title}`);
                               e.currentTarget.src = '/assets/salon-card.png';
