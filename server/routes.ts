@@ -138,9 +138,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Handle promotions data consistently
-      if (!salon.promos || !Array.isArray(salon.promos)) {
-        console.log(`DEBUG - GET salon/${id} - No valid promos array, initializing`);
-        salon.promos = [];
+      const standardPromos = [
+        {
+          id: 1,
+          title: "Summer Special",
+          description: "20% off all manicures",
+          endDate: "2025-07-31"
+        },
+        {
+          id: 2,
+          title: "New Client Offer",
+          description: "Free nail art with any service",
+          endDate: null
+        },
+        {
+          id: 3,
+          title: "Bring a Friend",
+          description: "25% off for you and a friend",
+          endDate: "2025-08-15"
+        }
+      ];
+
+      if (!salon.promos || !Array.isArray(salon.promos) || salon.promos.length === 0) {
+        console.log(`DEBUG - GET salon/${id} - Restoring standard promotions`);
+        salon.promos = standardPromos;
       }
 
       console.log(`DEBUG - GET salon/${id} - Current promos:`, JSON.stringify(salon.promos));
