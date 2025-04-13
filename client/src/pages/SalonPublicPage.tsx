@@ -333,7 +333,7 @@ export default function SalonPublicPage() {
                           />
                         ) : promo.title.toLowerCase().includes('friend') || promo.title.toLowerCase().includes('bff') || promo.title.toLowerCase().includes('bring') ? (
                           <img 
-                            src="/assets/logos/bff-promo.png" 
+                            src="/assets/sculpted-acrylics.png" 
                             alt={promo.title}
                             className="w-full h-full object-cover"
                             onError={(e) => {
