@@ -313,32 +313,32 @@ export default function SalonPublicPage() {
                       <div className="h-32 flex items-center justify-center">
                         {promo.title.toLowerCase().includes('summer') || promo.title.toLowerCase().includes('french') ? (
                           <img 
-                            src="/assets/french-tips.png" 
+                            src="/assets/french_tips.jpg" 
                             alt={promo.title}
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               console.error(`Failed to load image for promo: ${promo.title}`);
-                              e.currentTarget.src = '/assets/salon-card.png';
+                              e.currentTarget.src = '/assets/VMB LOGO sized1.png';
                             }}
                           />
                         ) : promo.title.toLowerCase().includes('new client') || promo.title.toLowerCase().includes('spring') ? (
                           <img 
-                            src="/assets/gel-manicure.png" 
+                            src="/assets/Luxe_Gel_Manicure_1744299210155.png" 
                             alt={promo.title}
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               console.error(`Failed to load image for promo: ${promo.title}`);
-                              e.currentTarget.src = '/assets/salon-card.png';
+                              e.currentTarget.src = '/assets/VMB LOGO sized1.png';
                             }}
                           />
                         ) : promo.title.toLowerCase().includes('friend') || promo.title.toLowerCase().includes('bff') || promo.title.toLowerCase().includes('bring') ? (
                           <img 
-                            src="/assets/logos/bff-promo.png" 
+                            src="/assets/BRING_FRIEND_2.JPG" 
                             alt={promo.title}
                             className="w-full h-full object-cover rounded-t-sm"
                             onError={(e) => {
                               console.error(`Failed to load image for promo: ${promo.title}`);
-                              e.currentTarget.src = '/assets/salon-card.png';
+                              e.currentTarget.src = '/assets/VMB LOGO sized1.png';
                             }}
                           />
                         ) : (
@@ -407,31 +407,31 @@ export default function SalonPublicPage() {
                             />
                           ) : service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
                             <img 
-                              src="/assets/french-tips.png" 
+                              src="/assets/french_tips.jpg" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 max-w-full object-contain"
                             />
                           ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
                             <img 
-                              src="/assets/daisy-gel-manicure.png" 
+                              src="/assets/Luxe_Gel_Manicure_1744299210155.png" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 max-w-full object-contain"
                             />
                           ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
                             <img 
-                              src="/assets/sculpted-white-acrylic.png" 
+                              src="/assets/Sculpted_Acrylics_1744299183531.png" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 max-w-full object-contain"
                             />
                           ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
                             <img 
-                              src="/assets/custom-glam-lv.png" 
+                              src="/assets/Glam_Me!_Custom_Design_1744299155324.png" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 max-w-full object-contain"
                             />
                           ) : (
                             <img 
-                              src="/assets/salon-card.png" 
+                              src="/assets/VMB LOGO sized1.png" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 max-w-full object-contain"
                             />
