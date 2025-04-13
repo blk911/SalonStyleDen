@@ -44,6 +44,11 @@ interface SalonType {
   socialMedia?: SocialMediaItem[] | null;
   type: string;
   createdAt: string;
+  ownerPhotoUrl?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
   // These would come from additional queries or be added to the salon object
   services?: Service[];
   promos?: Promo[];
