@@ -22,7 +22,8 @@ function Router() {
       <Route path="/dashboard/salon/:id" component={SalonDashboard} />
       <Route path="/client/:id" component={ClientDashboard} />
       <Route path="/salons" component={SalonsPage} />
-      <Route path="/promos" component={PromosPage} />
+      {/* Temporarily hiding the Promos page */}
+      {/* <Route path="/promos" component={PromosPage} /> */}
       <Route path="/sitemap" component={Sitemap} />
       <Route path="/admin" component={AdminDashboard} />
       <Route component={NotFound} />

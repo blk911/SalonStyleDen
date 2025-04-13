@@ -310,7 +310,9 @@ export default function SalonDashboard() {
       console.log("SalonDashboard - Server response:", response);
 
       // Invalidate queries to refresh data
-      await queryClient.invalidateQueries(['/api/salons', id]);
+      await queryClient.invalidateQueries({
+        queryKey: ['/api/salons', id]
+      });
 
       toast({
         title: "Promotion updated",
@@ -645,54 +647,56 @@ export default function SalonDashboard() {
           </div>
         </section>
 
-        {/* Promotions Section */}
-        <section className="py-2">
-          <div className="container mx-auto px-2">
-            <Card className="rounded shadow-sm">
-              <CardContent className="p-2">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium text-sm">Current Promotions</h3>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
-                    onClick={() => setIsAddingPromo(true)}
-                  >
-                    + Add Promo
-                  </Button>
-                </div>
-
-                {/* Add new promo form */}
-                {isAddingPromo && (
-                  <div className="mb-3">
-                    <EditablePromo
-                      promo={{
-                        id: 0,
-                        title: "",
-                        description: "",
-                        endDate: null
-                      }}
-                      onSave={handleAddPromo}
-                      onDelete={() => setIsAddingPromo(false)}
-                    />
+        {/* Promotions Section - Temporarily Hidden */}
+        {false && (
+          <section className="py-2">
+            <div className="container mx-auto px-2">
+              <Card className="rounded shadow-sm">
+                <CardContent className="p-2">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-medium text-sm">Current Promotions</h3>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
+                      onClick={() => setIsAddingPromo(true)}
+                    >
+                      + Add Promo
+                    </Button>
                   </div>
-                )}
-
-                {/* Promo Grid */}
-                <div className="grid-cols-responsive">
-                  {promos.map(promo => (
-                    <EditablePromo
-                      key={promo.id}
-                      promo={promo}
-                      onSave={handleSavePromo}
-                      onDelete={handleDeletePromo}
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
+  
+                  {/* Add new promo form */}
+                  {isAddingPromo && (
+                    <div className="mb-3">
+                      <EditablePromo
+                        promo={{
+                          id: 0,
+                          title: "",
+                          description: "",
+                          endDate: null
+                        }}
+                        onSave={handleAddPromo}
+                        onDelete={() => setIsAddingPromo(false)}
+                      />
+                    </div>
+                  )}
+  
+                  {/* Promo Grid */}
+                  <div className="grid-cols-responsive">
+                    {promos.map(promo => (
+                      <EditablePromo
+                        key={promo.id}
+                        promo={promo}
+                        onSave={handleSavePromo}
+                        onDelete={handleDeletePromo}
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+        )}
 
         {/* Public Page Preview Section */}
         <section className="py-2">
