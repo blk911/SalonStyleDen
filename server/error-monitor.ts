@@ -28,7 +28,38 @@ class ErrorMonitor {
     };
     
     this.logs.push(errorLog);
-    log(`[ERROR] ${errorLog.type}: ${errorLog.message}`);
+    
+    // Console error logging with visual distinction
+    console.error(`🚨 [${errorLog.type.toUpperCase()}] ERROR 🚨`);
+    console.error(`Time: ${errorLog.timestamp}`);
+    console.error(`Message: ${errorLog.message}`);
+    if (errorLog.stack) {
+      console.error(`Stack: ${errorLog.stack}`);
+    }
+    console.error('-------------------');
+
+    // Show toast notification in UI
+    if (typeof window !== 'undefined') {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ff4444;
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        z-index: 9999;
+        max-width: 350px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      `;
+      toast.innerHTML = `
+        <strong>${errorLog.type} Error</strong><br/>
+        ${errorLog.message}
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
+    }
   }
 
   getRecentErrors(minutes: number = 5): ErrorLog[] {
