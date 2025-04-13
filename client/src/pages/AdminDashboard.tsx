@@ -29,7 +29,7 @@ interface Salon {
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
 
-  const { data: clients, error: clientError, isLoading: clientIsLoading } = useQuery({
+  const { data: clients, error: clientError, isLoading: clientIsLoading } = useQuery<Client[]>({
     queryKey: ['clients'],
     queryFn: async () => {
       try {
@@ -45,7 +45,7 @@ export default function AdminDashboard() {
     },
   });
 
-  const { data: salons, error: salonError, isLoading: salonIsLoading } = useQuery({
+  const { data: salons, error: salonError, isLoading: salonIsLoading } = useQuery<Salon[]>({
     queryKey: ['salons'],
     queryFn: async () => {
       try {
