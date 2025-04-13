@@ -440,7 +440,7 @@ export default function SalonPublicPage() {
                             />
                           ) : (
                             <img 
-                              src="/assets/VMB LOGO sized1.png" 
+                              src="/attached_assets/VMB LOGO sized1.png" 
                               alt={`${service.name} preview`} 
                               className="rounded h-20 w-20 object-cover"
                             />
