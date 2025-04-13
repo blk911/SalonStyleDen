@@ -337,6 +337,9 @@ export default function SalonPublicPage() {
                             alt={promo.title}
                             className="w-full h-full object-cover rounded-t-sm"
                             onError={(e) => {
+                              console.error(`Failed to load promo image: ${promo.title}`);
+                              e.currentTarget.src = '/assets/BRING_FRIEND_2.JPG';
+                            }}
                               console.error(`Failed to load image for promo: ${promo.title}`);
                               e.currentTarget.src = '/assets/salon-card.png';
                             }}
