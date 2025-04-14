@@ -111,9 +111,6 @@ export default function ClientInvitation() {
     } finally {
       setIsSubmitting(false);
     }
-      }
-    } catch (error) {
-      toast({
         title: "Error",
         description: "Failed to send invitation. Please try again.",
         variant: "destructive"
