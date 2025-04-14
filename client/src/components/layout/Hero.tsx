@@ -21,10 +21,10 @@ export default function Hero({
           </h1>
         </div>
         <p className="text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-          Because beauty doesn't wait. Let her choose the glam.
-          <br />LET HIM SAY YES
-          <br />Welcome to the new standard in personal care gifting.
-        </p>
+            Beauty doesn't wait! You choose the glam.
+            <br />He gets a chance to shine!
+            <br />Personal care gifting that works!
+          </p>
         <div className="flex justify-center gap-4 flex-wrap">
           <button
             onClick={onSalonClick}
