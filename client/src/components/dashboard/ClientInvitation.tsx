@@ -226,6 +226,14 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       <Card className="rounded shadow-sm border border-pink-100">
         <CardContent className="p-2">
           <h3 className="font-medium text-sm mb-2 text-center text-pink-700">Recent Client Invitations</h3>
+          <div className="grid grid-cols-6 gap-2 px-2 mb-1 text-xs font-medium text-gray-600">
+            <div>Name</div>
+            <div>Phone</div>
+            <div>Email</div>
+            <div>Status</div>
+            <div>Sponsor</div>
+            <div>1st Svc Date</div>
+          </div>
           <ScrollArea className="h-[200px]">
             <div className="space-y-2">
               {recentInvites.map((invite) => (
