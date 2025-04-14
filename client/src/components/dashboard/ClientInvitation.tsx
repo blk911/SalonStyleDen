@@ -37,6 +37,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
+  const [sponsor, setSponsor] = useState("");
+  const [firstServiceDate, setFirstServiceDate] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [recentInvites, setRecentInvites] = useState<ClientInvite[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -228,11 +230,13 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           <h3 className="font-medium text-sm mb-2 text-center text-pink-700">Recent Client Invitations</h3>
           
           {/* Column Headers */}
-          <div className="grid grid-cols-4 gap-2 px-2 py-1 bg-pink-50/50 text-xs font-medium text-pink-700 rounded mb-2">
+          <div className="grid grid-cols-6 gap-2 px-2 py-1 bg-pink-50/50 text-xs font-medium text-pink-700 rounded mb-2">
             <div>Name</div>
             <div>Phone</div>
             <div>Email</div>
-            <div>Date Invited</div>
+            <div>Status</div>
+            <div>Sponsor</div>
+            <div>1st Service</div>
           </div>
           
           <ScrollArea className="h-[200px]">
@@ -242,7 +246,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   key={invite.id}
                   className="p-2 bg-pink-50 rounded-md text-sm"
                 >
-                  <div className="grid grid-cols-4 gap-2 items-center">
+                  <div className="grid grid-cols-6 gap-2 items-center">
                     <div className="font-medium truncate">{invite.name}</div>
                     <div className="text-xs text-gray-600">
                       {formatPhoneNumber(invite.phone)}
@@ -250,8 +254,14 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                     <div className="text-xs text-gray-600 truncate">
                       {invite.email}
                     </div>
+                    <div className="text-xs text-pink-600">
+                      {invite.status || 'Pending'}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      {invite.sponsor || '-'}
+                    </div>
                     <div className="text-xs text-gray-400">
-                      {new Date(invite.createdAt).toLocaleDateString()}
+                      {invite.firstServiceDate ? new Date(invite.firstServiceDate).toLocaleDateString() : '-'}
                     </div>
                   </div>
                   {invite.notes && (
