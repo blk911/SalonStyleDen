@@ -31,8 +31,20 @@ interface ClientInvitationProps {
   salonId?: number;
 }
 
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+interface ErrorDialogState {
+  isOpen: boolean;
+  message: string;
+  field: string;
+}
+
 export default function ClientInvitation({ salonId }: ClientInvitationProps) {
-  const { toast } = useToast();
+  const [errorDialog, setErrorDialog] = useState<ErrorDialogState>({
+    isOpen: false,
+    message: '',
+    field: ''
+  });
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -139,15 +151,23 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         error instanceof Response ? await error.text() :
         "Failed to send invitation. Please try again.";
 
-      const errorMessage = typeof errorData === 'string' && errorData.includes("already registered")
-        ? "This contact information is already in use"
-        : errorData;
+      let errorField = '';
+      let errorMessage = '';
 
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-        duration: 5000
+      if (typeof errorData === 'string') {
+        if (errorData.includes("phone is already registered")) {
+          errorField = 'phone';
+          errorMessage = "This phone number is already registered, please enter a new account";
+        } else if (errorData.includes("email is already registered")) {
+          errorField = 'email';
+          errorMessage = "This email is already registered, please enter a new account";
+        }
+      }
+
+      setErrorDialog({
+        isOpen: true,
+        message: errorMessage || "Failed to send invitation. Please try again.",
+        field: errorField
       });
     } finally {
       setIsSubmitting(false);
@@ -285,6 +305,15 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           </ScrollArea>
         </CardContent>
       </Card>
+
+      <Dialog open={errorDialog.isOpen} onOpenChange={(open) => setErrorDialog(prev => ({ ...prev, isOpen: open }))}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-pink-600">Invitation Error</DialogTitle>
+          </DialogHeader>
+          <div className="text-center py-4">{errorDialog.message}</div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
