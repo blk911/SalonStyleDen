@@ -6,9 +6,9 @@
 export function logError(type: 'frontend' | 'api' | 'network', error: Error | string): void {
   const errorMessage = typeof error === 'string' ? error : error.message;
   const errorStack = error instanceof Error ? error.stack : undefined;
-  
+
   console.error(`[${type.toUpperCase()} ERROR] ${errorMessage}`);
-  
+
   // Send error to server for logging
   fetch('/api/log-error', {
     method: 'POST',
@@ -26,16 +26,31 @@ export function logError(type: 'frontend' | 'api' | 'network', error: Error | st
 
 // Initialize monitoring tools if available
 export function initMonitoring(): void {
+    // Check server status
+    fetch('/api/status')
+      .then(res => res.json())
+      .catch(err => {
+        console.error('Server status check failed:', err);
+        logError('network', err);
+      });
+
+    // Setup periodic health checks
+    setInterval(() => {
+      fetch('/api/health')
+        .then(res => res.json())
+        .catch(err => logError('network', err));
+    }, 30000);
+
   // Check for Sentry DSN
   const sentrySdnExists = false; // TODO: Check if SENTRY_DSN is configured
 
   // Check for LogRocket app ID
   const logRocketAppIdExists = false; // TODO: Check if LOGROCKET_APP_ID is configured
-  
+
   if (sentrySdnExists) {
     console.log('Sentry initialized for error monitoring');
   }
-  
+
   if (logRocketAppIdExists) {
     console.log('LogRocket initialized for session replay');
   }
