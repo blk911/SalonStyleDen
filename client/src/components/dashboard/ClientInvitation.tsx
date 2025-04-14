@@ -225,23 +225,30 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       <Card className="rounded shadow-sm border border-pink-100">
         <CardContent className="p-2">
           <h3 className="font-medium text-sm mb-2 text-center text-pink-700">Recent Client Invitations</h3>
+          <div className="grid grid-cols-3 gap-2 px-2 py-1 bg-pink-50 text-xs font-medium text-pink-700">
+            <div>Name</div>
+            <div>Phone & Email</div>
+            <div>Status & Date</div>
+          </div>
           <ScrollArea className="h-[200px]">
-            <div className="space-y-2">
+            <div className="space-y-2 mt-1">
               {recentInvites.map((invite) => (
                 <div 
                   key={invite.id}
                   className="p-2 bg-pink-50 rounded-md text-sm"
                 >
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center space-x-2">
-                      <p className="font-medium">{invite.name}</p>
-                      <p className="text-xs text-gray-500">
-                        {formatPhoneNumber(invite.phone)} • {invite.email}
-                      </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="font-medium">{invite.name}</div>
+                    <div className="text-xs text-gray-600">
+                      <div>{formatPhoneNumber(invite.phone)}</div>
+                      <div>{invite.email}</div>
                     </div>
-                    <span className="text-xs text-gray-400">
-                      {new Date(invite.createdAt).toLocaleDateString()}
-                    </span>
+                    <div className="text-right">
+                      <div className="text-xs text-pink-600">{invite.status || 'Pending'}</div>
+                      <div className="text-xs text-gray-400">
+                        {new Date(invite.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
                   </div>
                   {invite.notes && (
                     <p className="text-xs text-gray-600 mt-1">{invite.notes}</p>
