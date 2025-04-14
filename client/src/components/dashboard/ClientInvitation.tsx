@@ -31,20 +31,8 @@ interface ClientInvitationProps {
   salonId?: number;
 }
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
-interface ErrorDialogState {
-  isOpen: boolean;
-  message: string;
-  field: string;
-}
-
 export default function ClientInvitation({ salonId }: ClientInvitationProps) {
-  const [errorDialog, setErrorDialog] = useState<ErrorDialogState>({
-    isOpen: false,
-    message: '',
-    field: ''
-  });
+  const { toast } = useToast();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -85,10 +73,10 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       console.error('Failed to fetch recent invites:', error);
     }
   };
-
+  
   const fetchSalonInvites = async () => {
     if (!salonId) return;
-
+    
     try {
       console.log(`Fetching invitations for salon ${salonId}`);
       const response = await fetch(`/api/salons/${salonId}/invitations`);
@@ -124,8 +112,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           notes,
           favoriteServices: selectedServices,
           salonId: salonId || undefined,
-          status: 'pending',
-          sponsor: salonId ? `${salonId}` : undefined // Set salon ID as sponsor
+          status: 'pending'
         })
       });
 
@@ -136,39 +123,26 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
 
       const newInvite = await response.json();
       setRecentInvites(prev => [newInvite, ...prev]);
-
+      
       toast({
         title: "Invitation sent!",
         description: "Your client will receive the invitation shortly.",
       });
-
+      
       setName("");
       setPhone("");
       setEmail("");
       setNotes("");
       setSelectedServices([]);
     } catch (error: unknown) {
-      const errorData = error instanceof Error ? error.message : 
-        error instanceof Response ? await error.text() :
-        "Failed to send invitation. Please try again.";
-
-      let errorField = '';
-      let errorMessage = '';
-
-      if (typeof errorData === 'string') {
-        if (errorData.includes("phone is already registered")) {
-          errorField = 'phone';
-          errorMessage = "This phone number is already registered, please enter a new account";
-        } else if (errorData.includes("email is already registered")) {
-          errorField = 'email';
-          errorMessage = "This email is already registered, please enter a new account";
-        }
-      }
-
-      setErrorDialog({
-        isOpen: true,
-        message: errorMessage || "Failed to send invitation. Please try again.",
-        field: errorField
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Failed to send invitation. Please try again.";
+      
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
@@ -252,14 +226,6 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       <Card className="rounded shadow-sm border border-pink-100">
         <CardContent className="p-2">
           <h3 className="font-medium text-sm mb-2 text-center text-pink-700">Recent Client Invitations</h3>
-          <div className="grid grid-cols-6 gap-2 px-2 mb-1 text-xs font-medium text-gray-600">
-            <div>Name</div>
-            <div>Phone</div>
-            <div>Email</div>
-            <div>Status</div>
-            <div>Sponsor</div>
-            <div>1st Svc Date</div>
-          </div>
           <ScrollArea className="h-[200px]">
             <div className="space-y-2">
               {recentInvites.map((invite) => (
@@ -267,23 +233,16 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   key={invite.id}
                   className="p-2 bg-pink-50 rounded-md text-sm"
                 >
-                  <div className="grid grid-cols-6 gap-2">
-                    <div className="font-medium truncate">{invite.name}</div>
-                    <div className="text-xs text-gray-600">
-                      {formatPhoneNumber(invite.phone)}
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                      <p className="font-medium">{invite.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {formatPhoneNumber(invite.phone)} • {invite.email}
+                      </p>
                     </div>
-                    <div className="text-xs text-gray-600 truncate">
-                      {invite.email}
-                    </div>
-                    <div className="text-xs text-pink-600">
-                      {invite.status || 'Pending'}
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      {invite.sponsor || '-'}
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {invite.firstServiceDate ? new Date(invite.firstServiceDate).toLocaleDateString() : '-'}
-                    </div>
+                    <span className="text-xs text-gray-400">
+                      {new Date(invite.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                   {invite.notes && (
                     <p className="text-xs text-gray-600 mt-1">{invite.notes}</p>
@@ -306,15 +265,6 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           </ScrollArea>
         </CardContent>
       </Card>
-
-      <Dialog open={errorDialog.isOpen} onOpenChange={(open) => setErrorDialog(prev => ({ ...prev, isOpen: open }))}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-pink-600">Invitation Error</DialogTitle>
-          </DialogHeader>
-          <div className="text-center py-4">{errorDialog.message}</div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
