@@ -6,6 +6,7 @@ RETRY_COUNT=0
 
 cleanup_port() {
   pkill -f "tsx server/index.ts"
+  pkill -f "node server/index.js"
   sleep 2
 }
 
@@ -19,7 +20,7 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   sleep 5
   
   # Check if service is running
-  if curl -s http://0.0.0.0:5000 > /dev/null; then
+  if curl -s http://0.0.0.0:5000/api/health > /dev/null; then
     echo "Service started successfully!"
     exit 0
   fi
