@@ -69,13 +69,13 @@ export default function ClientInvitation() {
       <CardContent className="p-2">
         <h3 className="font-medium text-sm mb-2">Client Invitations</h3>
         <form onSubmit={handleSubmit} className="space-y-2">
-          <div className="grid gap-2">
+          <div className="flex gap-2">
             <Input
               placeholder="Client Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="h-8 text-sm"
+              className="h-8 text-sm flex-1"
             />
             <Input
               placeholder="Phone Number"
@@ -83,7 +83,7 @@ export default function ClientInvitation() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
-              className="h-8 text-sm"
+              className="h-8 text-sm flex-1"
             />
             <Input
               placeholder="Email Address"
@@ -91,7 +91,7 @@ export default function ClientInvitation() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="h-8 text-sm"
+              className="h-8 text-sm flex-1"
             />
           </div>
           <Textarea
