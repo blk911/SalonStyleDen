@@ -102,19 +102,18 @@ export default function ClientInvitation() {
       setEmail("");
       setNotes("");
       setSelectedServices([]);
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Failed to send invitation. Please try again.";
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to send invitation",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
-    }
-        title: "Error",
-        description: "Failed to send invitation. Please try again.",
-        variant: "destructive"
-      });
     }
   };
 
@@ -145,8 +144,8 @@ export default function ClientInvitation() {
                 type="tel"
                 value={phone}
                 onChange={(e) => {
-                  const input = e.target.value.replace(/\D/g, '').slice(0, 10);
-                  setPhone(input);
+                  const input = e.target.value.replace(/\D/g, '');
+                  setPhone(formatPhoneNumber(input));
                 }}
                 required
                 className="h-8 text-sm flex-1"

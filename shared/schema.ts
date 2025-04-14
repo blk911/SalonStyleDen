@@ -45,6 +45,19 @@ export const clients = pgTable("clients", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Client Invitations schema
+export const invitations = pgTable("invitations", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email").notNull(),
+  notes: text("notes"),
+  favoriteServices: jsonb("favorite_services"), // Stores array of service names
+  salonId: integer("salon_id"), // Reference to salon sending the invitation
+  status: text("status").notNull().default("pending"), // pending, accepted, declined
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Define relations
 export const usersRelations = relations(users, ({ many }) => ({
   salons: many(salons),
@@ -57,6 +70,7 @@ export const salonsRelations = relations(salons, ({ one, many }) => ({
     references: [users.id],
   }),
   clients: many(clients),
+  invitations: many(invitations),
 }));
 
 export const clientsRelations = relations(clients, ({ one }) => ({
