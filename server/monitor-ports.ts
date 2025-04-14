@@ -4,13 +4,20 @@ import { log } from './vite';
 
 function killProcessOnPort(port: number): Promise<void> {
   return new Promise((resolve, reject) => {
-    exec(`lsof -i :${port} -t | xargs kill -9`, (error) => {
-      if (error) {
-        log(`No process running on port ${port}`);
+    exec(`lsof -i :${port} -t`, (error, stdout) => {
+      if (stdout) {
+        exec(`kill -9 ${stdout.split('\n').filter(Boolean).join(' ')}`, (killError) => {
+          if (killError) {
+            log(`Error killing processes on port ${port}: ${killError}`);
+          } else {
+            log(`Successfully killed processes on port ${port}`);
+          }
+          resolve();
+        });
       } else {
-        log(`Killed process on port ${port}`);
+        log(`No process running on port ${port}`);
+        resolve();
       }
-      resolve();
     });
   });
 }
