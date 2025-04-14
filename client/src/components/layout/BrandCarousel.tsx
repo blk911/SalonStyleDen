@@ -40,7 +40,7 @@ const carouselItems = [
     ]
   },
   {
-    title: "Ven Me, Baby! Makes Gifting Make Sense... The Art of Gifting Refined!",
+    title: "The Art of Gifting Refined!",
     content: [
       [
         { text: "Personal care gifting that works!", isBold: true },
