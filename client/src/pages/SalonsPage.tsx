@@ -520,7 +520,7 @@ export default function SalonsPage() {
                       <div className="flex items-center">
                         <h3 className="font-bold text-base leading-tight text-[#FF92A5] truncate">{salon.name}</h3>
                         {(salon.name.toLowerCase().includes('tiffany') || salon.ownerName.toLowerCase().includes('tiffany')) && (
-                          <Badge className="ml-2 bg-[#FF92A5] text-white text-[10px] py-0">FEATURED</Badge>
+                          <Badge className="ml-2 bg-[#FF92A5] text-white text-[10px] py-0">Book Now</Badge>
                         )}
                       </div>
                       <div className="flex items-center text-xs text-gray-600 whitespace-nowrap">
@@ -575,12 +575,12 @@ export default function SalonsPage() {
                                   <span className="text-micro">30 min</span>
                                 </div>
                                 <div className="mt-1">
-                                  <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
-                                    Featured
+                                  <Badge className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer">
+                                    Book Now
                                   </Badge>
                                 </div>
                               </div>
-                              
+
                               {/* Right Side - Image */}
                               <div className="w-1/3 flex items-center justify-end pl-2">
                                 <img 
@@ -607,12 +607,12 @@ export default function SalonsPage() {
                                   <span className="text-micro">45 min</span>
                                 </div>
                                 <div className="mt-1">
-                                  <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
-                                    Featured
+                                  <Badge className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer">
+                                    Book Now
                                   </Badge>
                                 </div>
                               </div>
-                              
+
                               {/* Right Side - Image */}
                               <div className="w-1/3 flex items-center justify-end pl-2">
                                 <img 
@@ -639,12 +639,12 @@ export default function SalonsPage() {
                                   <span className="text-micro">60 min</span>
                                 </div>
                                 <div className="mt-1">
-                                  <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
-                                    Featured
+                                  <Badge className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer">
+                                    Book Now
                                   </Badge>
                                 </div>
                               </div>
-                              
+
                               {/* Right Side - Image */}
                               <div className="w-1/3 flex items-center justify-end pl-2">
                                 <img 
@@ -671,12 +671,12 @@ export default function SalonsPage() {
                                   <span className="text-micro">90 min</span>
                                 </div>
                                 <div className="mt-1">
-                                  <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
-                                    Featured
+                                  <Badge className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer">
+                                    Book Now
                                   </Badge>
                                 </div>
                               </div>
-                              
+
                               {/* Right Side - Image */}
                               <div className="w-1/3 flex items-center justify-end pl-2">
                                 <img 

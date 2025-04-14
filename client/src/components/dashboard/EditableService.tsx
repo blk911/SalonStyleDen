@@ -117,8 +117,8 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
             
             <div className="mt-1 flex justify-between items-center">
               {service.featured && (
-                <Badge className="bg-[#FF92A5] text-white border-0 text-mini">
-                  Featured
+                <Badge className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer">
+                  Book Now
                 </Badge>
               )}
               <Button 
