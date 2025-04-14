@@ -115,7 +115,10 @@ export default function ClientInvitation() {
                 placeholder="Phone Number"
                 type="tel"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => {
+                  const input = e.target.value.replace(/\D/g, '').slice(0, 10);
+                  setPhone(input);
+                }}
                 required
                 className="h-8 text-sm flex-1"
               />
