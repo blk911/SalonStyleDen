@@ -12,6 +12,7 @@ import WeeklySchedule, { DaySchedule } from "@/components/dashboard/WeeklySchedu
 import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSalonInfo";
 import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
 import EditableService, { ServiceData } from "@/components/dashboard/EditableService";
+import ClientInvitation from "@/components/dashboard/ClientInvitation";
 
 // Define a type for the social media object that might be in the API response
 interface SocialMediaItem {
@@ -697,6 +698,13 @@ export default function SalonDashboard() {
             </div>
           </section>
         )}
+
+        {/* Client Invitations Section */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <ClientInvitation />
+          </div>
+        </section>
 
         {/* Public Page Preview Section */}
         <section className="py-2">
