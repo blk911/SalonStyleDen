@@ -114,6 +114,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           notes,
           favoriteServices: selectedServices,
           salonId: salonId || undefined,
+          sponsor: sponsor || undefined,
+          firstServiceDate: firstServiceDate || undefined,
           status: 'pending'
         })
       });
@@ -135,6 +137,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       setPhone("");
       setEmail("");
       setNotes("");
+      setSponsor("");
+      setFirstServiceDate("");
       setSelectedServices([]);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error 
@@ -190,6 +194,21 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <Input
+                placeholder="Sponsor (Optional)"
+                value={sponsor}
+                onChange={(e) => setSponsor(e.target.value)}
+                className="h-8 text-sm"
+              />
+              <Input
+                placeholder="First Service Date (Optional)"
+                type="date"
+                value={firstServiceDate}
+                onChange={(e) => setFirstServiceDate(e.target.value)}
                 className="h-8 text-sm"
               />
             </div>
