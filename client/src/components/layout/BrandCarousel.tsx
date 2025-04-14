@@ -40,10 +40,10 @@ const carouselItems = [
     ]
   },
   {
-    title: "Ven Me, Baby! Makes Gifting Make Sense",
+    title: "Ven Me, Baby! Makes Gifting Make Sense... The Art of Gifting Refined!",
     content: [
       [
-        { text: "Men do not buy gift cards;", isBold: true },
+        { text: "Personal care gifting that works!", isBold: true },
         { text: "Timing matters; fit her schedule!", isBold: false }
       ],
       [
