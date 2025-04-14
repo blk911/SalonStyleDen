@@ -23,6 +23,8 @@ interface ClientInvite {
   createdAt: string;
   salonId?: number;
   status?: string;
+  sponsor?: string;
+  firstServiceDate?: string;
 }
 
 interface ClientInvitationProps {
@@ -71,10 +73,10 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       console.error('Failed to fetch recent invites:', error);
     }
   };
-  
+
   const fetchSalonInvites = async () => {
     if (!salonId) return;
-    
+
     try {
       console.log(`Fetching invitations for salon ${salonId}`);
       const response = await fetch(`/api/salons/${salonId}/invitations`);
@@ -121,12 +123,12 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
 
       const newInvite = await response.json();
       setRecentInvites(prev => [newInvite, ...prev]);
-      
+
       toast({
         title: "Invitation sent!",
         description: "Your client will receive the invitation shortly.",
       });
-      
+
       setName("");
       setPhone("");
       setEmail("");
@@ -136,7 +138,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       const errorMessage = error instanceof Error 
         ? error.message 
         : "Failed to send invitation. Please try again.";
-      
+
       toast({
         title: "Error",
         description: errorMessage,
@@ -231,16 +233,23 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   key={invite.id}
                   className="p-2 bg-pink-50 rounded-md text-sm"
                 >
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center space-x-2">
-                      <p className="font-medium">{invite.name}</p>
-                      <p className="text-xs text-gray-500">
-                        {formatPhoneNumber(invite.phone)} • {invite.email}
-                      </p>
+                  <div className="grid grid-cols-6 gap-2">
+                    <div className="font-medium truncate">{invite.name}</div>
+                    <div className="text-xs text-gray-600">
+                      {formatPhoneNumber(invite.phone)}
                     </div>
-                    <span className="text-xs text-gray-400">
-                      {new Date(invite.createdAt).toLocaleDateString()}
-                    </span>
+                    <div className="text-xs text-gray-600 truncate">
+                      {invite.email}
+                    </div>
+                    <div className="text-xs text-pink-600">
+                      {invite.status || 'Pending'}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      {invite.sponsor || '-'}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {invite.firstServiceDate ? new Date(invite.firstServiceDate).toLocaleDateString() : '-'}
+                    </div>
                   </div>
                   {invite.notes && (
                     <p className="text-xs text-gray-600 mt-1">{invite.notes}</p>
