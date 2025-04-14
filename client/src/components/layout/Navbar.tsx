@@ -60,11 +60,11 @@ export default function Navbar() {
             <Link href="/salons">
               <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
             </Link>
-            <Link href="/promos">
-              <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">VMB Promos</div>
-            </Link>
             <Link href="/clients">
               <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
+            </Link>
+            <Link href="/promos">
+              <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">VMB Promos</div>
             </Link>
             {/* Temporary Admin Button */}
             <Link href="/admin">
