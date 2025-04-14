@@ -84,10 +84,18 @@ export const clientsRelations = relations(clients, ({ one }) => ({
   }),
 }));
 
+export const invitationsRelations = relations(invitations, ({ one }) => ({
+  salon: one(salons, {
+    fields: [invitations.salonId],
+    references: [salons.id],
+  }),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users);
 export const insertSalonSchema = createInsertSchema(salons).omit({ id: true });
 export const insertClientSchema = createInsertSchema(clients).omit({ id: true });
+export const insertInvitationSchema = createInsertSchema(invitations).omit({ id: true });
 
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -98,3 +106,6 @@ export type Salon = typeof salons.$inferSelect;
 
 export type InsertClient = z.infer<typeof insertClientSchema>;
 export type Client = typeof clients.$inferSelect;
+
+export type InsertInvitation = z.infer<typeof insertInvitationSchema>;
+export type Invitation = typeof invitations.$inferSelect;

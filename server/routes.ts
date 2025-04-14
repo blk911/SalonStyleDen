@@ -52,6 +52,17 @@ const clientInputSchema = z.object({
   type: z.literal("client")
 });
 
+const invitationInputSchema = z.object({
+  name: z.string().min(2),
+  phone: z.string().min(10),
+  email: z.string().email(),
+  notes: z.string().optional(),
+  favoriteServices: z.array(z.string()).optional(),
+  salonId: z.number().optional(),
+  salonName: z.string().optional(),
+  status: z.string().optional()
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create uploads directory if it doesn't exist
   const uploadDir = path.join(process.cwd(), 'client/public/uploads');
@@ -613,6 +624,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error importing clients:', error);
       res.status(500).json({ error: "Failed to import clients", details: String(error) });
+    }
+  });
+
+  // Invitation routes
+  apiRouter.post("/invitations", async (req: Request, res: Response) => {
+    try {
+      console.log('Creating new invitation with data:', req.body);
+      
+      // Validate input data
+      const validatedData = invitationInputSchema.parse(req.body);
+      console.log('Validated invitation data:', validatedData);
+      
+      // Create the invitation in database
+      const invitation = await storage.createInvitation(validatedData);
+      console.log('Created invitation with ID:', invitation.id);
+      
+      // Return the invitation data
+      res.status(201).json(invitation);
+    } catch (error) {
+      console.error('Error creating invitation:', error);
+      
+      if (error instanceof z.ZodError) {
+        console.error('Validation error:', error.errors);
+        res.status(400).json({ error: error.errors });
+      } else {
+        res.status(500).json({ error: "Failed to create invitation" });
+      }
+    }
+  });
+  
+  apiRouter.get("/invitations", async (req: Request, res: Response) => {
+    try {
+      // Get limit from query params, default to 10
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      
+      const invitations = await storage.getRecentInvitations(limit);
+      console.log(`Retrieved ${invitations.length} recent invitations`);
+      
+      res.json(invitations);
+    } catch (error) {
+      console.error('Error retrieving invitations:', error);
+      res.status(500).json({ error: "Failed to retrieve invitations" });
+    }
+  });
+  
+  apiRouter.get("/invitations/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      const invitation = await storage.getInvitation(id);
+      if (!invitation) {
+        return res.status(404).json({ error: "Invitation not found" });
+      }
+      
+      res.json(invitation);
+    } catch (error) {
+      console.error('Error retrieving invitation:', error);
+      res.status(500).json({ error: "Failed to retrieve invitation" });
+    }
+  });
+  
+  apiRouter.get("/salons/:id/invitations", async (req: Request, res: Response) => {
+    try {
+      const salonId = parseInt(req.params.id);
+      if (isNaN(salonId)) {
+        return res.status(400).json({ error: "Invalid salon ID format" });
+      }
+      
+      // Verify that salon exists
+      const salon = await storage.getSalon(salonId);
+      if (!salon) {
+        return res.status(404).json({ error: "Salon not found" });
+      }
+      
+      const invitations = await storage.getSalonInvitations(salonId);
+      console.log(`Retrieved ${invitations.length} invitations for salon ${salonId}`);
+      
+      res.json(invitations);
+    } catch (error) {
+      console.error('Error retrieving salon invitations:', error);
+      res.status(500).json({ error: "Failed to retrieve salon invitations" });
     }
   });
 

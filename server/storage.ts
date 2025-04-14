@@ -1,7 +1,8 @@
 import { 
   users, type User, type InsertUser,
   salons, type Salon, type InsertSalon,
-  clients, type Client, type InsertClient
+  clients, type Client, type InsertClient,
+  invitations, type Invitation, type InsertInvitation
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -23,6 +24,12 @@ export interface IStorage {
   getClient(id: number): Promise<Client | undefined>;
   createClient(client: InsertClient): Promise<Client>;
   getAllClients(): Promise<Client[]>;
+  
+  // Invitation methods
+  createInvitation(invitation: InsertInvitation): Promise<Invitation>;
+  getInvitation(id: number): Promise<Invitation | undefined>;
+  getRecentInvitations(limit?: number): Promise<Invitation[]>;
+  getSalonInvitations(salonId: number): Promise<Invitation[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -137,6 +144,76 @@ export class DatabaseStorage implements IStorage {
 
   async getAllClients(): Promise<Client[]> {
     return await db.select().from(clients);
+  }
+  
+  // Invitation methods
+  async createInvitation(insertInvitation: InsertInvitation): Promise<Invitation> {
+    try {
+      console.log('DatabaseStorage.createInvitation - Creating new invitation');
+      
+      // Ensure required fields are set
+      const invitationData = {
+        ...insertInvitation,
+        notes: insertInvitation.notes || null,
+        // Make sure favoriteServices is always an array in the database
+        favoriteServices: Array.isArray(insertInvitation.favoriteServices) && insertInvitation.favoriteServices.length > 0 
+          ? insertInvitation.favoriteServices 
+          : [],
+        status: insertInvitation.status || 'pending',
+        createdAt: new Date()
+      };
+      
+      const result = await db.insert(invitations).values(invitationData).returning();
+      console.log(`DatabaseStorage.createInvitation - Invitation created with ID ${result[0].id}`);
+      return result[0];
+    } catch (error) {
+      console.error('DatabaseStorage.createInvitation - Error creating invitation:', error);
+      throw error;
+    }
+  }
+
+  async getInvitation(id: number): Promise<Invitation | undefined> {
+    try {
+      const results = await db.select().from(invitations).where(eq(invitations.id, id));
+      return results.length > 0 ? results[0] : undefined;
+    } catch (error) {
+      console.error(`DatabaseStorage.getInvitation - Error fetching invitation ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async getRecentInvitations(limit: number = 10): Promise<Invitation[]> {
+    try {
+      console.log(`DatabaseStorage.getRecentInvitations - Fetching ${limit} recent invitations`);
+      
+      const result = await db.select()
+        .from(invitations)
+        .orderBy(invitations.createdAt)
+        .limit(limit);
+        
+      console.log(`DatabaseStorage.getRecentInvitations - Retrieved ${result.length} invitations`);
+      return result;
+    } catch (error) {
+      console.error('DatabaseStorage.getRecentInvitations - Error fetching invitations:', error);
+      throw error;
+    }
+  }
+
+  async getSalonInvitations(salonId: number): Promise<Invitation[]> {
+    try {
+      console.log(`DatabaseStorage.getSalonInvitations - Fetching invitations for salon ${salonId}`);
+      
+      const result = await db.select()
+        .from(invitations)
+        .where(eq(invitations.salonId, salonId))
+        .orderBy(invitations.createdAt);
+        
+      console.log(`DatabaseStorage.getSalonInvitations - Retrieved ${result.length} invitations for salon ${salonId}`);
+      return result;
+    } catch (error) {
+      console.error(`DatabaseStorage.getSalonInvitations - Error fetching invitations for salon ${salonId}:`, error);
+      throw error;
+    }
   }
 }
 
