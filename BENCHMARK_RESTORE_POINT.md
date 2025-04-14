@@ -1,39 +1,27 @@
+# Ven Me, Baby! - Restore Point (2025-04-13_20-26-19)
 
-# BENCHMARK RESTORE POINT - April 2024
+## Summary of Recent Fixes
+- Fixed all image path references to use standardized `/assets/` directory
+- Removed references to unauthorized temporary files with timestamp names
+- Standardized all image error handlers to use `/assets/VMB_LOGO.png` as fallback
+- Ensured consistent image naming across the application
+- Standardized promotion image paths in SalonPublicPage.tsx
 
-## System State
-- Hero section updated with new design and spacing
-- BrandCarousel component implementation
-- Navbar and Footer components styled
-- Client registration flow working
-- Salon owner registration implemented
+## Fixed Components
+- AdminDashboard.tsx 
+- SalonsPage.tsx
+- SalonPublicPage.tsx
 
-## Working Features
-- Landing page with styled Hero section
-- Navigation system
-- Footer with links
-- Client/Salon owner role selection
-- Brand showcase carousel
+## Image Path Standards
+- Logo: `/assets/VMB_LOGO.png`
+- French Tips: `/assets/French_Tips.png`
+- Luxe Gel Manicure: `/assets/Luxe_Gel_Manicure.png`
+- Sculpted Acrylics: `/assets/Sculpted_Acrylics.png`
+- Glam Me! Custom Design: `/assets/Glam_Me_Custom_Design.png`
+- Bring a Friend: `/assets/Bring_Friend.png`
 
-## Component States
-- Hero.tsx: Updated with new gradient background and spacing
-- BrandCarousel.tsx: Implemented with image slides
-- Navbar.tsx: Styled and responsive
-- Footer.tsx: Updated with links and styling
-
-## Restore Instructions
-1. Reference this commit
-2. Key files:
-   - client/src/components/layout/Hero.tsx
-   - client/src/components/layout/BrandCarousel.tsx
-   - client/src/components/layout/Navbar.tsx
-   - client/src/components/layout/Footer.tsx
-
-## UI State
-- Landing page layout finalized
-- Brand images implemented
-- Navigation structure complete
-- Registration forms accessible
-
-## Timestamp
-Benchmark created: April 2024
+## Important Notes
+- Any temporary files (image_TIMESTAMP.png) should never be referenced in the code
+- All image paths should follow the pattern `/assets/Descriptive_Name.png`
+- All error handlers should use the standard VMB_LOGO.png as fallback
+- Promotional images should match their promotion types (summer = French Tips, etc.)
