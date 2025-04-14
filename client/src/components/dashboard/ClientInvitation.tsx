@@ -141,7 +141,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
 
       toast({
         title: "Error",
-        description: errorMessage,
+        description: errorMessage.includes("already registered") ? 
+          "This contact information is already in use" : errorMessage,
         variant: "destructive"
       });
     } finally {

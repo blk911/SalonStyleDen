@@ -123,7 +123,32 @@ export class DatabaseStorage implements IStorage {
     return results.length > 0 ? results[0] : undefined;
   }
 
-  async createClient(insertClient: InsertClient): Promise<Client> {
+  async isDuplicateContact(phone: string, email: string, excludeId?: number): Promise<{isDuplicate: boolean, field: string}> {
+    // Check clients table
+    const clientPhone = await db.select().from(clients).where(eq(clients.phone, phone));
+    const clientEmail = await db.select().from(clients).where(eq(clients.email, email));
+    
+    // Check invitations table 
+    const invitePhone = await db.select().from(invitations).where(eq(invitations.phone, phone));
+    const inviteEmail = await db.select().from(invitations).where(eq(invitations.email, email));
+
+    if ((clientPhone.length > 0 && clientPhone[0].id !== excludeId) || invitePhone.length > 0) {
+      return { isDuplicate: true, field: 'phone' };
+    }
+    if ((clientEmail.length > 0 && clientEmail[0].id !== excludeId) || inviteEmail.length > 0) {
+      return { isDuplicate: true, field: 'email' };
+    }
+
+    return { isDuplicate: false, field: '' };
+}
+
+async createClient(insertClient: InsertClient): Promise<Client> {
+    // Check for duplicates
+    const duplicateCheck = await this.isDuplicateContact(insertClient.phone, insertClient.email);
+    if (duplicateCheck.isDuplicate) {
+      throw new Error(`This ${duplicateCheck.field} is already registered`);
+    }
+
     // Ensure required fields are set with proper formatting
     const clientData = {
       ...insertClient,
@@ -149,6 +174,12 @@ export class DatabaseStorage implements IStorage {
   // Invitation methods
   async createInvitation(insertInvitation: InsertInvitation): Promise<Invitation> {
     try {
+      // Check for duplicates
+      const duplicateCheck = await this.isDuplicateContact(insertInvitation.phone, insertInvitation.email);
+      if (duplicateCheck.isDuplicate) {
+        throw new Error(`This ${duplicateCheck.field} is already registered`);
+      }
+
       console.log('DatabaseStorage.createInvitation - Creating new invitation');
       
       // Ensure required fields are set
