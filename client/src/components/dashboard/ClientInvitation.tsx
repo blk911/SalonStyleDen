@@ -124,7 +124,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           notes,
           favoriteServices: selectedServices,
           salonId: salonId || undefined,
-          status: 'pending'
+          status: 'pending',
+          sponsor: salonId ? `${salonId}` : undefined // Set salon ID as sponsor
         })
       });
 

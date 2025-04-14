@@ -54,6 +54,7 @@ export const invitations = pgTable("invitations", {
   notes: text("notes"),
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
   salonId: integer("salon_id"), // Reference to salon sending the invitation
+  sponsor: text("sponsor"),
   status: text("status").notNull().default("pending"), // pending, accepted, declined
   createdAt: timestamp("created_at").defaultNow(),
 });

@@ -123,7 +123,7 @@ export class DatabaseStorage implements IStorage {
     return results.length > 0 ? results[0] : undefined;
   }
 
-  async isDuplicateContact(phone: string, email: string, excludeId?: number): Promise<{isDuplicate: boolean, field: string}> {
+  async isDuplicateContact(phone: string, email: string, sponsor?: string, excludeId?: number): Promise<{isDuplicate: boolean, field: string}> {
     // Check clients table
     const clientPhone = await db.select().from(clients).where(eq(clients.phone, phone));
     const clientEmail = await db.select().from(clients).where(eq(clients.email, email));
@@ -131,6 +131,18 @@ export class DatabaseStorage implements IStorage {
     // Check invitations table 
     const invitePhone = await db.select().from(invitations).where(eq(invitations.phone, phone));
     const inviteEmail = await db.select().from(invitations).where(eq(invitations.email, email));
+
+    // Check sponsor duplication
+    if (sponsor) {
+      const sponsorExists = await db.select()
+        .from(invitations)
+        .where(eq(invitations.sponsor, sponsor))
+        .limit(1);
+        
+      if (sponsorExists.length > 0) {
+        return { isDuplicate: true, field: 'sponsor' };
+      }
+    }
 
     if ((clientPhone.length > 0 && clientPhone[0].id !== excludeId) || invitePhone.length > 0) {
       return { isDuplicate: true, field: 'phone' };
