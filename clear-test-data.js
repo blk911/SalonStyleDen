@@ -1,7 +1,6 @@
 
-const fetch = require('node-fetch');
-const { db } = require('./server/db');
-const { clients, invitations } = require('./shared/schema');
+import { db } from './server/db.js';
+import { clients, invitations } from './shared/schema.js';
 
 async function clearTestData() {
   console.log('Clearing test data from database...');
