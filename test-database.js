@@ -24,7 +24,7 @@ const logInfo = (message) => console.log(`ℹ️ ${message}`);
 async function runTest(testFn, description) {
   total++;
   logInfo(`Running test: ${description}`);
-  
+
   try {
     await testFn();
     logSuccess(`Passed: ${description}`);
@@ -34,34 +34,37 @@ async function runTest(testFn, description) {
     logFailure(`   Error: ${error.message}`);
     failed++;
   }
-  
+
   console.log('-----------------------------------');
 }
 
 async function runDatabaseTests() {
   console.log('\n🔍 Starting Ven Me, Baby! Database Tests');
   console.log('=======================================\n');
-  
+
   try {
+    // Initial quick checks (from edited code)
+    await runQuickTests();
+
     // Test database connection
     await runTest(testDatabaseConnection, 'Database connection');
-    
+
     // Test salon table
     await runTest(testSalonTable, 'Salon table exists and has correct schema');
     await runTest(testSalonRecords, 'Salon records exist');
     await runTest(testVenMeBabySalon, 'Ven Me, Baby! LTD salon exists');
-    
+
     // Test client table
     await runTest(testClientTable, 'Client table exists and has correct schema');
     await runTest(testClientRecords, 'Client records exist');
-    
+
     // Test relationships
     await runTest(testClientSalonRelationship, 'Client-salon relationship');
-    
+
     // Test service and promo data within salons
     await runTest(testSalonServices, 'Salon services JSONB data');
     await runTest(testSalonPromos, 'Salon promotions JSONB data');
-    
+
   } catch (error) {
     logFailure(`Unexpected error in test suite: ${error.message}`);
   } finally {
@@ -72,14 +75,36 @@ async function runDatabaseTests() {
     console.log(`   ✅ Passed: ${passed}`);
     console.log(`   ❌ Failed: ${failed}`);
     console.log('=======================================\n');
-    
+
     // Close the database connection pool
     await pool.end();
   }
 }
 
-// Individual test implementations
+async function runQuickTests() {
+  try {
+    console.log('Starting quick database tests...');
+    const client = await pool.connect();
+    console.log('Database connected successfully');
 
+    // Check clients table
+    const clientResult = await client.query('SELECT COUNT(*) FROM clients');
+    console.log(`Current client count: ${clientResult.rows[0].count}`);
+
+    // Check invitations table
+    const inviteResult = await client.query('SELECT COUNT(*) FROM invitations');
+    console.log(`Current invitation count: ${inviteResult.rows[0].count}`);
+
+    client.release();
+    console.log('Quick database tests completed');
+  } catch (error) {
+    console.error('Quick test error:', error);
+    //We don't throw here, as we want to continue with the rest of the tests.
+  }
+}
+
+
+// Individual test implementations (rest of the original code remains here)
 async function testDatabaseConnection() {
   const client = await pool.connect();
   try {
@@ -102,21 +127,21 @@ async function testSalonTable() {
       );
     `);
     assert(tableCheck.rows[0].exists, 'Salons table should exist');
-    
+
     // Check if columns match our schema
     const columnsCheck = await client.query(`
       SELECT column_name, data_type 
       FROM information_schema.columns 
       WHERE table_name = 'salons';
     `);
-    
+
     const columns = columnsCheck.rows.map(row => row.column_name);
     const requiredColumns = [
       'id', 'name', 'owner_name', 'phone', 'email', 'social_media', 
       'type', 'address', 'city', 'state', 'zip_code', 
       'services', 'promos', 'owner_photo_url', 'created_at'
     ];
-    
+
     for (const col of requiredColumns) {
       assert(columns.includes(col), `Salons table should have column: ${col}`);
     }
@@ -143,7 +168,7 @@ async function testVenMeBabySalon() {
       WHERE name LIKE '%Ven Me%'
     `);
     assert(result.rows.length > 0, 'Ven Me, Baby! LTD salon should exist');
-    
+
     const venMeSalon = result.rows[0];
     assert(venMeSalon.name.includes('Ven Me'), 'Salon name should include "Ven Me"');
     assert(venMeSalon.services !== null, 'Ven Me salon should have services');
@@ -165,21 +190,21 @@ async function testClientTable() {
       );
     `);
     assert(tableCheck.rows[0].exists, 'Clients table should exist');
-    
+
     // Check if columns match our schema
     const columnsCheck = await client.query(`
       SELECT column_name, data_type 
       FROM information_schema.columns 
       WHERE table_name = 'clients';
     `);
-    
+
     const columns = columnsCheck.rows.map(row => row.column_name);
     const requiredColumns = [
       'id', 'name', 'phone', 'email', 'is_current_client', 
       'notes', 'favorite_services', 'salon_id', 'salon_name', 
       'type', 'created_at'
     ];
-    
+
     for (const col of requiredColumns) {
       assert(columns.includes(col), `Clients table should have column: ${col}`);
     }
@@ -211,7 +236,7 @@ async function testClientSalonRelationship() {
       WHERE c.salon_id IS NOT NULL
       LIMIT 5;
     `);
-    
+
     // We just check if the query runs successfully
     // We don't assert anything about the results because a newly initialized 
     // database might not have any clients with salon_id set
@@ -230,11 +255,11 @@ async function testSalonServices() {
       WHERE services IS NOT NULL AND jsonb_array_length(services) > 0
       LIMIT 5;
     `);
-    
+
     if (result.rows.length > 0) {
       const salonWithServices = result.rows[0];
       assert(Array.isArray(salonWithServices.services), 'Services should be an array');
-      
+
       if (salonWithServices.services.length > 0) {
         const firstService = salonWithServices.services[0];
         assert(firstService.name, 'Service should have a name');
@@ -258,11 +283,11 @@ async function testSalonPromos() {
       WHERE promos IS NOT NULL AND jsonb_array_length(promos) > 0
       LIMIT 5;
     `);
-    
+
     if (result.rows.length > 0) {
       const salonWithPromos = result.rows[0];
       assert(Array.isArray(salonWithPromos.promos), 'Promotions should be an array');
-      
+
       if (salonWithPromos.promos.length > 0) {
         const firstPromo = salonWithPromos.promos[0];
         assert(firstPromo.title, 'Promotion should have a title');

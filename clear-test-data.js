@@ -1,30 +1,32 @@
 
-import { db } from './server/db.js';
-import { clients, invitations } from './shared/schema.js';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+// Database cleanup script
+import pg from 'pg';
 
-const connectionString = process.env.DATABASE_URL || '';
-const client = postgres(connectionString, { ssl: 'require', max: 1 });
+const { Pool } = pg;
 
-async function clearTestData() {
-  console.log('Clearing test data from database...');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
+async function clearData() {
+  const client = await pool.connect();
   try {
-    // Delete all invitations
-    const deletedInvitations = await db.delete(invitations).returning();
-    console.log(`Cleared ${deletedInvitations.length} invitations`);
-
-    // Delete all clients
-    const deletedClients = await db.delete(clients).returning();
-    console.log(`Cleared ${deletedClients.length} clients`);
-
-    console.log('Database cleared successfully');
-    process.exit(0);
+    console.log('Starting database cleanup...');
+    
+    await client.query('DELETE FROM invitations');
+    console.log('Cleared invitations table');
+    
+    await client.query('DELETE FROM clients');
+    console.log('Cleared clients table');
+    
+    console.log('Database cleanup completed');
   } catch (error) {
-    console.error('Error clearing database:', error);
-    process.exit(1);
+    console.error('Cleanup error:', error);
+  } finally {
+    client.release();
+    process.exit(0);
   }
 }
 
-clearTestData();
+clearData();
