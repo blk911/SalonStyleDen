@@ -32,6 +32,16 @@ export default function ClientInvitation() {
   const [notes, setNotes] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [recentInvites, setRecentInvites] = useState<ClientInvite[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Format phone number as user types
+  const formatPhoneNumber = (input: string) => {
+    const numbers = input.replace(/\D/g, '').slice(0, 10);
+    if (numbers.length === 0) return '';
+    if (numbers.length < 4) return numbers;
+    if (numbers.length < 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6)}`;
+  };
 
   useEffect(() => {
     // Load recent invites when component mounts
@@ -52,22 +62,35 @@ export default function ClientInvitation() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     try {
+      // Validate phone number
+      const cleanPhone = phone.replace(/\D/g, '');
+      if (cleanPhone.length !== 10) {
+        throw new Error('Phone number must be 10 digits');
+      }
+
       const response = await fetch('/api/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
-          phone,
+          phone: cleanPhone,
           email,
           notes,
-          favoriteServices: selectedServices
+          favoriteServices: selectedServices,
+          createdAt: new Date().toISOString()
         })
       });
 
-      if (response.ok) {
-        const newInvite = await response.json();
-        setRecentInvites(prev => [newInvite, ...prev]);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send invitation');
+      }
+
+      const newInvite = await response.json();
+      setRecentInvites(prev => [newInvite, ...prev]);
         
         toast({
           title: "Invitation sent!",
