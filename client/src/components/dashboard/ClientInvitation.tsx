@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -225,39 +224,23 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       <Card className="rounded shadow-sm border border-pink-100">
         <CardContent className="p-2">
           <h3 className="font-medium text-sm mb-2 text-center text-pink-700">Recent Client Invitations</h3>
-          <div className="grid grid-cols-6 gap-2 px-2 py-1 bg-pink-50 text-xs font-medium text-pink-700">
-            <div>Name</div>
-            <div>Phone</div>
-            <div>Email</div>
-            <div>Status</div>
-            <div>Sponsor</div>
-            <div>1st Svc Date</div>
-          </div>
           <ScrollArea className="h-[200px]">
-            <div className="space-y-2 mt-1">
+            <div className="space-y-2">
               {recentInvites.map((invite) => (
                 <div 
                   key={invite.id}
                   className="p-2 bg-pink-50 rounded-md text-sm"
                 >
-                  <div className="grid grid-cols-6 gap-2">
-                    <div className="font-medium">{invite.name}</div>
-                    <div className="text-xs text-gray-600">
-                      {formatPhoneNumber(invite.phone)}
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                      <p className="font-medium">{invite.name}</p>
+                      <p className="text-xs text-gray-500">
+                        {formatPhoneNumber(invite.phone)} • {invite.email}
+                      </p>
                     </div>
-                    <div className="text-xs text-gray-600">
-                      {invite.email}
-                    </div>
-                    <div className="text-xs text-pink-600 text-center">
-                      {invite.status || 'Pending'}
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      {invite.sponsor || '-'}
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {invite.firstServiceDate ? new Date(invite.firstServiceDate).toLocaleDateString() : '-'}
-                    </div>
-                    </div>
+                    <span className="text-xs text-gray-400">
+                      {new Date(invite.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                   {invite.notes && (
                     <p className="text-xs text-gray-600 mt-1">{invite.notes}</p>
