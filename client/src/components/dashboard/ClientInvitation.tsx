@@ -135,15 +135,19 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       setNotes("");
       setSelectedServices([]);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : "Failed to send invitation. Please try again.";
+      const errorData = error instanceof Error ? error.message : 
+        error instanceof Response ? await error.text() :
+        "Failed to send invitation. Please try again.";
+
+      const errorMessage = typeof errorData === 'string' && errorData.includes("already registered")
+        ? "This contact information is already in use"
+        : errorData;
 
       toast({
         title: "Error",
-        description: errorMessage.includes("already registered") ? 
-          "This contact information is already in use" : errorMessage,
-        variant: "destructive"
+        description: errorMessage,
+        variant: "destructive",
+        duration: 5000
       });
     } finally {
       setIsSubmitting(false);
