@@ -158,17 +158,17 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
 
   return (
     <div className="space-y-4">
-      <Card className="rounded shadow-sm">
+      <Card className="rounded shadow-sm border border-pink-100">
         <CardContent className="p-2">
-          <h3 className="font-medium text-sm mb-2">Client Invitations</h3>
+          <h3 className="font-medium text-sm mb-2 text-center text-pink-700">Send Client Invitation</h3>
           <form onSubmit={handleSubmit} className="space-y-2">
-            <div className="flex gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               <Input
                 placeholder="Client Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="h-8 text-sm flex-1"
+                className="h-8 text-sm"
               />
               <Input
                 placeholder="Phone Number"
@@ -179,7 +179,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   setPhone(formatPhoneNumber(input));
                 }}
                 required
-                className="h-8 text-sm flex-1"
+                className="h-8 text-sm"
               />
               <Input
                 placeholder="Email Address"
@@ -187,16 +187,17 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-8 text-sm flex-1"
+                className="h-8 text-sm"
               />
             </div>
             <Textarea
               placeholder="Notes (Optional)"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="h-20"
+              className="h-16 text-sm"
             />
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap justify-center gap-1">
+              <p className="w-full text-xs text-center text-gray-500 mb-1">Select favorite services:</p>
               {DEFAULT_SERVICES.map(service => (
                 <Button
                   key={service}
@@ -204,22 +205,26 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   size="sm"
                   variant={selectedServices.includes(service) ? "default" : "outline"}
                   onClick={() => toggleService(service)}
-                  className="text-xs"
+                  className={`text-xs ${selectedServices.includes(service) ? 'bg-pink-500 hover:bg-pink-600' : 'border-pink-200 text-pink-700 hover:bg-pink-50'}`}
                 >
                   {service}
                 </Button>
               ))}
             </div>
-            <Button type="submit" className="w-full bg-pink-500 hover:bg-pink-600">
-              Send Invitation
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="w-full bg-pink-500 hover:bg-pink-600"
+            >
+              {isSubmitting ? 'Sending...' : 'Send Invitation'}
             </Button>
           </form>
         </CardContent>
       </Card>
 
-      <Card className="rounded shadow-sm">
+      <Card className="rounded shadow-sm border border-pink-100">
         <CardContent className="p-2">
-          <h3 className="font-medium text-sm mb-2">Recent Client Invitations</h3>
+          <h3 className="font-medium text-sm mb-2 text-center text-pink-700">Recent Client Invitations</h3>
           <ScrollArea className="h-[200px]">
             <div className="space-y-2">
               {recentInvites.map((invite) => (
@@ -227,10 +232,12 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   key={invite.id}
                   className="p-2 bg-pink-50 rounded-md text-sm"
                 >
-                  <div className="flex justify-between items-start">
-                    <div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
                       <p className="font-medium">{invite.name}</p>
-                      <p className="text-xs text-gray-500">{invite.phone} • {invite.email}</p>
+                      <p className="text-xs text-gray-500">
+                        {formatPhoneNumber(invite.phone)} • {invite.email}
+                      </p>
                     </div>
                     <span className="text-xs text-gray-400">
                       {new Date(invite.createdAt).toLocaleDateString()}
