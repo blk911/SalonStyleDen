@@ -702,7 +702,7 @@ export default function SalonDashboard() {
         {/* Client Invitations Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
-            <ClientInvitation />
+            <ClientInvitation salonId={salon?.id} />
           </div>
         </section>
 

@@ -22,9 +22,15 @@ interface ClientInvite {
   notes?: string;
   favoriteServices: string[];
   createdAt: string;
+  salonId?: number;
+  status?: string;
 }
 
-export default function ClientInvitation() {
+interface ClientInvitationProps {
+  salonId?: number;
+}
+
+export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const { toast } = useToast();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -44,19 +50,43 @@ export default function ClientInvitation() {
   };
 
   useEffect(() => {
-    // Load recent invites when component mounts
-    fetchRecentInvites();
-  }, []);
+    // Load recent invites when component mounts or when salonId changes
+    if (salonId) {
+      fetchSalonInvites();
+    } else {
+      fetchRecentInvites();
+    }
+  }, [salonId]);
 
   const fetchRecentInvites = async () => {
     try {
-      const response = await fetch('/api/invitations/recent');
+      console.log('Fetching recent invitations');
+      const response = await fetch('/api/invitations?limit=10');
       if (response.ok) {
         const data = await response.json();
         setRecentInvites(data);
+      } else {
+        console.error('Failed to fetch recent invites, status:', response.status);
       }
     } catch (error) {
       console.error('Failed to fetch recent invites:', error);
+    }
+  };
+  
+  const fetchSalonInvites = async () => {
+    if (!salonId) return;
+    
+    try {
+      console.log(`Fetching invitations for salon ${salonId}`);
+      const response = await fetch(`/api/salons/${salonId}/invitations`);
+      if (response.ok) {
+        const data = await response.json();
+        setRecentInvites(data);
+      } else {
+        console.error(`Failed to fetch salon invites, status:`, response.status);
+      }
+    } catch (error) {
+      console.error(`Failed to fetch salon ${salonId} invites:`, error);
     }
   };
 
@@ -80,7 +110,8 @@ export default function ClientInvitation() {
           email,
           notes,
           favoriteServices: selectedServices,
-          createdAt: new Date().toISOString()
+          salonId: salonId || undefined,
+          status: 'pending'
         })
       });
 
