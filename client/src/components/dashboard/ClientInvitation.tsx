@@ -91,17 +91,26 @@ export default function ClientInvitation() {
 
       const newInvite = await response.json();
       setRecentInvites(prev => [newInvite, ...prev]);
-        
-        toast({
-          title: "Invitation sent!",
-          description: "Your client will receive the invitation shortly.",
-        });
-        
-        setName("");
-        setPhone("");
-        setEmail("");
-        setNotes("");
-        setSelectedServices([]);
+      
+      toast({
+        title: "Invitation sent!",
+        description: "Your client will receive the invitation shortly.",
+      });
+      
+      setName("");
+      setPhone("");
+      setEmail("");
+      setNotes("");
+      setSelectedServices([]);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send invitation",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
       }
     } catch (error) {
       toast({
