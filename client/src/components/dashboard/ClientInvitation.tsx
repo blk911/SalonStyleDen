@@ -69,26 +69,31 @@ export default function ClientInvitation() {
       <CardContent className="p-2">
         <h3 className="font-medium text-sm mb-2">Client Invitations</h3>
         <form onSubmit={handleSubmit} className="space-y-2">
-          <Input
-            placeholder="Client Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <Input
-            placeholder="Phone Number"
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-          />
-          <Input
-            placeholder="Email Address"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <div className="grid gap-2">
+            <Input
+              placeholder="Client Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="h-8 text-sm"
+            />
+            <Input
+              placeholder="Phone Number"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              className="h-8 text-sm"
+            />
+            <Input
+              placeholder="Email Address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="h-8 text-sm"
+            />
+          </div>
           <Textarea
             placeholder="Notes (Optional)"
             value={notes}
