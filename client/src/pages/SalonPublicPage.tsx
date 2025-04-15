@@ -387,73 +387,83 @@ export default function SalonPublicPage() {
               <CardContent className="p-2">
                 <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Ven Me, Baby! Style Options</h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {salon.services && salon.services.map((service) => (
-                    <div 
-                      key={service.id} 
-                      className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
-                    >
-                      <div className="flex">
-                        {/* Left Side - Text */}
-                        <div className="w-2/3 text-left pr-2">
-                          <h3 className="font-medium text-compact">{service.name}</h3>
-                          <p className="text-mini text-gray-600">{service.description}</p>
+                {(!salon.services || salon.services.length === 0) && (
+                  <div className="text-center p-4 bg-pink-50 rounded">
+                    <p className="text-lg font-medium text-gray-700">VMB STYLE OPTION</p>
+                  </div>
+                )}
+                
+                {salon.services && salon.services.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {salon.services.map((service) => (
+                      <div 
+                        key={service.id} 
+                        className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
+                      >
+                        <div className="flex">
+                          {/* Left Side - Text */}
+                          <div className="w-2/3 text-left pr-2">
+                            <h3 className="font-medium text-compact">{service.name}</h3>
+                            <p className="text-mini text-gray-600">{service.description}</p>
 
-                          <div className="mt-1 flex items-center gap-2">
-                            <span className="font-bold text-compact">${Math.round(service.price)}</span>
-                            <span className="text-micro">{service.duration} min</span>
+                            <div className="mt-1 flex items-center gap-2">
+                              <span className="font-bold text-compact">${Math.round(service.price)}</span>
+                              <span className="text-micro">{service.duration} min</span>
+                            </div>
+
+                            <div className="mt-1">
+                              {service.featured && (
+                                <Badge className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer">
+                                  Book Now
+                                </Badge>
+                              )}
+                            </div>
                           </div>
 
-                          <div className="mt-1">
-                            {service.featured && (
-                              <Badge className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer">
-                                Book Now
-                              </Badge>
-                            )}
+                          {/* Right Side - Image */}
+                          <div className="w-1/3 flex items-center justify-end pl-2">
+                            <img 
+                              src={
+                                // First try to use the gifUrl field if it exists
+                                service.gifUrl ? service.gifUrl :
+                                // Otherwise determine URL based on service name
+                                service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') 
+                                  ? "/assets/french-tips.png" :
+                                service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux')
+                                  ? "/assets/gel-manicure.png" :
+                                service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic')
+                                  ? "/assets/sculpted-acrylics.png" :
+                                service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design')
+                                  ? "/assets/glam-design.png" :
+                                service.name.toLowerCase().includes('spring') || service.name.toLowerCase().includes('seasonal')
+                                  ? "/assets/salon-card.png" :
+                                // Default fallback if none of the above match
+                                "/assets/LOGO1.png"
+                              }
+                              alt={`${service.name} preview`}
+                              className="rounded h-20 w-20 object-cover"
+                              // Add error handling to use fallback when image fails to load
+                              onError={(e) => {
+                                console.error(`Failed to load image for service: ${service.name}`);
+                                e.currentTarget.src = '/assets/LOGO1.png';
+                              }}
+                            />
                           </div>
-                        </div>
-
-                        {/* Right Side - Image */}
-                        <div className="w-1/3 flex items-center justify-end pl-2">
-                          <img 
-                            src={
-                              // First try to use the gifUrl field if it exists
-                              service.gifUrl ? service.gifUrl :
-                              // Otherwise determine URL based on service name
-                              service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') 
-                                ? "/assets/french-tips.png" :
-                              service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux')
-                                ? "/assets/gel-manicure.png" :
-                              service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic')
-                                ? "/assets/sculpted-acrylics.png" :
-                              service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design')
-                                ? "/assets/glam-design.png" :
-                              service.name.toLowerCase().includes('spring') || service.name.toLowerCase().includes('seasonal')
-                                ? "/assets/salon-card.png" :
-                              // Default fallback if none of the above match
-                              "/assets/LOGO1.png"
-                            }
-                            alt={`${service.name} preview`}
-                            className="rounded h-20 w-20 object-cover"
-                            // Add error handling to use fallback when image fails to load
-                            onError={(e) => {
-                              console.error(`Failed to load image for service: ${service.name}`);
-                              e.currentTarget.src = '/assets/LOGO1.png';
-                            }}
-                          />
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
 
-                <div className="button-container vspace-sm">
-                  <Button 
-                    className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs"
-                  >
-                    Book Appointment
-                  </Button>
-                </div>
+                {salon.services && salon.services.length > 0 && (
+                  <div className="button-container vspace-sm">
+                    <Button 
+                      className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs"
+                    >
+                      Book Appointment
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

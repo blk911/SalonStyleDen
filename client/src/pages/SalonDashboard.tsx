@@ -642,17 +642,23 @@ export default function SalonDashboard() {
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Existing style options */}
-                  {services.map(service => (
-                    <EditableService
-                      key={service.id}
-                      service={service}
-                      onSave={handleSaveService}
-                      onDelete={handleDeleteService}
-                    />
-                  ))}
-                </div>
+                {services.length === 0 ? (
+                  <div className="text-center p-4">
+                    <p className="text-lg font-medium text-gray-700">VMB STYLE OPTION</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Existing style options */}
+                    {services.map(service => (
+                      <EditableService
+                        key={service.id}
+                        service={service}
+                        onSave={handleSaveService}
+                        onDelete={handleDeleteService}
+                      />
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
