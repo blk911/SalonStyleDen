@@ -181,15 +181,16 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               <div className="flex flex-col items-center mt-2 gap-2">
                 <Avatar className="h-16 w-16 border-2 border-pink-100">
                   <AvatarImage 
-                    src="/assets/TIFFANY_5280.jpg" 
+                    src={getImageUrl(salon.ownerPhotoUrl)} 
                     alt={salon.ownerName} 
                     onError={(e) => {
-                      console.error("Error loading avatar image in view mode");
+                      console.error("Error loading avatar image in view mode:", salon.ownerPhotoUrl);
+                      // Don't use the VMB logo for owner photos
                       e.currentTarget.src = '/assets/salon-card.png';
                     }}
                   />
                   <AvatarFallback className="bg-pink-50 text-pink-500">
-                    TI
+                    {salon.ownerName?.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex items-center justify-center">
@@ -287,15 +288,16 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
           <div className="flex items-center gap-3">
             <Avatar className="h-16 w-16 border-2 border-pink-100">
               <AvatarImage 
-                src="/assets/TIFFANY_5280.jpg" 
+                src={getImageUrl(editedSalon.ownerPhotoUrl)} 
                 alt={editedSalon.ownerName}
                 onError={(e) => {
-                  console.error("Error loading avatar image in edit mode");
+                  console.error("Error loading avatar image:", editedSalon.ownerPhotoUrl);
+                  // Don't use VMB logo for owner photos in edit mode either
                   e.currentTarget.src = '/assets/salon-card.png';
                 }} 
               />
               <AvatarFallback className="bg-pink-50 text-pink-500">
-                TI
+                {editedSalon.ownerName?.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
 
