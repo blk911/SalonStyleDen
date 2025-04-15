@@ -396,7 +396,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                       {invite.sponsor || '-'}
                     </div>
                     <div className="text-xs text-gray-400">
-                      {invite.firstServiceDate ? new Date(invite.firstServiceDate).toLocaleDateString() : '-'}
+                      {invite.firstServiceDate ? invite.firstServiceDate === "Pending" ? "Pending" : new Date(invite.firstServiceDate).toLocaleDateString() : '-'}
                     </div>
                   </div>
                   {invite.notes && (
