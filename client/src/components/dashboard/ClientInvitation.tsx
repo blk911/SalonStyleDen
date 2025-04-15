@@ -24,7 +24,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
-  const [firstServiceDate, setFirstServiceDate] = useState("");
+  const [firstServiceDate, setFirstServiceDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [phoneExists, setPhoneExists] = useState(false);
