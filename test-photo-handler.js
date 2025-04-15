@@ -1,4 +1,3 @@
-
 const { chromium } = require('playwright');
 const assert = require('assert');
 const fs = require('fs');
@@ -10,8 +9,8 @@ let passed = 0, failed = 0;
 const logSuccess = (msg) => console.log(`✅ ${msg}`);
 const logFailure = (msg) => console.log(`❌ ${msg}`);
 
-async function testPhotoUploads() {
-  console.log('\n🔍 Testing Photo Upload Functionality');
+async function testPhotoHandling() {
+  console.log('\n🔍 Testing Photo Handler');
   console.log('===================================\n');
 
   try {
@@ -21,8 +20,8 @@ async function testPhotoUploads() {
     logSuccess('Upload directory check passed');
     passed++;
 
-    // Test file upload endpoint
-    const testFile = path.join(process.cwd(), 'client/public/assets/LOGO1.png');
+    // Test owner photo endpoint
+    const testFile = path.join(process.cwd(), 'client/public/assets/VMB_LOGO.png');
     const formData = new FormData();
     formData.append('file', fs.createReadStream(testFile));
 
@@ -34,13 +33,13 @@ async function testPhotoUploads() {
     assert(uploadResponse.ok, 'Upload endpoint responds successfully');
     const uploadResult = await uploadResponse.json();
     assert(uploadResult.url, 'Upload returns file URL');
-    logSuccess('File upload test passed');
+    logSuccess('Owner photo upload test passed');
     passed++;
 
-    // Test photo display in salon dashboard
+    // Test photo display in Hero component
     await page.goto('http://localhost:5000/salon/1');
-    const img = await page.waitForSelector('img[alt="Salon Photo"]');
-    assert(img, 'Salon photo displays on page');
+    const img = await page.waitForSelector('img[alt="Salon Owner"]');
+    assert(img, 'Owner photo displays in Hero');
     logSuccess('Photo display test passed');
     passed++;
 
@@ -48,6 +47,11 @@ async function testPhotoUploads() {
     logFailure(`Test failed: ${error.message}`);
     failed++;
   }
+
+  console.log('\n=== Test Summary ===');
+  console.log(`Total tests: ${passed + failed}`);
+  console.log(`Passed: ${passed}`);
+  console.log(`Failed: ${failed}`);
 }
 
 async function runTests() {
@@ -56,16 +60,10 @@ async function runTests() {
   page = await context.newPage();
 
   try {
-    await testPhotoUploads();
+    await testPhotoHandling();
   } finally {
     await browser.close();
   }
-
-  // Print summary
-  console.log('\n=== Test Summary ===');
-  console.log(`Total tests: ${passed + failed}`);
-  console.log(`Passed: ${passed}`);
-  console.log(`Failed: ${failed}`);
 }
 
 runTests();
