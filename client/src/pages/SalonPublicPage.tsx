@@ -108,7 +108,7 @@ export default function SalonPublicPage() {
           },
           {
             id: 2,
-            name: "Luxe Gel Manicure",
+            name: "Luxe Gel Manicure", 
             description: "Glossy, chip-free color with lasting shine.",
             price: 55,
             duration: 45,
