@@ -25,7 +25,7 @@ const DEFAULT_SERVICES = [
   "Custom Design"
 ];
 
-// Marketing sources when no salon context
+// Marketing sources when salon ID is not available
 const SPONSOR_OPTIONS = [
   "Instagram",
   "Facebook",
@@ -128,7 +128,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           ownerName: data.ownerName
         });
         
-        // If in salon context, automatically set the sponsor field to salon name 
+        // Set the sponsor as the salon name automatically
         setSponsor(data.name);
       }
     } catch (error) {
@@ -344,12 +344,10 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <Input
-                placeholder="Sponsor (Optional)"
-                value={sponsor}
-                onChange={(e) => setSponsor(e.target.value)}
-                className="h-8 text-sm"
-              />
+              <div className="relative flex items-center h-8 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
+                <span className="text-muted-foreground">Sponsor: </span>
+                <span className="ml-1 text-pink-600 font-medium">{salonInfo?.name || 'Not Set'}</span>
+              </div>
               <div className="relative flex items-center h-8 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
                 <span className="text-muted-foreground">First Service: </span>
                 <span className="ml-1 text-pink-600">Pending</span>
