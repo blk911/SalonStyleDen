@@ -251,11 +251,11 @@ export default function SalonPublicPage() {
               {salon.ownerPhotoUrl && (
                 <div className="mb-4">
                   <img 
-                    src="/assets/TIFFANY_5280.jpg"
+                    src={getImageUrl(salon.ownerPhotoUrl)}
                     alt={`${salon.ownerName}'s photo`}
                     className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm"
                     onError={(e) => {
-                      console.error("Error loading owner photo in SalonPublicPage");
+                      console.error("Error loading owner photo in SalonPublicPage:", salon.ownerPhotoUrl);
                       // Use salon-specific fallback, not VMB logo
                       e.currentTarget.src = '/assets/salon-card.png';
                     }}

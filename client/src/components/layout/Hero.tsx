@@ -8,8 +8,6 @@ type HeroProps = {
 
 // Import the getImageUrl function from utils.ts
 import { getImageUrl } from "@/lib/utils";
-// Import VMB script logo directly from attached assets
-import VmbScriptLogo from "@assets/VMB script logo.png";
 
 export default function Hero({ 
   onSalonClick, 
@@ -19,21 +17,30 @@ export default function Hero({
   ownerPhotoUrl 
 }: HeroProps) {
   return (
-    <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-8 lg:py-10">
-      {/* Only show photo for salon pages, not for home page */}
-      {ownerPhotoUrl && (
-        <div className="flex justify-center mb-4">
+    <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-3 lg:py-3">
+      <div className="flex justify-center mb-4">
+        {/* If owner photo is provided, use it; otherwise use VMB logo */}
+        {ownerPhotoUrl ? (
+          // For salon owner pages
           <img 
             src={getImageUrl(ownerPhotoUrl)}
             alt={`${salonOwnerName}'s photo`}
             className="w-24 h-24 rounded-full object-cover border-2 border-[#FF92A5]"
             onError={(e) => {
               console.error("Error loading salon owner photo in Hero:", ownerPhotoUrl);
+              // Use salon-specific fallback, not VMB logo
               e.currentTarget.src = '/assets/salon-card.png';
             }}
           />
-        </div>
-      )}
+        ) : (
+          // For main home page
+          <img 
+            src="/assets/VMB script logo.png"
+            alt="Ven Me, Baby!"
+            className="w-24 h-24 object-contain"
+          />
+        )}
+      </div>
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
         <div className="flex justify-center mb-6">
           <h1 className="text-5xl md:text-[42px]">
