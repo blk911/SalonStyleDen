@@ -5,12 +5,35 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { AlertCircle } from "lucide-react";
+import {
+  Alert,
+  AlertDescription
+} from "@/components/ui/alert";
 
 const DEFAULT_SERVICES = [
   "French Tips",
   "Gel Manicure",
   "Acrylics",
   "Custom Design"
+];
+
+const SPONSOR_OPTIONS = [
+  "Instagram",
+  "Facebook",
+  "Google",
+  "Referral",
+  "Walk-in",
+  "Event",
+  "Promotion",
+  "Other"
 ];
 
 interface ClientInvite {
@@ -42,6 +65,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [recentInvites, setRecentInvites] = useState<ClientInvite[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [phoneExists, setPhoneExists] = useState(false);
+  const [emailExists, setEmailExists] = useState(false);
 
   // Format phone number as user types
   const formatPhoneNumber = (input: string) => {
@@ -50,6 +75,32 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     if (numbers.length < 4) return numbers;
     if (numbers.length < 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
     return `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6)}`;
+  };
+  
+  // Check if phone or email exists
+  const checkExistingContact = async (field: 'phone' | 'email', value: string) => {
+    if (!value) return false;
+    
+    try {
+      // Simple validation check
+      if (field === 'phone' && value.replace(/\D/g, '').length !== 10) return false;
+      if (field === 'email' && !value.includes('@')) return false;
+      
+      const response = await fetch(`/api/clients/check?${field}=${encodeURIComponent(value)}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (field === 'phone') {
+          setPhoneExists(data.exists);
+          return data.exists;
+        } else {
+          setEmailExists(data.exists);
+          return data.exists;
+        }
+      }
+    } catch (error) {
+      console.error(`Error checking ${field}:`, error);
+    }
+    return false;
   };
 
   useEffect(() => {
@@ -60,6 +111,30 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       fetchRecentInvites();
     }
   }, [salonId]);
+  
+  // Verify phone number when it changes
+  useEffect(() => {
+    if (phone.length === 12) { // Format: XXX-XXX-XXXX (12 chars)
+      const timer = setTimeout(() => {
+        checkExistingContact('phone', phone.replace(/\D/g, ''));
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setPhoneExists(false);
+    }
+  }, [phone]);
+  
+  // Verify email when it changes
+  useEffect(() => {
+    if (email.includes('@') && email.includes('.')) {
+      const timer = setTimeout(() => {
+        checkExistingContact('email', email);
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setEmailExists(false);
+    }
+  }, [email]);
 
   const fetchRecentInvites = async () => {
     try {
@@ -97,6 +172,17 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // Check if phone or email already exists
+    if (phoneExists || emailExists) {
+      toast({
+        title: "Error",
+        description: phoneExists ? "Phone number already registered" : "Email already registered",
+        variant: "destructive"
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       // Validate phone number
       const cleanPhone = phone.replace(/\D/g, '');
@@ -115,7 +201,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           favoriteServices: selectedServices,
           salonId: salonId || undefined,
           sponsor: sponsor || undefined,
-          firstServiceDate: firstServiceDate || undefined,
+          // Always send first service as "Pending"
+          firstServiceDate: "Pending",
           status: 'pending'
         })
       });
@@ -177,40 +264,69 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                 required
                 className="h-8 text-sm"
               />
-              <Input
-                placeholder="Phone Number"
-                type="tel"
-                value={phone}
-                onChange={(e) => {
-                  const input = e.target.value.replace(/\D/g, '');
-                  setPhone(formatPhoneNumber(input));
-                }}
-                required
-                className="h-8 text-sm"
-              />
-              <Input
-                placeholder="Email Address"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="h-8 text-sm"
-              />
+              <div className="relative">
+                <Input
+                  placeholder="Phone Number"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => {
+                    const input = e.target.value.replace(/\D/g, '');
+                    setPhone(formatPhoneNumber(input));
+                  }}
+                  required
+                  className={`h-8 text-sm ${phoneExists ? 'border-red-500 pr-7' : ''}`}
+                />
+                {phoneExists && (
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                    <AlertCircle className="h-4 w-4 text-red-500" />
+                  </div>
+                )}
+                {phoneExists && (
+                  <Alert variant="destructive" className="mt-1 p-1 text-xs">
+                    <AlertDescription>
+                      This phone number is already registered
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+              <div className="relative">
+                <Input
+                  placeholder="Email Address"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className={`h-8 text-sm ${emailExists ? 'border-red-500 pr-7' : ''}`}
+                />
+                {emailExists && (
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                    <AlertCircle className="h-4 w-4 text-red-500" />
+                  </div>
+                )}
+                {emailExists && (
+                  <Alert variant="destructive" className="mt-1 p-1 text-xs">
+                    <AlertDescription>
+                      This email is already registered
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <Input
-                placeholder="Sponsor (Optional)"
-                value={sponsor}
-                onChange={(e) => setSponsor(e.target.value)}
-                className="h-8 text-sm"
-              />
-              <Input
-                placeholder="First Service Date (Optional)"
-                type="date"
-                value={firstServiceDate}
-                onChange={(e) => setFirstServiceDate(e.target.value)}
-                className="h-8 text-sm"
-              />
+              <Select value={sponsor} onValueChange={setSponsor}>
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue placeholder="Sponsor (Optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SPONSOR_OPTIONS.map(option => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="relative flex items-center h-8 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
+                <span className="text-muted-foreground">First Service: </span>
+                <span className="ml-1 text-pink-600">Pending</span>
+              </div>
             </div>
             <Textarea
               placeholder="Notes (Optional)"
