@@ -25,14 +25,14 @@ import { formatPhoneNumber } from "@/lib/utils";
 import VerificationModal from "@/components/shared/VerificationModal";
 import SuccessModal from "@/components/shared/SuccessModal";
 
-// Available salon services
+// Available salon services - updated to match approved Ven Me, Baby! Style Options
 const services = [
-  "Classic Manicure",
-  "Chic French Tips",
+  "French Tips / Touch-Up",
   "Luxe Gel Manicure",
   "Sculpted Acrylics",
+  "Glam Me! Custom Design",
   "Deluxe Spa Pedicure",
-  "Bespoke Nail Art",
+  "Nail Art Enhancements",
 ];
 
 // Form schema with validation
@@ -550,10 +550,13 @@ export default function ClientForm() {
               name="favoriteServices"
               render={({ field }) => (
                 <FormItem>
-                  <div className="text-sm mb-1">Favorite Services</div>
-                  {/* Small buttons: 3 per row, 2 rows */}
-                  <div className="grid grid-cols-3 gap-2">
-                    {services.map((service) => {
+                  <div className="text-sm mb-1 font-medium text-center">Favorite Services</div>
+                  {/* Small buttons: exactly 3×2 grid for compact display */}
+                  <div className="grid grid-cols-3 grid-rows-2 gap-1.5 mx-auto max-w-md">
+                    {services.map((service, index) => {
+                      // Only show first 6 services to maintain the 3×2 grid
+                      if (index >= 6) return null;
+                      
                       // Check if service is in the current value array
                       const isSelected = field.value?.includes(service) || false;
                       
@@ -569,9 +572,9 @@ export default function ClientForm() {
                           }}
                           className={`${
                             isSelected 
-                              ? 'bg-[#FF92A5] text-white' 
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          } rounded-lg p-2 text-center text-xs cursor-pointer transition-colors`}
+                              ? 'bg-[#FF92A5] text-white border-pink-300 border' 
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200 border'
+                          } rounded-md py-1.5 px-1 text-center text-xs cursor-pointer transition-colors`}
                         >
                           {service}
                         </div>
