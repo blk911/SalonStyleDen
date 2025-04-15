@@ -1,85 +1,40 @@
 #!/bin/bash
 
-# Benchmark Restoration Script - April 10, 2025
-# This script restores the Ven Me Baby application to the benchmark state
+# Restore benchmark script for SalonStyleDen
+# Created: April 15, 2025
 
-echo "===== VEN ME BABY BENCHMARK RESTORATION ====="
-echo "Starting restoration process..."
+echo "Restoring codebase to benchmark state (April 15, 2025)..."
 
-# Check if PostgreSQL is running
-if ! pg_isready -q; then
-  echo "ERROR: PostgreSQL database is not running!"
-  echo "Please ensure the database is properly provisioned before running this script."
-  exit 1
+# Store the current branch name
+CURRENT_BRANCH=$(git branch --show-current)
+
+# Check if there are uncommitted changes
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Warning: You have uncommitted changes that will be stashed."
+  git stash save "Auto-stashed before benchmark restoration"
+  STASHED=1
+else
+  STASHED=0
 fi
 
-# Reinstall dependencies if needed
-echo "Reinstalling dependencies..."
-npm install
+# Checkout the specific commit
+git checkout 8290a29
 
-# Apply any needed database migrations
-echo "Applying database schema..."
-npm run db:push
+echo "Codebase restored to benchmark state:"
+echo "- Fixed VMB Style Options display issue"
+echo "- Removed Seasonal Spring Special from style options"
+echo "- Optimized image handling and fallbacks"
 
-# Add the default promotions fix
-echo "Applying promotion fixes..."
-cat > promotion-fix.js << 'EOL'
-// Temporary fix to ensure the three standard promotions exist
-const { db } = require('./server/db');
-const { eq } = require('drizzle-orm');
-const { salons } = require('./shared/schema');
+# Instructions for returning to the previous state
+echo ""
+echo "To return to your previous branch ($CURRENT_BRANCH), run:"
+echo "git checkout $CURRENT_BRANCH"
 
-async function restorePromotions() {
-  try {
-    // Get all salons
-    const allSalons = await db.select().from(salons);
-    
-    for (const salon of allSalons) {
-      console.log(`Processing salon: ${salon.name} (ID: ${salon.id})`);
-      
-      // Add the standard promotions
-      const standardPromos = [
-        {
-          id: 1,
-          title: "Summer Special",
-          description: "20% off all manicures",
-          endDate: "2025-07-31"
-        },
-        {
-          id: 2,
-          title: "New Client Offer",
-          description: "Free nail art with any service",
-          endDate: null
-        },
-        {
-          id: 3,
-          title: "Bring a Friend",
-          description: "25% off for you and a friend",
-          endDate: "2025-08-15"
-        }
-      ];
-      
-      // Update the salon's promotions
-      await db
-        .update(salons)
-        .set({ promos: standardPromos })
-        .where(eq(salons.id, salon.id));
-      
-      console.log(`  ✓ Restored promotions for salon ${salon.id}`);
-    }
-    
-    console.log("Promotion restoration complete!");
-  } catch (error) {
-    console.error("Error restoring promotions:", error);
-  }
-}
+if [ $STASHED -eq 1 ]; then
+  echo ""
+  echo "To restore your uncommitted changes, run:"
+  echo "git stash pop"
+fi
 
-restorePromotions().then(() => process.exit(0));
-EOL
-
-# Execute the promotion fix
-node promotion-fix.js
-
-# Start the application in development mode
-echo "Starting the application..."
-npm run dev
+echo ""
+echo "Benchmark restoration complete!"

@@ -1,27 +1,44 @@
-# Ven Me, Baby! - Restore Point (2025-04-13_20-26-19)
+# Benchmark Restore Point
 
-## Summary of Recent Fixes
-- Fixed all image path references to use standardized `/assets/` directory
-- Removed references to unauthorized temporary files with timestamp names
-- Standardized all image error handlers to use `/assets/VMB_LOGO.png` as fallback
-- Ensured consistent image naming across the application
-- Standardized promotion image paths in SalonPublicPage.tsx
+This file contains instructions for restoring the codebase to the benchmark state from April 15, 2025.
 
-## Fixed Components
-- AdminDashboard.tsx 
-- SalonsPage.tsx
-- SalonPublicPage.tsx
+## Current State Information
+- Commit hash: `8290a29`
+- Main issue fixed: Removed Seasonal Spring Special from VMB Style Options
+- Modified files:
+  - client/src/pages/SalonDashboard.tsx
+  - client/src/pages/SalonPublicPage.tsx
 
-## Image Path Standards
-- Logo: `/assets/VMB_LOGO.png`
-- French Tips: `/assets/French_Tips.png`
-- Luxe Gel Manicure: `/assets/Luxe_Gel_Manicure.png`
-- Sculpted Acrylics: `/assets/Sculpted_Acrylics.png`
-- Glam Me! Custom Design: `/assets/Glam_Me_Custom_Design.png`
-- Bring a Friend: `/assets/Bring_Friend.png`
+## How to Restore
+To restore the codebase to this exact point, you can use the following Git command:
 
-## Important Notes
-- Any temporary files (image_TIMESTAMP.png) should never be referenced in the code
-- All image paths should follow the pattern `/assets/Descriptive_Name.png`
-- All error handlers should use the standard VMB_LOGO.png as fallback
-- Promotional images should match their promotion types (summer = French Tips, etc.)
+```bash
+git checkout 8290a29
+```
+
+Alternatively, you can restore the specific files to this state with:
+
+```bash
+# Restore SalonDashboard.tsx
+git checkout 8290a29 -- client/src/pages/SalonDashboard.tsx
+
+# Restore SalonPublicPage.tsx
+git checkout 8290a29 -- client/src/pages/SalonPublicPage.tsx
+```
+
+## File Modifications Summary
+
+### SalonDashboard.tsx
+- Added filtering to exclude any service containing "seasonal spring" in the name
+- Applied this filtering in the useEffect hook when services are initially loaded
+
+### SalonPublicPage.tsx
+- Added filtering to exclude any service containing "seasonal spring" in the name
+- Implemented filtering before processing services in the useQuery hook
+- Ensured fallback "VMB STYLE OPTION" text appears when no services are available
+
+## Verification
+After restoring, you can verify the fix is in place by:
+1. Loading the salon dashboard for Tiffany's salon
+2. Confirming the Seasonal Spring Special does not appear in the VMB Style Options section
+3. Checking the public salon page to ensure the same
