@@ -8,7 +8,7 @@ type HeroProps = {
 
 // Import the getImageUrl function from utils.ts
 import { getImageUrl } from "@/lib/utils";
-// Import VMB script logo
+// Import VMB script logo directly from attached assets
 import VmbScriptLogo from "@assets/VMB script logo.png";
 
 export default function Hero({ 
@@ -37,10 +37,14 @@ export default function Hero({
         ) : (
           // For main home page
           <img 
-            src={VmbScriptLogo}
+            src="/assets/VMB script logo.png"
             alt="Ven Me, Baby!"
             className="w-24 h-24 object-contain"
-            onLoad={() => console.log("Logo loaded successfully")}
+            onLoad={() => console.log("VMB script logo loaded successfully")}
+            onError={(e) => {
+              console.error("Error loading VMB script logo");
+              e.currentTarget.src = '/assets/LOGO1.png';
+            }}
           />
         )}
       </div>
