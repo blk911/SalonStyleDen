@@ -282,171 +282,143 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <Card className="rounded shadow-sm border border-pink-100">
-        <CardContent className="p-2">
-          <h3 className="font-medium text-sm mb-2 text-center text-pink-700">Send Client Invitation</h3>
-          <form onSubmit={handleSubmit} className="space-y-2">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+    <div className="space-y-8">
+      <div className="rounded shadow-sm border border-pink-100 p-4">
+        <h3 className="font-medium text-lg mb-4 text-center text-pink-700">Send Client Invitation</h3>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-1 gap-4">
+            <Input
+              placeholder="Client Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+            <div className="relative">
               <Input
-                placeholder="Client Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                placeholder="Phone Number"
+                type="tel"
+                value={phone}
+                onChange={(e) => {
+                  const input = e.target.value.replace(/\D/g, '');
+                  setPhone(formatPhoneNumber(input));
+                }}
                 required
-                className="h-8 text-sm"
+                className={phoneExists ? 'border-red-500' : ''}
               />
-              <div className="relative">
-                <Input
-                  placeholder="Phone Number"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => {
-                    const input = e.target.value.replace(/\D/g, '');
-                    setPhone(formatPhoneNumber(input));
-                  }}
-                  required
-                  className={`h-8 text-sm ${phoneExists ? 'border-red-500 pr-7' : ''}`}
-                />
-                {phoneExists && (
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                    <AlertCircle className="h-4 w-4 text-red-500" />
-                  </div>
-                )}
-                {phoneExists && (
-                  <Alert variant="destructive" className="mt-1 p-1 text-xs">
-                    <AlertDescription>
-                      This phone number is already registered
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </div>
-              <div className="relative">
-                <Input
-                  placeholder="Email Address"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className={`h-8 text-sm ${emailExists ? 'border-red-500 pr-7' : ''}`}
-                />
-                {emailExists && (
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                    <AlertCircle className="h-4 w-4 text-red-500" />
-                  </div>
-                )}
-                {emailExists && (
-                  <Alert variant="destructive" className="mt-1 p-1 text-xs">
-                    <AlertDescription>
-                      This email is already registered
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </div>
+              {phoneExists && (
+                <Alert variant="destructive" className="mt-1">
+                  <AlertDescription>
+                    This phone number is already registered
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="relative">
               <Input
-                placeholder="Sponsor (Optional)"
-                value={sponsor}
-                onChange={(e) => setSponsor(e.target.value)}
-                className="h-8 text-sm"
+                placeholder="Email Address"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className={emailExists ? 'border-red-500' : ''}
               />
-              <div className="relative flex items-center h-8 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
-                <span className="text-muted-foreground">First Service: </span>
-                <span className="ml-1 text-pink-600">Pending</span>
-              </div>
+              {emailExists && (
+                <Alert variant="destructive" className="mt-1">
+                  <AlertDescription>
+                    This email is already registered
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
+            <Input
+              placeholder="Sponsor (Optional)"
+              value={sponsor}
+              onChange={(e) => setSponsor(e.target.value)}
+            />
+            <Input
+              type="date"
+              placeholder="mm/dd/yyyy"
+              value={firstServiceDate}
+              onChange={(e) => setFirstServiceDate(e.target.value)}
+            />
             <Textarea
               placeholder="Notes (Optional)"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="h-16 text-sm"
+              rows={4}
             />
-            <div className="flex flex-wrap justify-center gap-1">
-              <p className="w-full text-xs text-center text-gray-500 mb-1">Select favorite services:</p>
+          </div>
+          <div>
+            <p className="text-center text-gray-500 mb-2">Select favorite services:</p>
+            <div className="flex flex-wrap justify-center gap-2">
               {DEFAULT_SERVICES.map(service => (
                 <Button
                   key={service}
                   type="button"
-                  size="sm"
                   variant={selectedServices.includes(service) ? "default" : "outline"}
                   onClick={() => toggleService(service)}
-                  className={`text-xs ${selectedServices.includes(service) ? 'bg-pink-500 hover:bg-pink-600' : 'border-pink-200 text-pink-700 hover:bg-pink-50'}`}
+                  className={selectedServices.includes(service) ? 'bg-pink-500 hover:bg-pink-600' : ''}
                 >
                   {service}
                 </Button>
               ))}
             </div>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="w-full bg-pink-500 hover:bg-pink-600"
-            >
-              {isSubmitting ? 'Sending...' : 'Send Invitation'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card className="rounded shadow-sm border border-pink-100">
-        <CardContent className="p-2">
-          <h3 className="font-medium text-sm mb-2 text-center text-pink-700">Recent Client Invitations</h3>
-          
-          {/* Column Headers */}
-          <div className="grid grid-cols-6 gap-2 px-2 py-1 bg-pink-50/50 text-xs font-medium text-pink-700 rounded mb-2">
-            <div>Name</div>
-            <div>Phone</div>
-            <div>Email</div>
-            <div>Status</div>
-            <div>Sponsor</div>
-            <div>1st Service</div>
           </div>
-          
-          <ScrollArea className="h-[200px]">
-            <div className="space-y-2">
-              {recentInvites.map((invite) => (
-                <div 
-                  key={invite.id}
-                  className="p-2 bg-pink-50 rounded-md text-sm"
-                >
-                  <div className="grid grid-cols-6 gap-2 items-center">
-                    <div className="font-medium truncate">{invite.name}</div>
-                    <div className="text-xs text-gray-600">
-                      {formatPhoneNumber(invite.phone)}
-                    </div>
-                    <div className="text-xs text-gray-600 truncate">
-                      {invite.email}
-                    </div>
-                    <div className="text-xs text-pink-600">
-                      {invite.status || 'Pending'}
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      {invite.sponsor || '-'}
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {invite.firstServiceDate ? invite.firstServiceDate === "Pending" ? "Pending" : new Date(invite.firstServiceDate).toLocaleDateString() : '-'}
-                    </div>
-                  </div>
-                  {invite.notes && (
-                    <p className="text-xs text-gray-600 mt-1">{invite.notes}</p>
-                  )}
-                  {invite.favoriteServices?.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {invite.favoriteServices.map(service => (
-                        <span
-                          key={service}
-                          className="px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded text-[10px]"
-                        >
-                          {service}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="w-full bg-pink-500 hover:bg-pink-600 py-6 text-lg"
+          >
+            {isSubmitting ? 'Sending...' : 'Send Invitation'}
+          </Button>
+        </form>
+      </div>
+
+      <div className="rounded shadow-sm border border-pink-100 p-4">
+        <h3 className="font-medium text-lg mb-4 text-center text-pink-700">Recent Client Invitations</h3>
+        
+        <div className="grid grid-cols-6 gap-4 font-medium text-pink-700 border-b pb-2 mb-4">
+          <div>Name</div>
+          <div>Phone</div>
+          <div>Email</div>
+          <div>Status</div>
+          <div>Sponsor</div>
+          <div>1st Service</div>
+        </div>
+        
+        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+          {recentInvites.map((invite) => (
+            <div 
+              key={invite.id}
+              className="grid grid-cols-6 gap-4 py-2 border-b border-pink-100"
+            >
+              <div className="font-medium">{invite.name}</div>
+              <div className="text-gray-600">
+                {formatPhoneNumber(invite.phone)}
+              </div>
+              <div className="text-gray-600">
+                {invite.email}
+              </div>
+              <div className="text-pink-600">
+                {invite.status || 'pending'}
+              </div>
+              <div className="text-gray-600">
+                {invite.sponsor || '-'}
+              </div>
+              <div className="text-gray-600">
+                {invite.firstServiceDate || '-'}
+              </div>
+              {invite.favoriteServices?.length > 0 && invite.favoriteServices[0] && (
+                <div className="col-span-6 -mt-1">
+                  <span className="px-2 py-1 bg-pink-100 text-pink-700 rounded text-xs">
+                    {invite.favoriteServices[0]}
+                  </span>
                 </div>
-              ))}
+              )}
             </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
