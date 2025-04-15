@@ -536,7 +536,11 @@ export default function SalonDashboard() {
       // Update services if available
       if (salon.services && Array.isArray(salon.services)) {
         console.log('SalonDashboard - Setting services from salon data:', salon.services);
-        setServices(salon.services);
+        // Filter out the Seasonal Spring Special from VMB Style Options
+        const filteredServices = salon.services.filter(service => 
+          !service.name.toLowerCase().includes('seasonal spring'));
+        console.log('SalonDashboard - Filtered services (removed Seasonal Spring):', filteredServices);
+        setServices(filteredServices);
       }
 
       // Update promos if available

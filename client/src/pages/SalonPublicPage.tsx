@@ -157,7 +157,13 @@ export default function SalonPublicPage() {
         let processedServices = defaultServices;
 
         if (Array.isArray(salonData.services) && salonData.services.length > 0) {
-          processedServices = salonData.services.map((service: Service) => {
+          // Filter out Seasonal Spring Special first
+          const filteredServices = salonData.services.filter((service: Service) => 
+            !service.name.toLowerCase().includes('seasonal spring'));
+          
+          console.log('SalonPublicPage - Filtered services (removed Seasonal Spring):', filteredServices);
+          
+          processedServices = filteredServices.map((service: Service) => {
             // For each service, ensure it has the correct gifUrl based on its name
             return {
               ...service,
