@@ -103,11 +103,13 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
       formData.append('file', file);
       
       // Upload the file
+      console.log('Uploading salon owner photo:', file.name);
       const response = await apiRequest<{filePath: string}>('/api/upload', {
         method: 'POST',
         body: formData,
         // Don't set Content-Type header for FormData
       });
+      console.log('Photo upload response:', response);
       
       // Update the salon object with the new photo URL
       if (response && response.filePath) {
