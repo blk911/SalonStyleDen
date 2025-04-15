@@ -32,6 +32,7 @@ interface SalonType {
   createdAt: string;
   services?: ServiceData[];
   promos?: PromoData[];
+  ownerPhotoUrl?: string; // Added ownerPhotoUrl to SalonType
 }
 
 export default function SalonDashboard() {
@@ -547,6 +548,12 @@ export default function SalonDashboard() {
     }
   }, [salon]);
 
+  const getImageUrl = (url: string) => {
+    // Add logic to handle image URLs if needed
+    return url;
+  };
+
+
   if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -593,9 +600,9 @@ export default function SalonDashboard() {
               {salon.ownerPhotoUrl && (
                 <div className="mt-2 sm:mt-0">
                   <img 
-                    src={getImageUrl(salon.ownerPhotoUrl)} 
+                    src={getImageUrl(salon.ownerPhotoUrl)}
                     alt={salon.ownerName}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm"
                   />
                 </div>
               )}
@@ -674,7 +681,7 @@ export default function SalonDashboard() {
                       + Add Promo
                     </Button>
                   </div>
-  
+
                   {/* Add new promo form */}
                   {isAddingPromo && (
                     <div className="mb-3">
@@ -690,7 +697,7 @@ export default function SalonDashboard() {
                       />
                     </div>
                   )}
-  
+
                   {/* Promo Grid */}
                   <div className="grid-cols-responsive">
                     {promos.map(promo => (
