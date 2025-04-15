@@ -1,0 +1,71 @@
+
+const { chromium } = require('playwright');
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+
+let browser, context, page;
+let passed = 0, failed = 0;
+
+const logSuccess = (msg) => console.log(`✅ ${msg}`);
+const logFailure = (msg) => console.log(`❌ ${msg}`);
+
+async function testPhotoUploads() {
+  console.log('\n🔍 Testing Photo Upload Functionality');
+  console.log('===================================\n');
+
+  try {
+    // Test file upload directory exists
+    const uploadDir = path.join(process.cwd(), 'client/public/uploads');
+    assert(fs.existsSync(uploadDir), 'Upload directory exists');
+    logSuccess('Upload directory check passed');
+    passed++;
+
+    // Test file upload endpoint
+    const testFile = path.join(process.cwd(), 'client/public/assets/LOGO1.png');
+    const formData = new FormData();
+    formData.append('file', fs.createReadStream(testFile));
+
+    const uploadResponse = await fetch('http://localhost:5000/api/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    assert(uploadResponse.ok, 'Upload endpoint responds successfully');
+    const uploadResult = await uploadResponse.json();
+    assert(uploadResult.url, 'Upload returns file URL');
+    logSuccess('File upload test passed');
+    passed++;
+
+    // Test photo display in salon dashboard
+    await page.goto('http://localhost:5000/salon/1');
+    const img = await page.waitForSelector('img[alt="Salon Photo"]');
+    assert(img, 'Salon photo displays on page');
+    logSuccess('Photo display test passed');
+    passed++;
+
+  } catch (error) {
+    logFailure(`Test failed: ${error.message}`);
+    failed++;
+  }
+}
+
+async function runTests() {
+  browser = await chromium.launch({ headless: true });
+  context = await browser.newContext();
+  page = await context.newPage();
+
+  try {
+    await testPhotoUploads();
+  } finally {
+    await browser.close();
+  }
+
+  // Print summary
+  console.log('\n=== Test Summary ===');
+  console.log(`Total tests: ${passed + failed}`);
+  console.log(`Passed: ${passed}`);
+  console.log(`Failed: ${failed}`);
+}
+
+runTests();
