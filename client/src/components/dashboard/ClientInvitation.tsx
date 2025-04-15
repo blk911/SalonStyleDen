@@ -115,7 +115,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     }
   }, [salonId]);
   
-  // Fetch salon information for the sponsor but don't change the visible UI
+  // Fetch salon information for the sponsor
   const fetchSalonInfo = async () => {
     if (!salonId) return;
     
@@ -128,8 +128,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           ownerName: data.ownerName
         });
         
-        // Store the salon name but don't visibly change the UI component
-        // We'll use this in the submit function
+        // If in salon context, automatically set the sponsor field to salon name 
+        setSponsor(data.name);
       }
     } catch (error) {
       console.error('Failed to fetch salon info:', error);
@@ -344,16 +344,12 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <Select value={sponsor} onValueChange={setSponsor}>
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="Sponsor (Optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SPONSOR_OPTIONS.map(option => (
-                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                placeholder="Sponsor (Optional)"
+                value={sponsor}
+                onChange={(e) => setSponsor(e.target.value)}
+                className="h-8 text-sm"
+              />
               <div className="relative flex items-center h-8 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
                 <span className="text-muted-foreground">First Service: </span>
                 <span className="ml-1 text-pink-600">Pending</span>
