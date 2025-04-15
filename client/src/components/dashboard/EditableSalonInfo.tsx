@@ -298,49 +298,53 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <div>
-            <Input
-              id="name"
-              name="name"
-              value={editedSalon.name}
-              onChange={handleChange}
-              className="text-xs h-8"
-              placeholder="Salon Name"
-            />
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Input
+                id="name"
+                name="name"
+                value={editedSalon.name}
+                onChange={handleChange}
+                className="text-xs h-8"
+                placeholder="Salon Name"
+              />
+            </div>
+            
+            <div>
+              <Input
+                id="ownerName"
+                name="ownerName"
+                value={editedSalon.ownerName}
+                onChange={handleChange}
+                className="text-xs h-8"
+                placeholder="Owner Name"
+              />
+            </div>
           </div>
           
-          <div>
-            <Input
-              id="ownerName"
-              name="ownerName"
-              value={editedSalon.ownerName}
-              onChange={handleChange}
-              className="text-xs h-8"
-              placeholder="Owner Name"
-            />
-          </div>
-          
-          <div>
-            <Input
-              id="phone"
-              name="phone"
-              value={editedSalon.phone}
-              onChange={handleChange}
-              className="text-xs h-8"
-              placeholder="Phone Number (123) 456-7890"
-            />
-          </div>
-          
-          <div>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              value={editedSalon.email}
-              onChange={handleChange}
-              className="text-xs h-8"
-              placeholder="Email Address"
-            />
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Input
+                id="phone"
+                name="phone"
+                value={editedSalon.phone}
+                onChange={handleChange}
+                className="text-xs h-8"
+                placeholder="Phone Number"
+              />
+            </div>
+            
+            <div>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={editedSalon.email}
+                onChange={handleChange}
+                className="text-xs h-8"
+                placeholder="Email Address"
+              />
+            </div>
           </div>
           
           <div className="md:col-span-2">
