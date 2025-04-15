@@ -115,6 +115,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
 
   return (
     <Card className="p-4">
+      <h3 className="text-lg font-semibold mb-4">Send Client Invitation</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Line 1: Name and Phone */}
         <div className="flex gap-4">
