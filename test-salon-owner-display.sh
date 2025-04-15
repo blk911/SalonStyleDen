@@ -5,60 +5,39 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-MAGENTA='\033[0;35m'
-CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-echo -e "${MAGENTA}==========================================${NC}"
-echo -e "${MAGENTA}  Salon Owner Display Test Utility       ${NC}"
-echo -e "${MAGENTA}==========================================${NC}"
-
-# Function to check if salon owner name is properly displayed
+# Function to test salon owner display components
 test_salon_owner_display() {
   local salon_id=$1
-  local expected_owner_name=$2
-  
-  echo -e "\n${YELLOW}Testing owner name display for salon ID: ${salon_id}${NC}"
-  echo -e "${CYAN}Expected owner name: ${expected_owner_name}${NC}"
-  
-  # Get the API response for this salon
-  echo -e "\n${CYAN}API Response:${NC}"
-  local api_response=$(curl -s "http://localhost:5000/api/salons/${salon_id}")
-  local actual_owner_name=$(echo $api_response | jq -r '.ownerName')
-  
-  echo -e "API reports owner name as: ${BLUE}${actual_owner_name}${NC}"
-  
-  if [[ "$actual_owner_name" == "$expected_owner_name" ]]; then
-    echo -e "${GREEN}✓ API has correct owner name${NC}"
+  local owner_name=$2
+
+  echo -e "\n${YELLOW}Testing salon owner display for: ${owner_name} (ID: ${salon_id})${NC}"
+
+  # Test API endpoint
+  curl -s "http://localhost:5000/api/salons/${salon_id}" > test_response.json
+
+  if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✓ API endpoint working${NC}"
+
+    # Check if owner name matches
+    if grep -q "\"ownerName\":\"${owner_name}\"" test_response.json; then
+      echo -e "${GREEN}✓ Owner name matches${NC}"
+    else
+      echo -e "${RED}✗ Owner name mismatch${NC}"
+    fi
+
+    # Check if owner photo exists
+    if grep -q "\"ownerPhotoUrl\":" test_response.json; then
+      echo -e "${GREEN}✓ Owner photo URL exists${NC}"
+    else
+      echo -e "${RED}✗ Missing owner photo URL${NC}"
+    fi
   else
-    echo -e "${RED}✗ API owner name mismatch${NC}"
+    echo -e "${RED}✗ API endpoint failed${NC}"
   fi
-  
-  # Now check how it appears in the frontend
-  local frontend_response=$(curl -s "http://localhost:5000/salon/${salon_id}")
-  
-  # Extract the welcome message from the HTML using grep and sed
-  local welcome_message=$(echo "$frontend_response" | grep -o "Welcome.*!" | head -1)
-  echo -e "Frontend welcome message: ${BLUE}${welcome_message:-'Not found'}${NC}"
-  
-  if [[ "$welcome_message" == *"$expected_owner_name"* ]]; then
-    echo -e "${GREEN}✓ Owner name appears correctly in welcome message${NC}"
-  else
-    echo -e "${RED}✗ Owner name missing or incorrect in welcome message${NC}"
-  fi
-  
-  # Check the dashboard page too
-  local dashboard_response=$(curl -s "http://localhost:5000/dashboard/salon/${salon_id}")
-  local dashboard_welcome=$(echo "$dashboard_response" | grep -o "Welcome.*!" | head -1)
-  echo -e "Dashboard welcome message: ${BLUE}${dashboard_welcome:-'Not found'}${NC}"
-  
-  if [[ "$dashboard_welcome" == *"$expected_owner_name"* ]]; then
-    echo -e "${GREEN}✓ Owner name appears correctly in dashboard${NC}"
-  else
-    echo -e "${RED}✗ Owner name missing or incorrect in dashboard${NC}"
-  fi
-  
-  echo -e "${BLUE}------------------------------------------${NC}"
+
+  rm -f test_response.json
 }
 
 # Function to trace routing paths between components

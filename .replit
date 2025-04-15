@@ -70,3 +70,24 @@ args = "./test-app.sh"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "./test-salon-endpoints.sh"
+
+[[workflows.workflow]]
+name = "Full Test Suite"
+author = 29677669
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./test-app.sh"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./test-salon-endpoints.sh"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node test-components.js"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node test-database.js"
