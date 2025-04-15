@@ -344,39 +344,43 @@ export default function ClientForm() {
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input {...field} placeholder="Full Name" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Top line: Name and Cell Phone in a row */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input {...field} placeholder="Full Name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        placeholder="Cell Phone" 
+                        onChange={(e) => {
+                          const formatted = formatPhoneNumber(e.target.value);
+                          field.onChange(formatted);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input 
-                      {...field} 
-                      placeholder="Cell Phone" 
-                      onChange={(e) => {
-                        const formatted = formatPhoneNumber(e.target.value);
-                        field.onChange(formatted);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
+            {/* Next line: Email */}
             <FormField
               control={form.control}
               name="email"
@@ -547,7 +551,8 @@ export default function ClientForm() {
               render={({ field }) => (
                 <FormItem>
                   <div className="text-sm mb-1">Favorite Services</div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {/* Small buttons: 3 per row, 2 rows */}
+                  <div className="grid grid-cols-3 gap-2">
                     {services.map((service) => {
                       // Check if service is in the current value array
                       const isSelected = field.value?.includes(service) || false;
@@ -555,26 +560,20 @@ export default function ClientForm() {
                       return (
                         <div
                           key={service}
-                          className={`service-option flex items-center p-2 border ${isSelected ? 'border-[#FF92A5] bg-pink-50' : 'border-gray-200'} rounded-lg hover:border-[#FF92A5] cursor-pointer transition-colors`}
+                          onClick={() => {
+                            const currentValue = Array.isArray(field.value) ? field.value : [];
+                            const newValue = isSelected
+                              ? currentValue.filter(item => item !== service)
+                              : [...currentValue, service];
+                            field.onChange(newValue);
+                          }}
+                          className={`${
+                            isSelected 
+                              ? 'bg-[#FF92A5] text-white' 
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          } rounded-lg p-2 text-center text-xs cursor-pointer transition-colors`}
                         >
-                          <FormControl>
-                            <Checkbox
-                              checked={isSelected}
-                              onCheckedChange={(checked) => {
-                                const currentValue = Array.isArray(field.value) ? field.value : [];
-                                const newValue = checked
-                                  ? [...currentValue, service]
-                                  : currentValue.filter(item => item !== service);
-                                
-                                // Update form value  
-                                field.onChange(newValue);
-                              }}
-                              className="mr-2 data-[state=checked]:bg-pink-500 data-[state=checked]:text-white"
-                            />
-                          </FormControl>
-                          <span className="text-xs text-gray-700 cursor-pointer flex-grow">
-                            {service}
-                          </span>
+                          {service}
                         </div>
                       );
                     })}

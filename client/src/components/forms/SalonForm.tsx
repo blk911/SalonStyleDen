@@ -155,6 +155,7 @@ export default function SalonForm() {
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Top line: Salon and Owner Names */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -183,6 +184,7 @@ export default function SalonForm() {
               />
             </div>
             
+            {/* Second line: Phone and Email */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -218,6 +220,7 @@ export default function SalonForm() {
               />
             </div>
             
+            {/* Third line: Full address field */}
             <FormField
               control={form.control}
               name="address"
@@ -231,6 +234,7 @@ export default function SalonForm() {
               )}
             />
             
+            {/* Fourth line: City, State, Zip */}
             <div className="grid grid-cols-3 gap-4">
               <FormField
                 control={form.control}
@@ -272,21 +276,23 @@ export default function SalonForm() {
               />
             </div>
             
+            {/* Social Media section - more compact and grid */}
             <div>
-              <FormLabel className="block text-sm font-medium text-gray-700 mb-2">Social Media (Optional)</FormLabel>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="text-sm mb-1">Social Media (Optional)</div>
+              <div className="grid grid-cols-4 gap-2">
                 <FormField
                   control={form.control}
                   name="instagram"
                   render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2">
+                    <FormItem className="flex items-center space-x-1">
                       <FormControl>
                         <Checkbox 
                           checked={field.value} 
                           onCheckedChange={field.onChange} 
+                          className="data-[state=checked]:bg-pink-500"
                         />
                       </FormControl>
-                      <FormLabel className="text-sm font-normal">Instagram</FormLabel>
+                      <FormLabel className="text-xs font-normal">Instagram</FormLabel>
                     </FormItem>
                   )}
                 />
@@ -295,14 +301,15 @@ export default function SalonForm() {
                   control={form.control}
                   name="facebook"
                   render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2">
+                    <FormItem className="flex items-center space-x-1">
                       <FormControl>
                         <Checkbox 
                           checked={field.value} 
-                          onCheckedChange={field.onChange} 
+                          onCheckedChange={field.onChange}
+                          className="data-[state=checked]:bg-pink-500" 
                         />
                       </FormControl>
-                      <FormLabel className="text-sm font-normal">Facebook</FormLabel>
+                      <FormLabel className="text-xs font-normal">Facebook</FormLabel>
                     </FormItem>
                   )}
                 />
@@ -311,14 +318,15 @@ export default function SalonForm() {
                   control={form.control}
                   name="tiktok"
                   render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2">
+                    <FormItem className="flex items-center space-x-1">
                       <FormControl>
                         <Checkbox 
                           checked={field.value} 
-                          onCheckedChange={field.onChange} 
+                          onCheckedChange={field.onChange}
+                          className="data-[state=checked]:bg-pink-500" 
                         />
                       </FormControl>
-                      <FormLabel className="text-sm font-normal">TikTok</FormLabel>
+                      <FormLabel className="text-xs font-normal">TikTok</FormLabel>
                     </FormItem>
                   )}
                 />
@@ -327,14 +335,15 @@ export default function SalonForm() {
                   control={form.control}
                   name="pinterest"
                   render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2">
+                    <FormItem className="flex items-center space-x-1">
                       <FormControl>
                         <Checkbox 
                           checked={field.value} 
-                          onCheckedChange={field.onChange} 
+                          onCheckedChange={field.onChange}
+                          className="data-[state=checked]:bg-pink-500" 
                         />
                       </FormControl>
-                      <FormLabel className="text-sm font-normal">Pinterest</FormLabel>
+                      <FormLabel className="text-xs font-normal">Pinterest</FormLabel>
                     </FormItem>
                   )}
                 />
@@ -408,7 +417,7 @@ export default function SalonForm() {
             
             <div className="pt-4">
               <Button type="submit" className="w-full bg-[#FF92A5] hover:bg-[#E57C8E]">
-                Register Salon
+                Sign me up! Ven Me, Baby!
               </Button>
             </div>
           </form>
