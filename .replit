@@ -104,7 +104,3 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node test-photo-handler.js"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx tsx server/routes.ts /test-photo-upload"
