@@ -60,8 +60,10 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
       return '/assets/sculpted-white-acrylic.png';
     } else if (name.includes('glam') || name.includes('custom') || name.includes('design')) {
       return '/assets/custom-glam-lv.png';
+    } else if (name.includes('spring') || name.includes('seasonal')) {
+      return '/assets/salon-card.png'; // Fixed image for seasonal spring special
     } else {
-      return '/assets/salon-card.png'; // Default fallback
+      return '/assets/LOGO1.png'; // Default fallback
     }
   };
   
@@ -133,37 +135,32 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
           
           {/* Right side - Image (1/3) */}
           <div className="w-1/3 flex items-center justify-end pl-2">
-            {service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? (
-              <img 
-                src="/assets/french-tips.png" 
-                alt={`${service.name} preview`} 
-                className="rounded h-20 w-20 object-cover"
-              />
-            ) : service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux') ? (
-              <img 
-                src="/assets/daisy-gel-manicure.png"
-                alt={`${service.name} preview`} 
-                className="rounded h-20 w-20 object-cover"
-              />
-            ) : service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? (
-              <img 
-                src="/assets/sculpted-white-acrylic.png" 
-                alt={`${service.name} preview`} 
-                className="rounded h-20 w-20 object-cover"
-              />
-            ) : service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design') ? (
-              <img 
-                src="/assets/custom-glam-lv.png" 
-                alt={`${service.name} preview`} 
-                className="rounded h-20 w-20 object-cover"
-              />
-            ) : (
-              <img 
-                src="/assets/salon-card.png" 
-                alt={`${service.name} preview`} 
-                className="rounded h-20 w-20 object-cover"
-              />
-            )}
+            <img 
+              src={
+                // First try to use the service's gifUrl if it exists
+                service.gifUrl ? service.gifUrl :
+                // Otherwise determine URL based on service name
+                service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') 
+                  ? "/assets/french-tips.png" :
+                service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') || service.name.toLowerCase().includes('lux')
+                  ? "/assets/daisy-gel-manicure.png" :
+                service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic')
+                  ? "/assets/sculpted-white-acrylic.png" :
+                service.name.toLowerCase().includes('glam') || service.name.toLowerCase().includes('custom') || service.name.toLowerCase().includes('design')
+                  ? "/assets/custom-glam-lv.png" :
+                service.name.toLowerCase().includes('spring') || service.name.toLowerCase().includes('seasonal')
+                  ? "/assets/salon-card.png" :
+                // Default fallback if none of the above match
+                "/assets/LOGO1.png"
+              }
+              alt={`${service.name} preview`}
+              className="rounded h-20 w-20 object-cover"
+              // Add error handling to use fallback when image fails to load
+              onError={(e) => {
+                console.error(`Failed to load image for service: ${service.name}`);
+                e.currentTarget.src = '/assets/LOGO1.png';
+              }}
+            />
           </div>
         </div>
       </div>
