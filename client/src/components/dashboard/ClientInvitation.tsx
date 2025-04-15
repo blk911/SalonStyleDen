@@ -25,7 +25,7 @@ const DEFAULT_SERVICES = [
   "Custom Design"
 ];
 
-// Marketing sources when salon ID is not available
+// Marketing sources when no salon context
 const SPONSOR_OPTIONS = [
   "Instagram",
   "Facebook",
@@ -115,7 +115,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     }
   }, [salonId]);
   
-  // Fetch salon information for the sponsor
+  // Fetch salon information for the sponsor but don't change the visible UI
   const fetchSalonInfo = async () => {
     if (!salonId) return;
     
@@ -128,8 +128,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           ownerName: data.ownerName
         });
         
-        // Set the sponsor as the salon name automatically
-        setSponsor(data.name);
+        // Store the salon name but don't visibly change the UI component
+        // We'll use this in the submit function
       }
     } catch (error) {
       console.error('Failed to fetch salon info:', error);
@@ -344,10 +344,16 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <div className="relative flex items-center h-8 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
-                <span className="text-muted-foreground">Sponsor: </span>
-                <span className="ml-1 text-pink-600 font-medium">{salonInfo?.name || 'Not Set'}</span>
-              </div>
+              <Select value={sponsor} onValueChange={setSponsor}>
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue placeholder="Sponsor (Optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SPONSOR_OPTIONS.map(option => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <div className="relative flex items-center h-8 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
                 <span className="text-muted-foreground">First Service: </span>
                 <span className="ml-1 text-pink-600">Pending</span>
