@@ -34,6 +34,16 @@ export default function VerificationModal({ data, type, onConfirm, onEdit }: Ver
                 <dt className="col-span-1 font-medium">Email:</dt>
                 <dd className="col-span-2">{data.email}</dd>
                 
+                {data.address && (
+                  <>
+                    <dt className="col-span-1 font-medium">Address:</dt>
+                    <dd className="col-span-2">
+                      {data.address}<br />
+                      {data.city}, {data.state} {data.zipCode}
+                    </dd>
+                  </>
+                )}
+                
                 {/* Social media */}
                 {(data.instagram || data.facebook || data.tiktok || data.pinterest) && (
                   <>

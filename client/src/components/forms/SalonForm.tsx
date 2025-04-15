@@ -19,6 +19,10 @@ const salonFormSchema = z.object({
   ownerName: z.string().min(2, { message: "Owner name must be at least 2 characters" }),
   phone: z.string().min(14, { message: "Please enter a valid phone number" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
+  address: z.string().min(5, { message: "Address must be at least 5 characters" }),
+  city: z.string().min(2, { message: "City must be at least 2 characters" }),
+  state: z.string().min(2, { message: "Please select a state" }),
+  zipCode: z.string().min(5, { message: "Please enter a valid ZIP code" }),
   instagram: z.boolean().default(false),
   facebook: z.boolean().default(false),
   tiktok: z.boolean().default(false),
@@ -46,6 +50,10 @@ export default function SalonForm() {
       ownerName: "",
       phone: "",
       email: "",
+      address: "",
+      city: "",
+      state: "",
+      zipCode: "",
       instagram: false,
       facebook: false,
       tiktok: false,
@@ -78,6 +86,10 @@ export default function SalonForm() {
         ownerName: data.ownerName,
         phone: data.phone,
         email: data.email,
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zipCode,
         socialMedia,
         type: "salon",
       };
@@ -201,6 +213,60 @@ export default function SalonForm() {
                 </FormItem>
               )}
             />
+            
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input {...field} placeholder="Street Address" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <div className="grid grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input {...field} placeholder="City" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input {...field} placeholder="State" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="zipCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input {...field} placeholder="ZIP Code" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             
             <div>
               <FormLabel className="block text-sm font-medium text-gray-700 mb-2">Social Media (Optional)</FormLabel>
