@@ -598,15 +598,25 @@ export default function SalonDashboard() {
                   <h2 className="font-bold text-xl leading-tight">{salon.name}</h2>
                   <p className="text-gray-700 text-sm">Welcome, {salon.ownerName}!</p>
                 </div>
-                {salon.ownerPhotoUrl && (
-                  <div>
+                <div className="ml-auto">
+                  {salon.ownerPhotoUrl ? (
                     <img 
                       src={salon.ownerPhotoUrl}
                       alt={salon.ownerName}
-                      className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md" 
+                      className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
+                      onError={(e) => {
+                        console.error("Error loading owner photo:", salon.ownerPhotoUrl);
+                        e.currentTarget.src = '/assets/VMB_LOGO.png';
+                      }}
                     />
-                  </div>
-                )}
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center border-2 border-[#FF92A5] shadow-md">
+                      <span className="text-[#FF92A5] font-semibold text-xl">
+                        {salon.ownerName?.substring(0, 1).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -38,55 +38,38 @@ export function formatPhoneNumber(value: string): string {
 // Helper to process image URLs consistently
 export function getImageUrl(url?: string): string {
   if (!url) return '';
+  
+  console.log('Processing image URL:', url);
 
   // If it's a data URL, return as is (should never happen in production)
   if (url.startsWith('data:')) {
-    console.log('Warning: Data URL encountered, this should be uploaded:', url.substring(0, 30) + '...');
+    console.log('Data URL encountered:', url.substring(0, 30) + '...');
     return url;
+  }
+
+  // Check for the most common issue: url is only the filename without the path
+  if (!url.includes('/') && !url.includes('\\') && !url.startsWith('http')) {
+    console.log('Adding proper path to uploaded file:', url);
+    return `/uploads/${url}`;
   }
 
   // If it's a proper URL from our uploads directory or assets, return as is
   if (url.startsWith('/uploads/') || url.startsWith('/assets/')) {
     return url;
   }
+  
+  // If the URL is missing the leading slash but has uploads/ or assets/
+  if (url.startsWith('uploads/') || url.startsWith('assets/')) {
+    return `/${url}`;
+  }
 
-  // Handle external URLs - replace with our local assets
+  // Handle external URLs for owner photos - these should be returned as-is
   if (url.startsWith('http')) {
-    // Match service type from the URL if possible
-    if (url.toLowerCase().includes('french') || url.toLowerCase().includes('tips')) {
-      return '/assets/french-tips.png';
-    } else if (url.toLowerCase().includes('gel') || url.toLowerCase().includes('manicure')) {
-      return '/assets/gel-manicure.png';
-    } else if (url.toLowerCase().includes('acrylic') || url.toLowerCase().includes('sculpt')) {
-      return '/assets/sculpted-acrylics.png';
-    } else if (url.toLowerCase().includes('custom') || url.toLowerCase().includes('design') || url.toLowerCase().includes('glam')) {
-      return '/assets/glam-design.png';
-    }
-
-    // Default fallback for external URLs
-    return '/assets/french-tips.png';
+    console.log('External URL used directly:', url);
+    return url;
   }
 
-  // Handle Windows paths (convert to web URLs)
-  if (url.includes(':\\') || url.includes('C:')) {
-    console.log('Converting Windows path to local asset:', url);
-    // Extract just the filename from the Windows path
-    const filename = url.split('\\').pop()?.toLowerCase() || '';
-
-    if (filename.includes('french') || filename.includes('tips')) {
-      return '/assets/french-tips.png';
-    } else if (filename.includes('gel') || filename.includes('manicure')) {
-      return '/assets/gel-manicure.png';
-    } else if (filename.includes('acrylic') || filename.includes('sculpt')) {
-      return '/assets/sculpted-acrylics.png';
-    } else if (filename.includes('custom') || filename.includes('design') || filename.includes('glam')) {
-      return '/assets/glam-design.png';
-    }
-
-    // If we can't match the filename, use a default
-    return '/assets/french-tips.png';
-  }
-
+  // Handle service images based on filename patterns
   // Map service names to our specific uploaded images as a last resort fallback
   if (url.toLowerCase().includes('french') || url.toLowerCase().includes('tips')) {
     return '/assets/french-tips.png';
@@ -98,6 +81,15 @@ export function getImageUrl(url?: string): string {
     return '/assets/glam-design.png';
   }
 
-  // Default fallback to french tips image
-  return '/assets/french-tips.png';
+  // Check for owner photo uploads again (this is likely the case)
+  if (url.includes('.jpg') || url.includes('.png') || url.includes('.jpeg') || url.includes('.gif')) {
+    console.log('Adding uploads path to image file:', url);
+    // Strip any partial paths and just use the filename
+    const filename = url.split(/[\/\\]/).pop() || url;
+    return `/uploads/${filename}`;
+  }
+
+  // Default fallback to VMB logo
+  console.log('Using default image for:', url);
+  return '/assets/VMB_LOGO.png';
 }

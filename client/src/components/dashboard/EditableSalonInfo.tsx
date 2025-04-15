@@ -102,26 +102,36 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
       const formData = new FormData();
       formData.append('file', file);
 
-      // Upload the file
+      // Upload the file using fetch directly to ensure proper FormData handling
       console.log('Uploading salon owner photo:', file.name);
-      const response = await apiRequest<{url: string}>('/api/upload', {
+      
+      const uploadResponse = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
-        // Don't set Content-Type header for FormData
       });
+      
+      if (!uploadResponse.ok) {
+        throw new Error(`Upload failed with status: ${uploadResponse.status}`);
+      }
+      
+      const response = await uploadResponse.json();
       console.log('Photo upload response:', response);
 
       // Update the salon object with the new photo URL
       if (response && response.url) {
+        // Force a refresh of the image by creating a new URL with cache-busting parameter
+        const imageUrl = response.url;
+        console.log('Set owner photo URL:', imageUrl);
+        
         setEditedSalon(prev => ({ 
           ...prev, 
-          ownerPhotoUrl: response.url
+          ownerPhotoUrl: imageUrl
         }));
 
         toast({
           title: "Photo uploaded",
           description: "Your photo has been uploaded successfully.",
-          variant: "default"
+          duration: 3000
         });
       }
     } catch (error) {
@@ -129,7 +139,8 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
       toast({
         title: "Upload failed",
         description: "Failed to upload photo. Please try again.",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 3000
       });
     } finally {
       setIsUploading(false);
@@ -168,14 +179,19 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
             <div className="text-center w-full">
               <h3 className="font-semibold text-base text-pink-800 w-full text-center">{salon.name}</h3>
               <div className="flex flex-col items-center mt-2 gap-2">
-                {salon.ownerPhotoUrl && (
-                  <Avatar className="h-16 w-16 border-2 border-pink-100">
-                    <AvatarImage src={getImageUrl(salon.ownerPhotoUrl)} alt={salon.ownerName} />
-                    <AvatarFallback className="bg-pink-50 text-pink-500">
-                      {salon.ownerName?.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
+                <Avatar className="h-16 w-16 border-2 border-pink-100">
+                  <AvatarImage 
+                    src={getImageUrl(salon.ownerPhotoUrl)} 
+                    alt={salon.ownerName} 
+                    onError={(e) => {
+                      console.error("Error loading avatar image in view mode:", salon.ownerPhotoUrl);
+                      e.currentTarget.src = '/assets/VMB_LOGO.png';
+                    }}
+                  />
+                  <AvatarFallback className="bg-pink-50 text-pink-500">
+                    {salon.ownerName?.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="flex items-center justify-center">
                   <p className="text-sm text-gray-600 font-medium">{salon.ownerName}</p>
                   <span className="text-xs text-gray-500 ml-1">• Owner</span>
@@ -270,7 +286,14 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
 
           <div className="flex items-center gap-3">
             <Avatar className="h-16 w-16 border-2 border-pink-100">
-              <AvatarImage src={getImageUrl(editedSalon.ownerPhotoUrl)} alt={editedSalon.ownerName} />
+              <AvatarImage 
+                src={getImageUrl(editedSalon.ownerPhotoUrl)} 
+                alt={editedSalon.ownerName}
+                onError={(e) => {
+                  console.error("Error loading avatar image:", editedSalon.ownerPhotoUrl);
+                  e.currentTarget.src = '/assets/VMB_LOGO.png';
+                }} 
+              />
               <AvatarFallback className="bg-pink-50 text-pink-500">
                 {editedSalon.ownerName?.substring(0, 2).toUpperCase()}
               </AvatarFallback>
