@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, getQueryFn, queryClient } from "@/lib/queryClient";
+import { getImageUrl } from "@/lib/utils";
 import WeeklySchedule, { DaySchedule } from "@/components/dashboard/WeeklySchedule";
 import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSalonInfo";
 import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
@@ -601,12 +602,12 @@ export default function SalonDashboard() {
                 <div className="ml-auto">
                   {salon.ownerPhotoUrl ? (
                     <img 
-                      src={salon.ownerPhotoUrl}
+                      src={getImageUrl(salon.ownerPhotoUrl)}
                       alt={salon.ownerName}
                       className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
                       onError={(e) => {
                         console.error("Error loading owner photo:", salon.ownerPhotoUrl);
-                        e.currentTarget.src = '/assets/VMB_LOGO.png';
+                        e.currentTarget.src = '/assets/salon-card.png';
                       }}
                     />
                   ) : (
