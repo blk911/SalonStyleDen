@@ -112,10 +112,10 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
       console.log('Photo upload response:', response);
       
       // Update the salon object with the new photo URL
-      if (response && response.filePath) {
+      if (response && response.url) {
         setEditedSalon(prev => ({ 
           ...prev, 
-          ownerPhotoUrl: response.filePath 
+          ownerPhotoUrl: response.url
         }));
         
         toast({
