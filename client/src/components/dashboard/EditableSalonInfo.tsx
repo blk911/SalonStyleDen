@@ -37,7 +37,6 @@ interface EditableSalonInfoProps {
 
 export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [isEditVisible, setIsEditVisible] = useState(false); // Controls visibility of edit panel
   const [editedSalon, setEditedSalon] = useState<SalonInfo>({ ...salon });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [socialPlatform, setSocialPlatform] = useState("");
@@ -151,8 +150,6 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
       
       onSave(editedSalon);
       setIsEditing(false);
-      // Also hide the edit panel when saving successfully
-      setIsEditVisible(false);
     } catch (error) {
       console.error("Failed to update salon info:", error);
     } finally {
@@ -187,25 +184,11 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               variant="outline" 
               size="sm"
               className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
-              onClick={() => setIsEditVisible(!isEditVisible)}
+              onClick={() => setIsEditing(true)}
             >
-              {isEditVisible ? "Hide Edit" : "Show Edit"}
+              Edit
             </Button>
           </div>
-          
-          {/* Show the Edit button below when isEditVisible is true */}
-          {isEditVisible && (
-            <div className="mt-3 mb-2">
-              <Button
-                variant="default"
-                size="sm"
-                className="bg-pink-500 hover:bg-pink-600 text-white text-xs"
-                onClick={() => setIsEditing(true)}
-              >
-                Edit Salon Information
-              </Button>
-            </div>
-          )}
           
           <div className="flex flex-col items-center gap-3 mt-3 text-sm">
             <div className="flex items-center gap-4 justify-center">
@@ -484,11 +467,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
             variant="outline" 
             size="sm"
             className="text-xs h-8"
-            onClick={() => {
-              setIsEditing(false);
-              // Also hide the edit panel when canceling
-              setIsEditVisible(false);
-            }}
+            onClick={() => setIsEditing(false)}
           >
             Cancel
           </Button>
