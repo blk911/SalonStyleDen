@@ -184,8 +184,7 @@ export default function SalonForm() {
               />
             </div>
             
-            {/* Second line: Phone and Email */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Second line: Phone */}
               <FormField
                 control={form.control}
                 name="phone"
@@ -206,6 +205,7 @@ export default function SalonForm() {
                 )}
               />
               
+            {/* Third line: Email */}
               <FormField
                 control={form.control}
                 name="email"
@@ -218,7 +218,6 @@ export default function SalonForm() {
                   </FormItem>
                 )}
               />
-            </div>
             
             {/* Third line: Full address field */}
             <FormField
@@ -276,144 +275,146 @@ export default function SalonForm() {
               />
             </div>
             
-            {/* Social Media section - more compact and grid */}
+            {/* Social Media section - using compact button grid like favorite services */}
             <div>
-              <div className="text-sm mb-1">Social Media (Optional)</div>
-              <div className="grid grid-cols-4 gap-2">
-                <FormField
-                  control={form.control}
-                  name="instagram"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-x-1">
-                      <FormControl>
-                        <Checkbox 
-                          checked={field.value} 
-                          onCheckedChange={field.onChange} 
-                          className="data-[state=checked]:bg-pink-500"
-                        />
-                      </FormControl>
-                      <FormLabel className="text-xs font-normal">Instagram</FormLabel>
-                    </FormItem>
-                  )}
-                />
+              <div className="text-sm mb-1 font-medium text-center">Social Media (Optional)</div>
+              <div className="grid grid-cols-3 grid-rows-2 gap-1.5 mx-auto max-w-md">
+                <div
+                  onClick={() => form.setValue("instagram", !form.watch("instagram"))}
+                  className={`${
+                    form.watch("instagram") 
+                      ? 'bg-[#FF92A5] text-white border-pink-300 border' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200 border'
+                  } rounded-md py-1.5 px-1 text-center text-xs cursor-pointer transition-colors`}
+                >
+                  Instagram
+                </div>
                 
-                <FormField
-                  control={form.control}
-                  name="facebook"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-x-1">
-                      <FormControl>
-                        <Checkbox 
-                          checked={field.value} 
-                          onCheckedChange={field.onChange}
-                          className="data-[state=checked]:bg-pink-500" 
-                        />
-                      </FormControl>
-                      <FormLabel className="text-xs font-normal">Facebook</FormLabel>
-                    </FormItem>
-                  )}
-                />
+                <div
+                  onClick={() => form.setValue("facebook", !form.watch("facebook"))}
+                  className={`${
+                    form.watch("facebook") 
+                      ? 'bg-[#FF92A5] text-white border-pink-300 border' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200 border'
+                  } rounded-md py-1.5 px-1 text-center text-xs cursor-pointer transition-colors`}
+                >
+                  Facebook
+                </div>
                 
-                <FormField
-                  control={form.control}
-                  name="tiktok"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-x-1">
-                      <FormControl>
-                        <Checkbox 
-                          checked={field.value} 
-                          onCheckedChange={field.onChange}
-                          className="data-[state=checked]:bg-pink-500" 
-                        />
-                      </FormControl>
-                      <FormLabel className="text-xs font-normal">TikTok</FormLabel>
-                    </FormItem>
-                  )}
-                />
+                <div
+                  onClick={() => form.setValue("tiktok", !form.watch("tiktok"))}
+                  className={`${
+                    form.watch("tiktok") 
+                      ? 'bg-[#FF92A5] text-white border-pink-300 border' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200 border'
+                  } rounded-md py-1.5 px-1 text-center text-xs cursor-pointer transition-colors`}
+                >
+                  TikTok
+                </div>
                 
-                <FormField
-                  control={form.control}
-                  name="pinterest"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-x-1">
-                      <FormControl>
-                        <Checkbox 
-                          checked={field.value} 
-                          onCheckedChange={field.onChange}
-                          className="data-[state=checked]:bg-pink-500" 
-                        />
-                      </FormControl>
-                      <FormLabel className="text-xs font-normal">Pinterest</FormLabel>
-                    </FormItem>
-                  )}
-                />
+                <div
+                  onClick={() => form.setValue("pinterest", !form.watch("pinterest"))}
+                  className={`${
+                    form.watch("pinterest") 
+                      ? 'bg-[#FF92A5] text-white border-pink-300 border' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200 border'
+                  } rounded-md py-1.5 px-1 text-center text-xs cursor-pointer transition-colors`}
+                >
+                  Pinterest
+                </div>
+                
+                <div
+                  className="bg-gray-50 text-gray-400 rounded-md py-1.5 px-1 text-center text-xs border-gray-100 border"
+                >
+                  Twitter
+                </div>
+                
+                <div
+                  className="bg-gray-50 text-gray-400 rounded-md py-1.5 px-1 text-center text-xs border-gray-100 border"
+                >
+                  Snapchat
+                </div>
               </div>
             </div>
             
-            {/* Conditional social media input fields */}
-            {form.watch("instagram") && (
-              <FormField
-                control={form.control}
-                name="instagramHandle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Instagram Handle</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-            
-            {form.watch("facebook") && (
-              <FormField
-                control={form.control}
-                name="facebookHandle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Facebook Page</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-            
-            {form.watch("tiktok") && (
-              <FormField
-                control={form.control}
-                name="tiktokHandle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>TikTok Handle</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-            
-            {form.watch("pinterest") && (
-              <FormField
-                control={form.control}
-                name="pinterestHandle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Pinterest Handle</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+            {/* Conditional social media input fields - in a compact grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {form.watch("instagram") && (
+                <FormField
+                  control={form.control}
+                  name="instagramHandle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          placeholder="Instagram Username" 
+                          className="text-xs h-8 bg-pink-50 border-pink-200"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              
+              {form.watch("facebook") && (
+                <FormField
+                  control={form.control}
+                  name="facebookHandle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          placeholder="Facebook Page" 
+                          className="text-xs h-8 bg-pink-50 border-pink-200"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              
+              {form.watch("tiktok") && (
+                <FormField
+                  control={form.control}
+                  name="tiktokHandle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          placeholder="TikTok Username" 
+                          className="text-xs h-8 bg-pink-50 border-pink-200"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              
+              {form.watch("pinterest") && (
+                <FormField
+                  control={form.control}
+                  name="pinterestHandle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          placeholder="Pinterest Username" 
+                          className="text-xs h-8 bg-pink-50 border-pink-200"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+            </div>
             
             <div className="pt-4">
               <Button type="submit" className="w-full bg-[#FF92A5] hover:bg-[#E57C8E]">
