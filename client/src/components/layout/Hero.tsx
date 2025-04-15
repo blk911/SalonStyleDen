@@ -35,7 +35,7 @@ export default function Hero({
         ) : (
           // For main home page
           <img 
-            src="/assets/VMB script logo.png"
+            src="/assets/logos/vmb-script-logo.png"
             alt="Ven Me, Baby!"
             className="w-24 h-24 object-contain"
           />

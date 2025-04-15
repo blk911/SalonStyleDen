@@ -181,7 +181,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               <div className="flex flex-col items-center mt-2 gap-2">
                 <Avatar className="h-16 w-16 border-2 border-pink-100">
                   <AvatarImage 
-                    src="/assets/TIFFANY_5280.jpg" 
+                    src="/assets/owner_photos/tiffany.jpg" 
                     alt={salon.ownerName} 
                     onError={(e) => {
                       console.error("Error loading avatar image in view mode");
@@ -287,7 +287,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
           <div className="flex items-center gap-3">
             <Avatar className="h-16 w-16 border-2 border-pink-100">
               <AvatarImage 
-                src="/assets/TIFFANY_5280.jpg" 
+                src="/assets/owner_photos/tiffany.jpg" 
                 alt={editedSalon.ownerName}
                 onError={(e) => {
                   console.error("Error loading avatar image in edit mode");

@@ -601,7 +601,7 @@ export default function SalonDashboard() {
                 </div>
                 <div className="ml-auto">
                   <img 
-                    src="/assets/TIFFANY_5280.jpg"
+                    src="/assets/owner_photos/tiffany.jpg"
                     alt={salon.ownerName}
                     className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
                     onError={(e) => {
