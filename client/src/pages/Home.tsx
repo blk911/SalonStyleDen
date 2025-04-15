@@ -32,7 +32,7 @@ export default function Home() {
           onClientClick={showClientForm}
           salonName="Ven Me, Baby!"
           salonOwnerName="Tiffany"
-          ownerPhotoUrl={null} // Explicitly pass null to ensure VMB logo is used
+          ownerPhotoUrl="" // Empty string to ensure VMB logo is used
         />
         <BrandCarousel />
         <section className="py-4 lg:py-8">
