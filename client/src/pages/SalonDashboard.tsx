@@ -592,20 +592,22 @@ export default function SalonDashboard() {
         {/* Condensed Hero Section */}
         <section className="bg-[#FEE1E8] py-3">
           <div className="container mx-auto px-2">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-              <div>
-                <h2 className="font-bold text-xl leading-tight">{salon.name}</h2>
-                <p className="text-gray-700 text-sm">Welcome, {salon.ownerName}!</p>
-              </div>
-              {salon.ownerPhotoUrl && (
-                <div className="mt-2 sm:mt-0">
-                  <img 
-                    src={getImageUrl(salon.ownerPhotoUrl)}
-                    alt={salon.ownerName}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm"
-                  />
+            <div className="flex flex-row justify-between items-center">
+              <div className="flex items-center gap-4">
+                <div>
+                  <h2 className="font-bold text-xl leading-tight">{salon.name}</h2>
+                  <p className="text-gray-700 text-sm">Welcome, {salon.ownerName}!</p>
                 </div>
-              )}
+                {salon.ownerPhotoUrl && (
+                  <div>
+                    <img 
+                      src={salon.ownerPhotoUrl}
+                      alt={salon.ownerName}
+                      className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md" 
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </section>
