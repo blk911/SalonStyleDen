@@ -590,6 +590,15 @@ export default function SalonDashboard() {
                 <h2 className="font-bold text-xl leading-tight">{salon.name}</h2>
                 <p className="text-gray-700 text-sm">Welcome, {salon.ownerName}!</p>
               </div>
+              {salon.ownerPhotoUrl && (
+                <div className="mt-2 sm:mt-0">
+                  <img 
+                    src={getImageUrl(salon.ownerPhotoUrl)} 
+                    alt={salon.ownerName}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </section>
