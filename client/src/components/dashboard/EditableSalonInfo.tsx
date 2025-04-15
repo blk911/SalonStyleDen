@@ -44,14 +44,14 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  
+
   // Social media platform options
   const platformOptions = ["Instagram", "Facebook", "Twitter", "TikTok", "Snapchat", "Pinterest"];
-  
+
   // Handle basic input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     // Special handling for phone number formatting
     if (name === "phone") {
       setEditedSalon(prev => ({ ...prev, [name]: formatPhoneNumber(value) }));
@@ -59,28 +59,28 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
       setEditedSalon(prev => ({ ...prev, [name]: value }));
     }
   };
-  
+
   // Add a social media handle
   const addSocialMedia = () => {
     if (!socialPlatform || !socialHandle) return;
-    
+
     const newSocialMedia = [
       ...(editedSalon.socialMedia || []),
       { platform: socialPlatform, handle: socialHandle }
     ];
-    
+
     setEditedSalon(prev => ({ ...prev, socialMedia: newSocialMedia }));
     setSocialPlatform("");
     setSocialHandle("");
   };
-  
+
   // Remove a social media handle
   const removeSocialMedia = (index: number) => {
     const newSocialMedia = [...(editedSalon.socialMedia || [])];
     newSocialMedia.splice(index, 1);
     setEditedSalon(prev => ({ ...prev, socialMedia: newSocialMedia }));
   };
-  
+
   // Handle photo upload
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -97,27 +97,27 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
     }
 
     setIsUploading(true);
-    
+
     try {
       const formData = new FormData();
       formData.append('file', file);
-      
+
       // Upload the file
       console.log('Uploading salon owner photo:', file.name);
-      const response = await apiRequest<{filePath: string}>('/api/upload', {
+      const response = await apiRequest<{url: string}>('/api/upload', {
         method: 'POST',
         body: formData,
         // Don't set Content-Type header for FormData
       });
       console.log('Photo upload response:', response);
-      
+
       // Update the salon object with the new photo URL
       if (response && response.url) {
         setEditedSalon(prev => ({ 
           ...prev, 
           ownerPhotoUrl: response.url
         }));
-        
+
         toast({
           title: "Photo uploaded",
           description: "Your photo has been uploaded successfully.",
@@ -142,14 +142,14 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
       fileInputRef.current.click();
     }
   };
-  
+
   // Handle form submission
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
       // In a real app, this would be an API call
       await new Promise(r => setTimeout(r, 500)); // Simulate API call
-      
+
       onSave(editedSalon);
       setIsEditing(false);
     } catch (error) {
@@ -158,7 +158,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
       setIsSubmitting(false);
     }
   };
-  
+
   // Display mode (not editing)
   if (!isEditing) {
     return (
@@ -191,7 +191,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               Edit
             </Button>
           </div>
-          
+
           <div className="flex flex-col items-center gap-3 mt-3 text-sm">
             <div className="flex items-center gap-4 justify-center">
               <div className="flex items-center gap-2">
@@ -202,7 +202,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
                 </div>
                 <span className="text-gray-700">{salon.phone}</span>
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <div className="bg-pink-50 p-1.5 rounded-full">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-pink-500" viewBox="0 0 20 20" fill="currentColor">
@@ -213,7 +213,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
                 <span className="text-gray-700">{salon.email}</span>
               </div>
             </div>
-            
+
             {salon.address && (
               <div className="flex items-center gap-2 justify-center mt-1">
                 <div className="bg-pink-50 p-1.5 rounded-full">
@@ -230,7 +230,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               </div>
             )}
           </div>
-          
+
           {salon.socialMedia && salon.socialMedia.length > 0 && (
             <div className="mt-3 pt-2 border-t border-gray-100">
               <div className="flex flex-wrap gap-2 justify-center">
@@ -251,7 +251,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
       </Card>
     );
   }
-  
+
   // Edit mode
   return (
     <Card className="shadow-sm">
@@ -260,14 +260,14 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
           <h3 className="font-medium text-sm">Edit Salon</h3>
           <div className="h-px bg-gray-200 flex-grow mx-2"></div>
         </div>
-        
+
         {/* Owner Photo Upload Section */}
         <div className="mb-3 flex flex-col items-center">
           <div className="flex justify-between items-center w-full mb-2">
             <h4 className="text-xs text-gray-500">Owner Photo</h4>
             <div className="h-px bg-gray-200 flex-grow mx-2"></div>
           </div>
-          
+
           <div className="flex items-center gap-3">
             <Avatar className="h-16 w-16 border-2 border-pink-100">
               <AvatarImage src={getImageUrl(editedSalon.ownerPhotoUrl)} alt={editedSalon.ownerName} />
@@ -275,7 +275,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
                 {editedSalon.ownerName?.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            
+
             <div className="flex flex-col gap-1">
               <Button 
                 type="button" 
@@ -298,7 +298,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
             </div>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div className="grid grid-cols-2 gap-2">
             <div>
@@ -311,7 +311,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
                 placeholder="Salon Name"
               />
             </div>
-            
+
             <div>
               <Input
                 id="ownerName"
@@ -323,7 +323,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Input
@@ -335,7 +335,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
                 placeholder="Phone Number"
               />
             </div>
-            
+
             <div>
               <Input
                 id="email"
@@ -348,7 +348,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               />
             </div>
           </div>
-          
+
           <div className="md:col-span-2">
             <Input
               id="address"
@@ -359,7 +359,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               placeholder="Street Address (123 Main Street)"
             />
           </div>
-          
+
           <div>
             <Input
               id="city"
@@ -370,7 +370,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               placeholder="City"
             />
           </div>
-          
+
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Input
@@ -383,7 +383,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
                 maxLength={2}
               />
             </div>
-            
+
             <div>
               <Input
                 id="zipCode"
@@ -396,14 +396,14 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
             </div>
           </div>
         </div>
-        
+
         {/* Social Media Section */}
         <div className="mt-2">
           <div className="flex justify-between items-center">
             <h4 className="text-xs text-gray-500">Social Media</h4>
             <div className="h-px bg-gray-200 flex-grow mx-2"></div>
           </div>
-          
+
           {/* Existing social media accounts */}
           {editedSalon.socialMedia && editedSalon.socialMedia.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-2">
@@ -424,7 +424,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               ))}
             </div>
           )}
-          
+
           {/* Add new social media */}
           <div className="flex gap-1 items-end">
             <div className="flex-1">
@@ -440,7 +440,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
                 ))}
               </select>
             </div>
-            
+
             <div className="flex-1">
               <Input
                 id="socialHandle"
@@ -450,7 +450,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
                 placeholder="@username"
               />
             </div>
-            
+
             <Button 
               type="button"
               size="sm"
@@ -462,7 +462,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
             </Button>
           </div>
         </div>
-        
+
         {/* Action buttons */}
         <div className="flex justify-end gap-2 mt-3">
           <Button 
