@@ -78,11 +78,11 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "./test-app.sh"
+args = "chmod +x ./test-app.sh ./test-salon-endpoints.sh ./test-salon-owner-display.sh ./run-all-tests.sh"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "./test-salon-endpoints.sh"
+args = "./run-all-tests.sh"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
@@ -91,3 +91,7 @@ args = "node test-components.js"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node test-database.js"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node test-sponsor-rules.js"
