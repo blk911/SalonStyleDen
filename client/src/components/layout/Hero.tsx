@@ -8,6 +8,8 @@ type HeroProps = {
 
 // Import the getImageUrl function from utils.ts
 import { getImageUrl } from "@/lib/utils";
+// Import VMB script logo
+import VmbScriptLogo from "@assets/VMB script logo.png";
 
 export default function Hero({ 
   onSalonClick, 
@@ -35,9 +37,10 @@ export default function Hero({
         ) : (
           // For main home page
           <img 
-            src="/assets/VMB script logo.png"
+            src={VmbScriptLogo}
             alt="Ven Me, Baby!"
             className="w-24 h-24 object-contain"
+            onLoad={() => console.log("Logo loaded successfully")}
           />
         )}
       </div>
