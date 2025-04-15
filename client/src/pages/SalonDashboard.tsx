@@ -600,23 +600,15 @@ export default function SalonDashboard() {
                   <p className="text-gray-700 text-sm">Welcome, {salon.ownerName}!</p>
                 </div>
                 <div className="ml-auto">
-                  {salon.ownerPhotoUrl ? (
-                    <img 
-                      src={getImageUrl(salon.ownerPhotoUrl)}
-                      alt={salon.ownerName}
-                      className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
-                      onError={(e) => {
-                        console.error("Error loading owner photo:", salon.ownerPhotoUrl);
-                        e.currentTarget.src = '/assets/salon-card.png';
-                      }}
-                    />
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center border-2 border-[#FF92A5] shadow-md">
-                      <span className="text-[#FF92A5] font-semibold text-xl">
-                        {salon.ownerName?.substring(0, 1).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
+                  <img 
+                    src="/assets/TIFFANY_5280.jpg"
+                    alt={salon.ownerName}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
+                    onError={(e) => {
+                      console.error("Error loading owner photo");
+                      e.currentTarget.src = '/assets/salon-card.png';
+                    }}
+                  />
                 </div>
               </div>
             </div>

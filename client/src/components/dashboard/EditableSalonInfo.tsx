@@ -181,16 +181,15 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               <div className="flex flex-col items-center mt-2 gap-2">
                 <Avatar className="h-16 w-16 border-2 border-pink-100">
                   <AvatarImage 
-                    src={getImageUrl(salon.ownerPhotoUrl)} 
+                    src="/assets/TIFFANY_5280.jpg" 
                     alt={salon.ownerName} 
                     onError={(e) => {
-                      console.error("Error loading avatar image in view mode:", salon.ownerPhotoUrl);
-                      // Don't use the VMB logo for owner photos
+                      console.error("Error loading avatar image in view mode");
                       e.currentTarget.src = '/assets/salon-card.png';
                     }}
                   />
                   <AvatarFallback className="bg-pink-50 text-pink-500">
-                    {salon.ownerName?.substring(0, 2).toUpperCase()}
+                    TI
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex items-center justify-center">
@@ -288,16 +287,15 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
           <div className="flex items-center gap-3">
             <Avatar className="h-16 w-16 border-2 border-pink-100">
               <AvatarImage 
-                src={getImageUrl(editedSalon.ownerPhotoUrl)} 
+                src="/assets/TIFFANY_5280.jpg" 
                 alt={editedSalon.ownerName}
                 onError={(e) => {
-                  console.error("Error loading avatar image:", editedSalon.ownerPhotoUrl);
-                  // Don't use VMB logo for owner photos in edit mode either
+                  console.error("Error loading avatar image in edit mode");
                   e.currentTarget.src = '/assets/salon-card.png';
                 }} 
               />
               <AvatarFallback className="bg-pink-50 text-pink-500">
-                {editedSalon.ownerName?.substring(0, 2).toUpperCase()}
+                TI
               </AvatarFallback>
             </Avatar>
 
