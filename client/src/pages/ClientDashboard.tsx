@@ -88,35 +88,33 @@ export default function ClientDashboard() {
                 <div className="prose max-w-none">
                   <h4 className="text-xl font-semibold mb-2">Profile Info</h4>
                   
-                  <div className="grid grid-cols-2 gap-x-8 gap-y-2">
-                    <div className="flex items-center">
-                      <p className="font-medium text-sm mr-2">Phone:</p>
-                      <p className="text-gray-700 text-sm">{client?.phone}</p>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                    <div className="flex items-center space-x-1">
+                      <span className="font-medium">P:</span>
+                      <span className="text-gray-700">{client?.phone}</span>
                     </div>
-                    <div className="flex items-center">
-                      <p className="font-medium text-sm mr-2">Email:</p>
-                      <p className="text-gray-700 text-sm">{client?.email}</p>
+                    <div className="flex items-center space-x-1">
+                      <span className="font-medium">E:</span>
+                      <span className="text-gray-700">{client?.email}</span>
                     </div>
-                    <div className="flex items-center">
-                      <p className="font-medium text-sm mr-2">Status:</p>
-                      <p className="text-gray-700 text-sm">{client?.isCurrentClient ? "Current Client" : "New Client"}</p>
+                    <div className="flex items-center space-x-1">
+                      <span className="font-medium">Status:</span>
+                      <span className="text-gray-700">{client?.isCurrentClient ? "Current" : "New"}</span>
                     </div>
                     {client?.salonName && (
-                      <div className="flex items-center">
-                        <p className="font-medium text-sm mr-2">Salon:</p>
-                        <p className="text-gray-700 text-sm">{client.salonName}</p>
+                      <div className="flex items-center space-x-1">
+                        <span className="font-medium">Salon:</span>
+                        <span className="text-gray-700">{client.salonName}</span>
                       </div>
                     )}
                   </div>
-                    
                   {client?.favoriteServices && client.favoriteServices.length > 0 && (
-                    <div className="mt-2">
-                      <p className="font-medium text-sm">Favorite Services:</p>
-                      <div className="flex flex-wrap gap-1 mt-1">
+                    <div className="mt-1">
+                      <div className="flex flex-wrap gap-1">
                         {client.favoriteServices.map((service: string) => (
                           <span 
                             key={service} 
-                            className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#FEE1E8] text-[#E57C8E]"
+                            className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-[#FEE1E8] text-[#E57C8E]"
                           >
                             {service}
                           </span>
