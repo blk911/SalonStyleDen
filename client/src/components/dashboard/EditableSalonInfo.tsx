@@ -185,7 +185,8 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
                     alt={salon.ownerName} 
                     onError={(e) => {
                       console.error("Error loading avatar image in view mode:", salon.ownerPhotoUrl);
-                      e.currentTarget.src = '/assets/VMB_LOGO.png';
+                      // Don't use the VMB logo for owner photos
+                      e.currentTarget.src = '/assets/salon-card.png';
                     }}
                   />
                   <AvatarFallback className="bg-pink-50 text-pink-500">
@@ -291,7 +292,8 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
                 alt={editedSalon.ownerName}
                 onError={(e) => {
                   console.error("Error loading avatar image:", editedSalon.ownerPhotoUrl);
-                  e.currentTarget.src = '/assets/VMB_LOGO.png';
+                  // Don't use VMB logo for owner photos in edit mode either
+                  e.currentTarget.src = '/assets/salon-card.png';
                 }} 
               />
               <AvatarFallback className="bg-pink-50 text-pink-500">

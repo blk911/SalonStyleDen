@@ -47,12 +47,6 @@ export function getImageUrl(url?: string): string {
     return url;
   }
 
-  // Check for the most common issue: url is only the filename without the path
-  if (!url.includes('/') && !url.includes('\\') && !url.startsWith('http')) {
-    console.log('Adding proper path to uploaded file:', url);
-    return `/uploads/${url}`;
-  }
-
   // If it's a proper URL from our uploads directory or assets, return as is
   if (url.startsWith('/uploads/') || url.startsWith('/assets/')) {
     return url;
@@ -63,14 +57,27 @@ export function getImageUrl(url?: string): string {
     return `/${url}`;
   }
 
-  // Handle external URLs for owner photos - these should be returned as-is
+  // Handle external URLs - these should be returned as-is
   if (url.startsWith('http')) {
     console.log('External URL used directly:', url);
     return url;
   }
 
+  // Check for the most common issue: url is only the filename without the path
+  if (!url.includes('/') && !url.includes('\\')) {
+    // If URL appears to be an owner photo (handle this case first)
+    if (url.includes('owner') || url.includes('photo') || url.includes('avatar') || 
+        url.includes('profile') || url.includes('salon') || url.includes('tiffany')) {
+      console.log('Adding proper path to owner photo file:', url);
+      return `/uploads/${url}`;
+    }
+    
+    // Otherwise add proper path to any uploaded file
+    console.log('Adding proper path to uploaded file:', url);
+    return `/uploads/${url}`;
+  }
+
   // Handle service images based on filename patterns
-  // Map service names to our specific uploaded images as a last resort fallback
   if (url.toLowerCase().includes('french') || url.toLowerCase().includes('tips')) {
     return '/assets/french-tips.png';
   } else if (url.toLowerCase().includes('gel') || url.toLowerCase().includes('manicure') || url.toLowerCase().includes('lux')) {
@@ -79,9 +86,11 @@ export function getImageUrl(url?: string): string {
     return '/assets/sculpted-acrylics.png';
   } else if (url.toLowerCase().includes('custom') || url.toLowerCase().includes('design') || url.toLowerCase().includes('glam')) {
     return '/assets/glam-design.png';
+  } else if (url.toLowerCase().includes('spring') || url.toLowerCase().includes('seasonal')) {
+    return '/assets/salon-card.png';
   }
 
-  // Check for owner photo uploads again (this is likely the case)
+  // Check for image files and ensure they have the uploads path
   if (url.includes('.jpg') || url.includes('.png') || url.includes('.jpeg') || url.includes('.gif')) {
     console.log('Adding uploads path to image file:', url);
     // Strip any partial paths and just use the filename
@@ -89,7 +98,18 @@ export function getImageUrl(url?: string): string {
     return `/uploads/${filename}`;
   }
 
-  // Default fallback to VMB logo
-  console.log('Using default image for:', url);
-  return '/assets/VMB_LOGO.png';
+  // If we get here and have no clue what kind of URL this is, 
+  // do NOT default to the main VMB logo since this could be owner photo
+  // Instead, use an appropriate placeholder based on context
+  console.log('Using context-appropriate placeholder for:', url);
+  
+  // If the URL has "owner" or related words, it's likely an owner photo
+  if (url.toLowerCase().includes('owner') || url.toLowerCase().includes('salon') || 
+      url.toLowerCase().includes('profile') || url.toLowerCase().includes('photo') || 
+      url.toLowerCase().includes('tiffany')) {
+    return '/assets/salon-card.png'; // Use a salon-specific placeholder
+  }
+  
+  // Default fallback - use this only for non-owner-photo contexts
+  return '/assets/LOGO1.png';
 }

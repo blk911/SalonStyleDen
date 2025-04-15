@@ -6,12 +6,8 @@ type HeroProps = {
   ownerPhotoUrl?: string;
 };
 
-// Added getImageUrl function.  Implementation depends on your backend and how URLs are managed.
-const getImageUrl = (url: string) => {
-  // Replace with your actual image URL handling logic.  This is a placeholder.
-  return url;
-};
-
+// Import the getImageUrl function from utils.ts
+import { getImageUrl } from "@/lib/utils";
 
 export default function Hero({ 
   onSalonClick, 
@@ -23,13 +19,11 @@ export default function Hero({
   return (
     <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-3 lg:py-3">
       <div className="flex justify-center mb-4">
+        {/* For the main page hero, we intentionally use the VMB logo */}
         <img 
-          src={ownerPhotoUrl ? getImageUrl(ownerPhotoUrl) : '/assets/VMB_LOGO.png'} 
-          alt="Salon Owner"
-          className="w-20 h-20 rounded-full object-cover border-2 border-[#FF92A5]"
-          onError={(e) => {
-            e.currentTarget.src = '/assets/VMB_LOGO.png';
-          }}
+          src="/assets/VMB script logo.png"
+          alt="Ven Me, Baby!"
+          className="w-24 h-24 object-contain"
         />
       </div>
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
