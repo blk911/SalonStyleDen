@@ -21,12 +21,12 @@ interface ClientData {
 
 export default function ClientDashboard() {
   const { id } = useParams();
-  
+
   const { data: client, isLoading, error } = useQuery<ClientData>({
     queryKey: [`/api/clients/${id}`],
     refetchOnMount: true,
   });
-  
+
   if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -40,7 +40,7 @@ export default function ClientDashboard() {
       </div>
     );
   }
-  
+
   if (error || !client) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -62,64 +62,50 @@ export default function ClientDashboard() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow">
-        {/* Hero Section with Client Info */}
-        <section className="bg-[#FEE1E8] py-3">
+        {/* Hero Section with Client Info -  Simplified */}
+        <section className="bg-pink-100 py-4"> {/*Pink/white color scheme */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <div>
-                <h2 className="font-playfair font-bold text-3xl mb-2">{client.name}</h2>
-                <p className="text-gray-600 mb-2">Member since {new Date(client.createdAt).toLocaleDateString()}</p>
-              </div>
-              <div className="flex items-center bg-white/50 rounded-lg p-4 shadow-soft">
-                <div className="text-right">
-                  <p className="text-sm text-gray-600 mb-1">Preferred Salon</p>
-                  <p className="font-medium text-pink-600">{client.salonName}</p>
-                </div>
-              </div>
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-xl text-pink-700">{client.name}</h2>
+              <p className="text-gray-600 text-sm">Member since {new Date(client.createdAt).toLocaleDateString()}</p>
             </div>
           </div>
         </section>
-        
-        {/* Content Section - Condensed Profile Info */}
+
+        {/* Content Section - Single Row Profile Info */}
         <section className="py-4">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Card className="rounded-xl shadow-soft">
               <CardContent className="px-8 py-2">
-                <div className="prose max-w-none">
-                  <h4 className="text-xl font-semibold mb-2">Profile Info</h4>
-                  
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                    <div className="flex items-center space-x-1">
-                      <span className="font-medium">P:</span>
-                      <span className="text-gray-700">{client?.phone}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <span className="font-medium">E:</span>
-                      <span className="text-gray-700">{client?.email}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <span className="font-medium">Status:</span>
-                      <span className="text-gray-700">{client?.isCurrentClient ? "Current" : "New"}</span>
-                    </div>
-                    {client?.salonName && (
-                      <div className="flex items-center space-x-1">
-                        <span className="font-medium">Salon:</span>
-                        <span className="text-gray-700">{client.salonName}</span>
-                      </div>
-                    )}
+                <div className="flex flex-wrap gap-4 text-sm"> {/*Single row, tighter spacing*/}
+                  <div className="flex items-center">
+                    <span className="font-medium text-gray-700">Phone:</span>
+                    <span className="ml-2 text-gray-800">{client?.phone}</span>
                   </div>
+                  <div className="flex items-center">
+                    <span className="font-medium text-gray-700">Email:</span>
+                    <span className="ml-2 text-gray-800">{client?.email}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="font-medium text-gray-700">Status:</span>
+                    <span className="ml-2 text-gray-800">{client?.isCurrentClient ? "Current" : "New"}</span>
+                  </div>
+                  {client?.salonName && (
+                    <div className="flex items-center">
+                      <span className="font-medium text-gray-700">Salon:</span>
+                      <span className="ml-2 text-gray-800">{client.salonName}</span>
+                    </div>
+                  )}
                   {client?.favoriteServices && client.favoriteServices.length > 0 && (
-                    <div className="mt-1">
-                      <div className="flex flex-wrap gap-1">
-                        {client.favoriteServices.map((service: string) => (
-                          <span 
-                            key={service} 
-                            className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-[#FEE1E8] text-[#E57C8E]"
-                          >
-                            {service}
-                          </span>
-                        ))}
-                      </div>
+                    <div className="flex flex-wrap gap-1">
+                      {client.favoriteServices.map((service: string) => (
+                        <span 
+                          key={service} 
+                          className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-200 text-pink-700"
+                        >
+                          {service}
+                        </span>
+                      ))}
                     </div>
                   )}
                 </div>
