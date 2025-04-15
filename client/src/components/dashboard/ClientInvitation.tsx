@@ -25,13 +25,14 @@ const DEFAULT_SERVICES = [
   "Custom Design"
 ];
 
+// Marketing sources when salon ID is not available
 const SPONSOR_OPTIONS = [
   "Instagram",
   "Facebook",
   "Google",
   "Referral",
   "Walk-in",
-  "Event",
+  "Event", 
   "Promotion",
   "Other"
 ];
@@ -67,6 +68,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [phoneExists, setPhoneExists] = useState(false);
   const [emailExists, setEmailExists] = useState(false);
+  const [salonInfo, setSalonInfo] = useState<{name: string, ownerName: string} | null>(null);
 
   // Format phone number as user types
   const formatPhoneNumber = (input: string) => {
@@ -107,10 +109,32 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     // Load recent invites when component mounts or when salonId changes
     if (salonId) {
       fetchSalonInvites();
+      fetchSalonInfo();
     } else {
       fetchRecentInvites();
     }
   }, [salonId]);
+  
+  // Fetch salon information for the sponsor
+  const fetchSalonInfo = async () => {
+    if (!salonId) return;
+    
+    try {
+      const response = await fetch(`/api/salons/${salonId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSalonInfo({
+          name: data.name,
+          ownerName: data.ownerName
+        });
+        
+        // Set the sponsor as the salon name automatically
+        setSponsor(data.name);
+      }
+    } catch (error) {
+      console.error('Failed to fetch salon info:', error);
+    }
+  };
   
   // Verify phone number when it changes
   useEffect(() => {
@@ -190,6 +214,13 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         throw new Error('Phone number must be 10 digits');
       }
 
+      // Always use the salon name as the sponsor when sending from salon dashboard
+      const sponsorToUse = salonId ? salonInfo?.name : sponsor;
+      
+      if (salonId && !sponsorToUse) {
+        throw new Error('Sponsor information is required. Please try again.');
+      }
+      
       const response = await fetch('/api/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -200,7 +231,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           notes,
           favoriteServices: selectedServices,
           salonId: salonId || undefined,
-          sponsor: sponsor || undefined,
+          sponsor: sponsorToUse || undefined,
           // Always send first service as "Pending"
           firstServiceDate: "Pending",
           status: 'pending'
@@ -313,16 +344,10 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <Select value={sponsor} onValueChange={setSponsor}>
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="Sponsor (Optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SPONSOR_OPTIONS.map(option => (
-                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="relative flex items-center h-8 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
+                <span className="text-muted-foreground">Sponsor: </span>
+                <span className="ml-1 text-pink-600 font-medium">{salonInfo?.name || 'Not Set'}</span>
+              </div>
               <div className="relative flex items-center h-8 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
                 <span className="text-muted-foreground">First Service: </span>
                 <span className="ml-1 text-pink-600">Pending</span>
