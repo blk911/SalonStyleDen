@@ -95,3 +95,12 @@ args = "node test-database.js"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node test-sponsor-rules.js"
+
+[[workflows.workflow]]
+name = "Test Photo Handler"
+author = 29677669
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node test-photo-handler.js"
