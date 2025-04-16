@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckIcon } from 'lucide-react';
+import { CheckIcon, Sparkles } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/apiRequest';
+import { useLocation } from 'wouter';
 
 interface StyleOption {
   id: number;
@@ -14,15 +17,58 @@ interface StyleOption {
   featured?: boolean;
 }
 
-interface VmbStyleOptionsProps {
-  services: StyleOption[];
+interface StyleSelection {
+  id: number;
+  clientId: number;
+  styleId: number;
+  salonId: number;
+  selectedAt: string;
+  status: string;
 }
 
-export function VmbStyleOptions({ services }: VmbStyleOptionsProps) {
+interface VmbStyleOptionsProps {
+  services: StyleOption[];
+  clientId?: number;
+  salonId?: number;
+  invitationId?: number;
+  onSelectionComplete?: (selection: StyleSelection) => void;
+}
+
+export function VmbStyleOptions({ 
+  services, 
+  clientId, 
+  salonId, 
+  invitationId,
+  onSelectionComplete 
+}: VmbStyleOptionsProps) {
   // States for handling selection and popups
   const [selectedStyle, setSelectedStyle] = useState<StyleOption | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [hoveredStyle, setHoveredStyle] = useState<number | null>(null);
+  const [savedSelections, setSavedSelections] = useState<StyleSelection[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const [, navigate] = useLocation();
+  
+  // Fetch any existing style selections for this client
+  useEffect(() => {
+    if (clientId) {
+      const fetchSelections = async () => {
+        try {
+          const response = await fetch(`/api/clients/${clientId}/style-selections`);
+          if (response.ok) {
+            const data = await response.json();
+            setSavedSelections(data);
+          }
+        } catch (error) {
+          console.error("Error fetching style selections:", error);
+        }
+      };
+      
+      fetchSelections();
+    }
+  }, [clientId]);
   
   // Handle style selection
   const handleSelectStyle = (style: StyleOption) => {
@@ -30,10 +76,68 @@ export function VmbStyleOptions({ services }: VmbStyleOptionsProps) {
     setIsDetailsOpen(true);
   };
   
+  // Handle mouse over effect
+  const handleMouseEnter = (styleId: number) => {
+    setHoveredStyle(styleId);
+  };
+  
+  const handleMouseLeave = () => {
+    setHoveredStyle(null);
+  };
+  
   // Handle saving the selection
-  const handleSaveSelection = () => {
-    setIsDetailsOpen(false);
-    setIsConfirmationOpen(true);
+  const handleSaveSelection = async () => {
+    if (!selectedStyle || !clientId || !salonId) {
+      toast({
+        title: "Selection Error",
+        description: "Missing required information to save your style selection.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Save selection to database
+      const response = await apiRequest(`/api/clients/${clientId}/style-selections`, 'POST', {
+        styleId: selectedStyle.id,
+        salonId: salonId,
+        invitationId: invitationId
+      });
+      
+      if (response.ok) {
+        const newSelection = await response.json();
+        setSavedSelections(prev => [...prev, newSelection]);
+        
+        // Close details popup and show confirmation
+        setIsDetailsOpen(false);
+        setIsConfirmationOpen(true);
+        
+        // Notify parent component if callback provided
+        if (onSelectionComplete) {
+          onSelectionComplete(newSelection);
+        }
+        
+        toast({
+          title: "Style Selected!",
+          description: `You've selected ${selectedStyle.name}`,
+          variant: "default"
+        });
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save style selection");
+      }
+    } catch (error) {
+      console.error("Error saving style selection:", error);
+      toast({
+        title: "Selection Failed",
+        description: error instanceof Error ? error.message : "Could not save your style selection",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   // Reset all dialogs
@@ -49,6 +153,11 @@ export function VmbStyleOptions({ services }: VmbStyleOptionsProps) {
     if (nameLower.includes('gel') || nameLower.includes('manicure')) return 'Lux Gel';
     if (nameLower.includes('sculpt') || nameLower.includes('acrylic')) return 'Sculpted';
     return 'Glam me Baby!';
+  };
+  
+  // Check if this style has been previously selected
+  const isStyleSelected = (styleId: number) => {
+    return savedSelections.some(selection => selection.styleId === styleId);
   };
 
   return (

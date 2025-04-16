@@ -815,6 +815,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Style Selection Endpoints
+  apiRouter.post("/clients/:clientId/style-selections", async (req: Request, res: Response) => {
+    try {
+      const { clientId } = req.params;
+      const { styleId, salonId, invitationId } = req.body;
+      
+      console.log(`Recording style selection: client=${clientId}, style=${styleId}, salon=${salonId}, invitation=${invitationId || 'none'}`);
+      
+      // Validate required fields
+      if (!styleId || !salonId) {
+        return res.status(400).json({ error: "styleId and salonId are required" });
+      }
+      
+      // Create style selection
+      const styleSelection = await storage.createStyleSelection({
+        clientId: Number(clientId),
+        styleId: Number(styleId),
+        salonId: Number(salonId),
+        selectedAt: new Date().toISOString(),
+        status: "selected"
+      });
+      
+      // Log the activity
+      await storage.createActivityLog({
+        type: "style_selection",
+        description: `Client ${clientId} selected style ${styleId} from salon ${salonId}`,
+        clientId: Number(clientId),
+        salonId: Number(salonId),
+        timestamp: new Date().toISOString()
+      });
+      
+      // Update invitation status if applicable
+      if (invitationId) {
+        await storage.updateInvitationStatus(Number(invitationId), "style_selected");
+        console.log(`Updated invitation ${invitationId} status to style_selected`);
+      }
+      
+      res.status(201).json(styleSelection);
+    } catch (error) {
+      console.error("Error creating style selection:", error);
+      res.status(500).json({ error: "Failed to create style selection" });
+    }
+  });
+  
+  apiRouter.get("/clients/:clientId/style-selections", async (req: Request, res: Response) => {
+    try {
+      const { clientId } = req.params;
+      
+      if (isNaN(Number(clientId))) {
+        return res.status(400).json({ error: "Invalid client ID" });
+      }
+      
+      const styleSelections = await storage.getClientStyleSelections(Number(clientId));
+      res.status(200).json(styleSelections);
+    } catch (error) {
+      console.error("Error fetching client style selections:", error);
+      res.status(500).json({ error: "Failed to fetch client style selections" });
+    }
+  });
+  
+  apiRouter.get("/salons/:salonId/style-selections", async (req: Request, res: Response) => {
+    try {
+      const { salonId } = req.params;
+      
+      if (isNaN(Number(salonId))) {
+        return res.status(400).json({ error: "Invalid salon ID" });
+      }
+      
+      const styleSelections = await storage.getSalonStyleSelections(Number(salonId));
+      res.status(200).json(styleSelections);
+    } catch (error) {
+      console.error("Error fetching salon style selections:", error);
+      res.status(500).json({ error: "Failed to fetch salon style selections" });
+    }
+  });
+  
+  // Activity Log Endpoints
+  apiRouter.post("/activity-logs", async (req: Request, res: Response) => {
+    try {
+      const { type, description, userId, salonId, clientId } = req.body;
+      
+      // Validate required fields
+      if (!type || !description) {
+        return res.status(400).json({ error: "type and description are required" });
+      }
+      
+      // Create activity log
+      const activityLog = await storage.createActivityLog({
+        type,
+        description,
+        userId: userId ? Number(userId) : undefined,
+        salonId: salonId ? Number(salonId) : undefined,
+        clientId: clientId ? Number(clientId) : undefined,
+        timestamp: new Date().toISOString()
+      });
+      
+      res.status(201).json(activityLog);
+    } catch (error) {
+      console.error("Error creating activity log:", error);
+      res.status(500).json({ error: "Failed to create activity log" });
+    }
+  });
+  
+  apiRouter.get("/activity-logs", async (req: Request, res: Response) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      
+      const activityLogs = await storage.getRecentActivityLogs(limit);
+      res.status(200).json(activityLogs);
+    } catch (error) {
+      console.error("Error fetching activity logs:", error);
+      res.status(500).json({ error: "Failed to fetch activity logs" });
+    }
+  });
+
   // Register API routes
   app.use("/api", apiRouter);
 
