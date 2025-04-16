@@ -158,6 +158,10 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
+      // Log what's being sent to the server for debugging
+      console.log('Saving salon with data:', JSON.stringify(editedSalon, null, 2));
+      console.log('Owner photo URL being saved:', editedSalon.ownerPhotoUrl);
+      
       // Make a real API call to update the salon data
       const response = await fetch(`/api/salons/${editedSalon.id}`, {
         method: 'PUT',
@@ -173,7 +177,9 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
       
       const updatedSalon = await response.json();
       console.log('Salon updated successfully:', updatedSalon);
+      console.log('Returned owner photo URL:', updatedSalon.ownerPhotoUrl);
       
+      // Force a refresh to make sure images reload
       onSave(updatedSalon);
       setIsEditing(false);
       

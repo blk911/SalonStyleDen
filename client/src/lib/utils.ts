@@ -37,7 +37,10 @@ export function formatPhoneNumber(value: string): string {
 
 // Helper to process image URLs consistently
 export function getImageUrl(url?: string): string {
-  if (!url) return '';
+  if (!url) {
+    console.log('Empty URL provided to getImageUrl');
+    return '';
+  }
   
   console.log('Processing image URL:', url);
 
@@ -49,12 +52,27 @@ export function getImageUrl(url?: string): string {
 
   // If it's a proper URL from our uploads directory or assets, return as is
   if (url.startsWith('/uploads/') || url.startsWith('/assets/')) {
+    console.log('URL already has the correct format:', url);
+    // Ensure the file exists by making a fetch request on next render
+    setTimeout(() => {
+      fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            console.error(`File at ${url} doesn't exist or can't be accessed`);
+          } else {
+            console.log(`File at ${url} exists and is accessible`);
+          }
+        })
+        .catch(err => console.error(`Error checking file existence for ${url}:`, err));
+    }, 0);
     return url;
   }
   
   // If the URL is missing the leading slash but has uploads/ or assets/
   if (url.startsWith('uploads/') || url.startsWith('assets/')) {
-    return `/${url}`;
+    const fullUrl = `/${url}`;
+    console.log('Adding leading slash to URL:', fullUrl);
+    return fullUrl;
   }
 
   // Handle external URLs - these should be returned as-is
@@ -67,14 +85,17 @@ export function getImageUrl(url?: string): string {
   if (!url.includes('/') && !url.includes('\\')) {
     // If URL appears to be an owner photo (handle this case first)
     if (url.includes('owner') || url.includes('photo') || url.includes('avatar') || 
-        url.includes('profile') || url.includes('salon') || url.includes('tiffany')) {
-      console.log('Adding proper path to owner photo file:', url);
-      return `/uploads/${url}`;
+        url.includes('profile') || url.includes('salon') || url.includes('tiffany') ||
+        url.includes('file-')) {
+      const fullUrl = `/uploads/${url}`;
+      console.log('Adding proper path to owner photo file:', fullUrl);
+      return fullUrl;
     }
     
     // Otherwise add proper path to any uploaded file
-    console.log('Adding proper path to uploaded file:', url);
-    return `/uploads/${url}`;
+    const fullUrl = `/uploads/${url}`;
+    console.log('Adding proper path to uploaded file:', fullUrl);
+    return fullUrl;
   }
 
   // Handle service images based on filename patterns
@@ -92,10 +113,11 @@ export function getImageUrl(url?: string): string {
 
   // Check for image files and ensure they have the uploads path
   if (url.includes('.jpg') || url.includes('.png') || url.includes('.jpeg') || url.includes('.gif')) {
-    console.log('Adding uploads path to image file:', url);
     // Strip any partial paths and just use the filename
     const filename = url.split(/[\/\\]/).pop() || url;
-    return `/uploads/${filename}`;
+    const fullUrl = `/uploads/${filename}`;
+    console.log('Adding uploads path to image file:', fullUrl);
+    return fullUrl;
   }
 
   // If we get here and have no clue what kind of URL this is, 

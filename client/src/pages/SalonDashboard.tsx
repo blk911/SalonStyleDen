@@ -609,10 +609,14 @@ export default function SalonDashboard() {
                     alt={salon.ownerName}
                     className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
                     onError={(e) => {
-                      console.error("Error loading owner photo");
+                      console.error("Error loading owner photo in hero");
+                      console.log("Attempted to load:", salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl) : 'default image');
                       e.currentTarget.src = '/assets/salon-card.png';
                     }}
                   />
+                  {salon.ownerPhotoUrl && (
+                    <p className="text-xs text-center mt-1 text-pink-700">Photo Updated</p>
+                  )}
                 </div>
               </div>
             </div>
