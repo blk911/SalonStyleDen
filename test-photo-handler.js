@@ -1,10 +1,15 @@
 
-const { chromium } = require('playwright');
-const assert = require('assert');
-const fs = require('fs');
-const path = require('path');
-const FormData = require('form-data');
-const fetch = require('node-fetch');
+import { chromium } from 'playwright';
+import assert from 'assert';
+import fs from 'fs';
+import path from 'path';
+import FormData from 'form-data';
+import fetch from 'node-fetch';
+import { fileURLToPath } from 'url';
+
+// Get the current file path and directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let browser, context, page;
 let passed = 0, failed = 0;
@@ -25,7 +30,7 @@ async function testPhotoHandling() {
     passed++;
 
     // Test file upload endpoint
-    const testFile = path.join(process.cwd(), 'client/public/assets/VMB_LOGO.png');
+    const testFile = path.join(process.cwd(), 'client/public/assets/owner_photos/tiffany.jpg');
     const formData = new FormData();
     formData.append('file', fs.createReadStream(testFile));
 
