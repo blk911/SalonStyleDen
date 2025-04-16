@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
+import { queryClient } from "@/lib/queryClient";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Check, ChevronsUpDown } from "lucide-react";
@@ -112,9 +113,36 @@ const geocodeAddress = async (address: string): Promise<{lat: number, lng: numbe
 };
 
 export default function SalonsPage() {
-  const { data: salons, isLoading, error } = useQuery<SalonType[]>({
+  const { 
+    data: salons, 
+    isLoading, 
+    error,
+    refetch 
+  } = useQuery<SalonType[]>({
     queryKey: ["/api/salons"],
+    refetchOnWindowFocus: true,
+    staleTime: 15000, // Consider data fresh for 15 seconds
   });
+  
+  // Set up window focus handling for real-time data refresh
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('SalonsPage - Window focused, refreshing data');
+        // Invalidate the query cache
+        queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+        console.log('SalonsPage - Invalidated salons cache');
+      }
+    };
+
+    // Add event listener
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   // State to track which salon cards are expanded
   const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({});

@@ -6,8 +6,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getImageUrl } from "@/lib/utils";
+import { queryClient } from "@/lib/queryClient";
 
 // Define a type for social media
 interface SocialMediaItem {
@@ -213,6 +214,28 @@ export default function SalonPublicPage() {
       setLocation('/salons');
     }
   }, [id, setLocation]);
+  
+  // Set up window focus handling for real-time data refresh
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('SalonPublicPage - Window focused, refreshing data');
+        // Invalidate the query cache for this specific salon
+        if (id) {
+          queryClient.invalidateQueries({ queryKey: ['/api/salons', id] });
+          console.log(`SalonPublicPage - Invalidated cache for salon ${id}`);
+        }
+      }
+    };
+
+    // Add event listener
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [id]);
 
   // Images have been removed, so we don't need migration code
 
