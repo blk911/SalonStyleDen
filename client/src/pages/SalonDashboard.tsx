@@ -685,17 +685,9 @@ export default function SalonDashboard() {
                       alt={salon.ownerName}
                       className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
                       onError={(e) => {
-                        console.error("Error loading owner photo in hero");
-                        console.log("Attempted to load:", salon.ownerPhotoUrl);
-                        // Try direct URL approach as a fallback
-                        if (salon.ownerPhotoUrl) {
-                          const timestamp = Date.now();
-                          const directUrl = `/uploads/file-1744815185216-224451235.png?t=${timestamp}`;
-                          console.log("Trying direct URL:", directUrl);
-                          e.currentTarget.src = directUrl;
-                        } else {
-                          e.currentTarget.src = '/assets/salon-card.png';
-                        }
+                        console.log("Owner photo fallback used for:", salon.name);
+                        // Use the standard fallback without hardcoded paths
+                        e.currentTarget.src = '/assets/salon-card.png';
                       }}
                     />
                     {salon.ownerPhotoUrl && (

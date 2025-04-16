@@ -285,22 +285,9 @@ export default function SalonPublicPage() {
                   alt={`${salon.ownerName}'s photo`}
                   className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm"
                   onError={(e) => {
-                    console.error("Error loading owner photo in SalonPublicPage:", salon.ownerPhotoUrl);
-                    
-                    // Try direct URL approach as a fallback
-                    if (salon.id === 18) { // Special case for Deb Dazzles
-                      const timestamp = Date.now();
-                      const directUrl = `/uploads/file-1744815185216-224451235.png?t=${timestamp}`;
-                      console.log("Trying direct URL for Deb Dazzles:", directUrl);
-                      e.currentTarget.src = directUrl;
-                    } else if (salon.ownerPhotoUrl) {
-                      const timestamp = Date.now();
-                      console.log("Trying fallback with timestamp for other salon:", salon.ownerPhotoUrl);
-                      e.currentTarget.src = `${salon.ownerPhotoUrl}?t=${timestamp}`;
-                    } else {
-                      // Use salon-specific fallback, not VMB logo
-                      e.currentTarget.src = '/assets/salon-card.png';
-                    }
+                    console.log("Owner photo fallback used for:", salon.name);
+                    // Use the standard fallback without hardcoded paths
+                    e.currentTarget.src = '/assets/salon-card.png';
                   }}
                 />
               </div>
