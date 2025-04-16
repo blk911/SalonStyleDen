@@ -139,24 +139,19 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
         // Also update in database immediately to avoid losing the change
         try {
           console.log(`Saving owner photo URL directly to database: ${imageUrl}`);
-          // Make API call to update just the photo URL
-          const response = await fetch(`/api/salons/${editedSalon.id}`, {
+          // Make API call to update just the photo URL using apiRequest
+          const updatedSalon = await apiRequest(`/api/salons/${editedSalon.id}`, {
             method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
+            data: {
               id: editedSalon.id,
               ownerPhotoUrl: imageUrl
-            })
+            }
           });
           
-          if (response.ok) {
-            console.log('Owner photo URL updated in database');
-            // Invalidate React Query cache after photo upload
-            queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
-            queryClient.invalidateQueries({ queryKey: ['/api/salons', editedSalon.id.toString()] });
-          }
+          console.log('Owner photo URL updated in database:', updatedSalon.ownerPhotoUrl);
+          // Invalidate React Query cache after photo upload
+          await queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+          await queryClient.invalidateQueries({ queryKey: ['/api/salons', editedSalon.id.toString()] });
         } catch (err) {
           console.error('Error saving owner photo URL directly:', err);
           // Continue anyway as we've updated the local state
@@ -196,39 +191,32 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
       console.log('Saving salon with data:', JSON.stringify(editedSalon, null, 2));
       console.log('Owner photo URL being saved:', editedSalon.ownerPhotoUrl);
       
-      // Make a real API call to update the salon data
-      const response = await fetch(`/api/salons/${editedSalon.id}`, {
+      // Make a real API call to update the salon data using apiRequest
+      const updatedSalon = await apiRequest(`/api/salons/${editedSalon.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editedSalon)
+        data: editedSalon
       });
       
-      if (!response.ok) {
-        throw new Error(`Failed to update salon: ${response.status}`);
-      }
-      
-      const updatedSalon = await response.json();
-      console.log('Salon updated successfully:', updatedSalon);
+      console.log('Salon updated successfully through apiRequest:', updatedSalon);
       console.log('Returned owner photo URL:', updatedSalon.ownerPhotoUrl);
       
-      // Update the salon object in the parent component immediately to reflect changes
-      onSave({
-        ...updatedSalon,
-        // Ensure the ownerPhotoUrl is properly set even if the server didn't return it
-        ownerPhotoUrl: updatedSalon.ownerPhotoUrl || editedSalon.ownerPhotoUrl
-      });
-      
-      // Invalidate React Query cache for salon data
-      queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/salons', editedSalon.id.toString()] });
+      // Invalidate React Query cache for salon data FIRST to ensure fresh data
+      await queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/salons', editedSalon.id.toString()] });
       
       // Remove any query parameters to clean up the URL without page reload
       if (window.history && window.location.search) {
         const cleanUrl = window.location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
       }
+      
+      // Update the salon object in the parent component to reflect changes
+      // AFTER the cache has been invalidated
+      onSave({
+        ...updatedSalon,
+        // Ensure the ownerPhotoUrl is properly set even if the server didn't return it
+        ownerPhotoUrl: updatedSalon.ownerPhotoUrl || editedSalon.ownerPhotoUrl
+      });
       
       // Exit edit mode
       setIsEditing(false);
@@ -238,6 +226,15 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
         description: "Your changes have been saved.",
         duration: 3000
       });
+
+      // Force any cached images to reload
+      if (updatedSalon.ownerPhotoUrl) {
+        const timestamp = Date.now();
+        const cachedImageUrl = getImageUrl(updatedSalon.ownerPhotoUrl) + `?t=${timestamp}`;
+        // Preload the image
+        const img = new Image();
+        img.src = cachedImageUrl;
+      }
     } catch (error) {
       console.error("Failed to update salon info:", error);
       toast({
