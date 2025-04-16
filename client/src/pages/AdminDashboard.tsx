@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Link } from 'wouter';
+import { Badge } from "@/components/ui/badge";
 
 
 interface Client {
@@ -24,6 +25,21 @@ interface Salon {
   ownerName: string;
   email: string;
   phone: string;
+}
+
+interface Invitation {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  notes?: string;
+  favoriteServices: string[];
+  salonId?: number;
+  salonName?: string;
+  status?: string;
+  sponsor?: string;
+  firstServiceDate?: string;
+  createdAt: string;
 }
 
 export default function AdminDashboard() {
@@ -66,10 +82,39 @@ export default function AdminDashboard() {
       }
     },
   });
+  
+  // New query to fetch all invitations
+  const { data: invitations, error: inviteError, isLoading: inviteIsLoading } = useQuery<Invitation[]>({
+    queryKey: ['/api/invitations'],
+    queryFn: async () => {
+      try {
+        console.log('Fetching invitations from API...');
+        const response = await fetch('/api/invitations?limit=50'); // Get more invitations for admin view
+        if (!response.ok) {
+          throw new Error('Failed to fetch invitations');
+        }
+        const data = await response.json();
+        console.log('Fetched invitations:', data);
+        return data;
+      } catch (error) {
+        console.error('Error fetching invitations:', error);
+        throw error;
+      }
+    },
+  });
 
-  if (clientIsLoading || salonIsLoading) return <div>Loading...</div>;
+  // Format phone numbers for display
+  const formatPhoneNumber = (phone: string) => {
+    if (!phone) return '';
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length !== 10) return phone;
+    return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+  };
+
+  if (clientIsLoading || salonIsLoading || inviteIsLoading) return <div>Loading...</div>;
   if (clientError) return <div>Error loading clients: {clientError.message}</div>;
   if (salonError) return <div>Error loading salons: {salonError.message}</div>;
+  if (inviteError) return <div>Error loading invitations: {inviteError.message}</div>;
 
 
   return (
@@ -196,11 +241,61 @@ export default function AdminDashboard() {
           </Card>
 
           <div className="grid gap-6">
+            {/* Client Invitations Table */}
+            <Card>
+              <CardContent className="p-4">
+                <h2 className="text-xl font-semibold mb-4">Client Invitations</h2>
+                <ScrollArea className="h-[300px]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="max-h-[30px]">
+                        <TableHead className="max-h-[30px] py-1">Name</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Email</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Phone</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Sponsor</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Status</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {invitations?.map((invite: Invitation) => (
+                        <TableRow
+                          key={invite.id}
+                          className="hover:bg-gray-50 h-[30px]"
+                        >
+                          <TableCell className="py-0">{invite.name}</TableCell>
+                          <TableCell className="py-0">{invite.email}</TableCell>
+                          <TableCell className="py-0">{formatPhoneNumber(invite.phone)}</TableCell>
+                          <TableCell className="py-0">{invite.sponsor || 'N/A'}</TableCell>
+                          <TableCell className="py-0">
+                            <Badge 
+                              variant="outline" 
+                              className={`
+                                ${invite.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
+                                ${invite.status === 'style_selected' ? 'bg-green-50 text-green-700 border-green-200' : ''}
+                                ${invite.status === 'completed' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
+                                ${!invite.status ? 'bg-gray-50 text-gray-700 border-gray-200' : ''}
+                              `}
+                            >
+                              {invite.status || 'pending'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="py-0 text-xs">
+                            {new Date(invite.createdAt).toLocaleDateString()}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+
             {/* Clients Table */}
             <Card>
               <CardContent className="p-4">
                 <h2 className="text-xl font-semibold mb-4">Current Clients</h2>
-                <ScrollArea className="h-[400px]">
+                <ScrollArea className="h-[300px]">
                   <Table>
                     <TableHeader>
                       <TableRow className="max-h-[30px]">
@@ -208,7 +303,7 @@ export default function AdminDashboard() {
                         <TableHead className="max-h-[30px] py-1">Email</TableHead>
                         <TableHead className="max-h-[30px] py-1">Phone</TableHead>
                         <TableHead className="max-h-[30px] py-1">Salon</TableHead>
-                        <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead> {/* Changed header text */}
+                        <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -249,7 +344,7 @@ export default function AdminDashboard() {
             <Card>
               <CardContent className="p-4">
                 <h2 className="text-xl font-semibold mb-4">Salons</h2>
-                <ScrollArea className="h-[400px]">
+                <ScrollArea className="h-[300px]">
                   <Table>
                     <TableHeader>
                       <TableRow className="max-h-[30px]">
@@ -265,7 +360,7 @@ export default function AdminDashboard() {
                       {salons?.map((salon: Salon) => (
                         <TableRow
                           key={salon.id}
-                          className="cursor-pointer hover:bg-gray-50 h-[30px]"
+                          className="hover:bg-gray-50 h-[30px]"
                         >
                           <TableCell className="py-0">{salon.id}</TableCell>
                           <TableCell className="py-0">{salon.name}</TableCell>
