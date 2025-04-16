@@ -2,7 +2,7 @@
  * Simple script to list all salons in the database
  */
 
-const { exec } = require('child_process');
+import { exec } from 'child_process';
 
 // Get DATABASE_URL from environment
 const databaseUrl = process.env.DATABASE_URL;

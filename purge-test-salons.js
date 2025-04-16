@@ -8,9 +8,10 @@
  * - Ven Me, Baby! LTD
  */
 
-const { Pool } = require('pg');
-const { drizzle } = require('drizzle-orm/node-postgres');
-const { eq, not, or, ilike } = require('drizzle-orm');
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { eq, not, or, ilike } from 'drizzle-orm';
+import readline from 'readline';
 
 // Define the table schemas
 const salons = {
@@ -75,16 +76,16 @@ async function purgeSalons() {
       });
       
       // Ask for confirmation before proceeding
-      const readline = require('readline').createInterface({
+      const rl1 = readline.createInterface({
         input: process.stdin,
         output: process.stdout
       });
       
       const answer = await new Promise(resolve => {
-        readline.question('\nContinue with purge? (yes/no): ', resolve);
+        rl1.question('\nContinue with purge? (yes/no): ', resolve);
       });
       
-      readline.close();
+      rl1.close();
       
       if (answer.toLowerCase() !== 'yes') {
         console.log("Purge aborted.");
