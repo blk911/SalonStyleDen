@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { useEffect, useState, useCallback } from "react";
 import { getImageUrl } from "@/lib/utils";
 import { queryClient } from "@/lib/queryClient";
+import { DaySchedule } from "@/components/dashboard/WeeklySchedule";
 
 // Define a type for social media
 interface SocialMediaItem {
@@ -53,6 +54,7 @@ interface SalonType {
   // These would come from additional queries or be added to the salon object
   services?: Service[];
   promos?: Promo[];
+  schedule?: DaySchedule[];
 }
 
 export default function SalonPublicPage() {
