@@ -1,44 +1,31 @@
 # Benchmark Restore Point
 
-This file contains instructions for restoring the codebase to the benchmark state from April 15, 2025.
+## Date: April 16, 2025
+## Time: 6:17 PM
 
-## Current State Information
-- Commit hash: `8290a29`
-- Main issue fixed: Removed Seasonal Spring Special from VMB Style Options
-- Modified files:
-  - client/src/pages/SalonDashboard.tsx
-  - client/src/pages/SalonPublicPage.tsx
+### Completed Features
+1. Fixed salon profile editing functionality
+2. Enhanced photo upload and display functionality
+3. Implemented proper data refresh strategies
+4. Fixed URL navigation between salon public and dashboard pages
+5. Added auto-edit form opening when navigating from public pages
+6. Ensured consistent image paths and fallbacks
+7. Fixed TypeScript typing issues in components
 
-## How to Restore
-To restore the codebase to this exact point, you can use the following Git command:
+### Current Database State
+- Four preserved salons:
+  - TIFFANY_5280 NAILS STUDIO
+  - Deb Dazzles
+  - Jenna's Glamour Nails
+  - Ven Me, Baby! LTD
+- Client invitation system working correctly
+- Service and promotion data structure intact
 
-```bash
-git checkout 8290a29
-```
+### Technical Implementation
+- Proper PATCH/PUT endpoints for salon updates
+- React Query cache invalidation implemented
+- API request wrapper for consistent data handling
+- Image caching fix with timestamp parameters
+- Improved error handling throughout application
 
-Alternatively, you can restore the specific files to this state with:
-
-```bash
-# Restore SalonDashboard.tsx
-git checkout 8290a29 -- client/src/pages/SalonDashboard.tsx
-
-# Restore SalonPublicPage.tsx
-git checkout 8290a29 -- client/src/pages/SalonPublicPage.tsx
-```
-
-## File Modifications Summary
-
-### SalonDashboard.tsx
-- Added filtering to exclude any service containing "seasonal spring" in the name
-- Applied this filtering in the useEffect hook when services are initially loaded
-
-### SalonPublicPage.tsx
-- Added filtering to exclude any service containing "seasonal spring" in the name
-- Implemented filtering before processing services in the useQuery hook
-- Ensured fallback "VMB STYLE OPTION" text appears when no services are available
-
-## Verification
-After restoring, you can verify the fix is in place by:
-1. Loading the salon dashboard for Tiffany's salon
-2. Confirming the Seasonal Spring Special does not appear in the VMB Style Options section
-3. Checking the public salon page to ensure the same
+This benchmark represents a fully functional state with all critical features working correctly. Use this restore point if future changes cause regressions.
