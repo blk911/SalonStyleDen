@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Table,
@@ -17,6 +17,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
 
 const DEFAULT_SERVICES = [
   "French Tips",
@@ -56,6 +65,11 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [emailExists, setEmailExists] = useState(false);
   const [salonInfo, setSalonInfo] = useState<{name: string} | null>(null);
   const [recentInvites, setRecentInvites] = useState<ClientInvite[]>([]);
+  
+  // Error dialog state
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errorField, setErrorField] = useState<"phone" | "email" | "other">("other");
 
   useEffect(() => {
     if (salonId) {
