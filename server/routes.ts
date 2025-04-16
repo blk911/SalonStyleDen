@@ -358,6 +358,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update salon schedule
+  apiRouter.post("/salons/:id/schedule", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      console.log(`DEBUG - POST /salons/${id}/schedule - Starting update request`);
+
+      if (isNaN(id)) {
+        console.log(`DEBUG - POST /salons/${id}/schedule - Invalid ID format`);
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+
+      // Get the schedule array from request body
+      const { schedule } = req.body;
+      console.log(`DEBUG - POST /salons/${id}/schedule - Received schedule:`, JSON.stringify(schedule));
+
+      // Validate schedule array
+      if (!Array.isArray(schedule)) {
+        console.log(`DEBUG - POST /salons/${id}/schedule - Error: Schedule is not an array`, typeof schedule);
+        return res.status(400).json({ error: "Schedule must be an array" });
+      }
+
+      // Get the salon first
+      const salon = await storage.getSalon(id);
+      if (!salon) {
+        console.log(`DEBUG - POST /salons/${id}/schedule - Salon not found with ID ${id}`);
+        return res.status(404).json({ error: "Salon not found" });
+      }
+
+      // Update the salon with the schedule
+      console.log(`DEBUG - POST /salons/${id}/schedule - Updating schedule in database`);
+      
+      // Use updateSalon to add/update the schedule field
+      const updatedSalon = await storage.updateSalon(id, { schedule });
+
+      console.log(`DEBUG - POST /salons/${id}/schedule - Update successful, returning updated salon`);
+      
+      res.json(updatedSalon);
+    } catch (error) {
+      console.error('Error updating salon schedule:', error);
+      res.status(500).json({ error: "Failed to update salon schedule" });
+    }
+  });
+
   // Client routes
   apiRouter.post("/clients", async (req: Request, res: Response) => {
     try {

@@ -58,23 +58,21 @@ export default function WeeklySchedule({
   const handleSaveSchedule = async () => {
     setIsSubmitting(true);
     try {
-      // Make an actual API call with proper type signature
-      try {
-        // Log what we're saving
-        console.log('Saving schedule:', schedule);
-        
-        await apiRequest('POST', `/api/salons/${salonId}/schedule`, { schedule });
-      } catch (e) {
-        // If API endpoint is not yet implemented, just simulate success
-        console.log('Schedule API not implemented yet, simulating success');
-        await new Promise(r => setTimeout(r, 500));
-      }
+      // Log what we're saving
+      console.log('Saving schedule:', schedule);
       
+      // Make an API call to save the schedule
+      await apiRequest(`/api/salons/${salonId}/schedule`, {
+        method: 'POST',
+        data: { schedule }
+      });
+      
+      // Show success indicator
       setShowSuccess(true);
       
-      // After successful save, call callback and hide component
+      // After successful save, call callback
       if (onScheduleSaved) {
-        onScheduleSaved();
+        onScheduleSaved(schedule);
       }
       
       // After saving, collapse the schedule but don't hide it completely
@@ -86,6 +84,7 @@ export default function WeeklySchedule({
       
     } catch (error) {
       console.error('Failed to save schedule:', error);
+      // Keep expanded if there was an error
     } finally {
       setIsSubmitting(false);
     }
