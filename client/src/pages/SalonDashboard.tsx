@@ -600,11 +600,6 @@ export default function SalonDashboard() {
     }
   }, [salon]);
 
-  const getImageUrl = (url: string) => {
-    // Add logic to handle image URLs if needed
-    return url;
-  };
-
 
   if (isLoading) {
     return (

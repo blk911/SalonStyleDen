@@ -38,9 +38,11 @@ export function formatPhoneNumber(value: string): string {
 // Helper to process image URLs consistently
 export function getImageUrl(url?: string): string {
   if (!url) {
-    // Silent failure with empty string
-    return '';
+    console.log('getImageUrl called with empty/undefined URL');
+    return '/assets/salon-card.png'; // Return a default placeholder
   }
+
+  console.log('Processing image URL:', url);
 
   // If it's a data URL, return as is
   if (url.startsWith('data:')) {
@@ -49,12 +51,12 @@ export function getImageUrl(url?: string): string {
 
   // If it's a proper URL from our uploads directory or assets, return as is
   if (url.startsWith('/uploads/') || url.startsWith('/assets/')) {
-    return url;
+    return `${url}?t=${Date.now()}`; // Add timestamp to bust cache
   }
   
   // If the URL is missing the leading slash but has uploads/ or assets/
   if (url.startsWith('uploads/') || url.startsWith('assets/')) {
-    return `/${url}`;
+    return `/${url}?t=${Date.now()}`; // Add timestamp to bust cache
   }
 
   // Handle external URLs - these should be returned as-is
@@ -64,15 +66,8 @@ export function getImageUrl(url?: string): string {
 
   // Check for the most common issue: url is only the filename without the path
   if (!url.includes('/') && !url.includes('\\')) {
-    // If URL appears to be an owner photo (handle this case first)
-    if (url.includes('owner') || url.includes('photo') || url.includes('avatar') || 
-        url.includes('profile') || url.includes('salon') || url.includes('tiffany') ||
-        url.includes('file-')) {
-      return `/uploads/${url}`;
-    }
-    
-    // Otherwise add proper path to any uploaded file
-    return `/uploads/${url}`;
+    // Add uploads path and timestamp to bust cache
+    return `/uploads/${url}?t=${Date.now()}`;
   }
 
   // Handle service images based on filename patterns
@@ -92,7 +87,7 @@ export function getImageUrl(url?: string): string {
   if (url.includes('.jpg') || url.includes('.png') || url.includes('.jpeg') || url.includes('.gif')) {
     // Strip any partial paths and just use the filename
     const filename = url.split(/[\/\\]/).pop() || url;
-    return `/uploads/${filename}`;
+    return `/uploads/${filename}?t=${Date.now()}`; // Add timestamp to bust cache
   }
 
   // If the URL has "owner" or related words, it's likely an owner photo
@@ -102,6 +97,9 @@ export function getImageUrl(url?: string): string {
     return '/assets/salon-card.png'; // Use a salon-specific placeholder
   }
   
+  // Log warning if we reached this point - means we couldn't properly handle the URL
+  console.warn('Could not process image URL:', url);
+  
   // Default fallback - use this only for non-owner-photo contexts
-  return '/assets/LOGO1.png';
+  return '/assets/salon-card.png';
 }
