@@ -40,12 +40,14 @@ export default function WeeklySchedule({
 }: WeeklyScheduleProps) {
   // Initialize with provided schedule or default
   const [schedule, setSchedule] = useState<DaySchedule[]>(
-    initialSchedule || defaultWeeklySchedule
+    initialSchedule && initialSchedule.length > 0 
+      ? initialSchedule 
+      : defaultWeeklySchedule
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [isSaved, setIsSaved] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isSaved, setIsSaved] = useState(initialSchedule && initialSchedule.length > 0);
 
   // Update a single day's schedule
   const updateDay = (updatedDay: Partial<DaySchedule>, index: number) => {
