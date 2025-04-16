@@ -2,7 +2,9 @@ import {
   users, type User, type InsertUser,
   salons, type Salon, type InsertSalon,
   clients, type Client, type InsertClient,
-  invitations, type Invitation, type InsertInvitation
+  invitations, type Invitation, type InsertInvitation,
+  styleSelections, type StyleSelection, type InsertStyleSelection,
+  activityLogs, type ActivityLog, type InsertActivityLog
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -30,9 +32,21 @@ export interface IStorage {
   getInvitation(id: number): Promise<Invitation | undefined>;
   getRecentInvitations(limit?: number): Promise<Invitation[]>;
   getSalonInvitations(salonId: number): Promise<Invitation[]>;
+  updateInvitationStatus(id: number, status: string): Promise<Invitation>;
+  
+  // Style Selection methods
+  createStyleSelection(styleSelection: InsertStyleSelection): Promise<StyleSelection>;
+  getStyleSelection(id: number): Promise<StyleSelection | undefined>;
+  getSalonStyleSelections(salonId: number): Promise<StyleSelection[]>;
+  getClientStyleSelections(clientId: number): Promise<StyleSelection[]>;
+  
+  // Activity Log methods
+  createActivityLog(activityLog: InsertActivityLog): Promise<ActivityLog>;
+  getRecentActivityLogs(limit?: number): Promise<ActivityLog[]>;
 }
 
 export class DatabaseStorage implements IStorage {
+  // Implementation of new methods will be added here
   // User methods
   async getUser(id: number): Promise<User | undefined> {
     const results = await db.select().from(users).where(eq(users.id, id));
