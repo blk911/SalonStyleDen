@@ -376,7 +376,6 @@ export default function SalonPublicPage() {
           <VmbStyleOptions 
             services={salon.services} 
             salonId={salon.id}
-            clientId={1} // Using client ID 1 for demo, this would normally be the logged-in user's client ID
             onSelectionComplete={(selection) => {
               console.log("Style selected:", selection);
               // You could update UI or redirect here
