@@ -69,6 +69,11 @@ export default function SalonPublicPage() {
     refetch 
   } = useQuery<SalonType>({
     queryKey: ['/api/salons', id],
+    staleTime: 0, // Always consider data stale to force a refresh each time
+    refetchOnMount: true,
+    refetchOnWindowFocus: true, // Enable refresh on window focus
+    gcTime: 1000, // Short cache time for better freshness
+    enabled: !!id, // Only run the query if we have an ID
     queryFn: async () => {
       try {
         if (!id) throw new Error("No salon ID provided");
@@ -201,11 +206,7 @@ export default function SalonPublicPage() {
         console.error("Error fetching salon data:", err);
         throw err;
       }
-    },
-    refetchOnMount: true,
-    refetchOnWindowFocus: true, // Enable refresh on window focus
-    staleTime: 10000, // Consider data fresh for only 10 seconds for quicker refreshes
-    enabled: !!id, // Only run the query if we have an ID
+    }
   });
 
   // Auto-redirect if no ID is provided
