@@ -1,10 +1,17 @@
 // Database Testing Script for Ven Me, Baby!
 // Run with: node test-database.js
 
-const { Pool } = require('pg');
-const assert = require('assert');
+import pg from 'pg';
+import assert from 'assert';
+
+const { Pool } = pg;
 
 // Initialize PostgreSQL connection pool
+if (!process.env.DATABASE_URL) {
+  console.error('DATABASE_URL environment variable is not set');
+  process.exit(1);
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
