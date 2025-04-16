@@ -240,8 +240,8 @@ export default function SalonDashboard() {
         setServices(updatedSalonData.services);
       }
 
-      // Force data refresh to ensure consistency
-      await refreshPageData();
+      // Update data from the server
+      await updateLocalDataFromServer();
 
       toast({
         title: "Service added",
@@ -280,8 +280,8 @@ export default function SalonDashboard() {
         setServices(updatedSalonData.services);
       }
 
-      // Force data refresh to ensure consistency
-      await refreshPageData();
+      // Update data from the server
+      await updateLocalDataFromServer();
 
       toast({
         title: "Service deleted",
@@ -488,8 +488,8 @@ export default function SalonDashboard() {
         setServices(updatedSalonData.services);
       }
 
-      // Force refresh to ensure consistency
-      await refreshPageData();
+      // Update data from the server
+      await updateLocalDataFromServer();
 
       // Show a toast notification
       toast({
