@@ -172,8 +172,8 @@ export default function SalonDashboard() {
         setServices(updatedSalonData.services);
       }
 
-      // Force data refresh to ensure consistency 
-      await refreshPageData();
+      // Update data from the server
+      await updateLocalDataFromServer();
 
       // Display success message
       toast({
@@ -557,60 +557,32 @@ export default function SalonDashboard() {
     enabled: !!id, // Only run the query if we have an ID
   });
   
-  // Function to force refresh data - can be called after important operations
-  const refreshPageData = async (e?: React.MouseEvent) => {
-    // Prevent default navigation if event was passed
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
-    console.log('SalonDashboard - Forcing data refresh for salon ID:', id);
+  // Internal helper function for data consistency - not exposed in UI
+  const updateLocalDataFromServer = async () => {
+    console.log('SalonDashboard - Updating data for salon ID:', id);
     
     try {
-      // Force clear the cache completely for this salon
-      await queryClient.cancelQueries({ queryKey: ['/api/salons', id] });
-      await queryClient.removeQueries({ queryKey: ['/api/salons', id] });
+      // Invalidate cache first
+      await queryClient.invalidateQueries({ queryKey: ['/api/salons', id] });
       
-      // Force fetch directly from API to bypass any caching
-      const response = await fetch(`/api/salons/${id}?t=${Date.now()}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch salon data: ${response.status}`);
+      // Trigger regular refetch to update UI
+      const { data: freshData } = await refetch();
+      
+      // Only update if we received data
+      if (freshData) {
+        // Update local state
+        if (freshData.services && Array.isArray(freshData.services)) {
+          const filteredServices = freshData.services.filter((service: ServiceData) => 
+            !service.name.toLowerCase().includes('seasonal spring'));
+          setServices(filteredServices);
+        }
+        
+        if (freshData.promos && Array.isArray(freshData.promos)) {
+          setPromos(freshData.promos);
+        }
       }
-      const freshData = await response.json();
-      
-      // Manually update the query cache with fresh data
-      queryClient.setQueryData(['/api/salons', id], freshData);
-      
-      // Now trigger a regular refetch to update UI
-      await refetch();
-      
-      // Update local state with the fresh data
-      if (freshData.services && Array.isArray(freshData.services)) {
-        const filteredServices = freshData.services.filter((service: ServiceData) => 
-          !service.name.toLowerCase().includes('seasonal spring'));
-        console.log('SalonDashboard - Refresh: Updated services:', filteredServices);
-        setServices(filteredServices);
-      }
-      
-      if (freshData.promos && Array.isArray(freshData.promos)) {
-        console.log('SalonDashboard - Refresh: Updated promos:', freshData.promos);
-        setPromos(freshData.promos);
-      }
-      
-      toast({
-        title: "Refreshed",
-        description: "Your salon information has been updated.",
-        duration: 2000
-      });
     } catch (error) {
-      console.error('Error refreshing salon data:', error);
-      toast({
-        title: "Refresh Failed",
-        description: "Could not update salon information. Please try again.",
-        duration: 2000,
-        variant: "destructive"
-      });
+      console.error('Error updating salon data:', error);
     }
   };
 
