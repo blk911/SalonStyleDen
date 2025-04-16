@@ -121,8 +121,10 @@ export class DatabaseStorage implements IStorage {
     console.log(`DatabaseStorage.updateSalon - Updating salon ID ${id}`);
     
     try {
-      // Remove id from the update data (can't update primary key)
-      const { id: _, ...updateData } = salonData;
+      // Remove id and createdAt from the update data (can't update primary key or timestamp in wrong format)
+      const { id: _, createdAt, ...updateData } = salonData;
+      
+      console.log(`DatabaseStorage.updateSalon - Cleaned update data:`, JSON.stringify(updateData));
       
       const result = await db
         .update(salons)
