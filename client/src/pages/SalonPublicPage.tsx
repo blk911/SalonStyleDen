@@ -285,41 +285,20 @@ export default function SalonPublicPage() {
                   alt={`${salon.ownerName}'s photo`}
                   className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm"
                   onError={(e) => {
-                    console.log("Attempting to resolve owner photo for", salon.name);
+                    console.error("Error loading owner photo in SalonPublicPage:", salon.ownerPhotoUrl);
                     
-                    try {
-                      // First try: Use specific hardcoded file if it's a known salon ID
-                      if (salon.id === 18) { // Special case for Deb Dazzles
-                        const timestamp = Date.now();
-                        const directUrl = `/uploads/file-1744815185216-224451235.png?t=${timestamp}`;
-                        console.log("Using direct file for Deb Dazzles:", directUrl);
-                        e.currentTarget.src = directUrl;
-                      }
-                      // Second try: For salon ID 12 (Ven Me, Baby! LTD)
-                      else if (salon.id === 12) {
-                        console.log("Using direct file for Ven Me, Baby!");
-                        e.currentTarget.src = '/assets/salon-card.png';
-                      }
-                      // Third try: Try with a direct timestamp approach if we have an ownerPhotoUrl
-                      else if (salon.ownerPhotoUrl) {
-                        const timestamp = Date.now();
-                        // Add cache busting as a last resort
-                        let fallbackUrl = salon.ownerPhotoUrl;
-                        if (!fallbackUrl.includes('?')) {
-                          fallbackUrl = `${fallbackUrl}?t=${timestamp}`;
-                        } else {
-                          fallbackUrl = `${fallbackUrl}&t=${timestamp}`;
-                        }
-                        console.log("Using fallback with timestamp:", fallbackUrl);
-                        e.currentTarget.src = fallbackUrl;
-                      } 
-                      // Last resort: Always use a default image
-                      else {
-                        console.log("Using generic fallback image");
-                        e.currentTarget.src = '/assets/salon-card.png';
-                      }
-                    } catch (err) {
-                      console.warn("Error in fallback logic:", err);
+                    // Try direct URL approach as a fallback
+                    if (salon.id === 18) { // Special case for Deb Dazzles
+                      const timestamp = Date.now();
+                      const directUrl = `/uploads/file-1744815185216-224451235.png?t=${timestamp}`;
+                      console.log("Trying direct URL for Deb Dazzles:", directUrl);
+                      e.currentTarget.src = directUrl;
+                    } else if (salon.ownerPhotoUrl) {
+                      const timestamp = Date.now();
+                      console.log("Trying fallback with timestamp for other salon:", salon.ownerPhotoUrl);
+                      e.currentTarget.src = `${salon.ownerPhotoUrl}?t=${timestamp}`;
+                    } else {
+                      // Use salon-specific fallback, not VMB logo
                       e.currentTarget.src = '/assets/salon-card.png';
                     }
                   }}
@@ -341,15 +320,7 @@ export default function SalonPublicPage() {
                   Refresh
                 </Button>
                 <button
-                  onClick={() => {
-                    // Force clear any cached data before navigation to ensure fresh load
-                    queryClient.cancelQueries({ queryKey: ['/api/salons', salon.id] });
-                    queryClient.removeQueries({ queryKey: ['/api/salons', salon.id] });
-                    
-                    console.log('Navigating to dashboard with fresh state for salon ID:', salon.id);
-                    // Use a timestamp to ensure the URL is unique and forces a fresh load
-                    setLocation(`/dashboard/salon/${salon.id}?t=${Date.now()}`);
-                  }}
+                  onClick={() => setLocation(`/dashboard/salon/${salon.id}`)}
                   className="bg-white hover:bg-gray-50 text-pink-500 border border-pink-300 font-medium py-1 px-3 rounded-md text-xs transition duration-300 shadow-sm flex items-center gap-1"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil">
