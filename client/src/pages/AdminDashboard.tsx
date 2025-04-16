@@ -30,14 +30,17 @@ export default function AdminDashboard() {
   const [, setLocation] = useLocation();
 
   const { data: clients, error: clientError, isLoading: clientIsLoading } = useQuery<Client[]>({
-    queryKey: ['clients'],
+    queryKey: ['/api/clients'], // Fixed query key to match the actual API endpoint
     queryFn: async () => {
       try {
+        console.log('Fetching clients from API...');
         const response = await fetch('/api/clients');
         if (!response.ok) {
           throw new Error('Failed to fetch clients');
         }
-        return response.json();
+        const data = await response.json();
+        console.log('Fetched clients:', data);
+        return data;
       } catch (error) {
         console.error('Error fetching clients:', error);
         throw error;
@@ -46,14 +49,17 @@ export default function AdminDashboard() {
   });
 
   const { data: salons, error: salonError, isLoading: salonIsLoading } = useQuery<Salon[]>({
-    queryKey: ['salons'],
+    queryKey: ['/api/salons'], // Fixed query key to match the actual API endpoint
     queryFn: async () => {
       try {
+        console.log('Fetching salons from API...');
         const response = await fetch('/api/salons');
         if (!response.ok) {
           throw new Error('Failed to fetch salons');
         }
-        return response.json();
+        const data = await response.json();
+        console.log('Fetched salons:', data);
+        return data;
       } catch (error) {
         console.error('Error fetching salons:', error);
         throw error;
@@ -246,28 +252,27 @@ export default function AdminDashboard() {
                 <ScrollArea className="h-[400px]">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Owner</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Phone</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                      <TableRow className="max-h-[30px]">
+                        <TableHead className="max-h-[30px] py-1">ID</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Name</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Owner</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Email</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Phone</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {salons?.map((salon: Salon) => (
                         <TableRow
                           key={salon.id}
-                          className="cursor-pointer hover:bg-gray-50"
-                          //onClick={() => setLocation(`/salon/${salon.id}`.replace(/\/\//g, '/'))}
+                          className="cursor-pointer hover:bg-gray-50 h-[30px]"
                         >
-                          <TableCell>{salon.id}</TableCell>
-                          <TableCell>{salon.name}</TableCell>
-                          <TableCell>{salon.ownerName}</TableCell>
-                          <TableCell>{salon.email}</TableCell>
-                          <TableCell>{salon.phone}</TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="py-0">{salon.id}</TableCell>
+                          <TableCell className="py-0">{salon.name}</TableCell>
+                          <TableCell className="py-0">{salon.ownerName}</TableCell>
+                          <TableCell className="py-0">{salon.email}</TableCell>
+                          <TableCell className="py-0">{salon.phone}</TableCell>
+                          <TableCell className="py-0 text-right">
                             <div className="flex justify-end gap-1">
                               <Link href={`/salon/${salon.id}`.replace(/\/\//g, '/')}>
                                 <button className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200">
