@@ -307,7 +307,7 @@ export default function SalonPublicPage() {
                   Refresh
                 </Button>
                 <button
-                  onClick={() => setLocation(`/dashboard/salon/${salon.id}`.replace(/\/\//g, '/'))}
+                  onClick={() => setLocation(`/dashboard/salon/${salon.id}?edit=true`.replace(/\/\//g, '/'))}
                   className="bg-white hover:bg-gray-50 text-pink-500 border border-pink-300 font-medium py-1 px-3 rounded-md text-xs transition duration-300 shadow-sm flex items-center gap-1"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil">

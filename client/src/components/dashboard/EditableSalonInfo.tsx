@@ -33,10 +33,11 @@ export interface SalonInfo {
 interface EditableSalonInfoProps {
   salon: SalonInfo;
   onSave: (updatedSalon: SalonInfo) => void;
+  defaultEditing?: boolean;
 }
 
-export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoProps) {
-  const [isEditing, setIsEditing] = useState(false);
+export default function EditableSalonInfo({ salon, onSave, defaultEditing = false }: EditableSalonInfoProps) {
+  const [isEditing, setIsEditing] = useState(defaultEditing);
   const [editedSalon, setEditedSalon] = useState<SalonInfo>({ ...salon });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [socialPlatform, setSocialPlatform] = useState("");
