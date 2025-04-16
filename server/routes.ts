@@ -73,14 +73,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('Created uploads directory:', uploadDir);
   }
 
-  // Explicitly serve the uploads directory and assets to make images accessible
-  app.use('/uploads', express.static(path.join(process.cwd(), 'client/public/uploads')));
-  app.use('/assets', express.static(path.join(process.cwd(), 'client/public/assets')));
-  console.log('Serving static directories:', {
-    uploads: path.join(process.cwd(), 'client/public/uploads'),
-    assets: path.join(process.cwd(), 'client/public/assets')
-  });
-
   // API endpoints prefix
   const apiRouter = express.Router();
 

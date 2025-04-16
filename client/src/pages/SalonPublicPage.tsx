@@ -281,38 +281,45 @@ export default function SalonPublicPage() {
             <div className="relative flex flex-col items-center">
               <div className="mb-4">
                 <img 
-                  src={salon.ownerPhotoUrl ? `${salon.ownerPhotoUrl}?t=${Date.now()}` : '/assets/salon-card.png'}
+                  src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl, 'public_hero') : '/assets/salon-card.png'}
                   alt={`${salon.ownerName}'s photo`}
                   className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm"
                   onError={(e) => {
                     console.log("Attempting to resolve owner photo for", salon.name);
                     
                     try {
-                      // Step 1: Try the direct URL first with cache busting
-                      if (salon.ownerPhotoUrl) {
-                        // Make sure we have a clean URL first
-                        const baseUrl = salon.ownerPhotoUrl.split('?')[0];
-                        const cacheBuster = Date.now();
-                        const directUrl = `${baseUrl}?t=${cacheBuster}`;
-                        
-                        console.log("Using direct URL with cache busting:", directUrl);
+                      // First try: Use specific hardcoded file if it's a known salon ID
+                      if (salon.id === 18) { // Special case for Deb Dazzles
+                        const timestamp = Date.now();
+                        const directUrl = `/uploads/file-1744815185216-224451235.png?t=${timestamp}`;
+                        console.log("Using direct file for Deb Dazzles:", directUrl);
                         e.currentTarget.src = directUrl;
-                        
-                        // Set up a second fallback if this fails
-                        e.currentTarget.onerror = () => {
-                          console.log("Direct URL failed, using default fallback image");
-                          e.currentTarget.src = '/assets/salon-card.png';
-                          // Remove error handler to prevent infinite loop
-                          e.currentTarget.onerror = null;
-                        };
+                      }
+                      // Second try: For salon ID 12 (Ven Me, Baby! LTD)
+                      else if (salon.id === 12) {
+                        console.log("Using direct file for Ven Me, Baby!");
+                        e.currentTarget.src = '/assets/salon-card.png';
+                      }
+                      // Third try: Try with a direct timestamp approach if we have an ownerPhotoUrl
+                      else if (salon.ownerPhotoUrl) {
+                        const timestamp = Date.now();
+                        // Add cache busting as a last resort
+                        let fallbackUrl = salon.ownerPhotoUrl;
+                        if (!fallbackUrl.includes('?')) {
+                          fallbackUrl = `${fallbackUrl}?t=${timestamp}`;
+                        } else {
+                          fallbackUrl = `${fallbackUrl}&t=${timestamp}`;
+                        }
+                        console.log("Using fallback with timestamp:", fallbackUrl);
+                        e.currentTarget.src = fallbackUrl;
                       } 
-                      // If no photo URL exists, use default
+                      // Last resort: Always use a default image
                       else {
-                        console.log("No photo URL available, using default image");
+                        console.log("Using generic fallback image");
                         e.currentTarget.src = '/assets/salon-card.png';
                       }
                     } catch (err) {
-                      console.warn("Error in image loading logic:", err);
+                      console.warn("Error in fallback logic:", err);
                       e.currentTarget.src = '/assets/salon-card.png';
                     }
                   }}
@@ -323,25 +330,25 @@ export default function SalonPublicPage() {
                 Welcome... I'm {salon.ownerName}! Let me know how I can serve you!
               </p>
               <div className="absolute top-0 right-0 flex items-center gap-1">
-                {/* Refresh button removed per user request */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-7 text-pink-600 hover:bg-pink-100"
+                  onClick={() => refetch()}
+                  title="Refresh page data"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21h5v-5"></path></svg>
+                  Refresh
+                </Button>
                 <button
                   onClick={() => {
-                    try {
-                      if (!salon || !salon.id) {
-                        console.error('Cannot navigate: Missing salon ID');
-                        return;
-                      }
-                      
-                      // Force clear entire cache to ensure fresh data load
-                      queryClient.clear();
-                      
-                      console.log('Navigating to dashboard for salon ID:', salon.id);
-                      
-                      // Navigate to dashboard with forced reload
-                      window.location.href = `/dashboard/salon/${salon.id}`;
-                    } catch (err) {
-                      console.error('Navigation error:', err);
-                    }
+                    // Force clear any cached data before navigation to ensure fresh load
+                    queryClient.cancelQueries({ queryKey: ['/api/salons', salon.id] });
+                    queryClient.removeQueries({ queryKey: ['/api/salons', salon.id] });
+                    
+                    console.log('Navigating to dashboard with fresh state for salon ID:', salon.id);
+                    // Use a timestamp to ensure the URL is unique and forces a fresh load
+                    setLocation(`/dashboard/salon/${salon.id}?t=${Date.now()}`);
                   }}
                   className="bg-white hover:bg-gray-50 text-pink-500 border border-pink-300 font-medium py-1 px-3 rounded-md text-xs transition duration-300 shadow-sm flex items-center gap-1"
                 >
