@@ -180,7 +180,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       console.log(`DEBUG - GET salon/${id} - Current promos:`, JSON.stringify(salon.promos));
-      console.log(`DEBUG - GET salon/${id} - Salon has ${salon.promos.length} promotions:`, JSON.stringify(salon.promos));
+      // Ensure we have an array before accessing length property
+      if (Array.isArray(salon.promos)) {
+        console.log(`DEBUG - GET salon/${id} - Salon has ${salon.promos.length} promotions:`, JSON.stringify(salon.promos));
+      } else {
+        console.log(`DEBUG - GET salon/${id} - Salon has 0 promotions (promos property is not an array)`);
+      }
 
       res.json(salon);
     } catch (error) {

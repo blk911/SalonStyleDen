@@ -19,8 +19,8 @@ export default function Hero({
   return (
     <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-3 lg:py-3">
       <div className="flex justify-center mb-4">
-        {/* If owner photo is provided, use it; otherwise use VMB logo */}
-        {ownerPhotoUrl ? (
+        {/* Only show image if owner photo is provided (for salon pages) */}
+        {ownerPhotoUrl && (
           // For salon owner pages
           <img 
             src={getImageUrl(ownerPhotoUrl)}
@@ -30,17 +30,6 @@ export default function Hero({
               console.error("Error loading salon owner photo in Hero:", ownerPhotoUrl);
               // Use salon-specific fallback, not VMB logo
               e.currentTarget.src = '/assets/salon-card.png';
-            }}
-          />
-        ) : (
-          // For main home page
-          <img 
-            src="/assets/VMB_LOGO.png"
-            alt="Ven Me, Baby!"
-            className="w-24 h-24 object-contain"
-            onError={(e) => {
-              console.error("Failed to load VMB logo, trying alternative path");
-              e.currentTarget.src = '/assets/LOGO1.png';
             }}
           />
         )}
