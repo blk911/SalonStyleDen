@@ -87,45 +87,11 @@ export function VmbStyleOptions({
   
   // Handle saving the selection
   const handleSaveSelection = async () => {
-    if (!selectedStyle) {
+    if (!selectedStyle || !clientId || !salonId) {
       toast({
         title: "Selection Error",
-        description: "No style selected.",
+        description: "Missing required information to save your style selection.",
         variant: "destructive"
-      });
-      return;
-    }
-    
-    // For demo or testing purpose, if clientId is not provided,
-    // we'll just show the confirmation without saving to database
-    if (!clientId || !salonId) {
-      console.log("Demo mode: Selected style", selectedStyle);
-      
-      // Close details popup and show confirmation
-      setIsDetailsOpen(false);
-      setIsConfirmationOpen(true);
-      
-      // Add to local state only for UI feedback
-      const demoSelection = {
-        id: Math.floor(Math.random() * 1000),
-        clientId: -1,
-        styleId: selectedStyle.id,
-        salonId: salonId || -1,
-        selectedAt: new Date().toISOString(),
-        status: 'selected'
-      };
-      
-      setSavedSelections(prev => [...prev, demoSelection]);
-      
-      // Notify parent component if callback provided
-      if (onSelectionComplete) {
-        onSelectionComplete(demoSelection);
-      }
-      
-      toast({
-        title: "Style Selected!",
-        description: `You've selected ${selectedStyle.name}`,
-        variant: "default"
       });
       return;
     }
