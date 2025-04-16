@@ -38,8 +38,11 @@ interface SalonType {
 
 export default function SalonDashboard() {
   const { id } = useParams();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
+  
+  // Determine if we should open the edit form automatically
+  const shouldOpenEditForm = location.includes('?edit=true');
 
   // States for services, promos, and schedule
   const [services, setServices] = useState<ServiceData[]>([
@@ -696,6 +699,7 @@ export default function SalonDashboard() {
             <EditableSalonInfo
               salon={salon}
               onSave={handleSaveSalonInfo}
+              defaultEditing={shouldOpenEditForm}
             />
           </div>
         </section>
