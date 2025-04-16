@@ -736,6 +736,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log('Creating new invitation with data:', req.body);
       
+      // Extract the validation flag if present
+      const isValidationOnly = req.body._validateOnly === true;
+      if (isValidationOnly) {
+        // For validation-only requests, we only need to check if phone/email already exists
+        // We'll do a simplified check
+        try {
+          const { phone, email } = req.body;
+          
+          // Check for duplicate phone/email
+          if (phone && phone.length === 10) {
+            const phoneExists = await storage.isDuplicateContact(phone, '');
+            if (phoneExists.isDuplicate) {
+              return res.status(400).json({ error: 'This phone is already registered' });
+            }
+          }
+          
+          if (email && email.includes('@')) {
+            const emailExists = await storage.isDuplicateContact('', email);
+            if (emailExists.isDuplicate) {
+              return res.status(400).json({ error: 'This email is already registered' });
+            }
+          }
+          
+          // If we got here, validation passed
+          return res.status(200).json({ valid: true });
+        } catch (error) {
+          console.error('Validation error:', error);
+          return res.status(500).json({ error: 'Validation failed' });
+        }
+      }
+      
+      // For regular requests, proceed as normal
       // Validate input data
       const validatedData = invitationInputSchema.parse(req.body);
       console.log('Validated invitation data:', validatedData);

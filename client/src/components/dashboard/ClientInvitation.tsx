@@ -251,9 +251,49 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
               placeholder="Phone Number"
               type="tel"
               value={phone}
-              onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+              onChange={(e) => {
+                setPhone(formatPhoneNumber(e.target.value));
+                // Clear error state when user edits
+                if (phoneExists) {
+                  setPhoneExists(false);
+                  if (showErrorDialog && errorField === 'phone') {
+                    setShowErrorDialog(false);
+                  }
+                }
+              }}
+              onBlur={async (e) => {
+                // Only check if we have a valid 10 digit phone
+                const cleanPhone = phone.replace(/\D/g, '');
+                if (cleanPhone.length === 10) {
+                  try {
+                    // Check against existing invitations
+                    const response = await fetch('/api/invitations', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        phone: cleanPhone,
+                        email: '',
+                        name: 'test',
+                        _validateOnly: true // Add a flag to indicate this is just validation
+                      })
+                    });
+                    
+                    if (!response.ok) {
+                      const errorData = await response.json();
+                      if (errorData.error && errorData.error.includes('phone is already registered')) {
+                        setErrorField('phone');
+                        setErrorMessage('This phone number is already registered in our system.');
+                        setShowErrorDialog(true);
+                        setPhoneExists(true);
+                      }
+                    }
+                  } catch (error) {
+                    console.error('Error checking phone:', error);
+                  }
+                }
+              }}
               required
-              className="flex-1"
+              className={`flex-1 ${phoneExists ? 'border-red-500 focus:ring-red-500' : ''}`}
             />
           </div>
 
@@ -263,9 +303,48 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
               placeholder="Email Address"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                // Clear error state when user edits
+                if (emailExists) {
+                  setEmailExists(false);
+                  if (showErrorDialog && errorField === 'email') {
+                    setShowErrorDialog(false);
+                  }
+                }
+              }}
+              onBlur={async (e) => {
+                // Only check if we have a valid email format
+                if (email && email.includes('@') && email.includes('.')) {
+                  try {
+                    // Check against existing invitations
+                    const response = await fetch('/api/invitations', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        phone: '',
+                        email: email,
+                        name: 'test',
+                        _validateOnly: true // Add a flag to indicate this is just validation
+                      })
+                    });
+                    
+                    if (!response.ok) {
+                      const errorData = await response.json();
+                      if (errorData.error && errorData.error.includes('email is already registered')) {
+                        setErrorField('email');
+                        setErrorMessage('This email address is already registered in our system.');
+                        setShowErrorDialog(true);
+                        setEmailExists(true);
+                      }
+                    }
+                  } catch (error) {
+                    console.error('Error checking email:', error);
+                  }
+                }
+              }}
               required
-              className="flex-1"
+              className={`flex-1 ${emailExists ? 'border-red-500 focus:ring-red-500' : ''}`}
             />
             <Input
               type="date"
