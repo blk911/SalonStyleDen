@@ -202,6 +202,10 @@ async createClient(insertClient: InsertClient): Promise<Client> {
         favoriteServices: Array.isArray(insertInvitation.favoriteServices) && insertInvitation.favoriteServices.length > 0 
           ? insertInvitation.favoriteServices 
           : [],
+        // Ensure we have a sponsor field (required by the database schema)
+        sponsor: insertInvitation.sponsor || (insertInvitation.salonId ? 'Unknown Salon' : null),
+        // Add the first service date
+        firstServiceDate: insertInvitation.firstServiceDate || null,
         status: insertInvitation.status || 'pending',
         createdAt: new Date()
       };

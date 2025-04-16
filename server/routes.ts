@@ -60,6 +60,8 @@ const invitationInputSchema = z.object({
   favoriteServices: z.array(z.string()).optional(),
   salonId: z.number().optional(),
   salonName: z.string().optional(),
+  sponsor: z.string().optional(), // Add sponsor field
+  firstServiceDate: z.string().optional(), // Add firstServiceDate field
   status: z.string().optional()
 });
 

@@ -70,6 +70,11 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         throw new Error('Phone number must be 10 digits');
       }
 
+      // Ensure we have salon info for the sponsor field
+      if (!salonInfo?.name) {
+        throw new Error('Salon information not available. Please try again.');
+      }
+
       const response = await fetch('/api/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -81,7 +86,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           favoriteServices: selectedServices,
           salonId,
           firstServiceDate,
-          status: 'pending'
+          status: 'pending',
+          sponsor: salonInfo.name // Add the salon name as the sponsor
         })
       });
 
