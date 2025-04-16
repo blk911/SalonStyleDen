@@ -1,31 +1,7 @@
-# Benchmark Restore Point
-
-## Date: April 16, 2025
-## Time: 6:17 PM
-
-### Completed Features
-1. Fixed salon profile editing functionality
-2. Enhanced photo upload and display functionality
-3. Implemented proper data refresh strategies
-4. Fixed URL navigation between salon public and dashboard pages
-5. Added auto-edit form opening when navigating from public pages
-6. Ensured consistent image paths and fallbacks
-7. Fixed TypeScript typing issues in components
-
-### Current Database State
-- Four preserved salons:
-  - TIFFANY_5280 NAILS STUDIO
-  - Deb Dazzles
-  - Jenna's Glamour Nails
-  - Ven Me, Baby! LTD
-- Client invitation system working correctly
-- Service and promotion data structure intact
-
-### Technical Implementation
-- Proper PATCH/PUT endpoints for salon updates
-- React Query cache invalidation implemented
-- API request wrapper for consistent data handling
-- Image caching fix with timestamp parameters
-- Improved error handling throughout application
-
-This benchmark represents a fully functional state with all critical features working correctly. Use this restore point if future changes cause regressions.
+Benchmark created on Wed 16 Apr 2025 07:57:54 PM UTC
+## Completed Changes
+- Fixed weekly schedule functionality for proper data persistence between salon dashboard and public page
+- Updated business hours display to show all 7 days with AM/PM time format and improved horizontal alignment
+- Modified SalonsPage to temporarily hide the VMB Style Options section while keeping salon details
+- Created database purge script to maintain only authorized salons and remove test data
+- Calendar now correctly closes after saving until edit button is clicked again
