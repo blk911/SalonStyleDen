@@ -376,7 +376,13 @@ export default function SalonPublicPage() {
           <VmbStyleOptions 
             services={salon.services} 
             salonId={salon.id}
-            clientId={1} // Using client ID 1 for demo, this would normally be the logged-in user's client ID
+            clientId={1} // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // ⚠️ CRITICAL WARNING: MUST MAKE THIS DYNAMIC BEFORE DEPLOYMENT ⚠️
+            // This hardcoded client ID is only for development/testing purposes.
+            // In production, this MUST be replaced with the actual logged-in client's ID
+            // from the authentication system or user context.
+            // ⚠️ FAILURE TO FIX THIS WILL CAUSE ALL USERS TO SAVE AS THE SAME CLIENT ⚠️
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             onSelectionComplete={(selection) => {
               console.log("Style selected:", selection);
               // You could update UI or redirect here
