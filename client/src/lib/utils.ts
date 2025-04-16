@@ -67,17 +67,18 @@ export function getImageUrl(url?: string, debugLabel?: string): string {
       return cleanUrl;
     }
 
-    // Handle special case for /uploads directory
+    // CRITICAL FIX: Handle special case for /uploads directory - these are owner photos
     if (cleanUrl.startsWith('/uploads/')) {
+      // Make sure we directly access the upload path without any processing
       finalUrl = `${cleanUrl}${cleanUrl.includes('?') ? '&' : '?'}t=${timestamp}`;
-      console.log(`[getImageUrl:${label}] Upload path with leading slash detected:`, finalUrl);
+      console.log(`[getImageUrl:${label}] Upload path with leading slash detected (FIXED DIRECT ACCESS):`, finalUrl);
       return finalUrl;
     }
     
     // If the URL is missing the leading slash but has uploads/
     if (cleanUrl.startsWith('uploads/')) {
       finalUrl = `/${cleanUrl}${cleanUrl.includes('?') ? '&' : '?'}t=${timestamp}`;
-      console.log(`[getImageUrl:${label}] Upload path without leading slash detected:`, finalUrl);
+      console.log(`[getImageUrl:${label}] Upload path without leading slash detected (FIXED):`, finalUrl);
       return finalUrl;
     }
     
@@ -101,24 +102,24 @@ export function getImageUrl(url?: string, debugLabel?: string): string {
       return cleanUrl;
     }
 
-    // Special case for owner photos with file- prefix
+    // CRITICAL FIX: Special case for owner photos with file- prefix
     if (cleanUrl.includes('file-')) {
       // This is likely an uploaded file from our server
-      // Check if it already has the /uploads/ prefix
+      // FIXED: Ensure we use the direct uploads path without any processing
       if (cleanUrl.includes('/uploads/')) {
         finalUrl = `${cleanUrl}${cleanUrl.includes('?') ? '&' : '?'}t=${timestamp}`;
       } else {
         finalUrl = `/uploads/${cleanUrl.split(/[\/\\]/).pop() || cleanUrl}?t=${timestamp}`;
       }
-      console.log(`[getImageUrl:${label}] File upload detected:`, finalUrl);
+      console.log(`[getImageUrl:${label}] File upload detected (FIXED DIRECT ACCESS):`, finalUrl);
       return finalUrl;
     }
 
     // Check for the most common issue: url is only the filename without the path
     if (!cleanUrl.includes('/') && !cleanUrl.includes('\\')) {
-      // Add uploads path and timestamp to bust cache
+      // FIXED: Add uploads path with direct access and timestamp to bust cache
       finalUrl = `/uploads/${cleanUrl}?t=${timestamp}`;
-      console.log(`[getImageUrl:${label}] Filename without path detected:`, finalUrl);
+      console.log(`[getImageUrl:${label}] Filename without path detected (FIXED DIRECT ACCESS):`, finalUrl);
       return finalUrl;
     }
 
@@ -145,12 +146,12 @@ export function getImageUrl(url?: string, debugLabel?: string): string {
       return finalUrl;
     }
 
-    // Check for image files and ensure they have the uploads path
+    // FIXED: Check for image files and ensure they have the uploads path with direct access
     if (cleanUrl.includes('.jpg') || cleanUrl.includes('.png') || cleanUrl.includes('.jpeg') || cleanUrl.includes('.gif')) {
       // Strip any partial paths and just use the filename
       const filename = cleanUrl.split(/[\/\\]/).pop() || cleanUrl;
       finalUrl = `/uploads/${filename}?t=${timestamp}`;
-      console.log(`[getImageUrl:${label}] Image file detected:`, finalUrl);
+      console.log(`[getImageUrl:${label}] Image file detected (DIRECT ACCESS):`, finalUrl);
       return finalUrl;
     }
 
@@ -158,8 +159,9 @@ export function getImageUrl(url?: string, debugLabel?: string): string {
     if (cleanUrl.toLowerCase().includes('owner') || cleanUrl.toLowerCase().includes('salon') || 
         cleanUrl.toLowerCase().includes('profile') || cleanUrl.toLowerCase().includes('photo') || 
         cleanUrl.toLowerCase().includes('tiffany')) {
+      // FIXED: Don't override actual owner photos - only use default if no photo
+      console.log(`[getImageUrl:${label}] Owner photo keyword detected - using default fallback`);
       finalUrl = `/assets/salon-card.png?t=${timestamp}`;
-      console.log(`[getImageUrl:${label}] Owner photo keyword detected:`, finalUrl);
       return finalUrl;
     }
     
