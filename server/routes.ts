@@ -833,7 +833,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         clientId: Number(clientId),
         styleId: Number(styleId),
         salonId: Number(salonId),
-        selectedAt: new Date().toISOString(),
+        selectedAt: new Date(),
         status: "selected"
       });
       
@@ -843,7 +843,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         description: `Client ${clientId} selected style ${styleId} from salon ${salonId}`,
         clientId: Number(clientId),
         salonId: Number(salonId),
-        timestamp: new Date().toISOString()
+        timestamp: new Date()
       });
       
       // Update invitation status if applicable
@@ -908,7 +908,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId: userId ? Number(userId) : undefined,
         salonId: salonId ? Number(salonId) : undefined,
         clientId: clientId ? Number(clientId) : undefined,
-        timestamp: new Date().toISOString()
+        timestamp: new Date()
       });
       
       res.status(201).json(activityLog);

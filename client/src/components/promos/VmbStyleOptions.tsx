@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Button } from '@/components/ui/button';
 import { CheckIcon, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/apiRequest';
+import { apiRequest } from '../../lib/apiRequest';
 import { useLocation } from 'wouter';
 
 interface StyleOption {
@@ -162,54 +162,77 @@ export function VmbStyleOptions({
 
   return (
     <>
-      <div className="py-2">
+      <div className="py-2 vmb-style-options">
         <div className="container mx-auto px-2">
           <div className="bg-white shadow-sm rounded-md">
             <div className="p-3">
               <h2 className="font-bold text-sm mb-3 text-[#FF92A5]">Ven Me, Baby! Style Options: STEP 1 Pick your style...</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {services.map((service) => (
-                  <div 
-                    key={service.id} 
-                    className={`vmb-style-card cursor-pointer ${selectedStyle?.id === service.id ? 'selected' : ''}`}
-                    onClick={() => handleSelectStyle(service)}
-                  >
-                    <div className="flex">
-                      {/* Left side - Text */}
-                      <div className="w-2/3 p-3">
-                        <h3 className="font-medium text-sm">{service.name}</h3>
-                        <p className="text-xs text-gray-600 mt-1">{service.description}</p>
+                {services.map((service) => {
+                  const isSelected = selectedStyle?.id === service.id;
+                  const isHovered = hoveredStyle === service.id;
+                  const isPreviouslySelected = isStyleSelected(service.id);
+                  
+                  return (
+                    <div 
+                      key={service.id} 
+                      className={`vmb-style-card cursor-pointer rounded-lg border overflow-hidden transition-all duration-200 
+                        ${isSelected ? 'border-[#FF92A5] ring-2 ring-[#FF92A5] shadow-md' : 'border-gray-200'} 
+                        ${isHovered ? 'transform scale-[1.02] shadow-lg' : ''} 
+                        ${isPreviouslySelected ? 'bg-pink-50' : 'bg-white'}`}
+                      onClick={() => handleSelectStyle(service)}
+                      onMouseEnter={() => handleMouseEnter(service.id)}
+                      onMouseLeave={handleMouseLeave}
+                    >
+                      <div className="flex relative">
+                        {/* Selected indicator */}
+                        {isPreviouslySelected && (
+                          <div className="absolute top-2 right-2 bg-green-100 rounded-full p-1">
+                            <CheckIcon className="h-4 w-4 text-green-600" />
+                          </div>
+                        )}
                         
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="font-bold text-sm">${Math.round(service.price)}</span>
-                          <span className="text-xs text-gray-500">{service.duration} min</span>
+                        {/* Left side - Text */}
+                        <div className="w-2/3 p-3">
+                          <h3 className="font-medium text-sm">{service.name}</h3>
+                          <p className="text-xs text-gray-600 mt-1">{service.description}</p>
+                          
+                          <div className="mt-2 flex items-center gap-2">
+                            <span className="font-bold text-sm">${Math.round(service.price)}</span>
+                            <span className="text-xs text-gray-500">{service.duration} min</span>
+                          </div>
+                          
+                          <div className="mt-2">
+                            {service.featured && (
+                              <Badge className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-xs">
+                                {getBadgeText(service.name)}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                         
-                        <div className="mt-2">
-                          {service.featured && (
-                            <Badge className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-xs">
-                              {getBadgeText(service.name)}
-                            </Badge>
-                          )}
+                        {/* Right side - Image */}
+                        <div className="w-1/3 flex items-center justify-center p-2">
+                          <div className="relative w-full h-24 overflow-hidden rounded-md">
+                            <img 
+                              src={service.gifUrl || '/assets/LOGO1.png'} 
+                              alt={service.name}
+                              className={`w-full h-full object-cover transition-transform duration-300 ${isHovered ? 'scale-110' : ''}`}
+                              onError={(e) => {
+                                console.error(`Failed to load image for service: ${service.name}`);
+                                e.currentTarget.src = '/assets/LOGO1.png';
+                              }}
+                            />
+                            {isHovered && (
+                              <div className="absolute inset-0 bg-gradient-to-t from-pink-500/20 to-transparent" />
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      
-                      {/* Right side - Image */}
-                      <div className="w-1/3 flex items-center justify-center p-2">
-                        <img 
-                          src={service.gifUrl || '/assets/LOGO1.png'} 
-                          alt={service.name}
-                          className="w-full h-24 object-cover rounded-md"
-                          onError={(e) => {
-                            console.error(`Failed to load image for service: ${service.name}`);
-                            e.currentTarget.src = '/assets/LOGO1.png';
-                          }}
-                        />
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -219,13 +242,17 @@ export function VmbStyleOptions({
       {/* Style Details Popup */}
       {selectedStyle && (
         <Dialog open={isDetailsOpen} onOpenChange={(open) => !open && setIsDetailsOpen(false)}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-center text-lg font-bold text-[#FF92A5]">{selectedStyle.name}</DialogTitle>
+          <DialogContent className="sm:max-w-md border-2 border-[#FF92A5] p-0 overflow-hidden">
+            <DialogHeader className="bg-[#FF92A5]/10 p-4">
+              <DialogTitle className="text-center text-lg font-bold text-[#FF92A5] flex items-center justify-center gap-2">
+                <Sparkles className="h-5 w-5" />
+                {selectedStyle.name}
+                <Sparkles className="h-5 w-5" />
+              </DialogTitle>
             </DialogHeader>
             
-            <div className="flex flex-col items-center space-y-4 py-4">
-              <div className="h-48 w-full overflow-hidden rounded-md">
+            <div className="flex flex-col items-center space-y-4 py-6">
+              <div className="h-48 w-full max-w-sm overflow-hidden rounded-lg shadow-md">
                 <img 
                   src={selectedStyle.gifUrl || '/assets/LOGO1.png'} 
                   alt={selectedStyle.name}
@@ -237,16 +264,16 @@ export function VmbStyleOptions({
                 />
               </div>
               
-              <div className="text-center px-4">
+              <div className="text-center px-6 max-w-sm">
                 <p className="text-base">{selectedStyle.description}</p>
                 <div className="mt-3 flex items-center justify-center gap-3">
-                  <span className="font-bold text-lg">${Math.round(selectedStyle.price)}</span>
+                  <span className="font-bold text-xl text-[#FF92A5]">${Math.round(selectedStyle.price)}</span>
                   <span className="text-sm text-gray-500">{selectedStyle.duration} min</span>
                 </div>
               </div>
             </div>
             
-            <DialogFooter className="sm:justify-center gap-4">
+            <DialogFooter className="sm:justify-center gap-4 p-4 bg-gray-50">
               <Button 
                 variant="outline" 
                 onClick={() => setIsDetailsOpen(false)}
@@ -256,9 +283,10 @@ export function VmbStyleOptions({
               </Button>
               <Button 
                 onClick={handleSaveSelection}
+                disabled={isSubmitting}
                 className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
               >
-                Select This Style
+                {isSubmitting ? 'Saving...' : 'Select This Style'}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -268,27 +296,32 @@ export function VmbStyleOptions({
       {/* Confirmation Popup */}
       {selectedStyle && (
         <Dialog open={isConfirmationOpen} onOpenChange={(open) => !open && setIsConfirmationOpen(false)}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-center text-lg text-[#FF92A5]">Style Selected!</DialogTitle>
+          <DialogContent className="sm:max-w-md border border-green-200 overflow-hidden">
+            <DialogHeader className="bg-green-50 p-4">
+              <DialogTitle className="text-center text-lg text-green-600 flex items-center justify-center gap-2">
+                <CheckIcon className="h-5 w-5" />
+                Style Selected!
+              </DialogTitle>
             </DialogHeader>
             
-            <div className="flex flex-col items-center space-y-4 py-4">
-              <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
-                <CheckIcon className="h-8 w-8 text-green-600" />
+            <div className="flex flex-col items-center space-y-4 py-6">
+              <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center shadow-inner">
+                <CheckIcon className="h-10 w-10 text-green-600" />
               </div>
               
-              <div className="text-center px-4">
-                <h3 className="font-bold text-lg">{selectedStyle.name}</h3>
+              <div className="text-center px-6">
+                <h3 className="font-bold text-lg text-[#FF92A5]">{selectedStyle.name}</h3>
                 <p className="text-base mt-2">{selectedStyle.description}</p>
-                <p className="mt-1 font-semibold">${Math.round(selectedStyle.price)}</p>
-                <p className="text-sm mt-4 text-gray-500">
-                  Thank you for selecting this style! It has been added to your VMB Style basket.
-                </p>
+                <p className="mt-1 font-semibold text-gray-700">${Math.round(selectedStyle.price)}</p>
+                <div className="mt-4 p-3 bg-pink-50 rounded-lg border border-pink-100">
+                  <p className="text-sm text-[#FF92A5]">
+                    Thank you for selecting this style! It has been added to your VMB Style basket.
+                  </p>
+                </div>
               </div>
             </div>
             
-            <DialogFooter className="sm:justify-center">
+            <DialogFooter className="sm:justify-center p-4 bg-gray-50">
               <Button 
                 onClick={handleCloseAll}
                 className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
