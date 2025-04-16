@@ -38,46 +38,27 @@ export function formatPhoneNumber(value: string): string {
 // Helper to process image URLs consistently
 export function getImageUrl(url?: string): string {
   if (!url) {
-    console.log('Empty URL provided to getImageUrl');
+    // Silent failure with empty string
     return '';
   }
-  
-  console.log('Processing image URL:', url);
 
-  // If it's a data URL, return as is (should never happen in production)
+  // If it's a data URL, return as is
   if (url.startsWith('data:')) {
-    console.log('Data URL encountered:', url.substring(0, 30) + '...');
     return url;
   }
 
   // If it's a proper URL from our uploads directory or assets, return as is
   if (url.startsWith('/uploads/') || url.startsWith('/assets/')) {
-    console.log('URL already has the correct format:', url);
-    // Ensure the file exists by making a fetch request on next render
-    setTimeout(() => {
-      fetch(url)
-        .then(response => {
-          if (!response.ok) {
-            console.error(`File at ${url} doesn't exist or can't be accessed`);
-          } else {
-            console.log(`File at ${url} exists and is accessible`);
-          }
-        })
-        .catch(err => console.error(`Error checking file existence for ${url}:`, err));
-    }, 0);
     return url;
   }
   
   // If the URL is missing the leading slash but has uploads/ or assets/
   if (url.startsWith('uploads/') || url.startsWith('assets/')) {
-    const fullUrl = `/${url}`;
-    console.log('Adding leading slash to URL:', fullUrl);
-    return fullUrl;
+    return `/${url}`;
   }
 
   // Handle external URLs - these should be returned as-is
   if (url.startsWith('http')) {
-    console.log('External URL used directly:', url);
     return url;
   }
 
@@ -87,15 +68,11 @@ export function getImageUrl(url?: string): string {
     if (url.includes('owner') || url.includes('photo') || url.includes('avatar') || 
         url.includes('profile') || url.includes('salon') || url.includes('tiffany') ||
         url.includes('file-')) {
-      const fullUrl = `/uploads/${url}`;
-      console.log('Adding proper path to owner photo file:', fullUrl);
-      return fullUrl;
+      return `/uploads/${url}`;
     }
     
     // Otherwise add proper path to any uploaded file
-    const fullUrl = `/uploads/${url}`;
-    console.log('Adding proper path to uploaded file:', fullUrl);
-    return fullUrl;
+    return `/uploads/${url}`;
   }
 
   // Handle service images based on filename patterns
@@ -115,16 +92,9 @@ export function getImageUrl(url?: string): string {
   if (url.includes('.jpg') || url.includes('.png') || url.includes('.jpeg') || url.includes('.gif')) {
     // Strip any partial paths and just use the filename
     const filename = url.split(/[\/\\]/).pop() || url;
-    const fullUrl = `/uploads/${filename}`;
-    console.log('Adding uploads path to image file:', fullUrl);
-    return fullUrl;
+    return `/uploads/${filename}`;
   }
 
-  // If we get here and have no clue what kind of URL this is, 
-  // do NOT default to the main VMB logo since this could be owner photo
-  // Instead, use an appropriate placeholder based on context
-  console.log('Using context-appropriate placeholder for:', url);
-  
   // If the URL has "owner" or related words, it's likely an owner photo
   if (url.toLowerCase().includes('owner') || url.toLowerCase().includes('salon') || 
       url.toLowerCase().includes('profile') || url.toLowerCase().includes('photo') || 

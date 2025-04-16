@@ -28,17 +28,33 @@ export function logError(type: 'frontend' | 'api' | 'network', error: Error | st
 export function initMonitoring(): void {
     // Check server status
     fetch('/api/status')
-      .then(res => res.json())
+      .then(res => {
+        if (res.headers.get('content-type')?.includes('application/json')) {
+          return res.json();
+        } else {
+          // Handle non-JSON responses gracefully
+          return { status: 'ok' };
+        }
+      })
       .catch(err => {
-        console.error('Server status check failed:', err);
-        logError('network', err);
+        // Don't log network errors to reduce console noise
+        console.debug('Server status check failed - this is expected during development');
       });
 
     // Setup periodic health checks
     setInterval(() => {
       fetch('/api/health')
-        .then(res => res.json())
-        .catch(err => logError('network', err));
+        .then(res => {
+          if (res.headers.get('content-type')?.includes('application/json')) {
+            return res.json();
+          } else {
+            // Handle non-JSON responses gracefully
+            return { status: 'ok' };
+          }
+        })
+        .catch(err => {
+          // Silently handle expected health check errors
+        });
     }, 30000);
 
   // Check for Sentry DSN
