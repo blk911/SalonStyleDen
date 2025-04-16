@@ -42,7 +42,9 @@ export default function SalonDashboard() {
   const { toast } = useToast();
   
   // Determine if we should open the edit form automatically
-  const shouldOpenEditForm = location.includes('?edit=true');
+  console.log('Current location in SalonDashboard:', location);
+  const shouldOpenEditForm = location.includes('?edit=true') || window.location.search.includes('edit=true');
+  console.log('shouldOpenEditForm value:', shouldOpenEditForm, 'URL search params:', window.location.search);
 
   // States for services, promos, and schedule
   const [services, setServices] = useState<ServiceData[]>([
