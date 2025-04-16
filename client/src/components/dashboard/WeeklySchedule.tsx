@@ -19,7 +19,7 @@ export interface DaySchedule {
 interface WeeklyScheduleProps {
   salonId: number;
   initialSchedule?: DaySchedule[];
-  onScheduleSaved?: () => void;
+  onScheduleSaved?: (schedule: DaySchedule[]) => void;
 }
 
 // Default weekly schedule template
