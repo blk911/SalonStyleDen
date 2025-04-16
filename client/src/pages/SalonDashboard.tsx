@@ -27,6 +27,7 @@ interface EnhancedSalonInfo extends SalonInfo {
   createdAt?: string;
   services?: ServiceData[];
   promos?: PromoData[];
+  schedule?: DaySchedule[];
 }
 
 export default function SalonDashboard() {
@@ -39,6 +40,9 @@ export default function SalonDashboard() {
   const shouldOpenEditForm = location.includes('?edit=true') || window.location.search.includes('edit=true');
   console.log('shouldOpenEditForm value:', shouldOpenEditForm, 'URL search params:', window.location.search);
 
+  // State for salon data 
+  const [salonData, setSalon] = useState<EnhancedSalonInfo | null>(null);
+  
   // States for services, promos, and schedule
   const [services, setServices] = useState<ServiceData[]>([
     {
@@ -509,9 +513,32 @@ export default function SalonDashboard() {
     }
   };
 
-  const handleSaveSchedule = () => {
-    // In a real app, this would be an API call
-    console.log("Saving schedule:", weeklySchedule);
+  const handleSaveSchedule = (updatedSchedule: DaySchedule[]) => {
+    console.log("Schedule saved in SalonDashboard:", updatedSchedule);
+    
+    // Update the local state with the new schedule
+    setWeeklySchedule(updatedSchedule);
+    
+    // Update the salon data with the new schedule to keep everything in sync
+    setSalon(prevSalon => {
+      if (!prevSalon) return null;
+      return {
+        ...prevSalon,
+        schedule: updatedSchedule
+      };
+    });
+    
+    // Show success toast
+    toast({
+      title: "Schedule updated",
+      description: "Your business hours have been updated.",
+      duration: 3000
+    });
+    
+    // Invalidate the query to ensure fresh data on next fetch
+    if (id) {
+      queryClient.invalidateQueries({ queryKey: ['/api/salons', id] });
+    }
   };
 
   // Enhanced query configuration with proper query key structure and error handling
@@ -614,6 +641,14 @@ export default function SalonDashboard() {
         setPromos(salon.promos);
       } else {
         console.log('SalonDashboard - No promos in salon data');
+      }
+      
+      // Update schedule if available
+      if (salon.schedule && Array.isArray(salon.schedule)) {
+        console.log('SalonDashboard - Setting schedule from salon data:', salon.schedule);
+        setWeeklySchedule(salon.schedule);
+      } else {
+        console.log('SalonDashboard - No schedule in salon data, using default');
       }
     }
   }, [salon]);
