@@ -529,7 +529,8 @@ export default function SalonDashboard() {
     }),
     refetchOnMount: true,
     refetchOnWindowFocus: true, // Enable refresh on window focus to handle changes
-    staleTime: 10000, // Consider data fresh for only 10 seconds to allow quicker refreshes
+    staleTime: 0, // Always consider data stale to force a refresh each time
+    cacheTime: 1000, // Cache for only 1 second to ensure fresh data
     enabled: !!id, // Only run the query if we have an ID
   });
   
@@ -541,16 +542,38 @@ export default function SalonDashboard() {
       e.stopPropagation();
     }
     
-    console.log('SalonDashboard - Forcing data refresh');
+    console.log('SalonDashboard - Forcing data refresh for salon ID:', id);
     
     try {
       // Force clear the cache completely for this salon
       await queryClient.cancelQueries({ queryKey: ['/api/salons', id] });
       await queryClient.removeQueries({ queryKey: ['/api/salons', id] });
-      await queryClient.invalidateQueries({ queryKey: ['/api/salons', id], refetchType: 'all' });
       
-      // Force a refetch with cache disabled
+      // Force fetch directly from API to bypass any caching
+      const response = await fetch(`/api/salons/${id}?t=${Date.now()}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch salon data: ${response.status}`);
+      }
+      const freshData = await response.json();
+      
+      // Manually update the query cache with fresh data
+      queryClient.setQueryData(['/api/salons', id], freshData);
+      
+      // Now trigger a regular refetch to update UI
       await refetch();
+      
+      // Update local state with the fresh data
+      if (freshData.services && Array.isArray(freshData.services)) {
+        const filteredServices = freshData.services.filter(service => 
+          !service.name.toLowerCase().includes('seasonal spring'));
+        console.log('SalonDashboard - Refresh: Updated services:', filteredServices);
+        setServices(filteredServices);
+      }
+      
+      if (freshData.promos && Array.isArray(freshData.promos)) {
+        console.log('SalonDashboard - Refresh: Updated promos:', freshData.promos);
+        setPromos(freshData.promos);
+      }
       
       toast({
         title: "Refreshed",

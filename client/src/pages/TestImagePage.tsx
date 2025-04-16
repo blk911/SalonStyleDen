@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { getImageUrl } from "@/lib/utils";
 
 export default function TestImagePage() {
   const { id } = useParams();
+  const [, setLocation] = useLocation();
   const [salon, setSalon] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [directImageUrl, setDirectImageUrl] = useState("");
@@ -39,7 +40,28 @@ export default function TestImagePage() {
   }, [id]);
 
   const refreshImage = () => {
+    console.log("Refreshing image with new timestamp");
     setTimestamp(Date.now());
+    
+    // Also force a refetch to get the latest data
+    fetch(`/api/salons/${id}?t=${Date.now()}`)
+      .then(response => {
+        if (!response.ok) throw new Error(`API error: ${response.status}`);
+        return response.json();
+      })
+      .then(freshData => {
+        console.log("Refreshed salon data:", freshData);
+        setSalon(freshData);
+        
+        if (freshData.ownerPhotoUrl) {
+          setDirectImageUrl(freshData.ownerPhotoUrl);
+          setProcessedImageUrl(getImageUrl(freshData.ownerPhotoUrl, 'test_refresh'));
+        }
+      })
+      .catch(err => {
+        console.error("Error during refresh:", err);
+        setError(err.message);
+      });
   };
 
   if (loading) {
@@ -103,7 +125,7 @@ export default function TestImagePage() {
       
       <div className="flex gap-4">
         <Button onClick={refreshImage}>Refresh Images</Button>
-        <Button variant="outline" onClick={() => window.location.href = `/dashboard/salon/${id}`}>
+        <Button variant="outline" onClick={() => setLocation(`/dashboard/salon/${id}`)}>
           Back to Dashboard
         </Button>
       </div>
