@@ -828,7 +828,7 @@ export default function SalonDashboard() {
                 <Button 
                   variant="outline"
                   className="text-xs h-8 border-pink-200 text-pink-700 hover:bg-pink-50"
-                  onClick={() => window.open(`/salon/${salon.id}`, '_blank')}
+                  onClick={() => window.open(`/salon/${salon.id}`.replace(/\/\//g, '/'), '_blank')}
                 >
                   View Public Page
                 </Button>

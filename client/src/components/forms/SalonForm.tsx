@@ -128,7 +128,7 @@ export default function SalonForm() {
         if (count <= 0) {
           clearInterval(interval);
           console.log("Redirecting to salon dashboard:", `/salon/${result.id}`);
-          setLocation(`/salon/${result.id}`);
+          setLocation(`/salon/${result.id}`.replace(/\/\//g, '/'));
         }
       }, 1000);
       
@@ -144,7 +144,7 @@ export default function SalonForm() {
   
   const handleGoToDashboard = () => {
     if (salonId) {
-      setLocation(`/salon/${salonId}`);
+      setLocation(`/salon/${salonId}`.replace(/\/\//g, '/'));
     }
   };
 

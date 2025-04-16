@@ -306,7 +306,7 @@ export default function ClientForm() {
         
         if (count <= 0) {
           clearInterval(interval);
-          setLocation(`/client/${result.id}`);
+          setLocation(`/client/${result.id}`.replace(/\/\//g, '/'));
         }
       }, 1000);
       
@@ -333,7 +333,7 @@ export default function ClientForm() {
   
   const handleGoToDashboard = () => {
     if (clientId) {
-      setLocation(`/client/${clientId}`);
+      setLocation(`/client/${clientId}`.replace(/\/\//g, '/'));
     }
   };
 
