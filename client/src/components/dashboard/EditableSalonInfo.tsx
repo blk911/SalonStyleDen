@@ -220,11 +220,11 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
         ownerPhotoUrl: updatedSalon.ownerPhotoUrl || editedSalon.ownerPhotoUrl
       });
       
-      // Force reload the page to ensure all state is fresh
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
+      // Invalidate React Query cache for salon data
+      queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/salons', editedSalon.id.toString()] });
       
+      // Exit edit mode
       setIsEditing(false);
       
       toast({
