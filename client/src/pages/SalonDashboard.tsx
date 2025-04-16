@@ -648,7 +648,7 @@ export default function SalonDashboard() {
 
                 {services.length === 0 ? (
                   <div className="text-center p-4">
-                    <p className="text-lg font-medium text-gray-700">VMB STYLE OPTION</p>
+                    <p className="text-lg font-medium text-gray-700">VMB STYLE OPTIONS</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

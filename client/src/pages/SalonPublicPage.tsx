@@ -395,7 +395,7 @@ export default function SalonPublicPage() {
 
                 {(!salon.services || salon.services.length === 0) && (
                   <div className="text-center p-4 bg-pink-50 rounded">
-                    <p className="text-lg font-medium text-gray-700">VMB STYLE OPTION</p>
+                    <p className="text-lg font-medium text-gray-700">VMB STYLE OPTIONS</p>
                   </div>
                 )}
                 
