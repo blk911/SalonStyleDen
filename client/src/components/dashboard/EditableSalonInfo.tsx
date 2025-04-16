@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatPhoneNumber, getImageUrl } from "@/lib/utils";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 // Social media item interface
@@ -119,14 +119,24 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
 
       // Update the salon object with the new photo URL
       if (response && response.url) {
-        // Force a refresh of the image by creating a new URL with cache-busting parameter
+        // Store the raw URL, getImageUrl will handle cache busting when used
         const imageUrl = response.url;
         console.log('Set owner photo URL:', imageUrl);
         
+        // Force invalidate any existing image cache
+        if (typeof window !== 'undefined') {
+          const img = new Image();
+          img.src = getImageUrl(imageUrl);
+        }
+        
+        // Update state with the new image URL
         setEditedSalon(prev => ({ 
           ...prev, 
           ownerPhotoUrl: imageUrl
         }));
+        
+        // Also invalidate React Query cache after photo upload
+        queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
 
         toast({
           title: "Photo uploaded",
@@ -222,10 +232,11 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               <div className="flex flex-col items-center mt-2 gap-2">
                 <Avatar className="h-16 w-16 border-2 border-pink-100">
                   <AvatarImage 
-                    src={salon.ownerPhotoUrl || '/assets/salon-card.png'} 
+                    src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl) : '/assets/salon-card.png'} 
                     alt={salon.ownerName} 
                     onError={(e) => {
                       console.error("Error loading avatar image in view mode");
+                      console.log("Attempted to load:", salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl) : 'default image');
                       e.currentTarget.src = '/assets/salon-card.png';
                     }}
                   />
@@ -328,10 +339,11 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
           <div className="flex items-center gap-3">
             <Avatar className="h-16 w-16 border-2 border-pink-100">
               <AvatarImage 
-                src={editedSalon.ownerPhotoUrl || '/assets/salon-card.png'} 
+                src={editedSalon.ownerPhotoUrl ? getImageUrl(editedSalon.ownerPhotoUrl) : '/assets/salon-card.png'}
                 alt={editedSalon.ownerName}
                 onError={(e) => {
                   console.error("Error loading avatar image in edit mode");
+                  console.log("Attempted to load:", editedSalon.ownerPhotoUrl ? getImageUrl(editedSalon.ownerPhotoUrl) : 'default image');
                   e.currentTarget.src = '/assets/salon-card.png';
                 }} 
               />
