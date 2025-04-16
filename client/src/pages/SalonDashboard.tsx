@@ -21,19 +21,12 @@ interface SocialMediaItem {
   handle: string;
 }
 
-// Define our own Salon type for the frontend (consistent with SalonsPage)
-interface SalonType {
-  id: number;
-  name: string;
-  ownerName: string;
-  phone: string;
-  email: string;
-  socialMedia?: SocialMediaItem[] | null;
-  type: string;
-  createdAt: string;
+// We're using SalonInfo type from EditableSalonInfo for consistency
+// Enhanced with the additional properties we need
+interface EnhancedSalonInfo extends SalonInfo {
+  createdAt?: string;
   services?: ServiceData[];
   promos?: PromoData[];
-  ownerPhotoUrl?: string; // Added ownerPhotoUrl to SalonType
 }
 
 export default function SalonDashboard() {
@@ -527,15 +520,40 @@ export default function SalonDashboard() {
     isLoading, 
     error,
     refetch 
-  } = useQuery<SalonType>({
+  } = useQuery<EnhancedSalonInfo>({
     queryKey: ['/api/salons', id],
-    queryFn: getQueryFn<SalonType>({
-      on401: "throw"
-    }),
+    queryFn: async () => {
+      console.log("Fetching salon data for id:", id);
+      try {
+        if (!id) throw new Error("No salon ID provided");
+        
+        // Force fetch directly from API to bypass any caching
+        const response = await fetch(`/api/salons/${id}`);
+        if (!response.ok) {
+          throw new Error(`Error fetching salon: ${response.status}`);
+        }
+        
+        const salonData = await response.json();
+        console.log("SalonDashboard - Salon data loaded:", salonData);
+        
+        if (!salonData.services) {
+          console.log("SalonDashboard - No services in salon data");
+        }
+        
+        if (!salonData.promos) {
+          console.log("SalonDashboard - No promos in salon data");
+        }
+        
+        return salonData as EnhancedSalonInfo;
+      } catch (err) {
+        console.error("API request error:", err);
+        throw err;
+      }
+    },
     refetchOnMount: true,
     refetchOnWindowFocus: true, // Enable refresh on window focus to handle changes
     staleTime: 0, // Always consider data stale to force a refresh each time
-    cacheTime: 1000, // Cache for only 1 second to ensure fresh data
+    gcTime: 1000, // Cache for only 1 second to ensure fresh data (renamed from cacheTime)
     enabled: !!id, // Only run the query if we have an ID
   });
   
@@ -569,7 +587,7 @@ export default function SalonDashboard() {
       
       // Update local state with the fresh data
       if (freshData.services && Array.isArray(freshData.services)) {
-        const filteredServices = freshData.services.filter(service => 
+        const filteredServices = freshData.services.filter((service: ServiceData) => 
           !service.name.toLowerCase().includes('seasonal spring'));
         console.log('SalonDashboard - Refresh: Updated services:', filteredServices);
         setServices(filteredServices);
@@ -612,7 +630,7 @@ export default function SalonDashboard() {
       if (salon.services && Array.isArray(salon.services)) {
         console.log('SalonDashboard - Setting services from salon data:', salon.services);
         // Filter out the Seasonal Spring Special from VMB Style Options
-        const filteredServices = salon.services.filter(service => 
+        const filteredServices = salon.services.filter((service: ServiceData) => 
           !service.name.toLowerCase().includes('seasonal spring'));
         console.log('SalonDashboard - Filtered services (removed Seasonal Spring):', filteredServices);
         setServices(filteredServices);
