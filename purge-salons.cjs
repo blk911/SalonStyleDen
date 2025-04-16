@@ -31,7 +31,7 @@ async function listSalons() {
   console.log("Listing all salons...");
   
   const query = `
-    SELECT id, name, "ownerName", "createdAt" 
+    SELECT id, name, "owner_name" as "ownerName", "created_at" as "createdAt" 
     FROM salons 
     ORDER BY id ASC
   `;
@@ -103,12 +103,12 @@ async function purgeSalons() {
   // Check for related records
   const invitationsQuery = `
     SELECT COUNT(*) as count FROM invitations 
-    WHERE "salonId" IN (${deleteIds.join(',')})
+    WHERE salon_id IN (${deleteIds.join(',')})
   `;
   
   const clientsQuery = `
     SELECT COUNT(*) as count FROM clients 
-    WHERE "salonId" IN (${deleteIds.join(',')})
+    WHERE salon_id IN (${deleteIds.join(',')})
   `;
   
   const invitationResult = await executeQuery(invitationsQuery);
@@ -127,7 +127,7 @@ async function purgeSalons() {
     console.log("Deleting invitations...");
     await executeQuery(`
       DELETE FROM invitations 
-      WHERE "salonId" IN (${deleteIds.join(',')})
+      WHERE salon_id IN (${deleteIds.join(',')})
     `);
     console.log(`Deleted ${invitationCount} invitations.`);
   }
@@ -136,7 +136,7 @@ async function purgeSalons() {
     console.log("Deleting clients...");
     await executeQuery(`
       DELETE FROM clients 
-      WHERE "salonId" IN (${deleteIds.join(',')})
+      WHERE salon_id IN (${deleteIds.join(',')})
     `);
     console.log(`Deleted ${clientCount} clients.`);
   }
@@ -153,7 +153,7 @@ async function purgeSalons() {
   
   // Verify remaining salons
   const remainingSalons = await executeQuery(`
-    SELECT id, name, "ownerName" FROM salons ORDER BY id ASC
+    SELECT id, name, "owner_name" as "ownerName" FROM salons ORDER BY id ASC
   `);
   
   console.log(`\nRemaining salons (${remainingSalons.length}):`);
@@ -167,10 +167,10 @@ async function purgeSalons() {
 // Execute purge function
 async function main() {
   try {
-    // First, just list the salons
-    //await listSalons();
+    // First, just list the salons 
+    // await listSalons();
     
-    // Then actually perform the purge
+    // Perform the purge
     await purgeSalons();
   } catch (error) {
     console.error("Error:", error);
