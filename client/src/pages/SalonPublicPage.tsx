@@ -63,11 +63,7 @@ export default function SalonPublicPage() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
   // Flag to control display of promotions section - set to false to hide
-  const [showPromos, setShowPromos] = useState(true);
-  // Promo engine state
-  const [selectedPromo, setSelectedPromo] = useState<Promo | null>(null);
-  const [isPromoDetailsOpen, setIsPromoDetailsOpen] = useState(false);
-  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [showPromos, setShowPromos] = useState(false);
 
   // Enhanced query configuration with proper query key structure and error handling
   const { 
@@ -366,21 +362,7 @@ export default function SalonPublicPage() {
 
                   <div className="grid-cols-responsive">
                     {salon.promos && salon.promos.map((promo) => (
-                      <div 
-                        key={promo.id} 
-                        className={`
-                          border rounded overflow-hidden shadow-sm cursor-pointer 
-                          transition-all duration-300 ease-in-out
-                          ${selectedPromo?.id === promo.id 
-                            ? 'border-[#FF92A5] ring-2 ring-pink-200 scale-105 transform' 
-                            : 'border-pink-100 hover:border-pink-300 hover:shadow-md hover:scale-102'
-                          }
-                        `}
-                        onClick={() => {
-                          setSelectedPromo(promo);
-                          setIsPromoDetailsOpen(true);
-                        }}
-                      >
+                      <div key={promo.id} className="border border-pink-100 rounded overflow-hidden shadow-sm">
                         <div className="h-32 flex items-center justify-center">
                           {promo.title.toLowerCase().includes('summer') || promo.title.toLowerCase().includes('french') ? (
                             <img 
@@ -418,11 +400,11 @@ export default function SalonPublicPage() {
                             </div>
                           )}
                         </div>
-                        <div className="card-content p-2">
+                        <div className="card-content">
                           <h4 className="font-medium text-compact text-center">{promo.title}</h4>
                           <p className="text-mini text-gray-600 text-center">{promo.description}</p>
-                          <div className="flex justify-center items-center mt-1">
-                            <span className="text-micro text-pink-500 font-medium">
+                          <div className="flex justify-center items-center vspace-xs">
+                            <span className="text-micro">
                               {promo.endDate ? `Ends: ${new Date(promo.endDate).toLocaleDateString()}` : 'Ongoing'}
                             </span>
                           </div>
@@ -607,29 +589,6 @@ export default function SalonPublicPage() {
         </section>
       </main>
       <Footer />
-      
-      {/* Promo Details Popup */}
-      <PromoDetailsPopup 
-        promo={selectedPromo}
-        isOpen={isPromoDetailsOpen}
-        onClose={() => {
-          setIsPromoDetailsOpen(false);
-        }}
-        onSave={() => {
-          setIsPromoDetailsOpen(false);
-          setIsConfirmationOpen(true);
-        }}
-      />
-      
-      {/* Confirmation Popup */}
-      <PromoConfirmationPopup
-        promo={selectedPromo}
-        isOpen={isConfirmationOpen}
-        onClose={() => {
-          setIsConfirmationOpen(false);
-          // Could add an API call here to save the selected promo to the user's account
-        }}
-      />
     </div>
   );
 }
