@@ -63,7 +63,11 @@ export default function SalonPublicPage() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
   // Flag to control display of promotions section - set to false to hide
-  const [showPromos, setShowPromos] = useState(false);
+  const [showPromos, setShowPromos] = useState(true);
+  // State for promo popups
+  const [selectedPromo, setSelectedPromo] = useState<Promo | null>(null);
+  const [isPromoDetailsOpen, setIsPromoDetailsOpen] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
 
   // Enhanced query configuration with proper query key structure and error handling
   const { 

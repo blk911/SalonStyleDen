@@ -6,7 +6,7 @@ interface Promo {
   id: number;
   title: string;
   description: string;
-  endDate?: string | null;
+  endDate?: string | undefined | null;
 }
 
 interface PromoConfirmationPopupProps {

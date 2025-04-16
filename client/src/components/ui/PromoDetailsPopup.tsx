@@ -40,7 +40,7 @@ export function PromoDetailsPopup({ promo, isOpen, onClose, onSave }: PromoDetai
           {getPromoImage(promo.title) ? (
             <div className="h-48 w-full overflow-hidden rounded-md">
               <img 
-                src={getPromoImage(promo.title)} 
+                src={getPromoImage(promo.title) || '/assets/LOGO1.png'} 
                 alt={promo.title}
                 className="w-full h-full object-cover"
                 onError={(e) => {
