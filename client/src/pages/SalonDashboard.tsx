@@ -530,7 +530,7 @@ export default function SalonDashboard() {
     refetchOnMount: true,
     refetchOnWindowFocus: true, // Enable refresh on window focus to handle changes
     staleTime: 0, // Always consider data stale to force a refresh each time
-    cacheTime: 1000, // Cache for only 1 second to ensure fresh data
+    gcTime: 0, // Don't use cache at all for this query
     enabled: !!id, // Only run the query if we have an ID
   });
   
