@@ -523,54 +523,65 @@ export default function SalonPublicPage() {
               <CardContent className="p-2">
                 <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Business Hours</h2>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1 text-mini">
+                <div className="grid grid-cols-1 md:grid-cols-7 gap-1 text-mini text-center">
                   {/* If schedule exists use it, otherwise use the default schedule */}
                   {salon.schedule && Array.isArray(salon.schedule) && salon.schedule.length > 0 ? (
                     // Sort the schedule by dayOfWeek (0 = Sunday, 1 = Monday, etc.)
                     [...salon.schedule]
                       .sort((a, b) => a.dayOfWeek - b.dayOfWeek)
-                      .map((day) => (
-                        <div key={day.dayName} className="border rounded p-1">
-                          <p className="font-medium">{day.dayName}</p>
-                          {day.isOpen ? (
-                            <p>
-                              {day.openTime} - {day.closeTime}
-                            </p>
-                          ) : (
-                            <p className="text-red-500">Closed</p>
-                          )}
-                        </div>
-                      ))
+                      .map((day) => {
+                        // Convert times to AM/PM format
+                        const formatTime = (time: string) => {
+                          const [hours, minutes] = time.split(':');
+                          const hour = parseInt(hours);
+                          const ampm = hour >= 12 ? 'PM' : 'AM';
+                          const displayHour = hour % 12 || 12; // Convert 0 to 12
+                          return `${displayHour}:${minutes} ${ampm}`;
+                        };
+                        
+                        return (
+                          <div key={day.dayName} className="border rounded p-2">
+                            <p className="font-medium text-center">{day.dayName}</p>
+                            {day.isOpen ? (
+                              <p className="text-center">
+                                {formatTime(day.openTime)} - {formatTime(day.closeTime)}
+                              </p>
+                            ) : (
+                              <p className="text-red-500 text-center">Closed</p>
+                            )}
+                          </div>
+                        );
+                      })
                   ) : (
                     // Default schedule if none is provided
                     <>
-                      <div className="border rounded p-1">
-                        <p className="font-medium">Monday</p>
-                        <p>9:00 AM - 5:00 PM</p>
+                      <div className="border rounded p-2">
+                        <p className="font-medium text-center">Sunday</p>
+                        <p className="text-red-500 text-center">Closed</p>
                       </div>
-                      <div className="border rounded p-1">
-                        <p className="font-medium">Tuesday</p>
-                        <p>9:00 AM - 5:00 PM</p>
+                      <div className="border rounded p-2">
+                        <p className="font-medium text-center">Monday</p>
+                        <p className="text-center">9:00 AM - 5:00 PM</p>
                       </div>
-                      <div className="border rounded p-1">
-                        <p className="font-medium">Wednesday</p>
-                        <p>9:00 AM - 5:00 PM</p>
+                      <div className="border rounded p-2">
+                        <p className="font-medium text-center">Tuesday</p>
+                        <p className="text-center">9:00 AM - 5:00 PM</p>
                       </div>
-                      <div className="border rounded p-1">
-                        <p className="font-medium">Thursday</p>
-                        <p>9:00 AM - 5:00 PM</p>
+                      <div className="border rounded p-2">
+                        <p className="font-medium text-center">Wednesday</p>
+                        <p className="text-center">9:00 AM - 5:00 PM</p>
                       </div>
-                      <div className="border rounded p-1">
-                        <p className="font-medium">Friday</p>
-                        <p>9:00 AM - 5:00 PM</p>
+                      <div className="border rounded p-2">
+                        <p className="font-medium text-center">Thursday</p>
+                        <p className="text-center">9:00 AM - 5:00 PM</p>
                       </div>
-                      <div className="border rounded p-1">
-                        <p className="font-medium">Saturday</p>
-                        <p>10:00 AM - 4:00 PM</p>
+                      <div className="border rounded p-2">
+                        <p className="font-medium text-center">Friday</p>
+                        <p className="text-center">9:00 AM - 5:00 PM</p>
                       </div>
-                      <div className="border rounded p-1">
-                        <p className="font-medium">Sunday</p>
-                        <p className="text-red-500">Closed</p>
+                      <div className="border rounded p-2">
+                        <p className="font-medium text-center">Saturday</p>
+                        <p className="text-center">10:00 AM - 4:00 PM</p>
                       </div>
                     </>
                   )}
