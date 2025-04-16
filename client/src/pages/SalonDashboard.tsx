@@ -174,6 +174,9 @@ export default function SalonDashboard() {
         setServices(updatedSalonData.services);
       }
 
+      // Force data refresh to ensure consistency 
+      await refreshPageData();
+
       // Display success message
       toast({
         title: "Service updated",
@@ -239,6 +242,9 @@ export default function SalonDashboard() {
         setServices(updatedSalonData.services);
       }
 
+      // Force data refresh to ensure consistency
+      await refreshPageData();
+
       toast({
         title: "Service added",
         description: "Your new style option has been added.",
@@ -275,6 +281,9 @@ export default function SalonDashboard() {
       if (updatedSalonData.services && Array.isArray(updatedSalonData.services)) {
         setServices(updatedSalonData.services);
       }
+
+      // Force data refresh to ensure consistency
+      await refreshPageData();
 
       toast({
         title: "Service deleted",
@@ -516,10 +525,23 @@ export default function SalonDashboard() {
       on401: "throw"
     }),
     refetchOnMount: true,
-    refetchOnWindowFocus: false,
-    staleTime: 30000, // Consider data fresh for 30 seconds
+    refetchOnWindowFocus: true, // Enable refresh on window focus to handle changes
+    staleTime: 10000, // Consider data fresh for only 10 seconds to allow quicker refreshes
     enabled: !!id, // Only run the query if we have an ID
   });
+  
+  // Function to force refresh data - can be called after important operations
+  const refreshPageData = async () => {
+    console.log('SalonDashboard - Forcing data refresh');
+    // Invalidate and refetch salon data
+    await queryClient.invalidateQueries({ queryKey: ['/api/salons', id] });
+    await refetch();
+    toast({
+      title: "Refreshed",
+      description: "Your salon information has been updated.",
+      duration: 2000
+    });
+  };
 
   // Auto-redirect if no ID is provided
   useEffect(() => {
