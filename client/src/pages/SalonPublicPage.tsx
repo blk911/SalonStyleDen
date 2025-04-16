@@ -330,25 +330,25 @@ export default function SalonPublicPage() {
                 Welcome... I'm {salon.ownerName}! Let me know how I can serve you!
               </p>
               <div className="absolute top-0 right-0 flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs h-7 text-pink-600 hover:bg-pink-100"
-                  onClick={() => refetch()}
-                  title="Refresh page data"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21h5v-5"></path></svg>
-                  Refresh
-                </Button>
+                {/* Refresh button removed per user request */}
                 <button
                   onClick={() => {
-                    // Force clear any cached data before navigation to ensure fresh load
-                    queryClient.cancelQueries({ queryKey: ['/api/salons', salon.id] });
-                    queryClient.removeQueries({ queryKey: ['/api/salons', salon.id] });
-                    
-                    console.log('Navigating to dashboard with fresh state for salon ID:', salon.id);
-                    // Use a timestamp to ensure the URL is unique and forces a fresh load
-                    setLocation(`/dashboard/salon/${salon.id}?t=${Date.now()}`);
+                    try {
+                      if (!salon || !salon.id) {
+                        console.error('Cannot navigate: Missing salon ID');
+                        return;
+                      }
+                      
+                      // Force clear entire cache to ensure fresh data load
+                      queryClient.clear();
+                      
+                      console.log('Navigating to dashboard for salon ID:', salon.id);
+                      
+                      // Navigate to dashboard with forced reload
+                      window.location.href = `/dashboard/salon/${salon.id}`;
+                    } catch (err) {
+                      console.error('Navigation error:', err);
+                    }
                   }}
                   className="bg-white hover:bg-gray-50 text-pink-500 border border-pink-300 font-medium py-1 px-3 rounded-md text-xs transition duration-300 shadow-sm flex items-center gap-1"
                 >

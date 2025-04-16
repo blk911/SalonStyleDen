@@ -137,24 +137,38 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
         
         // Also update in database immediately to avoid losing the change
         try {
-          console.log(`Saving owner photo URL directly to database: ${imageUrl}`);
+          // Ensure we have a valid salon ID before making the request
+          if (!salon || !salon.id) {
+            console.error('Cannot update photo: No salon ID available');
+            throw new Error('Missing salon ID');
+          }
+          
+          const salonId = salon.id; // Use the original salon ID from props, not the edited one
+          console.log(`Saving owner photo URL directly to database for salon ${salonId}: ${imageUrl}`);
+          
           // Make API call to update just the photo URL
-          const response = await fetch(`/api/salons/${editedSalon.id}`, {
+          const response = await fetch(`/api/salons/${salonId}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              id: editedSalon.id,
+              id: salonId,
               ownerPhotoUrl: imageUrl
             })
           });
           
           if (response.ok) {
             console.log('Owner photo URL updated in database');
-            // Invalidate React Query cache after photo upload
+            
+            // Force refresh cache to ensure updated data
             queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
-            queryClient.invalidateQueries({ queryKey: ['/api/salons', editedSalon.id.toString()] });
+            queryClient.invalidateQueries({ queryKey: ['/api/salons', salonId.toString()] });
+            
+            // Force window reload after a slight delay to ensure changes apply
+            setTimeout(() => {
+              window.location.reload();
+            }, 500);
           }
         } catch (err) {
           console.error('Error saving owner photo URL directly:', err);
