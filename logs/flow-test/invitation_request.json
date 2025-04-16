@@ -1,7 +1,7 @@
 {
-  "name": "TestClient_1744846097",
-  "phone": "555-123-6097",
-  "email": "TestClient_1744846097@example.com",
+  "name": "TestClient_1744846253",
+  "phone": "555-123-6253",
+  "email": "TestClient_1744846253@example.com",
   "notes": "Test client created via automation script",
   "favoriteServices": ["French Tips"],
   "salonId": 1,
