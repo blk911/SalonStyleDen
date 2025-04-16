@@ -181,7 +181,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
               <div className="flex flex-col items-center mt-2 gap-2">
                 <Avatar className="h-16 w-16 border-2 border-pink-100">
                   <AvatarImage 
-                    src="/assets/owner_photos/tiffany.jpg" 
+                    src={salon.ownerPhotoUrl || '/assets/salon-card.png'} 
                     alt={salon.ownerName} 
                     onError={(e) => {
                       console.error("Error loading avatar image in view mode");
@@ -189,7 +189,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
                     }}
                   />
                   <AvatarFallback className="bg-pink-50 text-pink-500">
-                    TI
+                    {salon.ownerName?.substring(0, 2)?.toUpperCase() || 'OW'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex items-center justify-center">
@@ -287,7 +287,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
           <div className="flex items-center gap-3">
             <Avatar className="h-16 w-16 border-2 border-pink-100">
               <AvatarImage 
-                src="/assets/owner_photos/tiffany.jpg" 
+                src={editedSalon.ownerPhotoUrl || '/assets/salon-card.png'} 
                 alt={editedSalon.ownerName}
                 onError={(e) => {
                   console.error("Error loading avatar image in edit mode");
@@ -295,7 +295,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
                 }} 
               />
               <AvatarFallback className="bg-pink-50 text-pink-500">
-                TI
+                {editedSalon.ownerName?.substring(0, 2)?.toUpperCase() || 'OW'}
               </AvatarFallback>
             </Avatar>
 
