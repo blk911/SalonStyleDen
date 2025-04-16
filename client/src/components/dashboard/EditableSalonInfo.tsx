@@ -96,15 +96,30 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
       return;
     }
 
+    // Verify salon ID is available before proceeding
+    if (!salon || !salon.id) {
+      console.error('Cannot upload photo: No salon ID available');
+      toast({
+        title: "Error",
+        description: "Cannot identify salon. Please try again or refresh the page.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsUploading(true);
 
     try {
+      // Log the salon ID for debugging
+      const salonId = salon.id;
+      console.log(`Processing photo upload for salon ID: ${salonId}`);
+      
+      // Set up form data with file
       const formData = new FormData();
       formData.append('file', file);
 
-      // Upload the file using fetch directly to ensure proper FormData handling
+      // Step 1: Upload the file
       console.log('Uploading salon owner photo:', file.name);
-      
       const uploadResponse = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
@@ -115,77 +130,66 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
       }
       
       const response = await uploadResponse.json();
-      console.log('Photo upload response:', response);
+      console.log('Photo upload successful:', response);
 
-      // Update the salon object with the new photo URL
-      if (response && response.url) {
-        // Store the raw URL, getImageUrl will handle cache busting when used
-        const imageUrl = response.url;
-        console.log('Set owner photo URL:', imageUrl);
-        
-        // Force invalidate any existing image cache
-        if (typeof window !== 'undefined') {
-          const img = new Image();
-          img.src = getImageUrl(imageUrl) + '&nocache=' + Date.now();
-        }
-        
-        // Update state with the new image URL
-        setEditedSalon(prev => ({ 
-          ...prev, 
-          ownerPhotoUrl: imageUrl
-        }));
-        
-        // Also update in database immediately to avoid losing the change
-        try {
-          // Ensure we have a valid salon ID before making the request
-          if (!salon || !salon.id) {
-            console.error('Cannot update photo: No salon ID available');
-            throw new Error('Missing salon ID');
-          }
-          
-          const salonId = salon.id; // Use the original salon ID from props, not the edited one
-          console.log(`Saving owner photo URL directly to database for salon ${salonId}: ${imageUrl}`);
-          
-          // Make API call to update just the photo URL
-          const response = await fetch(`/api/salons/${salonId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              id: salonId,
-              ownerPhotoUrl: imageUrl
-            })
-          });
-          
-          if (response.ok) {
-            console.log('Owner photo URL updated in database');
-            
-            // Force refresh cache to ensure updated data
-            queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
-            queryClient.invalidateQueries({ queryKey: ['/api/salons', salonId.toString()] });
-            
-            // Force window reload after a slight delay to ensure changes apply
-            setTimeout(() => {
-              window.location.reload();
-            }, 500);
-          }
-        } catch (err) {
-          console.error('Error saving owner photo URL directly:', err);
-          // Continue anyway as we've updated the local state
-        }
-
-        toast({
-          title: "Photo uploaded",
-          description: "Your photo has been uploaded successfully.",
-          duration: 3000
-        });
+      // Ensure response has a URL
+      if (!response || !response.url) {
+        throw new Error('Upload endpoint returned invalid response');
       }
+      
+      // Store the raw URL (without any transformations)
+      const imageUrl = response.url;
+      console.log('Owner photo URL to save:', imageUrl);
+      
+      // Update local state immediately
+      setEditedSalon(prev => ({ 
+        ...prev, 
+        ownerPhotoUrl: imageUrl
+      }));
+      
+      // Step 2: Update the database with new photo URL
+      console.log(`Updating salon ${salonId} in database with photo URL: ${imageUrl}`);
+      
+      // Make API call to update just the photo URL in the database
+      const updateResponse = await fetch(`/api/salons/${salonId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ownerPhotoUrl: imageUrl
+        })
+      });
+      
+      if (!updateResponse.ok) {
+        throw new Error(`Failed to update salon record: ${updateResponse.status}`);
+      }
+      
+      console.log('Owner photo URL successfully updated in database');
+      
+      // Step 3: Force refresh cache and data
+      await queryClient.cancelQueries({ queryKey: ['/api/salons'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/salons', salonId.toString()] });
+      
+      // Success notification
+      toast({
+        title: "Photo uploaded",
+        description: "Your photo has been uploaded and saved successfully.",
+        duration: 3000
+      });
+      
+      // Force page reload to ensure fresh data
+      console.log('Reloading page to show updated photo...');
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+      
     } catch (error) {
-      console.error('Error uploading photo:', error);
+      console.error('Error in photo upload process:', error);
       toast({
         title: "Upload failed",
-        description: "Failed to upload photo. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to upload photo. Please try again.",
         variant: "destructive",
         duration: 3000
       });

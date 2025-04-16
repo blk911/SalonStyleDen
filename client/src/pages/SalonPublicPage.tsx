@@ -281,45 +281,38 @@ export default function SalonPublicPage() {
             <div className="relative flex flex-col items-center">
               <div className="mb-4">
                 <img 
-                  src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl, 'public_hero') : '/assets/salon-card.png'}
+                  src={salon.ownerPhotoUrl ? `${salon.ownerPhotoUrl}?t=${Date.now()}` : '/assets/salon-card.png'}
                   alt={`${salon.ownerName}'s photo`}
                   className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm"
                   onError={(e) => {
                     console.log("Attempting to resolve owner photo for", salon.name);
                     
                     try {
-                      // First try: Use specific hardcoded file if it's a known salon ID
-                      if (salon.id === 18) { // Special case for Deb Dazzles
-                        const timestamp = Date.now();
-                        const directUrl = `/uploads/file-1744815185216-224451235.png?t=${timestamp}`;
-                        console.log("Using direct file for Deb Dazzles:", directUrl);
+                      // Step 1: Try the direct URL first with cache busting
+                      if (salon.ownerPhotoUrl) {
+                        // Make sure we have a clean URL first
+                        const baseUrl = salon.ownerPhotoUrl.split('?')[0];
+                        const cacheBuster = Date.now();
+                        const directUrl = `${baseUrl}?t=${cacheBuster}`;
+                        
+                        console.log("Using direct URL with cache busting:", directUrl);
                         e.currentTarget.src = directUrl;
-                      }
-                      // Second try: For salon ID 12 (Ven Me, Baby! LTD)
-                      else if (salon.id === 12) {
-                        console.log("Using direct file for Ven Me, Baby!");
-                        e.currentTarget.src = '/assets/salon-card.png';
-                      }
-                      // Third try: Try with a direct timestamp approach if we have an ownerPhotoUrl
-                      else if (salon.ownerPhotoUrl) {
-                        const timestamp = Date.now();
-                        // Add cache busting as a last resort
-                        let fallbackUrl = salon.ownerPhotoUrl;
-                        if (!fallbackUrl.includes('?')) {
-                          fallbackUrl = `${fallbackUrl}?t=${timestamp}`;
-                        } else {
-                          fallbackUrl = `${fallbackUrl}&t=${timestamp}`;
-                        }
-                        console.log("Using fallback with timestamp:", fallbackUrl);
-                        e.currentTarget.src = fallbackUrl;
+                        
+                        // Set up a second fallback if this fails
+                        e.currentTarget.onerror = () => {
+                          console.log("Direct URL failed, using default fallback image");
+                          e.currentTarget.src = '/assets/salon-card.png';
+                          // Remove error handler to prevent infinite loop
+                          e.currentTarget.onerror = null;
+                        };
                       } 
-                      // Last resort: Always use a default image
+                      // If no photo URL exists, use default
                       else {
-                        console.log("Using generic fallback image");
+                        console.log("No photo URL available, using default image");
                         e.currentTarget.src = '/assets/salon-card.png';
                       }
                     } catch (err) {
-                      console.warn("Error in fallback logic:", err);
+                      console.warn("Error in image loading logic:", err);
                       e.currentTarget.src = '/assets/salon-card.png';
                     }
                   }}

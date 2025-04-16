@@ -685,38 +685,36 @@ export default function SalonDashboard() {
                     >
                       {/* Image with improved error handling directly using uploads path */}
                       <img 
-                        src={salon.ownerPhotoUrl ? 
-                          (salon.ownerPhotoUrl.startsWith('/uploads/') ? 
-                            `${salon.ownerPhotoUrl}?refresh=${Date.now()}` : 
-                            salon.ownerPhotoUrl) 
-                          : '/assets/salon-card.png'
-                        }
+                        src={salon.ownerPhotoUrl ? `${salon.ownerPhotoUrl}?t=${Date.now()}` : '/assets/salon-card.png'}
                         alt={salon.ownerName || "Salon Owner"}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           console.log("Attempting to restore owner photo for dashboard:", salon.name);
                           
                           try {
-                            // Force direct use of ownerPhotoUrl without transformation
+                            // Try the direct URL first with cache busting
                             if (salon.ownerPhotoUrl) {
-                              // Remove any query params and add fresh timestamp
+                              // Make sure we have a clean URL first
                               const baseUrl = salon.ownerPhotoUrl.split('?')[0];
-                              const photoUrl = `${baseUrl}?nocache=${Date.now()}`;
-                              console.log("Using direct photo URL:", photoUrl);
-                              e.currentTarget.src = photoUrl;
+                              const cacheBuster = Date.now();
+                              const directUrl = `${baseUrl}?t=${cacheBuster}`;
                               
-                              // If this is the second error, fall back to default
+                              console.log("Using direct URL with cache busting:", directUrl);
+                              e.currentTarget.src = directUrl;
+                              
+                              // Set up a second fallback if this fails
                               e.currentTarget.onerror = () => {
-                                console.log("Second failure, using default image");
+                                console.log("Direct URL failed, using default fallback image");
                                 e.currentTarget.src = '/assets/salon-card.png';
                                 // Remove error handler to prevent infinite loop
                                 e.currentTarget.onerror = null;
                               };
                             } else {
+                              console.log("No photo URL available, using default image");
                               e.currentTarget.src = '/assets/salon-card.png';
                             }
                           } catch (err) {
-                            console.warn("Error in hero image fallback logic:", err);
+                            console.warn("Error in image loading logic:", err);
                             e.currentTarget.src = '/assets/salon-card.png';
                           }
                         }}
