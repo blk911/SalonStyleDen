@@ -254,7 +254,17 @@ export default function SalonsPage() {
       <Navbar />
       <main className="flex-1">
         <div className="container mx-auto px-2 py-2">
-          <h1 className="text-xl font-bold mb-1 text-center text-[#FF92A5]">Ven Me, Baby! Salons</h1>
+          <div className="flex justify-between items-center">
+            <h1 className="text-xl font-bold mb-1 text-center text-[#FF92A5] flex-1">Ven Me, Baby! Salons</h1>
+            <button
+              onClick={() => refetch()}
+              className="text-xs flex items-center gap-1 text-pink-600 hover:text-pink-800 bg-pink-50 hover:bg-pink-100 px-2 py-1 rounded-md"
+              title="Refresh salon list"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21h5v-5"></path></svg>
+              Refresh
+            </button>
+          </div>
           <Separator className="my-1" />
 
           {/* Map Feature Section with Toggle */}
