@@ -126,7 +126,7 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
         // Force invalidate any existing image cache
         if (typeof window !== 'undefined') {
           const img = new Image();
-          img.src = getImageUrl(imageUrl);
+          img.src = getImageUrl(imageUrl) + '&nocache=' + Date.now();
         }
         
         // Update state with the new image URL
@@ -135,8 +135,31 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
           ownerPhotoUrl: imageUrl
         }));
         
-        // Also invalidate React Query cache after photo upload
-        queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+        // Also update in database immediately to avoid losing the change
+        try {
+          console.log(`Saving owner photo URL directly to database: ${imageUrl}`);
+          // Make API call to update just the photo URL
+          const response = await fetch(`/api/salons/${editedSalon.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              id: editedSalon.id,
+              ownerPhotoUrl: imageUrl
+            })
+          });
+          
+          if (response.ok) {
+            console.log('Owner photo URL updated in database');
+            // Invalidate React Query cache after photo upload
+            queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+            queryClient.invalidateQueries({ queryKey: ['/api/salons', editedSalon.id.toString()] });
+          }
+        } catch (err) {
+          console.error('Error saving owner photo URL directly:', err);
+          // Continue anyway as we've updated the local state
+        }
 
         toast({
           title: "Photo uploaded",

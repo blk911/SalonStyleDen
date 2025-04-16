@@ -664,7 +664,13 @@ export default function SalonDashboard() {
                       onError={(e) => {
                         console.error("Error loading owner photo in hero");
                         console.log("Attempted to load:", salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl) : 'default image');
-                        e.currentTarget.src = '/assets/salon-card.png';
+                        // Force a reload of the image with timestamp to bust cache
+                        const timestamp = Date.now();
+                        if (salon.ownerPhotoUrl) {
+                          e.currentTarget.src = `${salon.ownerPhotoUrl.includes('?') ? salon.ownerPhotoUrl : `${salon.ownerPhotoUrl}?`}t=${timestamp}`;
+                        } else {
+                          e.currentTarget.src = '/assets/salon-card.png';
+                        }
                       }}
                     />
                     {salon.ownerPhotoUrl && (
