@@ -260,7 +260,7 @@ export default function AdminDashboard() {
                         <TableRow
                           key={salon.id}
                           className="cursor-pointer hover:bg-gray-50"
-                          //onClick={() => setLocation(`/salon/${salon.id}`)}
+                          //onClick={() => setLocation(`/salon/${salon.id}`.replace(/\/\//g, '/'))}
                         >
                           <TableCell>{salon.id}</TableCell>
                           <TableCell>{salon.name}</TableCell>
@@ -269,7 +269,7 @@ export default function AdminDashboard() {
                           <TableCell>{salon.phone}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-1">
-                              <Link href={`/salon/${salon.id}`}>
+                              <Link href={`/salon/${salon.id}`.replace(/\/\//g, '/')}>
                                 <button className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200">
                                   Salon Page
                                 </button>

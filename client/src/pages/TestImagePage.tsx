@@ -125,7 +125,7 @@ export default function TestImagePage() {
       
       <div className="flex gap-4">
         <Button onClick={refreshImage}>Refresh Images</Button>
-        <Button variant="outline" onClick={() => setLocation(`/dashboard/salon/${id}`)}>
+        <Button variant="outline" onClick={() => setLocation(`/dashboard/salon/${id}`.replace(/\/\//g, '/'))}>
           Back to Dashboard
         </Button>
       </div>
