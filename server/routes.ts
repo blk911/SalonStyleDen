@@ -220,6 +220,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to update salon" });
     }
   });
+  
+  // PATCH handler for salon updates (needed for tests)
+  apiRouter.patch("/salons/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+
+      // Get the salon to update
+      const salon = await storage.getSalon(id);
+      if (!salon) {
+        return res.status(404).json({ error: "Salon not found" });
+      }
+
+      console.log(`DEBUG - PATCH salon/${id} - Updating salon`, req.body);
+      
+      // Update the salon with the provided data
+      const updatedSalon = await storage.updateSalon(id, req.body);
+      console.log(`DEBUG - PATCH salon/${id} - Salon updated successfully`);
+      
+      res.json(updatedSalon);
+    } catch (error) {
+      console.error('Error updating salon:', error);
+      res.status(500).json({ error: "Failed to update salon" });
+    }
+  });
 
   // Update salon services
   apiRouter.post("/salons/:id/services", async (req: Request, res: Response) => {
