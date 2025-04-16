@@ -179,8 +179,18 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
       console.log('Salon updated successfully:', updatedSalon);
       console.log('Returned owner photo URL:', updatedSalon.ownerPhotoUrl);
       
-      // Force a refresh to make sure images reload
-      onSave(updatedSalon);
+      // Update the salon object in the parent component immediately to reflect changes
+      onSave({
+        ...updatedSalon,
+        // Ensure the ownerPhotoUrl is properly set even if the server didn't return it
+        ownerPhotoUrl: updatedSalon.ownerPhotoUrl || editedSalon.ownerPhotoUrl
+      });
+      
+      // Force reload the page to ensure all state is fresh
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+      
       setIsEditing(false);
       
       toast({

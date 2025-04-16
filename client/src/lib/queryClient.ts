@@ -41,18 +41,17 @@ export async function apiRequest<T = any>(
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
-export const getQueryFn: <T>(options: {
+export const getQueryFn = <T,>(options: {
   on401: UnauthorizedBehavior;
-}) => QueryFunction<T> =
-  ({ on401: unauthorizedBehavior }) =>
+}): QueryFunction<T> =>
   async ({ queryKey }) => {
     try {
       const res = await fetch(queryKey[0] as string, {
         credentials: "include",
       });
 
-      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-        return null;
+      if (options.on401 === "returnNull" && res.status === 401) {
+        return null as any;
       }
 
       await throwIfResNotOk(res);
@@ -64,7 +63,8 @@ export const getQueryFn: <T>(options: {
       }
       
       // For non-JSON responses, return a simple object
-      return { success: true, message: 'Non-JSON response received' } as unknown as T;
+      const defaultResponse = { success: true, message: 'Non-JSON response received' };
+      return defaultResponse as any;
     } catch (error) {
       console.error('API request error:', error);
       throw error;
