@@ -1,0 +1,40 @@
+{
+  "services": [
+    {
+      "id": 1,
+      "name": "French Tips / Touch-Up",
+      "description": "Classic white tips or quick polish refresh.",
+      "price": 40,
+      "duration": 30,
+      "featured": true,
+      "gifUrl": "/assets/french-tips.png"
+    },
+    {
+      "id": 2,
+      "name": "Luxe Gel Manicure",
+      "description": "Glossy, chip-free color with lasting shine.",
+      "price": 55,
+      "duration": 45,
+      "featured": true,
+      "gifUrl": "/assets/gel-manicure.png"
+    },
+    {
+      "id": 3,
+      "name": "Sculpted Acrylics",
+      "description": "Custom-shaped acrylics for bold length.",
+      "price": 70,
+      "duration": 60,
+      "featured": true,
+      "gifUrl": "/assets/sculpted-acrylics.png"
+    },
+    {
+      "id": 4,
+      "name": "Glam Me! Custom Design",
+      "description": "Fully custom art, gems, 3D extras.",
+      "price": 125,
+      "duration": 90,
+      "featured": true,
+      "gifUrl": "/assets/glam-design.png"
+    }
+  ]
+}

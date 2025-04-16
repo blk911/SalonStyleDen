@@ -116,6 +116,27 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+  
+  async updateSalon(id: number, salonData: Partial<Salon>): Promise<Salon> {
+    console.log(`DatabaseStorage.updateSalon - Updating salon ID ${id}`);
+    
+    try {
+      // Remove id from the update data (can't update primary key)
+      const { id: _, ...updateData } = salonData;
+      
+      const result = await db
+        .update(salons)
+        .set(updateData)
+        .where(eq(salons.id, id))
+        .returning();
+      
+      console.log(`DatabaseStorage.updateSalon - Update successful`);
+      return result[0];
+    } catch (error) {
+      console.error('DatabaseStorage.updateSalon - Error updating salon:', error);
+      throw error;
+    }
+  }
 
   // Client methods
   async getClient(id: number): Promise<Client | undefined> {

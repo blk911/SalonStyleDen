@@ -1,0 +1,13 @@
+{
+  "services": [
+    {
+      "id": 1,
+      "name": "French Tips / Touch-Up",
+      "description": "Classic white tips or quick polish refresh.",
+      "price": 40,
+      "duration": 30,
+      "featured": true,
+      "gifUrl": "/assets/french-tips.png"
+    }
+  ]
+}

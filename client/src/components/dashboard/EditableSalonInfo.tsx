@@ -158,13 +158,38 @@ export default function EditableSalonInfo({ salon, onSave }: EditableSalonInfoPr
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
-      // In a real app, this would be an API call
-      await new Promise(r => setTimeout(r, 500)); // Simulate API call
-
-      onSave(editedSalon);
+      // Make a real API call to update the salon data
+      const response = await fetch(`/api/salons/${editedSalon.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editedSalon)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to update salon: ${response.status}`);
+      }
+      
+      const updatedSalon = await response.json();
+      console.log('Salon updated successfully:', updatedSalon);
+      
+      onSave(updatedSalon);
       setIsEditing(false);
+      
+      toast({
+        title: "Successfully updated salon profile",
+        description: "Your changes have been saved.",
+        duration: 3000
+      });
     } catch (error) {
       console.error("Failed to update salon info:", error);
+      toast({
+        title: "Error updating salon",
+        description: error instanceof Error ? error.message : "Failed to update salon information",
+        variant: "destructive",
+        duration: 3000
+      });
     } finally {
       setIsSubmitting(false);
     }
