@@ -122,6 +122,10 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    
+    // Reset any existing error states
+    setPhoneExists(false);
+    setEmailExists(false);
 
     try {
       const cleanPhone = phone.replace(/\D/g, '');
@@ -152,7 +156,29 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send invitation');
+        const errorMsg = errorData.error || 'Failed to send invitation';
+        
+        // Check if it's a specific error type we want to handle with a dialog
+        if (errorMsg.includes('phone is already registered')) {
+          setErrorField('phone');
+          setErrorMessage('This phone number is already registered in our system.');
+          setShowErrorDialog(true);
+          setPhoneExists(true);
+          return; // Exit early to keep form data
+        } else if (errorMsg.includes('email is already registered')) {
+          setErrorField('email');
+          setErrorMessage('This email address is already registered in our system.');
+          setShowErrorDialog(true);
+          setEmailExists(true);
+          return; // Exit early to keep form data
+        } else if (errorMsg.includes('already registered')) {
+          setErrorField('other');
+          setErrorMessage('This contact information is already registered in our system.');
+          setShowErrorDialog(true);
+          return; // Exit early to keep form data
+        }
+        
+        throw new Error(errorMsg);
       }
 
       // Get the new invitation and add it to the list
@@ -164,21 +190,46 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         description: "Invitation sent successfully",
       });
 
-      setName("");
-      setPhone("");
-      setEmail("");
-      setNotes("");
-      setFirstServiceDate(new Date().toISOString().split('T')[0]);
-      setSelectedServices([]);
+      // Reset form on success
+      resetForm();
 
     } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to send invitation";
+      
+      // For errors that aren't duplicate contacts, use a toast
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send invitation",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+  
+  // Function to reset the form fields
+  const resetForm = () => {
+    setName("");
+    setPhone("");
+    setEmail("");
+    setNotes("");
+    setFirstServiceDate(new Date().toISOString().split('T')[0]);
+    setSelectedServices([]);
+    setPhoneExists(false);
+    setEmailExists(false);
+  };
+  
+  // Function to handle dialog close
+  const handleDialogClose = () => {
+    setShowErrorDialog(false);
+    
+    // Clear the specific field that had the error
+    if (errorField === 'phone') {
+      setPhone("");
+      setPhoneExists(false);
+    } else if (errorField === 'email') {
+      setEmail("");
+      setEmailExists(false);
     }
   };
 
@@ -325,6 +376,42 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           </ScrollArea>
         )}
       </Card>
+      
+      {/* Error Dialog for Duplicate Contact */}
+      <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl text-pink-700">
+              {errorField === 'phone' 
+                ? 'Phone Number Already Exists' 
+                : errorField === 'email' 
+                  ? 'Email Already Exists' 
+                  : 'Contact Already Exists'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="p-6 text-center space-y-4">
+            <AlertCircle className="h-16 w-16 text-pink-500 mx-auto" />
+            <p className="text-lg">{errorMessage}</p>
+            <p className="text-gray-500">
+              {errorField === 'phone' 
+                ? 'Please use a different phone number or check if this client has already been registered.' 
+                : errorField === 'email'
+                  ? 'Please use a different email address or check if this client has already been registered.'
+                  : 'This contact information is already in our system. Please check existing clients.'}
+            </p>
+          </div>
+          
+          <DialogFooter className="flex justify-center">
+            <Button 
+              onClick={handleDialogClose} 
+              className="bg-pink-500 hover:bg-pink-600 px-6"
+            >
+              OK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

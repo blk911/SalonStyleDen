@@ -241,7 +241,13 @@ async createClient(insertClient: InsertClient): Promise<Client> {
       // Check for duplicates
       const duplicateCheck = await this.isDuplicateContact(insertInvitation.phone, insertInvitation.email);
       if (duplicateCheck.isDuplicate) {
-        throw new Error(`This ${duplicateCheck.field} is already registered`);
+        if (duplicateCheck.field === 'phone') {
+          throw new Error(`This phone is already registered`);
+        } else if (duplicateCheck.field === 'email') {
+          throw new Error(`This email is already registered`);
+        } else {
+          throw new Error(`This ${duplicateCheck.field} is already registered`);
+        }
       }
 
       console.log('DatabaseStorage.createInvitation - Creating new invitation');
