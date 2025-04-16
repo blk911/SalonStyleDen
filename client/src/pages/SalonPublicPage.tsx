@@ -494,15 +494,7 @@ export default function SalonPublicPage() {
                   </div>
                 )}
 
-                {salon.services && salon.services.length > 0 && (
-                  <div className="button-container vspace-sm">
-                    <Button 
-                      className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs"
-                    >
-                      Pick VMB Style
-                    </Button>
-                  </div>
-                )}
+                {/* Button removed as this functionality should not be site-wide */}
               </CardContent>
             </Card>
           </div>
