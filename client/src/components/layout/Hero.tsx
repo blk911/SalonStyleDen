@@ -35,9 +35,13 @@ export default function Hero({
         ) : (
           // For main home page
           <img 
-            src="/assets/logos/vmb-script-logo.png"
+            src="/assets/VMB_LOGO.png"
             alt="Ven Me, Baby!"
             className="w-24 h-24 object-contain"
+            onError={(e) => {
+              console.error("Failed to load VMB logo, trying alternative path");
+              e.currentTarget.src = '/assets/LOGO1.png';
+            }}
           />
         )}
       </div>

@@ -151,7 +151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Only use standard promos if salon doesn't have any custom promos
-      if (!salon.promos || salon.promos.length === 0) {
+      if (!salon.promos || !Array.isArray(salon.promos) || salon.promos.length === 0) {
         const standardPromos = [
           {
             id: 1,
