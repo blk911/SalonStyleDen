@@ -1,44 +1,47 @@
 /**
  * Salon Purge Script
  * 
- * This script will delete all salon records except for the specified ones:
+ * This script will list all salons and delete all salon records 
+ * except for the specified ones:
  * - Tiffany 5280 Nails Studio
  * - Deb Dazzles
  * - Jenna's Glamour Nails
  * - Ven Me, Baby! LTD
  */
 
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { db } from './server/db.js';
+import { salons, clients, invitations } from './shared/schema.js';
 import { eq, not, or, ilike } from 'drizzle-orm';
 import readline from 'readline';
 
-// Define the table schemas
-const salons = {
-  id: { name: 'id' },
-  name: { name: 'name' }
-};
-
-const clients = {
-  id: { name: 'id' },
-  name: { name: 'name' },
-  salonId: { name: 'salon_id' }
-};
-
-const invitations = {
-  id: { name: 'id' },
-  salonId: { name: 'salon_id' }
-};
-
-// Pack them into a schema object
-const schema = { salons, clients, invitations };
-
-// Connect to the database
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-});
-
-const db = drizzle(pool, { schema });
+async function listSalons() {
+  console.log("Listing all salons in the database...");
+  
+  try {
+    const allSalons = await db.select().from(salons).orderBy(salons.id);
+    
+    console.log(`\nFound ${allSalons.length} total salons:`);
+    allSalons.forEach(salon => {
+      console.log(`ID: ${salon.id} | Name: ${salon.name} | Owner: ${salon.ownerName}`);
+    });
+    
+    // Highlight the ones to keep
+    console.log('\nSalons to KEEP:');
+    allSalons.forEach(salon => {
+      if (
+        salon.name.toLowerCase().includes('tiffany') ||
+        salon.name.toLowerCase().includes('deb dazzle') ||
+        salon.name.toLowerCase().includes('jenna') ||
+        salon.name.toLowerCase().includes('ven me')
+      ) {
+        console.log(`* ID: ${salon.id} | Name: ${salon.name} | Owner: ${salon.ownerName} *`);
+      }
+    });
+    
+  } catch (error) {
+    console.error("Error listing salons:", error);
+  }
+}
 
 async function purgeSalons() {
   console.log("Starting salon purge process...");
@@ -49,9 +52,9 @@ async function purgeSalons() {
       .from(salons)
       .where(
         or(
-          ilike(salons.name, '%tiffany%5280%'),
+          ilike(salons.name, '%tiffany%'),
           ilike(salons.name, '%deb%dazzle%'),
-          ilike(salons.name, '%jenna%glamour%'),
+          ilike(salons.name, '%jenna%'),
           ilike(salons.name, '%ven%me%baby%')
         )
       );
@@ -69,7 +72,7 @@ async function purgeSalons() {
       console.warn("Please verify the salon names and try again.");
       
       // Display all salons for debugging
-      const allSalons = await db.select({ id: salons.id, name: salons.name }).from(salons);
+      const allSalons = await db.select().from(salons);
       console.log("\nAll salons in the database:");
       allSalons.forEach(salon => {
         console.log(`  - ID: ${salon.id}, Name: ${salon.name}`);
@@ -94,7 +97,7 @@ async function purgeSalons() {
     }
     
     // Get all the salons to delete
-    const salonsToDelete = await db.select({ id: salons.id, name: salons.name })
+    const salonsToDelete = await db.select()
       .from(salons)
       .where(
         not(
@@ -113,7 +116,7 @@ async function purgeSalons() {
     const deleteIds = salonsToDelete.map(salon => salon.id);
     
     // Find related invitations and clients
-    const relatedInvitations = await db.select({ id: invitations.id, salon: invitations.salonId })
+    const relatedInvitations = await db.select()
       .from(invitations)
       .where(
         or(
@@ -121,7 +124,7 @@ async function purgeSalons() {
         )
       );
     
-    const relatedClients = await db.select({ id: clients.id, name: clients.name, salon: clients.salonId })
+    const relatedClients = await db.select()
       .from(clients)
       .where(
         or(
@@ -192,7 +195,7 @@ async function purgeSalons() {
     console.log("\nPurge complete!");
     
     // Verify remaining salons
-    const remainingSalons = await db.select({ id: salons.id, name: salons.name }).from(salons);
+    const remainingSalons = await db.select().from(salons);
     console.log(`\nRemaining salons (${remainingSalons.length}):`);
     remainingSalons.forEach(salon => {
       console.log(`  - ID: ${salon.id}, Name: ${salon.name}`);
@@ -200,14 +203,14 @@ async function purgeSalons() {
     
   } catch (error) {
     console.error("Error during purge:", error);
+  } finally {
+    process.exit(0);
   }
 }
 
-// Execute the function
-purgeSalons().then(() => {
-  console.log("Script execution completed.");
-  process.exit(0);
-}).catch(err => {
-  console.error("Script execution failed:", err);
-  process.exit(1);
-});
+// You can call either function depending on what you want to do
+// Just list all salons without deleting anything:
+// await listSalons();
+
+// Or purge all salons except the specified ones:
+await purgeSalons();
