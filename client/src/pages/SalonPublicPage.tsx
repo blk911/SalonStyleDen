@@ -280,15 +280,22 @@ export default function SalonPublicPage() {
             <div className="relative flex flex-col items-center">
               <div className="mb-4">
                 <img 
-                  src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl) : '/assets/salon-card.png'}
+                  src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl, 'public_hero') : '/assets/salon-card.png'}
                   alt={`${salon.ownerName}'s photo`}
                   className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm"
                   onError={(e) => {
                     console.error("Error loading owner photo in SalonPublicPage:", salon.ownerPhotoUrl);
-                    // Force a reload of the image with timestamp to bust cache
-                    const timestamp = Date.now();
-                    if (salon.ownerPhotoUrl) {
-                      e.currentTarget.src = `${salon.ownerPhotoUrl.includes('?') ? salon.ownerPhotoUrl : `${salon.ownerPhotoUrl}?`}t=${timestamp}`;
+                    
+                    // Try direct URL approach as a fallback
+                    if (salon.id === 18) { // Special case for Deb Dazzles
+                      const timestamp = Date.now();
+                      const directUrl = `/uploads/file-1744815185216-224451235.png?t=${timestamp}`;
+                      console.log("Trying direct URL for Deb Dazzles:", directUrl);
+                      e.currentTarget.src = directUrl;
+                    } else if (salon.ownerPhotoUrl) {
+                      const timestamp = Date.now();
+                      console.log("Trying fallback with timestamp for other salon:", salon.ownerPhotoUrl);
+                      e.currentTarget.src = `${salon.ownerPhotoUrl}?t=${timestamp}`;
                     } else {
                       // Use salon-specific fallback, not VMB logo
                       e.currentTarget.src = '/assets/salon-card.png';

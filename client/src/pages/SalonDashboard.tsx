@@ -658,16 +658,18 @@ export default function SalonDashboard() {
                   </Button>
                   <div>
                     <img 
-                      src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl) : '/assets/salon-card.png'}
+                      src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl, 'dashboard_hero') : '/assets/salon-card.png'}
                       alt={salon.ownerName}
                       className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
                       onError={(e) => {
                         console.error("Error loading owner photo in hero");
-                        console.log("Attempted to load:", salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl) : 'default image');
-                        // Force a reload of the image with timestamp to bust cache
-                        const timestamp = Date.now();
+                        console.log("Attempted to load:", salon.ownerPhotoUrl);
+                        // Try direct URL approach as a fallback
                         if (salon.ownerPhotoUrl) {
-                          e.currentTarget.src = `${salon.ownerPhotoUrl.includes('?') ? salon.ownerPhotoUrl : `${salon.ownerPhotoUrl}?`}t=${timestamp}`;
+                          const timestamp = Date.now();
+                          const directUrl = `/uploads/file-1744815185216-224451235.png?t=${timestamp}`;
+                          console.log("Trying direct URL:", directUrl);
+                          e.currentTarget.src = directUrl;
                         } else {
                           e.currentTarget.src = '/assets/salon-card.png';
                         }

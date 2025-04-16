@@ -13,6 +13,7 @@ import SalonsPage from "@/pages/SalonsPage";
 import PromosPage from "@/pages/PromosPage";
 import Sitemap from "@/pages/Sitemap";
 import AdminDashboard from "@/pages/AdminDashboard";
+import TestImagePage from "@/pages/TestImagePage";
 
 function Router() {
   return (
@@ -26,6 +27,7 @@ function Router() {
       {/* <Route path="/promos" component={PromosPage} /> */}
       <Route path="/sitemap" component={Sitemap} />
       <Route path="/admin" component={AdminDashboard} />
+      <Route path="/test-image/:id" component={TestImagePage} />
       <Route component={NotFound} />
     </Switch>
   );
