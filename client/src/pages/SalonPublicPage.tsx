@@ -357,73 +357,9 @@ export default function SalonPublicPage() {
           </div>
         </section>
 
-        {/* Current Promotions - Hidden with showPromos flag */}
-        {showPromos && (
-          <section className="py-2">
-            <div className="container mx-auto px-2">
-              <Card className="shadow-sm">
-                <CardContent className="p-2">
-                  <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Current Promotions</h2>
+        {/* CLIENT VMB PROMO ENGINE - Currently Disabled */}
 
-                  <div className="grid-cols-responsive">
-                    {salon.promos && salon.promos.map((promo) => (
-                      <div key={promo.id} className="border border-pink-100 rounded overflow-hidden shadow-sm">
-                        <div className="h-32 flex items-center justify-center">
-                          {promo.title.toLowerCase().includes('summer') || promo.title.toLowerCase().includes('french') ? (
-                            <img 
-                              src="/assets/french-tips.png" 
-                              alt={promo.title}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                console.error(`Failed to load image for promo: ${promo.title}`);
-                                e.currentTarget.src = '/assets/LOGO1.png';
-                              }}
-                            />
-                          ) : promo.title.toLowerCase().includes('new client') || promo.title.toLowerCase().includes('spring') ? (
-                            <img 
-                              src="/assets/gel-manicure.png" 
-                              alt={promo.title}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                console.error(`Failed to load image for promo: ${promo.title}`);
-                                e.currentTarget.src = '/assets/LOGO1.png';
-                              }}
-                            />
-                          ) : promo.title.toLowerCase().includes('friend') || promo.title.toLowerCase().includes('bff') || promo.title.toLowerCase().includes('bring') ? (
-                            <img 
-                              src="/assets/BRING_FRIEND_2.JPG" 
-                              alt={promo.title}
-                              className="w-full h-full object-cover rounded-t-sm"
-                              onError={(e) => {
-                                console.error(`Failed to load image for promo: ${promo.title}`);
-                                e.currentTarget.src = '/assets/LOGO1.png';
-                              }}
-                            />
-                          ) : (
-                            <div className="bg-[#FEE1E8] h-full w-full flex items-center justify-center">
-                              <span className="font-medium text-compact text-center px-1">{promo.title}</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="card-content">
-                          <h4 className="font-medium text-compact text-center">{promo.title}</h4>
-                          <p className="text-mini text-gray-600 text-center">{promo.description}</p>
-                          <div className="flex justify-center items-center vspace-xs">
-                            <span className="text-micro">
-                              {promo.endDate ? `Ends: ${new Date(promo.endDate).toLocaleDateString()}` : 'Ongoing'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </section>
-        )}
-
-        {/* Ven Me, Baby! Style Options List - Interactive CLIENT VMB PROMO ENGINE */}
+        {/* VMB STYLE OPTIONS ENGINE - Interactive Style Selection */}
         {(!salon.services || salon.services.length === 0) ? (
           <section className="py-2">
             <div className="container mx-auto px-2">
