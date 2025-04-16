@@ -534,16 +534,38 @@ export default function SalonDashboard() {
   });
   
   // Function to force refresh data - can be called after important operations
-  const refreshPageData = async () => {
+  const refreshPageData = async (e?: React.MouseEvent) => {
+    // Prevent default navigation if event was passed
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     console.log('SalonDashboard - Forcing data refresh');
-    // Invalidate and refetch salon data
-    await queryClient.invalidateQueries({ queryKey: ['/api/salons', id] });
-    await refetch();
-    toast({
-      title: "Refreshed",
-      description: "Your salon information has been updated.",
-      duration: 2000
-    });
+    
+    try {
+      // Force clear the cache completely for this salon
+      await queryClient.cancelQueries({ queryKey: ['/api/salons', id] });
+      await queryClient.removeQueries({ queryKey: ['/api/salons', id] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/salons', id], refetchType: 'all' });
+      
+      // Force a refetch with cache disabled
+      await refetch();
+      
+      toast({
+        title: "Refreshed",
+        description: "Your salon information has been updated.",
+        duration: 2000
+      });
+    } catch (error) {
+      console.error('Error refreshing salon data:', error);
+      toast({
+        title: "Refresh Failed",
+        description: "Could not update salon information. Please try again.",
+        duration: 2000,
+        variant: "destructive"
+      });
+    }
   };
 
   // Auto-redirect if no ID is provided
@@ -633,7 +655,7 @@ export default function SalonDashboard() {
                     variant="ghost"
                     size="sm"
                     className="text-xs h-7 text-pink-600 hover:bg-pink-100"
-                    onClick={refreshPageData}
+                    onClick={(e) => refreshPageData(e)}
                     title="Refresh dashboard data"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21h5v-5"></path></svg>
