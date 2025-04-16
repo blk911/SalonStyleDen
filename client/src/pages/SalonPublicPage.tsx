@@ -64,7 +64,8 @@ export default function SalonPublicPage() {
   const { 
     data: salon, 
     isLoading, 
-    error 
+    error,
+    refetch 
   } = useQuery<SalonType>({
     queryKey: ['/api/salons', id],
     queryFn: async () => {
@@ -201,8 +202,8 @@ export default function SalonPublicPage() {
       }
     },
     refetchOnMount: true,
-    refetchOnWindowFocus: false,
-    staleTime: 30000, // Consider data fresh for 30 seconds
+    refetchOnWindowFocus: true, // Enable refresh on window focus
+    staleTime: 10000, // Consider data fresh for only 10 seconds for quicker refreshes
     enabled: !!id, // Only run the query if we have an ID
   });
 
@@ -272,7 +273,17 @@ export default function SalonPublicPage() {
               <p className="text-gray-700 text-xl mb-4">
                 Welcome... I'm {salon.ownerName}! Let me know how I can serve you!
               </p>
-              <div className="absolute top-0 right-0">
+              <div className="absolute top-0 right-0 flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-7 text-pink-600 hover:bg-pink-100"
+                  onClick={() => refetch()}
+                  title="Refresh page data"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21h5v-5"></path></svg>
+                  Refresh
+                </Button>
                 <button
                   onClick={() => setLocation(`/dashboard/salon/${salon.id}`)}
                   className="bg-white hover:bg-gray-50 text-pink-500 border border-pink-300 font-medium py-1 px-3 rounded-md text-xs transition duration-300 shadow-sm flex items-center gap-1"

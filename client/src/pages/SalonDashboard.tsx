@@ -490,6 +490,9 @@ export default function SalonDashboard() {
         setServices(updatedSalonData.services);
       }
 
+      // Force refresh to ensure consistency
+      await refreshPageData();
+
       // Show a toast notification
       toast({
         title: "Default styles reset!",
@@ -625,20 +628,32 @@ export default function SalonDashboard() {
                   <h2 className="font-bold text-xl leading-tight">{salon.name}</h2>
                   <p className="text-gray-700 text-sm">Welcome, {salon.ownerName}!</p>
                 </div>
-                <div className="ml-auto">
-                  <img 
-                    src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl) : '/assets/salon-card.png'}
-                    alt={salon.ownerName}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
-                    onError={(e) => {
-                      console.error("Error loading owner photo in hero");
-                      console.log("Attempted to load:", salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl) : 'default image');
-                      e.currentTarget.src = '/assets/salon-card.png';
-                    }}
-                  />
-                  {salon.ownerPhotoUrl && (
-                    <p className="text-xs text-center mt-1 text-pink-700">Photo Updated</p>
-                  )}
+                <div className="ml-auto flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs h-7 text-pink-600 hover:bg-pink-100"
+                    onClick={refreshPageData}
+                    title="Refresh dashboard data"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path><path d="M16 21h5v-5"></path></svg>
+                    Refresh
+                  </Button>
+                  <div>
+                    <img 
+                      src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl) : '/assets/salon-card.png'}
+                      alt={salon.ownerName}
+                      className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
+                      onError={(e) => {
+                        console.error("Error loading owner photo in hero");
+                        console.log("Attempted to load:", salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl) : 'default image');
+                        e.currentTarget.src = '/assets/salon-card.png';
+                      }}
+                    />
+                    {salon.ownerPhotoUrl && (
+                      <p className="text-xs text-center mt-1 text-pink-700">Photo Updated</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
