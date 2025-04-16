@@ -224,6 +224,12 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
       queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
       queryClient.invalidateQueries({ queryKey: ['/api/salons', editedSalon.id.toString()] });
       
+      // Remove any query parameters to clean up the URL without page reload
+      if (window.history && window.location.search) {
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
+      
       // Exit edit mode
       setIsEditing(false);
       
