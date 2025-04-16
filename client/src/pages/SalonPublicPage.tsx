@@ -421,7 +421,7 @@ export default function SalonPublicPage() {
           <div className="container mx-auto px-2">
             <Card className="shadow-sm">
               <CardContent className="p-2">
-                <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Ven Me, Baby! Style Options</h2>
+                <h2 className="font-bold text-sm mb-2 text-[#FF92A5]">Ven Me, Baby! Style Options: STEP 1 Pick your style...</h2>
 
                 {(!salon.services || salon.services.length === 0) && (
                   <div className="text-center p-4 bg-pink-50 rounded">
@@ -450,7 +450,10 @@ export default function SalonPublicPage() {
                             <div className="mt-1">
                               {service.featured && (
                                 <Badge className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer">
-                                  Book Now
+                                  {service.name.toLowerCase().includes('french') || service.name.toLowerCase().includes('tips') ? 'Tips/Touch Up' :
+                                   service.name.toLowerCase().includes('gel') || service.name.toLowerCase().includes('manicure') ? 'Lux Gel' :
+                                   service.name.toLowerCase().includes('sculpt') || service.name.toLowerCase().includes('acrylic') ? 'Sculpted' :
+                                   'Glam me Baby!'}
                                 </Badge>
                               )}
                             </div>
@@ -496,7 +499,7 @@ export default function SalonPublicPage() {
                     <Button 
                       className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-center text-xs"
                     >
-                      Book Appointment
+                      Pick VMB Style
                     </Button>
                   </div>
                 )}
