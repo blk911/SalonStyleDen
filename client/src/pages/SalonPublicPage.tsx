@@ -10,6 +10,8 @@ import { useEffect, useState, useCallback } from "react";
 import { getImageUrl } from "@/lib/utils";
 import { queryClient } from "@/lib/queryClient";
 import { DaySchedule } from "@/components/dashboard/WeeklySchedule";
+import { PromoDetailsPopup } from "@/components/ui/PromoDetailsPopup";
+import { PromoConfirmationPopup } from "@/components/ui/PromoConfirmationPopup";
 
 // Define a type for social media
 interface SocialMediaItem {

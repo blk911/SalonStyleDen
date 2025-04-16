@@ -5,7 +5,7 @@ interface Promo {
   id: number;
   title: string;
   description: string;
-  endDate?: string | null;
+  endDate?: string | undefined | null;
 }
 
 interface PromoDetailsPopupProps {
@@ -18,7 +18,7 @@ interface PromoDetailsPopupProps {
 export function PromoDetailsPopup({ promo, isOpen, onClose, onSave }: PromoDetailsPopupProps) {
   if (!promo) return null;
 
-  const getPromoImage = (title: string) => {
+  const getPromoImage = (title: string): string | undefined => {
     if (title.toLowerCase().includes('summer') || title.toLowerCase().includes('french')) {
       return "/assets/french-tips.png";
     } else if (title.toLowerCase().includes('new client') || title.toLowerCase().includes('spring')) {
@@ -26,7 +26,7 @@ export function PromoDetailsPopup({ promo, isOpen, onClose, onSave }: PromoDetai
     } else if (title.toLowerCase().includes('friend') || title.toLowerCase().includes('bff') || title.toLowerCase().includes('bring')) {
       return "/assets/BRING_FRIEND_2.JPG";
     }
-    return null;
+    return undefined;
   };
 
   return (
