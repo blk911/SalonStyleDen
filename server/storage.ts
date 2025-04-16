@@ -124,7 +124,19 @@ export class DatabaseStorage implements IStorage {
       // Remove id and createdAt from the update data (can't update primary key or timestamp in wrong format)
       const { id: _, createdAt, ...updateData } = salonData;
       
+      // Debug: Check specifically for the owner photo URL
+      console.log(`DatabaseStorage.updateSalon - Photo URL in update:`, 
+                 updateData.ownerPhotoUrl || 'No photo URL provided');
+      
+      console.log(`DatabaseStorage.updateSalon - Full update data fields:`, 
+                 Object.keys(updateData).join(', '));
+      
       console.log(`DatabaseStorage.updateSalon - Cleaned update data:`, JSON.stringify(updateData));
+      
+      // Get current salon data to check changes
+      const currentSalon = await this.getSalon(id);
+      console.log(`DatabaseStorage.updateSalon - Current ownerPhotoUrl:`, 
+                 currentSalon?.ownerPhotoUrl || 'None');
       
       const result = await db
         .update(salons)
@@ -133,6 +145,9 @@ export class DatabaseStorage implements IStorage {
         .returning();
       
       console.log(`DatabaseStorage.updateSalon - Update successful`);
+      console.log(`DatabaseStorage.updateSalon - New ownerPhotoUrl:`, 
+                 result[0].ownerPhotoUrl || 'None');
+                 
       return result[0];
     } catch (error) {
       console.error('DatabaseStorage.updateSalon - Error updating salon:', error);

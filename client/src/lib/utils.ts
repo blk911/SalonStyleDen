@@ -37,68 +37,82 @@ export function formatPhoneNumber(value: string): string {
 
 // Helper to process image URLs consistently
 export function getImageUrl(url?: string): string {
-  if (!url) {
+  if (!url || url === 'null' || url === 'undefined') {
     console.log('getImageUrl called with empty/undefined URL');
     return '/assets/salon-card.png'; // Return a default placeholder
   }
 
   console.log('Processing image URL:', url);
 
-  // If it's a data URL, return as is
-  if (url.startsWith('data:')) {
-    return url;
+  // Clean the URL - sometimes we get strings with quotes
+  const cleanUrl = url.trim().replace(/^["']|["']$/g, '');
+  
+  // If after cleaning it's empty, return default
+  if (!cleanUrl) {
+    return '/assets/salon-card.png';
   }
 
-  // If it's a proper URL from our uploads directory or assets, return as is
-  if (url.startsWith('/uploads/') || url.startsWith('/assets/')) {
-    return `${url}?t=${Date.now()}`; // Add timestamp to bust cache
+  // If it's a data URL, return as is
+  if (cleanUrl.startsWith('data:')) {
+    return cleanUrl;
+  }
+
+  // If it's a proper URL from our uploads directory or assets, return as is with cache busting
+  if (cleanUrl.startsWith('/uploads/') || cleanUrl.startsWith('/assets/')) {
+    return `${cleanUrl}?t=${Date.now()}`; // Add timestamp to bust cache
   }
   
   // If the URL is missing the leading slash but has uploads/ or assets/
-  if (url.startsWith('uploads/') || url.startsWith('assets/')) {
-    return `/${url}?t=${Date.now()}`; // Add timestamp to bust cache
+  if (cleanUrl.startsWith('uploads/') || cleanUrl.startsWith('assets/')) {
+    return `/${cleanUrl}?t=${Date.now()}`; // Add timestamp to bust cache
   }
 
   // Handle external URLs - these should be returned as-is
-  if (url.startsWith('http')) {
-    return url;
+  if (cleanUrl.startsWith('http')) {
+    return cleanUrl;
+  }
+
+  // Special case for owner photos
+  if (cleanUrl.includes('file-')) {
+    // This is likely an uploaded file from our server
+    return `/uploads/${cleanUrl}?t=${Date.now()}`;
   }
 
   // Check for the most common issue: url is only the filename without the path
-  if (!url.includes('/') && !url.includes('\\')) {
+  if (!cleanUrl.includes('/') && !cleanUrl.includes('\\')) {
     // Add uploads path and timestamp to bust cache
-    return `/uploads/${url}?t=${Date.now()}`;
+    return `/uploads/${cleanUrl}?t=${Date.now()}`;
   }
 
   // Handle service images based on filename patterns
-  if (url.toLowerCase().includes('french') || url.toLowerCase().includes('tips')) {
+  if (cleanUrl.toLowerCase().includes('french') || cleanUrl.toLowerCase().includes('tips')) {
     return '/assets/french-tips.png';
-  } else if (url.toLowerCase().includes('gel') || url.toLowerCase().includes('manicure') || url.toLowerCase().includes('lux')) {
+  } else if (cleanUrl.toLowerCase().includes('gel') || cleanUrl.toLowerCase().includes('manicure') || cleanUrl.toLowerCase().includes('lux')) {
     return '/assets/gel-manicure.png';
-  } else if (url.toLowerCase().includes('acrylic') || url.toLowerCase().includes('sculpt')) {
+  } else if (cleanUrl.toLowerCase().includes('acrylic') || cleanUrl.toLowerCase().includes('sculpt')) {
     return '/assets/sculpted-acrylics.png';
-  } else if (url.toLowerCase().includes('custom') || url.toLowerCase().includes('design') || url.toLowerCase().includes('glam')) {
+  } else if (cleanUrl.toLowerCase().includes('custom') || cleanUrl.toLowerCase().includes('design') || cleanUrl.toLowerCase().includes('glam')) {
     return '/assets/glam-design.png';
-  } else if (url.toLowerCase().includes('spring') || url.toLowerCase().includes('seasonal')) {
+  } else if (cleanUrl.toLowerCase().includes('spring') || cleanUrl.toLowerCase().includes('seasonal')) {
     return '/assets/salon-card.png';
   }
 
   // Check for image files and ensure they have the uploads path
-  if (url.includes('.jpg') || url.includes('.png') || url.includes('.jpeg') || url.includes('.gif')) {
+  if (cleanUrl.includes('.jpg') || cleanUrl.includes('.png') || cleanUrl.includes('.jpeg') || cleanUrl.includes('.gif')) {
     // Strip any partial paths and just use the filename
-    const filename = url.split(/[\/\\]/).pop() || url;
+    const filename = cleanUrl.split(/[\/\\]/).pop() || cleanUrl;
     return `/uploads/${filename}?t=${Date.now()}`; // Add timestamp to bust cache
   }
 
   // If the URL has "owner" or related words, it's likely an owner photo
-  if (url.toLowerCase().includes('owner') || url.toLowerCase().includes('salon') || 
-      url.toLowerCase().includes('profile') || url.toLowerCase().includes('photo') || 
-      url.toLowerCase().includes('tiffany')) {
+  if (cleanUrl.toLowerCase().includes('owner') || cleanUrl.toLowerCase().includes('salon') || 
+      cleanUrl.toLowerCase().includes('profile') || cleanUrl.toLowerCase().includes('photo') || 
+      cleanUrl.toLowerCase().includes('tiffany')) {
     return '/assets/salon-card.png'; // Use a salon-specific placeholder
   }
   
   // Log warning if we reached this point - means we couldn't properly handle the URL
-  console.warn('Could not process image URL:', url);
+  console.warn('Could not process image URL:', cleanUrl);
   
   // Default fallback - use this only for non-owner-photo contexts
   return '/assets/salon-card.png';
