@@ -16,7 +16,7 @@ export function useContactValidation(options: ValidationOptions = {}) {
     validateOnBlur = true,
     delay = 500 
   } = options;
-  
+
   const [phoneExists, setPhoneExists] = useState(false);
   const [emailExists, setEmailExists] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -27,11 +27,11 @@ export function useContactValidation(options: ValidationOptions = {}) {
   // Format phone number consistently site-wide (XXX-XXX-XXXX)
   const formatPhoneNumber = (input: string) => {
     if (!input) return '';
-    const numbers = input.replace(/\D/g, '').slice(0, 10);
-    if (numbers.length === 0) return '';
-    if (numbers.length <= 3) return numbers;
-    if (numbers.length <= 6) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
-    return `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6)}`;
+    const cleaned = input.replace(/\D/g, '').slice(0, 10);
+    if (cleaned.length === 0) return '';
+    if (cleaned.length <= 3) return cleaned;
+    if (cleaned.length <= 6) return `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
+    return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
   };
 
   // Validate phone or email against server
@@ -40,22 +40,22 @@ export function useContactValidation(options: ValidationOptions = {}) {
     value: string
   ): Promise<boolean> => {
     if (!value) return false;
-    
+
     // Simple format validation before server check
     if (type === 'phone') {
       const cleanPhone = value.replace(/\D/g, '');
       if (cleanPhone.length !== 10) return false;
     }
-    
+
     if (type === 'email') {
       if (!value.includes('@') || !value.includes('.')) return false;
     }
-    
+
     setIsValidating(true);
-    
+
     try {
       console.log(`Validating ${type}:`, value);
-      
+
       // Use validation-only server request
       const response = await fetch('/api/invitations', {
         method: 'POST',
@@ -67,12 +67,12 @@ export function useContactValidation(options: ValidationOptions = {}) {
           _validateOnly: true
         })
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         if (errorData.error && errorData.error.includes(type)) {
           console.log(`Server detected duplicate ${type}:`, value);
-          
+
           if (type === 'phone') {
             setPhoneExists(true);
             setErrorField('phone');
@@ -82,36 +82,36 @@ export function useContactValidation(options: ValidationOptions = {}) {
             setErrorField('email');
             setErrorMessage('This email address is already registered in our system.');
           }
-          
+
           setShowErrorDialog(true);
           setIsValidating(false);
           return true; // Exists
         }
       }
-      
+
       // If we got here, validation passed
       if (type === 'phone') {
         setPhoneExists(false);
       } else {
         setEmailExists(false);
       }
-      
+
       setIsValidating(false);
       return false; // Doesn't exist
-      
+
     } catch (error) {
       console.error(`Error validating ${type}:`, error);
       setIsValidating(false);
       return false;
     }
   }, []);
-  
+
   // Generate handlers for various input events
   const getPhoneProps = useCallback((currentValue: string) => {
     return {
       onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
         const formatted = formatPhoneNumber(e.target.value);
-        
+
         // Clear error state when user edits
         if (phoneExists) {
           setPhoneExists(false);
@@ -119,7 +119,7 @@ export function useContactValidation(options: ValidationOptions = {}) {
             setShowErrorDialog(false);
           }
         }
-        
+
         // Auto-validation if enabled
         if (validateOnChange) {
           const cleanPhone = formatted.replace(/\D/g, '');
@@ -130,7 +130,7 @@ export function useContactValidation(options: ValidationOptions = {}) {
             }, delay);
           }
         }
-        
+
         return formatted;
       },
       onBlur: validateOnBlur 
@@ -144,7 +144,7 @@ export function useContactValidation(options: ValidationOptions = {}) {
       className: phoneExists ? 'border-red-500 focus:ring-red-500' : undefined
     };
   }, [phoneExists, showErrorDialog, errorField, validateOnChange, validateOnBlur, delay, validateContact]);
-  
+
   const getEmailProps = useCallback((currentValue: string) => {
     return {
       onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,7 +155,7 @@ export function useContactValidation(options: ValidationOptions = {}) {
             setShowErrorDialog(false);
           }
         }
-        
+
         // Auto-validation if enabled
         if (validateOnChange && e.target.value && e.target.value.includes('@') && e.target.value.includes('.')) {
           // Delay validation to prevent excessive requests
@@ -163,7 +163,7 @@ export function useContactValidation(options: ValidationOptions = {}) {
             validateContact('email', e.target.value);
           }, delay);
         }
-        
+
         return e.target.value;
       },
       onBlur: validateOnBlur 
@@ -176,7 +176,7 @@ export function useContactValidation(options: ValidationOptions = {}) {
       className: emailExists ? 'border-red-500 focus:ring-red-500' : undefined
     };
   }, [emailExists, showErrorDialog, errorField, validateOnChange, validateOnBlur, delay, validateContact]);
-  
+
   // Function to close the error dialog and reset relevant error states
   const handleDialogClose = useCallback(() => {
     setShowErrorDialog(false);

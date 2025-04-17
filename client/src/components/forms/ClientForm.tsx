@@ -405,11 +405,15 @@ export default function ClientForm() {
                           className={phoneExists ? "border-red-500" : ""}
                           onChange={(e) => {
                             const formatted = formatPhoneNumber(e.target.value);
-                          field.onChange(formatted);
+                            field.onChange(formatted);
+                            if (formatted.replace(/\D/g, '').length === 10) {
+                              validateContact('phone', formatted);
+                            }
                           }}
                           onBlur={(e) => {
                             field.onBlur();
-                            if (field.value.replace(/\D/g, '').length === 10) {
+                            const cleaned = field.value.replace(/\D/g, '');
+                            if (cleaned.length === 10) {
                               validateContact('phone', field.value);
                             }
                           }}
