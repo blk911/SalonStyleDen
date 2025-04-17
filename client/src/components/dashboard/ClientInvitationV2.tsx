@@ -44,7 +44,7 @@ interface ClientInvitationProps {
   salonId?: number;
 }
 
-export default function ClientInvitation({ salonId }: ClientInvitationProps) {
+export default function ClientInvitationV2({ salonId }: ClientInvitationProps) {
   const { toast } = useToast();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -56,9 +56,9 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [salonInfo, setSalonInfo] = useState<{name: string} | null>(null);
   const [recentInvites, setRecentInvites] = useState<ClientInvite[]>([]);
   
-  // Use our contact validation hook
+  // Use the contact validation hook
   const {
-    phoneExists, 
+    phoneExists,
     emailExists,
     errorField,
     errorMessage,
