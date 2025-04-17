@@ -466,6 +466,7 @@ export default function ClientDashboard() {
                               
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100">
+                                  <h4 className="font-medium text-base mb-3">Selected Style</h4>
                                   <div className="flex justify-between items-start">
                                     <h5 className="font-medium text-pink-700">{selectedStyle.name}</h5>
                                     <Badge className="bg-pink-100 text-pink-700">Selected</Badge>
@@ -496,7 +497,9 @@ export default function ClientDashboard() {
                                 <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100 flex flex-col justify-center">
                                   <h4 className="font-medium text-base mb-3">Create VMB Invite</h4>
                                   <Button 
-                                    className="bg-pink-600 hover:bg-pink-700 text-white"
+                                    variant="outline" 
+                                    size="sm"
+                                    className="bg-pink-600 hover:bg-pink-700 text-white border-pink-300 flex items-center justify-center min-w-[160px]"
                                     onClick={() => {
                                       console.log("Create VMB Invite clicked");
                                       // This would open the invite creation flow
