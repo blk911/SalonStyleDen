@@ -404,11 +404,8 @@ export default function ClientForm() {
                           placeholder="Cell Phone (XXX-XXX-XXXX)" 
                           className={phoneExists ? "border-red-500" : ""}
                           onChange={(e) => {
-                            const cleaned = e.target.value.replace(/\D/g, '');
-                            let formatted = cleaned;
-                            if (cleaned.length >= 3) formatted = `${cleaned.slice(0,3)}-${cleaned.slice(3)}`;
-                            if (cleaned.length >= 6) formatted = `${formatted.slice(0,7)}-${cleaned.slice(6,10)}`;
-                            field.onChange(formatted);
+                            const formatted = formatPhoneNumber(e.target.value);
+                          field.onChange(formatted);
                           }}
                           onBlur={(e) => {
                             field.onBlur();
