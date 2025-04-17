@@ -462,6 +462,7 @@ export default function ClientDashboard() {
                             </h3>
                             
                             <div className="mt-4">
+                              <h4 className="font-medium text-base mb-3">Most Recent VMBs</h4>
                               
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100">
@@ -491,18 +492,19 @@ export default function ClientDashboard() {
                                   </div>
                                 </div>
                                 
-                                {/* Empty card with only a Send Invitation button */}
-                                <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100 flex items-end">
-                                  <button 
-                                    className="w-full bg-pink-600 hover:bg-pink-700 text-white rounded-md flex items-center justify-center py-2"
-                                    style={{ fontSize: "0.875rem" }}
+                                {/* Create VMB Invite card */}
+                                <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100 flex flex-col items-center justify-center">
+                                  <h2 className="text-center text-lg font-medium text-pink-700 mb-3">Create VMB Invite</h2>
+                                  <Button 
+                                    className="bg-pink-600 hover:bg-pink-700 text-white w-full max-w-xs"
                                     onClick={() => {
                                       console.log("Create VMB Invite clicked");
+                                      // This would open the invite creation flow
                                     }}
                                   >
                                     <Send className="h-4 w-4 mr-2" />
                                     Send Invitation
-                                  </button>
+                                  </Button>
                                 </div>
                               </div>
                             </div>
