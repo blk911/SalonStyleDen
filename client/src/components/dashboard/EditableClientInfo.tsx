@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,8 +50,8 @@ interface EditableClientInfoProps {
 
 export default function EditableClientInfo({ client, onSave, defaultEditing = false }: EditableClientInfoProps) {
   // State for UI controls and edited client data
-  const [isEditing, setIsEditing] = useState(true); 
-  const [showEditForm, setShowEditForm] = useState(false);
+  const [isEditing, setIsEditing] = useState(true); // Always keep this true for the component to work
+  const [showEditForm, setShowEditForm] = useState(defaultEditing);
   const [editedClient, setEditedClient] = useState<ClientInfo>({ ...client });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [socialPlatform, setSocialPlatform] = useState("");
@@ -59,6 +59,12 @@ export default function EditableClientInfo({ client, onSave, defaultEditing = fa
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  
+  // Update showEditForm when defaultEditing changes
+  useEffect(() => {
+    console.log("defaultEditing changed to:", defaultEditing);
+    setShowEditForm(defaultEditing);
+  }, [defaultEditing]);
 
   // Handle text input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
