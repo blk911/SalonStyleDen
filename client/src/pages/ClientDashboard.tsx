@@ -403,7 +403,7 @@ export default function ClientDashboard() {
                 </CardHeader>
                 
                 <CardContent className="pt-4">
-                  {isLinkedToVMB && salon?.services ? (
+                  {isLinkedToVMB && salon?.services && id ? (
                     <VmbStyleOptions 
                       services={salon.services} 
                       clientId={parseInt(id)} 
