@@ -259,55 +259,75 @@ export default function EditableClientInfo({ client, onSave, defaultEditing = fa
         )}
 
         {!showEditForm ? (
-          <div className="flex flex-col items-center">
-            <Avatar className="h-20 w-20 mb-4 border-2 border-pink-100">
-              <AvatarImage 
-                src={editedClient.photoUrl ? getImageUrl(editedClient.photoUrl, 'client-card') : '/assets/salon-card.png'}
-                alt={editedClient.name}
-                onError={(e) => {
-                  console.error("Error loading client avatar image");
-                  console.log("Attempted to load:", editedClient.photoUrl ? getImageUrl(editedClient.photoUrl, 'client-card') : 'default image');
-                  e.currentTarget.src = '/assets/salon-card.png';
-                }} 
-              />
-              <AvatarFallback className="bg-pink-100 text-pink-600 text-xl">
-                {editedClient.name?.substring(0, 2).toUpperCase() || "CL"}
-              </AvatarFallback>
-            </Avatar>
-
-            <div className="text-center">
-              <h2 className="font-semibold text-lg mb-1">{editedClient.name}</h2>
-              <div className="flex flex-col items-center gap-1 mb-2">
-                <div className="text-xs text-gray-600">{editedClient.phone}</div>
-                <div className="text-xs text-gray-600">{editedClient.email}</div>
+          <div className="flex flex-col md:flex-row md:gap-6">
+            {/* Left column (33%) with photo */}
+            <div className="w-full md:w-1/3 flex flex-col items-center mb-4 md:mb-0">
+              <div className="relative group">
+                <Avatar className="h-24 w-24 md:h-32 md:w-32 mb-4 border-2 border-pink-100 ring-2 ring-pink-50 shadow-md">
+                  <AvatarImage 
+                    src={editedClient.photoUrl ? getImageUrl(editedClient.photoUrl, 'client-card') : '/assets/salon-card.png'}
+                    alt={editedClient.name}
+                    className="object-cover"
+                    onError={(e) => {
+                      console.error("Error loading client avatar image");
+                      console.log("Attempted to load:", editedClient.photoUrl ? getImageUrl(editedClient.photoUrl, 'client-card') : 'default image');
+                      e.currentTarget.src = '/assets/salon-card.png';
+                    }} 
+                  />
+                  <AvatarFallback className="bg-pink-50 text-pink-600 text-2xl">
+                    {editedClient.name?.substring(0, 2).toUpperCase() || "CL"}
+                  </AvatarFallback>
+                </Avatar>
               </div>
             </div>
             
-            {editedClient.address && (
-              <div className="mt-3 text-xs text-gray-600 text-center">
-                {editedClient.address}
-                {(editedClient.city || editedClient.state || editedClient.zipCode) && (
-                  <span>, {editedClient.city}{editedClient.city && editedClient.state ? ', ' : ''}{editedClient.state} {editedClient.zipCode}</span>
-                )}
-              </div>
-            )}
-            
-            {editedClient.socialMedia && editedClient.socialMedia.length > 0 && (
-              <div className="mt-3 pt-2 border-t border-gray-100 w-full">
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {editedClient.socialMedia.map((social, index) => (
-                    <div 
-                      key={index} 
-                      className="flex items-center px-2 py-1 rounded bg-pink-50 text-xs text-pink-700"
-                    >
-                      <span className="font-medium">{social.platform}</span>
-                      <span className="mx-1">•</span>
-                      <span>{social.handle}</span>
+            {/* Right column (66%) with client info */}
+            <div className="w-full md:w-2/3 space-y-4">
+              <div>
+                <h2 className="font-semibold text-xl text-center md:text-left mb-2">{editedClient.name}</h2>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center text-gray-700">
+                    <PhoneIcon className="h-3 w-3 mr-2 text-pink-500" />
+                    <span className="text-sm">{editedClient.phone}</span>
+                  </div>
+                  <div className="flex items-center text-gray-700">
+                    <AtSignIcon className="h-3 w-3 mr-2 text-pink-500" />
+                    <span className="text-sm">{editedClient.email}</span>
+                  </div>
+                  
+                  {editedClient.address && (
+                    <div className="flex items-start mt-1">
+                      <MapPinIcon className="h-3 w-3 mr-2 mt-0.5 text-pink-500" />
+                      <div className="text-sm text-gray-700">
+                        <span className="block">{editedClient.address}</span>
+                        {(editedClient.city || editedClient.state || editedClient.zipCode) && (
+                          <span className="block">
+                            {editedClient.city}{editedClient.city && editedClient.state ? ', ' : ''}{editedClient.state} {editedClient.zipCode}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
-            )}
+              
+              {editedClient.socialMedia && editedClient.socialMedia.length > 0 && (
+                <div className="pt-2 border-t border-gray-100">
+                  <h3 className="text-xs font-medium text-gray-500 mb-2">Social Media</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {editedClient.socialMedia.map((social, index) => (
+                      <div 
+                        key={index} 
+                        className="flex items-center justify-between px-3 py-1.5 rounded bg-pink-50 text-xs"
+                      >
+                        <span className="font-medium text-gray-700">{social.platform}</span>
+                        <span className="text-pink-600">{social.handle}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <>
