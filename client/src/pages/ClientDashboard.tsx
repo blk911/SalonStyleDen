@@ -283,6 +283,7 @@ export default function ClientDashboard() {
                   // The React Query cache will be invalidated by the component
                   setIsEditing(false);
                 }}
+                defaultEditing={isEditing}
               />
               
               {/* Linked Salon Card */}

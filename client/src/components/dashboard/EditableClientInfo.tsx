@@ -245,18 +245,6 @@ export default function EditableClientInfo({ client, onSave, defaultEditing = fa
   return (
     <Card className="border border-pink-100 shadow-sm">
       <CardContent className="p-4">
-        {isEditing && !showEditForm && (
-          <div className="flex justify-center mb-4">
-            <Button 
-              onClick={() => setShowEditForm(true)} 
-              variant="outline" 
-              className="text-pink-600 border-pink-200 hover:bg-pink-50"
-            >
-              <PencilIcon className="h-4 w-4 mr-2" />
-              Edit Profile
-            </Button>
-          </div>
-        )}
 
         {!showEditForm ? (
           <div className="flex flex-col md:flex-row md:gap-6">
