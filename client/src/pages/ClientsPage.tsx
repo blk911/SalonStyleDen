@@ -110,136 +110,25 @@ export default function ClientsPage() {
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-8 border-b border-pink-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-3xl font-bold text-pink-800">Client Directory</h1>
-            <p className="mt-2 text-gray-600">Manage and view all clients and invitations in one place</p>
-          </div>
-        </section>
-        
-        {/* Stats Section */}
-        <section className="py-6 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card className="bg-gradient-to-br from-pink-50 to-white">
-                <CardContent className="p-4 text-center">
-                  <p className="text-sm text-gray-500">Total Clients</p>
-                  <p className="text-3xl font-semibold text-pink-700">{totalClients}</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-pink-50 to-white">
-                <CardContent className="p-4 text-center">
-                  <p className="text-sm text-gray-500">Active Clients</p>
-                  <p className="text-3xl font-semibold text-pink-700">{activeClients}</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-pink-50 to-white">
-                <CardContent className="p-4 text-center">
-                  <p className="text-sm text-gray-500">All Invitations</p>
-                  <p className="text-3xl font-semibold text-pink-700">{totalInvitations}</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-br from-pink-50 to-white">
-                <CardContent className="p-4 text-center">
-                  <p className="text-sm text-gray-500">Pending Invitations</p>
-                  <p className="text-3xl font-semibold text-pink-700">{pendingInvitations}</p>
-                </CardContent>
-              </Card>
-            </div>
+            <h1 className="text-3xl font-bold text-pink-800">Client Central Hub</h1>
+            <p className="mt-2 text-gray-600">Find New Salons, Premium Offers, and More</p>
           </div>
         </section>
         
         {/* Main Content */}
         <section className="py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Search and filter */}
-            <div className="mb-6 flex flex-col md:flex-row gap-4 md:items-center">
-              <div className="relative flex-grow">
-                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  type="text"
-                  placeholder="Search clients by name, email, phone or hash..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex items-center gap-1">
-                  <SortIcon className="h-4 w-4" />
-                  Sort
-                </Button>
-                <Button variant="outline" size="sm" className="flex items-center gap-1">
-                  <FilterIcon className="h-4 w-4" />
-                  Filter
-                </Button>
-              </div>
-            </div>
-            
-            {/* Tabs */}
-            <Tabs defaultValue="all-clients" value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full md:w-auto grid-cols-3">
-                <TabsTrigger value="all-clients">All Clients</TabsTrigger>
-                <TabsTrigger value="invitations">Invitations</TabsTrigger>
-                <TabsTrigger value="active-clients">Active Clients</TabsTrigger>
-              </TabsList>
-              
-              {/* All Clients Tab */}
-              <TabsContent value="all-clients" className="mt-4">
-                {clientsLoading ? (
-                  <div className="text-center py-8">Loading clients...</div>
-                ) : filteredClients.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    {searchTerm ? 'No clients match your search' : 'No clients found'}
+            {/* Content container - placeholder for future content */}
+            <Card className="p-6">
+              <CardContent>
+                <div className="space-y-6">
+                  {/* We'll add elements here as specified */}
+                  <div className="text-center py-4">
+                    <p className="text-gray-500">Client content will be added here.</p>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredClients.map(client => (
-                      <ClientCard key={client.id} client={client} />
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-              
-              {/* Invitations Tab */}
-              <TabsContent value="invitations" className="mt-4">
-                {invitationsLoading ? (
-                  <div className="text-center py-8">Loading invitations...</div>
-                ) : filteredInvitations.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    {searchTerm ? 'No invitations match your search' : 'No invitations found'}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredInvitations.map(invitation => (
-                      <InvitationCard key={invitation.id} invitation={invitation} />
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-              
-              {/* Active Clients Tab */}
-              <TabsContent value="active-clients" className="mt-4">
-                {clientsLoading ? (
-                  <div className="text-center py-8">Loading clients...</div>
-                ) : filteredClients.filter(c => c.isCurrentClient).length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    {searchTerm ? 'No active clients match your search' : 'No active clients found'}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredClients
-                      .filter(client => client.isCurrentClient)
-                      .map(client => (
-                        <ClientCard key={client.id} client={client} />
-                      ))
-                    }
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </section>
       </main>
