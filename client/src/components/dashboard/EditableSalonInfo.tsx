@@ -37,8 +37,9 @@ interface EditableSalonInfoProps {
 }
 
 export default function EditableSalonInfo({ salon, onSave, defaultEditing = false }: EditableSalonInfoProps) {
-  const [isEditing, setIsEditing] = useState(defaultEditing);
-  // Only show the edit form if specifically requested via URL params, otherwise start in view-only mode
+  // On salon dashboard, we always begin in "editable" mode, which shows the EDIT PROFILE button
+  const [isEditing, setIsEditing] = useState(true); 
+  // Only show the actual form when users click EDIT PROFILE
   const [showEditForm, setShowEditForm] = useState(false);
   const [editedSalon, setEditedSalon] = useState<SalonInfo>({ ...salon });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -251,107 +252,8 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
     }
   };
 
-  // Display mode (not editing)
-  if (!isEditing) {
-    return (
-      <Card className="shadow-sm">
-        <CardContent className="p-3 text-center">
-          <div className="flex justify-between items-start mb-2">
-            <div className="text-center w-full">
-              <h3 className="font-semibold text-base text-pink-800 w-full text-center">{salon.name}</h3>
-              <div className="flex flex-col items-center mt-2 gap-2">
-                <Avatar className="h-16 w-16 border-2 border-pink-100">
-                  <AvatarImage 
-                    src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl) : '/assets/salon-card.png'} 
-                    alt={salon.ownerName} 
-                    onError={(e) => {
-                      console.error("Error loading avatar image in view mode");
-                      console.log("Attempted to load:", salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl) : 'default image');
-                      e.currentTarget.src = '/assets/salon-card.png';
-                    }}
-                  />
-                  <AvatarFallback className="bg-pink-50 text-pink-500">
-                    {salon.ownerName?.substring(0, 2)?.toUpperCase() || 'OW'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex items-center justify-center">
-                  <p className="text-sm text-gray-600 font-medium">{salon.ownerName}</p>
-                  <span className="text-xs text-gray-500 ml-1">• Owner</span>
-                </div>
-              </div>
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
-              onClick={() => {
-                setIsEditing(true);
-                setShowEditForm(false); // Ensure we start in the summary view, not the form view
-              }}
-            >
-              Edit
-            </Button>
-          </div>
-
-          <div className="flex flex-col items-center gap-3 mt-3 text-sm">
-            <div className="flex items-center gap-4 justify-center">
-              <div className="flex items-center gap-2">
-                <div className="bg-pink-50 p-1.5 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-pink-500" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                  </svg>
-                </div>
-                <span className="text-gray-700">{salon.phone}</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="bg-pink-50 p-1.5 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-pink-500" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                  </svg>
-                </div>
-                <span className="text-gray-700">{salon.email}</span>
-              </div>
-            </div>
-
-            {salon.address && (
-              <div className="flex items-center gap-2 justify-center mt-1">
-                <div className="bg-pink-50 p-1.5 rounded-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-pink-500" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <span className="text-gray-700 text-center">
-                  {salon.address}
-                  {(salon.city || salon.state || salon.zipCode) && (
-                    <span>, {salon.city}{salon.city && salon.state ? ', ' : ''}{salon.state} {salon.zipCode}</span>
-                  )}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {salon.socialMedia && salon.socialMedia.length > 0 && (
-            <div className="mt-3 pt-2 border-t border-gray-100">
-              <div className="flex flex-wrap gap-2 justify-center">
-                {salon.socialMedia.map((social, index) => (
-                  <div 
-                    key={index} 
-                    className="flex items-center px-2 py-1 rounded bg-pink-50 text-xs text-pink-700"
-                  >
-                    <span className="font-medium">{social.platform}</span>
-                    <span className="mx-1">•</span>
-                    <span>{social.handle}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  }
+  // Removed non-editing display mode - we'll always start in "editable" summary view mode
+  // with EDIT PROFILE button displayed. This ensures consistency in dashboard behavior.
 
   // Edit mode
   return (
@@ -365,7 +267,7 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
             <Button 
               variant="outline" 
               size="sm" 
-              className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
+              className="text-xs h-7 bg-pink-100 border-pink-200 text-pink-700 hover:bg-pink-200"
               onClick={() => setShowEditForm(true)}
             >
               EDIT PROFILE
@@ -670,19 +572,8 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
           </div>
         )}
         
-        {/* Back button - only show when in edit mode but form fields are not displayed */}
-        {!showEditForm && (
-          <div className="flex justify-end gap-2 mt-3">
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="text-xs h-8"
-              onClick={() => setIsEditing(false)}
-            >
-              Back
-            </Button>
-          </div>
-        )}
+        {/* Removed Back button since we always stay in edit mode now 
+           and only toggle between showing the form or not */}
       </CardContent>
     </Card>
   );
