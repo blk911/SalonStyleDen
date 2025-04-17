@@ -43,8 +43,9 @@ export default function Hero({
         </div>
         <p className="text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
             Beauty doesn't wait! You choose the glam.
-            <br />He gets a chance to shine!
-            <br />Personal care gifting that works!
+            <br />VMB is the perfect gift, perfectly timed!!
+            <br />No salon trip, no gift card, VMB is simple!
+            <br />Ven Me, Baby! fits today's lifestyles!
           </p>
         <div className="flex justify-center gap-4 flex-wrap">
           <button
