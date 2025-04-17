@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CheckIcon, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '../../lib/apiRequest';
+import { getImageUrl } from '../../lib/utils';
 import { useLocation } from 'wouter';
 
 interface StyleOption {
@@ -216,7 +217,7 @@ export function VmbStyleOptions({
                         <div className="w-1/3 flex items-center justify-center p-2">
                           <div className="relative w-full h-24 overflow-hidden rounded-md">
                             <img 
-                              src={service.gifUrl || '/assets/LOGO1.png'} 
+                              src={service.gifUrl ? getImageUrl(service.gifUrl, 'vmb_style') : '/assets/LOGO1.png'} 
                               alt={service.name}
                               className={`w-full h-full object-cover transition-transform duration-300 ${isHovered ? 'scale-110' : ''}`}
                               onError={(e) => {
@@ -254,7 +255,7 @@ export function VmbStyleOptions({
             <div className="flex flex-col items-center space-y-4 py-6">
               <div className="h-48 w-full max-w-sm overflow-hidden rounded-lg shadow-md">
                 <img 
-                  src={selectedStyle.gifUrl || '/assets/LOGO1.png'} 
+                  src={selectedStyle.gifUrl ? getImageUrl(selectedStyle.gifUrl, 'vmb_style_popup') : '/assets/LOGO1.png'} 
                   alt={selectedStyle.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
