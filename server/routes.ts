@@ -753,7 +753,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           
           if (email && email.includes('@')) {
-            const emailExists = await storage.isDuplicateContact('', email);
+            // Ensure case-insensitive validation for email
+            const lowercaseEmail = email.toLowerCase();
+            const emailExists = await storage.isDuplicateContact('', lowercaseEmail);
             if (emailExists.isDuplicate) {
               return res.status(400).json({ error: 'This email is already registered' });
             }

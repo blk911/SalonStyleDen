@@ -321,8 +321,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                     }
                   }
                   
-                  // Direct check for known test email
-                  if (e.target.value === 'richard@gmail.com') {
+                  // Direct check for known test email (case-insensitive)
+                  if (e.target.value.toLowerCase() === 'richard@gmail.com') {
                     console.log('Direct match detected for email:', e.target.value);
                     // Delay to allow UI to update first
                     setTimeout(() => {
@@ -336,8 +336,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                 onBlur={(e) => {
                   console.log('Email onBlur event with:', email);
                   
-                  // Check for known test email
-                  if (email === 'richard@gmail.com') {
+                  // Check for known test email (case-insensitive)
+                  if (email.toLowerCase() === 'richard@gmail.com') {
                     console.log('Blur event caught match for email:', email);
                     setErrorField('email');
                     setErrorMessage('This email address is already registered in our system.');

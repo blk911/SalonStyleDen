@@ -176,13 +176,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async isDuplicateContact(phone: string, email: string, sponsor?: string, excludeId?: number): Promise<{isDuplicate: boolean, field: string}> {
-    // Check clients table
+    // Check for phone duplicates in clients table and invitations table
     const clientPhone = await db.select().from(clients).where(eq(clients.phone, phone));
-    const clientEmail = await db.select().from(clients).where(eq(clients.email, email));
-    
-    // Check invitations table 
     const invitePhone = await db.select().from(invitations).where(eq(invitations.phone, phone));
-    const inviteEmail = await db.select().from(invitations).where(eq(invitations.email, email));
+    
+    // For email, we need to get all records and do case-insensitive comparison
+    // Check clients table for email (case-insensitive)
+    const allClients = await db.select().from(clients);
+    const clientEmail = allClients.filter(
+      client => client.email && email && client.email.toLowerCase() === email.toLowerCase()
+    );
+    
+    // Check invitations table for email (case-insensitive)
+    const allInvitations = await db.select().from(invitations);
+    const inviteEmail = allInvitations.filter(
+      invitation => invitation.email && email && invitation.email.toLowerCase() === email.toLowerCase()
+    );
 
     // Check sponsor duplication
     if (sponsor) {
@@ -199,6 +208,7 @@ export class DatabaseStorage implements IStorage {
     if ((clientPhone.length > 0 && clientPhone[0].id !== excludeId) || invitePhone.length > 0) {
       return { isDuplicate: true, field: 'phone' };
     }
+    
     if ((clientEmail.length > 0 && clientEmail[0].id !== excludeId) || inviteEmail.length > 0) {
       return { isDuplicate: true, field: 'email' };
     }
