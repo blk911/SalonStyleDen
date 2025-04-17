@@ -54,7 +54,6 @@ export function ContactValidationDialog({
                 <h3 className="text-lg font-medium text-gray-700 mb-3">Are you an existing client?</h3>
                 <p className="text-gray-600 mb-1">You may have received a Ven Me, Baby! invitation.</p>
                 <p className="text-gray-600 mb-3">Check your messages.</p>
-                <p className="text-gray-600 mb-3">See your invitation promo code,</p>
                 
                 <Button 
                   onClick={handleEnterPromoCode} 
