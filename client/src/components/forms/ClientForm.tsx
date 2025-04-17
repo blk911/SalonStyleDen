@@ -78,7 +78,8 @@ export default function ClientForm() {
     getPhoneProps,
     getEmailProps,
     handleDialogClose,
-    formatPhoneNumber: formatPhoneFromHook
+    formatPhoneNumber: formatPhoneFromHook,
+    validateContact
   } = useContactValidation({
     validateOnChange: true,
     validateOnBlur: true
