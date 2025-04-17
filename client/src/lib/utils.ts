@@ -35,6 +35,21 @@ export function formatPhoneNumber(value: string): string {
   }
 }
 
+/**
+ * Generates a unique invitation hash in the format: VMB-INV-{random}-{timestamp}
+ * This hash is used for tracking invitations across the system
+ */
+export function generateInviteHash(): string {
+  // Generate a random alphanumeric string (6 characters, uppercase)
+  const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+  
+  // Get current timestamp in base36 (more compact representation)
+  const timestamp = Date.now().toString(36);
+  
+  // Combine into the required format
+  return `VMB-INV-${randomPart}-${timestamp}`;
+}
+
 // Helper to process image URLs consistently
 export function getImageUrl(url?: string, debugLabel?: string): string {
   // For debugging purposes

@@ -61,6 +61,7 @@ const invitationInputSchema = z.object({
   salonId: z.number().optional(),
   salonName: z.string().optional(),
   sponsor: z.string().optional(), // Add sponsor field
+  inviteHash: z.string().optional(), // Unique hash identifier
   firstServiceDate: z.string().optional(), // Add firstServiceDate field
   status: z.string().optional()
 });

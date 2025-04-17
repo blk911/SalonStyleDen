@@ -63,6 +63,7 @@ export const invitations = pgTable("invitations", {
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
   salonId: integer("salon_id"), // Reference to salon sending the invitation
   sponsor: text("sponsor"),
+  inviteHash: text("invite_hash").unique(), // Unique hash identifier for tracking invitations
   status: text("status").notNull().default("pending"), // pending, accepted, declined
   firstServiceDate: text("first_service_date"), // Date of first service (if scheduled)
   createdAt: timestamp("created_at").defaultNow(),
