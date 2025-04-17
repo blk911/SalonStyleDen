@@ -23,7 +23,8 @@ import {
   HeartIcon,
   StarIcon,
   CheckCircleIcon,
-  ScissorsIcon
+  ScissorsIcon,
+  ExternalLinkIcon
 } from "lucide-react";
 
 // Define client interface
@@ -223,46 +224,61 @@ export default function ClientDashboard() {
         <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-8 border-b border-pink-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center">
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md">
+              <div className="flex items-start">
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md flex-shrink-0">
                   <UserIcon className="h-8 w-8 text-pink-500" />
                 </div>
-                <div className="ml-4">
-                  <h1 className="font-bold text-2xl text-pink-700">{client.name}</h1>
-                  <div className="flex items-center gap-3">
-                    <p className="text-gray-600">
-                      <span className="inline-flex items-center">
-                        <CalendarIcon className="h-3 w-3 mr-1" />
-                        Member since {new Date(client.createdAt).toLocaleDateString()}
-                      </span>
-                    </p>
-                    <div className="flex items-center text-gray-600">
-                      <StarIcon className="h-3 w-3 mr-1 text-pink-500" />
-                      <span className="font-medium">Sponsor:</span> {client.sponsor || "None"}
+                <div className="ml-4 flex-1">
+                  <h1 className="font-bold text-2xl text-pink-700 mb-2">{client.name}</h1>
+                  
+                  <div className="grid grid-cols-2 gap-x-8 gap-y-1 mb-3">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-gray-500">Member Since:</span>
+                      <span className="text-sm text-gray-700">{new Date(client.createdAt).toLocaleDateString()}</span>
                     </div>
+                    
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-gray-500">Sponsor:</span>
+                      <span className="text-sm text-gray-700">{client.sponsor || "None"}</span>
+                    </div>
+                    
+                    {client.salonId && salon && (
+                      <div className="flex flex-col">
+                        <span className="text-xs font-medium text-gray-500">Connected Salon:</span>
+                        <a 
+                          href={`/salon/${salon.id}`}
+                          className="text-sm text-pink-700 hover:text-pink-900 hover:underline font-medium"
+                        >
+                          {salon.name}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex space-x-3">
                     {client.salonId && salon && (
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="border-pink-300 text-pink-700 hover:bg-pink-50 text-xs"
+                        className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center gap-1"
                         onClick={() => window.location.href = `/salon/${salon.id}`}
                       >
-                        View Salon Page
+                        <ScissorsIcon className="h-3 w-3" />
+                        View Salon
                       </Button>
                     )}
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center gap-1"
+                      onClick={() => setIsEditing(!isEditing)}
+                    >
+                      <PencilIcon className="h-3 w-3" />
+                      {isEditing ? "Cancel Edit" : "Edit Profile"}
+                    </Button>
                   </div>
                 </div>
-              </div>
-              
-              <div className="mt-4 md:mt-0">
-                <Button 
-                  variant="outline" 
-                  className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center gap-2"
-                  onClick={() => setIsEditing(!isEditing)}
-                >
-                  <PencilIcon className="h-4 w-4" />
-                  {isEditing ? "Cancel Editing" : "Edit Profile"}
-                </Button>
               </div>
             </div>
           </div>
