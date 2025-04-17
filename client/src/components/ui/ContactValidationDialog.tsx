@@ -1,12 +1,9 @@
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertCircle } from "lucide-react";
 import { useLocation } from "wouter";
 
 interface ContactValidationDialogProps {
@@ -38,14 +35,7 @@ export function ContactValidationDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-center text-xl text-pink-700">
-            Phone Number Already Exists
-          </DialogTitle>
-        </DialogHeader>
-        
         <div className="p-6 text-center space-y-4">
-          <AlertCircle className="h-16 w-16 text-pink-500 mx-auto" />
           
           {errorField === 'phone' ? (
             <div className="space-y-5">
