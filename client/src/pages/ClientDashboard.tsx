@@ -23,7 +23,8 @@ import {
   HeartIcon,
   StarIcon,
   CheckCircleIcon,
-  ScissorsIcon
+  ScissorsIcon,
+  Send
 } from "lucide-react";
 
 // Define client interface
@@ -463,30 +464,47 @@ export default function ClientDashboard() {
                             <div className="mt-4">
                               <h4 className="font-medium text-base mb-3">Most Recent VMBs</h4>
                               
-                              <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100">
-                                <div className="flex justify-between items-start">
-                                  <h5 className="font-medium text-pink-700">{selectedStyle.name}</h5>
-                                  <Badge className="bg-pink-100 text-pink-700">Selected</Badge>
-                                </div>
-                                
-                                <div className="mt-3 flex items-center text-sm text-gray-500">
-                                  <ClockIcon className="h-4 w-4 mr-1" />
-                                  <span>Selected on {new Date().toLocaleDateString()}</span>
-                                </div>
-                                
-                                <div className="border-t mt-3 pt-3">
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-sm"><span className="font-medium">Price:</span> ${selectedStyle.price}</span>
-                                    <span className="text-sm"><span className="font-medium">Duration:</span> {selectedStyle.duration} min</span>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100">
+                                  <div className="flex justify-between items-start">
+                                    <h5 className="font-medium text-pink-700">{selectedStyle.name}</h5>
+                                    <Badge className="bg-pink-100 text-pink-700">Selected</Badge>
                                   </div>
                                   
-                                  <p className="text-sm text-gray-600 mt-2">
-                                    {selectedStyle.description}
-                                  </p>
+                                  <div className="mt-3 flex items-center text-sm text-gray-500">
+                                    <ClockIcon className="h-4 w-4 mr-1" />
+                                    <span>Selected on {new Date().toLocaleDateString()}</span>
+                                  </div>
+                                  
+                                  <div className="border-t mt-3 pt-3">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-sm"><span className="font-medium">Price:</span> ${selectedStyle.price}</span>
+                                      <span className="text-sm"><span className="font-medium">Duration:</span> {selectedStyle.duration} min</span>
+                                    </div>
+                                    
+                                    <p className="text-sm text-gray-600 mt-2">
+                                      {selectedStyle.description}
+                                    </p>
+                                  </div>
+                                  
+                                  <div className="mt-3 text-sm">
+                                    <span className="font-medium">Salon:</span> {salon?.name}
+                                  </div>
                                 </div>
                                 
-                                <div className="mt-3 text-sm">
-                                  <span className="font-medium">Salon:</span> {salon?.name}
+                                {/* Create VMB Invite card */}
+                                <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100 flex flex-col items-center justify-center">
+                                  <h2 className="text-center text-lg font-medium text-pink-700 mb-3">Create VMB Invite</h2>
+                                  <Button 
+                                    className="bg-pink-600 hover:bg-pink-700 text-white w-full max-w-xs"
+                                    onClick={() => {
+                                      console.log("Create VMB Invite clicked");
+                                      // This would open the invite creation flow
+                                    }}
+                                  >
+                                    <Send className="h-4 w-4 mr-2" />
+                                    Send Invitation
+                                  </Button>
                                 </div>
                               </div>
                             </div>
