@@ -37,6 +37,7 @@ interface ClientData {
   favoriteServices?: string[];
   salonId?: number;
   salonName?: string;
+  sponsor?: string;
   type: string;
   address?: string;
   city?: string;
@@ -228,12 +229,28 @@ export default function ClientDashboard() {
                 </div>
                 <div className="ml-4">
                   <h1 className="font-bold text-2xl text-pink-700">{client.name}</h1>
-                  <p className="text-gray-600">
-                    <span className="inline-flex items-center">
-                      <CalendarIcon className="h-3 w-3 mr-1" />
-                      Member since {new Date(client.createdAt).toLocaleDateString()}
-                    </span>
-                  </p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-gray-600">
+                      <span className="inline-flex items-center">
+                        <CalendarIcon className="h-3 w-3 mr-1" />
+                        Member since {new Date(client.createdAt).toLocaleDateString()}
+                      </span>
+                    </p>
+                    <div className="flex items-center text-gray-600">
+                      <StarIcon className="h-3 w-3 mr-1 text-pink-500" />
+                      <span className="font-medium">Sponsor:</span> {client.sponsor || "None"}
+                    </div>
+                    {client.salonId && salon && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="border-pink-300 text-pink-700 hover:bg-pink-50 text-xs"
+                        onClick={() => window.location.href = `/salon/${salon.id}`}
+                      >
+                        View Salon Page
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
               
@@ -295,24 +312,14 @@ export default function ClientDashboard() {
             {client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
                 <CardHeader className="bg-pink-50 pb-3">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
-                        <ScissorsIcon className="h-4 w-4" />
-                        Your Salon
-                      </CardTitle>
-                      {salon && (
-                        <CardDescription>Member of {salon.name}</CardDescription>
-                      )}
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="border-pink-300 text-pink-700 hover:bg-pink-50"
-                      onClick={() => window.location.href = `/salon/${salon.id}`}
-                    >
-                      View Salon Page
-                    </Button>
+                  <div>
+                    <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                      <ScissorsIcon className="h-4 w-4" />
+                      Your Salon
+                    </CardTitle>
+                    {salon && (
+                      <CardDescription>Member of {salon.name}</CardDescription>
+                    )}
                   </div>
                 </CardHeader>
                 
@@ -320,7 +327,7 @@ export default function ClientDashboard() {
                   {salon ? (
                     <div className="space-y-4">
                       {/* VMB Style Options - Direct display without salon contact info */}
-                      {salon.services && salon.services.length > 0 && (
+                      {salon?.services && salon.services.length > 0 && (
                         <div>
                           <h3 className="text-base font-medium text-pink-700 mb-3">VMB Style Options</h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
