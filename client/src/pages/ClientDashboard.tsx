@@ -303,50 +303,71 @@ export default function ClientDashboard() {
               {client.salonId && (
                 <Card className="rounded-xl shadow-sm overflow-hidden">
                   <CardHeader className="bg-pink-50 pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
-                      <ScissorsIcon className="h-4 w-4" />
-                      Your Salon
-                    </CardTitle>
-                    {salon && (
-                      <CardDescription>Member of {salon.name}</CardDescription>
-                    )}
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                          <ScissorsIcon className="h-4 w-4" />
+                          Your Salon
+                        </CardTitle>
+                        {salon && (
+                          <CardDescription>Member of {salon.name}</CardDescription>
+                        )}
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="border-pink-300 text-pink-700 hover:bg-pink-50"
+                        onClick={() => window.location.href = `/salon/${salon.id}`}
+                      >
+                        View Salon Page
+                      </Button>
+                    </div>
                   </CardHeader>
                   
                   <CardContent className="pt-4">
                     {salon ? (
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <UserIcon className="h-4 w-4 text-gray-500" />
-                          <span className="font-medium text-gray-700">Owner:</span>
-                          <span className="text-gray-800">{salon.ownerName}</span>
+                      <div className="space-y-4">
+                        {/* Salon contact info */}
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <PhoneIcon className="h-4 w-4 text-gray-500" />
+                            <span className="font-medium text-gray-700">Phone:</span>
+                            <span className="text-gray-800">{salon.phone}</span>
+                          </div>
+                          {salon.address && (
+                            <div className="flex items-start gap-2">
+                              <MapPinIcon className="h-4 w-4 text-gray-500 mt-1" />
+                              <div>
+                                <span className="font-medium text-gray-700">Address:</span>
+                                <p className="text-gray-800">
+                                  {salon.address}<br />
+                                  {salon.city}, {salon.state} {salon.zipCode}
+                                </p>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <PhoneIcon className="h-4 w-4 text-gray-500" />
-                          <span className="font-medium text-gray-700">Phone:</span>
-                          <span className="text-gray-800">{salon.phone}</span>
-                        </div>
-                        {salon.address && (
-                          <div className="flex items-start gap-2">
-                            <MapPinIcon className="h-4 w-4 text-gray-500 mt-1" />
-                            <div>
-                              <span className="font-medium text-gray-700">Address:</span>
-                              <p className="text-gray-800">
-                                {salon.address}<br />
-                                {salon.city}, {salon.state} {salon.zipCode}
-                              </p>
+                        
+                        {/* VMB Style Options */}
+                        {salon.services && salon.services.length > 0 && (
+                          <div className="mt-5 pt-4 border-t border-gray-100">
+                            <h3 className="text-base font-medium text-pink-700 mb-3">VMB Style Options</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {salon.services.filter(service => service.featured === true).map((service: any) => (
+                                <div key={service.id} className="flex gap-3 p-3 border rounded-lg bg-pink-50 hover:bg-pink-100 transition-colors">
+                                  <div className="flex-1">
+                                    <h4 className="font-medium text-sm">{service.name}</h4>
+                                    <p className="text-xs text-gray-600 mt-1">{service.description}</p>
+                                    <div className="flex justify-between items-center mt-2">
+                                      <span className="text-xs font-semibold text-pink-700">${service.price}</span>
+                                      <span className="text-xs text-gray-500">{service.duration} min</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         )}
-                        
-                        <div className="mt-4 pt-2">
-                          <Button 
-                            variant="outline" 
-                            className="border-pink-300 text-pink-700 hover:bg-pink-50"
-                            onClick={() => window.location.href = `/salon/${salon.id}`}
-                          >
-                            View Salon Page
-                          </Button>
-                        </div>
                       </div>
                     ) : salonLoading ? (
                       <p>Loading salon information...</p>
