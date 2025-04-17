@@ -65,6 +65,23 @@ export default function ClientForm() {
   const [showSalonSelector, setShowSalonSelector] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  
+  // Initialize contact validation hook
+  const {
+    phoneExists,
+    emailExists,
+    errorField,
+    errorMessage,
+    showErrorDialog,
+    setShowErrorDialog,
+    getPhoneProps,
+    getEmailProps,
+    handleDialogClose,
+    formatPhoneNumber: formatPhoneFromHook
+  } = useContactValidation({
+    validateOnChange: true,
+    validateOnBlur: true
+  });
 
   // Fetch available salons
   const { data: salons, isLoading: isLoadingSalons, error: salonsError } = useQuery<SalonOption[]>({
@@ -363,21 +380,40 @@ export default function ClientForm() {
               <FormField
                 control={form.control}
                 name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        placeholder="Cell Phone" 
-                        onChange={(e) => {
-                          const formatted = formatPhoneNumber(e.target.value);
-                          field.onChange(formatted);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  // Generate phone validation props
+                  const phoneProps = getPhoneProps(field.value);
+                  
+                  return (
+                    <FormItem>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          placeholder="Cell Phone" 
+                          className={phoneExists ? "border-red-500" : ""}
+                          onChange={(e) => {
+                            // Use the onChange handler from validation hook
+                            const formatted = phoneProps.onChange(e);
+                            field.onChange(formatted);
+                          }}
+                          onBlur={phoneProps.onBlur ? 
+                            (e) => {
+                              field.onBlur();
+                              phoneProps.onBlur?.(e);
+                            } : 
+                            field.onBlur
+                          }
+                        />
+                      </FormControl>
+                      {phoneExists && (
+                        <p className="text-xs text-red-500 mt-1">
+                          This phone number is already registered
+                        </p>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
             </div>
             
@@ -385,14 +421,41 @@ export default function ClientForm() {
             <FormField
               control={form.control}
               name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input {...field} type="email" placeholder="Email" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                // Generate email validation props
+                const emailProps = getEmailProps(field.value);
+                
+                return (
+                  <FormItem>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        type="email" 
+                        placeholder="Email" 
+                        className={emailExists ? "border-red-500" : ""}
+                        onChange={(e) => {
+                          // Use the onChange handler from validation hook
+                          const value = emailProps.onChange(e);
+                          field.onChange(value);
+                        }}
+                        onBlur={emailProps.onBlur ? 
+                          (e) => {
+                            field.onBlur();
+                            emailProps.onBlur?.(e);
+                          } : 
+                          field.onBlur
+                        }
+                      />
+                    </FormControl>
+                    {emailExists && (
+                      <p className="text-xs text-red-500 mt-1">
+                        This email is already registered
+                      </p>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             
             <FormField
