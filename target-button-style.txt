@@ -1,0 +1,7 @@
+- Full width button
+- No padding issues
+- Pink background (#E31B6D or similar)
+- White text
+- Rounded corners
+- Centered text with envelope icon
+- Proper vertical centering
