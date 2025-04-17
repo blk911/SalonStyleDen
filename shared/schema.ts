@@ -43,6 +43,12 @@ export const clients = pgTable("clients", {
   salonId: integer("salon_id"), // Reference to salon if client belongs to one
   salonName: text("salon_name"), // Name of the salon for display purposes
   type: text("type").notNull().default("client"),
+  address: text("address"), // Street address
+  city: text("city"),
+  state: text("state"),
+  zipCode: text("zip_code"),
+  socialMedia: jsonb("social_media"), // Stores array of {platform, handle}
+  photoUrl: text("photo_url"), // URL to the client's photo
   createdAt: timestamp("created_at").defaultNow(),
 });
 

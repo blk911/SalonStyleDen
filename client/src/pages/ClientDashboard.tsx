@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
+import EditableClientInfo from "@/components/dashboard/EditableClientInfo";
 import { 
   CalendarIcon, 
   ClockIcon, 
@@ -246,61 +247,32 @@ export default function ClientDashboard() {
             
             {/* DASHBOARD TAB */}
             <TabsContent value="dashboard" className="space-y-6">
-              {/* Personal Information Card */}
-              <Card className="rounded-xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-pink-50 pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
-                    <UserIcon className="h-4 w-4" />
-                    Personal Information
-                  </CardTitle>
-                </CardHeader>
-                
-                <CardContent className="pt-4">
-                  {!isEditing ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <PhoneIcon className="h-4 w-4 text-gray-500" />
-                        <span className="font-medium text-gray-700">Phone:</span>
-                        <span className="text-gray-800">{client.phone}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <AtSignIcon className="h-4 w-4 text-gray-500" />
-                        <span className="font-medium text-gray-700">Email:</span>
-                        <span className="text-gray-800">{client.email}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircleIcon className="h-4 w-4 text-gray-500" />
-                        <span className="font-medium text-gray-700">Status:</span>
-                        <Badge variant={client.isCurrentClient ? "default" : "outline"} className="ml-2">
-                          {client.isCurrentClient ? "Current Client" : "New Client"}
-                        </Badge>
-                      </div>
-                      {client.favoriteServices && client.favoriteServices.length > 0 && (
-                        <div className="flex items-start gap-2">
-                          <HeartIcon className="h-4 w-4 text-gray-500 mt-1" />
-                          <span className="font-medium text-gray-700 mt-1">Favorite Services:</span>
-                          <div className="flex flex-wrap gap-1">
-                            {client.favoriteServices.map((service: string) => (
-                              <Badge 
-                                key={service} 
-                                className="bg-pink-100 hover:bg-pink-200 text-pink-700 border-0"
-                              >
-                                {service}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="text-sm text-center text-gray-700 bg-yellow-50 p-2 rounded">
-                        Edit functionality will be implemented in the next phase
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              {/* Personal Information Card with Edit Feature */}
+              <EditableClientInfo 
+                client={{
+                  id: client.id,
+                  name: client.name,
+                  phone: client.phone,
+                  email: client.email,
+                  isCurrentClient: client.isCurrentClient,
+                  notes: client.notes,
+                  favoriteServices: client.favoriteServices,
+                  salonId: client.salonId,
+                  salonName: client.salonName,
+                  type: client.type,
+                  address: client.address,
+                  city: client.city,
+                  state: client.state,
+                  zipCode: client.zipCode,
+                  socialMedia: client.socialMedia,
+                  photoUrl: client.photoUrl
+                }}
+                onSave={(updatedClient) => {
+                  console.log("Client profile updated:", updatedClient);
+                  // The React Query cache will be invalidated by the component
+                  setIsEditing(false);
+                }}
+              />
               
               {/* Linked Salon Card */}
               {client.salonId && (
