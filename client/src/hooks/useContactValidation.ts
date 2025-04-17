@@ -27,11 +27,11 @@ export function useContactValidation(options: ValidationOptions = {}) {
   // Format phone number consistently site-wide (XXX-XXX-XXXX)
   const formatPhoneNumber = (input: string) => {
     if (!input) return '';
-    const cleaned = input.replace(/\D/g, '').slice(0, 10);
-    if (cleaned.length === 0) return '';
-    if (cleaned.length <= 3) return cleaned;
-    if (cleaned.length <= 6) return `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
-    return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    const numbers = input.replace(/\D/g, '').slice(0, 10);
+    if (numbers.length === 0) return '';
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 6) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6)}`;
   };
 
   // Validate phone or email against server
@@ -120,14 +120,16 @@ export function useContactValidation(options: ValidationOptions = {}) {
           }
         }
 
-        // Auto-validation if enabled
+        // Real-time validation
         if (validateOnChange) {
           const cleanPhone = formatted.replace(/\D/g, '');
           if (cleanPhone.length === 10) {
-            // Delay validation to prevent excessive requests
-            setTimeout(() => {
-              validateContact('phone', cleanPhone);
-            }, delay);
+            validateContact('phone', formatted);
+          } else {
+            setPhoneExists(false);
+            if (showErrorDialog && errorField === 'phone') {
+              setShowErrorDialog(false);
+            }
           }
         }
 
@@ -156,12 +158,16 @@ export function useContactValidation(options: ValidationOptions = {}) {
           }
         }
 
-        // Auto-validation if enabled
-        if (validateOnChange && e.target.value && e.target.value.includes('@') && e.target.value.includes('.')) {
-          // Delay validation to prevent excessive requests
-          setTimeout(() => {
+        // Real-time email validation
+        if (validateOnChange && e.target.value) {
+          if (e.target.value.includes('@') && e.target.value.includes('.')) {
             validateContact('email', e.target.value);
-          }, delay);
+          } else {
+            setEmailExists(false);
+            if (showErrorDialog && errorField === 'email') {
+              setShowErrorDialog(false);
+            }
+          }
         }
 
         return e.target.value;
