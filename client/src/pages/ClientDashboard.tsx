@@ -462,9 +462,10 @@ export default function ClientDashboard() {
                             </h3>
                             
                             <div className="mt-4">
-                              <div className="flex justify-between items-center mb-3">
-                                <h4 className="font-medium text-base">Most Recent VMBs</h4>
-                                <h4 className="font-medium text-base">Create VMB Invite</h4>
+                              <div className="flex items-center mb-3">
+                                <h4 className="font-medium text-base text-pink-800">Most Recent VMBs</h4>
+                                <div className="h-6 mx-4 border-r border-pink-300"></div>
+                                <h4 className="font-medium text-base text-pink-800">Create VMB Invite</h4>
                               </div>
                               
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -496,12 +497,9 @@ export default function ClientDashboard() {
                                 </div>
                                 
                                 {/* Create VMB Invite card */}
-                                <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100 flex flex-col justify-center">
+                                <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100 flex flex-col justify-end">
                                   <Button 
-                                    variant="outline" 
-                                    size="sm"
-                                    className="border-pink-300 bg-pink-600 hover:bg-pink-700 text-white flex items-center justify-center min-w-[160px]"
-                                    style={{ height: "32px", padding: "0 16px" }}
+                                    className="bg-pink-600 hover:bg-pink-700 rounded-md text-white w-full py-2 flex items-center justify-center"
                                     onClick={() => {
                                       console.log("Create VMB Invite clicked");
                                       // This would open the invite creation flow
