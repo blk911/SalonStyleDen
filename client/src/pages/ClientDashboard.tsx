@@ -229,40 +229,44 @@ export default function ClientDashboard() {
                 </div>
                 <div className="ml-4">
                   <h1 className="font-bold text-2xl text-pink-700">{client.name}</h1>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 mt-1">
                     <p className="text-gray-600">
                       <span className="inline-flex items-center">
-                        <CalendarIcon className="h-3 w-3 mr-1" />
+                        <CalendarIcon className="h-4 w-4 mr-1" />
                         Member since {new Date(client.createdAt).toLocaleDateString()}
                       </span>
                     </p>
-                    <div className="flex items-center text-gray-600">
-                      <StarIcon className="h-3 w-3 mr-1 text-pink-500" />
-                      <span className="font-medium">Sponsor:</span> {client.sponsor || "None"}
-                    </div>
-                    {client.salonId && salon && (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="border-pink-300 text-pink-700 hover:bg-pink-50 text-xs"
-                        onClick={() => window.location.href = `/salon/${salon.id}`}
-                      >
-                        View Salon Page
-                      </Button>
-                    )}
+                    <p className="text-gray-600">
+                      <span className="inline-flex items-center">
+                        <StarIcon className="h-4 w-4 mr-1 text-pink-500" />
+                        Sponsor: {client.sponsor || "None"}
+                      </span>
+                    </p>
                   </div>
                 </div>
               </div>
               
               <div className="mt-4 md:mt-0">
-                <Button 
-                  variant="outline" 
-                  className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center gap-2"
-                  onClick={() => setIsEditing(!isEditing)}
-                >
-                  <PencilIcon className="h-4 w-4" />
-                  {isEditing ? "Cancel Editing" : "Edit Profile"}
-                </Button>
+                <div className="flex space-x-4">
+                  {client.salonId && salon && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="border-pink-300 text-pink-700 hover:bg-pink-50"
+                      onClick={() => window.location.href = `/salon/${salon.id}`}
+                    >
+                      View Salon Page
+                    </Button>
+                  )}
+                  <Button 
+                    variant="outline" 
+                    className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center gap-2"
+                    onClick={() => setIsEditing(!isEditing)}
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                    Edit Profile
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
