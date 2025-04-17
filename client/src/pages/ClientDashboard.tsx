@@ -207,8 +207,8 @@ export default function ClientDashboard() {
     );
   }
 
-  // Check if client is linked to the VMB LTD salon (ID 12)
-  const isLinkedToVMB = client.salonId === 12 || (salon && salon.name.includes("Ven Me, Baby!"));
+  // Check if client is linked to any salon - we want to show VMB Style Options for all connected salons
+  const isLinkedToVMB = !!client.salonId;
   const serviceOptions = salon?.services || [];
 
   return (
@@ -290,10 +290,22 @@ export default function ClientDashboard() {
               {client.salonId && (
                 <Card className="rounded-xl shadow-sm overflow-hidden">
                   <CardHeader className="bg-pink-50 pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
-                      <ScissorsIcon className="h-4 w-4" />
-                      Your Salon
-                    </CardTitle>
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                        <ScissorsIcon className="h-4 w-4" />
+                        Your Salon
+                      </CardTitle>
+                      {salon && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="border-pink-300 text-pink-700 hover:bg-pink-50"
+                          onClick={() => window.location.href = `/salon/${salon.id}`}
+                        >
+                          View Salon Page
+                        </Button>
+                      )}
+                    </div>
                     {salon && (
                       <CardDescription>Member of {salon.name}</CardDescription>
                     )}
@@ -324,15 +336,6 @@ export default function ClientDashboard() {
                             </div>
                           </div>
                         )}
-                        
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="mt-2 border-pink-300 text-pink-700 hover:bg-pink-50"
-                          onClick={() => window.location.href = `/salon/${salon.id}`}
-                        >
-                          View Salon Page
-                        </Button>
                       </div>
                     ) : salonLoading ? (
                       <p>Loading salon information...</p>
@@ -404,7 +407,7 @@ export default function ClientDashboard() {
                 </CardHeader>
                 
                 <CardContent className="pt-4">
-                  {isLinkedToVMB && salon?.services && id ? (
+                  {client.salonId && salon?.services && id ? (
                     <VmbStyleOptions 
                       services={salon.services} 
                       clientId={parseInt(id)} 
@@ -414,8 +417,8 @@ export default function ClientDashboard() {
                     <div className="text-center p-6">
                       <p className="text-gray-500">
                         {client.salonId ? 
-                          "Your salon's promotions and style options will appear here." :
-                          "You're not currently associated with a salon. Promotions will appear here once you're linked to a salon."}
+                          "VMB Style Options" :
+                          "You're not currently associated with a salon. VMB Style Options will appear here once you're linked to a salon."}
                       </p>
                     </div>
                   )}
