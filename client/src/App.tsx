@@ -9,6 +9,7 @@ import Home from "@/pages/Home";
 import SalonDashboard from "@/pages/SalonDashboard";
 import SalonPublicPage from "@/pages/SalonPublicPage";
 import ClientDashboard from "@/pages/ClientDashboard";
+import ClientsPage from "@/pages/ClientsPage";
 import SalonsPage from "@/pages/SalonsPage";
 import PromosPage from "@/pages/PromosPage";
 import Sitemap from "@/pages/Sitemap";
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/salon/:id" component={SalonPublicPage} />
       <Route path="/dashboard/salon/:id" component={SalonDashboard} />
       <Route path="/client/:id" component={ClientDashboard} />
+      <Route path="/clients" component={ClientsPage} />
       <Route path="/salons" component={SalonsPage} />
       {/* Temporarily hiding the Promos page */}
       {/* <Route path="/promos" component={PromosPage} /> */}
