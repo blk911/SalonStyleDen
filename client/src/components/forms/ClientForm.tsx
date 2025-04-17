@@ -23,6 +23,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatPhoneNumber } from "@/lib/utils";
 import { useContactValidation } from "@/hooks/useContactValidation";
+import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
 import VerificationModal from "@/components/shared/VerificationModal";
 import SuccessModal from "@/components/shared/SuccessModal";
 
@@ -223,7 +224,17 @@ export default function ClientForm() {
     }
   }, [isCurrentClient, salons, form]);
 
-  const onSubmit = (data: ClientFormValues) => {
+  const onSubmit = async (data: ClientFormValues) => {
+    // First check if the phone or email already exists
+    const phoneCheckResult = await validateContact('phone', data.phone);
+    const emailCheckResult = await validateContact('email', data.email);
+    
+    // If either phone or email exists, the validation dialog will show automatically
+    if (phoneExists || emailExists) {
+      console.log("Contact validation failed: Contact already exists");
+      return; // Stop form submission
+    }
+    
     // Find selected salon to include salon name in verification
     if (data.salonId && salons) {
       const selectedSalon = salons.find(salon => String(salon.id) === data.salonId);
@@ -677,6 +688,15 @@ export default function ClientForm() {
           onRedirect={handleGoToDashboard}
         />
       )}
+      
+      {/* Contact Validation Dialog */}
+      <ContactValidationDialog
+        open={showErrorDialog}
+        onOpenChange={setShowErrorDialog}
+        errorField={errorField}
+        errorMessage={errorMessage}
+        onClose={handleDialogClose}
+      />
     </>
   );
 }
