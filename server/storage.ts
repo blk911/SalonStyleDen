@@ -2,9 +2,7 @@ import {
   users, type User, type InsertUser,
   salons, type Salon, type InsertSalon,
   clients, type Client, type InsertClient,
-  invitations, type Invitation, type InsertInvitation,
-  styleSelections, type StyleSelection, type InsertStyleSelection,
-  activityLogs, type ActivityLog, type InsertActivityLog
+  invitations, type Invitation, type InsertInvitation
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -32,21 +30,9 @@ export interface IStorage {
   getInvitation(id: number): Promise<Invitation | undefined>;
   getRecentInvitations(limit?: number): Promise<Invitation[]>;
   getSalonInvitations(salonId: number): Promise<Invitation[]>;
-  updateInvitationStatus(id: number, status: string): Promise<Invitation>;
-  
-  // Style Selection methods
-  createStyleSelection(styleSelection: InsertStyleSelection): Promise<StyleSelection>;
-  getStyleSelection(id: number): Promise<StyleSelection | undefined>;
-  getSalonStyleSelections(salonId: number): Promise<StyleSelection[]>;
-  getClientStyleSelections(clientId: number): Promise<StyleSelection[]>;
-  
-  // Activity Log methods
-  createActivityLog(activityLog: InsertActivityLog): Promise<ActivityLog>;
-  getRecentActivityLogs(limit?: number): Promise<ActivityLog[]>;
 }
 
 export class DatabaseStorage implements IStorage {
-  // Implementation of new methods will be added here
   // User methods
   async getUser(id: number): Promise<User | undefined> {
     const results = await db.select().from(users).where(eq(users.id, id));
@@ -176,22 +162,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async isDuplicateContact(phone: string, email: string, sponsor?: string, excludeId?: number): Promise<{isDuplicate: boolean, field: string}> {
-    // Check for phone duplicates in clients table and invitations table
+    // Check clients table
     const clientPhone = await db.select().from(clients).where(eq(clients.phone, phone));
+    const clientEmail = await db.select().from(clients).where(eq(clients.email, email));
+    
+    // Check invitations table 
     const invitePhone = await db.select().from(invitations).where(eq(invitations.phone, phone));
-    
-    // For email, we need to get all records and do case-insensitive comparison
-    // Check clients table for email (case-insensitive)
-    const allClients = await db.select().from(clients);
-    const clientEmail = allClients.filter(
-      client => client.email && email && client.email.toLowerCase() === email.toLowerCase()
-    );
-    
-    // Check invitations table for email (case-insensitive)
-    const allInvitations = await db.select().from(invitations);
-    const inviteEmail = allInvitations.filter(
-      invitation => invitation.email && email && invitation.email.toLowerCase() === email.toLowerCase()
-    );
+    const inviteEmail = await db.select().from(invitations).where(eq(invitations.email, email));
 
     // Check sponsor duplication
     if (sponsor) {
@@ -208,7 +185,6 @@ export class DatabaseStorage implements IStorage {
     if ((clientPhone.length > 0 && clientPhone[0].id !== excludeId) || invitePhone.length > 0) {
       return { isDuplicate: true, field: 'phone' };
     }
-    
     if ((clientEmail.length > 0 && clientEmail[0].id !== excludeId) || inviteEmail.length > 0) {
       return { isDuplicate: true, field: 'email' };
     }
@@ -251,13 +227,7 @@ async createClient(insertClient: InsertClient): Promise<Client> {
       // Check for duplicates
       const duplicateCheck = await this.isDuplicateContact(insertInvitation.phone, insertInvitation.email);
       if (duplicateCheck.isDuplicate) {
-        if (duplicateCheck.field === 'phone') {
-          throw new Error(`This phone is already registered`);
-        } else if (duplicateCheck.field === 'email') {
-          throw new Error(`This email is already registered`);
-        } else {
-          throw new Error(`This ${duplicateCheck.field} is already registered`);
-        }
+        throw new Error(`This ${duplicateCheck.field} is already registered`);
       }
 
       console.log('DatabaseStorage.createInvitation - Creating new invitation');
@@ -327,135 +297,6 @@ async createClient(insertClient: InsertClient): Promise<Client> {
       return result;
     } catch (error) {
       console.error(`DatabaseStorage.getSalonInvitations - Error fetching invitations for salon ${salonId}:`, error);
-      throw error;
-    }
-  }
-  
-  async updateInvitationStatus(id: number, status: string): Promise<Invitation> {
-    try {
-      console.log(`DatabaseStorage.updateInvitationStatus - Updating invitation ${id} status to ${status}`);
-      
-      const result = await db.update(invitations)
-        .set({ status })
-        .where(eq(invitations.id, id))
-        .returning();
-      
-      if (result.length === 0) {
-        throw new Error(`Invitation with ID ${id} not found`);
-      }
-      
-      console.log(`DatabaseStorage.updateInvitationStatus - Updated invitation ${id} status to ${status}`);
-      return result[0];
-    } catch (error) {
-      console.error(`DatabaseStorage.updateInvitationStatus - Error updating invitation ${id}:`, error);
-      throw error;
-    }
-  }
-  
-  // Style Selection methods
-  async createStyleSelection(insertStyleSelection: InsertStyleSelection): Promise<StyleSelection> {
-    try {
-      console.log(`DatabaseStorage.createStyleSelection - Creating style selection for client ${insertStyleSelection.clientId}`);
-      
-      const styleSelectionData = {
-        ...insertStyleSelection,
-        selectedAt: insertStyleSelection.selectedAt || new Date().toISOString()
-      };
-      
-      const result = await db.insert(styleSelections)
-        .values(styleSelectionData)
-        .returning();
-      
-      console.log(`DatabaseStorage.createStyleSelection - Created style selection with ID ${result[0].id}`);
-      return result[0];
-    } catch (error) {
-      console.error('DatabaseStorage.createStyleSelection - Error creating style selection:', error);
-      throw error;
-    }
-  }
-  
-  async getStyleSelection(id: number): Promise<StyleSelection | undefined> {
-    try {
-      const results = await db.select()
-        .from(styleSelections)
-        .where(eq(styleSelections.id, id));
-      
-      return results.length > 0 ? results[0] : undefined;
-    } catch (error) {
-      console.error(`DatabaseStorage.getStyleSelection - Error fetching style selection ${id}:`, error);
-      throw error;
-    }
-  }
-  
-  async getSalonStyleSelections(salonId: number): Promise<StyleSelection[]> {
-    try {
-      console.log(`DatabaseStorage.getSalonStyleSelections - Fetching style selections for salon ${salonId}`);
-      
-      const result = await db.select()
-        .from(styleSelections)
-        .where(eq(styleSelections.salonId, salonId))
-        .orderBy(styleSelections.selectedAt);
-      
-      console.log(`DatabaseStorage.getSalonStyleSelections - Retrieved ${result.length} style selections for salon ${salonId}`);
-      return result;
-    } catch (error) {
-      console.error(`DatabaseStorage.getSalonStyleSelections - Error fetching style selections for salon ${salonId}:`, error);
-      throw error;
-    }
-  }
-  
-  async getClientStyleSelections(clientId: number): Promise<StyleSelection[]> {
-    try {
-      console.log(`DatabaseStorage.getClientStyleSelections - Fetching style selections for client ${clientId}`);
-      
-      const result = await db.select()
-        .from(styleSelections)
-        .where(eq(styleSelections.clientId, clientId))
-        .orderBy(styleSelections.selectedAt);
-      
-      console.log(`DatabaseStorage.getClientStyleSelections - Retrieved ${result.length} style selections for client ${clientId}`);
-      return result;
-    } catch (error) {
-      console.error(`DatabaseStorage.getClientStyleSelections - Error fetching style selections for client ${clientId}:`, error);
-      throw error;
-    }
-  }
-  
-  // Activity Log methods
-  async createActivityLog(insertActivityLog: InsertActivityLog): Promise<ActivityLog> {
-    try {
-      console.log(`DatabaseStorage.createActivityLog - Creating activity log of type ${insertActivityLog.type}`);
-      
-      const activityLogData = {
-        ...insertActivityLog,
-        timestamp: insertActivityLog.timestamp || new Date().toISOString()
-      };
-      
-      const result = await db.insert(activityLogs)
-        .values(activityLogData)
-        .returning();
-      
-      console.log(`DatabaseStorage.createActivityLog - Created activity log with ID ${result[0].id}`);
-      return result[0];
-    } catch (error) {
-      console.error('DatabaseStorage.createActivityLog - Error creating activity log:', error);
-      throw error;
-    }
-  }
-  
-  async getRecentActivityLogs(limit: number = 10): Promise<ActivityLog[]> {
-    try {
-      console.log(`DatabaseStorage.getRecentActivityLogs - Fetching ${limit} recent activity logs`);
-      
-      const result = await db.select()
-        .from(activityLogs)
-        .orderBy(activityLogs.timestamp)
-        .limit(limit);
-      
-      console.log(`DatabaseStorage.getRecentActivityLogs - Retrieved ${result.length} activity logs`);
-      return result;
-    } catch (error) {
-      console.error('DatabaseStorage.getRecentActivityLogs - Error fetching activity logs:', error);
       throw error;
     }
   }

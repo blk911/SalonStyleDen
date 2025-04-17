@@ -22,30 +22,9 @@ interface ClientData {
 export default function ClientDashboard() {
   const { id } = useParams();
 
-  // Add debugging information to trace API calls
-  console.log(`ClientDashboard - Fetching client with ID: ${id}`);
-  
   const { data: client, isLoading, error } = useQuery<ClientData>({
-    queryKey: ['/api/clients', id], // Change to array format for properly structured query key
-    queryFn: async () => {
-      try {
-        console.log(`ClientDashboard - Making API request to fetch client ${id}`);
-        const response = await fetch(`/api/clients/${id}`);
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`ClientDashboard - API error: ${response.status} ${errorText}`);
-          throw new Error(`Failed to fetch client: ${response.status} ${response.statusText}`);
-        }
-        const data = await response.json();
-        console.log(`ClientDashboard - Successfully fetched client:`, data);
-        return data;
-      } catch (error) {
-        console.error(`ClientDashboard - Error fetching client ${id}:`, error);
-        throw error;
-      }
-    },
+    queryKey: [`/api/clients/${id}`],
     refetchOnMount: true,
-    enabled: !!id, // Only run the query if we have an ID
   });
 
   if (isLoading) {

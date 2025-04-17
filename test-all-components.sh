@@ -1,202 +1,206 @@
 #!/bin/bash
 
-# Test script for all major components
-echo "=========================================="
-echo "TESTING ALL MAJOR COMPONENTS"
-echo "=========================================="
-echo "This test will check all major system components:"
-echo "1. Server health"
-echo "2. Database connection"
-echo "3. Salon API endpoints"
-echo "4. Client API endpoints"
-echo "5. Invitation API endpoints"
-echo "6. Style selection API endpoints"
-echo ""
-
-# Colors for output
+# Colors for better output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
+YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Function to log steps
-log_step() {
-  echo -e "${BLUE}[STEP]${NC} $1"
-}
+echo -e "${PURPLE}==========================================${NC}"
+echo -e "${PURPLE}    Comprehensive Component Test Suite    ${NC}"
+echo -e "${PURPLE}==========================================${NC}"
 
-# Function to log success
-log_success() {
-  echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-# Function to log error
-log_error() {
-  echo -e "${RED}[ERROR]${NC} $1"
-}
-
-# Create logs directory
-mkdir -p ./logs/component-test
-
-# 1. Check server health
-log_step "Checking server health..."
-HEALTH_RESPONSE=$(curl -s -X GET http://localhost:5000/api/health)
-echo "$HEALTH_RESPONSE" > ./logs/component-test/health_response.json
-
-if [[ "$HEALTH_RESPONSE" == *"status"* ]]; then
-  log_success "Server is healthy!"
-else
-  # Try alternate endpoint for API status
-  STATUS_RESPONSE=$(curl -s -X GET http://localhost:5000/api/status)
-  echo "$STATUS_RESPONSE" > ./logs/component-test/status_response.json
+# Function to run a particular component test and report results
+test_component() {
+  local component=$1
+  local description=$2
+  local test_command=$3
   
-  if [[ "$STATUS_RESPONSE" == *"status"* ]]; then
-    log_success "Server is healthy! (via status endpoint)"
+  echo -e "\n${YELLOW}Testing: ${description}${NC}"
+  echo -e "${CYAN}Component: ${component}${NC}"
+  echo -e "${CYAN}Command: ${test_command}${NC}"
+  
+  # Execute the test
+  echo -e "\n${CYAN}Running test...${NC}"
+  eval "$test_command"
+  local status=$?
+  
+  if [ $status -eq 0 ]; then
+    echo -e "${GREEN}✓ Component test passed${NC}"
   else
-    log_error "Server health check failed."
-    echo "Response from /api/health: $HEALTH_RESPONSE"
-    echo "Response from /api/status: $STATUS_RESPONSE"
+    echo -e "${RED}✗ Component test failed with status: ${status}${NC}"
+    echo -e "${RED}This component has issues that need to be addressed!${NC}"
   fi
-fi
+  
+  echo -e "${BLUE}------------------------------------------${NC}"
+}
 
-# 2. Test database connection
-log_step "Testing database connection..."
-DB_RESPONSE=$(curl -s -X GET http://localhost:5000/api/status)
-echo "$DB_RESPONSE" > ./logs/component-test/db_response.json
+# Function to check for console errors related to a specific component
+check_component_errors() {
+  local component=$1
+  local route=$2
+  
+  echo -e "\n${YELLOW}Checking for frontend errors in: ${component}${NC}"
+  
+  # Launch Puppeteer to check for console errors
+  node -e "
+    const puppeteer = require('puppeteer');
+    
+    (async () => {
+      const browser = await puppeteer.launch({ 
+        headless: true, 
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+      const page = await browser.newPage();
+      
+      // Collect all console messages
+      const consoleMessages = [];
+      page.on('console', msg => {
+        consoleMessages.push({
+          type: msg.type(),
+          text: msg.text()
+        });
+      });
+      
+      try {
+        // Navigate to the page
+        await page.goto('http://localhost:5000${route}', {
+          waitUntil: 'networkidle2',
+          timeout: 30000,
+        });
+        
+        // Wait for a moment to ensure all scripts run
+        await page.waitForTimeout(2000);
+        
+        // Filter for errors
+        const errors = consoleMessages.filter(msg => 
+          msg.type === 'error' || 
+          (msg.type === 'warning' && msg.text.includes('Error'))
+        );
+        
+        if (errors.length > 0) {
+          console.error('Errors detected in component:', errors);
+          process.exit(1);
+        } else {
+          console.log('No errors detected in component');
+          process.exit(0);
+        }
+      } catch (error) {
+        console.error('Error testing component:', error);
+        process.exit(1);
+      } finally {
+        await browser.close();
+      }
+    })();
+  "
+  return $?
+}
 
-if [[ "$DB_RESPONSE" == *"database"*"connected"* ]]; then
-  log_success "Database connection successful!"
-else
-  log_error "Database connection failed."
-  echo "$DB_RESPONSE"
-fi
+echo -e "\n${BLUE}=== Testing Navigation Components ===${NC}"
+test_component "Navbar" "Main navigation bar rendering" "curl -s http://localhost:5000/ | grep -q 'navbar' && echo 'Navbar found in HTML'"
+test_component "Footer" "Footer component rendering" "curl -s http://localhost:5000/ | grep -q 'footer' && echo 'Footer found in HTML'"
+test_component "Hero" "Hero component with buttons" "curl -s http://localhost:5000/ | grep -q 'hero' && echo 'Hero found in HTML'"
 
-# 3. Test salon API endpoints
-log_step "Testing salon API endpoints..."
+echo -e "\n${BLUE}=== Testing Form Components ===${NC}"
+test_component "ClientForm" "Client registration form fields" "curl -s http://localhost:5000/register/client | grep -q 'form' && echo 'Form found in HTML'"
+test_component "SalonForm" "Salon registration form fields" "curl -s http://localhost:5000/register/salon | grep -q 'form' && echo 'Form found in HTML'"
+test_component "SocialMediaSelect" "Social media selection component" "curl -s http://localhost:5000/register/salon | grep -q 'social' && echo 'Social media select found in HTML'"
 
-# Get all salons
-log_step "Fetching all salons..."
-SALONS_RESPONSE=$(curl -s -X GET http://localhost:5000/api/salons)
-echo "$SALONS_RESPONSE" > ./logs/component-test/salons_response.json
+echo -e "\n${BLUE}=== Testing Dashboard Components ===${NC}"
+test_component "EditableSalonInfo" "Editable salon information component" "curl -s http://localhost:5000/dashboard/salon | grep -q 'editable' && echo 'Editable component found in HTML'"
+test_component "EditableService" "Editable service component" "curl -s http://localhost:5000/dashboard/salon | grep -q 'service' && echo 'Service component found in HTML'"
+test_component "EditablePromo" "Editable promotion component" "curl -s http://localhost:5000/dashboard/salon | grep -q 'promo' && echo 'Promo component found in HTML'"
+test_component "WeeklySchedule" "Weekly schedule component" "curl -s http://localhost:5000/dashboard/salon | grep -q 'schedule' && echo 'Schedule component found in HTML'"
 
-if [[ "$SALONS_RESPONSE" == *"["* ]]; then
-  log_success "Salons API endpoint working!"
-  SALON_COUNT=$(echo "$SALONS_RESPONSE" | grep -o '"id"' | wc -l)
-  log_success "Retrieved $SALON_COUNT salons."
-else
-  log_error "Salons API endpoint failed."
-  echo "$SALONS_RESPONSE"
-fi
+echo -e "\n${BLUE}=== Testing UI Components for Errors ===${NC}"
+# These tests use Puppeteer to check for console errors
+check_component_errors "Home Page" "/"
+check_component_errors "Client Form" "/register/client"
+check_component_errors "Salon Form" "/register/salon"
+check_component_errors "Salons Page" "/salons"
+check_component_errors "Salon Dashboard" "/dashboard/salon/1"
+check_component_errors "Client Dashboard" "/dashboard/client/1"
+check_component_errors "Promos Page" "/promos"
+check_component_errors "Salon Public Page" "/salon/1"
 
-# Get specific salon (ID 1)
-log_step "Fetching salon ID 1..."
-SALON_RESPONSE=$(curl -s -X GET http://localhost:5000/api/salons/1)
-echo "$SALON_RESPONSE" > ./logs/component-test/salon_response.json
+echo -e "\n${BLUE}=== Testing Social Media Components Specifically ===${NC}"
+# This is a specific test for the social media component that's causing errors
+test_component "SocialMediaSelect" "Social media dropdown interaction" "
+  node -e \"
+    const puppeteer = require('puppeteer');
+    
+    (async () => {
+      const browser = await puppeteer.launch({ 
+        headless: true, 
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+      const page = await browser.newPage();
+      
+      // Collect all console messages
+      const consoleMessages = [];
+      page.on('console', msg => {
+        consoleMessages.push({
+          type: msg.type(),
+          text: msg.text()
+        });
+      });
+      
+      try {
+        // Navigate to the salon registration page
+        await page.goto('http://localhost:5000/register/salon', {
+          waitUntil: 'networkidle2',
+          timeout: 30000,
+        });
+        
+        // Find and click on social media dropdown if it exists
+        const hasDropdown = await page.evaluate(() => {
+          const dropdowns = Array.from(document.querySelectorAll('select, [role=combobox]'));
+          const socialDropdown = dropdowns.find(el => 
+            el.id?.includes('social') || 
+            el.name?.includes('social') || 
+            el.className?.includes('social')
+          );
+          
+          if (socialDropdown) {
+            socialDropdown.click();
+            return true;
+          }
+          return false;
+        });
+        
+        if (hasDropdown) {
+          // Wait to see if errors appear
+          await page.waitForTimeout(1000);
+          
+          // Check for errors
+          const errors = consoleMessages.filter(msg => 
+            msg.type === 'error' || 
+            (msg.type === 'warning' && msg.text.includes('Error'))
+          );
+          
+          if (errors.length > 0) {
+            console.error('Errors detected in social media component:', errors);
+            process.exit(1);
+          } else {
+            console.log('Social media component works without errors');
+            process.exit(0);
+          }
+        } else {
+          console.log('Could not find social media dropdown to test');
+          process.exit(0);
+        }
+      } catch (error) {
+        console.error('Error testing social media component:', error);
+        process.exit(1);
+      } finally {
+        await browser.close();
+      }
+    })();
+  \"
+"
 
-if [[ "$SALON_RESPONSE" == *"id"*"1"* ]]; then
-  log_success "Salon detail API endpoint working!"
-  SALON_NAME=$(echo "$SALON_RESPONSE" | grep -o '"name":"[^"]*"' | head -1 | cut -d'"' -f4)
-  log_success "Retrieved salon: $SALON_NAME"
-else
-  log_error "Salon detail API endpoint failed."
-  echo "$SALON_RESPONSE"
-fi
-
-# 4. Test client API endpoints
-log_step "Testing client API endpoints..."
-
-# Get all clients
-log_step "Fetching all clients..."
-CLIENTS_RESPONSE=$(curl -s -X GET http://localhost:5000/api/clients)
-echo "$CLIENTS_RESPONSE" > ./logs/component-test/clients_response.json
-
-if [[ "$CLIENTS_RESPONSE" == *"["* ]]; then
-  log_success "Clients API endpoint working!"
-  CLIENT_COUNT=$(echo "$CLIENTS_RESPONSE" | grep -o '"id"' | wc -l)
-  log_success "Retrieved $CLIENT_COUNT clients."
-else
-  log_error "Clients API endpoint failed."
-  echo "$CLIENTS_RESPONSE"
-fi
-
-# Get specific client (ID 1)
-log_step "Fetching client ID 1..."
-CLIENT_RESPONSE=$(curl -s -X GET http://localhost:5000/api/clients/1)
-echo "$CLIENT_RESPONSE" > ./logs/component-test/client_response.json
-
-if [[ "$CLIENT_RESPONSE" == *"id"*"1"* ]]; then
-  log_success "Client detail API endpoint working!"
-  CLIENT_NAME=$(echo "$CLIENT_RESPONSE" | grep -o '"name":"[^"]*"' | head -1 | cut -d'"' -f4)
-  log_success "Retrieved client: $CLIENT_NAME"
-else
-  log_error "Client detail API endpoint failed."
-  echo "$CLIENT_RESPONSE"
-fi
-
-# 5. Test invitation API endpoints
-log_step "Testing invitation API endpoints..."
-
-# Get all invitations
-log_step "Fetching recent invitations..."
-INVITATIONS_RESPONSE=$(curl -s -X GET http://localhost:5000/api/invitations)
-echo "$INVITATIONS_RESPONSE" > ./logs/component-test/invitations_response.json
-
-if [[ "$INVITATIONS_RESPONSE" == *"["* ]]; then
-  log_success "Invitations API endpoint working!"
-  INVITATION_COUNT=$(echo "$INVITATIONS_RESPONSE" | grep -o '"id"' | wc -l)
-  log_success "Retrieved $INVITATION_COUNT invitations."
-else
-  log_error "Invitations API endpoint failed."
-  echo "$INVITATIONS_RESPONSE"
-fi
-
-# Get salon invitations
-log_step "Fetching invitations for salon ID 1..."
-SALON_INVITATIONS_RESPONSE=$(curl -s -X GET http://localhost:5000/api/salons/1/invitations)
-echo "$SALON_INVITATIONS_RESPONSE" > ./logs/component-test/salon_invitations_response.json
-
-if [[ "$SALON_INVITATIONS_RESPONSE" == *"["* ]]; then
-  log_success "Salon invitations API endpoint working!"
-  SALON_INVITATION_COUNT=$(echo "$SALON_INVITATIONS_RESPONSE" | grep -o '"id"' | wc -l)
-  log_success "Retrieved $SALON_INVITATION_COUNT invitations for salon ID 1."
-else
-  log_error "Salon invitations API endpoint failed."
-  echo "$SALON_INVITATIONS_RESPONSE"
-fi
-
-# 6. Test style selection API endpoints
-log_step "Testing style selection API endpoints..."
-
-# Get client style selections
-log_step "Fetching style selections for client ID 1..."
-STYLE_SELECTIONS_RESPONSE=$(curl -s -X GET http://localhost:5000/api/clients/1/style-selections)
-echo "$STYLE_SELECTIONS_RESPONSE" > ./logs/component-test/style_selections_response.json
-
-if [[ "$STYLE_SELECTIONS_RESPONSE" == *"["* ]]; then
-  log_success "Style selections API endpoint working!"
-  SELECTION_COUNT=$(echo "$STYLE_SELECTIONS_RESPONSE" | grep -o '"id"' | wc -l)
-  log_success "Retrieved $SELECTION_COUNT style selections for client ID 1."
-else
-  log_error "Style selections API endpoint failed."
-  echo "$STYLE_SELECTIONS_RESPONSE"
-fi
-
-# Get salon style selections
-log_step "Fetching style selections for salon ID 1..."
-SALON_STYLE_SELECTIONS_RESPONSE=$(curl -s -X GET http://localhost:5000/api/salons/1/style-selections)
-echo "$SALON_STYLE_SELECTIONS_RESPONSE" > ./logs/component-test/salon_style_selections_response.json
-
-if [[ "$SALON_STYLE_SELECTIONS_RESPONSE" == *"["* ]]; then
-  log_success "Salon style selections API endpoint working!"
-  SALON_SELECTION_COUNT=$(echo "$SALON_STYLE_SELECTIONS_RESPONSE" | grep -o '"id"' | wc -l)
-  log_success "Retrieved $SALON_SELECTION_COUNT style selections for salon ID 1."
-else
-  log_error "Salon style selections API endpoint failed."
-  echo "$SALON_STYLE_SELECTIONS_RESPONSE"
-fi
-
-echo ""
-echo "=========================================="
-echo "COMPONENT TEST SUMMARY"
-echo "=========================================="
-echo "All test logs saved to ./logs/component-test/"
-echo "=========================================="
+echo -e "\n${PURPLE}Component tests completed at: $(date)${NC}"
+echo -e "${PURPLE}Review any failed tests to identify components that need fixing${NC}"
