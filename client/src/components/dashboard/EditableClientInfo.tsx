@@ -504,12 +504,17 @@ export default function EditableClientInfo({ client, onSave, defaultEditing = fa
 
                 <div className="grid grid-cols-5 gap-2">
                   <div className="col-span-2">
-                    <Input
+                    <select
                       value={socialPlatform}
                       onChange={(e) => setSocialPlatform(e.target.value)}
-                      className="text-xs h-8"
-                      placeholder="Platform (e.g. Instagram)"
-                    />
+                      className="w-full rounded-md border border-input bg-background px-3 py-1 text-xs shadow-sm transition-colors h-8 focus:outline-none focus:ring-1 focus:ring-pink-400"
+                    >
+                      <option value="">Select Platform</option>
+                      <option value="IG">IG (Instagram)</option>
+                      <option value="TT">TT (TikTok)</option>
+                      <option value="FB">FB (Facebook)</option>
+                      <option value="OTH">OTH (Other)</option>
+                    </select>
                   </div>
                   <div className="col-span-2">
                     <Input
