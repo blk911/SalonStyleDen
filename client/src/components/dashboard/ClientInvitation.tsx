@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AlertCircle } from "lucide-react";
@@ -10,20 +10,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
-import { useContactValidation } from "@/hooks/useContactValidation";
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 const DEFAULT_SERVICES = [
   "French Tips",
@@ -59,21 +52,10 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [firstServiceDate, setFirstServiceDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [phoneExists, setPhoneExists] = useState(false);
+  const [emailExists, setEmailExists] = useState(false);
   const [salonInfo, setSalonInfo] = useState<{name: string} | null>(null);
   const [recentInvites, setRecentInvites] = useState<ClientInvite[]>([]);
-  
-  // Use our contact validation hook
-  const {
-    phoneExists, 
-    emailExists,
-    errorField,
-    errorMessage,
-    showErrorDialog,
-    setShowErrorDialog,
-    formatPhoneNumber,
-    validateContact,
-    handleDialogClose
-  } = useContactValidation();
 
   useEffect(() => {
     if (salonId) {
@@ -115,32 +97,12 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     }
   };
 
-  // Handle phone number changes with validation
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
-    setPhone(formatted);
-    
-    // Validate if the phone number is complete
-    const cleanPhone = formatted.replace(/\D/g, '');
-    if (cleanPhone.length === 10) {
-      // Small delay to prevent too many API calls
-      setTimeout(() => {
-        validateContact('phone', cleanPhone);
-      }, 500);
-    }
-  };
-
-  // Handle email changes with validation
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-    
-    // Validate if the email has a basic valid format
-    if (e.target.value && e.target.value.includes('@') && e.target.value.includes('.')) {
-      // Small delay to prevent too many API calls
-      setTimeout(() => {
-        validateContact('email', e.target.value);
-      }, 500);
-    }
+  const formatPhoneNumber = (input: string) => {
+    const numbers = input.replace(/\D/g, '').slice(0, 10);
+    if (numbers.length === 0) return '';
+    if (numbers.length < 4) return numbers;
+    if (numbers.length < 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6)}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -176,18 +138,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        const errorMsg = errorData.error || 'Failed to send invitation';
-        
-        // Handle specific validation errors
-        if (errorMsg.includes('phone is already registered')) {
-          await validateContact('phone', cleanPhone);
-          return; // Exit early to keep form data
-        } else if (errorMsg.includes('email is already registered')) {
-          await validateContact('email', email);
-          return; // Exit early to keep form data
-        }
-        
-        throw new Error(errorMsg);
+        throw new Error(errorData.error || 'Failed to send invitation');
       }
 
       // Get the new invitation and add it to the list
@@ -199,42 +150,21 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         description: "Invitation sent successfully",
       });
 
-      // Reset form on success
-      resetForm();
+      setName("");
+      setPhone("");
+      setEmail("");
+      setNotes("");
+      setFirstServiceDate(new Date().toISOString().split('T')[0]);
+      setSelectedServices([]);
 
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to send invitation";
-      
-      // For errors that aren't duplicate contacts, use a toast
       toast({
         title: "Error",
-        description: errorMessage,
+        description: error instanceof Error ? error.message : "Failed to send invitation",
         variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
-    }
-  };
-  
-  // Function to reset the form fields
-  const resetForm = () => {
-    setName("");
-    setPhone("");
-    setEmail("");
-    setNotes("");
-    setFirstServiceDate(new Date().toISOString().split('T')[0]);
-    setSelectedServices([]);
-  };
-  
-  // Custom dialog close handler that clears problematic fields
-  const handleCustomDialogClose = () => {
-    handleDialogClose();
-    
-    // Clear the specific field that had the error
-    if (errorField === 'phone') {
-      setPhone("");
-    } else if (errorField === 'email') {
-      setEmail("");
     }
   };
 
@@ -252,51 +182,26 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
               required
               className="flex-1"
             />
-            <div className="flex-1 relative">
-              <Input
-                placeholder="Phone Number"
-                type="tel"
-                value={phone}
-                onChange={handlePhoneChange}
-                onBlur={() => {
-                  const cleanPhone = phone.replace(/\D/g, '');
-                  if (cleanPhone.length === 10) {
-                    validateContact('phone', cleanPhone);
-                  }
-                }}
-                required
-                className={`w-full ${phoneExists ? 'border-red-500 focus:ring-red-500' : ''}`}
-              />
-              {phoneExists && (
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500">
-                  <AlertCircle className="h-4 w-4" />
-                </div>
-              )}
-            </div>
+            <Input
+              placeholder="Phone Number"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+              required
+              className="flex-1"
+            />
           </div>
 
           {/* Line 2: Email and Date */}
           <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Input
-                placeholder="Email Address"
-                type="email"
-                value={email}
-                onChange={handleEmailChange}
-                onBlur={() => {
-                  if (email && email.includes('@') && email.includes('.')) {
-                    validateContact('email', email);
-                  }
-                }}
-                required
-                className={`w-full ${emailExists ? 'border-red-500 focus:ring-red-500' : ''}`}
-              />
-              {emailExists && (
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500">
-                  <AlertCircle className="h-4 w-4" />
-                </div>
-              )}
-            </div>
+            <Input
+              placeholder="Email Address"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="flex-1"
+            />
             <Input
               type="date"
               value={firstServiceDate}
@@ -344,7 +249,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           {/* Submit Button */}
           <Button 
             type="submit" 
-            disabled={isSubmitting || phoneExists || emailExists}
+            disabled={isSubmitting}
             className="w-full bg-pink-500 hover:bg-pink-600"
           >
             {isSubmitting ? 'Sending...' : 'Send Invitation'}
@@ -389,74 +294,16 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
               </TableHeader>
               <TableBody>
                 {recentInvites.map((invite) => (
-                  <TableRow key={invite.id} className="h-[28px]">
-                    {/* Name with truncation */}
-                    <TableCell className="font-medium py-1">
-                      {invite.name.length > 12 ? (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="cursor-help">
-                                {invite.name.substring(0, 10)}...
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{invite.name}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ) : (
-                        invite.name
-                      )}
-                    </TableCell>
-                    
-                    {/* Phone with truncation */}
-                    <TableCell className="py-1">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="cursor-help">
-                              {formatPhoneNumber(invite.phone).substring(0, 7)}•••
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{formatPhoneNumber(invite.phone)}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    
-                    {/* Email with truncation */}
-                    <TableCell className="py-1">
-                      {invite.email && invite.email.length > 15 ? (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="cursor-help">
-                                {invite.email.substring(0, 12)}...
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{invite.email}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ) : (
-                        invite.email
-                      )}
-                    </TableCell>
-                    
-                    {/* Status badge */}
-                    <TableCell className="py-1">
-                      <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200 text-xs">
+                  <TableRow key={invite.id}>
+                    <TableCell className="font-medium">{invite.name}</TableCell>
+                    <TableCell>{formatPhoneNumber(invite.phone)}</TableCell>
+                    <TableCell>{invite.email}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200">
                         {invite.status || 'Pending'}
                       </Badge>
                     </TableCell>
-                    
-                    {/* Service date with truncation */}
-                    <TableCell className="py-1 text-xs">
-                      {invite.firstServiceDate || 'Not scheduled'}
-                    </TableCell>
+                    <TableCell>{invite.firstServiceDate || 'Not scheduled'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -464,15 +311,6 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           </ScrollArea>
         )}
       </Card>
-      
-      {/* Use our shared validation dialog component */}
-      <ContactValidationDialog
-        open={showErrorDialog}
-        onOpenChange={setShowErrorDialog}
-        errorField={errorField}
-        errorMessage={errorMessage}
-        onClose={handleCustomDialogClose}
-      />
     </div>
   );
 }

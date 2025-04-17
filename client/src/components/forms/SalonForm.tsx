@@ -10,10 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { formatPhoneNumber } from "@/lib/utils";
-import { useContactValidation } from "@/hooks/useContactValidation";
 import VerificationModal from "@/components/shared/VerificationModal";
 import SuccessModal from "@/components/shared/SuccessModal";
-import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
 
 // Form schema with validation
 const salonFormSchema = z.object({
@@ -44,19 +42,6 @@ export default function SalonForm() {
   const [salonId, setSalonId] = useState<number | null>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  
-  // Use contact validation hook
-  const {
-    validateContact,
-    phoneExists,
-    emailExists,
-    isValidating,
-    errorField,
-    errorMessage,
-    showErrorDialog,
-    setShowErrorDialog,
-    handleDialogClose
-  } = useContactValidation();
 
   const form = useForm<SalonFormValues>({
     resolver: zodResolver(salonFormSchema),
@@ -80,16 +65,7 @@ export default function SalonForm() {
     },
   });
 
-  const onSubmit = async (data: SalonFormValues) => {
-    // Check for validation errors before proceeding
-    const phoneHasError = await validateContact('phone', data.phone);
-    const emailHasError = await validateContact('email', data.email);
-    
-    if (phoneHasError || emailHasError) {
-      // Don't proceed if validation fails
-      return;
-    }
-    
+  const onSubmit = (data: SalonFormValues) => {
     setIsVerifying(true);
   };
 
@@ -222,23 +198,9 @@ export default function SalonForm() {
                           const formatted = formatPhoneNumber(e.target.value);
                           field.onChange(formatted);
                         }}
-                        onBlur={() => {
-                          if (field.value && field.value.replace(/[^0-9]/g, '').length >= 10) {
-                            validateContact('phone', field.value);
-                          }
-                        }}
-                        className={phoneExists ? "border-red-400 focus:ring-red-400" : ""}
                       />
                     </FormControl>
                     <FormMessage />
-                    {isValidating && errorField === 'phone' && (
-                      <div className="text-xs text-gray-500 mt-1">Checking phone number...</div>
-                    )}
-                    {phoneExists && (
-                      <div className="text-xs text-red-500 mt-1">
-                        This phone number is already registered.
-                      </div>
-                    )}
                   </FormItem>
                 )}
               />
@@ -250,27 +212,9 @@ export default function SalonForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input 
-                        {...field} 
-                        type="email" 
-                        placeholder="Email"
-                        onBlur={() => {
-                          if (field.value && field.value.includes('@') && field.value.includes('.')) {
-                            validateContact('email', field.value);
-                          }
-                        }}
-                        className={emailExists ? "border-red-400 focus:ring-red-400" : ""}
-                      />
+                      <Input {...field} type="email" placeholder="Email" />
                     </FormControl>
                     <FormMessage />
-                    {isValidating && errorField === 'email' && (
-                      <div className="text-xs text-gray-500 mt-1">Checking email address...</div>
-                    )}
-                    {emailExists && (
-                      <div className="text-xs text-red-500 mt-1">
-                        This email address is already registered.
-                      </div>
-                    )}
                   </FormItem>
                 )}
               />
@@ -499,15 +443,6 @@ export default function SalonForm() {
           onRedirect={handleGoToDashboard}
         />
       )}
-      
-      {/* Validation Error Dialog */}
-      <ContactValidationDialog 
-        open={showErrorDialog}
-        onOpenChange={setShowErrorDialog}
-        errorField={errorField}
-        errorMessage={errorMessage}
-        onClose={handleDialogClose}
-      />
     </>
   );
 }

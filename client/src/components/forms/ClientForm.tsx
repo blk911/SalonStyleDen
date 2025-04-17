@@ -22,8 +22,6 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatPhoneNumber } from "@/lib/utils";
-import { useContactValidation } from "@/hooks/useContactValidation";
-import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
 import VerificationModal from "@/components/shared/VerificationModal";
 import SuccessModal from "@/components/shared/SuccessModal";
 
@@ -66,24 +64,6 @@ export default function ClientForm() {
   const [showSalonSelector, setShowSalonSelector] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-
-  // Initialize contact validation hook
-  const {
-    phoneExists,
-    emailExists,
-    errorField,
-    errorMessage,
-    showErrorDialog,
-    setShowErrorDialog,
-    getPhoneProps,
-    getEmailProps,
-    handleDialogClose,
-    formatPhoneNumber: formatPhoneFromHook,
-    validateContact
-  } = useContactValidation({
-    validateOnChange: true,
-    validateOnBlur: true
-  });
 
   // Fetch available salons
   const { data: salons, isLoading: isLoadingSalons, error: salonsError } = useQuery<SalonOption[]>({
@@ -146,10 +126,10 @@ export default function ClientForm() {
       salonName: "",
     },
   });
-
+  
   // Listen for changes to the "isCurrentClient" field
   const isCurrentClient = form.watch("isCurrentClient");
-
+  
   // When salons are loaded, set default salon
   useEffect(() => {
     if (salons && salons.length > 0 && form.getValues("salonId") === "loading") {
@@ -157,25 +137,25 @@ export default function ClientForm() {
       const venMeSalon = salons.find(salon => 
         salon.name.includes("Ven Me")
       );
-
+      
       // Then try to find a salon with "VMB" in the name
       const vmbSalon = salons.find(salon => 
         salon.name.includes("VMB")
       );
-
+      
       // Then try to find any salon with "Lux" in the name
       const luxSalon = salons.find(salon => 
         salon.name.includes("Lux")
       );
-
+      
       // Finally, fall back to Tiffany's salon or the first salon
       const tiffanySalon = salons.find(salon => 
         salon.name.includes("Tiffany") || salon.ownerName.includes("Tiffany")
       );
-
+      
       // Choose the most appropriate default salon - prioritize Ven Me, Baby! LTD
       const defaultSalon = venMeSalon || vmbSalon || luxSalon || tiffanySalon || salons[0];
-
+      
       if (defaultSalon) {
         form.setValue("salonId", String(defaultSalon.id));
         form.setValue("salonName", defaultSalon.name);
@@ -188,35 +168,35 @@ export default function ClientForm() {
   useEffect(() => {
     // Update the visibility flag for the UI (now always visible but conditionally disabled)
     setShowSalonSelector(isCurrentClient === "yes");
-
+    
     // If not a current client, set default salon to Ven Me, Baby! LTD
     if (isCurrentClient === "no" && salons && salons.length > 0) {
       // First try to find a salon with "Ven Me" in the name - highest priority
       const venMeSalon = salons.find(salon => 
         salon.name.includes("Ven Me")
       );
-
+      
       // Then try to find a salon with "VMB" in the name
       const vmbSalon = salons.find(salon => 
         salon.name.includes("VMB")
       );
-
+      
       // Then try to find a salon with both "Ven Me" and "Lux" in the name
       const venMeLuxSalon = salons.find(salon => 
         salon.name.includes("Ven Me") && salon.name.includes("Lux")
       );
-
+      
       // Then try to find any salon with "Lux" in the name
       const luxSalon = salons.find(salon => salon.name.includes("Lux"));
-
+      
       // Finally, fall back to the first salon or Tiffany's salon if available
       const tiffanySalon = salons.find(salon => 
         salon.name.includes("Tiffany") || salon.ownerName.includes("Tiffany")
       );
-
+      
       // Choose the most appropriate default salon - ensure Ven Me, Baby! LTD is top priority
       const defaultSalon = venMeSalon || vmbSalon || venMeLuxSalon || luxSalon || tiffanySalon || salons[0];
-
+      
       if (defaultSalon) {
         form.setValue("salonId", String(defaultSalon.id));
         form.setValue("salonName", defaultSalon.name);
@@ -225,17 +205,7 @@ export default function ClientForm() {
     }
   }, [isCurrentClient, salons, form]);
 
-  const onSubmit = async (data: ClientFormValues) => {
-    // First check if the phone or email already exists
-    const phoneCheckResult = await validateContact('phone', data.phone);
-    const emailCheckResult = await validateContact('email', data.email);
-
-    // If either phone or email exists, the validation dialog will show automatically
-    if (phoneExists || emailExists) {
-      console.log("Contact validation failed: Contact already exists");
-      return; // Stop form submission
-    }
-
+  const onSubmit = (data: ClientFormValues) => {
     // Find selected salon to include salon name in verification
     if (data.salonId && salons) {
       const selectedSalon = salons.find(salon => String(salon.id) === data.salonId);
@@ -260,20 +230,20 @@ export default function ClientForm() {
         console.log(`Added default salon name to form data: ${defaultSalon.name}`);
       }
     }
-
+    
     setIsVerifying(true);
   };
 
   const handleVerificationConfirm = async (data: ClientFormValues) => {
     setIsVerifying(false);
-
+    
     try {
       // Ensure favorite services is always an array
       const favoriteServices = Array.isArray(data.favoriteServices) ? data.favoriteServices : [];
-
+      
       // Find selected salon ID
       let salonId = data.salonId;
-
+      
       // If no salon selected or invalid salon ID or is still loading, use default salon
       if (!salonId || salonId === "loading" || !salons?.some(salon => String(salon.id) === salonId)) {
         // Find the most appropriate default salon - prioritize Ven Me, Baby! LTD
@@ -291,19 +261,19 @@ export default function ClientForm() {
           salon.name.includes("Tiffany") || salon.ownerName.includes("Tiffany")
         );
         const defaultSalon = venMeSalon || vmbSalon || venMeLuxSalon || luxSalon || tiffanySalon || salons?.[0];
-
+        
         if (defaultSalon) {
           salonId = String(defaultSalon.id);
           console.log(`Using default salon: ${defaultSalon.name} (ID: ${defaultSalon.id})`);
         }
       }
-
+      
       // Find salon name for display
       const selectedSalon = salons?.find(salon => String(salon.id) === salonId);
       const salonName = selectedSalon?.name || "Ven Me, Baby! Lux";
-
+      
       console.log(`Client will be associated with salon: ${salonName} (ID: ${salonId})`);
-
+      
       // Transform the data for the API
       const clientData = {
         name: data.name,
@@ -317,29 +287,29 @@ export default function ClientForm() {
         salonName: salonName,
         type: "client",
       };
-
+      
       // Submit to API
       const result = await apiRequest("/api/clients", {
         method: "POST",
         data: clientData
       });
-
+      
       // Store the client ID for redirection
       setClientId(result.id);
       setShowSuccess(true);
-
+      
       // Start countdown for auto-redirect
       let count = 5;
       const interval = setInterval(() => {
         count--;
         setCountdown(count);
-
+        
         if (count <= 0) {
           clearInterval(interval);
           setLocation(`/client/${result.id}`.replace(/\/\//g, '/'));
         }
       }, 1000);
-
+      
       // If the client belongs to a salon, also post this client to that salon's page
       if (salonId) {
         try {
@@ -351,7 +321,7 @@ export default function ClientForm() {
           console.error("Failed to add client to salon:", err);
         }
       }
-
+      
     } catch (error) {
       toast({
         title: "Error",
@@ -360,7 +330,7 @@ export default function ClientForm() {
       });
     }
   };
-
+  
   const handleGoToDashboard = () => {
     if (clientId) {
       setLocation(`/client/${clientId}`.replace(/\/\//g, '/'));
@@ -371,7 +341,7 @@ export default function ClientForm() {
     <>
       <div className="bg-white rounded-xl shadow-soft p-8 mb-10">
         <h3 className="font-playfair font-bold text-2xl mb-6 text-center">Client Registration</h3>
-
+        
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Top line: Name and Cell Phone in a row */}
@@ -388,89 +358,42 @@ export default function ClientForm() {
                   </FormItem>
                 )}
               />
-
+              
               <FormField
                 control={form.control}
                 name="phone"
-                render={({ field }) => {
-                  // Generate phone validation props
-                  const phoneProps = getPhoneProps(field.value);
-
-                  return (
-                    <FormItem>
-                      <FormControl>
-                        <Input 
-                          {...field} 
-                          placeholder="Cell Phone (XXX-XXX-XXXX)" 
-                          className={phoneExists ? "border-red-500" : ""}
-                          onChange={(e) => {
-                            const cleaned = e.target.value.replace(/\D/g, '');
-                            let formatted = cleaned;
-                            if (cleaned.length >= 3) formatted = `${cleaned.slice(0,3)}-${cleaned.slice(3)}`;
-                            if (cleaned.length >= 6) formatted = `${formatted.slice(0,7)}-${cleaned.slice(6,10)}`;
-                            field.onChange(formatted);
-                          }}
-                          onBlur={(e) => {
-                            field.onBlur();
-                            if (field.value.replace(/\D/g, '').length === 10) {
-                              validateContact('phone', field.value);
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      {phoneExists && (
-                        <p className="text-xs text-red-500 mt-1">
-                          This phone number is already registered
-                        </p>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
-            </div>
-
-            {/* Next line: Email */}
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => {
-                // Generate email validation props
-                const emailProps = getEmailProps(field.value);
-
-                return (
+                render={({ field }) => (
                   <FormItem>
                     <FormControl>
                       <Input 
                         {...field} 
-                        type="email" 
-                        placeholder="Email" 
-                        className={emailExists ? "border-red-500" : ""}
+                        placeholder="Cell Phone" 
                         onChange={(e) => {
-                          // Use the onChange handler from validation hook
-                          const value = emailProps.onChange(e);
-                          field.onChange(value);
+                          const formatted = formatPhoneNumber(e.target.value);
+                          field.onChange(formatted);
                         }}
-                        onBlur={emailProps.onBlur ? 
-                          (e) => {
-                            field.onBlur();
-                            emailProps.onBlur?.(e);
-                          } : 
-                          field.onBlur
-                        }
                       />
                     </FormControl>
-                    {emailExists && (
-                      <p className="text-xs text-red-500 mt-1">
-                        This email is already registered
-                      </p>
-                    )}
                     <FormMessage />
                   </FormItem>
-                );
-              }}
+                )}
+              />
+            </div>
+            
+            {/* Next line: Email */}
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input {...field} type="email" placeholder="Email" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-
+            
             <FormField
               control={form.control}
               name="isCurrentClient"
@@ -519,7 +442,7 @@ export default function ClientForm() {
                 </FormItem>
               )}
             />
-
+            
             {/* Salon Selector - Always shown but with different styling based on isCurrentClient */}
             <FormField
               control={form.control}
@@ -608,7 +531,7 @@ export default function ClientForm() {
                 </FormItem>
               )}
             />
-
+            
             <FormField
               control={form.control}
               name="notes"
@@ -621,7 +544,7 @@ export default function ClientForm() {
                 </FormItem>
               )}
             />
-
+            
             <FormField
               control={form.control}
               name="favoriteServices"
@@ -633,10 +556,10 @@ export default function ClientForm() {
                     {services.map((service, index) => {
                       // Only show first 6 services to maintain the 3×2 grid
                       if (index >= 6) return null;
-
+                      
                       // Check if service is in the current value array
                       const isSelected = field.value?.includes(service) || false;
-
+                      
                       return (
                         <div
                           key={service}
@@ -662,7 +585,7 @@ export default function ClientForm() {
                 </FormItem>
               )}
             />
-
+            
             <div className="pt-4">
               <Button type="submit" className="w-full bg-[#FF92A5] hover:bg-[#E57C8E]">
                 Sign me up! Ven Me, Baby!
@@ -671,7 +594,7 @@ export default function ClientForm() {
           </form>
         </Form>
       </div>
-
+      
       {/* Verification Modal */}
       {isVerifying && (
         <VerificationModal
@@ -681,7 +604,7 @@ export default function ClientForm() {
           onEdit={() => setIsVerifying(false)}
         />
       )}
-
+      
       {/* Success Modal */}
       {showSuccess && (
         <SuccessModal
@@ -690,15 +613,6 @@ export default function ClientForm() {
           onRedirect={handleGoToDashboard}
         />
       )}
-
-      {/* Contact Validation Dialog */}
-      <ContactValidationDialog
-        open={showErrorDialog}
-        onOpenChange={setShowErrorDialog}
-        errorField={errorField}
-        errorMessage={errorMessage}
-        onClose={handleDialogClose}
-      />
     </>
   );
 }

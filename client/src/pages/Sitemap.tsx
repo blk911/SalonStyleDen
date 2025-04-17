@@ -25,13 +25,8 @@ export default function Sitemap() {
               <li className="pl-4 border-l border-pink-100">
                 <span className="text-gray-600">/:id (Dynamic Routes)</span>
                 <ul className="pl-4 mt-2 space-y-2">
-                  <li>
-                    {/* ⚠️ CRITICAL: For demo only! These hardcoded IDs must be replaced with dynamic salon IDs in production ⚠️ */}
-                    <Link href="/salon/1" className="text-pink-600 hover:underline">Public Salon Profile</Link>
-                  </li>
-                  <li>
-                    <Link href="/dashboard/salon/1" className="text-pink-600 hover:underline">Salon Dashboard</Link>
-                  </li>
+                  <li><Link href="/salon/1" className="text-pink-600 hover:underline">Public Salon Profile</Link></li>
+                  <li><Link href="/dashboard/salon/1" className="text-pink-600 hover:underline">Salon Dashboard</Link></li>
                 </ul>
               </li>
             </ul>
@@ -45,10 +40,7 @@ export default function Sitemap() {
               <li className="pl-4 border-l border-pink-100">
                 <span className="text-gray-600">/:id (Dynamic Routes)</span>
                 <ul className="pl-4 mt-2">
-                  <li>
-                    {/* ⚠️ CRITICAL: For demo only! This hardcoded ID must be replaced with dynamic client IDs in production ⚠️ */}
-                    <Link href="/client/1" className="text-pink-600 hover:underline">Client Dashboard</Link>
-                  </li>
+                  <li><Link href="/client/1" className="text-pink-600 hover:underline">Client Dashboard</Link></li>
                 </ul>
               </li>
             </ul>
