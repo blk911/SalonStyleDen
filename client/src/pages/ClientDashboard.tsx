@@ -462,11 +462,13 @@ export default function ClientDashboard() {
                             </h3>
                             
                             <div className="mt-4">
-                              <h4 className="font-medium text-base mb-3 w-full">Most Recent VMBs</h4>
+                              <div className="flex justify-between items-center mb-3">
+                                <h4 className="font-medium text-base">Most Recent VMBs</h4>
+                                <h4 className="font-medium text-base">Create VMB Invite</h4>
+                              </div>
                               
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100">
-                                  <h4 className="font-medium text-base mb-3">Selected Style</h4>
                                   <div className="flex justify-between items-start">
                                     <h5 className="font-medium text-pink-700">{selectedStyle.name}</h5>
                                     <Badge className="bg-pink-100 text-pink-700">Selected</Badge>
@@ -495,7 +497,6 @@ export default function ClientDashboard() {
                                 
                                 {/* Create VMB Invite card */}
                                 <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100 flex flex-col justify-center">
-                                  <h4 className="font-medium text-base mb-3">Create VMB Invite</h4>
                                   <Button 
                                     variant="outline" 
                                     size="sm"
