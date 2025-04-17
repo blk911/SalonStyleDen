@@ -18,6 +18,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
 import { useContactValidation } from "@/hooks/useContactValidation";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const DEFAULT_SERVICES = [
   "French Tips",
@@ -383,16 +389,74 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
               </TableHeader>
               <TableBody>
                 {recentInvites.map((invite) => (
-                  <TableRow key={invite.id}>
-                    <TableCell className="font-medium">{invite.name}</TableCell>
-                    <TableCell>{formatPhoneNumber(invite.phone)}</TableCell>
-                    <TableCell>{invite.email}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200">
+                  <TableRow key={invite.id} className="h-[28px]">
+                    {/* Name with truncation */}
+                    <TableCell className="font-medium py-1">
+                      {invite.name.length > 12 ? (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">
+                                {invite.name.substring(0, 10)}...
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{invite.name}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        invite.name
+                      )}
+                    </TableCell>
+                    
+                    {/* Phone with truncation */}
+                    <TableCell className="py-1">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="cursor-help">
+                              {formatPhoneNumber(invite.phone).substring(0, 7)}•••
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{formatPhoneNumber(invite.phone)}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    
+                    {/* Email with truncation */}
+                    <TableCell className="py-1">
+                      {invite.email && invite.email.length > 15 ? (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">
+                                {invite.email.substring(0, 12)}...
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{invite.email}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        invite.email
+                      )}
+                    </TableCell>
+                    
+                    {/* Status badge */}
+                    <TableCell className="py-1">
+                      <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200 text-xs">
                         {invite.status || 'Pending'}
                       </Badge>
                     </TableCell>
-                    <TableCell>{invite.firstServiceDate || 'Not scheduled'}</TableCell>
+                    
+                    {/* Service date with truncation */}
+                    <TableCell className="py-1 text-xs">
+                      {invite.firstServiceDate || 'Not scheduled'}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
