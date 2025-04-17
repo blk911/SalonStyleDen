@@ -47,14 +47,15 @@ export default function SalonForm() {
   
   // Use contact validation hook
   const {
-    checkValidation,
+    validateContact,
     phoneExists,
     emailExists,
-    isCheckingPhone,
-    isCheckingEmail,
-    validationError,
-    setValidationError,
-    resetValidation
+    isValidating,
+    errorField,
+    errorMessage,
+    showErrorDialog,
+    setShowErrorDialog,
+    handleDialogClose
   } = useContactValidation();
 
   const form = useForm<SalonFormValues>({
@@ -79,7 +80,16 @@ export default function SalonForm() {
     },
   });
 
-  const onSubmit = (data: SalonFormValues) => {
+  const onSubmit = async (data: SalonFormValues) => {
+    // Check for validation errors before proceeding
+    const phoneHasError = await validateContact('phone', data.phone);
+    const emailHasError = await validateContact('email', data.email);
+    
+    if (phoneHasError || emailHasError) {
+      // Don't proceed if validation fails
+      return;
+    }
+    
     setIsVerifying(true);
   };
 
@@ -214,14 +224,14 @@ export default function SalonForm() {
                         }}
                         onBlur={() => {
                           if (field.value && field.value.replace(/[^0-9]/g, '').length >= 10) {
-                            checkValidation('phone', field.value);
+                            validateContact('phone', field.value);
                           }
                         }}
                         className={phoneExists ? "border-red-400 focus:ring-red-400" : ""}
                       />
                     </FormControl>
                     <FormMessage />
-                    {isCheckingPhone && (
+                    {isValidating && errorField === 'phone' && (
                       <div className="text-xs text-gray-500 mt-1">Checking phone number...</div>
                     )}
                     {phoneExists && (
@@ -240,9 +250,27 @@ export default function SalonForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input {...field} type="email" placeholder="Email" />
+                      <Input 
+                        {...field} 
+                        type="email" 
+                        placeholder="Email"
+                        onBlur={() => {
+                          if (field.value && field.value.includes('@') && field.value.includes('.')) {
+                            validateContact('email', field.value);
+                          }
+                        }}
+                        className={emailExists ? "border-red-400 focus:ring-red-400" : ""}
+                      />
                     </FormControl>
                     <FormMessage />
+                    {isValidating && errorField === 'email' && (
+                      <div className="text-xs text-gray-500 mt-1">Checking email address...</div>
+                    )}
+                    {emailExists && (
+                      <div className="text-xs text-red-500 mt-1">
+                        This email address is already registered.
+                      </div>
+                    )}
                   </FormItem>
                 )}
               />
@@ -471,6 +499,15 @@ export default function SalonForm() {
           onRedirect={handleGoToDashboard}
         />
       )}
+      
+      {/* Validation Error Dialog */}
+      <ContactValidationDialog 
+        open={showErrorDialog}
+        onOpenChange={setShowErrorDialog}
+        errorField={errorField}
+        errorMessage={errorMessage}
+        onClose={handleDialogClose}
+      />
     </>
   );
 }
