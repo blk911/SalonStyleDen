@@ -53,30 +53,32 @@ export function ContactValidationDialog({
           <p className="text-lg">{errorMessage}</p>
           
           {errorField === 'phone' ? (
-            <>
-              <p className="text-gray-500 mb-2">This number is unavailable.</p>
-              <div className="space-y-3">
-                <p className="text-gray-700 font-medium">Are you an existing client?</p>
-                <p className="text-gray-600">You may have received a Ven Me, Baby! Invitation.</p>
-                <p className="text-gray-600">Check your messages. If you have a promo code:</p>
-                
-                <div className="flex space-x-3 justify-center mt-4">
-                  <Button 
-                    onClick={handleGoBack} 
-                    variant="outline"
-                    className="border-pink-300"
-                  >
-                    Go Back
-                  </Button>
-                  <Button 
-                    onClick={handleEnterPromoCode} 
-                    className="bg-pink-500 hover:bg-pink-600"
-                  >
-                    Enter Promo Code
-                  </Button>
-                </div>
+            <div className="space-y-5">
+              <div>
+                <p className="text-gray-600 font-medium mb-2">This number is unavailable.</p>
+                <Button 
+                  onClick={handleGoBack} 
+                  variant="outline"
+                  className="border-pink-300 w-full sm:w-auto"
+                >
+                  BACK BUTTON
+                </Button>
               </div>
-            </>
+              
+              <div className="border-t border-gray-200 pt-4">
+                <p className="text-gray-700 font-medium mb-3">ARE YOU AN EXISTING CLIENT?</p>
+                <p className="text-gray-600 mb-1">YOU MAY HAVE RECEIVED A VEN ME, BABY! INVITATION.</p>
+                <p className="text-gray-600 mb-3">CHECK YOUR MESSAGES.</p>
+                <p className="text-gray-600 mb-3">See your invitation promo code,</p>
+                
+                <Button 
+                  onClick={handleEnterPromoCode} 
+                  className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto px-6"
+                >
+                  ENTER PROMO CODE
+                </Button>
+              </div>
+            </div>
           ) : (
             <p className="text-gray-500">
               {errorField === 'email'
