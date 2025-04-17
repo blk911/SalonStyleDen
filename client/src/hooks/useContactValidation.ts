@@ -24,12 +24,13 @@ export function useContactValidation(options: ValidationOptions = {}) {
   const [errorMessage, setErrorMessage] = useState('');
   const [showErrorDialog, setShowErrorDialog] = useState(false);
 
-  // Format phone number as user types (XXX-XXX-XXXX)
+  // Format phone number consistently site-wide (XXX-XXX-XXXX)
   const formatPhoneNumber = (input: string) => {
+    if (!input) return '';
     const numbers = input.replace(/\D/g, '').slice(0, 10);
     if (numbers.length === 0) return '';
-    if (numbers.length < 4) return numbers;
-    if (numbers.length < 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 6) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
     return `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6)}`;
   };
 
