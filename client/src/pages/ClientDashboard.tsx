@@ -1,8 +1,26 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
+import { 
+  CalendarIcon, 
+  ClockIcon, 
+  MapPinIcon, 
+  PhoneIcon, 
+  AtSignIcon, 
+  UserIcon, 
+  PencilIcon, 
+  HeartIcon,
+  StarIcon,
+  CheckCircleIcon,
+  ScissorsIcon
+} from "lucide-react";
 
 // Define client interface
 interface ClientData {
@@ -19,14 +37,54 @@ interface ClientData {
   createdAt: string;
 }
 
+interface SalonData {
+  id: number;
+  name: string;
+  ownerName: string;
+  phone: string;
+  email: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  services?: any[];
+  promos?: any[];
+  schedule?: any;
+  ownerPhotoUrl?: string;
+}
+
+interface StyleSelection {
+  id: number;
+  clientId: number;
+  styleId: number;
+  salonId: number;
+  selectedAt: string;
+  status: string;
+}
+
+interface Invitation {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  salonId: number;
+  salonName?: string;
+  sponsor?: string;
+  status: string;
+  firstServiceDate?: string;
+  createdAt: string;
+}
+
 export default function ClientDashboard() {
   const { id } = useParams();
+  const [isEditing, setIsEditing] = useState(false);
 
   // Add debugging information to trace API calls
   console.log(`ClientDashboard - Fetching client with ID: ${id}`);
   
-  const { data: client, isLoading, error } = useQuery<ClientData>({
-    queryKey: ['/api/clients', id], // Change to array format for properly structured query key
+  // Fetch client data
+  const { data: client, isLoading: clientLoading, error: clientError } = useQuery<ClientData>({
+    queryKey: ['/api/clients', id],
     queryFn: async () => {
       try {
         console.log(`ClientDashboard - Making API request to fetch client ${id}`);
@@ -48,6 +106,64 @@ export default function ClientDashboard() {
     enabled: !!id, // Only run the query if we have an ID
   });
 
+  // Fetch linked salon data if salonId exists
+  const { data: salon, isLoading: salonLoading } = useQuery<SalonData>({
+    queryKey: ['/api/salons', client?.salonId],
+    queryFn: async () => {
+      console.log(`ClientDashboard - Fetching linked salon with ID: ${client?.salonId}`);
+      const response = await fetch(`/api/salons/${client?.salonId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch salon: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log(`ClientDashboard - Successfully fetched salon:`, data);
+      return data;
+    },
+    enabled: !!client?.salonId, // Only run if client has a salonId
+  });
+  
+  // Fetch client's style selections
+  const { data: styleSelections, isLoading: selectionsLoading } = useQuery<StyleSelection[]>({
+    queryKey: ['/api/clients', id, 'style-selections'],
+    queryFn: async () => {
+      console.log(`ClientDashboard - Fetching style selections for client ${id}`);
+      const response = await fetch(`/api/clients/${id}/style-selections`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch style selections: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log(`ClientDashboard - Successfully fetched style selections:`, data);
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  // Fetch client's invitations
+  const { data: invitations, isLoading: invitationsLoading } = useQuery<Invitation[]>({
+    queryKey: ['/api/invitations'],
+    queryFn: async () => {
+      console.log(`ClientDashboard - Fetching invitations`);
+      // In a real implementation, this would filter by client's email or phone
+      // For now, we'll just fetch all and filter client-side
+      const response = await fetch('/api/invitations');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch invitations: ${response.status}`);
+      }
+      const data = await response.json();
+      // Filter invitations that match this client's email or phone
+      const clientInvitations = client ? 
+        data.filter((inv: Invitation) => 
+          inv.email.toLowerCase() === client.email.toLowerCase() || 
+          inv.phone.replace(/\D/g, '') === client.phone.replace(/\D/g, '')
+        ) : [];
+      console.log(`ClientDashboard - Found ${clientInvitations.length} invitations for this client`);
+      return clientInvitations;
+    },
+    enabled: !!client,
+  });
+
+  const isLoading = clientLoading || (client?.salonId && salonLoading);
+
   if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -62,7 +178,7 @@ export default function ClientDashboard() {
     );
   }
 
-  if (error || !client) {
+  if (clientError || !client) {
     return (
       <div className="flex flex-col min-h-screen">
         <Navbar />
@@ -79,61 +195,331 @@ export default function ClientDashboard() {
     );
   }
 
+  // Check if client is linked to the VMB LTD salon (ID 12)
+  const isLinkedToVMB = client.salonId === 12 || (salon && salon.name.includes("Ven Me, Baby!"));
+  const serviceOptions = salon?.services || [];
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow">
-        {/* Hero Section with Client Info -  Simplified */}
-        <section className="bg-pink-100 py-4"> {/*Pink/white color scheme */}
+        {/* Hero Section with Client Info */}
+        <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-8 border-b border-pink-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between">
-              <h2 className="font-bold text-xl text-pink-700">{client.name}</h2>
-              <p className="text-gray-600 text-sm">Member since {new Date(client.createdAt).toLocaleDateString()}</p>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center">
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md">
+                  <UserIcon className="h-8 w-8 text-pink-500" />
+                </div>
+                <div className="ml-4">
+                  <h1 className="font-bold text-2xl text-pink-700">{client.name}</h1>
+                  <p className="text-gray-600">
+                    <span className="inline-flex items-center">
+                      <CalendarIcon className="h-3 w-3 mr-1" />
+                      Member since {new Date(client.createdAt).toLocaleDateString()}
+                    </span>
+                  </p>
+                </div>
+              </div>
+              
+              <div className="mt-4 md:mt-0">
+                <Button 
+                  variant="outline" 
+                  className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center gap-2"
+                  onClick={() => setIsEditing(!isEditing)}
+                >
+                  <PencilIcon className="h-4 w-4" />
+                  {isEditing ? "Cancel Editing" : "Edit Profile"}
+                </Button>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Content Section - Single Row Profile Info */}
-        <section className="py-4">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Card className="rounded-xl shadow-soft">
-              <CardContent className="px-8 py-2">
-                <div className="flex flex-wrap gap-4 text-sm"> {/*Single row, tighter spacing*/}
-                  <div className="flex items-center">
-                    <span className="font-medium text-gray-700">Phone:</span>
-                    <span className="ml-2 text-gray-800">{client?.phone}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="font-medium text-gray-700">Email:</span>
-                    <span className="ml-2 text-gray-800">{client?.email}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="font-medium text-gray-700">Status:</span>
-                    <span className="ml-2 text-gray-800">{client?.isCurrentClient ? "Current" : "New"}</span>
-                  </div>
-                  {client?.salonName && (
-                    <div className="flex items-center">
-                      <span className="font-medium text-gray-700">Salon:</span>
-                      <span className="ml-2 text-gray-800">{client.salonName}</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Tabs defaultValue="dashboard" className="space-y-6">
+            <TabsList className="grid grid-cols-3 w-full max-w-md mx-auto">
+              <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+              <TabsTrigger value="styles">Style Options</TabsTrigger>
+              <TabsTrigger value="appointments">Appointments</TabsTrigger>
+            </TabsList>
+            
+            {/* DASHBOARD TAB */}
+            <TabsContent value="dashboard" className="space-y-6">
+              {/* Personal Information Card */}
+              <Card className="rounded-xl shadow-sm overflow-hidden">
+                <CardHeader className="bg-pink-50 pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                    <UserIcon className="h-4 w-4" />
+                    Personal Information
+                  </CardTitle>
+                </CardHeader>
+                
+                <CardContent className="pt-4">
+                  {!isEditing ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <PhoneIcon className="h-4 w-4 text-gray-500" />
+                        <span className="font-medium text-gray-700">Phone:</span>
+                        <span className="text-gray-800">{client.phone}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <AtSignIcon className="h-4 w-4 text-gray-500" />
+                        <span className="font-medium text-gray-700">Email:</span>
+                        <span className="text-gray-800">{client.email}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircleIcon className="h-4 w-4 text-gray-500" />
+                        <span className="font-medium text-gray-700">Status:</span>
+                        <Badge variant={client.isCurrentClient ? "default" : "outline"} className="ml-2">
+                          {client.isCurrentClient ? "Current Client" : "New Client"}
+                        </Badge>
+                      </div>
+                      {client.favoriteServices && client.favoriteServices.length > 0 && (
+                        <div className="flex items-start gap-2">
+                          <HeartIcon className="h-4 w-4 text-gray-500 mt-1" />
+                          <span className="font-medium text-gray-700 mt-1">Favorite Services:</span>
+                          <div className="flex flex-wrap gap-1">
+                            {client.favoriteServices.map((service: string) => (
+                              <Badge 
+                                key={service} 
+                                className="bg-pink-100 hover:bg-pink-200 text-pink-700 border-0"
+                              >
+                                {service}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="text-sm text-center text-gray-700 bg-yellow-50 p-2 rounded">
+                        Edit functionality will be implemented in the next phase
+                      </div>
                     </div>
                   )}
-                  {client?.favoriteServices && client.favoriteServices.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {client.favoriteServices.map((service: string) => (
-                        <span 
-                          key={service} 
-                          className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-pink-200 text-pink-700"
+                </CardContent>
+              </Card>
+              
+              {/* Linked Salon Card */}
+              {client.salonId && (
+                <Card className="rounded-xl shadow-sm overflow-hidden">
+                  <CardHeader className="bg-pink-50 pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                      <ScissorsIcon className="h-4 w-4" />
+                      Your Salon
+                    </CardTitle>
+                    {salon && (
+                      <CardDescription>Member of {salon.name}</CardDescription>
+                    )}
+                  </CardHeader>
+                  
+                  <CardContent className="pt-4">
+                    {salon ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <UserIcon className="h-4 w-4 text-gray-500" />
+                          <span className="font-medium text-gray-700">Owner:</span>
+                          <span className="text-gray-800">{salon.ownerName}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <PhoneIcon className="h-4 w-4 text-gray-500" />
+                          <span className="font-medium text-gray-700">Phone:</span>
+                          <span className="text-gray-800">{salon.phone}</span>
+                        </div>
+                        {salon.address && (
+                          <div className="flex items-start gap-2">
+                            <MapPinIcon className="h-4 w-4 text-gray-500 mt-1" />
+                            <div>
+                              <span className="font-medium text-gray-700">Address:</span>
+                              <p className="text-gray-800">
+                                {salon.address}<br />
+                                {salon.city}, {salon.state} {salon.zipCode}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="mt-2 border-pink-300 text-pink-700 hover:bg-pink-50"
+                          onClick={() => window.location.href = `/salon/${salon.id}`}
                         >
-                          {service}
-                        </span>
+                          View Salon Page
+                        </Button>
+                      </div>
+                    ) : salonLoading ? (
+                      <p>Loading salon information...</p>
+                    ) : (
+                      <p>Salon information not available</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+              
+              {/* Invitations Card */}
+              {invitations && invitations.length > 0 && (
+                <Card className="rounded-xl shadow-sm overflow-hidden">
+                  <CardHeader className="bg-pink-50 pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                      <StarIcon className="h-4 w-4" />
+                      Your Invitations
+                    </CardTitle>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-4">
+                    <div className="space-y-3">
+                      {invitations.map(invitation => (
+                        <div 
+                          key={invitation.id}
+                          className="flex flex-col p-3 border rounded-lg hover:bg-pink-50 transition-colors"
+                        >
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-medium">Invited by {invitation.sponsor || invitation.salonName}</h3>
+                            <Badge 
+                              variant="outline" 
+                              className={`
+                                ${invitation.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
+                                ${invitation.status === 'style_selected' ? 'bg-green-50 text-green-700 border-green-200' : ''}
+                                ${invitation.status === 'completed' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
+                              `}
+                            >
+                              {invitation.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-500">
+                            Sent on {new Date(invitation.createdAt).toLocaleDateString()}
+                          </p>
+                          {invitation.firstServiceDate && (
+                            <p className="text-sm flex items-center">
+                              <ClockIcon className="h-3 w-3 mr-1" /> 
+                              First appointment: {invitation.firstServiceDate}
+                            </p>
+                          )}
+                        </div>
                       ))}
                     </div>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+            
+            {/* STYLE OPTIONS TAB */}
+            <TabsContent value="styles" className="space-y-6">
+              <Card className="rounded-xl shadow-sm overflow-hidden">
+                <CardHeader className="bg-pink-50 pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                    <ScissorsIcon className="h-4 w-4" />
+                    Ven Me, Baby! Style Options
+                  </CardTitle>
+                  <CardDescription>
+                    Select your preferred style options below
+                  </CardDescription>
+                </CardHeader>
+                
+                <CardContent className="pt-4">
+                  {isLinkedToVMB && salon?.services ? (
+                    <VmbStyleOptions 
+                      services={salon.services} 
+                      clientId={parseInt(id)} 
+                      salonId={salon.id}
+                    />
+                  ) : (
+                    <div className="text-center p-6">
+                      <p className="text-gray-500">
+                        {client.salonId ? 
+                          "Your salon's style options will appear here." :
+                          "You're not currently associated with a salon. Style options will appear here once you're linked to a salon."}
+                      </p>
+                    </div>
                   )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
+                  
+                  {/* Previously Selected Styles */}
+                  {styleSelections && styleSelections.length > 0 && (
+                    <div className="mt-8 border-t pt-4">
+                      <h3 className="font-semibold text-pink-700 mb-3">Your Selected Styles</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {styleSelections.map(selection => {
+                          // Find the corresponding service
+                          const service = salon?.services?.find(s => s.id === selection.styleId);
+                          return (
+                            <div 
+                              key={selection.id}
+                              className="border rounded-lg p-3 bg-green-50 border-green-200"
+                            >
+                              <div className="flex justify-between">
+                                <span className="font-medium text-green-700">
+                                  {service ? service.name : `Style #${selection.styleId}`}
+                                </span>
+                                <Badge className="bg-green-100 text-green-700">Selected</Badge>
+                              </div>
+                              <p className="text-sm text-gray-600">
+                                Selected on {new Date(selection.selectedAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            {/* APPOINTMENTS TAB */}
+            <TabsContent value="appointments" className="space-y-6">
+              <Card className="rounded-xl shadow-sm overflow-hidden">
+                <CardHeader className="bg-pink-50 pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                    <CalendarIcon className="h-4 w-4" />
+                    Your Appointments
+                  </CardTitle>
+                </CardHeader>
+                
+                <CardContent className="pt-4">
+                  <div className="text-center py-6">
+                    <p className="text-gray-500">No upcoming appointments scheduled.</p>
+                    <Button 
+                      variant="default" 
+                      className="mt-4 bg-pink-500 hover:bg-pink-600"
+                    >
+                      Request Appointment
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Loyalty/Rewards Card */}
+              <Card className="rounded-xl shadow-sm overflow-hidden">
+                <CardHeader className="bg-pink-50 pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                    <StarIcon className="h-4 w-4" />
+                    Loyalty & Rewards
+                  </CardTitle>
+                </CardHeader>
+                
+                <CardContent className="pt-4">
+                  <div className="text-center py-4">
+                    <div className="mx-auto w-16 h-16 rounded-full bg-pink-100 flex items-center justify-center mb-4">
+                      <StarIcon className="h-8 w-8 text-pink-500" />
+                    </div>
+                    <h3 className="font-medium text-lg">0 Points</h3>
+                    <p className="text-sm text-gray-500 mt-2">Complete appointments to earn rewards!</p>
+                    
+                    <div className="mt-6 p-3 border rounded-lg bg-pink-50 max-w-md mx-auto">
+                      <h4 className="font-medium text-pink-700">New Client Promotion</h4>
+                      <p className="text-sm mt-1">
+                        Get 20% off your first appointment when you select a style above!
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
       </main>
       <Footer />
     </div>
