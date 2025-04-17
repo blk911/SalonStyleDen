@@ -493,10 +493,10 @@ export default function ClientDashboard() {
                                 </div>
                                 
                                 {/* Create VMB Invite card */}
-                                <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100 flex flex-col items-center justify-center">
-                                  <h2 className="text-center text-lg font-medium text-pink-700 mb-3">Create VMB Invite</h2>
+                                <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100 flex flex-col justify-center">
+                                  <h4 className="font-medium text-base mb-3">Create VMB Invite</h4>
                                   <Button 
-                                    className="bg-pink-600 hover:bg-pink-700 text-white w-full max-w-xs"
+                                    className="bg-pink-600 hover:bg-pink-700 text-white"
                                     onClick={() => {
                                       console.log("Create VMB Invite clicked");
                                       // This would open the invite creation flow
