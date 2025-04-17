@@ -7,8 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import EditableClientInfo from "@/components/dashboard/EditableClientInfo";
+import { getImageUrl } from "@/lib/utils";
 import { 
   CalendarIcon, 
   ClockIcon, 
