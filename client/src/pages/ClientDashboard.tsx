@@ -94,6 +94,11 @@ interface Invitation {
 export default function ClientDashboard() {
   const { id } = useParams();
   const [isEditing, setIsEditing] = useState(false);
+  
+  // State for VMB Style Options selection
+  const [selectedStyle, setSelectedStyle] = useState<any>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showPersonalizedOffers, setShowPersonalizedOffers] = useState(false);
 
   // Add debugging information to trace API calls
   console.log(`ClientDashboard - Fetching client with ID: ${id}`);
@@ -339,7 +344,14 @@ export default function ClientDashboard() {
                           <h3 className="text-base font-medium text-pink-700 mb-3">VMB Style Options</h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {salon.services.filter(service => service.featured === true).map((service: any) => (
-                              <div key={service.id} className="flex gap-3 p-3 border rounded-lg bg-pink-50 hover:bg-pink-100 transition-colors">
+                              <div 
+                                key={service.id} 
+                                className="flex gap-3 p-3 border rounded-lg bg-pink-50 hover:bg-pink-100 transition-colors cursor-pointer relative"
+                                onClick={() => {
+                                  setSelectedStyle(service);
+                                  setShowConfirmDialog(true);
+                                }}
+                              >
                                 {service.gifUrl && (
                                   <div className="w-16 h-16 flex-shrink-0 rounded overflow-hidden border border-pink-100">
                                     <img 
@@ -361,13 +373,97 @@ export default function ClientDashboard() {
                                     <span className="text-xs text-gray-500">{service.duration} min</span>
                                   </div>
                                 </div>
+                                <div className="absolute inset-0 hover:bg-pink-200/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-lg">
+                                  <div className="bg-white/80 px-3 py-1 rounded-full text-xs font-medium text-pink-700">
+                                    Click to select
+                                  </div>
+                                </div>
                               </div>
                             ))}
                           </div>
                         </div>
                       )}
                       
+                      {/* Style Selection Confirmation Dialog */}
+                      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+                        <DialogContent className="max-w-md">
+                          <DialogHeader>
+                            <DialogTitle>Confirm Style Selection</DialogTitle>
+                          </DialogHeader>
+                          {selectedStyle && (
+                            <div className="space-y-4">
+                              <div className="bg-pink-50 p-4 rounded-lg">
+                                <h4 className="font-medium">{selectedStyle.name}</h4>
+                                <p className="text-sm text-gray-600 mt-1">{selectedStyle.description}</p>
+                                <div className="flex justify-between items-center mt-2">
+                                  <span className="font-semibold text-pink-700">${selectedStyle.price}</span>
+                                  <span className="text-gray-500">{selectedStyle.duration} min</span>
+                                </div>
+                              </div>
+                              <p className="text-sm">
+                                Would you like to select this VMB Style Option? You'll receive personalized offers based on your selection.
+                              </p>
+                              <div className="flex justify-end gap-3 mt-4">
+                                <Button 
+                                  variant="outline" 
+                                  onClick={() => setShowConfirmDialog(false)}
+                                >
+                                  Back
+                                </Button>
+                                <Button
+                                  onClick={() => {
+                                    setShowConfirmDialog(false);
+                                    setShowPersonalizedOffers(true);
+                                    // Here you would also save the selection to the database
+                                  }}
+                                  className="bg-pink-600 hover:bg-pink-700 text-white"
+                                >
+                                  Confirm
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </DialogContent>
+                      </Dialog>
+                      
                       {/* Previously Selected Styles */}
+                      {/* Personalized VMB Offers section - shown after confirming a style option */}
+                      {showPersonalizedOffers && selectedStyle && (
+                        <div className="mt-8 border-t pt-4">
+                          <div className="bg-gradient-to-r from-pink-100 to-pink-50 p-5 rounded-xl border border-pink-200 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-pink-200/30 rounded-full -mt-8 -mr-8"></div>
+                            <h3 className="font-bold text-lg text-pink-700 mb-3 flex items-center">
+                              <StarIcon className="h-5 w-5 mr-2 text-pink-500" />
+                              Personalized VMB Offers
+                            </h3>
+                            <p className="text-sm mb-4">
+                              Based on your selection of <span className="font-medium">{selectedStyle.name}</span>, 
+                              we've prepared these exclusive offers just for you!
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                              <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100">
+                                <h4 className="font-medium text-pink-700">First-Time Client Special</h4>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  Get 15% off your first appointment when you book within the next 7 days!
+                                </p>
+                                <div className="mt-3">
+                                  <Badge className="bg-pink-100 text-pink-700">Expires in 7 days</Badge>
+                                </div>
+                              </div>
+                              <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100">
+                                <h4 className="font-medium text-pink-700">Style Bundle Discount</h4>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  Book this style with any other service and receive a 10% bundle discount!
+                                </p>
+                                <div className="mt-3">
+                                  <Badge className="bg-pink-100 text-pink-700">Limited Time</Badge>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
                       {styleSelections && styleSelections.length > 0 && (
                         <div className="mt-8 border-t pt-4">
                           <h3 className="font-semibold text-pink-700 mb-3">Your Selected Styles</h3>
