@@ -267,16 +267,49 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   // Auto-validation if we have 10 digits
                   const cleanPhone = formatted.replace(/\D/g, '');
                   if (cleanPhone.length === 10) {
-                    // Direct check for test numbers
+                    // Check against server
+                    const checkPhone = async () => {
+                      try {
+                        console.log('Validating phone number:', cleanPhone);
+                        const response = await fetch('/api/invitations', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            phone: cleanPhone,
+                            email: '',
+                            name: 'test',
+                            _validateOnly: true
+                          })
+                        });
+                        
+                        if (!response.ok) {
+                          const errorData = await response.json();
+                          if (errorData.error && errorData.error.includes('phone')) {
+                            console.log('Server detected duplicate phone:', cleanPhone);
+                            setErrorField('phone');
+                            setErrorMessage('This phone number is already registered in our system.');
+                            setShowErrorDialog(true);
+                            setPhoneExists(true);
+                          }
+                        }
+                      } catch (error) {
+                        console.error('Error validating phone:', error);
+                      }
+                    };
+                    
+                    // Also check hardcoded test numbers for immediate feedback
                     if (cleanPhone === '5125551212' || cleanPhone === '5127715877') {
                       console.log('Direct match detected for:', cleanPhone);
-                      // Delay to allow UI to update first
-                      setTimeout(() => {
-                        setErrorField('phone');
-                        setErrorMessage('This phone number is already registered in our system.');
-                        setShowErrorDialog(true);
-                        setPhoneExists(true);
-                      }, 100);
+                      setErrorField('phone');
+                      setErrorMessage('This phone number is already registered in our system.');
+                      setShowErrorDialog(true);
+                      setPhoneExists(true);
+                    } else {
+                      // Delay server check to prevent excessive requests
+                      const timer = setTimeout(() => {
+                        checkPhone();
+                      }, 500);
+                      return () => clearTimeout(timer);
                     }
                   }
                 }}
@@ -321,28 +354,86 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                     }
                   }
                   
-                  // Direct check for known test email (case-insensitive)
-                  if (e.target.value.toLowerCase() === 'richard@gmail.com') {
-                    console.log('Direct match detected for email:', e.target.value);
-                    // Delay to allow UI to update first
-                    setTimeout(() => {
+                  // Check if email has a valid format
+                  if (e.target.value && e.target.value.includes('@') && e.target.value.includes('.')) {
+                    // Check against server
+                    const checkEmail = async () => {
+                      try {
+                        console.log('Validating email:', e.target.value);
+                        const response = await fetch('/api/invitations', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            phone: '',
+                            email: e.target.value.toLowerCase(), // Ensure lowercase
+                            name: 'test',
+                            _validateOnly: true
+                          })
+                        });
+                        
+                        if (!response.ok) {
+                          const errorData = await response.json();
+                          if (errorData.error && errorData.error.includes('email')) {
+                            console.log('Server detected duplicate email:', e.target.value);
+                            setErrorField('email');
+                            setErrorMessage('This email address is already registered in our system.');
+                            setShowErrorDialog(true);
+                            setEmailExists(true);
+                          }
+                        }
+                      } catch (error) {
+                        console.error('Error validating email:', error);
+                      }
+                    };
+                    
+                    // Also check hardcoded values for immediate feedback
+                    if (e.target.value.toLowerCase() === 'richard@gmail.com') {
+                      console.log('Direct match detected for email:', e.target.value);
                       setErrorField('email');
                       setErrorMessage('This email address is already registered in our system.');
                       setShowErrorDialog(true);
                       setEmailExists(true);
-                    }, 100);
+                    } else {
+                      // Delay server check to prevent excessive requests
+                      const timer = setTimeout(() => {
+                        checkEmail();
+                      }, 500);
+                      return () => clearTimeout(timer);
+                    }
                   }
                 }}
-                onBlur={(e) => {
+                onBlur={async (e) => {
                   console.log('Email onBlur event with:', email);
                   
-                  // Check for known test email (case-insensitive)
-                  if (email.toLowerCase() === 'richard@gmail.com') {
-                    console.log('Blur event caught match for email:', email);
-                    setErrorField('email');
-                    setErrorMessage('This email address is already registered in our system.');
-                    setShowErrorDialog(true);
-                    setEmailExists(true);
+                  // Only validate if email has a valid format
+                  if (email && email.includes('@') && email.includes('.')) {
+                    try {
+                      // Check against server
+                      console.log('Validating email on blur:', email);
+                      const response = await fetch('/api/invitations', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          phone: '',
+                          email: email.toLowerCase(), // Ensure lowercase
+                          name: 'test',
+                          _validateOnly: true
+                        })
+                      });
+                      
+                      if (!response.ok) {
+                        const errorData = await response.json();
+                        if (errorData.error && errorData.error.includes('email')) {
+                          console.log('Server detected duplicate email on blur:', email);
+                          setErrorField('email');
+                          setErrorMessage('This email address is already registered in our system.');
+                          setShowErrorDialog(true);
+                          setEmailExists(true);
+                        }
+                      }
+                    } catch (error) {
+                      console.error('Error validating email on blur:', error);
+                    }
                   }
                 }}
                 required
