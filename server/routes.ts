@@ -901,22 +901,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Missing required fields" });
       }
       
-      // For development bypass: Any code starting with "VMB-" will be considered valid
-      // In production, this would validate against actual invitation codes in the database
-      if (code.startsWith("VMB-") && phone === "5127715877") {
+      // Extract the last 4 digits from the phone number
+      const cleanPhone = phone.replace(/\D/g, '');
+      const last4Digits = cleanPhone.slice(-4);
+      
+      // TEMPORARY DEVELOPMENT BYPASS:
+      // For simplicity, if the entered code matches the last 4 digits of the phone number,
+      // consider it valid for testing purposes
+      if (code === last4Digits) {
         // Record this temporary bypass in logs for development tracking
-        console.log(`DEVELOPMENT BYPASS: Validated promo code ${code} for phone ${phone}`);
+        console.log(`DEVELOPMENT BYPASS: Validated code using last 4 digits for phone ${phone}`);
         
         // In a real implementation, we would fetch the client details
         // For now, return success to allow the temporary flow
         return res.status(200).json({ 
           success: true,
-          message: "Development bypass active",
+          message: "Development bypass active - last 4 digits match",
           clientId: 1 // Mock client ID for development
         });
       }
       
-      return res.status(400).json({ error: "Invalid promo code" });
+      return res.status(400).json({ error: "Invalid promo code. For testing, use the last 4 digits of the phone number." });
     } catch (error) {
       console.error('Error validating promo code:', error);
       res.status(500).json({ error: "Failed to validate promo code" });

@@ -89,6 +89,10 @@ export function PromoCodeDialog({
         
         <div className="p-4 border border-yellow-300 bg-yellow-50 rounded mb-4 text-sm">
           <strong>Development Mode</strong>: This is a temporary bypass for testing purposes.
+          <ul className="mt-2 list-disc list-inside">
+            <li>Enter the last 4 digits of your phone number as the code</li>
+            <li>For example, if your number is (512) 771-5877, enter: <strong>5877</strong></li>
+          </ul>
           This functionality will be replaced with proper verification in production.
         </div>
         

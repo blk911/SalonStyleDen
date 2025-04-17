@@ -11,16 +11,16 @@ This document outlines the temporary development bypass implemented for testing 
 1. When a user attempts to register with a phone number that's already in the system (e.g., 5127715877), the validation dialog appears.
 2. The dialog now includes an "Enter Promo Code" option for existing clients.
 3. Clicking this button opens a promo code entry dialog.
-4. For development purposes, any code starting with "VMB-" will be accepted for the test phone number 5127715877.
+4. For development purposes, entering the last 4 digits of the phone number will be accepted as a valid promo code.
 5. After validation, the user is redirected to the client dashboard.
 
 ### Testing Instructions
 
 To test the temporary bypass flow:
 
-1. Attempt to register with phone number: `5127715877`
+1. Attempt to register with phone number: `5127715877` (or any existing phone number)
 2. When the validation dialog appears, click "Enter Promo Code"
-3. Enter any code starting with "VMB-" (e.g., VMB-TEST-123)
+3. Enter the last 4 digits of the phone number as the code (e.g., `5877` for 5127715877)
 4. You should be redirected to the client dashboard
 
 ### Implementation Notes
