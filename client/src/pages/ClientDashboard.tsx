@@ -299,32 +299,6 @@ export default function ClientDashboard() {
                 </DialogContent>
               </Dialog>
               
-              {/* Profile Edit Button Card */}
-              <Card className="rounded-xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-pink-50 pb-3">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
-                      <UserIcon className="h-4 w-4" />
-                      {client.name} 
-                      {client.sponsor && (
-                        <span className="text-sm font-normal ml-2 text-pink-600">
-                          (Sponsored by: {client.sponsor})
-                        </span>
-                      )}
-                    </CardTitle>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="border-pink-300 text-pink-700 hover:bg-pink-50"
-                      onClick={() => setIsEditing(true)}
-                    >
-                      <PencilIcon className="h-3 w-3 mr-1" />
-                      Edit Profile
-                    </Button>
-                  </div>
-                </CardHeader>
-              </Card>
-              
               {/* Full-width Salon Card */}
               {client.salonId && (
                 <Card className="rounded-xl shadow-sm overflow-hidden">
