@@ -220,63 +220,65 @@ export default function ClientDashboard() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow">
-        {/* Hero Section with Client Info - Simple Horizontal Layout as requested */}
-        <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-6 border-b border-pink-200">
+        {/* Hero Section with Client Info */}
+        <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-8 border-b border-pink-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-start gap-6">
-              {/* 1. User Icon */}
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md flex-shrink-0">
-                <UserIcon className="h-8 w-8 text-pink-500" />
-              </div>
-              
-              {/* 2. Client Name */}
-              <div className="flex flex-col">
-                <h1 className="font-bold text-2xl text-pink-800">{client.name}</h1>
-              </div>
-              
-              {/* 3. Member Since */}
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">Member Since:</span>
-                <span className="text-sm">{new Date(client.createdAt).toLocaleDateString()}</span>
-              </div>
-              
-              {/* 4. Sponsor */}
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">Sponsor:</span>
-                <span className="text-sm">{client.sponsor || "None"}</span>
-              </div>
-              
-              {/* 5. Connected Salon */}
-              {client.salonId && salon && (
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">Connected Salon:</span>
-                  <span className="text-sm text-pink-800">{salon.name}</span>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <div className="flex items-start">
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md flex-shrink-0">
+                  <UserIcon className="h-8 w-8 text-pink-500" />
                 </div>
-              )}
-              
-              {/* 6. Action Buttons */}
-              <div className="flex gap-2 items-start">
-                {client.salonId && salon && (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="border-pink-300 bg-white text-pink-700 hover:bg-pink-50"
-                    onClick={() => window.location.href = `/salon/${salon.id}`}
-                  >
-                    <ScissorsIcon className="h-4 w-4 mr-1" />
-                    View Salon
-                  </Button>
-                )}
-                
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="border-pink-300 bg-white text-pink-700 hover:bg-pink-50"
-                  onClick={() => setIsEditing(!isEditing)}
-                >
-                  <PencilIcon className="h-4 w-4 mr-1" />
-                  Edit Profile
-                </Button>
+                <div className="ml-4 flex-1">
+                  <h1 className="font-bold text-2xl text-pink-700 mb-2">{client.name}</h1>
+                  
+                  <div className="grid grid-cols-2 gap-x-8 gap-y-1 mb-3">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-gray-500">Member Since:</span>
+                      <span className="text-sm text-gray-700">{new Date(client.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-gray-500">Sponsor:</span>
+                      <span className="text-sm text-gray-700">{client.sponsor || "None"}</span>
+                    </div>
+                    
+                    {client.salonId && salon && (
+                      <div className="flex flex-col">
+                        <span className="text-xs font-medium text-gray-500">Connected Salon:</span>
+                        <a 
+                          href={`/salon/${salon.id}`}
+                          className="text-sm text-pink-700 hover:text-pink-900 hover:underline font-medium"
+                        >
+                          {salon.name}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex space-x-3">
+                    {client.salonId && salon && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center gap-1"
+                        onClick={() => window.location.href = `/salon/${salon.id}`}
+                      >
+                        <ScissorsIcon className="h-3 w-3" />
+                        View Salon
+                      </Button>
+                    )}
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center gap-1"
+                      onClick={() => setIsEditing(!isEditing)}
+                    >
+                      <PencilIcon className="h-3 w-3" />
+                      {isEditing ? "Cancel Edit" : "Edit Profile"}
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
