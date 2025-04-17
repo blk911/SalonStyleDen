@@ -258,98 +258,203 @@ export default function ClientDashboard() {
             
             {/* DASHBOARD TAB */}
             <TabsContent value="dashboard" className="space-y-6">
-              {/* Two-column layout for client and salon info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left column: Personal Information Card */}
-                <div>
-                  <EditableClientInfo 
-                    client={{
-                      id: client.id,
-                      name: client.name,
-                      phone: client.phone,
-                      email: client.email,
-                      isCurrentClient: client.isCurrentClient,
-                      notes: client.notes,
-                      favoriteServices: client.favoriteServices,
-                      salonId: client.salonId,
-                      salonName: client.salonName,
-                      type: client.type,
-                      address: client.address,
-                      city: client.city,
-                      state: client.state,
-                      zipCode: client.zipCode,
-                      socialMedia: client.socialMedia,
-                      photoUrl: client.photoUrl
-                    }}
-                    onSave={(updatedClient) => {
-                      console.log("Client profile updated:", updatedClient);
-                      // The React Query cache will be invalidated by the component
-                      setIsEditing(false);
-                    }}
-                    defaultEditing={isEditing}
-                  />
-                </div>
-                
-                {/* Right column: Linked Salon Card */}
-                <div>
-                  {client.salonId && (
-                    <Card className="rounded-xl shadow-sm overflow-hidden h-full">
-                      <CardHeader className="bg-pink-50 pb-3">
-                        <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
-                          <ScissorsIcon className="h-4 w-4" />
-                          Your Salon
-                        </CardTitle>
-                        {salon && (
-                          <CardDescription>Member of {salon.name}</CardDescription>
-                        )}
-                      </CardHeader>
-                      
-                      <CardContent className="pt-4">
-                        {salon ? (
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-2">
-                              <UserIcon className="h-4 w-4 text-gray-500" />
-                              <span className="font-medium text-gray-700">Owner:</span>
-                              <span className="text-gray-800">{salon.ownerName}</span>
+              {/* Add dialog for editing client profile */}
+              <Dialog open={isEditing} onOpenChange={setIsEditing}>
+                <DialogContent className="max-w-4xl">
+                  <DialogHeader>
+                    <DialogTitle>Edit Your Profile</DialogTitle>
+                  </DialogHeader>
+                  {client && (
+                    <EditableClientInfo 
+                      client={{
+                        id: client.id,
+                        name: client.name,
+                        phone: client.phone,
+                        email: client.email,
+                        isCurrentClient: client.isCurrentClient,
+                        notes: client.notes,
+                        favoriteServices: client.favoriteServices,
+                        salonId: client.salonId,
+                        salonName: client.salonName,
+                        type: client.type,
+                        address: client.address,
+                        city: client.city,
+                        state: client.state,
+                        zipCode: client.zipCode,
+                        socialMedia: client.socialMedia,
+                        photoUrl: client.photoUrl
+                      }}
+                      onSave={(updatedClient) => {
+                        console.log("Client profile updated:", updatedClient);
+                        // The React Query cache will be invalidated by the component
+                        setIsEditing(false);
+                      }}
+                      defaultEditing={true}
+                      isDialog={true}
+                    />
+                  )}
+                </DialogContent>
+              </Dialog>
+              
+              {/* Client Info Summary Card */}
+              <Card className="rounded-xl shadow-sm overflow-hidden">
+                <CardHeader className="bg-pink-50 pb-3">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                      <UserIcon className="h-4 w-4" />
+                      Profile Information
+                    </CardTitle>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="border-pink-300 text-pink-700 hover:bg-pink-50"
+                      onClick={() => setIsEditing(true)}
+                    >
+                      <PencilIcon className="h-3 w-3 mr-1" />
+                      Edit Profile
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="flex flex-col md:flex-row gap-6">
+                    {/* Left side (33%) - Avatar */}
+                    <div className="w-full md:w-1/3 flex flex-col items-center">
+                      <Avatar className="h-24 w-24 md:h-32 md:w-32 mb-4 border-2 border-pink-100 ring-2 ring-pink-50 shadow-md">
+                        <AvatarImage 
+                          src={client.photoUrl ? getImageUrl(client.photoUrl, 'client-card') : '/assets/salon-card.png'}
+                          alt={client.name}
+                          className="object-cover"
+                          onError={(e) => {
+                            console.error("Error loading client avatar image");
+                            e.currentTarget.src = '/assets/salon-card.png';
+                          }} 
+                        />
+                        <AvatarFallback className="bg-pink-50 text-pink-600 text-2xl">
+                          {client.name?.substring(0, 2).toUpperCase() || "CL"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    
+                    {/* Right side (66%) - Client information */}
+                    <div className="w-full md:w-2/3 space-y-3">
+                      <div>
+                        <h2 className="font-semibold text-xl text-center md:text-left mb-3">{client.name}</h2>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-gray-700">
+                            <PhoneIcon className="h-4 w-4 text-pink-500" />
+                            <span>{client.phone}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-gray-700">
+                            <AtSignIcon className="h-4 w-4 text-pink-500" />
+                            <span>{client.email}</span>
+                          </div>
+                          
+                          {client.sponsor && (
+                            <div className="flex items-center gap-2 text-gray-700">
+                              <svg className="h-4 w-4 text-pink-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                              </svg>
+                              <span className="font-medium text-pink-600">Sponsor: {client.sponsor}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <PhoneIcon className="h-4 w-4 text-gray-500" />
-                              <span className="font-medium text-gray-700">Phone:</span>
-                              <span className="text-gray-800">{salon.phone}</span>
-                            </div>
-                            {salon.address && (
-                              <div className="flex items-start gap-2">
-                                <MapPinIcon className="h-4 w-4 text-gray-500 mt-1" />
-                                <div>
-                                  <span className="font-medium text-gray-700">Address:</span>
-                                  <p className="text-gray-800">
-                                    {salon.address}<br />
-                                    {salon.city}, {salon.state} {salon.zipCode}
+                          )}
+                          
+                          {client.address && (
+                            <div className="flex items-start gap-2">
+                              <MapPinIcon className="h-4 w-4 text-pink-500 mt-1" />
+                              <div>
+                                <span>{client.address}</span>
+                                {(client.city || client.state || client.zipCode) && (
+                                  <p>
+                                    {client.city}{client.city && client.state ? ', ' : ''}{client.state} {client.zipCode}
                                   </p>
-                                </div>
+                                )}
                               </div>
-                            )}
-                            
-                            <div className="mt-4 pt-2">
-                              <Button 
-                                variant="outline" 
-                                className="w-full border-pink-300 text-pink-700 hover:bg-pink-50"
-                                onClick={() => window.location.href = `/salon/${salon.id}`}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {client.socialMedia && client.socialMedia.length > 0 && (
+                        <div className="pt-3 border-t border-gray-100">
+                          <h3 className="text-sm font-medium text-gray-500 mb-2">Social Media</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {client.socialMedia.map((social, index) => (
+                              <div 
+                                key={index} 
+                                className="flex items-center justify-between px-3 py-1.5 rounded bg-pink-50"
                               >
-                                View Salon Page
-                              </Button>
+                                <span className="font-medium text-gray-700">{social.platform}</span>
+                                <span className="text-pink-600">{social.handle}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Full-width Salon Card */}
+              {client.salonId && (
+                <Card className="rounded-xl shadow-sm overflow-hidden">
+                  <CardHeader className="bg-pink-50 pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                      <ScissorsIcon className="h-4 w-4" />
+                      Your Salon
+                    </CardTitle>
+                    {salon && (
+                      <CardDescription>Member of {salon.name}</CardDescription>
+                    )}
+                  </CardHeader>
+                  
+                  <CardContent className="pt-4">
+                    {salon ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <UserIcon className="h-4 w-4 text-gray-500" />
+                          <span className="font-medium text-gray-700">Owner:</span>
+                          <span className="text-gray-800">{salon.ownerName}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <PhoneIcon className="h-4 w-4 text-gray-500" />
+                          <span className="font-medium text-gray-700">Phone:</span>
+                          <span className="text-gray-800">{salon.phone}</span>
+                        </div>
+                        {salon.address && (
+                          <div className="flex items-start gap-2">
+                            <MapPinIcon className="h-4 w-4 text-gray-500 mt-1" />
+                            <div>
+                              <span className="font-medium text-gray-700">Address:</span>
+                              <p className="text-gray-800">
+                                {salon.address}<br />
+                                {salon.city}, {salon.state} {salon.zipCode}
+                              </p>
                             </div>
                           </div>
-                        ) : salonLoading ? (
-                          <p>Loading salon information...</p>
-                        ) : (
-                          <p>Salon information not available</p>
                         )}
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              </div>
+                        
+                        <div className="mt-4 pt-2">
+                          <Button 
+                            variant="outline" 
+                            className="border-pink-300 text-pink-700 hover:bg-pink-50"
+                            onClick={() => window.location.href = `/salon/${salon.id}`}
+                          >
+                            View Salon Page
+                          </Button>
+                        </div>
+                      </div>
+                    ) : salonLoading ? (
+                      <p>Loading salon information...</p>
+                    ) : (
+                      <p>Salon information not available</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
               
               {/* Invitations Card */}
               {invitations && invitations.length > 0 && (

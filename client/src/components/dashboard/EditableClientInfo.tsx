@@ -47,9 +47,10 @@ interface EditableClientInfoProps {
   client: ClientInfo;
   onSave: (updatedClient: ClientInfo) => void;
   defaultEditing?: boolean;
+  isDialog?: boolean;
 }
 
-export default function EditableClientInfo({ client, onSave, defaultEditing = false }: EditableClientInfoProps) {
+export default function EditableClientInfo({ client, onSave, defaultEditing = false, isDialog = false }: EditableClientInfoProps) {
   // State for UI controls and edited client data
   const [isEditing, setIsEditing] = useState(true); // Always keep this true for the component to work
   const [showEditForm, setShowEditForm] = useState(defaultEditing);
