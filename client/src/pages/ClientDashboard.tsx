@@ -412,9 +412,33 @@ export default function ClientDashboard() {
                                 </Button>
                                 <Button
                                   onClick={() => {
+                                    // This would save the selection to the database in a real implementation
+                                    // Sample API call that would be implemented:
+                                    /*
+                                    const selection = {
+                                      clientId: client.id,
+                                      styleId: selectedStyle.id,
+                                      salonId: salon.id,
+                                      selectedAt: new Date().toISOString(),
+                                      notes: `Selected ${selectedStyle.name} from ${salon.name}`
+                                    };
+                                    
+                                    fetch(`/api/clients/${client.id}/style-selections`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify(selection)
+                                    }).then(response => {
+                                      if (response.ok) {
+                                        console.log('Style selection saved successfully');
+                                        // Invalidate the style selections query to refresh the list
+                                        queryClient.invalidateQueries({ queryKey: ['/api/clients', id, 'style-selections'] });
+                                      }
+                                    });
+                                    */
+                                    
+                                    console.log(`Selected style: ${selectedStyle.name} from salon: ${salon?.name}`);
                                     setShowConfirmDialog(false);
                                     setShowPersonalizedOffers(true);
-                                    // Here you would also save the selection to the database
                                   }}
                                   className="bg-pink-600 hover:bg-pink-700 text-white"
                                 >
@@ -427,36 +451,42 @@ export default function ClientDashboard() {
                       </Dialog>
                       
                       {/* Previously Selected Styles */}
-                      {/* Personalized VMB Offers section - shown after confirming a style option */}
+                      {/* My VMB Offers section - shown after confirming a style option */}
                       {showPersonalizedOffers && selectedStyle && (
                         <div className="mt-8 border-t pt-4">
                           <div className="bg-gradient-to-r from-pink-100 to-pink-50 p-5 rounded-xl border border-pink-200 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-pink-200/30 rounded-full -mt-8 -mr-8"></div>
                             <h3 className="font-bold text-lg text-pink-700 mb-3 flex items-center">
                               <StarIcon className="h-5 w-5 mr-2 text-pink-500" />
-                              Personalized VMB Offers
+                              My VMB Offers
                             </h3>
-                            <p className="text-sm mb-4">
-                              Based on your selection of <span className="font-medium">{selectedStyle.name}</span>, 
-                              we've prepared these exclusive offers just for you!
-                            </p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                            
+                            <div className="mt-4">
+                              <h4 className="font-medium text-base mb-3">Most Recent VMBs</h4>
+                              
                               <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100">
-                                <h4 className="font-medium text-pink-700">First-Time Client Special</h4>
-                                <p className="text-sm text-gray-600 mt-1">
-                                  Get 15% off your first appointment when you book within the next 7 days!
-                                </p>
-                                <div className="mt-3">
-                                  <Badge className="bg-pink-100 text-pink-700">Expires in 7 days</Badge>
+                                <div className="flex justify-between items-start">
+                                  <h5 className="font-medium text-pink-700">{selectedStyle.name}</h5>
+                                  <Badge className="bg-pink-100 text-pink-700">Selected</Badge>
                                 </div>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100">
-                                <h4 className="font-medium text-pink-700">Style Bundle Discount</h4>
-                                <p className="text-sm text-gray-600 mt-1">
-                                  Book this style with any other service and receive a 10% bundle discount!
-                                </p>
-                                <div className="mt-3">
-                                  <Badge className="bg-pink-100 text-pink-700">Limited Time</Badge>
+                                
+                                <div className="mt-3 flex items-center text-sm text-gray-500">
+                                  <ClockIcon className="h-4 w-4 mr-1" />
+                                  <span>Selected on {new Date().toLocaleDateString()}</span>
+                                </div>
+                                
+                                <div className="border-t mt-3 pt-3">
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-sm"><span className="font-medium">Price:</span> ${selectedStyle.price}</span>
+                                    <span className="text-sm"><span className="font-medium">Duration:</span> {selectedStyle.duration} min</span>
+                                  </div>
+                                  
+                                  <p className="text-sm text-gray-600 mt-2">
+                                    {selectedStyle.description}
+                                  </p>
+                                </div>
+                                
+                                <div className="mt-3 text-sm">
+                                  <span className="font-medium">Salon:</span> {salon?.name}
                                 </div>
                               </div>
                             </div>
