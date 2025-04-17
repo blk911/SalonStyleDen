@@ -35,9 +35,10 @@ export default function SalonDashboard() {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   
-  // Determine if we should open the edit form automatically
+  // We want to track whether the edit form was opened from a URL parameter,
+  // but we no longer directly pass this to initiate editing mode automatically
   console.log('Current location in SalonDashboard:', location);
-  const shouldOpenEditForm = location.includes('?edit=true') || window.location.search.includes('edit=true');
+  const shouldOpenEditForm = false; // Always start with form fields hidden
   console.log('shouldOpenEditForm value:', shouldOpenEditForm, 'URL search params:', window.location.search);
 
   // State for salon data 

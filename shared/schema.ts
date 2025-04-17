@@ -100,6 +100,58 @@ export const insertSalonSchema = createInsertSchema(salons).omit({ id: true });
 export const insertClientSchema = createInsertSchema(clients).omit({ id: true });
 export const insertInvitationSchema = createInsertSchema(invitations).omit({ id: true });
 
+// Style Selections schema
+export const styleSelections = pgTable("style_selections", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").notNull().references(() => clients.id),
+  styleId: integer("style_id").notNull(),
+  salonId: integer("salon_id").notNull().references(() => salons.id),
+  selectedAt: timestamp("selected_at").notNull(),
+  status: text("status").notNull().default("selected")
+});
+
+// Activity Logs schema
+export const activityLogs = pgTable("activity_logs", {
+  id: serial("id").primaryKey(),
+  type: text("type").notNull(),
+  description: text("description").notNull(),
+  userId: integer("user_id").references(() => users.id),
+  salonId: integer("salon_id").references(() => salons.id),
+  clientId: integer("client_id").references(() => clients.id),
+  timestamp: timestamp("timestamp").notNull()
+});
+
+// Add relations for new tables
+export const styleSelectionsRelations = relations(styleSelections, ({ one }) => ({
+  client: one(clients, {
+    fields: [styleSelections.clientId],
+    references: [clients.id]
+  }),
+  salon: one(salons, {
+    fields: [styleSelections.salonId],
+    references: [salons.id]
+  })
+}));
+
+export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [activityLogs.userId],
+    references: [users.id]
+  }),
+  salon: one(salons, {
+    fields: [activityLogs.salonId],
+    references: [salons.id]
+  }),
+  client: one(clients, {
+    fields: [activityLogs.clientId],
+    references: [clients.id]
+  })
+}));
+
+// Insert schemas for new tables
+export const insertStyleSelectionSchema = createInsertSchema(styleSelections).omit({ id: true });
+export const insertActivityLogSchema = createInsertSchema(activityLogs).omit({ id: true });
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -112,3 +164,9 @@ export type Client = typeof clients.$inferSelect;
 
 export type InsertInvitation = z.infer<typeof insertInvitationSchema>;
 export type Invitation = typeof invitations.$inferSelect;
+
+export type InsertStyleSelection = z.infer<typeof insertStyleSelectionSchema>;
+export type StyleSelection = typeof styleSelections.$inferSelect;
+
+export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
+export type ActivityLog = typeof activityLogs.$inferSelect;
