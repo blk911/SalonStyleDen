@@ -21,11 +21,13 @@ export interface IStorage {
   getAllSalons(): Promise<Salon[]>;
   updateSalonServices(id: number, services: any[]): Promise<Salon>;
   updateSalonPromos(id: number, promos: any[]): Promise<Salon>;
+  updateSalon(id: number, salonData: Partial<Salon>): Promise<Salon>;
   
   // Client methods
   getClient(id: number): Promise<Client | undefined>;
   createClient(client: InsertClient): Promise<Client>;
   getAllClients(): Promise<Client[]>;
+  updateClient(id: number, clientData: Partial<Client>): Promise<Client>;
   
   // Invitation methods
   createInvitation(invitation: InsertInvitation): Promise<Invitation>;
@@ -243,6 +245,44 @@ async createClient(insertClient: InsertClient): Promise<Client> {
 
   async getAllClients(): Promise<Client[]> {
     return await db.select().from(clients);
+  }
+  
+  async updateClient(id: number, clientData: Partial<Client>): Promise<Client> {
+    console.log(`DatabaseStorage.updateClient - Updating client ID ${id}`);
+    
+    try {
+      // Remove id and createdAt from the update data (can't update primary key or timestamp in wrong format)
+      const { id: _, createdAt, ...updateData } = clientData;
+      
+      // Debug: Check specifically for the photo URL
+      console.log(`DatabaseStorage.updateClient - Photo URL in update:`, 
+                 updateData.photoUrl || 'No photo URL provided');
+      
+      console.log(`DatabaseStorage.updateClient - Full update data fields:`, 
+                 Object.keys(updateData).join(', '));
+      
+      console.log(`DatabaseStorage.updateClient - Cleaned update data:`, JSON.stringify(updateData));
+      
+      // Get current client data to check changes
+      const currentClient = await this.getClient(id);
+      console.log(`DatabaseStorage.updateClient - Current photoUrl:`, 
+                 currentClient?.photoUrl || 'None');
+      
+      const result = await db
+        .update(clients)
+        .set(updateData)
+        .where(eq(clients.id, id))
+        .returning();
+      
+      console.log(`DatabaseStorage.updateClient - Update successful`);
+      console.log(`DatabaseStorage.updateClient - New photoUrl:`, 
+                 result[0].photoUrl || 'None');
+                 
+      return result[0];
+    } catch (error) {
+      console.error('DatabaseStorage.updateClient - Error updating client:', error);
+      throw error;
+    }
   }
   
   // Invitation methods

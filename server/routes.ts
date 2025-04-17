@@ -466,6 +466,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to retrieve client" });
     }
   });
+  
+  // Client update endpoint
+  apiRouter.put("/clients/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        console.error('Invalid client ID format for update:', req.params.id);
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+
+      console.log('Updating client with ID:', id);
+      console.log('Update data:', req.body);
+      
+      // First, check if the client exists
+      const client = await storage.getClient(id);
+      if (!client) {
+        console.error('Client not found for update with ID:', id);
+        return res.status(404).json({ error: "Client not found" });
+      }
+
+      // Update client info by merging the existing data with the new data
+      const updatedData = { ...client, ...req.body };
+      
+      // Make sure we don't accidentally change these fields
+      updatedData.id = id;
+      updatedData.type = 'client';
+      
+      // Validate social media array if present
+      if (updatedData.socialMedia && !Array.isArray(updatedData.socialMedia)) {
+        updatedData.socialMedia = [];
+      }
+      
+      // Update the client
+      console.log('Saving updated client data:', updatedData);
+      
+      // Assuming storage.updateClient is implemented
+      const result = await storage.updateClient(id, updatedData);
+      console.log('Client updated successfully:', { id: result.id, name: result.name });
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error updating client:', error);
+      res.status(500).json({ error: "Failed to update client" });
+    }
+  });
 
   // Bulk import routes
   apiRouter.post("/import/salons", async (req: Request, res: Response) => {

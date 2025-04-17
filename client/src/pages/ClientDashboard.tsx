@@ -35,7 +35,18 @@ interface ClientData {
   salonId?: number;
   salonName?: string;
   type: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  socialMedia?: SocialMediaItem[] | null;
+  photoUrl?: string;
   createdAt: string;
+}
+
+interface SocialMediaItem {
+  platform: string;
+  handle: string;
 }
 
 interface SalonData {
