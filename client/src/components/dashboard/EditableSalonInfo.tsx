@@ -38,7 +38,7 @@ interface EditableSalonInfoProps {
 
 export default function EditableSalonInfo({ salon, onSave, defaultEditing = false }: EditableSalonInfoProps) {
   const [isEditing, setIsEditing] = useState(defaultEditing);
-  const [showEditForm, setShowEditForm] = useState(false); // New state to control form display
+  const [showEditForm, setShowEditForm] = useState(defaultEditing); // Initialize both states with defaultEditing
   const [editedSalon, setEditedSalon] = useState<SalonInfo>({ ...salon });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [socialPlatform, setSocialPlatform] = useState("");
@@ -283,7 +283,10 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
               variant="outline" 
               size="sm"
               className="text-xs h-7 border-pink-200 text-pink-700 hover:bg-pink-50"
-              onClick={() => setIsEditing(true)}
+              onClick={() => {
+                setIsEditing(true);
+                setShowEditForm(false); // Ensure we start in the summary view, not the form view
+              }}
             >
               Edit
             </Button>
