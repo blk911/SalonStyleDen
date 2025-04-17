@@ -44,6 +44,7 @@ interface ClientInvite {
   status?: string;
   sponsor?: string;
   firstServiceDate?: string;
+  inviteHash?: string; // Unique invitation hash for tracking
 }
 
 interface ClientInvitationProps {
@@ -158,6 +159,9 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         throw new Error('Salon information not available. Please try again.');
       }
 
+      // Import generate invite hash function
+      const { generateInviteHash } = await import('@/lib/utils');
+      
       const response = await fetch('/api/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -170,7 +174,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           salonId,
           firstServiceDate,
           status: 'pending',
-          sponsor: salonInfo.name // Add the salon name as the sponsor
+          sponsor: salonInfo.name, // Add the salon name as the sponsor
+          inviteHash: generateInviteHash() // Generate a unique hash on the client side
         })
       });
 
@@ -451,6 +456,13 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                       <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200 text-xs">
                         {invite.status || 'Pending'}
                       </Badge>
+                      
+                      {/* Display Invitation Hash ID below status */}
+                      {invite.inviteHash && (
+                        <div className="text-[10px] text-gray-500 mt-1">
+                          #{invite.inviteHash}
+                        </div>
+                      )}
                     </TableCell>
                     
                     {/* Service date with truncation */}

@@ -818,11 +818,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // For regular requests, proceed as normal
       // Validate input data
       const validatedData = invitationInputSchema.parse(req.body);
+      
+      // Generate a unique hash for this invitation if not provided
+      if (!validatedData.inviteHash) {
+        // Import the generateInviteHash function from client utils
+        const { generateInviteHash } = await import('../client/src/lib/utils');
+        validatedData.inviteHash = generateInviteHash();
+        console.log(`Generated unique invitation hash: ${validatedData.inviteHash}`);
+      }
+      
       console.log('Validated invitation data:', validatedData);
       
       // Create the invitation in database
       const invitation = await storage.createInvitation(validatedData);
-      console.log('Created invitation with ID:', invitation.id);
+      console.log('Created invitation with ID:', invitation.id, 'Hash:', invitation.inviteHash);
+      
+      // Log activity with the invitation hash
+      if (invitation.inviteHash) {
+        await storage.createActivityLog({
+          type: "invitation_created",
+          description: `Invitation #${invitation.inviteHash} created for ${invitation.name}`,
+          salonId: Number(invitation.salonId),
+          timestamp: new Date()
+        });
+      }
       
       // Return the invitation data
       res.status(201).json(invitation);
@@ -928,8 +947,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Update invitation status if applicable
       if (invitationId) {
-        await storage.updateInvitationStatus(Number(invitationId), "style_selected");
-        console.log(`Updated invitation ${invitationId} status to style_selected`);
+        // Get the invitation to access its hash
+        const invitation = await storage.getInvitation(Number(invitationId));
+        
+        if (invitation) {
+          // Update the invitation status
+          await storage.updateInvitationStatus(Number(invitationId), "style_selected");
+          console.log(`Updated invitation ${invitationId} status to style_selected`);
+          
+          // Log activity with the hash if available
+          const hashPrefix = invitation.inviteHash ? `#${invitation.inviteHash} - ` : '';
+          await storage.createActivityLog({
+            type: "style_selection_invitation",
+            description: `${hashPrefix}Client ${clientId} selected style ${styleId} from invitation ${invitationId}`,
+            clientId: Number(clientId),
+            salonId: Number(salonId),
+            timestamp: new Date()
+          });
+        } else {
+          console.warn(`Invitation ${invitationId} not found when trying to update status`);
+        }
       }
       
       res.status(201).json(styleSelection);
