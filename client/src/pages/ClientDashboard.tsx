@@ -327,30 +327,9 @@ export default function ClientDashboard() {
                   <CardContent className="pt-4">
                     {salon ? (
                       <div className="space-y-4">
-                        {/* Salon contact info */}
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-2">
-                            <PhoneIcon className="h-4 w-4 text-gray-500" />
-                            <span className="font-medium text-gray-700">Phone:</span>
-                            <span className="text-gray-800">{salon.phone}</span>
-                          </div>
-                          {salon.address && (
-                            <div className="flex items-start gap-2">
-                              <MapPinIcon className="h-4 w-4 text-gray-500 mt-1" />
-                              <div>
-                                <span className="font-medium text-gray-700">Address:</span>
-                                <p className="text-gray-800">
-                                  {salon.address}<br />
-                                  {salon.city}, {salon.state} {salon.zipCode}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* VMB Style Options */}
+                        {/* VMB Style Options - Direct display without salon contact info */}
                         {salon.services && salon.services.length > 0 && (
-                          <div className="mt-5 pt-4 border-t border-gray-100">
+                          <div>
                             <h3 className="text-base font-medium text-pink-700 mb-3">VMB Style Options</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               {salon.services.filter(service => service.featured === true).map((service: any) => (
