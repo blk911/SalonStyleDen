@@ -1,84 +1,44 @@
-# VMB STYLE OPTIONS ENGINE & Client Invitation Flow
+# VMB Invitation Style Flow - Development Notes
 
-This document explains the flow between client invitations and the VMB STYLE OPTIONS ENGINE, along with tools to track and test the process.
+## TEMPORARY DEVELOPMENT BYPASS
 
-## Overview
+**Date: April 17, 2025**
 
-The invitation and style selection process follows these steps:
+This document outlines the temporary development bypass implemented for testing the registration flow and invitation code validation.
 
-1. Salon sends an invitation to a client (creates invitation record)
-2. Client is created in the system (either via registration or direct creation)
-3. Client selects a style using the VMB STYLE OPTIONS ENGINE
-4. The style selection is recorded, linking the client, style, and salon
-5. (Optional) The invitation status may be updated to reflect the style selection
+### Current Implementation
 
-## Tracking Tools
+1. When a user attempts to register with a phone number that's already in the system (e.g., 5127715877), the validation dialog appears.
+2. The dialog now includes an "Enter Promo Code" option for existing clients.
+3. Clicking this button opens a promo code entry dialog.
+4. For development purposes, any code starting with "VMB-" will be accepted for the test phone number 5127715877.
+5. After validation, the user is redirected to the client dashboard.
 
-We've created several scripts to help track and debug this flow:
+### Testing Instructions
 
-### 1. Basic Tracking Script (`track-invitation-flow.sh`)
+To test the temporary bypass flow:
 
-This script monitors API requests related to invitations and style selections, capturing the data flow in real-time.
+1. Attempt to register with phone number: `5127715877`
+2. When the validation dialog appears, click "Enter Promo Code"
+3. Enter any code starting with "VMB-" (e.g., VMB-TEST-123)
+4. You should be redirected to the client dashboard
 
-```bash
-./track-invitation-flow.sh
-```
+### Implementation Notes
 
-### 2. Event Watcher (`watch-invitation-events.sh`)
+- The promo code validation is handled in the temporary endpoint: `/api/invitations/validate`
+- This is NOT a permanent solution and will be replaced with proper verification
+- The PromoCodeDialog component includes a clear development mode notice
+- All bypass events are logged for tracking
 
-This script focuses on monitoring server logs for specific events related to invitations and style selections.
+### Production Implementation (Future)
 
-```bash
-./watch-invitation-events.sh
-```
+The final implementation will:
 
-### 3. Automated Flow Test (`test-invitation-style-flow.sh`)
+1. Verify invitation codes against actual database records
+2. Link clients to their invitation history
+3. Apply any promotional benefits associated with the invitation
+4. Track invitation usage analytics
 
-This comprehensive test script simulates the entire flow, from creating an invitation to making a style selection, and verifies each step is working correctly.
+This temporary bypass allows development to continue while the complete invitation flow is being implemented.
 
-```bash
-./test-invitation-style-flow.sh
-```
-
-## Critical Components
-
-The following components are essential to the invitation-style selection flow:
-
-1. **Invitation API Endpoints**:
-   - `POST /api/invitations` - Create a new invitation
-   - `GET /api/invitations/:id` - Get a specific invitation
-   - `GET /api/salons/:id/invitations` - Get all invitations for a salon
-
-2. **Client API Endpoints**:
-   - `POST /api/clients` - Create a new client
-   - `GET /api/clients/:id` - Get a specific client
-
-3. **Style Selection API Endpoints**:
-   - `POST /api/clients/:clientId/style-selections` - Create a style selection
-   - `GET /api/clients/:clientId/style-selections` - Get all style selections for a client
-
-4. **Front-end Components**:
-   - `VmbStyleOptions` - The component that displays and handles style selection
-   - `SalonPublicPage` - Public page that includes the style options component
-
-## Important Notes
-
-- The current implementation uses a hardcoded `clientId={1}` in the `SalonPublicPage` component for testing purposes.
-- This must be replaced with a dynamic client ID from the authentication context before deployment.
-- See `CRITICAL_PRE_DEPLOY_FIXES.md` for details on required changes before production deployment.
-
-## Test Salon & Client IDs
-
-For testing purposes, use these IDs:
-
-- **Salon ID 1**: TIFFANY_5280 NAILS STUDIO (main test salon)
-- **Client ID 1**: Test Client (specially created for testing style selections)
-
-## Common Issues
-
-If style selections are failing, check:
-
-1. The client with the specified ID exists in the database
-2. The salon with the specified ID exists in the database
-3. The style ID is valid
-4. Console logs for specific error messages
+**IMPORTANT: This bypass should be removed before deployment to production.**

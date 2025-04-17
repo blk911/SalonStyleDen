@@ -891,6 +891,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // TEMPORARY DEVELOPMENT ENDPOINT: Validate promo code for testing
+  apiRouter.post("/invitations/validate", async (req: Request, res: Response) => {
+    try {
+      console.log('Validating promo code with data:', req.body);
+      const { code, phone } = req.body;
+      
+      if (!code || !phone) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      // For development bypass: Any code starting with "VMB-" will be considered valid
+      // In production, this would validate against actual invitation codes in the database
+      if (code.startsWith("VMB-") && phone === "5127715877") {
+        // Record this temporary bypass in logs for development tracking
+        console.log(`DEVELOPMENT BYPASS: Validated promo code ${code} for phone ${phone}`);
+        
+        // In a real implementation, we would fetch the client details
+        // For now, return success to allow the temporary flow
+        return res.status(200).json({ 
+          success: true,
+          message: "Development bypass active",
+          clientId: 1 // Mock client ID for development
+        });
+      }
+      
+      return res.status(400).json({ error: "Invalid promo code" });
+    } catch (error) {
+      console.error('Error validating promo code:', error);
+      res.status(500).json({ error: "Failed to validate promo code" });
+    }
+  });
+  
   apiRouter.get("/salons/:id/invitations", async (req: Request, res: Response) => {
     try {
       const salonId = parseInt(req.params.id);
