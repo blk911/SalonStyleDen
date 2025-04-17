@@ -258,93 +258,98 @@ export default function ClientDashboard() {
             
             {/* DASHBOARD TAB */}
             <TabsContent value="dashboard" className="space-y-6">
-              {/* Personal Information Card with Edit Feature */}
-              <EditableClientInfo 
-                client={{
-                  id: client.id,
-                  name: client.name,
-                  phone: client.phone,
-                  email: client.email,
-                  isCurrentClient: client.isCurrentClient,
-                  notes: client.notes,
-                  favoriteServices: client.favoriteServices,
-                  salonId: client.salonId,
-                  salonName: client.salonName,
-                  type: client.type,
-                  address: client.address,
-                  city: client.city,
-                  state: client.state,
-                  zipCode: client.zipCode,
-                  socialMedia: client.socialMedia,
-                  photoUrl: client.photoUrl
-                }}
-                onSave={(updatedClient) => {
-                  console.log("Client profile updated:", updatedClient);
-                  // The React Query cache will be invalidated by the component
-                  setIsEditing(false);
-                }}
-                defaultEditing={isEditing}
-              />
-              
-              {/* Linked Salon Card */}
-              {client.salonId && (
-                <Card className="rounded-xl shadow-sm overflow-hidden">
-                  <CardHeader className="bg-pink-50 pb-3">
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
-                        <ScissorsIcon className="h-4 w-4" />
-                        Your Salon
-                      </CardTitle>
-                      {salon && (
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="border-pink-300 text-pink-700 hover:bg-pink-50"
-                          onClick={() => window.location.href = `/salon/${salon.id}`}
-                        >
-                          View Salon Page
-                        </Button>
-                      )}
-                    </div>
-                    {salon && (
-                      <CardDescription>Member of {salon.name}</CardDescription>
-                    )}
-                  </CardHeader>
-                  
-                  <CardContent className="pt-4">
-                    {salon ? (
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <UserIcon className="h-4 w-4 text-gray-500" />
-                          <span className="font-medium text-gray-700">Owner:</span>
-                          <span className="text-gray-800">{salon.ownerName}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <PhoneIcon className="h-4 w-4 text-gray-500" />
-                          <span className="font-medium text-gray-700">Phone:</span>
-                          <span className="text-gray-800">{salon.phone}</span>
-                        </div>
-                        {salon.address && (
-                          <div className="flex items-start gap-2">
-                            <MapPinIcon className="h-4 w-4 text-gray-500 mt-1" />
-                            <div>
-                              <span className="font-medium text-gray-700">Address:</span>
-                              <p className="text-gray-800">
-                                {salon.address}<br />
-                                {salon.city}, {salon.state} {salon.zipCode}
-                              </p>
+              {/* Two-column layout for client and salon info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Left column: Personal Information Card */}
+                <div>
+                  <EditableClientInfo 
+                    client={{
+                      id: client.id,
+                      name: client.name,
+                      phone: client.phone,
+                      email: client.email,
+                      isCurrentClient: client.isCurrentClient,
+                      notes: client.notes,
+                      favoriteServices: client.favoriteServices,
+                      salonId: client.salonId,
+                      salonName: client.salonName,
+                      type: client.type,
+                      address: client.address,
+                      city: client.city,
+                      state: client.state,
+                      zipCode: client.zipCode,
+                      socialMedia: client.socialMedia,
+                      photoUrl: client.photoUrl
+                    }}
+                    onSave={(updatedClient) => {
+                      console.log("Client profile updated:", updatedClient);
+                      // The React Query cache will be invalidated by the component
+                      setIsEditing(false);
+                    }}
+                    defaultEditing={isEditing}
+                  />
+                </div>
+                
+                {/* Right column: Linked Salon Card */}
+                <div>
+                  {client.salonId && (
+                    <Card className="rounded-xl shadow-sm overflow-hidden h-full">
+                      <CardHeader className="bg-pink-50 pb-3">
+                        <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                          <ScissorsIcon className="h-4 w-4" />
+                          Your Salon
+                        </CardTitle>
+                        {salon && (
+                          <CardDescription>Member of {salon.name}</CardDescription>
+                        )}
+                      </CardHeader>
+                      
+                      <CardContent className="pt-4">
+                        {salon ? (
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <UserIcon className="h-4 w-4 text-gray-500" />
+                              <span className="font-medium text-gray-700">Owner:</span>
+                              <span className="text-gray-800">{salon.ownerName}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <PhoneIcon className="h-4 w-4 text-gray-500" />
+                              <span className="font-medium text-gray-700">Phone:</span>
+                              <span className="text-gray-800">{salon.phone}</span>
+                            </div>
+                            {salon.address && (
+                              <div className="flex items-start gap-2">
+                                <MapPinIcon className="h-4 w-4 text-gray-500 mt-1" />
+                                <div>
+                                  <span className="font-medium text-gray-700">Address:</span>
+                                  <p className="text-gray-800">
+                                    {salon.address}<br />
+                                    {salon.city}, {salon.state} {salon.zipCode}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                            
+                            <div className="mt-4 pt-2">
+                              <Button 
+                                variant="outline" 
+                                className="w-full border-pink-300 text-pink-700 hover:bg-pink-50"
+                                onClick={() => window.location.href = `/salon/${salon.id}`}
+                              >
+                                View Salon Page
+                              </Button>
                             </div>
                           </div>
+                        ) : salonLoading ? (
+                          <p>Loading salon information...</p>
+                        ) : (
+                          <p>Salon information not available</p>
                         )}
-                      </div>
-                    ) : salonLoading ? (
-                      <p>Loading salon information...</p>
-                    ) : (
-                      <p>Salon information not available</p>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </div>
               
               {/* Invitations Card */}
               {invitations && invitations.length > 0 && (
