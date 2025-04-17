@@ -355,6 +355,19 @@ export default function ClientDashboard() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               {salon.services.filter(service => service.featured === true).map((service: any) => (
                                 <div key={service.id} className="flex gap-3 p-3 border rounded-lg bg-pink-50 hover:bg-pink-100 transition-colors">
+                                  {service.gifUrl && (
+                                    <div className="w-16 h-16 flex-shrink-0 rounded overflow-hidden border border-pink-100">
+                                      <img 
+                                        src={service.gifUrl}
+                                        alt={service.name}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          console.error(`Error loading image for ${service.name}`);
+                                          e.currentTarget.src = '/assets/service-placeholder.png';
+                                        }}
+                                      />
+                                    </div>
+                                  )}
                                   <div className="flex-1">
                                     <h4 className="font-medium text-sm">{service.name}</h4>
                                     <p className="text-xs text-gray-600 mt-1">{service.description}</p>
