@@ -42,6 +42,7 @@ export const clients = pgTable("clients", {
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
   salonId: integer("salon_id"), // Reference to salon if client belongs to one
   salonName: text("salon_name"), // Name of the salon for display purposes
+  sponsor: text("sponsor").default("Ven Me, Baby! LTD"), // Sponsor name with default
   type: text("type").notNull().default("client"),
   address: text("address"), // Street address
   city: text("city"),

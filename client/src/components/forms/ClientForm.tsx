@@ -47,6 +47,7 @@ const clientFormSchema = z.object({
   favoriteServices: z.array(z.string()).optional(),
   salonId: z.string().optional(),
   salonName: z.string().optional(), // Added for verification display purposes
+  sponsor: z.string().default("Ven Me, Baby! LTD"), // Sponsor with default
 });
 
 type ClientFormValues = z.infer<typeof clientFormSchema>;
@@ -144,6 +145,7 @@ export default function ClientForm() {
       favoriteServices: [],
       salonId: "loading", // Will be updated once salons are loaded
       salonName: "",
+      sponsor: "Ven Me, Baby! LTD", // Default sponsor
     },
   });
 
@@ -315,6 +317,7 @@ export default function ClientForm() {
         // Make sure we don't try to parse "loading" as an integer
         salonId: salonId && salonId !== "loading" ? parseInt(salonId) : undefined,
         salonName: salonName,
+        sponsor: data.sponsor || "Ven Me, Baby! LTD", // Use form data or default
         type: "client",
       };
 
