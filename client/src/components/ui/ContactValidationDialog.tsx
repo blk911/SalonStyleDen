@@ -40,22 +40,17 @@ export function ContactValidationDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center text-xl text-pink-700">
-            {errorField === 'phone' 
-              ? 'Phone Number Already Exists' 
-              : errorField === 'email' 
-                ? 'Email Already Exists' 
-                : 'Contact Already Exists'}
+            Phone Number Already Exists
           </DialogTitle>
         </DialogHeader>
         
         <div className="p-6 text-center space-y-4">
           <AlertCircle className="h-16 w-16 text-pink-500 mx-auto" />
-          <p className="text-lg">{errorMessage}</p>
           
           {errorField === 'phone' ? (
             <div className="space-y-5">
               <div>
-                <p className="text-gray-600 font-medium mb-2">This number is unavailable.</p>
+                <h3 className="text-lg font-medium text-gray-700 mb-3">THIS NUMBER IS UNAVAILABLE</h3>
                 <Button 
                   onClick={handleGoBack} 
                   variant="outline"
@@ -66,7 +61,7 @@ export function ContactValidationDialog({
               </div>
               
               <div className="border-t border-gray-200 pt-4">
-                <p className="text-gray-700 font-medium mb-3">ARE YOU AN EXISTING CLIENT?</p>
+                <h3 className="text-lg font-medium text-gray-700 mb-3">ARE YOU AN EXISTING CLIENT?</h3>
                 <p className="text-gray-600 mb-1">YOU MAY HAVE RECEIVED A VEN ME, BABY! INVITATION.</p>
                 <p className="text-gray-600 mb-3">CHECK YOUR MESSAGES.</p>
                 <p className="text-gray-600 mb-3">See your invitation promo code,</p>
