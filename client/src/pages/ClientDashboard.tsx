@@ -252,15 +252,16 @@ export default function ClientDashboard() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="border-pink-300 text-pink-700 hover:bg-pink-50"
+                      className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center justify-center min-w-[140px]"
                       onClick={() => window.location.href = `/salon/${salon.id}`}
                     >
                       View Salon Page
                     </Button>
                   )}
                   <Button 
-                    variant="outline" 
-                    className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center gap-2"
+                    variant="outline"
+                    size="sm" 
+                    className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center justify-center gap-2 min-w-[140px]"
                     onClick={() => setIsEditing(!isEditing)}
                   >
                     <PencilIcon className="h-4 w-4" />
