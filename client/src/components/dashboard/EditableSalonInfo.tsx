@@ -38,7 +38,8 @@ interface EditableSalonInfoProps {
 
 export default function EditableSalonInfo({ salon, onSave, defaultEditing = false }: EditableSalonInfoProps) {
   const [isEditing, setIsEditing] = useState(defaultEditing);
-  const [showEditForm, setShowEditForm] = useState(defaultEditing); // Initialize both states with defaultEditing
+  // Only show the edit form if specifically requested via URL params, otherwise start in view-only mode
+  const [showEditForm, setShowEditForm] = useState(false);
   const [editedSalon, setEditedSalon] = useState<SalonInfo>({ ...salon });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [socialPlatform, setSocialPlatform] = useState("");
