@@ -40,27 +40,27 @@ export function ContactValidationDialog({
           {errorField === 'phone' ? (
             <div className="space-y-5">
               <div>
-                <h3 className="text-lg font-medium text-gray-700 mb-3">THIS NUMBER IS UNAVAILABLE</h3>
+                <h3 className="text-lg font-medium text-gray-700 mb-3">This number is unavailable</h3>
                 <Button 
                   onClick={handleGoBack} 
                   variant="outline"
                   className="border-pink-300 w-full sm:w-auto"
                 >
-                  BACK BUTTON
+                  Back Button
                 </Button>
               </div>
               
               <div className="border-t border-gray-200 pt-4">
-                <h3 className="text-lg font-medium text-gray-700 mb-3">ARE YOU AN EXISTING CLIENT?</h3>
-                <p className="text-gray-600 mb-1">YOU MAY HAVE RECEIVED A VEN ME, BABY! INVITATION.</p>
-                <p className="text-gray-600 mb-3">CHECK YOUR MESSAGES.</p>
+                <h3 className="text-lg font-medium text-gray-700 mb-3">Are you an existing client?</h3>
+                <p className="text-gray-600 mb-1">You may have received a Ven Me, Baby! invitation.</p>
+                <p className="text-gray-600 mb-3">Check your messages.</p>
                 <p className="text-gray-600 mb-3">See your invitation promo code,</p>
                 
                 <Button 
                   onClick={handleEnterPromoCode} 
                   className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto px-6"
                 >
-                  ENTER PROMO CODE
+                  Enter Promo Code
                 </Button>
               </div>
             </div>
