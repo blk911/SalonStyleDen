@@ -5,7 +5,8 @@
  * following the format VMB-INV-{random}-{timestamp}
  */
 
-const { Pool } = require('pg');
+import pg from 'pg';
+const { Pool } = pg;
 
 // Generate a unique invitation hash in the format VMB-INV-{random}-{timestamp}
 function generateInviteHash() {

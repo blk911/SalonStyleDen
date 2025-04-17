@@ -8,7 +8,7 @@
 import pg from 'pg';
 const { Pool } = pg;
 
-// PostgreSQL connection - use the same environment variable as the application
+// PostgreSQL connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
@@ -40,13 +40,34 @@ async function purgeInvitations() {
       return;
     }
 
+    // Log the invitation hashes that will be purged
+    const hashesResult = await executeQuery('SELECT id, invite_hash FROM invitations');
+    console.log(`Hashes to be purged:`);
+    hashesResult.rows.forEach(row => {
+      console.log(`- ID: ${row.id}, Hash: ${row.invite_hash || 'No hash'}`);
+    });
+
     // Remove all activity logs related to invitations first
     console.log('Removing activity logs related to invitations...');
     const activityLogResult = await executeQuery(
       `DELETE FROM activity_logs 
-       WHERE description LIKE '%invitation%' OR description LIKE '%invite%'`
+       WHERE description LIKE '%invitation%' OR 
+             description LIKE '%invite%' OR 
+             description LIKE '%VMB-INV-%'`
     );
     console.log(`Removed ${activityLogResult.rowCount} activity logs related to invitations`);
+
+    // Note: Invitations don't directly reference clients in our schema
+    // So we'll just clean up any orphaned style selections as a best practice
+    console.log('Cleaning up style selections with missing clients...');
+    const styleSelectionsResult = await executeQuery(
+      `DELETE FROM style_selections 
+       WHERE NOT EXISTS (
+         SELECT 1 FROM clients 
+         WHERE style_selections.client_id = clients.id
+       )`
+    );
+    console.log(`Removed ${styleSelectionsResult.rowCount} style selections related to invitations`);
 
     // Remove all invitations
     console.log('Removing all invitations...');
