@@ -229,29 +229,27 @@ export default function ClientDashboard() {
                 </div>
                 <div className="ml-4">
                   <h1 className="font-bold text-2xl text-pink-700">{client.name}</h1>
-                  <div className="flex items-center gap-3 mt-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center justify-center gap-2 min-w-[140px]"
-                    >
-                      <CalendarIcon className="h-4 w-4" />
-                      Joined: {new Date(client.createdAt).toLocaleDateString()}
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center justify-center gap-2 min-w-[140px]"
-                    >
-                      <StarIcon className="h-4 w-4 text-pink-500" />
-                      Sponsor: {client.sponsor ? client.sponsor.split(' ')[0] : "None"}
-                    </Button>
-                  </div>
                 </div>
               </div>
               
               <div className="mt-4 md:mt-0">
                 <div className="flex space-x-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center justify-center gap-2 min-w-[140px]"
+                  >
+                    <CalendarIcon className="h-4 w-4" />
+                    Joined: {new Date(client.createdAt).toLocaleDateString()}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center justify-center gap-2 min-w-[140px]"
+                  >
+                    <StarIcon className="h-4 w-4 text-pink-500" />
+                    Sponsor: {client.sponsor ? client.sponsor.split(' ')[0] : "None"}
+                  </Button>
                   {client.salonId && salon && (
                     <Button 
                       variant="outline" 
