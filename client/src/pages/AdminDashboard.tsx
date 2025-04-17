@@ -6,6 +6,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Link } from 'wouter';
+import { Badge } from "@/components/ui/badge";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 
 interface Client {
@@ -26,18 +33,36 @@ interface Salon {
   phone: string;
 }
 
+interface Invitation {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  notes?: string;
+  favoriteServices: string[];
+  salonId?: number;
+  salonName?: string;
+  status?: string;
+  sponsor?: string;
+  firstServiceDate?: string;
+  createdAt: string;
+}
+
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
 
   const { data: clients, error: clientError, isLoading: clientIsLoading } = useQuery<Client[]>({
-    queryKey: ['clients'],
+    queryKey: ['/api/clients'], // Fixed query key to match the actual API endpoint
     queryFn: async () => {
       try {
+        console.log('Fetching clients from API...');
         const response = await fetch('/api/clients');
         if (!response.ok) {
           throw new Error('Failed to fetch clients');
         }
-        return response.json();
+        const data = await response.json();
+        console.log('Fetched clients:', data);
+        return data;
       } catch (error) {
         console.error('Error fetching clients:', error);
         throw error;
@@ -46,24 +71,56 @@ export default function AdminDashboard() {
   });
 
   const { data: salons, error: salonError, isLoading: salonIsLoading } = useQuery<Salon[]>({
-    queryKey: ['salons'],
+    queryKey: ['/api/salons'], // Fixed query key to match the actual API endpoint
     queryFn: async () => {
       try {
+        console.log('Fetching salons from API...');
         const response = await fetch('/api/salons');
         if (!response.ok) {
           throw new Error('Failed to fetch salons');
         }
-        return response.json();
+        const data = await response.json();
+        console.log('Fetched salons:', data);
+        return data;
       } catch (error) {
         console.error('Error fetching salons:', error);
         throw error;
       }
     },
   });
+  
+  // New query to fetch all invitations
+  const { data: invitations, error: inviteError, isLoading: inviteIsLoading } = useQuery<Invitation[]>({
+    queryKey: ['/api/invitations'],
+    queryFn: async () => {
+      try {
+        console.log('Fetching invitations from API...');
+        const response = await fetch('/api/invitations?limit=50'); // Get more invitations for admin view
+        if (!response.ok) {
+          throw new Error('Failed to fetch invitations');
+        }
+        const data = await response.json();
+        console.log('Fetched invitations:', data);
+        return data;
+      } catch (error) {
+        console.error('Error fetching invitations:', error);
+        throw error;
+      }
+    },
+  });
 
-  if (clientIsLoading || salonIsLoading) return <div>Loading...</div>;
+  // Format phone numbers for display
+  const formatPhoneNumber = (phone: string) => {
+    if (!phone) return '';
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length !== 10) return phone;
+    return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+  };
+
+  if (clientIsLoading || salonIsLoading || inviteIsLoading) return <div>Loading...</div>;
   if (clientError) return <div>Error loading clients: {clientError.message}</div>;
   if (salonError) return <div>Error loading salons: {salonError.message}</div>;
+  if (inviteError) return <div>Error loading invitations: {inviteError.message}</div>;
 
 
   return (
@@ -190,11 +247,140 @@ export default function AdminDashboard() {
           </Card>
 
           <div className="grid gap-6">
+            {/* Client Invitations Table */}
+            <Card>
+              <CardContent className="p-4">
+                <h2 className="text-xl font-semibold mb-4">Client Invitations</h2>
+                <ScrollArea className="h-[300px]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="max-h-[30px]">
+                        <TableHead className="max-h-[30px] py-1">Name</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Email</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Phone</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Sponsor</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Status</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {invitations?.map((invite: Invitation) => (
+                        <TableRow
+                          key={invite.id}
+                          className="hover:bg-gray-50 h-[28px]"
+                        >
+                          {/* Name with truncation */}
+                          <TableCell className="py-0">
+                            {invite.name.length > 12 ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help">
+                                      {invite.name.substring(0, 10)}...
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{invite.name}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              invite.name
+                            )}
+                          </TableCell>
+                          
+                          {/* Email with truncation */}
+                          <TableCell className="py-0">
+                            {invite.email && invite.email.length > 15 ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help">
+                                      {invite.email.substring(0, 12)}...
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{invite.email}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              invite.email
+                            )}
+                          </TableCell>
+                          
+                          {/* Phone with truncation */}
+                          <TableCell className="py-0">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help">
+                                    {formatPhoneNumber(invite.phone).substring(0, 7)}•••
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{formatPhoneNumber(invite.phone)}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </TableCell>
+                          
+                          {/* Sponsor with truncation */}
+                          <TableCell className="py-0">
+                            {invite.sponsor && invite.sponsor.length > 10 ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help">
+                                      {invite.sponsor.substring(0, 8)}...
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{invite.sponsor}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              invite.sponsor || 'N/A'
+                            )}
+                          </TableCell>
+                          
+                          {/* Status badge */}
+                          <TableCell className="py-0">
+                            <Badge 
+                              variant="outline" 
+                              className={`text-xs
+                                ${invite.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
+                                ${invite.status === 'style_selected' ? 'bg-green-50 text-green-700 border-green-200' : ''}
+                                ${invite.status === 'completed' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
+                                ${!invite.status ? 'bg-gray-50 text-gray-700 border-gray-200' : ''}
+                              `}
+                            >
+                              {invite.status || 'pending'}
+                            </Badge>
+                          </TableCell>
+                          
+                          {/* Date with compact format */}
+                          <TableCell className="py-0 text-xs">
+                            {new Date(invite.createdAt).toLocaleDateString('en-US', {
+                              month: '2-digit', 
+                              day: '2-digit',
+                              year: '2-digit'
+                            })}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+
             {/* Clients Table */}
             <Card>
               <CardContent className="p-4">
                 <h2 className="text-xl font-semibold mb-4">Current Clients</h2>
-                <ScrollArea className="h-[400px]">
+                <ScrollArea className="h-[300px]">
                   <Table>
                     <TableHeader>
                       <TableRow className="max-h-[30px]">
@@ -202,30 +388,103 @@ export default function AdminDashboard() {
                         <TableHead className="max-h-[30px] py-1">Email</TableHead>
                         <TableHead className="max-h-[30px] py-1">Phone</TableHead>
                         <TableHead className="max-h-[30px] py-1">Salon</TableHead>
-                        <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead> {/* Changed header text */}
+                        <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {clients?.filter((client: Client) => client.isCurrentClient).map((client: Client) => (
                         <TableRow
                           key={client.id}
-                          className="hover:bg-gray-50 h-[30px]"
+                          className="hover:bg-gray-50 h-[28px]"
                         >
-                          <TableCell className="py-0">{client.name}</TableCell>
-                          <TableCell className="py-0">{client.email}</TableCell>
-                          <TableCell className="py-0">{client.phone}</TableCell>
-                          <TableCell className="py-0">{client.salonName || 'N/A'}</TableCell>
+                          {/* Name with truncation */}
+                          <TableCell className="py-0">
+                            {client.name.length > 12 ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help">
+                                      {client.name.substring(0, 10)}...
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{client.name}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              client.name
+                            )}
+                          </TableCell>
+                          
+                          {/* Email with truncation */}
+                          <TableCell className="py-0">
+                            {client.email && client.email.length > 15 ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help">
+                                      {client.email.substring(0, 12)}...
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{client.email}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              client.email
+                            )}
+                          </TableCell>
+                          
+                          {/* Phone with truncation */}
+                          <TableCell className="py-0">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help">
+                                    {client.phone.substring(0, 7)}•••
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{client.phone}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </TableCell>
+                          
+                          {/* Salon name with truncation */}
+                          <TableCell className="py-0">
+                            {client.salonName && client.salonName.length > 10 ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help">
+                                      {client.salonName.substring(0, 8)}...
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{client.salonName}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              client.salonName || 'N/A'
+                            )}
+                          </TableCell>
+                          
+                          {/* Actions */}
                           <TableCell className="py-0 text-right">
                             <div className="flex justify-end gap-1">
                               <Link href={`/client/${client.id}`}>
                                 <button className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]">
-                                  Client Page
+                                  Client
                                 </button>
                               </Link>
                               {client.salonId && (
                                 <Link href={`/salon/${client.salonId}`}>
                                   <button className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200">
-                                    Salon Page
+                                    Salon
                                   </button>
                                 </Link>
                               )}
@@ -243,31 +502,30 @@ export default function AdminDashboard() {
             <Card>
               <CardContent className="p-4">
                 <h2 className="text-xl font-semibold mb-4">Salons</h2>
-                <ScrollArea className="h-[400px]">
+                <ScrollArea className="h-[300px]">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Owner</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Phone</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                      <TableRow className="max-h-[30px]">
+                        <TableHead className="max-h-[30px] py-1">ID</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Name</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Owner</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Email</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Phone</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {salons?.map((salon: Salon) => (
                         <TableRow
                           key={salon.id}
-                          className="cursor-pointer hover:bg-gray-50"
-                          //onClick={() => setLocation(`/salon/${salon.id}`.replace(/\/\//g, '/'))}
+                          className="hover:bg-gray-50 h-[30px]"
                         >
-                          <TableCell>{salon.id}</TableCell>
-                          <TableCell>{salon.name}</TableCell>
-                          <TableCell>{salon.ownerName}</TableCell>
-                          <TableCell>{salon.email}</TableCell>
-                          <TableCell>{salon.phone}</TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="py-0">{salon.id}</TableCell>
+                          <TableCell className="py-0">{salon.name}</TableCell>
+                          <TableCell className="py-0">{salon.ownerName}</TableCell>
+                          <TableCell className="py-0">{salon.email}</TableCell>
+                          <TableCell className="py-0">{salon.phone}</TableCell>
+                          <TableCell className="py-0 text-right">
                             <div className="flex justify-end gap-1">
                               <Link href={`/salon/${salon.id}`.replace(/\/\//g, '/')}>
                                 <button className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200">

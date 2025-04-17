@@ -1,0 +1,11 @@
+{
+  "name": "TestClient_1744846253",
+  "phone": "555-123-6253",
+  "email": "TestClient_1744846253@example.com",
+  "isCurrentClient": true,
+  "notes": "Test client created via automation script",
+  "favoriteServices": ["French Tips"],
+  "type": "client",
+  "salonId": 1,
+  "salonName": "TIFFANY_5280 NAILS STUDIO"
+}
