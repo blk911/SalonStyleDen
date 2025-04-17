@@ -462,11 +462,6 @@ export default function ClientDashboard() {
                             </h3>
                             
                             <div className="mt-4">
-                              <div className="flex items-center mb-3">
-                                <h4 className="font-medium text-base text-pink-800">Most Recent VMBs</h4>
-                                <div className="h-6 mx-4 border-r border-pink-300"></div>
-                                <h4 className="font-medium text-base text-pink-800">Create VMB Invite</h4>
-                              </div>
                               
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100">
