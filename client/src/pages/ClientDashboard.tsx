@@ -252,7 +252,7 @@ export default function ClientDashboard() {
           <Tabs defaultValue="dashboard" className="space-y-6">
             <TabsList className="grid grid-cols-3 w-full max-w-md mx-auto">
               <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-              <TabsTrigger value="styles">Style Options</TabsTrigger>
+              <TabsTrigger value="styles">VMB Promos</TabsTrigger>
               <TabsTrigger value="appointments">Appointments</TabsTrigger>
             </TabsList>
             
@@ -390,16 +390,16 @@ export default function ClientDashboard() {
               )}
             </TabsContent>
             
-            {/* STYLE OPTIONS TAB */}
+            {/* VMB PROMOS TAB */}
             <TabsContent value="styles" className="space-y-6">
               <Card className="rounded-xl shadow-sm overflow-hidden">
                 <CardHeader className="bg-pink-50 pb-3">
                   <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
                     <ScissorsIcon className="h-4 w-4" />
-                    Ven Me, Baby! Style Options
+                    Ven Me, Baby! Promos
                   </CardTitle>
                   <CardDescription>
-                    Select your preferred style options below
+                    Check out special promotions and select your preferred styles
                   </CardDescription>
                 </CardHeader>
                 
@@ -414,8 +414,8 @@ export default function ClientDashboard() {
                     <div className="text-center p-6">
                       <p className="text-gray-500">
                         {client.salonId ? 
-                          "Your salon's style options will appear here." :
-                          "You're not currently associated with a salon. Style options will appear here once you're linked to a salon."}
+                          "Your salon's promotions and style options will appear here." :
+                          "You're not currently associated with a salon. Promotions will appear here once you're linked to a salon."}
                       </p>
                     </div>
                   )}
