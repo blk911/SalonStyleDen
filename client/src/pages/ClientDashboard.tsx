@@ -563,7 +563,7 @@ export default function ClientDashboard() {
                                     id="message"
                                     rows={4}
                                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                    placeholder={`Hi! ${inviteForm.recipientName || '[recpt name]'},\n\nI love this style - ${selectedStyle?.name || '[selected opt]'}. My nails are a mess and ${salon?.ownerName || '[sal own nm]'} has an opening.\n\nI would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ ${client.name}`}
+                                    placeholder={`Hi! ${inviteForm.recipientName || '[recpt name]'},\n\nI love this style - ${selectedStyle?.name || '[selected opt]'}. My nails are a mess and ${salon?.ownerName || '[sal own nm]'} has an opening.\n\nI would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ ${client.name}\n\nVenmo | Zelle | Cash App`}
                                     value={inviteForm.message}
                                     onChange={(e) => setInviteForm({...inviteForm, message: e.target.value})}
                                   />
@@ -733,25 +733,8 @@ export default function ClientDashboard() {
                                       I love this style - {selectedStyle?.name || '[selected opt]'}. My nails are a mess and {salon?.ownerName || '[sal own nm]'} has an opening.
                                     </p>
                                     
-                                    <p className="text-gray-800 mb-2">
-                                      I would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ {client.name}
-                                    </p>
-                                    
-                                    {/* Payment icons */}
-                                    <div className="flex justify-center gap-4 mb-4">
-                                      <div className="bg-green-100 p-2 rounded-full">
-                                        <span className="text-green-700 font-bold">Venmo</span>
-                                      </div>
-                                      <div className="bg-blue-100 p-2 rounded-full">
-                                        <span className="text-blue-700 font-bold">Zelle</span>
-                                      </div>
-                                      <div className="bg-green-100 p-2 rounded-full">
-                                        <span className="text-green-700 font-bold">Cash App</span>
-                                      </div>
-                                    </div>
-                                    
-                                    {/* Image and price inside the message - moved below signature as requested */}
-                                    <div className="bg-white p-2 rounded-lg shadow-sm border border-blue-200">
+                                    {/* Image and price inside the message - original position between opening and signature line */}
+                                    <div className="bg-white p-2 rounded-lg shadow-sm border border-blue-200 mb-4">
                                       <div className="flex items-center">
                                         {selectedStyle?.gifUrl && (
                                           <div className="w-20 h-20 rounded-lg overflow-hidden border border-blue-300 mr-3">
@@ -769,6 +752,23 @@ export default function ClientDashboard() {
                                           <p className="font-medium text-blue-800">{selectedStyle?.name}</p>
                                           <p className="text-blue-700">${selectedStyle?.price} <span className="text-xs">(taxes, reg fee included)</span></p>
                                         </div>
+                                      </div>
+                                    </div>
+                                    
+                                    <p className="text-gray-800 mb-2">
+                                      I would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ {client.name}
+                                    </p>
+                                    
+                                    {/* Payment icons */}
+                                    <div className="flex justify-center gap-4 mb-2">
+                                      <div className="rounded-lg overflow-hidden w-12 h-12">
+                                        <img src="/assets/venmo.png" alt="Venmo" className="w-full h-full" />
+                                      </div>
+                                      <div className="rounded-lg overflow-hidden w-12 h-12">
+                                        <img src="/assets/zelle.png" alt="Zelle" className="w-full h-full" />
+                                      </div>
+                                      <div className="rounded-lg overflow-hidden w-12 h-12">
+                                        <img src="/assets/cashapp.png" alt="Cash App" className="w-full h-full" />
                                       </div>
                                     </div>
                                   </div>
