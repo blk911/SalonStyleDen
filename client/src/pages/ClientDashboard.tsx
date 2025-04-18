@@ -733,9 +733,22 @@ export default function ClientDashboard() {
                                       I love this style - {selectedStyle?.name || '[selected opt]'}. My nails are a mess and {salon?.ownerName || '[sal own nm]'} has an opening.
                                     </p>
                                     
-                                    <p className="text-gray-800 mb-4">
+                                    <p className="text-gray-800 mb-2">
                                       I would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ {client.name}
                                     </p>
+                                    
+                                    {/* Payment icons */}
+                                    <div className="flex justify-center gap-4 mb-4">
+                                      <div className="bg-green-100 p-2 rounded-full">
+                                        <span className="text-green-700 font-bold">Venmo</span>
+                                      </div>
+                                      <div className="bg-blue-100 p-2 rounded-full">
+                                        <span className="text-blue-700 font-bold">Zelle</span>
+                                      </div>
+                                      <div className="bg-green-100 p-2 rounded-full">
+                                        <span className="text-green-700 font-bold">Cash App</span>
+                                      </div>
+                                    </div>
                                     
                                     {/* Image and price inside the message - moved below signature as requested */}
                                     <div className="bg-white p-2 rounded-lg shadow-sm border border-blue-200">
