@@ -520,68 +520,53 @@ export default function ClientDashboard() {
                                 
                                 <div className="space-y-4">
                                   <p className="text-sm text-gray-600">
-                                    Enter the name and cell/email of the person you are inviting to gift your Ven Me, Baby! treat!
+                                    Enter the name and cell/email you are inviting to gift your Ven Me, Baby! treat!
                                   </p>
                                   
-                                  {/* Recipient Name Field */}
-                                  <div>
-                                    <label htmlFor="recipientName" className="block text-sm font-medium text-gray-700 mb-1">
-                                      Recipient Name
-                                    </label>
+                                  {/* Name and Cell on same line */}
+                                  <div className="flex gap-2">
+                                    {/* Recipient Name Field */}
                                     <input
                                       type="text"
                                       id="recipientName"
                                       className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                      placeholder="Enter recipient name"
+                                      placeholder="RECIPIENT name"
                                       value={inviteForm.recipientName}
                                       onChange={(e) => setInviteForm({...inviteForm, recipientName: e.target.value})}
                                     />
-                                  </div>
-                                  
-                                  {/* Recipient Phone Field */}
-                                  <div>
-                                    <label htmlFor="recipientPhone" className="block text-sm font-medium text-gray-700 mb-1">
-                                      Recipient Cell Phone
-                                    </label>
+                                    
+                                    {/* Recipient Phone Field */}
                                     <input
                                       type="tel"
                                       id="recipientPhone"
                                       className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                      placeholder="Enter phone number"
+                                      placeholder="Cell phone number"
                                       value={inviteForm.recipientPhone}
                                       onChange={(e) => setInviteForm({...inviteForm, recipientPhone: e.target.value})}
                                     />
                                   </div>
                                   
-                                  {/* Recipient Email Field */}
-                                  <div>
-                                    <label htmlFor="recipientEmail" className="block text-sm font-medium text-gray-700 mb-1">
-                                      Recipient Email
-                                    </label>
+                                  {/* Recipient Email Field - reduced width */}
+                                  <div className="flex">
                                     <input
                                       type="email"
                                       id="recipientEmail"
-                                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                      placeholder="Enter email address"
+                                      className="w-1/2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                      placeholder="Email address (optional)"
                                       value={inviteForm.recipientEmail}
                                       onChange={(e) => setInviteForm({...inviteForm, recipientEmail: e.target.value})}
                                     />
                                   </div>
                                   
                                   {/* Custom Message Field */}
-                                  <div>
-                                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                                      Message
-                                    </label>
-                                    <textarea
-                                      id="message"
-                                      rows={3}
-                                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                      placeholder={`Hi ${inviteForm.recipientName || '[RECIPIENT NAME]'}, my nails are a mess, my stylist has an opening! Will you Ven Me, Baby!? before my appointment! XOXO ${client.name}`}
-                                      value={inviteForm.message}
-                                      onChange={(e) => setInviteForm({...inviteForm, message: e.target.value})}
-                                    />
-                                  </div>
+                                  <textarea
+                                    id="message"
+                                    rows={3}
+                                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    placeholder={`HI ${inviteForm.recipientName || '[RECPT NAME]'}, my nails are a mess, my stylist has an opening! Will you Ven Me, Baby!? before my appointment! XOXO ${client.name}`}
+                                    value={inviteForm.message}
+                                    onChange={(e) => setInviteForm({...inviteForm, message: e.target.value})}
+                                  />
                                   
                                   {/* Style Information Display */}
                                   <div className="bg-pink-50 p-3 rounded-md">
@@ -764,7 +749,7 @@ export default function ClientDashboard() {
                                   
                                   <div className="bg-white rounded-md p-3 border border-pink-200 mb-4">
                                     <p className="text-gray-700">
-                                      {inviteForm.message || `Hi ${inviteForm.recipientName}, my nails are a mess, my stylist has an opening! Will you Ven Me, Baby!? before my appointment! XOXO ${client.name}`}
+                                      {inviteForm.message || `HI ${inviteForm.recipientName || '[RECPT NAME]'}, my nails are a mess, my stylist has an opening! Will you Ven Me, Baby!? before my appointment! XOXO ${client.name}`}
                                     </p>
                                   </div>
                                   
