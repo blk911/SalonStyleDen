@@ -102,6 +102,17 @@ export default function ClientDashboard() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showPersonalizedOffers, setShowPersonalizedOffers] = useState(false);
   const [showCreatePromo, setShowCreatePromo] = useState(false);
+  
+  // State for invitation form
+  const [inviteForm, setInviteForm] = useState({
+    recipientName: '',
+    recipientPhone: '',
+    recipientEmail: '',
+    message: ''
+  });
+  
+  // State for invitation preview
+  const [showInvitePreview, setShowInvitePreview] = useState(false);
 
   // Add debugging information to trace API calls
   console.log(`ClientDashboard - Fetching client with ID: ${id}`);
@@ -507,9 +518,270 @@ export default function ClientDashboard() {
                               <div className="mt-4 bg-white p-4 rounded-lg shadow-sm border border-pink-100">
                                 <h5 className="font-medium text-pink-700 mb-4">Create Promo</h5>
                                 
-                                {/* Content will be filled later */}
+                                <div className="space-y-4">
+                                  <p className="text-sm text-gray-600">
+                                    Enter the name and cell/email of the person you are inviting to gift your Ven Me, Baby! treat!
+                                  </p>
+                                  
+                                  {/* Recipient Name Field */}
+                                  <div>
+                                    <label htmlFor="recipientName" className="block text-sm font-medium text-gray-700 mb-1">
+                                      Recipient Name
+                                    </label>
+                                    <input
+                                      type="text"
+                                      id="recipientName"
+                                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                      placeholder="Enter recipient name"
+                                      value={inviteForm.recipientName}
+                                      onChange={(e) => setInviteForm({...inviteForm, recipientName: e.target.value})}
+                                    />
+                                  </div>
+                                  
+                                  {/* Recipient Phone Field */}
+                                  <div>
+                                    <label htmlFor="recipientPhone" className="block text-sm font-medium text-gray-700 mb-1">
+                                      Recipient Cell Phone
+                                    </label>
+                                    <input
+                                      type="tel"
+                                      id="recipientPhone"
+                                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                      placeholder="Enter phone number"
+                                      value={inviteForm.recipientPhone}
+                                      onChange={(e) => setInviteForm({...inviteForm, recipientPhone: e.target.value})}
+                                    />
+                                  </div>
+                                  
+                                  {/* Recipient Email Field */}
+                                  <div>
+                                    <label htmlFor="recipientEmail" className="block text-sm font-medium text-gray-700 mb-1">
+                                      Recipient Email
+                                    </label>
+                                    <input
+                                      type="email"
+                                      id="recipientEmail"
+                                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                      placeholder="Enter email address"
+                                      value={inviteForm.recipientEmail}
+                                      onChange={(e) => setInviteForm({...inviteForm, recipientEmail: e.target.value})}
+                                    />
+                                  </div>
+                                  
+                                  {/* Custom Message Field */}
+                                  <div>
+                                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                                      Message
+                                    </label>
+                                    <textarea
+                                      id="message"
+                                      rows={3}
+                                      className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                      placeholder={`Hi ${inviteForm.recipientName || '[RECIPIENT NAME]'}, my nails are a mess, my stylist has an opening! Will you Ven Me, Baby!? before my appointment! XOXO ${client.name}`}
+                                      value={inviteForm.message}
+                                      onChange={(e) => setInviteForm({...inviteForm, message: e.target.value})}
+                                    />
+                                  </div>
+                                  
+                                  {/* Style Information Display */}
+                                  <div className="bg-pink-50 p-3 rounded-md">
+                                    <h6 className="font-medium text-pink-700 mb-2">Selected Style</h6>
+                                    <div className="flex gap-3">
+                                      {selectedStyle?.gifUrl && (
+                                        <div className="w-16 h-16 flex-shrink-0 rounded overflow-hidden border border-pink-100">
+                                          <img 
+                                            src={selectedStyle.gifUrl}
+                                            alt={selectedStyle.name}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                              console.error(`Error loading style image: ${selectedStyle.gifUrl}`);
+                                              e.currentTarget.src = '/assets/VMB_LOGO.png';
+                                            }}
+                                          />
+                                        </div>
+                                      )}
+                                      <div>
+                                        <p className="font-medium">{selectedStyle?.name}</p>
+                                        <p className="text-sm">${selectedStyle?.price}</p>
+                                        <p className="text-xs text-gray-600">{salon?.name}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
                                 
-                                <div className="mt-6 flex justify-end">
+                                <div className="mt-6 flex justify-between">
+                                  <Button 
+                                    variant="outline"
+                                    className="border-pink-300 text-pink-700"
+                                    onClick={() => setShowCreatePromo(false)}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  
+                                  <div className="flex gap-2">
+                                    <Button 
+                                      variant="outline"
+                                      className="border-pink-300 text-pink-700"
+                                      onClick={() => {
+                                        if (!inviteForm.recipientName) {
+                                          toast({
+                                            variant: "destructive",
+                                            title: "Missing Information",
+                                            description: "Please enter a recipient name.",
+                                          });
+                                          return;
+                                        }
+                                        
+                                        if (!inviteForm.recipientPhone && !inviteForm.recipientEmail) {
+                                          toast({
+                                            variant: "destructive",
+                                            title: "Missing Information",
+                                            description: "Please enter either a phone number or email.",
+                                          });
+                                          return;
+                                        }
+                                        
+                                        // Show preview
+                                        setShowInvitePreview(true);
+                                      }}
+                                    >
+                                      Preview
+                                    </Button>
+                                    
+                                    <Button 
+                                      className="bg-pink-500 hover:bg-pink-600 text-white"
+                                      onClick={async () => {
+                                        if (!client || !selectedStyle || !salon) return;
+                                        
+                                        // Validate form
+                                        if (!inviteForm.recipientName) {
+                                          toast({
+                                            variant: "destructive",
+                                            title: "Missing Information",
+                                            description: "Please enter a recipient name.",
+                                          });
+                                          return;
+                                        }
+                                        
+                                        if (!inviteForm.recipientPhone && !inviteForm.recipientEmail) {
+                                          toast({
+                                            variant: "destructive",
+                                            title: "Missing Information",
+                                            description: "Please enter either a phone number or email.",
+                                          });
+                                          return;
+                                        }
+                                        
+                                        try {
+                                          // Log the VMB invitation to the server for admin tracking
+                                          const response = await fetch('/api/vmb-invitations/log', {
+                                            method: 'POST',
+                                            headers: {
+                                              'Content-Type': 'application/json',
+                                            },
+                                            body: JSON.stringify({
+                                              clientId: client.id,
+                                              salonId: salon.id,
+                                              styleId: selectedStyle.id
+                                            }),
+                                          });
+                                          
+                                          if (!response.ok) {
+                                            console.error('Failed to log VMB invitation:', await response.text());
+                                            toast({
+                                              variant: "destructive",
+                                              title: "Error",
+                                              description: "Failed to create invitation. Please try again.",
+                                            });
+                                            return;
+                                          }
+                                          
+                                          // Successfully logged
+                                          toast({
+                                            title: "Success!",
+                                            description: "VMB invitation has been sent successfully!",
+                                          });
+                                          
+                                          console.log('VMB invitation logged successfully for admin tracking');
+                                          
+                                          // Reset form and close
+                                          setInviteForm({
+                                            recipientName: '',
+                                            recipientPhone: '',
+                                            recipientEmail: '',
+                                            message: ''
+                                          });
+                                          setShowCreatePromo(false);
+                                          
+                                        } catch (error) {
+                                          console.error('Error sending VMB invitation:', error);
+                                          toast({
+                                            variant: "destructive",
+                                            title: "Error",
+                                            description: "An error occurred. Please try again.",
+                                          });
+                                        }
+                                      }}
+                                    >
+                                      Send It! Ven Me, Baby!
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Invitation Preview Dialog */}
+                            <Dialog open={showInvitePreview} onOpenChange={setShowInvitePreview}>
+                              <DialogContent className="max-w-md">
+                                <DialogHeader>
+                                  <DialogTitle>Invitation Preview</DialogTitle>
+                                </DialogHeader>
+                                
+                                <div className="bg-gradient-to-br from-pink-50 to-pink-100 p-5 rounded-lg border border-pink-200">
+                                  <div className="text-center mb-4">
+                                    <h3 className="font-bold text-pink-700 text-lg">VMB Style Invitation</h3>
+                                  </div>
+                                  
+                                  <div className="flex justify-center mb-4">
+                                    {selectedStyle?.gifUrl && (
+                                      <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-pink-300 shadow-md">
+                                        <img 
+                                          src={selectedStyle.gifUrl}
+                                          alt={selectedStyle.name}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                            e.currentTarget.src = '/assets/VMB_LOGO.png';
+                                          }}
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                  
+                                  <div className="text-center mb-3">
+                                    <h4 className="font-semibold text-pink-800">{selectedStyle?.name}</h4>
+                                    <p className="text-pink-700">${selectedStyle?.price}</p>
+                                  </div>
+                                  
+                                  <div className="bg-white rounded-md p-3 border border-pink-200 mb-4">
+                                    <p className="text-gray-700">
+                                      {inviteForm.message || `Hi ${inviteForm.recipientName}, my nails are a mess, my stylist has an opening! Will you Ven Me, Baby!? before my appointment! XOXO ${client.name}`}
+                                    </p>
+                                  </div>
+                                  
+                                  <div className="text-center text-sm text-gray-600">
+                                    <p>From: {client.name}</p>
+                                    <p>At: {salon?.name}</p>
+                                  </div>
+                                </div>
+                                
+                                <div className="flex justify-between mt-4">
+                                  <Button 
+                                    variant="outline"
+                                    onClick={() => setShowInvitePreview(false)}
+                                  >
+                                    Edit
+                                  </Button>
+                                  
                                   <Button 
                                     className="bg-pink-500 hover:bg-pink-600 text-white"
                                     onClick={async () => {
@@ -546,6 +818,17 @@ export default function ClientDashboard() {
                                         });
                                         
                                         console.log('VMB invitation logged successfully for admin tracking');
+                                        
+                                        // Reset form and close dialogs
+                                        setInviteForm({
+                                          recipientName: '',
+                                          recipientPhone: '',
+                                          recipientEmail: '',
+                                          message: ''
+                                        });
+                                        setShowInvitePreview(false);
+                                        setShowCreatePromo(false);
+                                        
                                       } catch (error) {
                                         console.error('Error sending VMB invitation:', error);
                                         toast({
@@ -556,11 +839,11 @@ export default function ClientDashboard() {
                                       }
                                     }}
                                   >
-                                    Send It! Ven Me, Baby!
+                                    Confirm & Send
                                   </Button>
                                 </div>
-                              </div>
-                            )}
+                              </DialogContent>
+                            </Dialog>
                           </div>
                         </div>
                       )}
