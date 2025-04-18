@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import * as d3Force from 'd3-force';
 import { select as d3Select, type Selection, type BaseType } from 'd3-selection';
 import {
@@ -81,7 +81,17 @@ export default function NetworkVisualization() {
   
   // Create a reference for the component map visualization 
   const svgRef = useRef<SVGSVGElement | null>(null);
+  // Reference for mounted state to prevent memory leaks
+  const isMounted = useRef(true);
 
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      // Set the mounted ref to false when component unmounts
+      isMounted.current = false;
+    };
+  }, []);
+  
   // Fetch data from the API
   useEffect(() => {
     const fetchData = async () => {
@@ -439,18 +449,16 @@ export default function NetworkVisualization() {
     );
   }
 
-  // Create a D3 force-directed graph simulation for the component map
-  useEffect(() => {
-    if (!componentData.nodes.length || !svgRef.current) return;
+  // Create a D3 force-directed graph simulation update function
+  const updateVisualization = useCallback(() => {
+    if (!componentData.nodes.length || !svgRef.current || !isMounted.current) return;
     
     // Clear previous visualization
     const svg = d3Select(svgRef.current);
-    if (svg.selectAll) {
-      svg.selectAll("*").remove();
-    }
+    svg.selectAll("*").remove();
     
     // Define color mapping
-    const groupColors: { [key: string]: string } = {
+    const groupColors = {
       page: '#0047AB', // Cobalt blue - Professional LinkedIn-style blue
       component: '#2E5984', // Steel blue - More corporate
       form: '#5B7553', // Muted green - For input forms
@@ -536,6 +544,8 @@ export default function NetworkVisualization() {
     
     // Set up the tick function to update positions
     simulation.on("tick", () => {
+      if (!isMounted.current) return;
+      
       link
         .attr("x1", (d) => (d.source as SimulationNode).x || 0)
         .attr("y1", (d) => (d.source as SimulationNode).y || 0)
@@ -564,17 +574,41 @@ export default function NetworkVisualization() {
         event.subject.fy = null;
       }
       
-      return d3Force.drag<any, SimulationNode, any>()
+      return d3Force.drag()
         .on("start", dragstarted)
         .on("drag", dragged)
         .on("end", dragended);
     }
     
-    // Clean up when the component unmounts
+    return simulation;
+  }, [componentData]);
+
+  // Effect to update visualization when tab or data changes
+  useEffect(() => {
+    let simulation: any = null;
+    
+    if (activeTab === 'components' && componentData.nodes.length > 0) {
+      // Small delay to ensure the DOM is ready
+      const timer = setTimeout(() => {
+        if (isMounted.current) {
+          simulation = updateVisualization();
+        }
+      }, 100);
+      
+      return () => {
+        clearTimeout(timer);
+        if (simulation) {
+          simulation.stop();
+        }
+      };
+    }
+    
     return () => {
-      simulation.stop();
+      if (simulation) {
+        simulation.stop();
+      }
     };
-  }, [componentData, activeTab]);
+  }, [activeTab, updateVisualization]);
 
   return (
     <div className="container mx-auto p-6">
