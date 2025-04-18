@@ -442,7 +442,7 @@ export default function ClientDashboard() {
                                   }}
                                   className="bg-pink-600 hover:bg-pink-700 text-white"
                                 >
-                                  Confirm
+                                  Next Step: Create VMB Promo
                                 </Button>
                               </div>
                             </div>
@@ -464,7 +464,7 @@ export default function ClientDashboard() {
                               <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100">
                                 <div className="flex justify-between items-start">
                                   <h5 className="font-medium text-pink-700">{selectedStyle.name}</h5>
-                                  <Badge className="bg-pink-100 text-pink-700">Selected</Badge>
+                                  <Badge className="bg-pink-100 text-pink-700">VMB Promo Ready</Badge>
                                 </div>
                                 
                                 <div className="mt-3 flex items-center text-sm text-gray-500">
@@ -508,7 +508,7 @@ export default function ClientDashboard() {
                                     <span className="font-medium text-green-700">
                                       {service ? service.name : `Style #${selection.styleId}`}
                                     </span>
-                                    <Badge className="bg-green-100 text-green-700">Selected</Badge>
+                                    <Badge className="bg-green-100 text-green-700">VMB Promo Ready</Badge>
                                   </div>
                                   <p className="text-sm text-gray-600">
                                     Selected on {new Date(selection.selectedAt).toLocaleDateString()}
@@ -556,7 +556,7 @@ export default function ClientDashboard() {
                               ${invitation.status === 'completed' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
                             `}
                           >
-                            {invitation.status}
+                            {invitation.status === 'style_selected' ? 'VMB Promo Ready' : invitation.status}
                           </Badge>
                         </div>
                         <p className="text-sm text-gray-500">
