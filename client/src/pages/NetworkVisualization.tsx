@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import * as d3 from 'd3-force';
 import {
   ResponsiveContainer,
   Tooltip,
@@ -39,6 +40,27 @@ interface NetworkData {
   links: Link[];
 }
 
+// Interface for Component Map data
+interface ComponentNode {
+  id: string;
+  name: string;
+  group: string;
+  size: number;
+  type: string;
+}
+
+interface ComponentLink {
+  source: string;
+  target: string;
+  value: number;
+  type: string;
+}
+
+interface ComponentData {
+  nodes: ComponentNode[];
+  links: ComponentLink[];
+}
+
 export default function NetworkVisualization() {
   // Define schema data interface to match expected API response
   interface SchemaData {
@@ -51,9 +73,13 @@ export default function NetworkVisualization() {
   
   const [schemaData, setSchemaData] = useState<SchemaData>({ tables: {} });
   const [networkData, setNetworkData] = useState<NetworkData>({ nodes: [], links: [] });
+  const [componentData, setComponentData] = useState<ComponentData>({ nodes: [], links: [] });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('database');
+  
+  // Create a reference for the component map visualization 
+  const svgRef = useRef<SVGSVGElement | null>(null);
 
   // Fetch data from the API
   useEffect(() => {
@@ -75,6 +101,14 @@ export default function NetworkVisualization() {
         }
         const networkJson = await networkResponse.json();
         setNetworkData(networkJson);
+        
+        // Fetch component data
+        const componentResponse = await fetch('/api/components');
+        if (!componentResponse.ok) {
+          throw new Error(`Failed to fetch component data: ${componentResponse.statusText}`);
+        }
+        const componentJson = await componentResponse.json();
+        setComponentData(componentJson);
 
         setLoading(false);
       } catch (err) {
@@ -134,6 +168,119 @@ export default function NetworkVisualization() {
             </CardContent>
           </Card>
         ))}
+      </div>
+    );
+  };
+
+  // Function to render the component map
+  const renderComponentMap = (data: ComponentData) => {
+    if (!data.nodes || !data.links || data.nodes.length === 0) {
+      return <div className="text-center p-8">No component data available</div>;
+    }
+
+    // Color map for different component groups
+    const groupColors: { [key: string]: string } = {
+      page: '#0047AB', // Cobalt blue - Professional LinkedIn-style blue
+      component: '#2E5984', // Steel blue - More corporate
+      form: '#5B7553', // Muted green - For input forms
+      dialog: '#8C6057', // Muted terracotta - For dialogs
+      card: '#4A5459', // Slate gray - For cards
+      engine: '#5D4037', // Deep brown - For engines
+      widget: '#37474F', // Dark blue gray - For widgets
+    };
+
+    // Group nodes by type for statistics
+    const groupCounts: { [key: string]: number } = {};
+    data.nodes.forEach((node) => {
+      const group = node.group || 'unknown';
+      groupCounts[group] = (groupCounts[group] || 0) + 1;
+    });
+
+    // Create data for the connection types
+    const connectionTypes = data.links.reduce((acc: {[key: string]: number}, link) => {
+      const type = link.type || 'unknown';
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {});
+
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="col-span-1 lg:col-span-2 shadow-sm">
+          <CardHeader className="bg-gray-50 border-b">
+            <CardTitle>Component Map</CardTitle>
+            <CardDescription>
+              Interactive visualization of application components and their relationships
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="h-[600px] w-full bg-white border border-gray-200 rounded-md overflow-hidden">
+              <svg 
+                ref={svgRef} 
+                width="100%" 
+                height="100%" 
+                className="component-map"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm">
+          <CardHeader className="bg-gray-50 border-b">
+            <CardTitle>Component Types</CardTitle>
+            <CardDescription>
+              Distribution by component type
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="h-[400px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={Object.entries(groupCounts).map(([name, value]) => ({
+                    name,
+                    count: value
+                  }))}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="name" 
+                    angle={-45} 
+                    textAnchor="end"
+                    height={60}
+                  />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar 
+                    dataKey="count" 
+                    name="Count" 
+                    fill="#0047AB" 
+                    background={{ fill: '#f5f5f5' }}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-1 lg:col-span-3 shadow-sm">
+          <CardHeader className="bg-gray-50 border-b">
+            <CardTitle>Component Relationships</CardTitle>
+            <CardDescription>
+              Types of connections between components
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              {Object.entries(connectionTypes).map(([type, count]) => (
+                <div key={type} className="bg-gray-50 border border-gray-200 p-4 rounded-lg text-center">
+                  <div className="text-3xl font-bold text-gray-700">{count}</div>
+                  <div className="text-sm text-gray-600 capitalize">{type}</div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   };
