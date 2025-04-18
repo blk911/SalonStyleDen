@@ -178,9 +178,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   async isDuplicateContact(phone: string, email: string, sponsor?: string, excludeId?: number): Promise<{isDuplicate: boolean, field: string}> {
-    // Check for phone duplicates in clients table and invitations table
-    const clientPhone = await db.select().from(clients).where(eq(clients.phone, phone));
-    const invitePhone = await db.select().from(invitations).where(eq(invitations.phone, phone));
+    console.log(`DatabaseStorage.isDuplicateContact - Checking: phone='${phone}', email='${email}'`);
+    
+    // Standardize phone format (remove any non-numeric characters)
+    const cleanPhone = phone.replace(/\D/g, '');
+    console.log(`DatabaseStorage.isDuplicateContact - Standardized phone: '${cleanPhone}'`);
+    
+    // Check for phone duplicates in CLIENTS table
+    const clientPhone = await db.select().from(clients).where(eq(clients.phone, cleanPhone));
+    console.log(`DatabaseStorage.isDuplicateContact - Client DB found with same phone: ${clientPhone.length}`);
+    
+    // Check for phone duplicates in INVITATIONS table
+    const invitePhone = await db.select().from(invitations).where(eq(invitations.phone, cleanPhone));
+    console.log(`DatabaseStorage.isDuplicateContact - Invitations found with same phone: ${invitePhone.length}`);
+    
+    // Check for phone duplicates in SALONS table (just to be thorough)
+    const salonPhone = await db.select().from(salons).where(eq(salons.phone, cleanPhone));
+    console.log(`DatabaseStorage.isDuplicateContact - Salons found with same phone: ${salonPhone.length}`);
     
     // For email, we need to get all records and do case-insensitive comparison
     // Check clients table for email (case-insensitive)
@@ -188,12 +202,21 @@ export class DatabaseStorage implements IStorage {
     const clientEmail = allClients.filter(
       client => client.email && email && client.email.toLowerCase() === email.toLowerCase()
     );
+    console.log(`DatabaseStorage.isDuplicateContact - Clients found with same email: ${clientEmail.length}`);
     
     // Check invitations table for email (case-insensitive)
     const allInvitations = await db.select().from(invitations);
     const inviteEmail = allInvitations.filter(
       invitation => invitation.email && email && invitation.email.toLowerCase() === email.toLowerCase()
     );
+    console.log(`DatabaseStorage.isDuplicateContact - Invitations found with same email: ${inviteEmail.length}`);
+    
+    // Check salons table for email duplicates
+    const allSalons = await db.select().from(salons);
+    const salonEmail = allSalons.filter(
+      salon => salon.email && email && salon.email.toLowerCase() === email.toLowerCase()
+    );
+    console.log(`DatabaseStorage.isDuplicateContact - Salons found with same email: ${salonEmail.length}`);
 
     // Check sponsor duplication
     if (sponsor) {
@@ -203,15 +226,24 @@ export class DatabaseStorage implements IStorage {
         .limit(1);
         
       if (sponsorExists.length > 0) {
+        console.log(`DatabaseStorage.isDuplicateContact - Duplicate sponsor found: ${sponsor}`);
         return { isDuplicate: true, field: 'sponsor' };
       }
     }
 
-    if ((clientPhone.length > 0 && clientPhone[0].id !== excludeId) || invitePhone.length > 0) {
+    // Check for duplicate phone in client, invitations, or salons
+    if ((clientPhone.length > 0 && (excludeId === undefined || clientPhone[0].id !== excludeId)) || 
+        invitePhone.length > 0 || 
+        salonPhone.length > 0) {
+      console.log(`DatabaseStorage.isDuplicateContact - DUPLICATE PHONE DETECTED: ${cleanPhone}`);
       return { isDuplicate: true, field: 'phone' };
     }
     
-    if ((clientEmail.length > 0 && clientEmail[0].id !== excludeId) || inviteEmail.length > 0) {
+    // Check for duplicate email in client, invitations, or salons
+    if ((clientEmail.length > 0 && (excludeId === undefined || clientEmail[0].id !== excludeId)) || 
+        inviteEmail.length > 0 || 
+        salonEmail.length > 0) {
+      console.log(`DatabaseStorage.isDuplicateContact - DUPLICATE EMAIL DETECTED: ${email.toLowerCase()}`);
       return { isDuplicate: true, field: 'email' };
     }
 

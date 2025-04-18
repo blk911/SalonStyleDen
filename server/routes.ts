@@ -796,31 +796,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Check for duplicate phone/email
           if (phone) {
             const cleanPhone = phone.replace(/\D/g, '');
+            console.log('VALIDATION REQUEST: Checking phone number:', cleanPhone);
+            
             if (cleanPhone.length === 10) {
-              // First check directly with isDuplicateContact function
-              const phoneExists = await storage.isDuplicateContact(cleanPhone, '');
-              
-              // If phone is detected as duplicate, return proper error
-              if (phoneExists.isDuplicate) {
-                console.log('Duplicate phone detected:', cleanPhone);
-                return res.status(400).json({ error: 'This phone is already registered' });
+              try {
+                // Use the comprehensive isDuplicateContact function which checks ALL tables
+                const phoneExists = await storage.isDuplicateContact(cleanPhone, '');
+                
+                // If phone is detected as duplicate, return proper error
+                if (phoneExists.isDuplicate) {
+                  console.log('VALIDATION FAILED: Duplicate phone detected:', cleanPhone);
+                  return res.status(400).json({ error: 'This phone is already registered' });
+                }
+                
+                console.log('VALIDATION PASSED: Phone is unique:', cleanPhone);
+              } catch (err) {
+                console.error('Error during phone validation:', err);
+                return res.status(500).json({ error: 'Server error during validation' });
               }
-              
-              // Double check in clients table (belt and suspenders approach)
-              const clientsWithPhone = await db.select().from(clients).where(eq(clients.phone, cleanPhone));
-              if (clientsWithPhone.length > 0) {
-                console.log('Client with phone found:', cleanPhone);
-                return res.status(400).json({ error: 'This phone is already registered' });
-              }
+            } else {
+              console.log('VALIDATION SKIPPED: Invalid phone format, expected 10 digits:', cleanPhone);
             }
           }
           
           if (email && email.includes('@')) {
             // Ensure case-insensitive validation for email
             const lowercaseEmail = email.toLowerCase();
-            const emailExists = await storage.isDuplicateContact('', lowercaseEmail);
-            if (emailExists.isDuplicate) {
-              return res.status(400).json({ error: 'This email is already registered' });
+            console.log('VALIDATION REQUEST: Checking email address:', lowercaseEmail);
+            
+            try {
+              // Use the comprehensive isDuplicateContact function
+              const emailExists = await storage.isDuplicateContact('', lowercaseEmail);
+              
+              if (emailExists.isDuplicate) {
+                console.log('VALIDATION FAILED: Duplicate email detected:', lowercaseEmail);
+                return res.status(400).json({ error: 'This email is already registered' });
+              }
+              
+              console.log('VALIDATION PASSED: Email is unique:', lowercaseEmail);
+            } catch (err) {
+              console.error('Error during email validation:', err);
+              return res.status(500).json({ error: 'Server error during validation' });
             }
           }
           
