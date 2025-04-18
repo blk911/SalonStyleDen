@@ -31,28 +31,28 @@ const CYAN = '\x1b[36m';
 const FORM_COMPONENTS = [
   {
     name: 'Client Registration Form',
-    file: 'client/src/pages/ClientForm.tsx',
+    file: 'client/src/components/forms/ClientForm.tsx',
     endpoint: '/api/clients',
     method: 'POST',
     requiredFields: ['name', 'email', 'phone'],
   },
   {
     name: 'Salon Registration Form',
-    file: 'client/src/pages/SalonForm.tsx',
+    file: 'client/src/components/forms/SalonForm.tsx',
     endpoint: '/api/salons',
     method: 'POST',
     requiredFields: ['name', 'ownerName', 'email', 'phone'],
   },
   {
     name: 'Client Invitation Form',
-    file: 'client/src/components/InvitationForm.tsx',
+    file: 'client/src/components/dashboard/ClientInvitation.tsx',
     endpoint: '/api/invitations',
     method: 'POST',
     requiredFields: ['name', 'email', 'phone', 'salonId'],
   },
   {
     name: 'Style Selection Form',
-    file: 'client/src/components/StyleSelectionForm.tsx',
+    file: 'client/src/components/promos/VmbStyleOptions.tsx',
     endpoint: '/api/style-selections',
     method: 'POST',
     requiredFields: ['clientId', 'styleOptions'],
