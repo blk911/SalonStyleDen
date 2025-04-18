@@ -15,6 +15,7 @@ import PromosPage from "@/pages/PromosPage";
 import Sitemap from "@/pages/Sitemap";
 import AdminDashboard from "@/pages/AdminDashboard";
 import TestImagePage from "@/pages/TestImagePage";
+import NetworkVisualization from "@/pages/NetworkVisualization";
 
 function Router() {
   return (
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/sitemap" component={Sitemap} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/test-image/:id" component={TestImagePage} />
+      <Route path="/network-visualization" component={NetworkVisualization} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -16,19 +16,28 @@ export function registerVisualizationRoutes(app: Express) {
   app.get('/api/schema', async (req: Request, res: Response) => {
     try {
       // Extract schema information from the shared schema
-      const schemaInfo = {
+      const schemaInfo: { tables: Record<string, any> } = {
         tables: {}
       };
       
       // List of tables we know exist in the schema
-      const tables = [
-        { name: 'clients', schema: schema.clients },
-        { name: 'salons', schema: schema.salons },
-        { name: 'services', schema: schema.services },
-        { name: 'invitations', schema: schema.invitations },
-        { name: 'style_selections', schema: schema.styleSelections },
-        { name: 'activity_logs', schema: schema.activityLogs }
+      const tables: Array<{ name: string; schema: any }> = [
+        { name: 'clients', schema: clients },
+        { name: 'salons', schema: salons },
+        { name: 'invitations', schema: invitations },
+        { name: 'style_selections', schema: styleSelections },
+        { name: 'activity_logs', schema: activityLogs }
       ];
+      
+      // Check if services table exists in shared schema
+      try {
+        const { services } = require('../shared/schema');
+        if (services) {
+          tables.push({ name: 'services', schema: services });
+        }
+      } catch (e) {
+        console.log('Services table not found in schema, will use placeholder');
+      }
       
       // Add each table to the schema info
       tables.forEach(table => {
@@ -94,9 +103,26 @@ export function registerVisualizationRoutes(app: Express) {
   // Get API endpoint information
   app.get('/api/endpoints', async (req: Request, res: Response) => {
     try {
+      // Define interfaces for network visualization
+      interface NetworkNode {
+        name: string;
+        id: string;
+        group: string;
+        size: number;
+        type: string;
+        value: number;
+      }
+      
+      interface NetworkLink {
+        source: string;
+        target: string;
+        value: number;
+        type: string;
+      }
+      
       // Nodes and links for the network visualization
-      const nodes = [];
-      const links = [];
+      const nodes: NetworkNode[] = [];
+      const links: NetworkLink[] = [];
       
       // API endpoints
       const endpoints = [
