@@ -92,9 +92,7 @@ export default function Navbar() {
           <Link href="/salons">
             <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
           </Link>
-          <Link href="/promos">
-            <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">VMB Promos</div>
-          </Link>
+          {/* VMB Promos link removed from mobile menu as requested */}
           <Link href="/clients">
             <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
           </Link>
