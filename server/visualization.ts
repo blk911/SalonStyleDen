@@ -63,6 +63,7 @@ export function registerVisualizationRoutes(app: Express) {
         { id: 'client-card', name: 'Client Card', group: 'card', size: 50, type: 'display' },
         { id: 'invitation-card', name: 'Invitation Card', group: 'card', size: 50, type: 'display' },
         { id: 'stylist-card', name: 'Stylist Card', group: 'card', size: 50, type: 'display' },
+        { id: 'salon-card', name: 'Salon Card', group: 'card', size: 50, type: 'display' },
         
         // Functional Components
         { id: 'style-engine', name: 'VMB Style Options Engine', group: 'engine', size: 90, type: 'functional' },

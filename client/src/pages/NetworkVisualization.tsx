@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import * as d3Force from 'd3-force';
-import { select as d3Select } from 'd3-selection';
+import { select as d3Select, type Selection, type BaseType } from 'd3-selection';
 import {
   ResponsiveContainer,
   Tooltip,
@@ -460,24 +460,29 @@ export default function NetworkVisualization() {
       widget: '#37474F', // Dark blue gray - For widgets
     };
     
+    // Define SimulationNode type that extends ComponentNode with d3 properties
+    type SimulationNode = ComponentNode & d3Force.SimulationNodeDatum;
+    type SimulationLink = d3Force.SimulationLinkDatum<SimulationNode> & {
+      type?: string;
+      value: number;
+    };
+    
     // Prepare the nodes and links for D3
-    const nodes = componentData.nodes.map(node => ({
+    const nodes: SimulationNode[] = componentData.nodes.map(node => ({
       ...node,
-      x: undefined,
-      y: undefined,
     }));
     
     // Create a mapping from node ID to array index for source/target references
-    const nodeMap = new Map();
+    const nodeMap = new Map<string, number>();
     nodes.forEach((node, index) => {
       nodeMap.set(node.id, index);
     });
     
     // Map the links from string references to node indices
-    const links = componentData.links.map(link => ({
+    const links: SimulationLink[] = componentData.links.map(link => ({
       ...link,
-      source: nodeMap.get(link.source),
-      target: nodeMap.get(link.target),
+      source: nodeMap.get(link.source) ?? 0,
+      target: nodeMap.get(link.target) ?? 0,
     }));
     
     // Create the SVG container for the force directed graph
@@ -485,13 +490,14 @@ export default function NetworkVisualization() {
     const height = svgRef.current.clientHeight;
     
     // Set up the simulation
-    const simulation = d3Force.forceSimulation()
-      .nodes(nodes)
-      .force("link", d3Force.forceLink(links).distance((d: any) => 150 / (d.value || 1)).id((d: any) => d.id))
-      .force("charge", d3Force.forceManyBody().strength(-200))
-      .force("center", d3Force.forceCenter(width / 2, height / 2))
-      .force("x", d3Force.forceX(width / 2).strength(0.05))
-      .force("y", d3Force.forceY(height / 2).strength(0.05));
+    const simulation = d3Force.forceSimulation<SimulationNode>(nodes)
+      .force("link", d3Force.forceLink<SimulationNode, SimulationLink>(links)
+        .distance((d) => 150 / (d.value || 1))
+        .id((d) => d.id))
+      .force("charge", d3Force.forceManyBody<SimulationNode>().strength(-200))
+      .force("center", d3Force.forceCenter<SimulationNode>(width / 2, height / 2))
+      .force("x", d3Force.forceX<SimulationNode>(width / 2).strength(0.05))
+      .force("y", d3Force.forceY<SimulationNode>(height / 2).strength(0.05));
     
     // Create the link elements
     const link = svg.append("g")
@@ -501,7 +507,7 @@ export default function NetworkVisualization() {
       .append("line")
       .attr("stroke", "#999")
       .attr("stroke-opacity", 0.6)
-      .attr("stroke-width", (d: any) => Math.sqrt(d.value));
+      .attr("stroke-width", (d) => Math.sqrt(d.value));
     
     // Create the node elements
     const node = svg.append("g")
@@ -514,33 +520,33 @@ export default function NetworkVisualization() {
     
     // Add circles to each node group
     node.append("circle")
-      .attr("r", (d: any) => Math.max(8, d.size / 10))
-      .attr("fill", (d: any) => groupColors[d.group] || "#666")
+      .attr("r", (d) => Math.max(8, d.size / 10))
+      .attr("fill", (d) => groupColors[d.group] || "#666")
       .attr("stroke", "#fff")
       .attr("stroke-width", 1.5);
     
     // Add labels to each node
     node.append("text")
-      .attr("dx", (d: any) => Math.max(12, d.size / 8))
+      .attr("dx", (d) => Math.max(12, d.size / 8))
       .attr("dy", ".35em")
       .attr("font-family", "Arial, sans-serif")
       .attr("font-size", "11px")
       .attr("fill", "#333")
-      .text((d: any) => d.name);
+      .text((d) => d.name);
     
     // Set up the tick function to update positions
     simulation.on("tick", () => {
       link
-        .attr("x1", (d: any) => d.source.x)
-        .attr("y1", (d: any) => d.source.y)
-        .attr("x2", (d: any) => d.target.x)
-        .attr("y2", (d: any) => d.target.y);
+        .attr("x1", (d) => (d.source as SimulationNode).x || 0)
+        .attr("y1", (d) => (d.source as SimulationNode).y || 0)
+        .attr("x2", (d) => (d.target as SimulationNode).x || 0)
+        .attr("y2", (d) => (d.target as SimulationNode).y || 0);
         
-      node.attr("transform", (d: any) => `translate(${d.x},${d.y})`);
+      node.attr("transform", (d) => `translate(${d.x || 0},${d.y || 0})`);
     });
     
     // Helper function to enable dragging nodes
-    function drag(simulation: any) {
+    function drag(simulation: d3Force.Simulation<SimulationNode>) {
       function dragstarted(event: any) {
         if (!event.active) simulation.alphaTarget(0.3).restart();
         event.subject.fx = event.subject.x;
@@ -558,7 +564,7 @@ export default function NetworkVisualization() {
         event.subject.fy = null;
       }
       
-      return d3Force.drag()
+      return d3Force.drag<any, SimulationNode, any>()
         .on("start", dragstarted)
         .on("drag", dragged)
         .on("end", dragended);
