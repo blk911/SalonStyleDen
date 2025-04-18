@@ -561,9 +561,9 @@ export default function ClientDashboard() {
                                   {/* Custom Message Field */}
                                   <textarea
                                     id="message"
-                                    rows={3}
+                                    rows={4}
                                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                    placeholder={`Hi ${inviteForm.recipientName || '[rect name]'}, my nails are a mess and ${salon?.ownerName || '[salon owner name]'} has an opening. I love this ${selectedStyle?.name || '[style opt selected]'}, will you Ven Me, Baby! ❤️❤️❤️ ${client.name}`}
+                                    placeholder={`Hi! ${inviteForm.recipientName || '[recpt name]'},\n\nI love this style - ${selectedStyle?.name || '[selected opt]'}. My nails are a mess and ${salon?.ownerName || '[sal own nm]'} has an opening.\n\nI would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️`}
                                     value={inviteForm.message}
                                     onChange={(e) => setInviteForm({...inviteForm, message: e.target.value})}
                                   />
@@ -722,38 +722,47 @@ export default function ClientDashboard() {
                                   <DialogTitle>Invitation Preview</DialogTitle>
                                 </DialogHeader>
                                 
-                                <div className="bg-gradient-to-br from-pink-50 to-pink-100 p-5 rounded-lg border border-pink-200">
-                                  <div className="text-center mb-4">
-                                    <h3 className="font-bold text-pink-700 text-lg">VMB Style Invitation</h3>
-                                  </div>
-                                  
-                                  <div className="flex justify-center mb-4">
-                                    {selectedStyle?.gifUrl && (
-                                      <div className="w-32 h-32 rounded-lg overflow-hidden border-2 border-pink-300 shadow-md">
-                                        <img 
-                                          src={selectedStyle.gifUrl}
-                                          alt={selectedStyle.name}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            e.currentTarget.src = '/assets/VMB_LOGO.png';
-                                          }}
-                                        />
-                                      </div>
-                                    )}
-                                  </div>
-                                  
+                                <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-5 rounded-lg border border-blue-200 max-w-sm mx-auto">
                                   <div className="text-center mb-3">
-                                    <h4 className="font-semibold text-pink-800">{selectedStyle?.name}</h4>
-                                    <p className="text-pink-700">${selectedStyle?.price} <span className="text-xs">(taxes, reg fee included)</span></p>
+                                    <h3 className="font-bold text-blue-700 text-lg">Hi! From {client.name}</h3>
                                   </div>
                                   
-                                  <div className="bg-white rounded-md p-3 border border-pink-200 mb-4">
-                                    <p className="text-gray-700">
-                                      {inviteForm.message || `Hi ${inviteForm.recipientName || '[rect name]'}, my nails are a mess and ${salon?.ownerName || '[salon owner name]'} has an opening. I love this ${selectedStyle?.name || '[style opt selected]'}, will you Ven Me, Baby! ❤️❤️❤️ ${client.name}`}
+                                  {/* Message bubble design */}
+                                  <div className="bg-blue-100 p-4 rounded-tl-xl rounded-tr-xl rounded-br-xl mb-3 shadow-sm relative ml-4">
+                                    <div className="absolute -bottom-2 -left-4 w-4 h-4 bg-blue-100 transform rotate-45"></div>
+                                    <p className="text-gray-800 mb-2">
+                                      Hi! {inviteForm.recipientName || '[recpt name]'},
+                                    </p>
+                                    <p className="text-gray-800 mb-4">
+                                      I love this style - {selectedStyle?.name || '[selected opt]'}. My nails are a mess and {salon?.ownerName || '[sal own nm]'} has an opening.
+                                    </p>
+                                    
+                                    {/* Image and price inside the message */}
+                                    <div className="mb-4 bg-white p-2 rounded-lg shadow-sm border border-blue-200">
+                                      <div className="flex items-center">
+                                        {selectedStyle?.gifUrl && (
+                                          <div className="w-20 h-20 rounded-lg overflow-hidden border border-blue-300 mr-3">
+                                            <img 
+                                              src={selectedStyle.gifUrl}
+                                              alt={selectedStyle.name}
+                                              className="w-full h-full object-cover"
+                                              onError={(e) => {
+                                                e.currentTarget.src = '/assets/VMB_LOGO.png';
+                                              }}
+                                            />
+                                          </div>
+                                        )}
+                                        <div>
+                                          <p className="font-medium text-blue-800">{selectedStyle?.name}</p>
+                                          <p className="text-blue-700">${selectedStyle?.price} <span className="text-xs">(taxes, reg fee included)</span></p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    
+                                    <p className="text-gray-800">
+                                      I would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️
                                     </p>
                                   </div>
-                                  
-                                  {/* Removed the From/At text as requested */}
                                 </div>
                                 
                                 <div className="flex justify-between mt-4">
