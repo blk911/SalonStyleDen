@@ -753,10 +753,7 @@ export default function ClientDashboard() {
                                     </p>
                                   </div>
                                   
-                                  <div className="text-center text-sm text-gray-600">
-                                    <p>From: {client.name}</p>
-                                    <p>At: {salon?.name}</p>
-                                  </div>
+                                  {/* Removed the From/At text as requested */}
                                 </div>
                                 
                                 <div className="flex justify-between mt-4">
