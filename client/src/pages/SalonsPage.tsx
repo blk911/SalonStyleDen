@@ -8,6 +8,7 @@ import { Link } from "wouter";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import { queryClient } from "@/lib/queryClient";
+import BrandName from "../components/ui/BrandName";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Check, ChevronsUpDown } from "lucide-react";
@@ -256,7 +257,10 @@ export default function SalonsPage() {
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-pink-100 to-pink-50 border-b border-pink-200" style={{ height: "150px" }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative h-full flex flex-col justify-center">
-            <h1 className="text-3xl font-bold text-pink-800">Ven Me, Baby! Salons</h1>
+            <h1 className="text-3xl font-bold text-pink-800">
+              <BrandName size="3xl" className="mr-1" inline />
+              <span>Salons</span>
+            </h1>
             <p className="mt-2 text-gray-600">Find premium nail salons near you</p>
             <button
               onClick={() => refetch()}
