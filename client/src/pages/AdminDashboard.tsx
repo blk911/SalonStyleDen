@@ -48,6 +48,16 @@ interface Invitation {
   createdAt: string;
 }
 
+interface ActivityLog {
+  id: number;
+  type: string;
+  description: string;
+  userId?: number;
+  salonId?: number;
+  clientId?: number;
+  timestamp: string;
+}
+
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
 
@@ -108,6 +118,26 @@ export default function AdminDashboard() {
       }
     },
   });
+  
+  // Query to fetch activity logs, especially VMB invitation logs
+  const { data: activityLogs, error: logsError, isLoading: logsIsLoading } = useQuery<ActivityLog[]>({
+    queryKey: ['/api/activity-logs'],
+    queryFn: async () => {
+      try {
+        console.log('Fetching activity logs from API...');
+        const response = await fetch('/api/activity-logs?limit=50'); // Get more logs for admin view
+        if (!response.ok) {
+          throw new Error('Failed to fetch activity logs');
+        }
+        const data = await response.json();
+        console.log('Fetched activity logs:', data);
+        return data;
+      } catch (error) {
+        console.error('Error fetching activity logs:', error);
+        throw error;
+      }
+    },
+  });
 
   // Format phone numbers for display
   const formatPhoneNumber = (phone: string) => {
@@ -117,10 +147,11 @@ export default function AdminDashboard() {
     return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
   };
 
-  if (clientIsLoading || salonIsLoading || inviteIsLoading) return <div>Loading...</div>;
+  if (clientIsLoading || salonIsLoading || inviteIsLoading || logsIsLoading) return <div>Loading...</div>;
   if (clientError) return <div>Error loading clients: {clientError.message}</div>;
   if (salonError) return <div>Error loading salons: {salonError.message}</div>;
   if (inviteError) return <div>Error loading invitations: {inviteError.message}</div>;
+  if (logsError) return <div>Error loading activity logs: {logsError.message}</div>;
 
 
   return (
@@ -370,6 +401,83 @@ export default function AdminDashboard() {
                           </TableCell>
                         </TableRow>
                       ))}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+            
+            {/* VMB Activity Logs */}
+            <Card>
+              <CardContent className="p-4">
+                <h2 className="text-xl font-semibold mb-4">VMB Activity Logs</h2>
+                <ScrollArea className="h-[300px]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="max-h-[30px]">
+                        <TableHead className="max-h-[30px] py-1">Type</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Description</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Client ID</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Salon ID</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Date/Time</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {activityLogs?.filter(log => log.type === 'vmb_invitation_sent').map((log: ActivityLog) => (
+                        <TableRow
+                          key={log.id}
+                          className="hover:bg-gray-50 h-[28px]"
+                        >
+                          <TableCell className="py-0">
+                            <Badge variant="secondary" className="bg-pink-100 text-pink-700 hover:bg-pink-200">
+                              {log.type.replace(/_/g, ' ')}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="py-0">
+                            {log.description.length > 40 ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help">
+                                      {log.description.substring(0, 38)}...
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{log.description}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              log.description
+                            )}
+                          </TableCell>
+                          <TableCell className="py-0">
+                            {log.clientId ? (
+                              <Link to={`/client/${log.clientId}`} className="text-blue-600 hover:underline">
+                                {log.clientId}
+                              </Link>
+                            ) : 'N/A'}
+                          </TableCell>
+                          <TableCell className="py-0">
+                            {log.salonId ? (
+                              <Link to={`/salon/${log.salonId}`} className="text-blue-600 hover:underline">
+                                {log.salonId}
+                              </Link>
+                            ) : 'N/A'}
+                          </TableCell>
+                          <TableCell className="py-0">
+                            {new Date(log.timestamp).toLocaleString()}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      
+                      {activityLogs?.filter(log => log.type === 'vmb_invitation_sent').length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center py-4 text-gray-500">
+                            No VMB invitation activity found
+                          </TableCell>
+                        </TableRow>
+                      )}
                     </TableBody>
                   </Table>
                 </ScrollArea>
