@@ -63,9 +63,7 @@ export default function Navbar() {
             <Link href="/clients">
               <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
             </Link>
-            <Link href="/promos">
-              <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">VMB Promos</div>
-            </Link>
+            {/* VMB Promos link removed as requested */}
             {/* Temporary Admin Button */}
             <Link href="/admin">
               <div className="px-2 py-1 text-sm font-medium bg-pink-50 text-pink-600 hover:bg-pink-100 cursor-pointer">Admin</div>
