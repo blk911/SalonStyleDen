@@ -563,7 +563,7 @@ export default function ClientDashboard() {
                                     id="message"
                                     rows={4}
                                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                    placeholder={`Hi! ${inviteForm.recipientName || '[recpt name]'},\n\nI love this style - ${selectedStyle?.name || '[selected opt]'}. My nails are a mess and ${salon?.ownerName || '[sal own nm]'} has an opening.\n\nI would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️`}
+                                    placeholder={`Hi! ${inviteForm.recipientName || '[recpt name]'},\n\nI love this style - ${selectedStyle?.name || '[selected opt]'}. My nails are a mess and ${salon?.ownerName || '[sal own nm]'} has an opening.\n\nI would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ ${client.name}`}
                                     value={inviteForm.message}
                                     onChange={(e) => setInviteForm({...inviteForm, message: e.target.value})}
                                   />
@@ -723,12 +723,8 @@ export default function ClientDashboard() {
                                 </DialogHeader>
                                 
                                 <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-5 rounded-lg border border-blue-200 max-w-sm mx-auto">
-                                  <div className="text-center mb-3">
-                                    <h3 className="font-bold text-blue-700 text-lg">Hi! From {client.name}</h3>
-                                  </div>
-                                  
-                                  {/* Message bubble design */}
-                                  <div className="bg-blue-100 p-4 rounded-tl-xl rounded-tr-xl rounded-br-xl mb-3 shadow-sm relative ml-4">
+                                  {/* Message bubble design - Removed the title and made bubble take full width */}
+                                  <div className="bg-blue-100 p-4 rounded-tl-xl rounded-tr-xl rounded-br-xl shadow-sm relative ml-4">
                                     <div className="absolute -bottom-2 -left-4 w-4 h-4 bg-blue-100 transform rotate-45"></div>
                                     <p className="text-gray-800 mb-2">
                                       Hi! {inviteForm.recipientName || '[recpt name]'},
@@ -760,7 +756,7 @@ export default function ClientDashboard() {
                                     </div>
                                     
                                     <p className="text-gray-800">
-                                      I would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️
+                                      I would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ {client.name}
                                     </p>
                                   </div>
                                 </div>
