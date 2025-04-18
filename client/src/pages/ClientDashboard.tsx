@@ -461,8 +461,6 @@ export default function ClientDashboard() {
                             </h3>
                             
                             <div className="mt-4">
-                              <h4 className="font-medium text-base mb-3">Most Recent VMBs</h4>
-                              
                               <div className="bg-white p-4 rounded-lg shadow-sm border border-pink-100">
                                 <div className="flex justify-between items-start">
                                   <h5 className="font-medium text-pink-700">{selectedStyle.name}</h5>
