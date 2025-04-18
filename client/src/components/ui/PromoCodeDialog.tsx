@@ -15,11 +15,13 @@ import { apiRequest } from "@/lib/queryClient";
 interface PromoCodeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  phone?: string; // Optional phone number passed from ContactValidationDialog
 }
 
 export function PromoCodeDialog({
   open,
   onOpenChange,
+  phone,
 }: PromoCodeDialogProps) {
   const [promoCode, setPromoCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -49,8 +51,7 @@ export function PromoCodeDialog({
         method: "POST",
         body: JSON.stringify({
           code: promoCode,
-          // Note: The backend will handle this validation without requiring a phone
-          // But for non-5877 cases, we could provide a phone
+          phone: phone || "5127715877" // Use passed phone number or fallback to Spencer's
         }),
       });
       
