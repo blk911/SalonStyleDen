@@ -563,7 +563,7 @@ export default function ClientDashboard() {
                                     id="message"
                                     rows={4}
                                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                    placeholder={`Hi! ${inviteForm.recipientName || '[recpt name]'},\n\nI love this style - ${selectedStyle?.name || '[selected opt]'}. My nails are a mess and ${salon?.ownerName || '[sal own nm]'} has an opening.\n\nI would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ ${client.name}\n\nVenmo | Zelle | Cash App`}
+                                    placeholder={`Hi! ${inviteForm.recipientName || '[recpt name]'},\n\nI love this style - ${selectedStyle?.name || '[selected opt]'}. My nails are a mess and ${salon?.ownerName || '[sal own nm]'} has an opening.\n\nI would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ ${client.name}`}
                                     value={inviteForm.message}
                                     onChange={(e) => setInviteForm({...inviteForm, message: e.target.value})}
                                   />
@@ -759,17 +759,20 @@ export default function ClientDashboard() {
                                       I would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ {client.name}
                                     </p>
                                     
-                                    {/* Payment icons */}
-                                    <div className="flex justify-center gap-4 mb-2">
-                                      <div className="rounded-lg overflow-hidden w-12 h-12">
-                                        <img src="/assets/venmo.png" alt="Venmo" className="w-full h-full" />
-                                      </div>
-                                      <div className="rounded-lg overflow-hidden w-12 h-12">
-                                        <img src="/assets/zelle.png" alt="Zelle" className="w-full h-full" />
-                                      </div>
-                                      <div className="rounded-lg overflow-hidden w-12 h-12">
-                                        <img src="/assets/cashapp.png" alt="Cash App" className="w-full h-full" />
-                                      </div>
+                                    {/* Payment icons as styled buttons */}
+                                    <div className="flex justify-between items-center gap-2 mb-2">
+                                      <button className="flex items-center justify-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors flex-1">
+                                        <img src="/assets/venmo.png" alt="Venmo" className="w-6 h-6 mr-1" />
+                                        <span className="text-sm font-medium">Venmo</span>
+                                      </button>
+                                      <button className="flex items-center justify-center bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition-colors flex-1">
+                                        <img src="/assets/zelle.png" alt="Zelle" className="w-6 h-6 mr-1" />
+                                        <span className="text-sm font-medium">Zelle</span>
+                                      </button>
+                                      <button className="flex items-center justify-center bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors flex-1">
+                                        <img src="/assets/cashapp.png" alt="Cash App" className="w-6 h-6 mr-1" />
+                                        <span className="text-sm font-medium">Cash App</span>
+                                      </button>
                                     </div>
                                   </div>
                                 </div>
