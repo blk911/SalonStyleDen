@@ -68,25 +68,25 @@ export function useContactValidation(options: ValidationOptions = {}) {
         })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        if (errorData.error && errorData.error.includes(type)) {
-          console.log(`Server detected duplicate ${type}:`, value);
+      const data = await response.json();
+      
+      // Check for either a server error or valid: false in response
+      if (!response.ok || (data.error && data.error.includes(type))) {
+        console.log(`Server detected duplicate ${type}:`, value);
 
-          if (type === 'phone') {
-            setPhoneExists(true);
-            setErrorField('phone');
-            setErrorMessage('This phone number is already registered in our system.');
-          } else {
-            setEmailExists(true);
-            setErrorField('email');
-            setErrorMessage('This email address is already registered in our system.');
-          }
-
-          setShowErrorDialog(true);
-          setIsValidating(false);
-          return true; // Exists
+        if (type === 'phone') {
+          setPhoneExists(true);
+          setErrorField('phone');
+          setErrorMessage('This phone number is already registered in our system.');
+        } else {
+          setEmailExists(true);
+          setErrorField('email');
+          setErrorMessage('This email address is already registered in our system.');
         }
+
+        setShowErrorDialog(true);
+        setIsValidating(false);
+        return true; // Exists
       }
 
       // If we got here, validation passed

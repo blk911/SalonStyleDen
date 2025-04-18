@@ -43,28 +43,35 @@ export function ContactValidationDialog({
             
             {errorField === 'phone' ? (
               <div className="space-y-5">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-700 mb-3">This number is unavailable</h3>
-                  <Button 
-                    onClick={handleGoBack} 
-                    variant="outline"
-                    className="border-pink-300 w-full sm:w-auto"
-                  >
-                    Back Button
-                  </Button>
-                </div>
-                
-                <div className="border-t border-gray-200 pt-4">
-                  <h3 className="text-lg font-medium text-gray-700 mb-3">Are you an existing client?</h3>
-                  <p className="text-gray-600 mb-1">You may have received a Ven Me, Baby! invitation.</p>
-                  <p className="text-gray-600 mb-3">Check your messages.</p>
+                <div className="text-center">
+                  <h3 className="text-lg font-medium text-gray-700 mb-5">This number is unavailable.</h3>
                   
-                  <Button 
-                    onClick={handleEnterPromoCode} 
-                    className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto px-6"
-                  >
-                    Enter Promo Code
-                  </Button>
+                  <h4 className="text-lg font-medium text-gray-700 mb-5">Are you an existing client?</h4>
+                  
+                  <p className="text-gray-600 mb-5">
+                    You may have received a Ven Me, Baby! Invitation.
+                  </p>
+                  
+                  <p className="text-gray-600 mb-6">
+                    Check your messages. If you have a promo code:
+                  </p>
+                  
+                  <div className="flex flex-col sm:flex-row justify-center gap-3">
+                    <Button 
+                      onClick={handleGoBack} 
+                      variant="outline"
+                      className="border-pink-300 w-full sm:w-auto px-6"
+                    >
+                      Go Back
+                    </Button>
+                    
+                    <Button 
+                      onClick={handleEnterPromoCode} 
+                      className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto px-6"
+                    >
+                      Enter Promo Code
+                    </Button>
+                  </div>
                 </div>
               </div>
             ) : (

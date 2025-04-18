@@ -786,15 +786,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const isValidationOnly = req.body._validateOnly === true;
       if (isValidationOnly) {
         // For validation-only requests, we only need to check if phone/email already exists
-        // We'll do a simplified check
+        // We'll do a more thorough check for client duplicates
         try {
           const { phone, email } = req.body;
           
           // Check for duplicate phone/email
-          if (phone && phone.length === 10) {
-            const phoneExists = await storage.isDuplicateContact(phone, '');
-            if (phoneExists.isDuplicate) {
-              return res.status(400).json({ error: 'This phone is already registered' });
+          if (phone) {
+            const cleanPhone = phone.replace(/\D/g, '');
+            if (cleanPhone.length === 10) {
+              // First check directly with isDuplicateContact function
+              const phoneExists = await storage.isDuplicateContact(cleanPhone, '');
+              
+              // If phone is detected as duplicate, return proper error
+              if (phoneExists.isDuplicate) {
+                console.log('Duplicate phone detected:', cleanPhone);
+                return res.status(400).json({ error: 'This phone is already registered' });
+              }
+              
+              // Double check in clients table (belt and suspenders approach)
+              const clientsWithPhone = await db.select().from(clients).where(eq(clients.phone, cleanPhone));
+              if (clientsWithPhone.length > 0) {
+                console.log('Client with phone found:', cleanPhone);
+                return res.status(400).json({ error: 'This phone is already registered' });
+              }
             }
           }
           
