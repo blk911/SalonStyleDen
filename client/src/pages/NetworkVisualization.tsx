@@ -120,6 +120,143 @@ export default function NetworkVisualization() {
 
     fetchData();
   }, []);
+  
+  // Create a D3 force-directed graph simulation for the component map
+  useEffect(() => {
+    if (!componentData.nodes.length || !svgRef.current) return;
+    
+    // Clear previous visualization
+    const svg = d3Select(svgRef.current);
+    if (svg.selectAll) {
+      svg.selectAll("*").remove();
+    }
+    
+    // Define color mapping
+    const groupColors: { [key: string]: string } = {
+      page: '#0047AB', // Cobalt blue - Professional LinkedIn-style blue
+      component: '#2E5984', // Steel blue - More corporate
+      form: '#5B7553', // Muted green - For input forms
+      dialog: '#8C6057', // Muted terracotta - For dialogs
+      card: '#4A5459', // Slate gray - For cards
+      engine: '#5D4037', // Deep brown - For engines
+      widget: '#37474F', // Dark blue gray - For widgets
+    };
+    
+    // Define SimulationNode type that extends ComponentNode with d3 properties
+    type SimulationNode = ComponentNode & d3Force.SimulationNodeDatum;
+    type SimulationLink = d3Force.SimulationLinkDatum<SimulationNode> & {
+      type?: string;
+      value: number;
+    };
+    
+    // Prepare the nodes and links for D3
+    const nodes: SimulationNode[] = componentData.nodes.map(node => ({
+      ...node,
+    }));
+    
+    // Create a mapping from node ID to array index for source/target references
+    const nodeMap = new Map<string, number>();
+    nodes.forEach((node, index) => {
+      nodeMap.set(node.id, index);
+    });
+    
+    // Map the links from string references to node indices
+    const links: SimulationLink[] = componentData.links.map(link => ({
+      ...link,
+      source: nodeMap.get(link.source) ?? 0,
+      target: nodeMap.get(link.target) ?? 0,
+    }));
+    
+    // Create the SVG container for the force directed graph
+    const width = svgRef.current.clientWidth;
+    const height = svgRef.current.clientHeight;
+    
+    // Set up the simulation
+    const simulation = d3Force.forceSimulation<SimulationNode>(nodes)
+      .force("link", d3Force.forceLink<SimulationNode, SimulationLink>(links)
+        .distance((d) => 150 / (d.value || 1))
+        .id((d) => d.id))
+      .force("charge", d3Force.forceManyBody<SimulationNode>().strength(-200))
+      .force("center", d3Force.forceCenter<SimulationNode>(width / 2, height / 2))
+      .force("x", d3Force.forceX<SimulationNode>(width / 2).strength(0.05))
+      .force("y", d3Force.forceY<SimulationNode>(height / 2).strength(0.05));
+    
+    // Create the link elements
+    const link = svg.append("g")
+      .selectAll("line")
+      .data(links)
+      .enter()
+      .append("line")
+      .attr("stroke", "#999")
+      .attr("stroke-opacity", 0.6)
+      .attr("stroke-width", (d) => Math.sqrt(d.value));
+    
+    // Create the node elements
+    const node = svg.append("g")
+      .selectAll("g")
+      .data(nodes)
+      .enter()
+      .append("g")
+      .attr("cursor", "pointer")
+      .call(drag(simulation) as any);
+    
+    // Add circles to each node group
+    node.append("circle")
+      .attr("r", (d) => Math.max(8, d.size / 10))
+      .attr("fill", (d) => groupColors[d.group] || "#666")
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 1.5);
+    
+    // Add labels to each node
+    node.append("text")
+      .attr("dx", (d) => Math.max(12, d.size / 8))
+      .attr("dy", ".35em")
+      .attr("font-family", "Arial, sans-serif")
+      .attr("font-size", "11px")
+      .attr("fill", "#333")
+      .text((d) => d.name);
+    
+    // Set up the tick function to update positions
+    simulation.on("tick", () => {
+      link
+        .attr("x1", (d) => (d.source as SimulationNode).x || 0)
+        .attr("y1", (d) => (d.source as SimulationNode).y || 0)
+        .attr("x2", (d) => (d.target as SimulationNode).x || 0)
+        .attr("y2", (d) => (d.target as SimulationNode).y || 0);
+        
+      node.attr("transform", (d) => `translate(${d.x || 0},${d.y || 0})`);
+    });
+    
+    // Helper function to enable dragging nodes
+    function drag(simulation: d3Force.Simulation<SimulationNode>) {
+      function dragstarted(event: any) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        event.subject.fx = event.subject.x;
+        event.subject.fy = event.subject.y;
+      }
+      
+      function dragged(event: any) {
+        event.subject.fx = event.x;
+        event.subject.fy = event.y;
+      }
+      
+      function dragended(event: any) {
+        if (!event.active) simulation.alphaTarget(0);
+        event.subject.fx = null;
+        event.subject.fy = null;
+      }
+      
+      return d3Force.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended);
+    }
+    
+    // Clean up when the component unmounts
+    return () => {
+      simulation.stop();
+    };
+  }, [componentData, activeTab]);
 
   // Function to render the database schema visualization
   const renderDatabaseSchema = () => {
@@ -439,142 +576,7 @@ export default function NetworkVisualization() {
     );
   }
 
-  // Create a D3 force-directed graph simulation for the component map
-  useEffect(() => {
-    if (!componentData.nodes.length || !svgRef.current) return;
-    
-    // Clear previous visualization
-    const svg = d3Select(svgRef.current);
-    if (svg.selectAll) {
-      svg.selectAll("*").remove();
-    }
-    
-    // Define color mapping
-    const groupColors: { [key: string]: string } = {
-      page: '#0047AB', // Cobalt blue - Professional LinkedIn-style blue
-      component: '#2E5984', // Steel blue - More corporate
-      form: '#5B7553', // Muted green - For input forms
-      dialog: '#8C6057', // Muted terracotta - For dialogs
-      card: '#4A5459', // Slate gray - For cards
-      engine: '#5D4037', // Deep brown - For engines
-      widget: '#37474F', // Dark blue gray - For widgets
-    };
-    
-    // Define SimulationNode type that extends ComponentNode with d3 properties
-    type SimulationNode = ComponentNode & d3Force.SimulationNodeDatum;
-    type SimulationLink = d3Force.SimulationLinkDatum<SimulationNode> & {
-      type?: string;
-      value: number;
-    };
-    
-    // Prepare the nodes and links for D3
-    const nodes: SimulationNode[] = componentData.nodes.map(node => ({
-      ...node,
-    }));
-    
-    // Create a mapping from node ID to array index for source/target references
-    const nodeMap = new Map<string, number>();
-    nodes.forEach((node, index) => {
-      nodeMap.set(node.id, index);
-    });
-    
-    // Map the links from string references to node indices
-    const links: SimulationLink[] = componentData.links.map(link => ({
-      ...link,
-      source: nodeMap.get(link.source) ?? 0,
-      target: nodeMap.get(link.target) ?? 0,
-    }));
-    
-    // Create the SVG container for the force directed graph
-    const width = svgRef.current.clientWidth;
-    const height = svgRef.current.clientHeight;
-    
-    // Set up the simulation
-    const simulation = d3Force.forceSimulation<SimulationNode>(nodes)
-      .force("link", d3Force.forceLink<SimulationNode, SimulationLink>(links)
-        .distance((d) => 150 / (d.value || 1))
-        .id((d) => d.id))
-      .force("charge", d3Force.forceManyBody<SimulationNode>().strength(-200))
-      .force("center", d3Force.forceCenter<SimulationNode>(width / 2, height / 2))
-      .force("x", d3Force.forceX<SimulationNode>(width / 2).strength(0.05))
-      .force("y", d3Force.forceY<SimulationNode>(height / 2).strength(0.05));
-    
-    // Create the link elements
-    const link = svg.append("g")
-      .selectAll("line")
-      .data(links)
-      .enter()
-      .append("line")
-      .attr("stroke", "#999")
-      .attr("stroke-opacity", 0.6)
-      .attr("stroke-width", (d) => Math.sqrt(d.value));
-    
-    // Create the node elements
-    const node = svg.append("g")
-      .selectAll("g")
-      .data(nodes)
-      .enter()
-      .append("g")
-      .attr("cursor", "pointer")
-      .call(drag(simulation) as any);
-    
-    // Add circles to each node group
-    node.append("circle")
-      .attr("r", (d) => Math.max(8, d.size / 10))
-      .attr("fill", (d) => groupColors[d.group] || "#666")
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 1.5);
-    
-    // Add labels to each node
-    node.append("text")
-      .attr("dx", (d) => Math.max(12, d.size / 8))
-      .attr("dy", ".35em")
-      .attr("font-family", "Arial, sans-serif")
-      .attr("font-size", "11px")
-      .attr("fill", "#333")
-      .text((d) => d.name);
-    
-    // Set up the tick function to update positions
-    simulation.on("tick", () => {
-      link
-        .attr("x1", (d) => (d.source as SimulationNode).x || 0)
-        .attr("y1", (d) => (d.source as SimulationNode).y || 0)
-        .attr("x2", (d) => (d.target as SimulationNode).x || 0)
-        .attr("y2", (d) => (d.target as SimulationNode).y || 0);
-        
-      node.attr("transform", (d) => `translate(${d.x || 0},${d.y || 0})`);
-    });
-    
-    // Helper function to enable dragging nodes
-    function drag(simulation: d3Force.Simulation<SimulationNode>) {
-      function dragstarted(event: any) {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        event.subject.fx = event.subject.x;
-        event.subject.fy = event.subject.y;
-      }
-      
-      function dragged(event: any) {
-        event.subject.fx = event.x;
-        event.subject.fy = event.y;
-      }
-      
-      function dragended(event: any) {
-        if (!event.active) simulation.alphaTarget(0);
-        event.subject.fx = null;
-        event.subject.fy = null;
-      }
-      
-      return d3Force.drag<any, SimulationNode, any>()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended);
-    }
-    
-    // Clean up when the component unmounts
-    return () => {
-      simulation.stop();
-    };
-  }, [componentData, activeTab]);
+
 
   return (
     <div className="container mx-auto p-6">
