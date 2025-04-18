@@ -80,9 +80,6 @@ export default function Navbar() {
             <Link href="/admin">
               <div className="px-2 py-1 text-sm font-medium bg-pink-50 text-pink-600 hover:bg-pink-100 cursor-pointer">Admin</div>
             </Link>
-            <Link href="/network-visualization">
-              <div className="px-2 py-1 text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 cursor-pointer">Network</div>
-            </Link>
             <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
           </div>
           <div className="flex items-center sm:hidden">
@@ -113,9 +110,6 @@ export default function Navbar() {
           </Link>
           <Link href="/admin">
             <div className="block px-2 py-1 text-base font-medium bg-pink-50 text-pink-600 hover:bg-pink-100 cursor-pointer">Admin</div>
-          </Link>
-          <Link href="/network-visualization">
-            <div className="block px-2 py-1 text-base font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 cursor-pointer">Network</div>
           </Link>
           <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
         </div>
