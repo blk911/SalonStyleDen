@@ -1161,6 +1161,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Log VMB Invitation Sent
+  apiRouter.post("/vmb-invitations/log", async (req: Request, res: Response) => {
+    try {
+      const { clientId, salonId, styleId } = req.body;
+      
+      // Validate required fields
+      if (!clientId || !salonId || !styleId) {
+        return res.status(400).json({ error: "clientId, salonId, and styleId are required" });
+      }
+      
+      // Convert to numbers
+      const clientIdNum = Number(clientId);
+      const salonIdNum = Number(salonId);
+      const styleIdNum = Number(styleId);
+      
+      if (isNaN(clientIdNum) || isNaN(salonIdNum) || isNaN(styleIdNum)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      // Log the VMB invitation
+      const activityLog = await storage.logVmbInvitationSent(clientIdNum, salonIdNum, styleIdNum);
+      
+      console.log(`VMB invitation logged - Client: ${clientIdNum}, Salon: ${salonIdNum}, Style: ${styleIdNum}`);
+      res.status(201).json({ 
+        success: true, 
+        message: "VMB invitation logged successfully", 
+        logId: activityLog.id 
+      });
+    } catch (error) {
+      console.error("Error logging VMB invitation:", error);
+      res.status(500).json({ error: "Failed to log VMB invitation" });
+    }
+  });
+  
   apiRouter.get("/activity-logs", async (req: Request, res: Response) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;

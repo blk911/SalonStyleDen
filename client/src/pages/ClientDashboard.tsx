@@ -12,6 +12,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import EditableClientInfo from "@/components/dashboard/EditableClientInfo";
 import { getImageUrl } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import { 
   CalendarIcon, 
   ClockIcon, 
@@ -93,6 +94,7 @@ interface Invitation {
 
 export default function ClientDashboard() {
   const { id } = useParams();
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   
   // State for VMB Style Options selection
@@ -505,9 +507,54 @@ export default function ClientDashboard() {
                               <div className="mt-4 bg-white p-4 rounded-lg shadow-sm border border-pink-100">
                                 <h5 className="font-medium text-pink-700 mb-4">Create Promo</h5>
                                 
+                                {/* Content will be filled later */}
+                                
                                 <div className="mt-6 flex justify-end">
                                   <Button 
                                     className="bg-pink-500 hover:bg-pink-600 text-white"
+                                    onClick={async () => {
+                                      if (!client || !selectedStyle || !salon) return;
+                                      
+                                      try {
+                                        // Log the VMB invitation to the server for admin tracking
+                                        const response = await fetch('/api/vmb-invitations/log', {
+                                          method: 'POST',
+                                          headers: {
+                                            'Content-Type': 'application/json',
+                                          },
+                                          body: JSON.stringify({
+                                            clientId: client.id,
+                                            salonId: salon.id,
+                                            styleId: selectedStyle.id
+                                          }),
+                                        });
+                                        
+                                        if (!response.ok) {
+                                          console.error('Failed to log VMB invitation:', await response.text());
+                                          toast({
+                                            variant: "destructive",
+                                            title: "Error",
+                                            description: "Failed to create invitation. Please try again.",
+                                          });
+                                          return;
+                                        }
+                                        
+                                        // Successfully logged
+                                        toast({
+                                          title: "Success!",
+                                          description: "VMB invitation has been sent successfully!",
+                                        });
+                                        
+                                        console.log('VMB invitation logged successfully for admin tracking');
+                                      } catch (error) {
+                                        console.error('Error sending VMB invitation:', error);
+                                        toast({
+                                          variant: "destructive",
+                                          title: "Error",
+                                          description: "An error occurred. Please try again.",
+                                        });
+                                      }
+                                    }}
                                   >
                                     Send It! Ven Me, Baby!
                                   </Button>

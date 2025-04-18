@@ -45,6 +45,7 @@ export interface IStorage {
   // Activity Log methods
   createActivityLog(activityLog: InsertActivityLog): Promise<ActivityLog>;
   getRecentActivityLogs(limit?: number): Promise<ActivityLog[]>;
+  logVmbInvitationSent(clientId: number, salonId: number, styleId: number): Promise<ActivityLog>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -556,6 +557,36 @@ async createClient(insertClient: InsertClient): Promise<Client> {
       return result;
     } catch (error) {
       console.error('DatabaseStorage.getRecentActivityLogs - Error fetching activity logs:', error);
+      throw error;
+    }
+  }
+  
+  async logVmbInvitationSent(clientId: number, salonId: number, styleId: number): Promise<ActivityLog> {
+    try {
+      console.log(`DatabaseStorage.logVmbInvitationSent - Logging VMB invitation from client ${clientId} for salon ${salonId} with style ${styleId}`);
+      
+      // Get client and salon info
+      const [client] = await db.select().from(clients).where(eq(clients.id, clientId));
+      const [salon] = await db.select().from(salons).where(eq(salons.id, salonId));
+      
+      if (!client || !salon) {
+        throw new Error('Client or salon not found');
+      }
+      
+      // Create activity log
+      const logEntry: InsertActivityLog = {
+        type: 'vmb_invitation',
+        description: `New VMB invitation sent by ${client.name} for ${salon.name} style #${styleId}`,
+        clientId: clientId,
+        salonId: salonId,
+        timestamp: new Date()
+      };
+      
+      const result = await this.createActivityLog(logEntry);
+      console.log(`DatabaseStorage.logVmbInvitationSent - Activity log created with ID ${result.id}`);
+      return result;
+    } catch (error) {
+      console.error('DatabaseStorage.logVmbInvitationSent - Error logging VMB invitation:', error);
       throw error;
     }
   }
