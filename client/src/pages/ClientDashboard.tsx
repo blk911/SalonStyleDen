@@ -563,7 +563,7 @@ export default function ClientDashboard() {
                                     id="message"
                                     rows={3}
                                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                    placeholder={`HI ${inviteForm.recipientName || '[RECPT NAME]'}, my nails are a mess, my stylist has an opening! Will you Ven Me, Baby!? before my appointment! XOXO ${client.name}`}
+                                    placeholder={`Hi ${inviteForm.recipientName || '[rect name]'}, my nails are a mess and ${salon?.ownerName || '[salon owner name]'} has an opening. I love this ${selectedStyle?.name || '[style opt selected]'}, will you Ven Me, Baby! ❤️❤️❤️ ${client.name}`}
                                     value={inviteForm.message}
                                     onChange={(e) => setInviteForm({...inviteForm, message: e.target.value})}
                                   />
@@ -587,7 +587,7 @@ export default function ClientDashboard() {
                                       )}
                                       <div>
                                         <p className="font-medium">{selectedStyle?.name}</p>
-                                        <p className="text-sm">${selectedStyle?.price}</p>
+                                        <p className="text-sm">${selectedStyle?.price} <span className="text-xs">(taxes, reg fee included)</span></p>
                                         <p className="text-xs text-gray-600">{salon?.name}</p>
                                       </div>
                                     </div>
@@ -744,12 +744,12 @@ export default function ClientDashboard() {
                                   
                                   <div className="text-center mb-3">
                                     <h4 className="font-semibold text-pink-800">{selectedStyle?.name}</h4>
-                                    <p className="text-pink-700">${selectedStyle?.price}</p>
+                                    <p className="text-pink-700">${selectedStyle?.price} <span className="text-xs">(taxes, reg fee included)</span></p>
                                   </div>
                                   
                                   <div className="bg-white rounded-md p-3 border border-pink-200 mb-4">
                                     <p className="text-gray-700">
-                                      {inviteForm.message || `HI ${inviteForm.recipientName || '[RECPT NAME]'}, my nails are a mess, my stylist has an opening! Will you Ven Me, Baby!? before my appointment! XOXO ${client.name}`}
+                                      {inviteForm.message || `Hi ${inviteForm.recipientName || '[rect name]'}, my nails are a mess and ${salon?.ownerName || '[salon owner name]'} has an opening. I love this ${selectedStyle?.name || '[style opt selected]'}, will you Ven Me, Baby! ❤️❤️❤️ ${client.name}`}
                                     </p>
                                   </div>
                                   
