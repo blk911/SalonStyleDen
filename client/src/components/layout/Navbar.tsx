@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import BrandName from "@/components/ui/BrandName";
 
 // Placeholder Admin Dashboard component
 const AdminDash = () => {
@@ -46,7 +47,18 @@ export default function Navbar() {
                     onError={(e) => {
                       console.log("Logo failed to load");
                       e.currentTarget.style.display = 'none';
-                      e.currentTarget.parentNode.insertAdjacentHTML('beforeend', '<div class="font-bold text-2xl text-[#FF92A5]">Ven Me, Baby!</div>');
+                      
+                      // Get parent element safely
+                      const parent = e.currentTarget.parentElement;
+                      if (!parent) return;
+                      
+                      // Create a div to display the brand name fallback
+                      const fallbackDiv = document.createElement('div');
+                      fallbackDiv.classList.add('brand-name-fallback');
+                      fallbackDiv.innerHTML = '<div class="font-serif text-2xl">Ven Me, <span class="text-[#FF92A5] italic">Baby!</span></div>';
+                      
+                      // Append the fallback to the parent element
+                      parent.appendChild(fallbackDiv);
                     }}
                   />
                 </div>

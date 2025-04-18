@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { PromoCodeDialog } from "./PromoCodeDialog";
+import BrandName from "@/components/ui/BrandName";
 
 interface ContactValidationDialogProps {
   open: boolean;
@@ -32,17 +33,14 @@ export function ContactValidationDialog({
   useEffect(() => {
     if (errorField === 'phone') {
       // Extract phone number from the error message if present
-      console.log("Validation triggered for phone, extracting details from:", errorMessage);
       
       // Try to extract the phone from the error message (assuming format: "This phone: (555) 123-4567 is already registered")
       const phoneMatch = errorMessage.match(/phone:\s*([^,\s]+)/i);
       if (phoneMatch && phoneMatch[1]) {
         const extractedPhone = phoneMatch[1].replace(/\D/g, '');
-        console.log("Extracted phone from error message:", extractedPhone);
         setValidationPhone(extractedPhone);
       } else {
         // For development fallback
-        console.log("Could not extract phone from error message, using development fallback");
         setValidationPhone("5127715877");
       }
     }
@@ -71,7 +69,7 @@ export function ContactValidationDialog({
                   <h4 className="text-lg font-medium text-gray-700 mb-5">Are you an existing client?</h4>
                   
                   <p className="text-gray-600 mb-5">
-                    You may have received a Ven Me, Baby! Invitation.
+                    You may have received a <BrandName size="sm" inline /> Invitation.
                   </p>
                   
                   <p className="text-gray-600 mb-6">
