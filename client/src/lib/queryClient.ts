@@ -11,33 +11,66 @@ export async function apiRequest<T = any>(
   url: string,
   options?: RequestInit & { data?: unknown }
 ): Promise<T> {
-  // Create a new object for fetch options
-  const fetchOptions: RequestInit = {
-    method: options?.method || 'GET',
-    credentials: "include" as RequestCredentials,
-  };
-  
-  // Handle headers
-  if (options?.data && !options.body) {
-    fetchOptions.headers = { "Content-Type": "application/json" };
-    fetchOptions.body = JSON.stringify(options.data);
-  } else if (options?.body) {
-    fetchOptions.body = options.body;
-  }
-  
-  // Copy remaining properties from options
-  if (options) {
-    for (const key in options) {
-      if (key !== 'data' && key !== 'body' && key !== 'method' && key !== 'credentials') {
-        (fetchOptions as any)[key] = (options as any)[key];
+  try {
+    console.log(`Making API request to ${url}`, options?.method || 'GET');
+    
+    // Create a new object for fetch options
+    const fetchOptions: RequestInit = {
+      method: options?.method || 'GET',
+      credentials: "include" as RequestCredentials,
+    };
+    
+    // Handle headers
+    if (options?.data && !options.body) {
+      fetchOptions.headers = { "Content-Type": "application/json" };
+      fetchOptions.body = JSON.stringify(options.data);
+    } else if (options?.body) {
+      fetchOptions.body = options.body;
+      // Add Content-Type header for JSON if not present
+      if (!fetchOptions.headers && typeof options.body === 'string' && options.body.startsWith('{')) {
+        fetchOptions.headers = { "Content-Type": "application/json" };
       }
     }
+    
+    // Copy remaining properties from options
+    if (options) {
+      for (const key in options) {
+        if (key !== 'data' && key !== 'body' && key !== 'method' && key !== 'credentials') {
+          (fetchOptions as any)[key] = (options as any)[key];
+        }
+      }
+    }
+    
+    console.log(`API request options:`, fetchOptions);
+    const res = await fetch(url, fetchOptions);
+    console.log(`API response status:`, res.status);
+    
+    // Special case for promo code validation
+    if (url.includes('/api/invitations/validate')) {
+      try {
+        const responseData = await res.json();
+        console.log('Validation response:', responseData);
+        return responseData as T;
+      } catch (parseError) {
+        console.error('Error parsing validation response:', parseError);
+        throw new Error('Failed to parse validation response');
+      }
+    }
+    
+    await throwIfResNotOk(res);
+    
+    try {
+      const data = await res.json();
+      console.log(`API response data:`, data);
+      return data;
+    } catch (jsonError) {
+      console.error('Error parsing JSON response:', jsonError);
+      return { success: true } as unknown as T; // Return a simple success object for non-JSON responses
+    }
+  } catch (error) {
+    console.error(`API request error for ${url}:`, error);
+    throw error;
   }
-  
-  const res = await fetch(url, fetchOptions);
-
-  await throwIfResNotOk(res);
-  return await res.json();
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
