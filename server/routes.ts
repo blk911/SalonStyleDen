@@ -6,6 +6,9 @@ import { importSalons, importClients } from "./utils/importData";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { db } from "./db";
+import { clients } from "../shared/schema";
+import { eq } from "drizzle-orm";
 
 // Set up multer for file uploads
 const uploadDir = path.join(process.cwd(), 'client/public/uploads');

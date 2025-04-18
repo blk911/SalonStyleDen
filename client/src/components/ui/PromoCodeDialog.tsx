@@ -84,12 +84,12 @@ export function PromoCodeDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Enter Promo Code</DialogTitle>
+          <DialogTitle className="text-center">Enter Promo Code</DialogTitle>
         </DialogHeader>
         
-        <div className="p-4 border border-yellow-300 bg-yellow-50 rounded mb-4 text-sm">
+        <div className="p-4 border border-yellow-300 bg-yellow-50 rounded mb-5 text-sm text-center">
           <strong>Development Mode</strong>: This is a temporary bypass for testing purposes.
-          <ul className="mt-2 list-disc list-inside">
+          <ul className="mt-3 list-disc list-inside">
             <li>Enter the last 4 digits of your phone number as the code</li>
             <li>For example, if your number is (512) 771-5877, enter: <strong>5877</strong></li>
           </ul>
@@ -97,31 +97,31 @@ export function PromoCodeDialog({
         </div>
         
         <form onSubmit={handleSubmit}>
-          <div className="space-y-4">
+          <div className="space-y-5">
             <Input
               value={promoCode}
               onChange={(e) => setPromoCode(e.target.value)}
               placeholder="Enter your promo code"
-              className="border-pink-200 focus:border-pink-400"
+              className="border-pink-200 focus:border-pink-400 text-center"
             />
             
-            <DialogFooter className="flex justify-between w-full mt-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6">
               <Button 
                 type="button"
                 variant="outline" 
                 onClick={() => onOpenChange(false)}
-                className="border-pink-300"
+                className="border-pink-300 w-full sm:w-auto px-6"
               >
                 Cancel
               </Button>
               <Button 
                 type="submit"
                 disabled={loading}
-                className="bg-pink-500 hover:bg-pink-600"
+                className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto px-6"
               >
                 {loading ? "Verifying..." : "Verify & Continue"}
               </Button>
-            </DialogFooter>
+            </div>
           </div>
         </form>
       </DialogContent>
