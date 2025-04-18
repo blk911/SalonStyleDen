@@ -9,6 +9,7 @@ import fs from "fs";
 import { db } from "./db";
 import { clients } from "../shared/schema";
 import { eq } from "drizzle-orm";
+import { registerVisualizationRoutes } from "./visualization";
 
 // Set up multer for file uploads
 const uploadDir = path.join(process.cwd(), 'client/public/uploads');
@@ -1209,6 +1210,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register API routes
   app.use("/api", apiRouter);
+  
+  // Register visualization routes
+  registerVisualizationRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;
