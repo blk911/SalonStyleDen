@@ -278,6 +278,14 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
+          {/* Recent VMB Invitations Card */}
+          <Card className="mb-6">
+            <CardContent className="p-4">
+              <h2 className="text-xl font-semibold mb-4">Recent VMB Invitations Sent</h2>
+              <RecentVmbInvitations limit={10} />
+            </CardContent>
+          </Card>
+
           <div className="grid gap-6">
             {/* Client Invitations Table */}
             <Card>
