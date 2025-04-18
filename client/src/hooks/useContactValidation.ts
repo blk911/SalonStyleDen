@@ -42,8 +42,11 @@ export function useContactValidation(options: ValidationOptions = {}) {
     if (!value) return false;
 
     // Simple format validation before server check
+    let cleanPhone = value;
     if (type === 'phone') {
-      const cleanPhone = value.replace(/\D/g, '');
+      // Always clean the phone number for consistent server validation
+      cleanPhone = value.replace(/\D/g, '');
+      console.log(`validateContact - Original phone: ${value}, Cleaned: ${cleanPhone}`);
       if (cleanPhone.length !== 10) return false;
     }
 
@@ -54,14 +57,14 @@ export function useContactValidation(options: ValidationOptions = {}) {
     setIsValidating(true);
 
     try {
-      console.log(`Validating ${type}:`, value);
+      console.log(`Validating ${type}:`, type === 'phone' ? cleanPhone : value);
 
       // Use validation-only server request
       const response = await fetch('/api/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          phone: type === 'phone' ? value.replace(/\D/g, '') : '',
+          phone: type === 'phone' ? cleanPhone : '',
           email: type === 'email' ? value.toLowerCase() : '',
           name: 'test',
           _validateOnly: true
@@ -70,11 +73,11 @@ export function useContactValidation(options: ValidationOptions = {}) {
 
       const data = await response.json();
       
-      // Check for either a server error or valid: false in response
-      if (!response.ok || (data.error && data.error.includes(type))) {
-        console.log(`Server detected duplicate ${type}:`, value);
+      // Check for either a server error or duplicate in response
+      if (!response.ok || data.error) {
+        console.log(`Server detected duplicate ${type}:`, value, data);
 
-        if (type === 'phone') {
+        if (type === 'phone' || (data.error && data.error.includes('phone'))) {
           setPhoneExists(true);
           setErrorField('phone');
           setErrorMessage('This phone number is already registered in our system.');
@@ -123,8 +126,11 @@ export function useContactValidation(options: ValidationOptions = {}) {
         // Real-time validation
         if (validateOnChange) {
           const cleanPhone = formatted.replace(/\D/g, '');
+          console.log(`Phone validation - Clean phone: ${cleanPhone}, Length: ${cleanPhone.length}`);
           if (cleanPhone.length === 10) {
-            validateContact('phone', formatted);
+            console.log(`Phone validation - Validating phone: ${formatted}`);
+            // Use a clean version of the phone for validation
+            validateContact('phone', cleanPhone);
           } else {
             setPhoneExists(false);
             if (showErrorDialog && errorField === 'phone') {
@@ -138,7 +144,9 @@ export function useContactValidation(options: ValidationOptions = {}) {
       onBlur: validateOnBlur 
         ? (e: React.FocusEvent<HTMLInputElement>) => {
             const cleanPhone = currentValue.replace(/\D/g, '');
+            console.log(`Phone blur validation - Clean phone: ${cleanPhone}, Length: ${cleanPhone.length}`);
             if (cleanPhone.length === 10) {
+              console.log(`Phone blur validation - Validating phone: ${cleanPhone}`);
               validateContact('phone', cleanPhone);
             }
           }
