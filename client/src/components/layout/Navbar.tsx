@@ -43,9 +43,9 @@ export default function Navbar() {
                     src="/assets/logos/vmb-logo.png"
                     alt="VMB Logo"
                     className="h-[90px] w-auto object-contain"
-                    onLoad={() => console.log("Logo loaded successfully")}
+                    onLoad={() => {/* Logo loaded successfully */}}
                     onError={(e) => {
-                      console.log("Logo failed to load");
+                      // Hide the image if it fails to load
                       e.currentTarget.style.display = 'none';
                       
                       // Get parent element safely
