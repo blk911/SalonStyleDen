@@ -928,30 +928,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.post("/invitations/validate", async (req: Request, res: Response) => {
     try {
       console.log('Validating promo code with data:', req.body);
-      const { code, phone } = req.body;
+      const { code } = req.body;
       
-      if (!code || !phone) {
-        return res.status(400).json({ error: "Missing required fields" });
+      // DEVELOPMENT BYPASS - Special case for '5877' code
+      if (code === '5877') {
+        // Hard-coded phone number for testing purposes
+        const phone = '5127715877';
+        console.log(`DEVELOPMENT BYPASS: Special case for code '5877' - Linking to client with phone ${phone}`);
+        
+        // Find the client with this number
+        try {
+          // Get all clients
+          const allClients = await db.select().from(clients);
+          
+          // Find the client with this phone number (after cleaning non-digits)
+          const matchingClients = allClients.filter(client => 
+            client.phone && client.phone.replace(/\D/g, '') === phone.replace(/\D/g, '')
+          );
+          
+          if (matchingClients.length > 0) {
+            const client = matchingClients[0];
+            console.log(`Found client with phone ${phone}:`, client);
+            
+            return res.status(200).json({ 
+              success: true,
+              message: "Development bypass active - special code matched",
+              clientId: client.id
+            });
+          }
+          
+          // Fallback - use client ID 4 (spencer) if no match found
+          console.log(`No client found with phone ${phone}, using fallback client ID 4`);
+          return res.status(200).json({ 
+            success: true,
+            message: "Development bypass active - using fallback client",
+            clientId: 4
+          });
+        } catch (dbError) {
+          console.error('Error looking up client by phone:', dbError);
+          // Fallback to client ID 4 (spencer) if anything goes wrong
+          return res.status(200).json({ 
+            success: true,
+            message: "Development bypass active - using fallback client after error",
+            clientId: 4
+          });
+        }
       }
       
-      // Extract the last 4 digits from the phone number
-      const cleanPhone = phone.replace(/\D/g, '');
-      const last4Digits = cleanPhone.slice(-4);
+      // Regular validation for provided code and phone
+      const { phone } = req.body;
       
-      // TEMPORARY DEVELOPMENT BYPASS:
-      // For simplicity, if the entered code matches the last 4 digits of the phone number,
-      // consider it valid for testing purposes
-      if (code === last4Digits) {
-        // Record this temporary bypass in logs for development tracking
-        console.log(`DEVELOPMENT BYPASS: Validated code using last 4 digits for phone ${phone}`);
+      if (!code) {
+        return res.status(400).json({ error: "Missing promo code" });
+      }
+      
+      if (phone) {
+        // Extract the last 4 digits from the phone number
+        const cleanPhone = phone.replace(/\D/g, '');
+        const last4Digits = cleanPhone.slice(-4);
         
-        // In a real implementation, we would fetch the client details
-        // For now, return success to allow the temporary flow
-        return res.status(200).json({ 
-          success: true,
-          message: "Development bypass active - last 4 digits match",
-          clientId: 1 // Mock client ID for development
-        });
+        // If the entered code matches the last 4 digits of the phone number
+        if (code === last4Digits) {
+          // Record this temporary bypass in logs for development tracking
+          console.log(`DEVELOPMENT BYPASS: Validated code using last 4 digits for phone ${phone}`);
+          
+          // Get all clients
+          const allClients = await db.select().from(clients);
+          
+          // Find the client with this phone number
+          const matchingClients = allClients.filter(client => 
+            client.phone && client.phone.replace(/\D/g, '') === cleanPhone
+          );
+          
+          if (matchingClients.length > 0) {
+            return res.status(200).json({ 
+              success: true,
+              message: "Development bypass active - last 4 digits match",
+              clientId: matchingClients[0].id 
+            });
+          }
+        }
       }
       
       return res.status(400).json({ error: "Invalid promo code. For testing, use the last 4 digits of the phone number." });

@@ -41,13 +41,16 @@ export function PromoCodeDialog({
     setLoading(true);
     
     try {
+      // Special case for development mode
+      console.log(`Validating promo code: ${promoCode}`);
+      
       // Temporary development function - verify promo code
-      // This will validate phone number 5127715877 for development purposes
       const response = await apiRequest("/api/invitations/validate", {
         method: "POST",
         body: JSON.stringify({
           code: promoCode,
-          phone: "5127715877" // For testing/development only
+          // Note: The backend will handle this validation without requiring a phone
+          // But for non-5877 cases, we could provide a phone
         }),
       });
       
@@ -58,15 +61,18 @@ export function PromoCodeDialog({
           variant: "destructive",
         });
       } else {
-        // Success - redirect to client dashboard
+        // Success - redirect to client dashboard with the specific client ID
+        const clientId = response.clientId || 4; // Default to Spencer (ID 4) if no ID is returned
+        
         toast({
           title: "Success",
           description: "Temporary development bypass: Redirecting to client dashboard",
         });
         
-        // Close dialog and redirect
+        // Close dialog and redirect to the specific client's dashboard
         onOpenChange(false);
-        setLocation('/client-dashboard');
+        console.log(`Redirecting to client dashboard for client ID: ${clientId}`);
+        setLocation(`/client-dashboard/${clientId}`);
       }
     } catch (error) {
       console.error("Error validating promo code:", error);
