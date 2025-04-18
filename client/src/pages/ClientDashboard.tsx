@@ -733,8 +733,12 @@ export default function ClientDashboard() {
                                       I love this style - {selectedStyle?.name || '[selected opt]'}. My nails are a mess and {salon?.ownerName || '[sal own nm]'} has an opening.
                                     </p>
                                     
-                                    {/* Image and price inside the message */}
-                                    <div className="mb-4 bg-white p-2 rounded-lg shadow-sm border border-blue-200">
+                                    <p className="text-gray-800 mb-4">
+                                      I would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ {client.name}
+                                    </p>
+                                    
+                                    {/* Image and price inside the message - moved below signature as requested */}
+                                    <div className="bg-white p-2 rounded-lg shadow-sm border border-blue-200">
                                       <div className="flex items-center">
                                         {selectedStyle?.gifUrl && (
                                           <div className="w-20 h-20 rounded-lg overflow-hidden border border-blue-300 mr-3">
@@ -754,10 +758,6 @@ export default function ClientDashboard() {
                                         </div>
                                       </div>
                                     </div>
-                                    
-                                    <p className="text-gray-800">
-                                      I would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ {client.name}
-                                    </p>
                                   </div>
                                 </div>
                                 
