@@ -72,7 +72,7 @@ export function PromoCodeDialog({
         // Close dialog and redirect to the specific client's dashboard
         onOpenChange(false);
         console.log(`Redirecting to client dashboard for client ID: ${clientId}`);
-        setLocation(`/client-dashboard/${clientId}`);
+        setLocation(`/client/${clientId}`);
       }
     } catch (error) {
       console.error("Error validating promo code:", error);

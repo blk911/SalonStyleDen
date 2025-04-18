@@ -31,11 +31,20 @@ export function ContactValidationDialog({
   // Extract the phone number from the error message when it changes
   useEffect(() => {
     if (errorField === 'phone') {
-      // Look through the console logs to find the phone that triggered validation
-      console.log("Validation triggered for phone, extracting details");
+      // Extract phone number from the error message if present
+      console.log("Validation triggered for phone, extracting details from:", errorMessage);
       
-      // For development, we'll use 5127715877 if errorMessage doesn't contain a phone
-      setValidationPhone("5127715877");
+      // Try to extract the phone from the error message (assuming format: "This phone: (555) 123-4567 is already registered")
+      const phoneMatch = errorMessage.match(/phone:\s*([^,\s]+)/i);
+      if (phoneMatch && phoneMatch[1]) {
+        const extractedPhone = phoneMatch[1].replace(/\D/g, '');
+        console.log("Extracted phone from error message:", extractedPhone);
+        setValidationPhone(extractedPhone);
+      } else {
+        // For development fallback
+        console.log("Could not extract phone from error message, using development fallback");
+        setValidationPhone("5127715877");
+      }
     }
   }, [errorField, errorMessage]);
   
@@ -118,7 +127,8 @@ export function ContactValidationDialog({
           if (!open) {
             onOpenChange(false);
           }
-        }} 
+        }}
+        phone={validationPhone} // Pass the phone number to the promo code dialog
       />
     </>
   );
