@@ -878,6 +878,12 @@ export default function ClientDashboard() {
                           </div>
                         </div>
                       )}
+                      
+                      {/* Recent VMB Invitations Sent */}
+                      <div className="mt-8 border-t pt-4">
+                        <h3 className="font-semibold text-pink-700 mb-3">Recent VMB Invitations Sent</h3>
+                        <RecentVmbInvitations clientId={client.id} />
+                      </div>
                     </div>
                   ) : salonLoading ? (
                     <p>Loading salon information...</p>
