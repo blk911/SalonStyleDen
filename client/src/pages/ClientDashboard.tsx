@@ -99,6 +99,7 @@ export default function ClientDashboard() {
   const [selectedStyle, setSelectedStyle] = useState<any>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showPersonalizedOffers, setShowPersonalizedOffers] = useState(false);
+  const [showCreatePromo, setShowCreatePromo] = useState(false);
 
   // Add debugging information to trace API calls
   console.log(`ClientDashboard - Fetching client with ID: ${id}`);
@@ -486,8 +487,33 @@ export default function ClientDashboard() {
                                 <div className="mt-3 text-sm">
                                   <span className="font-medium">Salon:</span> {salon?.name}
                                 </div>
+                                
+                                {/* Next step button */}
+                                <div className="mt-4 flex justify-end">
+                                  <Button 
+                                    onClick={() => setShowCreatePromo(true)}
+                                    className="bg-pink-500 hover:bg-pink-600 text-white"
+                                  >
+                                    Next: Create and Send Invite
+                                  </Button>
+                                </div>
                               </div>
                             </div>
+                            
+                            {/* Create Promo Container */}
+                            {showCreatePromo && (
+                              <div className="mt-4 bg-white p-4 rounded-lg shadow-sm border border-pink-100">
+                                <h5 className="font-medium text-pink-700 mb-4">Create Promo</h5>
+                                
+                                <div className="mt-6 flex justify-end">
+                                  <Button 
+                                    className="bg-pink-500 hover:bg-pink-600 text-white"
+                                  >
+                                    Send It! Ven Me, Baby!
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
