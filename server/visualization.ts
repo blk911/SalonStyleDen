@@ -15,8 +15,20 @@ export function registerVisualizationRoutes(app: Express) {
   // Get database schema information
   app.get('/api/schema', async (req: Request, res: Response) => {
     try {
+      // Define more specific types for the schema information
+      interface ColumnInfo {
+        name: string;
+        type: string;
+      }
+      
+      interface TableInfo {
+        name: string;
+        columns: Record<string, ColumnInfo>;
+        relations?: Record<string, { references: string }>;
+      }
+      
       // Extract schema information from the shared schema
-      const schemaInfo: { tables: Record<string, any> } = {
+      const schemaInfo: { tables: Record<string, TableInfo> } = {
         tables: {}
       };
       
@@ -41,7 +53,7 @@ export function registerVisualizationRoutes(app: Express) {
       
       // Add each table to the schema info
       tables.forEach(table => {
-        const columns = {};
+        const columns: Record<string, ColumnInfo> = {};
         
         // Extract column information if available
         if (table.schema) {
@@ -57,9 +69,10 @@ export function registerVisualizationRoutes(app: Express) {
           }
         }
         
+        // Create the table entry with properly typed columns
         schemaInfo.tables[table.name] = {
           name: table.name,
-          columns
+          columns: columns
         };
       });
       

@@ -2,12 +2,17 @@ import React, { useEffect, useState } from 'react';
 import {
   ResponsiveContainer,
   Tooltip,
-  Sankey,
   Radar,
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
-  PolarRadiusAxis
+  PolarRadiusAxis,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Legend
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -35,7 +40,16 @@ interface NetworkData {
 }
 
 export default function NetworkVisualization() {
-  const [schemaData, setSchemaData] = useState<any>({});
+  // Define schema data interface to match expected API response
+  interface SchemaData {
+    tables: Record<string, {
+      name: string;
+      columns: Record<string, { name: string; type: string }>;
+      relations?: Record<string, { references: string }>;
+    }>;
+  }
+  
+  const [schemaData, setSchemaData] = useState<SchemaData>({ tables: {} });
   const [networkData, setNetworkData] = useState<NetworkData>({ nodes: [], links: [] });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -130,25 +144,8 @@ export default function NetworkVisualization() {
       return <div className="text-center p-8">No network data available</div>;
     }
 
-    // Map node IDs to indices for Sankey diagram
-    const nodeMap = new Map();
-    data.nodes.forEach((node, index) => {
-      nodeMap.set(node.id, index);
-    });
-
-    // Prepare data for Sankey diagram
-    const sankeyData = {
-      nodes: data.nodes.map((node) => ({
-        name: node.name,
-        group: node.group
-      })),
-      links: data.links.map((link) => ({
-        source: nodeMap.get(link.source),
-        target: nodeMap.get(link.target),
-        value: link.value,
-        type: link.type
-      }))
-    };
+    // Prepare connection data for visualization
+    // We'll focus on displaying the component distributions instead of the complex network diagram
 
     // Group nodes by type for radar chart
     const groupCounts: { [key: string]: number } = {};
@@ -175,30 +172,38 @@ export default function NetworkVisualization() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="col-span-1 lg:col-span-2 shadow-sm">
           <CardHeader className="bg-gray-50 border-b">
-            <CardTitle>Component Relationship Diagram</CardTitle>
+            <CardTitle>Component Frequency Analysis</CardTitle>
             <CardDescription>
-              Visualizes how components interact with each other
+              Distribution of component types in the application
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4">
             <div className="h-[600px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <Sankey
-                  data={sankeyData}
-                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                  linkCurvature={0.5}
-                  nodePadding={50}
-                  iterations={64}
-                  link={{ stroke: '#d9d9d9' }}
-                  node={{
-                    fill: ({ payload, index }: any) => {
-                      const group = payload.group || 'unknown';
-                      return nodeColors[group] || nodeColors.unknown;
-                    }
-                  }}
+                <BarChart
+                  data={Object.entries(groupCounts).map(([name, value]) => ({
+                    name,
+                    count: value
+                  }))}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
                 >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="name" 
+                    angle={-45} 
+                    textAnchor="end"
+                    height={60}
+                  />
+                  <YAxis />
                   <Tooltip />
-                </Sankey>
+                  <Legend />
+                  <Bar 
+                    dataKey="count" 
+                    name="Component Count" 
+                    fill="#8884d8" 
+                    background={{ fill: '#eee' }}
+                  />
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
