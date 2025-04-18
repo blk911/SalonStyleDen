@@ -585,16 +585,12 @@ export default function NetworkVisualization() {
       </h1>
       
       <Tabs defaultValue="database" value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="database">Database Schema</TabsTrigger>
-          <TabsTrigger value="network">Network Diagram</TabsTrigger>
           <TabsTrigger value="components">Component Map</TabsTrigger>
         </TabsList>
         <TabsContent value="database" className="mt-6">
           {renderDatabaseSchema()}
-        </TabsContent>
-        <TabsContent value="network" className="mt-6">
-          {renderNetworkGraph(networkData)}
         </TabsContent>
         <TabsContent value="components" className="mt-6">
           {renderComponentMap(componentData)}
