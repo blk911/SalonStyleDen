@@ -13,6 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import RecentVmbInvitations from "@/components/dashboard/RecentVmbInvitations";
 
 
 interface Client {
