@@ -48,14 +48,27 @@ export function PromoCodeDialog({
   // Initialize phone number with provided phone (or empty)
   const [phoneNumber, setPhoneNumber] = useState(phone || "");
   
+  // Update phoneNumber if phone prop changes
+  useEffect(() => {
+    if (phone) {
+      setPhoneNumber(phone);
+    }
+  }, [phone]);
+  
   // Set initial mode based on the context
   // If phoneValidation flag is true, we're coming from the "No" path in ContactValidationDialog
-  // otherwise use phone presence to determine mode or default to promo
-  // If phoneValidation is explicitly set to true, we're in phone validation mode
+  // and we should be in phone validation mode
   // Otherwise, we're in promo code mode (the default)
   const [validationMode, setValidationMode] = useState<'promo' | 'phone'>(
     phoneValidation === true ? 'phone' : 'promo'
   );
+  
+  useEffect(() => {
+    // This ensures that if phoneValidation prop changes, the validation mode updates accordingly
+    if (phoneValidation === true) {
+      setValidationMode('phone');
+    }
+  }, [phoneValidation]);
   
   const [loading, setLoading] = useState(false);
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);

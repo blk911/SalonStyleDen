@@ -56,7 +56,10 @@ export function ContactValidationDialog({
   // State to track which validation mode to use for the PromoCodeDialog
   const [usePhoneValidation, setUsePhoneValidation] = useState(false);
   
+  // Handler for the "Yes, I have a promo code" button
   const handleEnterPromoCode = () => {
+    // Close the current dialog
+    onClose();
     // Set phoneValidation to false for the "Yes" path (promo code)
     setUsePhoneValidation(false);
     // Show the promo code dialog with promo code validation mode
