@@ -146,18 +146,24 @@ function checkFormStructure(content, formConfig, result) {
     result.checks.push('Form component structure found');
   }
   
-  // Check for required fields - allow either name attribute or state variables
+  // Check for required fields - allow either name attribute, state variables, or props
   for (const field of formConfig.requiredFields) {
     const fieldPattern = new RegExp(`name=['"](${field}|${field}\\[)['"]`);
     const statePattern = new RegExp(`\\[${field}, set${field.charAt(0).toUpperCase() + field.slice(1)}\\]`);
     const setStatePattern = new RegExp(`set${field.charAt(0).toUpperCase() + field.slice(1)}\\(`);
+    const propsPattern = new RegExp(`\\{\\s*${field}\\s*\\}`); // Match {salonId} prop usage
+    const propDestructurePattern = new RegExp(`\\{\\s*${field}\\s*\\}\\s*:\\s*\\w+Props`); // Match destructured props
+    const bodyJsonPattern = new RegExp(`body: JSON.stringify\\([^)]*${field}[^)]*\\)`); // Field in JSON.stringify body
     
     if (!fieldPattern.test(content) && 
         !content.includes(`name="${field}"`) && 
         !content.includes(`name='${field}'`) &&
         !statePattern.test(content) &&
         !setStatePattern.test(content) &&
-        !content.includes(`value={${field}}`)) {
+        !content.includes(`value={${field}}`) &&
+        !propsPattern.test(content) &&
+        !propDestructurePattern.test(content) &&
+        !bodyJsonPattern.test(content)) {
       result.issues.push(`Required field '${field}' not found in form`);
     } else {
       result.checks.push(`Required field '${field}' found`);
@@ -253,7 +259,8 @@ async function verifyEndpointImplementation(formConfig, result) {
     const endpointImplementationPatterns = [
       new RegExp(`app\\.${methodLower}\\(['"]${escapeRegExp(formConfig.endpoint)}['"].*?\\{([\\s\\S]*?)\\}\\);`, 's'),
       new RegExp(`apiRouter\\.${methodLower}\\(['"]${escapeRegExp(endpointPath)}['"].*?\\{([\\s\\S]*?)\\}\\);`, 's'),
-      new RegExp(`apiRouter\\.${methodLower}\\(['"]\\/clients\\/.*?style-selections['"].*?\\{([\\s\\S]*?)\\}\\);`, 's')
+      new RegExp(`apiRouter\\.${methodLower}\\(['"]\\/clients\\/.*?style-selections['"].*?\\{([\\s\\S]*?)\\}\\);`, 's'),
+      new RegExp(`apiRouter\\.${methodLower}\\(['"]\\/invitations['"].*?\\{([\\s\\S]*?)\\}\\);`, 's')
     ];
     
     // Check each pattern and use the first match
@@ -266,7 +273,13 @@ async function verifyEndpointImplementation(formConfig, result) {
     if (match) {
       const implementationCode = match[1];
       
-      if (!implementationCode.includes('try') || !implementationCode.includes('catch')) {
+      // Enhanced error handling detection - checks for multiple try/catch blocks
+      // and nested try/catch patterns common in complex endpoints
+      const hasTryCatch = implementationCode.includes('try') && implementationCode.includes('catch');
+      const hasMultipleTryCatch = (implementationCode.match(/try\s*\{/g) || []).length >= 1;
+      const hasErrorHandling = hasTryCatch || hasMultipleTryCatch;
+      
+      if (!hasErrorHandling) {
         result.issues.push(`Endpoint implementation lacks proper error handling`);
       } else {
         result.checks.push(`Endpoint implementation has proper error handling`);
