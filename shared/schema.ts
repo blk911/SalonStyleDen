@@ -36,7 +36,7 @@ export const clients = pgTable("clients", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   phone: text("phone").notNull(),
-  email: text("email").notNull(),
+  email: text("email").default(''),
   isCurrentClient: boolean("is_current_client").notNull().default(false),
   notes: text("notes"),
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
