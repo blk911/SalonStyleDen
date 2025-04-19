@@ -78,6 +78,73 @@ export function PromoCodeDialog({
         console.log(`Validating with phone: ${phoneNumber}`);
       }
       
+      // First check if this is a duplicate phone number by trying to create a client
+      // This allows us to handle duplicate phone numbers properly
+      if (validationMode === 'phone' && phoneNumber.length >= 10) {
+        try {
+          // Try to create a client with minimal data first to check for duplicates
+          const checkResponse = await fetch('/api/clients', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: "Temporary Name", // Will be updated in the form
+              phone: phoneNumber,
+              email: "temp@example.com", // Will be updated in the form
+              isCurrentClient: true,
+              type: "client",
+              salonId: salonId
+            })
+          });
+          
+          const checkData = await checkResponse.json();
+          
+          // If we detect a duplicate (409 Conflict)
+          if (checkResponse.status === 409 && checkData.status === 'duplicate') {
+            console.log("Duplicate phone detected, showing registration form:", checkData);
+            
+            // Show registration form instead of error
+            toast({
+              title: "Contact Information Found",
+              description: "Please complete your registration to continue."
+            });
+            
+            // Set the prefill data
+            setPrefilledData({
+              name: checkData.name || "",
+              phone: checkData.phone || phoneNumber,
+              email: checkData.email || "",
+              salonId: salonId || checkData.salonId
+            });
+            
+            // Show the registration form
+            setShowRegistrationForm(true);
+            setLoading(false);
+            return;
+          }
+          
+          // If client was created successfully (rare case), proceed with it
+          if (checkResponse.ok && checkData.id) {
+            toast({
+              title: "Success",
+              description: "Your account has been created successfully!",
+            });
+            
+            // Close dialog
+            onOpenChange(false);
+            
+            // Redirect to client dashboard
+            setLocation(`/client/${checkData.id}/dashboard`);
+            setLoading(false);
+            return;
+          }
+          
+          // If we get here, it was not a duplicate and not a success, so continue with invitation validation
+        } catch (checkError) {
+          console.error("Error checking for duplicate client:", checkError);
+          // Continue with normal validation flow
+        }
+      }
+      
       // Verify invitation based on validation mode
       const response = await apiRequest("/api/invitations/validate", {
         method: "POST",
@@ -132,17 +199,15 @@ export function PromoCodeDialog({
             description: "Please complete your registration to continue",
           });
           
-          // Close dialog
-          onOpenChange(false);
+          // Set up prefill data for the registration form
+          setPrefilledData({
+            name: response.name || "",
+            phone: response.phone || phoneNumber || phone || "",
+            salonId: salonId || response.salonId
+          });
           
-          // Redirect to registration page with invitation data
-          const queryParams = new URLSearchParams({
-            inviteCode: validationMode === 'promo' ? promoCode : '',
-            phone: validationMode === 'phone' ? phoneNumber : (phone || ""),
-            salonId: salonId?.toString() || '',
-          }).toString();
-          
-          setLocation(`/register?${queryParams}`);
+          // Show the registration form instead of redirecting
+          setShowRegistrationForm(true);
         } else {
           toast({
             title: "Error",

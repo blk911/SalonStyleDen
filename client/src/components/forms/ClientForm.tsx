@@ -59,7 +59,19 @@ interface SalonOption {
   ownerName: string;
 }
 
-export default function ClientForm() {
+interface ClientFormProps {
+  initialData?: any;
+  onSubmit?: (data: any) => void;
+  onError?: (error: any) => void;
+  salonId?: number;
+}
+
+export default function ClientForm({ 
+  initialData, 
+  onSubmit: externalSubmit, 
+  onError: externalError,
+  salonId: propSalonId 
+}: ClientFormProps = {}) {
   const [isVerifying, setIsVerifying] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [countdown, setCountdown] = useState(5);
@@ -134,23 +146,51 @@ export default function ClientForm() {
     refetchOnMount: true
   });
 
+  // Set up form with initial data if provided via props
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientFormSchema),
     defaultValues: {
-      name: "",
-      phone: "",
-      email: "",
-      isCurrentClient: "no",
-      notes: "",
-      favoriteServices: [],
-      salonId: "loading", // Will be updated once salons are loaded
-      salonName: "",
-      sponsor: "Ven Me, Baby! LTD", // Default sponsor
+      name: initialData?.name || "",
+      phone: initialData?.phone || "",
+      email: initialData?.email || "",
+      isCurrentClient: initialData?.isCurrentClient === true ? "yes" : "no",
+      notes: initialData?.notes || "",
+      favoriteServices: initialData?.favoriteServices || [],
+      salonId: initialData?.salonId ? String(initialData.salonId) : 
+               (propSalonId ? String(propSalonId) : "loading"), // Use prop salonId or initialData salonId if available
+      salonName: initialData?.salonName || "",
+      sponsor: initialData?.sponsor || "Ven Me, Baby! LTD", // Default sponsor
     },
   });
 
   // Listen for changes to the "isCurrentClient" field
   const isCurrentClient = form.watch("isCurrentClient");
+  
+  // Apply initialData from props when it changes
+  useEffect(() => {
+    if (initialData) {
+      // Update the form with initial data
+      if (initialData.name) form.setValue("name", initialData.name);
+      if (initialData.phone) form.setValue("phone", initialData.phone);
+      if (initialData.email) form.setValue("email", initialData.email);
+      if (initialData.isCurrentClient !== undefined) {
+        form.setValue("isCurrentClient", initialData.isCurrentClient === true ? "yes" : "no");
+      }
+      if (initialData.notes) form.setValue("notes", initialData.notes);
+      if (initialData.favoriteServices) form.setValue("favoriteServices", initialData.favoriteServices);
+      if (initialData.salonId) form.setValue("salonId", String(initialData.salonId));
+      if (initialData.salonName) form.setValue("salonName", initialData.salonName);
+      if (initialData.sponsor) form.setValue("sponsor", initialData.sponsor);
+      
+      console.log("Applied initial form data:", initialData);
+    }
+    
+    // If a salon ID was passed via props, prioritize it over any other values
+    if (propSalonId) {
+      form.setValue("salonId", String(propSalonId));
+      console.log(`Applied salon ID from props: ${propSalonId}`);
+    }
+  }, [initialData, propSalonId, form]);
 
   // When salons are loaded, set default salon
   useEffect(() => {
@@ -227,7 +267,41 @@ export default function ClientForm() {
     }
   }, [isCurrentClient, salons, form]);
 
-  const onSubmit = async (data: ClientFormValues) => {
+  const handleFormSubmit = async (data: ClientFormValues) => {
+    // Check if we're using the external submit handler provided via props
+    if (externalSubmit) {
+      // For external mode, directly call the provided handler
+      try {
+        // Transform the form data to match the expected format
+        const clientData = {
+          name: data.name,
+          phone: data.phone,
+          email: data.email,
+          isCurrentClient: data.isCurrentClient === "yes",
+          notes: data.notes || "",
+          favoriteServices: Array.isArray(data.favoriteServices) ? data.favoriteServices : [],
+          salonId: propSalonId || (data.salonId && data.salonId !== "loading" ? parseInt(data.salonId) : undefined),
+          type: "client"
+        };
+        
+        // Call the external submit handler
+        await externalSubmit(clientData);
+      } catch (error) {
+        // Call external error handler if provided, otherwise use toast
+        if (externalError) {
+          externalError(error);
+        } else {
+          toast({
+            title: "Registration Error",
+            description: error instanceof Error ? error.message : "Failed to complete registration",
+            variant: "destructive"
+          });
+        }
+      }
+      return;
+    }
+    
+    // Default internal flow when no external handler is provided
     // First check if the phone or email already exists
     const phoneCheckResult = await validateContact('phone', data.phone);
     const emailCheckResult = await validateContact('email', data.email);
@@ -376,7 +450,7 @@ export default function ClientForm() {
         <h3 className="font-playfair font-bold text-2xl mb-6 text-center">Client Registration</h3>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
             {/* Top line: Name and Cell Phone in a row */}
             <div className="grid grid-cols-2 gap-4">
               <FormField
