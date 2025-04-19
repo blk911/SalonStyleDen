@@ -322,6 +322,48 @@ export function PromoCodeDialog({
   const handleClientRegistration = async (clientData: any) => {
     try {
       setLoading(true);
+      console.log("Registration form submitted with data:", clientData);
+      
+      // First, try to find existing client with this phone to avoid duplicate creation
+      if (clientData.phone) {
+        console.log("Checking for existing client with phone:", clientData.phone);
+        try {
+          // Get clients matching this phone number
+          const clientsResponse = await fetch('/api/clients?phone=' + encodeURIComponent(clientData.phone), {
+            method: 'GET'
+          });
+          
+          if (clientsResponse.ok) {
+            const clients = await clientsResponse.json();
+            console.log(`Found ${clients.length} clients with matching phone`);
+            
+            if (clients.length > 0) {
+              // Use the first matching client
+              const existingClient = clients[0];
+              console.log("Using existing client:", existingClient.id);
+              
+              toast({
+                title: "Account Found",
+                description: "Redirecting to your dashboard."
+              });
+              
+              // Close dialog
+              onOpenChange(false);
+              
+              // Redirect to client dashboard
+              setLocation(`/client/${existingClient.id}/dashboard`);
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (error) {
+          console.error("Error checking for existing client:", error);
+          // Continue with normal flow if error occurs
+        }
+      }
+      
+      // If no existing client found, proceed with registration
+      console.log("No matching client found, proceeding with registration");
       
       // Attempt to create client with the data
       const response = await fetch('/api/clients', {
@@ -336,10 +378,11 @@ export function PromoCodeDialog({
       });
       
       const data = await response.json();
+      console.log("Registration API response:", response.status, data);
       
       // Check if the server found a matching client instead of creating a new one
       if (response.status === 200 && data.matchFound) {
-        console.log("Existing client found, redirecting to client dashboard:", data.id);
+        console.log("Server found existing client, redirecting to dashboard:", data.id);
         
         toast({
           title: "Client Account Found",
@@ -359,6 +402,23 @@ export function PromoCodeDialog({
       
       // Check if this was a duplicate detection case
       if (response.status === 409 && data.status === 'duplicate') {
+        console.log("409 Duplicate detected, client exists but needs more info");
+        
+        // Check if we received a client ID in the response
+        if (data.id) {
+          console.log("Duplicate has ID, redirecting:", data.id);
+          
+          toast({
+            title: "Account Found",
+            description: "Redirecting you to your dashboard."
+          });
+          
+          // Close dialog and redirect
+          onOpenChange(false);
+          setLocation(`/client/${data.id}/dashboard`);
+          return;
+        }
+        
         // This means the phone/email exists but user needs to complete registration
         toast({
           title: "Contact Details Found",
@@ -369,7 +429,7 @@ export function PromoCodeDialog({
         setPrefilledData({
           ...prefilledData,
           ...data,
-          phone: data.phone || phoneNumber || phone,
+          phone: data.phone || phoneNumber || phone || "",
           salonId: salonId || data.salonId
         });
         

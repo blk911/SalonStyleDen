@@ -40,9 +40,9 @@ const services = [
 // Form schema with validation
 const clientFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
-  phone: z.string().min(14, { message: "Please enter a valid phone number" }),
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  isCurrentClient: z.enum(["yes", "no"]),
+  phone: z.string().min(10, { message: "Please enter a valid phone number" }),
+  email: z.string().email({ message: "Please enter a valid email address" }).or(z.literal("")), // Allow empty email
+  isCurrentClient: z.enum(["yes", "no"]).default("no"), // Add default value
   notes: z.string().optional(),
   favoriteServices: z.array(z.string()).optional(),
   salonId: z.string().optional(),
