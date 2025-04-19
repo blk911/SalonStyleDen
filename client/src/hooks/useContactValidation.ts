@@ -23,6 +23,8 @@ export function useContactValidation(options: ValidationOptions = {}) {
   const [errorField, setErrorField] = useState<'phone' | 'email' | ''>('');
   const [errorMessage, setErrorMessage] = useState('');
   const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+  const [duplicateData, setDuplicateData] = useState<any>(null);
 
   // Format phone number consistently site-wide (XXX-XXX-XXXX)
   const formatPhoneNumber = (input: string) => {
@@ -255,6 +257,10 @@ export function useContactValidation(options: ValidationOptions = {}) {
     errorMessage,
     showErrorDialog,
     setShowErrorDialog,
+    showRegistrationForm,
+    setShowRegistrationForm,
+    duplicateData,
+    setDuplicateData,
     formatPhoneNumber,
     validateContact,
     getPhoneProps,

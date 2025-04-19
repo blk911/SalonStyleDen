@@ -7,7 +7,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { db } from "./db";
-import { clients } from "../shared/schema";
+import { clients, invitations, type Invitation } from "../shared/schema";
 import { eq } from "drizzle-orm";
 import { registerVisualizationRoutes } from "./visualization";
 
