@@ -1116,11 +1116,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   apiRouter.get("/invitations", async (req: Request, res: Response) => {
     try {
-      // Get limit from query params, default to 10
+      // Get query parameters
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      const salonId = req.query.salonId ? parseInt(req.query.salonId as string) : undefined;
+      const clientId = req.query.clientId ? parseInt(req.query.clientId as string) : undefined;
       
-      const invitations = await storage.getRecentInvitations(limit);
-      console.log(`Retrieved ${invitations.length} recent invitations`);
+      let invitations;
+      
+      // Check if salonId is provided
+      if (salonId) {
+        // Get invitations for a specific salon
+        invitations = await storage.getSalonInvitations(salonId);
+        console.log(`Retrieved ${invitations.length} invitations for salon ID ${salonId}`);
+      } else if (clientId) {
+        // TODO: Implement if needed - get invitations for a specific client
+        invitations = await storage.getRecentInvitations(limit);
+        console.log(`Retrieved ${invitations.length} invitations for client ID ${clientId}`);
+      } else {
+        // Default: get recent invitations with limit
+        invitations = await storage.getRecentInvitations(limit);
+        console.log(`Retrieved ${invitations.length} recent invitations`);
+      }
       
       res.json(invitations);
     } catch (error) {
