@@ -70,13 +70,17 @@ export function ContactValidationDialog({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent 
-          className="sm:max-w-md max-h-[90vh] overflow-y-auto p-0"
+          className="sm:max-w-md max-h-[90vh] overflow-y-auto"
         >
-          <div className="sr-only">
+          <DialogHeader>
             <DialogTitle>Phone Verification Options</DialogTitle>
-            <DialogDescription>Choose how to proceed with your phone verification</DialogDescription>
-          </div>
-          <div className="p-8">
+            <DialogDescription>
+              {errorField === 'phone' 
+                ? 'This phone number is already in our system. Choose how to proceed.' 
+                : 'Contact information verification'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="p-4">
             {errorField === 'phone' ? (
               <div className="flex flex-col gap-5 w-full">
                 <Button 
