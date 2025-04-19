@@ -37,9 +37,21 @@ export function PromoCodeDialog({
   salonId,
   onSuccess,
 }: PromoCodeDialogProps) {
-  const [promoCode, setPromoCode] = useState("");
+  // Extract last 4 digits of phone if provided (for promo code)
+  const lastFourDigits = phone ? phone.replace(/\D/g, '').slice(-4) : "";
+  
+  // Initialize promo code with last 4 digits if phone is provided
+  const [promoCode, setPromoCode] = useState(lastFourDigits);
+  
+  // Initialize phone number with provided phone (or empty)
   const [phoneNumber, setPhoneNumber] = useState(phone || "");
-  const [validationMode, setValidationMode] = useState<'promo' | 'phone'>('promo');
+  
+  // Set initial mode based on the context - if phone provided from validation dialog,
+  // we need to determine if coming from "Yes" (promo path) or "No" (phone validation path)
+  const [validationMode, setValidationMode] = useState<'promo' | 'phone'>(
+    phone ? 'phone' : 'promo'
+  );
+  
   const [loading, setLoading] = useState(false);
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const [prefilledData, setPrefilledData] = useState<any>(null);
@@ -516,8 +528,8 @@ export function PromoCodeDialog({
                 </>
               ) : (
                 <>
-                  <p>Enter the last 4 digits of the phone number used for your invitation.</p>
-                  <p className="mt-2">This will verify your identity and link to your salon invitation.</p>
+                  <p>Enter your phone number to continue to your dashboard.</p>
+                  <p className="mt-2">We'll verify your identity to give you access to your account.</p>
                 </>
               )}
             </div>
@@ -539,7 +551,7 @@ export function PromoCodeDialog({
                       const value = e.target.value.replace(/[^0-9]/g, '');
                       setPhoneNumber(value);
                     }}
-                    placeholder="Enter last 4 digits of your phone"
+                    placeholder="Enter your phone number"
                     className="border-pink-200 focus:border-pink-400 text-center"
                     maxLength={10} // Allow full phone or just last 4 digits
                   />
