@@ -72,6 +72,10 @@ export function ContactValidationDialog({
         <DialogContent 
           className="sm:max-w-md max-h-[90vh] overflow-y-auto p-0"
         >
+          <div className="sr-only">
+            <DialogTitle>Phone Verification Options</DialogTitle>
+            <DialogDescription>Choose how to proceed with your phone verification</DialogDescription>
+          </div>
           <div className="p-8">
             {errorField === 'phone' ? (
               <div className="flex flex-col gap-5 w-full">

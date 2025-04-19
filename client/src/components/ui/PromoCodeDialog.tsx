@@ -159,16 +159,32 @@ export function PromoCodeDialog({
       // Verify invitation based on validation mode
       // IMPORTANT: Always include phone number regardless of validation mode
       // This allows the server to check for matches between promo code and phone
-      const response = await apiRequest("/api/invitations/validate", {
+      console.log("Making API request to /api/invitations/validate", "POST");
+      
+      // Clean the phone number (ensure digits only)
+      const cleanedPhone = (phoneNumber || phone || "").replace(/\D/g, '');
+      
+      const requestOptions = {
         method: "POST",
+        credentials: "include",
         body: JSON.stringify({
           code: validationMode === 'promo' ? promoCode : '',
           // ALWAYS pass the phone number with both validation modes
-          phone: phoneNumber || phone || "",
+          phone: cleanedPhone,
           salonId: salonId || undefined,
           validationMode: validationMode,
         }),
-      });
+        headers: { "Content-Type": "application/json" }
+      };
+      
+      console.log("API request options:", requestOptions);
+      
+      // Use direct fetch instead of apiRequest for more visibility
+      const apiResponse = await fetch("/api/invitations/validate", requestOptions);
+      console.log("API response status:", apiResponse.status);
+      
+      const response = await apiResponse.json();
+      console.log("Validation response:", response);
       
       if (response.error) {
         // SIMPLIFICATION: If validation fails, go back to home 
@@ -303,6 +319,10 @@ export function PromoCodeDialog({
         body: JSON.stringify({
           ...clientData,
           type: 'client',
+          // Add required isCurrentClient field
+          isCurrentClient: false,
+          // Make sure email is valid or empty
+          email: clientData.email || '',
           // Include salon reference if provided
           ...(salonId ? { salonId: Number(salonId) } : {})
         })
