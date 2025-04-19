@@ -411,15 +411,8 @@ export function PromoCodeDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={showRegistrationForm ? "sm:max-w-xl max-h-[90vh] overflow-y-auto" : "sm:max-w-md max-h-[90vh] overflow-y-auto"}
-        aria-describedby="dialog-description">
-        <div id="dialog-description" className="sr-only">
-          {showRegistrationForm 
-            ? 'Complete your client registration form to continue' 
-            : (validationMode === 'promo' 
-                ? 'Enter your promo code to access special offers' 
-                : 'Verify your identity by entering your phone number')}
-        </div>
+        className={showRegistrationForm ? "sm:max-w-xl max-h-[90vh] overflow-y-auto" : "sm:max-w-md max-h-[90vh] overflow-y-auto"}>
+        
         <DialogHeader>
           <DialogTitle className="text-center">
             {showRegistrationForm 
@@ -501,14 +494,14 @@ export function PromoCodeDialog({
                     type="button"
                     variant="outline" 
                     onClick={() => onOpenChange(false)}
-                    className="border-pink-300 w-full h-12 px-4"
+                    className="border-pink-300 w-full h-14 px-2 py-3"
                   >
                     Cancel
                   </Button>
                   <Button 
                     type="submit"
                     disabled={loading}
-                    className="bg-pink-500 hover:bg-pink-600 w-full h-12 px-4"
+                    className="bg-pink-500 hover:bg-pink-600 w-full h-14 px-2 py-3"
                   >
                     {loading ? "Verifying..." : "Verify & Continue"}
                   </Button>

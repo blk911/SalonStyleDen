@@ -71,7 +71,6 @@ export function ContactValidationDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent 
           className="sm:max-w-md max-h-[90vh] overflow-y-auto"
-          aria-describedby="contact-validation-description"
         >
           <DialogHeader>
             <DialogTitle>
@@ -102,14 +101,14 @@ export function ContactValidationDialog({
                     <Button 
                       onClick={handleGoBack} 
                       variant="outline"
-                      className="border-pink-300 w-full h-12 px-4"
+                      className="border-pink-300 w-full h-14 px-2 py-3"
                     >
                       Go Back
                     </Button>
                     
                     <Button 
                       onClick={handleEnterPromoCode}
-                      className="bg-pink-500 hover:bg-pink-600 w-full h-12 px-4"
+                      className="bg-pink-500 hover:bg-pink-600 w-full h-14 px-2 py-3"
                     >
                       Yes, I have a promo code
                     </Button>
@@ -135,7 +134,7 @@ export function ContactValidationDialog({
                         // Note: phoneValidation flag is passed as true to PromoCodeDialog
                         // to ensure it opens in phone validation mode
                       }}
-                      className="bg-gray-500 hover:bg-gray-600 w-full h-12 px-4"
+                      className="bg-gray-500 hover:bg-gray-600 w-full h-14 px-2 py-3"
                     >
                       No, continue with phone
                     </Button>
