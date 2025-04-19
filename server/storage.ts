@@ -464,6 +464,73 @@ async createClient(insertClient: InsertClient): Promise<Client> {
     }
   }
   
+  async getInvitationsByPhone(phone: string, partialMatch: boolean = false): Promise<Invitation[]> {
+    try {
+      console.log(`DatabaseStorage.getInvitationsByPhone - Searching for invitations with phone: ${phone} (partial match: ${partialMatch})`);
+      
+      // Get all invitations first
+      const allInvitations = await db.select().from(invitations);
+      let matchingInvitations: Invitation[] = [];
+      
+      // Clean the provided phone number for comparison
+      const cleanPhone = phone.replace(/\D/g, '');
+      console.log(`DatabaseStorage.getInvitationsByPhone - Cleaned phone for search: ${cleanPhone}`);
+      
+      // Filter invitations based on matching logic
+      if (partialMatch) {
+        // Partial match - looking for phones that end with the provided digits
+        console.log(`DatabaseStorage.getInvitationsByPhone - Using partial match mode - looking for last digits: ${cleanPhone}`);
+        matchingInvitations = allInvitations.filter(invitation => {
+          if (!invitation.phone) return false;
+          const invitationCleanPhone = invitation.phone.replace(/\D/g, '');
+          return invitationCleanPhone.endsWith(cleanPhone);
+        });
+      } else {
+        // Exact match - full phone number must match
+        console.log(`DatabaseStorage.getInvitationsByPhone - Using exact match mode`);
+        matchingInvitations = allInvitations.filter(invitation => {
+          if (!invitation.phone) return false;
+          const invitationCleanPhone = invitation.phone.replace(/\D/g, '');
+          return invitationCleanPhone === cleanPhone;
+        });
+      }
+      
+      console.log(`DatabaseStorage.getInvitationsByPhone - Found ${matchingInvitations.length} matching invitations`);
+      
+      // Order by creation date
+      return matchingInvitations.sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+        return dateB.getTime() - dateA.getTime(); // Newest first
+      });
+    } catch (error) {
+      console.error(`DatabaseStorage.getInvitationsByPhone - Error fetching invitations by phone:`, error);
+      throw error;
+    }
+  }
+  
+  async getInvitationByHash(hash: string): Promise<Invitation | undefined> {
+    try {
+      console.log(`DatabaseStorage.getInvitationByHash - Searching for invitation with hash: ${hash}`);
+      
+      // Query for invitation with matching hash
+      const [invitation] = await db.select()
+        .from(invitations)
+        .where(eq(invitations.inviteHash, hash));
+      
+      if (invitation) {
+        console.log(`DatabaseStorage.getInvitationByHash - Found invitation with ID ${invitation.id}`);
+      } else {
+        console.log(`DatabaseStorage.getInvitationByHash - No invitation found with hash ${hash}`);
+      }
+      
+      return invitation;
+    } catch (error) {
+      console.error(`DatabaseStorage.getInvitationByHash - Error fetching invitation by hash:`, error);
+      throw error;
+    }
+  }
+  
   // Style Selection methods
   async createStyleSelection(insertStyleSelection: InsertStyleSelection): Promise<StyleSelection> {
     try {
