@@ -278,6 +278,104 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
+          {/* Salon to Client Invitations - Grouped by Salon */}
+          <Card className="mb-6">
+            <CardContent className="p-4">
+              <h2 className="text-xl font-semibold mb-4">Salon to Client Invitations</h2>
+              
+              {/* Group invitations by salon */}
+              {invitations && invitations.length > 0 ? (
+                <div className="space-y-6">
+                  {/* Process and group invitations by salon */}
+                  {Object.entries(
+                    invitations.reduce((groups, invite) => {
+                      const salonName = invite.sponsor || invite.salonName || 'Unknown Salon';
+                      if (!groups[salonName]) {
+                        groups[salonName] = [];
+                      }
+                      groups[salonName].push(invite);
+                      return groups;
+                    }, {} as Record<string, Invitation[]>)
+                  ).map(([salonName, salonInvites]) => (
+                    <div key={salonName} className="border rounded-lg overflow-hidden">
+                      {/* Salon Header */}
+                      <div 
+                        className="bg-gradient-to-r from-pink-100 to-pink-50 p-3 flex justify-between items-center cursor-pointer"
+                        onClick={() => {
+                          // Find the salon ID from the first invitation in group
+                          const firstInvite = salonInvites[0];
+                          if (firstInvite && firstInvite.salonId) {
+                            setLocation(`/salon/${firstInvite.salonId}`);
+                          }
+                        }}
+                      >
+                        <h3 className="font-bold text-pink-700">{salonName}</h3>
+                        <div className="flex items-center">
+                          <Badge className="mr-2 bg-pink-100 text-pink-700 border-pink-200">
+                            {salonInvites.length} Invitations
+                          </Badge>
+                          <button className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center">
+                            <span className="hidden md:inline mr-1">View Salon</span>
+                            <ExternalLinkIcon className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* Invitations Table */}
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                          <thead className="bg-gray-50 text-gray-600">
+                            <tr>
+                              <th className="py-2 px-4">Name</th>
+                              <th className="py-2 px-4">Email</th>
+                              <th className="py-2 px-4">Phone</th>
+                              <th className="py-2 px-4">Status</th>
+                              <th className="py-2 px-4">Date</th>
+                              <th className="py-2 px-4 text-right">Page</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y">
+                            {salonInvites.map((invitation) => (
+                              <tr key={invitation.id} className="hover:bg-gray-50">
+                                <td className="py-2 px-4">{invitation.name}</td>
+                                <td className="py-2 px-4">{invitation.email}</td>
+                                <td className="py-2 px-4">{formatPhoneNumber(invitation.phone)}</td>
+                                <td className="py-2 px-4">
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium
+                                    ${invitation.status === 'pending' ? 'bg-yellow-50 text-yellow-700' : ''}
+                                    ${invitation.status === 'style_selected' ? 'bg-green-50 text-green-700' : ''}
+                                    ${invitation.status === 'completed' ? 'bg-blue-50 text-blue-700' : ''}
+                                    ${!invitation.status ? 'bg-gray-50 text-gray-700' : ''}
+                                  `}>
+                                    {invitation.status || 'pending'}
+                                  </span>
+                                </td>
+                                <td className="py-2 px-4">{new Date(invitation.createdAt).toLocaleDateString()}</td>
+                                <td className="py-2 px-4 text-right">
+                                  <a 
+                                    href={`/invitation/${invitation.inviteHash}`}
+                                    className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800"
+                                  >
+                                    <ExternalLinkIcon className="h-4 w-4" />
+                                    View
+                                  </a>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center p-6 bg-gray-50 rounded-lg">
+                  <p className="text-gray-500">No invitations have been sent yet</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
 
 
           <div className="grid gap-6">
