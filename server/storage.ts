@@ -213,6 +213,16 @@ export class DatabaseStorage implements IStorage {
     );
     console.log(`DatabaseStorage.isDuplicateContact - Invitations found with same phone: ${invitePhone.length}`);
     
+    // Add special debugging for 5125551213
+    if (cleanPhone === '5125551213') {
+      console.log(`DEBUG: Special check for phone 5125551213`);
+      console.log(`DEBUG: Found ${clientPhone.length} matching clients`);
+      console.log(`DEBUG: Found ${invitePhone.length} matching invitations`);
+      if (invitePhone.length > 0) {
+        console.log(`DEBUG: First matching invitation:`, invitePhone[0]);
+      }
+    }
+    
     // Filter salons with matching phone (removing formatting)
     const salonPhone = allSalons.filter(salon => 
       salon.phone && salon.phone.replace(/\D/g, '') === cleanPhone
