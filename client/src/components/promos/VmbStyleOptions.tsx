@@ -337,13 +337,19 @@ export function VmbStyleOptions({
       {/* Style Details Popup */}
       {selectedStyle && (
         <Dialog open={isDetailsOpen} onOpenChange={(open) => !open && setIsDetailsOpen(false)}>
-          <DialogContent className="sm:max-w-md border-2 border-[#FF92A5] p-0 overflow-hidden">
+          <DialogContent 
+            className="sm:max-w-md border-2 border-[#FF92A5] p-0 overflow-hidden"
+            aria-describedby="style-details-description"
+          >
             <DialogHeader className="bg-[#FF92A5]/10 p-4">
               <DialogTitle className="text-center text-lg font-bold text-[#FF92A5] flex items-center justify-center gap-2">
                 <Sparkles className="h-5 w-5" />
                 {selectedStyle.name}
                 <Sparkles className="h-5 w-5" />
               </DialogTitle>
+              <div id="style-details-description" className="sr-only">
+                Style details for {selectedStyle.name} including price and duration.
+              </div>
             </DialogHeader>
             
             <div className="flex flex-col items-center space-y-4 py-6">
@@ -391,12 +397,18 @@ export function VmbStyleOptions({
       {/* Confirmation Popup */}
       {selectedStyle && (
         <Dialog open={isConfirmationOpen} onOpenChange={(open) => !open && setIsConfirmationOpen(false)}>
-          <DialogContent className="sm:max-w-md border border-green-200 overflow-hidden">
+          <DialogContent 
+            className="sm:max-w-md border border-green-200 overflow-hidden"
+            aria-describedby="style-selection-confirmation"
+          >
             <DialogHeader className="bg-green-50 p-4">
               <DialogTitle className="text-center text-lg text-green-600 flex items-center justify-center gap-2">
                 <CheckIcon className="h-5 w-5" />
                 Style Selected!
               </DialogTitle>
+              <div id="style-selection-confirmation" className="sr-only">
+                Confirmation that {selectedStyle.name} has been added to your selected styles.
+              </div>
             </DialogHeader>
             
             <div className="flex flex-col items-center space-y-4 py-6">

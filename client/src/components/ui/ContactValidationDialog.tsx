@@ -61,14 +61,33 @@ export function ContactValidationDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent 
+          className="sm:max-w-md"
+          aria-describedby="contact-validation-description"
+        >
+          <DialogHeader>
+            <DialogTitle>
+              {errorField === 'phone' 
+                ? "Phone Number Already Registered" 
+                : errorField === 'email'
+                  ? "Email Already Registered"
+                  : "Contact Validation"
+              }
+            </DialogTitle>
+            <DialogDescription id="contact-validation-description">
+              {errorField === 'phone'
+                ? "This phone number is already associated with an account"
+                : errorField === 'email'
+                  ? "This email address is already associated with an account"
+                  : "Please verify your contact information"
+              }
+            </DialogDescription>
+          </DialogHeader>
+
           <div className="p-6 text-center space-y-4">
-            
             {errorField === 'phone' ? (
               <div className="space-y-5">
                 <div className="text-center">
-                  <h3 className="text-lg font-medium text-gray-700 mb-5">This number is unavailable.</h3>
-                  
                   <h4 className="text-lg font-medium text-gray-700 mb-5">Are you an existing client?</h4>
                   
                   <p className="text-gray-600 mb-5">
