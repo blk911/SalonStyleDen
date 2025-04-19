@@ -1345,7 +1345,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // No client or invitation found - return error and redirect to home
       return res.status(400).json({ 
-        error: "Invalid promo code. Please check the code and try again.",
+        error: "Invalid promo code. Please enter the last 4 digits of your phone number (e.g., 1212).",
         redirect: 'home'
       });
     } catch (error) {

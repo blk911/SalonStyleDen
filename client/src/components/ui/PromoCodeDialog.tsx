@@ -408,7 +408,7 @@ export function PromoCodeDialog({
           <DialogTitle className="text-center">
             {showRegistrationForm 
               ? 'Complete Your Registration' 
-              : (validationMode === 'promo' ? 'Enter Promo Code' : 'Verify with Phone Number')}
+              : (validationMode === 'promo' ? 'Enter Promo Code' : 'Enter Your Phone Number')}
           </DialogTitle>
         </DialogHeader>
         
@@ -454,7 +454,7 @@ export function PromoCodeDialog({
                       const value = e.target.value.replace(/[^0-9]/g, '');
                       setPhoneNumber(value);
                     }}
-                    placeholder="Enter your phone number"
+                    placeholder="Enter your phone number to access your account"
                     className="border-pink-200 focus:border-pink-400 text-center"
                     maxLength={10} // Allow full phone or just last 4 digits
                   />
