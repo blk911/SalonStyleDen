@@ -456,56 +456,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
             validatedData.email ? `email=${validatedData.email}` : '');
           
           try {
-            // Use the established duplicate checking mechanism
-            const duplicateCheck = await storage.isDuplicateContact(
-              validatedData.phone || "", 
-              validatedData.email || ""
-            );
+            // First directly check if a client already exists with this phone
+            let existingClient = null;
+            const allClients = await storage.getAllClients();
             
-            if (duplicateCheck.isDuplicate) {
-              console.log(`Duplicate detected in field: ${duplicateCheck.field}`);
+            if (validatedData.phone) {
+              // Standardize phone format for comparison
+              const cleanPhone = validatedData.phone.replace(/\D/g, '');
               
-              // Find the existing client based on the duplicate field
-              let existingClient = null;
-              const allClients = await storage.getAllClients();
+              existingClient = allClients.find(c => 
+                c.phone && c.phone.replace(/\D/g, '') === cleanPhone
+              );
+            } else if (validatedData.email && validatedData.email.trim()) {
+              const lowercaseEmail = validatedData.email.toLowerCase();
+              existingClient = allClients.find(c => 
+                c.email && c.email.toLowerCase() === lowercaseEmail
+              );
+            }
+
+            if (existingClient) {
+              console.log('Found existing client with matching contact info:', existingClient.id);
               
-              if (duplicateCheck.field === 'phone' && validatedData.phone) {
-                // Standardize phone format for comparison
-                const cleanPhone = validatedData.phone.replace(/\D/g, '');
-                
-                existingClient = allClients.find(c => 
-                  c.phone && c.phone.replace(/\D/g, '') === cleanPhone
-                );
-              } else if (duplicateCheck.field === 'email' && validatedData.email) {
-                const lowercaseEmail = validatedData.email.toLowerCase();
-                existingClient = allClients.find(c => 
-                  c.email && c.email.toLowerCase() === lowercaseEmail
-                );
-              }
-              
-              if (existingClient) {
-                console.log('Found existing client with matching contact info:', existingClient.id);
-                
-                // Return the existing client data with a 200 status (not an error)
-                return res.status(200).json({
-                  ...existingClient,
-                  message: 'Existing client found with this contact information',
-                  matchFound: true
-                });
-              }
-              
-              // If we couldn't find a client but have a duplicate, it might be in another table
-              // Default to showing the registration form by returning a 409
-              return res.status(409).json({ 
-                status: 'duplicate',
-                field: duplicateCheck.field,
-                message: `This ${duplicateCheck.field} is already registered. Complete your registration to continue.`,
-                // Return submitted data to pre-fill the registration form
-                name: validatedData.name,
-                phone: validatedData.phone,
-                email: validatedData.email,
-                salonId: validatedData.salonId
+              // Return the existing client data with a 200 status (not an error)
+              return res.status(200).json({
+                ...existingClient,
+                message: 'Existing client found with this contact information',
+                matchFound: true
               });
+            }
+            
+            // Check if this phone exists in invitations (needed for promo code validation flow)
+            if (validatedData.phone) {
+              const invitations = await storage.getInvitationsByPhone(validatedData.phone);
+              if (invitations.length > 0) {
+                console.log('Phone exists in invitations but not clients - allowing registration to proceed');
+                // Continue with client creation
+              } else {
+                // Use the broader duplicate checking mechanism for other tables
+                const duplicateCheck = await storage.isDuplicateContact(
+                  validatedData.phone || "", 
+                  validatedData.email || ""
+                );
+                
+                if (duplicateCheck.isDuplicate) {
+                  console.log(`Duplicate detected in field: ${duplicateCheck.field}`);
+                  
+                  // If we couldn't find a client but have a duplicate, it might be in another table
+                  return res.status(409).json({ 
+                    status: 'duplicate',
+                    field: duplicateCheck.field,
+                    message: `This ${duplicateCheck.field} is already registered. Complete your registration to continue.`,
+                    // Return submitted data to pre-fill the registration form
+                    name: validatedData.name,
+                    phone: validatedData.phone,
+                    email: validatedData.email,
+                    salonId: validatedData.salonId
+                  });
+                }
+              }
             }
           } catch (error) {
             console.error('Error checking for duplicates:', error);
