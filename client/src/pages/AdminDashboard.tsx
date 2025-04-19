@@ -13,7 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import RecentVmbInvitations from "@/components/dashboard/RecentVmbInvitations";
+
 
 
 interface Client {
@@ -278,143 +278,10 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          {/* VMB Salon Invitations Card */}
-          <Card className="mb-6">
-            <CardContent className="p-4">
-              <h2 className="text-xl font-semibold mb-4">VMB Salon Invitations Sent</h2>
-              <RecentVmbInvitations limit={10} />
-            </CardContent>
-          </Card>
+
 
           <div className="grid gap-6">
-            {/* Salon to Client Invitations Table */}
-            <Card>
-              <CardContent className="p-4">
-                <h2 className="text-xl font-semibold mb-4">Salon to Client Invitations</h2>
-                <ScrollArea className="h-[300px]">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="max-h-[30px]">
-                        <TableHead className="max-h-[30px] py-1">Name</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Email</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Phone</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Sponsor</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Status</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Date</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {invitations?.map((invite: Invitation) => (
-                        <TableRow
-                          key={invite.id}
-                          className="hover:bg-gray-50 h-[28px]"
-                        >
-                          {/* Name with truncation */}
-                          <TableCell className="py-0">
-                            {invite.name.length > 12 ? (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="cursor-help">
-                                      {invite.name.substring(0, 10)}...
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>{invite.name}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
-                              invite.name
-                            )}
-                          </TableCell>
-                          
-                          {/* Email with truncation */}
-                          <TableCell className="py-0">
-                            {invite.email && invite.email.length > 15 ? (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="cursor-help">
-                                      {invite.email.substring(0, 12)}...
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>{invite.email}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
-                              invite.email
-                            )}
-                          </TableCell>
-                          
-                          {/* Phone with truncation */}
-                          <TableCell className="py-0">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="cursor-help">
-                                    {formatPhoneNumber(invite.phone).substring(0, 7)}•••
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>{formatPhoneNumber(invite.phone)}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </TableCell>
-                          
-                          {/* Sponsor with truncation */}
-                          <TableCell className="py-0">
-                            {invite.sponsor && invite.sponsor.length > 10 ? (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="cursor-help">
-                                      {invite.sponsor.substring(0, 8)}...
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>{invite.sponsor}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
-                              invite.sponsor || 'N/A'
-                            )}
-                          </TableCell>
-                          
-                          {/* Status badge */}
-                          <TableCell className="py-0">
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs
-                                ${invite.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
-                                ${invite.status === 'style_selected' ? 'bg-green-50 text-green-700 border-green-200' : ''}
-                                ${invite.status === 'completed' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
-                                ${!invite.status ? 'bg-gray-50 text-gray-700 border-gray-200' : ''}
-                              `}
-                            >
-                              {invite.status || 'pending'}
-                            </Badge>
-                          </TableCell>
-                          
-                          {/* Date with compact format */}
-                          <TableCell className="py-0 text-xs">
-                            {new Date(invite.createdAt).toLocaleDateString('en-US', {
-                              month: '2-digit', 
-                              day: '2-digit',
-                              year: '2-digit'
-                            })}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </ScrollArea>
-              </CardContent>
-            </Card>
+
             
             {/* VMB Activity Logs */}
             <Card>
