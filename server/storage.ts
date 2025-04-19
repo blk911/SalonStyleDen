@@ -35,6 +35,8 @@ export interface IStorage {
   getRecentInvitations(limit?: number): Promise<Invitation[]>;
   getSalonInvitations(salonId: number): Promise<Invitation[]>;
   updateInvitationStatus(id: number, status: string): Promise<Invitation>;
+  getInvitationsByPhone(phone: string, partialMatch?: boolean): Promise<Invitation[]>;
+  getInvitationByHash(hash: string): Promise<Invitation | undefined>;
   
   // Style Selection methods
   createStyleSelection(styleSelection: InsertStyleSelection): Promise<StyleSelection>;

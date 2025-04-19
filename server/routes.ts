@@ -985,29 +985,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // TEMPORARY DEVELOPMENT ENDPOINT: Validate promo code for testing
+  // Invitation validation endpoint - Validates promo codes and phone numbers
   apiRouter.post("/invitations/validate", async (req: Request, res: Response) => {
     try {
-      console.log('Validating promo code with data:', req.body);
-      const { code } = req.body;
+      console.log('Validating invitation with data:', req.body);
+      const { code, phone, validationMode, salonId } = req.body;
       
-      // Validate the promo code - regular full validation
+      // Enhanced validation supporting multiple modes
+      // Mode 1: Promo code validation (traditional)
+      // Mode 2: Phone number validation (last 4 digits)
       
-      // Regular validation for provided code and phone
-      const { phone } = req.body;
+      // Get the salon if provided - needed for user ID creation
+      let salon = null;
+      if (salonId) {
+        salon = await storage.getSalon(Number(salonId));
+        console.log(`Validation for salon: ${salon ? salon.name : 'Unknown'}`);
+      }
+
+      // PHONE VALIDATION MODE
+      if (validationMode === 'phone' && phone) {
+        // Clean and normalize the phone number
+        const cleanPhone = phone.replace(/\D/g, '');
+        console.log(`Validating with phone: ${cleanPhone} (last 4 digits validation)`);
+        
+        // If we have less than 4 digits, we can't validate
+        if (cleanPhone.length < 4) {
+          return res.status(400).json({ error: "Please enter at least the last 4 digits of your phone number" });
+        }
+        
+        // For security, we only allow validating with at least the last 4 digits
+        const last4Digits = cleanPhone.slice(-4);
+
+        // Check for invitations with this phone number
+        const invitations = await storage.getInvitationsByPhone(last4Digits, true);  
+        console.log(`Found ${invitations.length} invitations with matching last 4 digits`);
+        
+        if (invitations.length > 0) {
+          // Find invitation from the specific salon if salonId was provided
+          let matchedInvitation = invitations[0]; // Default to first invitation
+          
+          if (salonId) {
+            const salonInvitation = invitations.find(inv => inv.salonId === Number(salonId));
+            if (salonInvitation) {
+              matchedInvitation = salonInvitation;
+            }
+          }
+          
+          // Now check if a client already exists with this phone
+          const allClients = await db.select().from(clients);
+          const matchingClients = allClients.filter(client => 
+            client.phone && client.phone.replace(/\D/g, '').slice(-4) === last4Digits
+          );
+          
+          // If a client exists, link them to this invitation and respond with the client ID
+          if (matchingClients.length > 0) {
+            console.log(`Found existing client with ID: ${matchingClients[0].id}`);
+            
+            // Update client record to ensure it's linked to this salon if not already
+            if (salon && !matchingClients[0].salonId) {
+              await db.update(clients)
+                .set({ 
+                  salonId: Number(salonId),
+                  sponsorSalonId: Number(salonId), // Set sponsor relationship
+                })
+                .where(eq(clients.id, matchingClients[0].id));
+              
+              console.log(`Updated client ${matchingClients[0].id} with salon ID ${salonId} and sponsor relationship`);
+            }
+            
+            return res.status(200).json({ 
+              success: true,
+              message: "Phone validated successfully",
+              clientId: matchingClients[0].id,
+              name: matchingClients[0].name,
+              phone: matchingClients[0].phone,
+              email: matchingClients[0].email
+            });
+          } else {
+            // No client record exists yet, but we found a valid invitation
+            // Redirect to registration with pre-filled data from invitation
+            return res.status(200).json({
+              success: true,
+              message: "Phone validated for invitation - registration required",
+              redirect: 'register',
+              invitationId: matchedInvitation.id,
+              salonId: matchedInvitation.salonId,
+              name: matchedInvitation.name,
+              phone: matchedInvitation.phone || phone
+            });
+          }
+        }
+        
+        return res.status(400).json({ error: "No invitation found with this phone number. Please check the number or use your invitation code." });
+      }
       
+      // PROMO CODE VALIDATION MODE (Default)
       if (!code) {
         return res.status(400).json({ error: "Missing promo code" });
       }
       
+      // First, check if this code matches any invitation hash in the system
+      const invitationByHash = await storage.getInvitationByHash(code);
+      
+      if (invitationByHash) {
+        console.log(`Found invitation with matching hash: ${code}`);
+        
+        // Check if a client already exists with this invitation's phone
+        if (invitationByHash.phone) {
+          const allClients = await db.select().from(clients);
+          const matchingClients = allClients.filter(client => 
+            client.phone && client.phone === invitationByHash.phone
+          );
+          
+          if (matchingClients.length > 0) {
+            // Found an existing client, return their ID
+            return res.status(200).json({ 
+              success: true,
+              message: "Code validated successfully",
+              clientId: matchingClients[0].id,
+              name: matchingClients[0].name,
+              phone: matchingClients[0].phone,
+              email: matchingClients[0].email
+            });
+          } else {
+            // No client record exists yet, redirect to registration form
+            return res.status(200).json({
+              success: true,
+              message: "Code validated for invitation - registration required",
+              redirect: 'register',
+              invitationId: invitationByHash.id,
+              salonId: invitationByHash.salonId,
+              name: invitationByHash.name,
+              phone: invitationByHash.phone
+            });
+          }
+        }
+      }
+      
+      // Fallback to last 4 digits validation if we have a phone number
       if (phone) {
-        // Extract the last 4 digits from the phone number
         const cleanPhone = phone.replace(/\D/g, '');
         const last4Digits = cleanPhone.slice(-4);
         
-        // Validate code against a real promo code from the database
-        // For now, we're using a simple approach - match the code with the last 4 digits 
-        // of the phone number. In production, this should be replaced with proper code lookup.
+        // Check if code matches last 4 digits (temporary fallback)
         if (code === last4Digits) {
           console.log(`Code validation: Found match for code ${code} with phone ${phone}`);
           
@@ -1020,10 +1140,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
           );
           
           if (matchingClients.length > 0) {
+            // Update client record to ensure it's linked to this salon if not already
+            if (salon && !matchingClients[0].salonId) {
+              await db.update(clients)
+                .set({ 
+                  salonId: Number(salonId),
+                  sponsorSalonId: Number(salonId), // Set sponsor relationship
+                })
+                .where(eq(clients.id, matchingClients[0].id));
+              
+              console.log(`Updated client ${matchingClients[0].id} with salon ID ${salonId} and sponsor relationship`);
+            }
+            
             return res.status(200).json({ 
               success: true,
               message: "Code validated successfully",
-              clientId: matchingClients[0].id 
+              clientId: matchingClients[0].id,
+              name: matchingClients[0].name,
+              phone: matchingClients[0].phone,
+              email: matchingClients[0].email
+            });
+          } else if (salonId) {
+            // No client yet, but we've verified with last 4 digits and have a salon ID
+            // Redirect to registration but create the sponsor relationship during that process
+            return res.status(200).json({
+              success: true,
+              message: "Code validated - registration required",
+              redirect: 'register',
+              phone: phone,
+              salonId: Number(salonId)
             });
           }
         }
@@ -1031,8 +1176,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       return res.status(400).json({ error: "Invalid promo code. Please check the code and try again." });
     } catch (error) {
-      console.error('Error validating promo code:', error);
-      res.status(500).json({ error: "Failed to validate promo code" });
+      console.error('Error validating invitation:', error);
+      res.status(500).json({ error: "Failed to validate invitation" });
     }
   });
   

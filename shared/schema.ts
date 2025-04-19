@@ -43,6 +43,7 @@ export const clients = pgTable("clients", {
   salonId: integer("salon_id"), // Reference to salon if client belongs to one
   salonName: text("salon_name"), // Name of the salon for display purposes
   sponsor: text("sponsor").default("Ven Me, Baby! LTD"), // Sponsor name with default
+  sponsorSalonId: integer("sponsor_salon_id"), // Reference to the salon that sponsored this client
   type: text("type").notNull().default("client"),
   address: text("address"), // Street address
   city: text("city"),
@@ -91,6 +92,10 @@ export const clientsRelations = relations(clients, ({ one }) => ({
   }),
   salon: one(salons, {
     fields: [clients.salonId],
+    references: [salons.id],
+  }),
+  sponsorSalon: one(salons, {
+    fields: [clients.sponsorSalonId],
     references: [salons.id],
   }),
 }));
