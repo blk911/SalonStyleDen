@@ -285,8 +285,8 @@ export default function ClientDashboard() {
       </Dialog>
       
       <main className="flex-grow">
-        {/* Hero Section with Client Info */}
-        <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-8 border-b border-pink-200">
+        {/* Hero Section with Client Info - REDUCED PADDING TO 2px */}
+        <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-2 border-b border-pink-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="flex items-center">
@@ -341,7 +341,8 @@ export default function ClientDashboard() {
           </div>
         </section>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* REDUCED SPACE TO 3px */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="space-y-6">
             {/* Add dialog for editing client profile */}
             <Dialog open={isEditing} onOpenChange={setIsEditing}>
@@ -926,10 +927,29 @@ export default function ClientDashboard() {
                         </div>
                       )}
                       
-                      {/* Recent VMB Invitations Sent */}
-                      <div className="mt-8 border-t pt-4">
-                        <h3 className="font-semibold text-pink-700 mb-3">Recent VMB Invitations Sent</h3>
+                      {/* Recent VMB Invitations Sent - REDUCED PADDING */}
+                      <div className="mt-8 border-t pt-2">
+                        <h3 className="font-semibold text-pink-700 mb-2">SALON TO CLIENT INVITATIONS</h3>
                         <RecentVmbInvitations clientId={client.id} />
+                      </div>
+                      
+                      {/* SHARE VMB Section */}
+                      <div className="mt-4 border-t pt-2">
+                        <h3 className="font-semibold text-pink-700 mb-2">SHARE VMB</h3>
+                        <Card className="shadow-sm overflow-hidden">
+                          <CardHeader className="bg-pink-50 pb-3">
+                            <CardTitle className="text-sm">Invite Your Friends</CardTitle>
+                          </CardHeader>
+                          <CardContent className="p-4">
+                            <ClientInviteForm clientId={client.id} onSuccess={() => {
+                              // Refresh the invitations list
+                              toast({
+                                title: "Invitation Sent",
+                                description: "Your invitation has been sent successfully!"
+                              });
+                            }} />
+                          </CardContent>
+                        </Card>
                       </div>
                     </div>
                   ) : salonLoading ? (
@@ -937,6 +957,28 @@ export default function ClientDashboard() {
                   ) : (
                     <p>Salon information not available</p>
                   )}
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* Standalone SHARE VMB Card - shown whether client has a salon or not */}
+            {!client.salonId && (
+              <Card className="rounded-xl shadow-sm overflow-hidden">
+                <CardHeader className="bg-pink-50 pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                    SHARE VMB
+                  </CardTitle>
+                  <CardDescription>
+                    Invite your friends to join Ven Me, Baby!
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <ClientInviteForm clientId={client.id} onSuccess={() => {
+                    toast({
+                      title: "Invitation Sent",
+                      description: "Your invitation has been sent successfully!"
+                    });
+                  }} />
                 </CardContent>
               </Card>
             )}
