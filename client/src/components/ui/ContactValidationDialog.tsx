@@ -98,10 +98,6 @@ export function ContactValidationDialog({
                 <div className="text-center">
                   <h4 className="text-lg font-medium text-gray-700 mb-5">{errorMessage}</h4>
                   
-                  <p className="text-gray-600 mb-6">
-                    Check your messages. Do you have a promo code?
-                  </p>
-                  
                   <div className="flex flex-col sm:flex-row justify-center gap-3">
                     <Button 
                       onClick={handleGoBack} 
