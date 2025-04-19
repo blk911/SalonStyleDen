@@ -167,22 +167,23 @@ export default function ClientRegistrationPage() {
       };
       
       // Create the client
-      const response = await apiRequest('POST', '/api/clients', { 
-        body: clientData 
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to register client');
-      }
-      
-      const createdClient = await response.json();
-      
-      // Update invitation status if we have an invitation ID
-      if (invitation?.id) {
-        await apiRequest('PATCH', `/api/invitations/${invitation.id}`, {
-          body: { status: 'accepted' }
+      let createdClient;
+      try {
+        createdClient = await apiRequest('/api/clients', { 
+          method: 'POST',
+          data: clientData 
         });
+        
+        // Update invitation status if we have an invitation ID
+        if (invitation?.id) {
+          await apiRequest(`/api/invitations/${invitation.id}`, {
+            method: 'PATCH',
+            data: { status: 'accepted' }
+          });
+        }
+      } catch (error) {
+        console.error('API error:', error);
+        throw error;
       }
       
       // Show success message
