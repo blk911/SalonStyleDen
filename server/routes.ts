@@ -1399,6 +1399,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
               sponsor: sponsorName,
               sponsorSalonId: sponsorSalonId
             });
+          } else {
+            // No client found, but invitation is valid - return invitation details for registration
+            console.log(`VALID INVITATION: No client yet for invitation ${invitation.id}, returning for registration`);
+            
+            // Get sponsor information from the invitation
+            const sponsorName = invitation.sponsor || "Ven Me, Baby! LTD";
+            const sponsorSalonId = invitation.salonId || 12;
+            
+            console.log(`Using sponsor from invitation: ${sponsorName} (ID: ${sponsorSalonId})`);
+            
+            return res.status(200).json({ 
+              success: true,
+              message: "Code validated successfully (invitation with no client)",
+              redirect: 'register',
+              name: invitation.name,
+              phone: invitation.phone,
+              email: invitation.email,
+              sponsor: sponsorName,
+              sponsorSalonId: sponsorSalonId
+            });
           }
         }
         
