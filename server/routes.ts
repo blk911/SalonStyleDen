@@ -448,12 +448,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = clientInputSchema.parse(req.body);
       console.log('Validated client data:', validatedData);
 
-      // Create client in database
-      const client = await storage.createClient(validatedData);
-      console.log('Created client with ID:', client.id);
+      try {
+        // Create client in database
+        const client = await storage.createClient(validatedData);
+        console.log('Created client with ID:', client.id);
 
-      // Return the client data
-      res.status(201).json(client);
+        // Return the client data
+        res.status(201).json(client);
+      } catch (storageError) {
+        console.error('Error in storage layer:', storageError);
+        
+        // Check if it's a duplicate error
+        if (storageError instanceof Error && 
+            storageError.message && 
+            (storageError.message.includes('already registered') || 
+             storageError.message.includes('duplicate'))) {
+          
+          // Extract which field is duplicate
+          const errorMessage = storageError.message;
+          const isDuplicatePhone = errorMessage.includes('phone');
+          const isDuplicateEmail = errorMessage.includes('email');
+          
+          // For duplicates, we'll return a specific error status and data
+          return res.status(409).json({ 
+            status: 'duplicate',
+            field: isDuplicatePhone ? 'phone' : (isDuplicateEmail ? 'email' : 'contact'),
+            message: 'This contact information already exists. Complete your registration to continue.',
+            // Return submitted data to pre-fill the registration form
+            name: validatedData.name,
+            phone: validatedData.phone,
+            email: validatedData.email,
+            salonId: validatedData.salonId
+          });
+        } else {
+          // Other storage errors
+          throw storageError;
+        }
+      }
     } catch (error) {
       console.error('Error creating client:', error);
 
