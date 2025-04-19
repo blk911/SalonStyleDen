@@ -66,6 +66,11 @@ export function useContactValidation(options: ValidationOptions = {}) {
 
     try {
       console.log(`Validating ${type}:`, type === 'phone' ? cleanPhone : value);
+      
+      // Debug info for specific phone number
+      if (type === 'phone' && cleanPhone === '5125551213') {
+        console.log(`Specifically validating phone 5125551213 to trace issue`);
+      }
 
       // Use validation-only server request with a dedicated endpoint for contact validation
       const response = await fetch('/api/validate-contact', {
