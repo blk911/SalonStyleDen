@@ -457,6 +457,30 @@ export function VmbStyleOptions({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* PromoCode Dialog for anonymous users */}
+      <PromoCodeDialog 
+        open={showPromoCodeDialog}
+        onOpenChange={setShowPromoCodeDialog}
+        salonId={salonId}
+        onSuccess={(clientData) => {
+          // Successfully verified, we now have client data
+          toast({
+            title: "Welcome back!",
+            description: `Your profile has been verified. You can now select styles.`,
+            variant: "default"
+          });
+          
+          // Optional: Navigate to the client dashboard after successful verification
+          if (clientData && clientData.id) {
+            // Redirect to client dashboard with the new client ID
+            navigate(`/clients/${clientData.id}/dashboard`);
+          } else {
+            // Just refresh the page to get the updated client context
+            window.location.reload();
+          }
+        }}
+      />
     </>
   );
 }

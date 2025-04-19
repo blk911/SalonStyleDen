@@ -69,6 +69,29 @@ export default function SalonPublicPage() {
   const [selectedPromo, setSelectedPromo] = useState<Promo | null>(null);
   const [isPromoDetailsOpen, setIsPromoDetailsOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  // State for current client ID (if authenticated)
+  const [currentClientId, setCurrentClientId] = useState<number | undefined>(undefined);
+  
+  // Function to get the current client ID from the URL or session
+  const getCurrentClientId = useCallback(async () => {
+    try {
+      // Check if we have a client ID in the session
+      const response = await fetch('/api/session/current-client');
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.clientId) {
+          setCurrentClientId(data.clientId);
+          return;
+        }
+      }
+      
+      // No client ID found in session, leave as undefined
+      setCurrentClientId(undefined);
+    } catch (error) {
+      console.error("Error fetching current client:", error);
+      setCurrentClientId(undefined);
+    }
+  }, []);
 
   // Enhanced query configuration with proper query key structure and error handling
   const { 
@@ -225,6 +248,11 @@ export default function SalonPublicPage() {
     }
   }, [id, setLocation]);
   
+  // Get the current client ID when component mounts
+  useEffect(() => {
+    getCurrentClientId();
+  }, [getCurrentClientId]);
+  
   // Set up window focus handling for real-time data refresh
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -376,13 +404,7 @@ export default function SalonPublicPage() {
           <VmbStyleOptions 
             services={salon.services} 
             salonId={salon.id}
-            clientId={1} // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            // ⚠️ CRITICAL WARNING: MUST MAKE THIS DYNAMIC BEFORE DEPLOYMENT ⚠️
-            // This hardcoded client ID is only for development/testing purposes.
-            // In production, this MUST be replaced with the actual logged-in client's ID
-            // from the authentication system or user context.
-            // ⚠️ FAILURE TO FIX THIS WILL CAUSE ALL USERS TO SAVE AS THE SAME CLIENT ⚠️
-            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            clientId={currentClientId} // Dynamic client ID from session
             onSelectionComplete={(selection) => {
               console.log("Style selected:", selection);
               // You could update UI or redirect here

@@ -12,10 +12,12 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
-interface PromoCodeDialogProps {
+export interface PromoCodeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   phone?: string; // Optional phone number passed from ContactValidationDialog
+  salonId?: number; // Optional salon ID for direct invitation verification
+  onSuccess?: (clientData: any) => void; // Callback when verification is successful
 }
 
 export function PromoCodeDialog({
