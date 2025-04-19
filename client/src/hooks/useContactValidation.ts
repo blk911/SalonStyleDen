@@ -54,30 +54,81 @@ export function useContactValidation(options: ValidationOptions = {}) {
       if (!value.includes('@') || !value.includes('.')) return false;
     }
 
+    // Prevent multiple simultaneous validation requests
+    if (isValidating) {
+      console.log(`Skipping validation for ${type} - Another validation is in progress`);
+      return false;
+    }
+
     setIsValidating(true);
 
     try {
       console.log(`Validating ${type}:`, type === 'phone' ? cleanPhone : value);
 
-      // Use validation-only server request
-      const response = await fetch('/api/invitations', {
+      // Use validation-only server request with a dedicated endpoint for contact validation
+      const response = await fetch('/api/validate-contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           phone: type === 'phone' ? cleanPhone : '',
           email: type === 'email' ? value.toLowerCase() : '',
-          name: 'test',
-          _validateOnly: true
+          type: 'client'
         })
       });
 
+      // Fallback to previous method if the dedicated endpoint isn't available
+      if (response.status === 404) {
+        console.log('Validation endpoint not found, using fallback method');
+        const fallbackResponse = await fetch('/api/invitations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phone: type === 'phone' ? cleanPhone : '',
+            email: type === 'email' ? value.toLowerCase() : '',
+            name: 'test',
+            _validateOnly: true
+          })
+        });
+        
+        const data = await fallbackResponse.json();
+        
+        // Check for either a server error or duplicate in response
+        if (!fallbackResponse.ok || data.error) {
+          console.log(`Server detected duplicate ${type}:`, value, data);
+
+          if (type === 'phone' || (data.error && data.error.includes('phone'))) {
+            setPhoneExists(true);
+            setErrorField('phone');
+            setErrorMessage('This phone number is already registered in our system.');
+          } else {
+            setEmailExists(true);
+            setErrorField('email');
+            setErrorMessage('This email address is already registered in our system.');
+          }
+
+          setShowErrorDialog(true);
+          setIsValidating(false);
+          return true; // Exists
+        }
+        
+        // If we got here, validation passed
+        if (type === 'phone') {
+          setPhoneExists(false);
+        } else {
+          setEmailExists(false);
+        }
+
+        setIsValidating(false);
+        return false; // Doesn't exist
+      }
+
       const data = await response.json();
       
-      // Check for either a server error or duplicate in response
-      if (!response.ok || data.error) {
+      // Check for duplicates in response
+      if (data.exists) {
         console.log(`Server detected duplicate ${type}:`, value, data);
 
-        if (type === 'phone' || (data.error && data.error.includes('phone'))) {
+        if (type === 'phone') {
           setPhoneExists(true);
           setErrorField('phone');
           setErrorMessage('This phone number is already registered in our system.');
@@ -107,7 +158,7 @@ export function useContactValidation(options: ValidationOptions = {}) {
       setIsValidating(false);
       return false;
     }
-  }, []);
+  }, [isValidating]);
 
   // Generate handlers for various input events
   const getPhoneProps = useCallback((currentValue: string) => {
