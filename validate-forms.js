@@ -41,7 +41,7 @@ const FORM_COMPONENTS = [
     file: 'client/src/components/forms/SalonForm.tsx',
     endpoint: '/api/salons',
     method: 'POST',
-    requiredFields: ['name', 'ownerName', 'email', 'phone'],
+    requiredFields: ['salonName', 'ownerName', 'email', 'phone'],
   },
   {
     name: 'Client Invitation Form',
