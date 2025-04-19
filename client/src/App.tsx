@@ -16,6 +16,7 @@ import Sitemap from "@/pages/Sitemap";
 import AdminDashboard from "@/pages/AdminDashboard";
 import TestImagePage from "@/pages/TestImagePage";
 import NetworkVisualization from "@/pages/NetworkVisualization";
+import InvitationPage from "@/pages/InvitationPage";
 
 function Router() {
   return (
@@ -26,7 +27,7 @@ function Router() {
       <Route path="/client/:id" component={ClientDashboard} />
       <Route path="/clients" component={ClientsPage} />
       <Route path="/salons" component={SalonsPage} />
-      <Route path="/invitation/:hash" component={SalonPublicPage} />
+      <Route path="/invitation/:hash" component={InvitationPage} />
       {/* Temporarily hiding the Promos page */}
       {/* <Route path="/promos" component={PromosPage} /> */}
       <Route path="/sitemap" component={Sitemap} />

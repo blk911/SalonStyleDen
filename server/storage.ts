@@ -445,7 +445,7 @@ export class DatabaseStorage implements IStorage {
       
       const result = await db
         .update(invitations)
-        .set({ status, updatedAt: new Date() })
+        .set({ status })
         .where(eq(invitations.id, id))
         .returning();
       

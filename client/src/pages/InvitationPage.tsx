@@ -100,7 +100,7 @@ export default function InvitationPage() {
         toast({
           title: "Invitation Accepted!",
           description: "You have successfully accepted this invitation.",
-          variant: "success"
+          variant: "default"
         });
         
         // Navigate to the client registration page
