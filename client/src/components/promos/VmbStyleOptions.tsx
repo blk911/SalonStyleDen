@@ -31,6 +31,24 @@ interface StyleSelection {
   status: string;
 }
 
+// Style selection schema for form validation
+const styleSelectionSchema = z.object({
+  styleOptions: z.object({
+    styleId: z.number({
+      required_error: "Please select a style option"
+    }),
+    salonId: z.number({
+      required_error: "Salon information is required"
+    }),
+    clientId: z.number({
+      required_error: "Client information is required"
+    }),
+    invitationId: z.number().optional()
+  })
+});
+
+type StyleSelectionFormValues = z.infer<typeof styleSelectionSchema>;
+
 interface VmbStyleOptionsProps {
   services: StyleOption[];
   clientId?: number;
@@ -56,6 +74,19 @@ export function VmbStyleOptions({
   const { toast } = useToast();
   const [, navigate] = useLocation();
   
+  // Initialize React Hook Form
+  const form = useForm<StyleSelectionFormValues>({
+    resolver: zodResolver(styleSelectionSchema),
+    defaultValues: {
+      styleOptions: {
+        styleId: undefined,
+        clientId: clientId,
+        salonId: salonId,
+        invitationId: invitationId
+      }
+    }
+  });
+  
   // Fetch any existing style selections for this client
   useEffect(() => {
     if (clientId) {
@@ -79,6 +110,21 @@ export function VmbStyleOptions({
   const handleSelectStyle = (style: StyleOption) => {
     setSelectedStyle(style);
     setIsDetailsOpen(true);
+    
+    // Update form values when style is selected
+    form.setValue('styleOptions.styleId', style.id);
+    
+    if (clientId) {
+      form.setValue('styleOptions.clientId', clientId);
+    }
+    
+    if (salonId) {
+      form.setValue('styleOptions.salonId', salonId);
+    }
+    
+    if (invitationId) {
+      form.setValue('styleOptions.invitationId', invitationId);
+    }
   };
   
   // Handle mouse over effect
@@ -90,9 +136,9 @@ export function VmbStyleOptions({
     setHoveredStyle(null);
   };
   
-  // Handle saving the selection
-  const handleSaveSelection = async () => {
-    if (!selectedStyle || !clientId || !salonId) {
+  // Handle form submission with React Hook Form
+  const onSubmit = async (values: StyleSelectionFormValues) => {
+    if (!selectedStyle || !values.styleOptions.clientId || !values.styleOptions.salonId) {
       toast({
         title: "Selection Error",
         description: "Missing required information to save your style selection.",
@@ -104,11 +150,11 @@ export function VmbStyleOptions({
     setIsSubmitting(true);
     
     try {
-      // Save selection to database
-      const response = await apiRequest(`/api/clients/${clientId}/style-selections`, 'POST', {
-        styleId: selectedStyle.id,
-        salonId: salonId,
-        invitationId: invitationId
+      // Save selection to database using form values
+      const response = await apiRequest(`/api/clients/${values.styleOptions.clientId}/style-selections`, 'POST', {
+        styleId: values.styleOptions.styleId,
+        salonId: values.styleOptions.salonId,
+        invitationId: values.styleOptions.invitationId
       });
       
       if (response.ok) {
@@ -143,6 +189,11 @@ export function VmbStyleOptions({
     } finally {
       setIsSubmitting(false);
     }
+  };
+  
+  // Legacy handler for backward compatibility
+  const handleSaveSelection = () => {
+    form.handleSubmit(onSubmit)();
   };
   
   // Reset all dialogs
