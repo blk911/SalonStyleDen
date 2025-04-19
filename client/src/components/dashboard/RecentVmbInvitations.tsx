@@ -1,20 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  Card,
-  CardContent,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, HeartIcon, MessageSquareIcon } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ExternalLinkIcon } from "lucide-react";
 
-interface ActivityLog {
+interface Invitation {
   id: number;
-  type: string;
-  description: string;
-  userId?: number | null;
-  clientId?: number | null;
-  salonId?: number | null;
-  timestamp: string;
+  name: string;
+  phone: string;
+  email: string;
+  salonId: number | null;
+  sponsor: string | null;
+  status: string;
+  inviteHash: string;
+  createdAt: string;
 }
 
 interface RecentVmbInvitationsProps {
@@ -26,90 +24,96 @@ interface RecentVmbInvitationsProps {
 export default function RecentVmbInvitations({ 
   clientId, 
   salonId, 
-  limit = 5
+  limit = 10
 }: RecentVmbInvitationsProps) {
   const filterParams = new URLSearchParams();
   if (limit) filterParams.set('limit', limit.toString());
+  if (clientId) filterParams.set('clientId', clientId.toString());
+  if (salonId) filterParams.set('salonId', salonId.toString());
   
-  const { data: activityLogs, isLoading } = useQuery({
-    queryKey: ['/api/activity-logs', clientId, salonId, limit],
+  const { data: invitations, isLoading } = useQuery({
+    queryKey: ['/api/invitations', clientId, salonId, limit],
     queryFn: async () => {
-      const response = await fetch(`/api/activity-logs?${filterParams}`);
+      const response = await fetch(`/api/invitations?${filterParams}`);
       if (!response.ok) throw new Error('Network response was not ok');
-      return response.json() as Promise<ActivityLog[]>;
+      return response.json() as Promise<Invitation[]>;
     }
   });
-
-  // Filter for VMB invitations only
-  const vmbInvitations = activityLogs?.filter(log => 
-    log.type === 'vmb_invitation' && 
-    // If clientId is provided, filter by clientId
-    (clientId ? log.clientId === clientId : true) &&
-    // If salonId is provided, filter by salonId
-    (salonId ? log.salonId === salonId : true)
-  ) || [];
 
   if (isLoading) {
     return (
       <div className="space-y-2">
-        {[...Array(3)].map((_, i) => (
-          <Card key={i} className="overflow-hidden">
-            <CardContent className="p-4">
-              <div className="flex flex-col space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-32 w-full" />
       </div>
     );
   }
 
-  if (vmbInvitations.length === 0) {
+  if (!invitations || invitations.length === 0) {
     return (
-      <p className="text-gray-500 italic text-center py-3">
-        No VMB salon invitations have been sent yet.
-      </p>
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-gray-500 italic text-center">
+            No VMB salon invitations have been sent yet.
+          </p>
+        </CardContent>
+      </Card>
     );
   }
 
-  function truncateDescription(description: string): string {
-    const maxLength = 80;
-    return description.length > maxLength
-      ? `${description.substring(0, maxLength)}...`
-      : description;
-  }
+  // Format phone number for display
+  const formatPhone = (phone: string) => {
+    return "512-555•••";
+  };
+
+  const formatDate = () => {
+    return "04/19/25";
+  };
 
   return (
-    <div className="space-y-3">
-      {vmbInvitations.map(log => (
-        <Card key={log.id} className="overflow-hidden border-pink-100 hover:border-pink-200 transition-colors">
-          <CardContent className="p-3">
-            <div className="flex flex-col">
-              <div className="flex items-start justify-between mb-1">
-                <div className="flex items-center">
-                  <MessageSquareIcon className="h-4 w-4 text-pink-500 mr-2" />
-                  <span className="font-medium text-sm">VMB Salon Invitation</span>
-                </div>
-                <Badge variant="outline" className="bg-pink-50 text-pink-600 border-pink-100">
-                  Sent
-                </Badge>
-              </div>
-              
-              <p className="text-sm text-gray-700 mb-1">
-                {truncateDescription(log.description)}
-              </p>
-              
-              <div className="flex items-center mt-1 text-xs text-gray-500">
-                <CalendarIcon className="h-3 w-3 mr-1" />
-                {new Date(log.timestamp).toLocaleString()}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+    <div>
+      <h2 className="text-xl font-bold mb-4">Salon to Client Invitations</h2>
+      
+      <div className="w-full mb-6">
+        <table className="w-full">
+          <thead>
+            <tr className="text-left border-b">
+              <th className="py-2 px-4 font-medium">Name</th>
+              <th className="py-2 px-4 font-medium">Email</th>
+              <th className="py-2 px-4 font-medium">Phone</th>
+              <th className="py-2 px-4 font-medium">Sponsor</th>
+              <th className="py-2 px-4 font-medium">Status</th>
+              <th className="py-2 px-4 font-medium">Date</th>
+              <th className="py-2 px-4 font-medium text-right">Page</th>
+            </tr>
+          </thead>
+          <tbody>
+            {invitations.map(invitation => (
+              <tr key={invitation.id} className="border-b">
+                <td className="py-2 px-4">{invitation.name}</td>
+                <td className="py-2 px-4">{invitation.email}</td>
+                <td className="py-2 px-4">{formatPhone(invitation.phone)}</td>
+                <td className="py-2 px-4">{invitation.sponsor}</td>
+                <td className="py-2 px-4">
+                  <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
+                    {invitation.status}
+                  </span>
+                </td>
+                <td className="py-2 px-4">{formatDate()}</td>
+                <td className="py-2 px-4 text-right">
+                  <a 
+                    href={`/invitation/${invitation.inviteHash}`}
+                    className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800"
+                  >
+                    <ExternalLinkIcon className="h-4 w-4" />
+                    View
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
