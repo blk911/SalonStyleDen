@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { ExternalLinkIcon } from "lucide-react";
 
 interface Invitation {
@@ -51,20 +51,13 @@ export default function RecentVmbInvitations({
 
   if (!invitations || invitations.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-gray-500 italic text-center">
-            No VMB salon invitations have been sent yet.
-          </p>
-        </CardContent>
+      <Card className="p-6">
+        <p className="text-gray-500 italic text-center">
+          No VMB salon invitations have been sent yet.
+        </p>
       </Card>
     );
   }
-
-  // Format phone number for display
-  const formatPhone = (phone: string) => {
-    return "512-555•••";
-  };
 
   // Group invitations by sponsor
   const groupedInvitations: Record<string, Invitation[]> = {};
@@ -77,57 +70,134 @@ export default function RecentVmbInvitations({
     groupedInvitations[sponsor].push(invitation);
   });
 
+  // Format phone number for display
+  const formatPhone = (phone: string) => {
+    return "512-555•••";
+  };
+
   return (
-    <div className="mb-6">
-      <h2 className="text-xl font-bold mb-4">Salon to Client Invitations</h2>
+    <div>
+      {/* Salon to Client Invitations */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4">Salon to Client Invitations</h2>
+        
+        <div className="w-full border rounded-md">
+          {Object.entries(groupedInvitations)
+            .filter(([sponsor]) => sponsor !== "Ven Me, Baby! LTD") // Filter out VMB LTD invitations
+            .map(([sponsor, sponsorInvitations]) => (
+              <div key={sponsor} className="mb-4">
+                {/* Salon header */}
+                <div className="bg-pink-50 px-4 py-2 font-semibold text-pink-700 border-b">
+                  {sponsor}
+                </div>
+                
+                {/* Invitations table */}
+                <table className="w-full">
+                  <thead>
+                    <tr className="text-left border-b">
+                      <th className="py-2 px-4 font-medium">Name</th>
+                      <th className="py-2 px-4 font-medium">Email</th>
+                      <th className="py-2 px-4 font-medium">Phone</th>
+                      <th className="py-2 px-4 font-medium">Status</th>
+                      <th className="py-2 px-4 font-medium">Date</th>
+                      <th className="py-2 px-4 font-medium text-right">Page</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sponsorInvitations.map(invitation => (
+                      <tr key={invitation.id} className="border-b">
+                        <td className="py-2 px-4">{invitation.name}</td>
+                        <td className="py-2 px-4">{invitation.email}</td>
+                        <td className="py-2 px-4">{formatPhone(invitation.phone)}</td>
+                        <td className="py-2 px-4">
+                          <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
+                            {invitation.status}
+                          </span>
+                        </td>
+                        <td className="py-2 px-4">04/19/25</td>
+                        <td className="py-2 px-4 text-right">
+                          <a 
+                            href={`/invitation/${invitation.inviteHash}`}
+                            className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800"
+                          >
+                            <ExternalLinkIcon className="h-4 w-4" />
+                            View
+                          </a>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
+        </div>
+      </div>
       
-      <div className="w-full border rounded-md">
-        {Object.entries(groupedInvitations).map(([sponsor, sponsorInvitations]) => (
-          <div key={sponsor} className="mb-4">
-            {/* Sponsor header */}
-            <div className="bg-pink-50 px-4 py-2 font-semibold text-pink-700 border-b">
-              {sponsor}
-            </div>
+      {/* VMB LTD Invitations */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4">VMB LTD Invitations</h2>
+        
+        <div className="w-full border rounded-md">
+          {Object.entries(groupedInvitations)
+            .filter(([sponsor]) => sponsor === "Ven Me, Baby! LTD") // Only VMB LTD invitations
+            .map(([sponsor, sponsorInvitations]) => (
+              <div key={sponsor} className="mb-4">
+                {/* Salon header */}
+                <div className="bg-pink-50 px-4 py-2 font-semibold text-pink-700 border-b">
+                  {sponsor}
+                </div>
+                
+                {sponsorInvitations.length > 0 ? (
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-left border-b">
+                        <th className="py-2 px-4 font-medium">Name</th>
+                        <th className="py-2 px-4 font-medium">Email</th>
+                        <th className="py-2 px-4 font-medium">Phone</th>
+                        <th className="py-2 px-4 font-medium">Status</th>
+                        <th className="py-2 px-4 font-medium">Date</th>
+                        <th className="py-2 px-4 font-medium text-right">Page</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sponsorInvitations.map(invitation => (
+                        <tr key={invitation.id} className="border-b">
+                          <td className="py-2 px-4">{invitation.name}</td>
+                          <td className="py-2 px-4">{invitation.email}</td>
+                          <td className="py-2 px-4">{formatPhone(invitation.phone)}</td>
+                          <td className="py-2 px-4">
+                            <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
+                              {invitation.status}
+                            </span>
+                          </td>
+                          <td className="py-2 px-4">04/19/25</td>
+                          <td className="py-2 px-4 text-right">
+                            <a 
+                              href={`/invitation/${invitation.inviteHash}`}
+                              className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800"
+                            >
+                              <ExternalLinkIcon className="h-4 w-4" />
+                              View
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="p-6 text-center text-gray-500 italic">
+                    No VMB LTD invitations have been sent yet.
+                  </div>
+                )}
+              </div>
+            ))}
             
-            {/* Invitations table */}
-            <table className="w-full">
-              <thead>
-                <tr className="text-left border-b">
-                  <th className="py-2 px-4 font-medium">Name</th>
-                  <th className="py-2 px-4 font-medium">Email</th>
-                  <th className="py-2 px-4 font-medium">Phone</th>
-                  <th className="py-2 px-4 font-medium">Status</th>
-                  <th className="py-2 px-4 font-medium">Date</th>
-                  <th className="py-2 px-4 font-medium text-right">Page</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sponsorInvitations.map(invitation => (
-                  <tr key={invitation.id} className="border-b">
-                    <td className="py-2 px-4">{invitation.name}</td>
-                    <td className="py-2 px-4">{invitation.email}</td>
-                    <td className="py-2 px-4">{formatPhone(invitation.phone)}</td>
-                    <td className="py-2 px-4">
-                      <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
-                        {invitation.status}
-                      </span>
-                    </td>
-                    <td className="py-2 px-4">04/19/25</td>
-                    <td className="py-2 px-4 text-right">
-                      <a 
-                        href={`/invitation/${invitation.inviteHash}`}
-                        className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800"
-                      >
-                        <ExternalLinkIcon className="h-4 w-4" />
-                        View
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
+            {Object.entries(groupedInvitations).filter(([sponsor]) => sponsor === "Ven Me, Baby! LTD").length === 0 && (
+              <div className="p-6 text-center text-gray-500 italic">
+                No VMB LTD invitations have been sent yet.
+              </div>
+            )}
+        </div>
       </div>
     </div>
   );
