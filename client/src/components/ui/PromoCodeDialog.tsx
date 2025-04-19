@@ -266,7 +266,7 @@ export function PromoCodeDialog({
               onOpenChange(false);
               
               // Redirect to client dashboard
-              setLocation(`/client/${existingClient.id}/dashboard`);
+              setLocation(`/client/${existingClient.id}`);
               setLoading(false);
               return;
             }
@@ -309,7 +309,7 @@ export function PromoCodeDialog({
         
         // Redirect to client dashboard with the existing client ID
         if (data.id) {
-          setLocation(`/client/${data.id}/dashboard`);
+          setLocation(`/client/${data.id}`);
         }
         
         return;
@@ -330,7 +330,7 @@ export function PromoCodeDialog({
           
           // Close dialog and redirect
           onOpenChange(false);
-          setLocation(`/client/${data.id}/dashboard`);
+          setLocation(`/client/${data.id}`);
           return;
         }
         
@@ -367,7 +367,7 @@ export function PromoCodeDialog({
       
       // Redirect to client dashboard with the new client ID
       if (data.id) {
-        setLocation(`/client/${data.id}/dashboard`);
+        setLocation(`/client/${data.id}`);
       }
       
     } catch (error) {
