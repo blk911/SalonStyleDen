@@ -66,49 +66,68 @@ export default function RecentVmbInvitations({
     return "512-555•••";
   };
 
+  // Group invitations by sponsor
+  const groupedInvitations: Record<string, Invitation[]> = {};
+  
+  invitations.forEach(invitation => {
+    const sponsor = invitation.sponsor || 'Unknown Salon';
+    if (!groupedInvitations[sponsor]) {
+      groupedInvitations[sponsor] = [];
+    }
+    groupedInvitations[sponsor].push(invitation);
+  });
+
   return (
     <div className="mb-6">
       <h2 className="text-xl font-bold mb-4">Salon to Client Invitations</h2>
       
       <div className="w-full border rounded-md">
-        <table className="w-full">
-          <thead>
-            <tr className="text-left border-b">
-              <th className="py-2 px-4 font-medium">Name</th>
-              <th className="py-2 px-4 font-medium">Email</th>
-              <th className="py-2 px-4 font-medium">Phone</th>
-              <th className="py-2 px-4 font-medium">Sponsor</th>
-              <th className="py-2 px-4 font-medium">Status</th>
-              <th className="py-2 px-4 font-medium">Date</th>
-              <th className="py-2 px-4 font-medium text-right">Page</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invitations.map(invitation => (
-              <tr key={invitation.id} className="border-b">
-                <td className="py-2 px-4">{invitation.name}</td>
-                <td className="py-2 px-4">{invitation.email}</td>
-                <td className="py-2 px-4">{formatPhone(invitation.phone)}</td>
-                <td className="py-2 px-4">TIFFANY_...</td>
-                <td className="py-2 px-4">
-                  <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
-                    {invitation.status}
-                  </span>
-                </td>
-                <td className="py-2 px-4">04/19/25</td>
-                <td className="py-2 px-4 text-right">
-                  <a 
-                    href={`/invitation/${invitation.inviteHash}`}
-                    className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800"
-                  >
-                    <ExternalLinkIcon className="h-4 w-4" />
-                    View
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {Object.entries(groupedInvitations).map(([sponsor, sponsorInvitations]) => (
+          <div key={sponsor} className="mb-4">
+            {/* Sponsor header */}
+            <div className="bg-pink-50 px-4 py-2 font-semibold text-pink-700 border-b">
+              {sponsor}
+            </div>
+            
+            {/* Invitations table */}
+            <table className="w-full">
+              <thead>
+                <tr className="text-left border-b">
+                  <th className="py-2 px-4 font-medium">Name</th>
+                  <th className="py-2 px-4 font-medium">Email</th>
+                  <th className="py-2 px-4 font-medium">Phone</th>
+                  <th className="py-2 px-4 font-medium">Status</th>
+                  <th className="py-2 px-4 font-medium">Date</th>
+                  <th className="py-2 px-4 font-medium text-right">Page</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sponsorInvitations.map(invitation => (
+                  <tr key={invitation.id} className="border-b">
+                    <td className="py-2 px-4">{invitation.name}</td>
+                    <td className="py-2 px-4">{invitation.email}</td>
+                    <td className="py-2 px-4">{formatPhone(invitation.phone)}</td>
+                    <td className="py-2 px-4">
+                      <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
+                        {invitation.status}
+                      </span>
+                    </td>
+                    <td className="py-2 px-4">04/19/25</td>
+                    <td className="py-2 px-4 text-right">
+                      <a 
+                        href={`/invitation/${invitation.inviteHash}`}
+                        className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800"
+                      >
+                        <ExternalLinkIcon className="h-4 w-4" />
+                        View
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
       </div>
     </div>
   );
