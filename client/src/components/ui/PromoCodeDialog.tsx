@@ -51,8 +51,10 @@ export function PromoCodeDialog({
   // Set initial mode based on the context
   // If phoneValidation flag is true, we're coming from the "No" path in ContactValidationDialog
   // otherwise use phone presence to determine mode or default to promo
+  // If phoneValidation is explicitly set to true, we're in phone validation mode
+  // Otherwise, we're in promo code mode (the default)
   const [validationMode, setValidationMode] = useState<'promo' | 'phone'>(
-    phoneValidation ? 'phone' : (phone ? 'promo' : 'promo')
+    phoneValidation === true ? 'phone' : 'promo'
   );
   
   const [loading, setLoading] = useState(false);
@@ -129,7 +131,7 @@ export function PromoCodeDialog({
             // Redirect to client dashboard
             if (clientData.id) {
               console.log(`Redirecting to client dashboard: ${clientData.id}`);
-              setLocation(`/client/${clientData.id}/dashboard`);
+              setLocation(`/client/${clientData.id}`);
               setLoading(false);
               return;
             }
@@ -431,8 +433,8 @@ export function PromoCodeDialog({
                 </>
               ) : (
                 <>
-                  <p>Enter your phone number to continue to your dashboard.</p>
-                  <p className="mt-2">We'll verify your identity to give you access to your account.</p>
+                  <p>Enter your phone number to complete registration.</p>
+                  <p className="mt-2">We'll verify your identity and give you access to your account.</p>
                 </>
               )}
             </div>
@@ -454,7 +456,7 @@ export function PromoCodeDialog({
                       const value = e.target.value.replace(/[^0-9]/g, '');
                       setPhoneNumber(value);
                     }}
-                    placeholder="Enter your phone number to access your account"
+                    placeholder="Enter your phone number"
                     className="border-pink-200 focus:border-pink-400 text-center"
                     maxLength={10} // Allow full phone or just last 4 digits
                   />
@@ -470,7 +472,7 @@ export function PromoCodeDialog({
                   >
                     {validationMode === 'promo' 
                       ? "Don't have a promo code? Verify with your phone number instead." 
-                      : "Have a promo code? Use it instead."}
+                      : "Have a promo code instead of your phone number? Enter it here."}
                   </Button>
                 </div>
                 
