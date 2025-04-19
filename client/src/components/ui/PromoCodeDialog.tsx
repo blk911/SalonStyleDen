@@ -28,6 +28,7 @@ export interface PromoCodeDialogProps {
   phone?: string; // Optional phone number passed from ContactValidationDialog
   salonId?: number; // Optional salon ID for direct invitation verification
   onSuccess?: (clientData: ClientData) => void; // Callback when verification is successful
+  phoneValidation?: boolean; // Flag to indicate if this dialog is being used for phone validation
 }
 
 export function PromoCodeDialog({
@@ -36,6 +37,7 @@ export function PromoCodeDialog({
   phone,
   salonId,
   onSuccess,
+  phoneValidation,
 }: PromoCodeDialogProps) {
   // Extract last 4 digits of phone if provided (for promo code)
   const lastFourDigits = phone ? phone.replace(/\D/g, '').slice(-4) : "";
@@ -46,10 +48,11 @@ export function PromoCodeDialog({
   // Initialize phone number with provided phone (or empty)
   const [phoneNumber, setPhoneNumber] = useState(phone || "");
   
-  // Set initial mode based on the context - if phone provided from validation dialog,
-  // we need to determine if coming from "Yes" (promo path) or "No" (phone validation path)
+  // Set initial mode based on the context
+  // If phoneValidation flag is true, we're coming from the "No" path in ContactValidationDialog
+  // otherwise use phone presence to determine mode or default to promo
   const [validationMode, setValidationMode] = useState<'promo' | 'phone'>(
-    phone ? 'phone' : 'promo'
+    phoneValidation ? 'phone' : (phone ? 'promo' : 'promo')
   );
   
   const [loading, setLoading] = useState(false);

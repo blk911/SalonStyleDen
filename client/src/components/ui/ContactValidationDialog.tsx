@@ -165,6 +165,7 @@ export function ContactValidationDialog({
           }
         }}
         phone={validationPhone} // Pass the phone number to the promo code dialog
+        phoneValidation={true} // Flag to indicate this is coming from a phone validation path
       />
     </>
   );
