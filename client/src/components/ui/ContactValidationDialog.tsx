@@ -70,7 +70,7 @@ export function ContactValidationDialog({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent 
-          className="sm:max-w-md"
+          className="sm:max-w-md max-h-[90vh] overflow-y-auto"
           aria-describedby="contact-validation-description"
         >
           <DialogHeader>
@@ -98,18 +98,18 @@ export function ContactValidationDialog({
                 <div className="text-center">
                   <h4 className="text-lg font-medium text-gray-700 mb-5">{errorMessage}</h4>
                   
-                  <div className="flex flex-col sm:flex-row justify-center gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 w-full">
                     <Button 
                       onClick={handleGoBack} 
                       variant="outline"
-                      className="border-pink-300 w-full sm:w-auto px-6"
+                      className="border-pink-300 w-full h-12 px-4"
                     >
                       Go Back
                     </Button>
                     
                     <Button 
                       onClick={handleEnterPromoCode}
-                      className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto px-6"
+                      className="bg-pink-500 hover:bg-pink-600 w-full h-12 px-4"
                     >
                       Yes, I have a promo code
                     </Button>
@@ -135,7 +135,7 @@ export function ContactValidationDialog({
                         // Note: phoneValidation flag is passed as true to PromoCodeDialog
                         // to ensure it opens in phone validation mode
                       }}
-                      className="bg-gray-500 hover:bg-gray-600 w-full sm:w-auto px-6"
+                      className="bg-gray-500 hover:bg-gray-600 w-full h-12 px-4"
                     >
                       No, continue with phone
                     </Button>

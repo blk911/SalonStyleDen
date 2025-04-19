@@ -410,7 +410,7 @@ export function PromoCodeDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={showRegistrationForm ? "sm:max-w-xl" : "sm:max-w-md"}
+        className={showRegistrationForm ? "sm:max-w-xl max-h-[90vh] overflow-y-auto" : "sm:max-w-md max-h-[90vh] overflow-y-auto"}
         aria-describedby="dialog-description">
         <div id="dialog-description" className="sr-only">
           {showRegistrationForm 
@@ -425,6 +425,13 @@ export function PromoCodeDialog({
               ? 'Complete Your Registration' 
               : (validationMode === 'promo' ? 'Enter Promo Code' : 'ENTER YOUR PHONE NUMBER TO COMPLETE REGISTRATION')}
           </DialogTitle>
+          <DialogDescription className="text-center">
+            {showRegistrationForm 
+              ? 'Please fill in your information below' 
+              : (validationMode === 'promo' 
+                  ? 'Enter the promo code from your invitation' 
+                  : 'Verify your phone number to continue')}
+          </DialogDescription>
         </DialogHeader>
         
         {showRegistrationForm ? (
@@ -488,19 +495,19 @@ export function PromoCodeDialog({
                   </Button>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 w-full">
                   <Button 
                     type="button"
                     variant="outline" 
                     onClick={() => onOpenChange(false)}
-                    className="border-pink-300 w-full sm:w-auto px-6"
+                    className="border-pink-300 w-full h-12 px-4"
                   >
                     Cancel
                   </Button>
                   <Button 
                     type="submit"
                     disabled={loading}
-                    className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto px-6"
+                    className="bg-pink-500 hover:bg-pink-600 w-full h-12 px-4"
                   >
                     {loading ? "Verifying..." : "Verify & Continue"}
                   </Button>
