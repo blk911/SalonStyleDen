@@ -47,7 +47,7 @@ const salonInputSchema = z.object({
 const clientInputSchema = z.object({
   name: z.string().min(2),
   phone: z.string().min(10),
-  email: z.string().email(),
+  email: z.string().email().optional().or(z.literal('')),
   isCurrentClient: z.boolean(),
   notes: z.string().optional(),
   favoriteServices: z.array(z.string()).optional(),
