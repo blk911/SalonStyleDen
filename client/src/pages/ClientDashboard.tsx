@@ -104,6 +104,9 @@ export default function ClientDashboard() {
   const [showPersonalizedOffers, setShowPersonalizedOffers] = useState(false);
   const [showCreatePromo, setShowCreatePromo] = useState(false);
   
+  // Show "Complete Your Profile" dialog for newly validated clients
+  const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(true);
+  
   // State for invitation form
   const [inviteForm, setInviteForm] = useState({
     recipientName: '',
@@ -238,6 +241,48 @@ export default function ClientDashboard() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
+      {/* Complete Your Profile Dialog */}
+      <Dialog open={showCompleteProfileDialog} onOpenChange={setShowCompleteProfileDialog}>
+        <DialogContent className="sm:max-w-md" aria-describedby="complete-profile-description">
+          <div id="complete-profile-description" className="sr-only">
+            Complete your client profile to get the most out of Ven Me, Baby!
+          </div>
+          <DialogHeader>
+            <DialogTitle className="text-center text-pink-700">Complete Your Profile</DialogTitle>
+          </DialogHeader>
+          
+          <div className="p-4 border border-pink-100 bg-pink-50 rounded mb-5 text-sm">
+            <p className="text-center">
+              Welcome to Ven Me, Baby!
+            </p>
+            <p className="mt-2 text-center">
+              Your account has been verified successfully. Take a moment to complete your profile
+              to get personalized style recommendations and special offers.
+            </p>
+          </div>
+          
+          <div className="flex flex-col space-y-3">
+            <Button 
+              variant="default" 
+              onClick={() => {
+                setShowCompleteProfileDialog(false);
+                setIsEditing(true);
+              }}
+              className="bg-pink-600 hover:bg-pink-700 text-white"
+            >
+              Edit My Profile
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowCompleteProfileDialog(false)}
+              className="border-pink-300 text-pink-700"
+            >
+              Skip for Now
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
       <main className="flex-grow">
         {/* Hero Section with Client Info */}
         <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-8 border-b border-pink-200">

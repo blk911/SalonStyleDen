@@ -194,7 +194,7 @@ export function PromoCodeDialog({
           } else {
             // Otherwise, fallback to standard redirection
             console.log(`Redirecting to client dashboard for client ID: ${response.clientId}`);
-            setLocation(`/client/${response.clientId}/dashboard`);
+            setLocation(`/client/${response.clientId}`);
           }
         } else if (response.redirect === 'register') {
           // Need to create a new account with this invitation
