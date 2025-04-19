@@ -312,8 +312,8 @@ export default function InvitationPage() {
                     console.log("Style selected:", selection);
                     toast({
                       title: "Style Selected",
-                      description: `You selected ${selection.name}!`,
-                      variant: "success"
+                      description: `You selected this style!`,
+                      variant: "default"
                     });
                   }}
                 />

@@ -457,6 +457,29 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async getInvitationByHash(hash: string): Promise<Invitation | undefined> {
+    try {
+      console.log(`DatabaseStorage.getInvitationByHash - Searching for invitation with hash: ${hash}`);
+      
+      // Get invitation with matching hash
+      const [invitation] = await db
+        .select()
+        .from(invitations)
+        .where(eq(invitations.inviteHash, hash));
+      
+      if (invitation) {
+        console.log(`DatabaseStorage.getInvitationByHash - Found invitation with ID: ${invitation.id}`);
+      } else {
+        console.log(`DatabaseStorage.getInvitationByHash - No invitation found with hash ${hash}`);
+      }
+      
+      return invitation;
+    } catch (error) {
+      console.error(`DatabaseStorage.getInvitationByHash - Error fetching invitation by hash:`, error);
+      throw error;
+    }
+  }
+
   async getInvitationsByPhone(phone: string, partialMatch: boolean = false): Promise<Invitation[]> {
     try {
       console.log(`DatabaseStorage.getInvitationsByPhone - Fetching invitations with phone ${phone} (partialMatch: ${partialMatch})`);
@@ -498,28 +521,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getInvitationByHash(hash: string): Promise<Invitation | undefined> {
-    try {
-      console.log(`DatabaseStorage.getInvitationByHash - Searching for invitation with hash: ${hash}`);
-      
-      // Get all invitations
-      const allInvitations = await db.select().from(invitations);
-      
-      // Find invitation with matching hash
-      const invitation = allInvitations.find(inv => inv.inviteHash === hash);
-      
-      if (invitation) {
-        console.log(`DatabaseStorage.getInvitationByHash - Found invitation with ID: ${invitation.id}`);
-      } else {
-        console.log(`DatabaseStorage.getInvitationByHash - No invitation found with hash ${hash}`);
-      }
-      
-      return invitation;
-    } catch (error) {
-      console.error(`DatabaseStorage.getInvitationByHash - Error fetching invitation by hash:`, error);
-      throw error;
-    }
-  }
+
 
   // Style Selection methods
   async createStyleSelection(insertStyleSelection: InsertStyleSelection): Promise<StyleSelection> {

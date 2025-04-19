@@ -1147,6 +1147,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to retrieve invitation" });
     }
   });
+
+  // Get invitation by hash
+  apiRouter.get("/invitations/by-hash/:hash", async (req: Request, res: Response) => {
+    try {
+      const { hash } = req.params;
+      console.log(`GET /invitations/by-hash/${hash} - Fetching invitation by hash`);
+      
+      if (!hash) {
+        return res.status(400).json({ error: "Hash parameter is required" });
+      }
+      
+      const invitation = await storage.getInvitationByHash(hash);
+      
+      if (!invitation) {
+        return res.status(404).json({ error: "Invitation not found" });
+      }
+      
+      console.log(`GET /invitations/by-hash/${hash} - Found invitation ID: ${invitation.id}`);
+      res.json(invitation);
+    } catch (error) {
+      console.error('Error fetching invitation by hash:', error);
+      res.status(500).json({ error: "Failed to fetch invitation" });
+    }
+  });
   
   // Invitation validation endpoint - Validates promo codes and phone numbers
   apiRouter.post("/invitations/validate", async (req: Request, res: Response) => {
