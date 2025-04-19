@@ -13,6 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ExternalLink as ExternalLinkIcon } from "lucide-react";
 
 
 
@@ -47,6 +48,7 @@ interface Invitation {
   sponsor?: string;
   firstServiceDate?: string;
   createdAt: string;
+  inviteHash?: string;
 }
 
 interface ActivityLog {
