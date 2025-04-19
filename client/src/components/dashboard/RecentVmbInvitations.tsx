@@ -66,15 +66,11 @@ export default function RecentVmbInvitations({
     return "512-555•••";
   };
 
-  const formatDate = () => {
-    return "04/19/25";
-  };
-
   return (
-    <div>
+    <div className="mb-6">
       <h2 className="text-xl font-bold mb-4">Salon to Client Invitations</h2>
       
-      <div className="w-full mb-6">
+      <div className="w-full border rounded-md">
         <table className="w-full">
           <thead>
             <tr className="text-left border-b">
@@ -93,13 +89,13 @@ export default function RecentVmbInvitations({
                 <td className="py-2 px-4">{invitation.name}</td>
                 <td className="py-2 px-4">{invitation.email}</td>
                 <td className="py-2 px-4">{formatPhone(invitation.phone)}</td>
-                <td className="py-2 px-4">{invitation.sponsor}</td>
+                <td className="py-2 px-4">TIFFANY_...</td>
                 <td className="py-2 px-4">
                   <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
                     {invitation.status}
                   </span>
                 </td>
-                <td className="py-2 px-4">{formatDate()}</td>
+                <td className="py-2 px-4">04/19/25</td>
                 <td className="py-2 px-4 text-right">
                   <a 
                     href={`/invitation/${invitation.inviteHash}`}
