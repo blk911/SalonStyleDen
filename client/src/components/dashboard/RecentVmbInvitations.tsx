@@ -3,27 +3,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ExternalLinkIcon } from "lucide-react";
+import { CalendarIcon, HeartIcon, MessageSquareIcon } from "lucide-react";
 
-interface Invitation {
+interface ActivityLog {
   id: number;
-  name: string;
-  phone: string;
-  email: string;
-  salonId: number | null;
-  salonName?: string;
-  sponsor: string | null;
-  status: string;
-  inviteHash: string;
-  firstServiceDate?: string;
-  createdAt: string;
-  favoriteServices?: string[];
-  notes?: string | null;
+  type: string;
+  description: string;
+  userId?: number | null;
+  clientId?: number | null;
+  salonId?: number | null;
+  timestamp: string;
 }
 
 interface RecentVmbInvitationsProps {
@@ -35,122 +26,90 @@ interface RecentVmbInvitationsProps {
 export default function RecentVmbInvitations({ 
   clientId, 
   salonId, 
-  limit = 10
+  limit = 5
 }: RecentVmbInvitationsProps) {
   const filterParams = new URLSearchParams();
   if (limit) filterParams.set('limit', limit.toString());
-  if (clientId) filterParams.set('clientId', clientId.toString());
-  if (salonId) filterParams.set('salonId', salonId.toString());
   
-  const { data: invitations, isLoading } = useQuery({
-    queryKey: ['/api/invitations', clientId, salonId, limit],
+  const { data: activityLogs, isLoading } = useQuery({
+    queryKey: ['/api/activity-logs', clientId, salonId, limit],
     queryFn: async () => {
-      const response = await fetch(`/api/invitations?${filterParams}`);
+      const response = await fetch(`/api/activity-logs?${filterParams}`);
       if (!response.ok) throw new Error('Network response was not ok');
-      return response.json() as Promise<Invitation[]>;
+      return response.json() as Promise<ActivityLog[]>;
     }
   });
+
+  // Filter for VMB invitations only
+  const vmbInvitations = activityLogs?.filter(log => 
+    log.type === 'vmb_invitation' && 
+    // If clientId is provided, filter by clientId
+    (clientId ? log.clientId === clientId : true) &&
+    // If salonId is provided, filter by salonId
+    (salonId ? log.salonId === salonId : true)
+  ) || [];
 
   if (isLoading) {
     return (
       <div className="space-y-2">
-        <Skeleton className="h-8 w-full" />
-        <Skeleton className="h-32 w-full" />
+        {[...Array(3)].map((_, i) => (
+          <Card key={i} className="overflow-hidden">
+            <CardContent className="p-4">
+              <div className="flex flex-col space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }
 
-  if (!invitations || invitations.length === 0) {
+  if (vmbInvitations.length === 0) {
     return (
-      <Card className="border-pink-100">
-        <CardHeader className="bg-pink-50 pb-3">
-          <CardTitle className="text-base">VMB Salon Invitations Sent</CardTitle>
-        </CardHeader>
-        <CardContent className="p-6">
-          <p className="text-gray-500 italic text-center">
-            No VMB salon invitations have been sent yet.
-          </p>
-        </CardContent>
-      </Card>
+      <p className="text-gray-500 italic text-center py-3">
+        No VMB salon invitations have been sent yet.
+      </p>
     );
   }
 
-  // Group invitations by sponsor
-  const groupedInvitations: Record<string, Invitation[]> = {};
-  
-  invitations.forEach(invitation => {
-    const sponsor = invitation.sponsor || 'Unknown Salon';
-    if (!groupedInvitations[sponsor]) {
-      groupedInvitations[sponsor] = [];
-    }
-    groupedInvitations[sponsor].push(invitation);
-  });
-
-  // Format phone number for display
-  const formatPhone = (phone: string) => {
-    // Show only last 3 digits for privacy
-    return phone.replace(/\d(?=\d{3})/g, "•");
-  };
+  function truncateDescription(description: string): string {
+    const maxLength = 80;
+    return description.length > maxLength
+      ? `${description.substring(0, maxLength)}...`
+      : description;
+  }
 
   return (
-    <Card className="border-pink-100">
-      <CardHeader className="bg-pink-50 pb-3">
-        <CardTitle className="text-base">VMB Salon Invitations Sent</CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="bg-pink-50 p-4">
-          <h3 className="text-base font-semibold mb-2">Salon to Client Invitations</h3>
-          
-          {Object.entries(groupedInvitations).map(([sponsor, sponsorInvitations]) => (
-            <div key={sponsor} className="mb-4">
-              {/* Sponsor header */}
-              <div className="bg-pink-50 px-4 py-2 font-semibold text-pink-700 border-b border-pink-200">
-                {sponsor}
+    <div className="space-y-3">
+      {vmbInvitations.map(log => (
+        <Card key={log.id} className="overflow-hidden border-pink-100 hover:border-pink-200 transition-colors">
+          <CardContent className="p-3">
+            <div className="flex flex-col">
+              <div className="flex items-start justify-between mb-1">
+                <div className="flex items-center">
+                  <MessageSquareIcon className="h-4 w-4 text-pink-500 mr-2" />
+                  <span className="font-medium text-sm">VMB Salon Invitation</span>
+                </div>
+                <Badge variant="outline" className="bg-pink-50 text-pink-600 border-pink-100">
+                  Sent
+                </Badge>
               </div>
               
-              {/* Invitations table */}
-              <div className="overflow-x-auto bg-white">
-                <table className="w-full">
-                  <thead>
-                    <tr className="text-left border-b">
-                      <th className="p-3 font-medium">Name</th>
-                      <th className="p-3 font-medium">Email</th>
-                      <th className="p-3 font-medium">Phone</th>
-                      <th className="p-3 font-medium">Status</th>
-                      <th className="p-3 font-medium">Date</th>
-                      <th className="p-3 font-medium text-right">Page</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sponsorInvitations.map(invitation => (
-                      <tr key={invitation.id} className="border-b">
-                        <td className="p-3">{invitation.name}</td>
-                        <td className="p-3">{invitation.email}</td>
-                        <td className="p-3">{formatPhone(invitation.phone)}</td>
-                        <td className="p-3">
-                          <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
-                            {invitation.status}
-                          </span>
-                        </td>
-                        <td className="p-3">{new Date(invitation.createdAt).toLocaleDateString()}</td>
-                        <td className="p-3 text-right">
-                          <a 
-                            href={`/invitation/${invitation.inviteHash}`}
-                            className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800"
-                          >
-                            <ExternalLinkIcon className="h-4 w-4" />
-                            View
-                          </a>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <p className="text-sm text-gray-700 mb-1">
+                {truncateDescription(log.description)}
+              </p>
+              
+              <div className="flex items-center mt-1 text-xs text-gray-500">
+                <CalendarIcon className="h-3 w-3 mr-1" />
+                {new Date(log.timestamp).toLocaleString()}
               </div>
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 }

@@ -929,6 +929,7 @@ export default function ClientDashboard() {
                       
                       {/* Recent VMB Invitations Sent - REDUCED PADDING */}
                       <div className="mt-8 border-t pt-2">
+                        <h3 className="font-semibold text-pink-700 mb-2">SALON TO CLIENT INVITATIONS</h3>
                         <RecentVmbInvitations clientId={client.id} />
                       </div>
                       
