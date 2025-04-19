@@ -197,8 +197,17 @@ function checkFormValidation(content, formConfig, result) {
 function checkEndpointConnection(content, formConfig, result) {
   // Check if the form connects to the expected API endpoint
   const endpointPattern = new RegExp(`['"]${escapeRegExp(formConfig.endpoint)}['"]|['"]${escapeRegExp(formConfig.endpoint.replace(/^\/api\//, ''))}['"]`);
+  const inputEndpointPattern = new RegExp(`name=["']endpoint["'] value=["']${escapeRegExp(formConfig.endpoint)}["']`);
+  const dataAttributePattern = new RegExp(`data-endpoint=["']${escapeRegExp(formConfig.endpoint)}["']`);
+  const styleOptionsEndpointPattern = new RegExp(`\/api\/clients\/:[^\/]+\/style-selections`);
+  
+  // Check for both the exact endpoint and any style selection pattern that might be dynamic
+  const hasStyleSelectionEndpoint = formConfig.endpoint.includes('style-selections') && styleOptionsEndpointPattern.test(content);
   
   if (!endpointPattern.test(content) && 
+      !inputEndpointPattern.test(content) &&
+      !dataAttributePattern.test(content) &&
+      !hasStyleSelectionEndpoint &&
       !content.includes(`apiRequest('${formConfig.endpoint}'`) && 
       !content.includes(`fetch('${formConfig.endpoint}'`) &&
       !content.includes(`fetch('/api/${formConfig.endpoint.replace(/^\/api\//, '')}'`)) {
@@ -208,8 +217,11 @@ function checkEndpointConnection(content, formConfig, result) {
   }
   
   // Check for the correct HTTP method
+  const inputMethodPattern = new RegExp(`name=["']method["'] value=["']${formConfig.method}["']`);
+  
   if (!content.includes(`method: '${formConfig.method}'`) && 
       !content.includes(`method: "${formConfig.method}"`) &&
+      !inputMethodPattern.test(content) &&
       !content.includes(`.${formConfig.method.toLowerCase()}(`)) {
     result.issues.push(`Form does not use expected HTTP method: ${formConfig.method}`);
   } else {

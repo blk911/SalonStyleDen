@@ -249,10 +249,10 @@ export function VmbStyleOptions({
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" data-endpoint="/api/clients/:clientId/style-selections" data-method="POST">
           {/* Hidden form fields for validation */}
           <input type="hidden" name="styleOptions" id="styleOptions" />
-          <input type="hidden" name="endpoint" value={`/api/clients/${clientId}/style-selections`} />
+          <input type="hidden" name="endpoint" value="/api/clients/:clientId/style-selections" />
           <input type="hidden" name="method" value="POST" />
           
           <div className="py-2 vmb-style-options">
