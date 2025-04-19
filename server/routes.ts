@@ -1217,60 +1217,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`PROMO CODE VALIDATION MODE: Checking for invitation/client with code: ${code}`);
       
-      // First, check if this code matches any invitation hash in the system
-      const invitationByHash = await storage.getInvitationByHash(code);
-      
-      if (invitationByHash) {
-        console.log(`Found invitation with matching hash: ${code}`);
+      // DYNAMIC DATABASE VALIDATION APPROACH
+      try {
+        // 1. Get all data from database for complete validation
+        console.log(`DYNAMIC VALIDATION: Fetching all database records to validate code ${code}`);
+        const [allClients, allInvitations, allSalons] = await Promise.all([
+          db.select().from(clients),
+          db.select().from(invitations),
+          db.select().from(storage.getSalonsTable())
+        ]);
         
-        // Check if a client already exists with this invitation's phone
-        if (invitationByHash.phone) {
-          const allClients = await db.select().from(clients);
-          const matchingClients = allClients.filter(client => 
-            client.phone && client.phone.replace(/\D/g, '') === invitationByHash.phone.replace(/\D/g, '')
-          );
+        console.log(`Found ${allClients.length} clients, ${allInvitations.length} invitations, ${allSalons.length} salons`);
+        
+        // 2. Check for direct hash match in invitations
+        const invitationByHash = allInvitations.find(inv => inv.inviteHash === code);
+        if (invitationByHash) {
+          console.log(`Found invitation with matching hash: ${code}`);
           
-          if (matchingClients.length > 0) {
-            // Found an existing client, return their ID
-            matchingClient = matchingClients[0];
-            console.log(`Found client by invitation phone: ${matchingClient.id}`);
+          // Check if a client already exists with this invitation's phone
+          if (invitationByHash.phone) {
+            const matchingClients = allClients.filter(client => 
+              client.phone && client.phone.replace(/\D/g, '') === invitationByHash.phone.replace(/\D/g, '')
+            );
             
-            return res.status(200).json({ 
-              success: true,
-              message: "Code validated successfully",
-              clientId: matchingClient.id,
-              name: matchingClient.name,
-              phone: matchingClient.phone,
-              email: matchingClient.email
-            });
+            if (matchingClients.length > 0) {
+              // Found an existing client, return their ID
+              matchingClient = matchingClients[0];
+              console.log(`SUCCESS: Found client by invitation phone: ${matchingClient.id}`);
+              
+              return res.status(200).json({ 
+                success: true,
+                message: "Code validated successfully (invitation hash)",
+                clientId: matchingClient.id,
+                name: matchingClient.name,
+                phone: matchingClient.phone,
+                email: matchingClient.email
+              });
+            }
           }
         }
-      }
-      
-      // DEVELOPMENT MODE - Check if code matches last 4 digits of phone
-      if (phone) {
-        const cleanPhone = phone.replace(/\D/g, '');
-        const last4Digits = cleanPhone.slice(-4);
         
-        if (code === last4Digits) {
-          console.log(`DEVELOPMENT MODE: Code ${code} matches last 4 digits of phone ${phone}`);
+        // 3. Check for clients with phone numbers ending with this code
+        const clientsWithMatchingPhone = allClients.filter(client => {
+          if (!client.phone) return false;
+          const clientPhone = client.phone.replace(/\D/g, '');
+          return clientPhone.slice(-4) === code;
+        });
+        
+        if (clientsWithMatchingPhone.length > 0) {
+          matchingClient = clientsWithMatchingPhone[0];
+          console.log(`SUCCESS: Found client with phone ending in ${code}: ${matchingClient.id}`);
           
-          const allClients = await db.select().from(clients);
+          return res.status(200).json({ 
+            success: true,
+            message: "Code validated successfully (last 4 digits of client phone)",
+            clientId: matchingClient.id,
+            name: matchingClient.name,
+            phone: matchingClient.phone,
+            email: matchingClient.email
+          });
+        }
+        
+        // 4. Check for invitations with phone numbers ending with this code
+        const invitationsWithMatchingPhone = allInvitations.filter(invitation => {
+          if (!invitation.phone) return false;
+          const invitationPhone = invitation.phone.replace(/\D/g, '');
+          return invitationPhone.slice(-4) === code;
+        });
+        
+        if (invitationsWithMatchingPhone.length > 0) {
+          const invitation = invitationsWithMatchingPhone[0];
+          console.log(`Found invitation with phone ending in ${code}: ${invitation.id}`);
           
-          // Find clients with matching last 4 digits
-          const matchingClients = allClients.filter(client => {
-            if (!client.phone) return false;
-            const clientPhone = client.phone.replace(/\D/g, '');
-            return clientPhone.endsWith(last4Digits);
+          // Check if there's already a client with this phone
+          const clientsWithInvitationPhone = allClients.filter(client => {
+            if (!client.phone || !invitation.phone) return false;
+            return client.phone.replace(/\D/g, '') === invitation.phone.replace(/\D/g, '');
           });
           
-          if (matchingClients.length > 0) {
-            matchingClient = matchingClients[0];
-            console.log(`Found client by last 4 digits: ${matchingClient.id}`);
+          if (clientsWithInvitationPhone.length > 0) {
+            matchingClient = clientsWithInvitationPhone[0];
+            console.log(`SUCCESS: Found client for invitation: ${matchingClient.id}`);
             
             return res.status(200).json({ 
               success: true,
-              message: "Code validated successfully (last 4 digits)",
+              message: "Code validated successfully (invitation phone match)",
               clientId: matchingClient.id,
               name: matchingClient.name,
               phone: matchingClient.phone,
@@ -1278,6 +1309,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
           }
         }
+        
+        // 5. Compare with salons data as fallback
+        const salonsWithMatchingPhone = allSalons.filter(salon => {
+          if (!salon.phone) return false;
+          const salonPhone = salon.phone.replace(/\D/g, '');
+          return salonPhone.slice(-4) === code;
+        });
+        
+        if (salonsWithMatchingPhone.length > 0) {
+          console.log(`Found salon with phone ending in ${code}`);
+          
+          // Check if any clients have this salon as sponsor
+          const clientsWithSponsor = allClients.filter(client => 
+            client.sponsorSalonId === salonsWithMatchingPhone[0].id
+          );
+          
+          if (clientsWithSponsor.length > 0) {
+            matchingClient = clientsWithSponsor[0];
+            console.log(`SUCCESS: Found client with salon sponsor: ${matchingClient.id}`);
+            
+            return res.status(200).json({
+              success: true,
+              message: "Code validated successfully (salon sponsor match)",
+              clientId: matchingClient.id,
+              name: matchingClient.name,
+              phone: matchingClient.phone,
+              email: matchingClient.email
+            });
+          }
+        }
+      } catch (validationError) {
+        console.error("Error during dynamic validation:", validationError);
       }
       
       // No client or invitation found - return error and redirect to home

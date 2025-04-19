@@ -48,6 +48,9 @@ export interface IStorage {
   createActivityLog(activityLog: InsertActivityLog): Promise<ActivityLog>;
   getRecentActivityLogs(limit?: number): Promise<ActivityLog[]>;
   logVmbInvitationSent(clientId: number, salonId: number, styleId: number): Promise<ActivityLog>;
+  
+  // Schema access methods (for dynamic validation)
+  getSalonsTable(): typeof salons;
 }
 
 export class DatabaseStorage implements IStorage {
