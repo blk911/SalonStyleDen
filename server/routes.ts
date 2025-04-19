@@ -513,9 +513,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
-        // No match found, create a new client
-        const client = await storage.createClient(validatedData);
-        console.log('Created client with ID:', client.id);
+        // Handle sponsor logic before creating client
+        // Default sponsor if none is provided
+        let sponsorName = req.body.sponsor || "Ven Me, Baby! LTD";
+        let sponsorSalonId = null;
+
+        // 1. If salonId is provided, use that salon as sponsor
+        if (validatedData.salonId) {
+          // Get the selected salon to use as sponsor
+          const sponsorSalon = await storage.getSalon(validatedData.salonId);
+          if (sponsorSalon) {
+            sponsorName = sponsorSalon.name;
+            sponsorSalonId = sponsorSalon.id;
+            console.log(`Using selected salon as sponsor: ${sponsorName} (ID: ${sponsorSalonId})`);
+          }
+        } 
+        // 2. Default is Ven Me, Baby! LTD (ID: 12) if no salon selected
+        else if (sponsorName === "Ven Me, Baby! LTD") {
+          sponsorSalonId = 12; // VMB Ltd ID
+          console.log(`Using default sponsor: ${sponsorName} (ID: ${sponsorSalonId})`);
+        }
+
+        // Add sponsor info to validatedData
+        const clientData = {
+          ...validatedData,
+          sponsor: sponsorName,
+          sponsorSalonId: sponsorSalonId
+        };
+
+        // Create client with sponsor information
+        const client = await storage.createClient(clientData);
+        console.log('Created client with ID:', client.id, 'Sponsor:', sponsorName, 'SponsorID:', sponsorSalonId);
 
         // Return the client data
         res.status(201).json(client);
@@ -1245,13 +1273,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
               matchingClient = matchingClients[0];
               console.log(`SUCCESS: Found client by invitation phone: ${matchingClient.id}`);
               
+              // Get sponsor information from the invitation
+              const sponsorName = invitationByHash.sponsor || "Ven Me, Baby! LTD";
+              const sponsorSalonId = invitationByHash.salonId || 12;
+              
+              console.log(`Using sponsor from invitation: ${sponsorName} (ID: ${sponsorSalonId})`);
+              
               return res.status(200).json({ 
                 success: true,
                 message: "Code validated successfully (invitation hash)",
                 clientId: matchingClient.id,
                 name: matchingClient.name,
                 phone: matchingClient.phone,
-                email: matchingClient.email
+                email: matchingClient.email,
+                sponsor: sponsorName,
+                sponsorSalonId: sponsorSalonId
               });
             }
           }
@@ -1268,13 +1304,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
           matchingClient = clientsWithMatchingPhone[0];
           console.log(`SUCCESS: Found client with phone ending in ${code}: ${matchingClient.id}`);
           
+          // Get sponsor information for client
+          const sponsorName = matchingClient.sponsor || "Ven Me, Baby! LTD";
+          const sponsorSalonId = matchingClient.sponsorSalonId || 12;
+          
+          console.log(`Using sponsor from client record: ${sponsorName} (ID: ${sponsorSalonId})`);
+          
           return res.status(200).json({ 
             success: true,
             message: "Code validated successfully (last 4 digits of client phone)",
             clientId: matchingClient.id,
             name: matchingClient.name,
             phone: matchingClient.phone,
-            email: matchingClient.email
+            email: matchingClient.email,
+            sponsor: sponsorName,
+            sponsorSalonId: sponsorSalonId
           });
         }
         
@@ -1299,13 +1343,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             matchingClient = clientsWithInvitationPhone[0];
             console.log(`SUCCESS: Found client for invitation: ${matchingClient.id}`);
             
+            // Get sponsor information from the client
+            const sponsorName = matchingClient.sponsor || "Ven Me, Baby! LTD";
+            const sponsorSalonId = matchingClient.sponsorSalonId || 12;
+            
+            console.log(`Using sponsor from client record: ${sponsorName} (ID: ${sponsorSalonId})`);
+            
             return res.status(200).json({ 
               success: true,
               message: "Code validated successfully (invitation phone match)",
               clientId: matchingClient.id,
               name: matchingClient.name,
               phone: matchingClient.phone,
-              email: matchingClient.email
+              email: matchingClient.email,
+              sponsor: sponsorName,
+              sponsorSalonId: sponsorSalonId
             });
           }
         }
@@ -1329,13 +1381,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
             matchingClient = clientsWithSponsor[0];
             console.log(`SUCCESS: Found client with salon sponsor: ${matchingClient.id}`);
             
+            // Get sponsor information from the client (should match the salon we found)
+            const sponsorSalon = salonsWithMatchingPhone[0];
+            const sponsorName = sponsorSalon.name || "Ven Me, Baby! LTD";
+            const sponsorSalonId = sponsorSalon.id || 12;
+            
+            console.log(`Using sponsor salon: ${sponsorName} (ID: ${sponsorSalonId})`);
+            
             return res.status(200).json({
               success: true,
               message: "Code validated successfully (salon sponsor match)",
               clientId: matchingClient.id,
               name: matchingClient.name,
               phone: matchingClient.phone,
-              email: matchingClient.email
+              email: matchingClient.email,
+              sponsor: sponsorName,
+              sponsorSalonId: sponsorSalonId
             });
           }
         }
