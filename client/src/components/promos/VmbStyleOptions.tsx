@@ -7,6 +7,10 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '../../lib/apiRequest';
 import { getImageUrl } from '../../lib/utils';
 import { useLocation } from 'wouter';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form } from '@/components/ui/form';
 
 interface StyleOption {
   id: number;
