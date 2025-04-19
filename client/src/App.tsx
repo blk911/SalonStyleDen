@@ -17,6 +17,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import TestImagePage from "@/pages/TestImagePage";
 import NetworkVisualization from "@/pages/NetworkVisualization";
 import InvitationPage from "@/pages/InvitationPage";
+import ClientRegistrationPage from "@/pages/ClientRegistrationPage";
 
 function Router() {
   return (
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/salon/:id" component={SalonPublicPage} />
       <Route path="/dashboard/salon/:id" component={SalonDashboard} />
       <Route path="/client/:id" component={ClientDashboard} />
+      <Route path="/client/register" component={ClientRegistrationPage} />
       <Route path="/clients" component={ClientsPage} />
       <Route path="/salons" component={SalonsPage} />
       <Route path="/invitation/:hash" component={InvitationPage} />
