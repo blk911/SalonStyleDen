@@ -88,14 +88,10 @@ export function ContactValidationDialog({
             {errorField === 'phone' ? (
               <div className="space-y-5">
                 <div className="text-center">
-                  <h4 className="text-lg font-medium text-gray-700 mb-5">Are you an existing client?</h4>
-                  
-                  <p className="text-gray-600 mb-5">
-                    You may have received a <BrandName size="sm" inline /> Invitation.
-                  </p>
+                  <h4 className="text-lg font-medium text-gray-700 mb-5">{errorMessage}</h4>
                   
                   <p className="text-gray-600 mb-6">
-                    Check your messages. If you have a promo code:
+                    You may have received a <BrandName size="sm" inline /> Invitation.
                   </p>
                   
                   <div className="flex flex-col sm:flex-row justify-center gap-3">
@@ -108,10 +104,23 @@ export function ContactValidationDialog({
                     </Button>
                     
                     <Button 
-                      onClick={handleEnterPromoCode} 
+                      onClick={handleEnterPromoCode}
                       className="bg-pink-500 hover:bg-pink-600 w-full sm:w-auto px-6"
                     >
-                      Enter Promo Code
+                      Yes
+                    </Button>
+                    
+                    <Button 
+                      onClick={() => {
+                        // Close the dialog and open PromoCodeDialog in phone validation mode
+                        onClose();
+                        
+                        // Open the PromoCodeDialog with phone number
+                        setShowPromoCodeDialog(true);
+                      }}
+                      className="bg-gray-500 hover:bg-gray-600 w-full sm:w-auto px-6"
+                    >
+                      No
                     </Button>
                   </div>
                 </div>

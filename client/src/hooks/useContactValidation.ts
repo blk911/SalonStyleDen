@@ -101,7 +101,7 @@ export function useContactValidation(options: ValidationOptions = {}) {
           if (type === 'phone' || (data.error && data.error.includes('phone'))) {
             setPhoneExists(true);
             setErrorField('phone');
-            setErrorMessage('This phone number is already registered in our system.');
+            setErrorMessage('Check your messages. DO YOU HAVE A PROMO CODE?');
           } else {
             setEmailExists(true);
             setErrorField('email');
@@ -133,7 +133,7 @@ export function useContactValidation(options: ValidationOptions = {}) {
         if (type === 'phone') {
           setPhoneExists(true);
           setErrorField('phone');
-          setErrorMessage('This phone number is already registered in our system.');
+          setErrorMessage('Check your messages. DO YOU HAVE A PROMO CODE?');
         } else {
           setEmailExists(true);
           setErrorField('email');
