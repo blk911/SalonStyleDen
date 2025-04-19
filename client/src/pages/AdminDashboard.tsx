@@ -316,10 +316,19 @@ export default function AdminDashboard() {
                           <Badge className="mr-2 bg-pink-100 text-pink-700 border-pink-200">
                             {salonInvites.length} Invitations
                           </Badge>
-                          <button className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center">
+                          <Link 
+                            to={`/salon/${salonInvites[0]?.salonId}`}
+                            className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent triggering the salon header click
+                              if (salonInvites[0]?.salonId) {
+                                setLocation(`/salon/${salonInvites[0].salonId}`);
+                              }
+                            }}
+                          >
                             <span className="hidden md:inline mr-1">View Salon</span>
                             <ExternalLinkIcon className="h-3 w-3" />
-                          </button>
+                          </Link>
                         </div>
                       </div>
                       
@@ -354,13 +363,17 @@ export default function AdminDashboard() {
                                 </td>
                                 <td className="py-2 px-4">{new Date(invitation.createdAt).toLocaleDateString()}</td>
                                 <td className="py-2 px-4 text-right">
-                                  <a 
-                                    href={`/invitation/${invitation.inviteHash}`}
-                                    className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800"
+                                  <Link 
+                                    to={`/invitation/${invitation.inviteHash}`}
+                                    className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
+                                    onClick={() => {
+                                      // Navigate to client invitation page using the invitation hash
+                                      setLocation(`/invitation/${invitation.inviteHash}`);
+                                    }}
                                   >
                                     <ExternalLinkIcon className="h-4 w-4" />
                                     View
-                                  </a>
+                                  </Link>
                                 </td>
                               </tr>
                             ))}
@@ -485,16 +498,20 @@ export default function AdminDashboard() {
                           {/* Actions */}
                           <TableCell className="py-0 text-right">
                             <div className="flex justify-end gap-1">
-                              <Link href={`/client/${client.id}`}>
-                                <button className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]">
-                                  Client
-                                </button>
+                              <Link 
+                                to={`/client/${client.id}`}
+                                onClick={() => setLocation(`/client/${client.id}`)}
+                                className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]"
+                              >
+                                Client
                               </Link>
                               {client.salonId && (
-                                <Link href={`/salon/${client.salonId}`}>
-                                  <button className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200">
-                                    Salon
-                                  </button>
+                                <Link 
+                                  to={`/salon/${client.salonId}`}
+                                  onClick={() => setLocation(`/salon/${client.salonId}`)}
+                                  className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200"
+                                >
+                                  Salon
                                 </Link>
                               )}
                             </div>
@@ -536,10 +553,12 @@ export default function AdminDashboard() {
                           <TableCell className="py-0">{salon.phone}</TableCell>
                           <TableCell className="py-0 text-right">
                             <div className="flex justify-end gap-1">
-                              <Link href={`/salon/${salon.id}`.replace(/\/\//g, '/')}>
-                                <button className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200">
-                                  Salon Page
-                                </button>
+                              <Link 
+                                to={`/salon/${salon.id}`}
+                                onClick={() => setLocation(`/salon/${salon.id}`)}
+                                className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200"
+                              >
+                                Salon Page
                               </Link>
                             </div>
                           </TableCell>
