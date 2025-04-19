@@ -141,11 +141,14 @@ export function PromoCodeDialog({
       }
       
       // Verify invitation based on validation mode
+      // IMPORTANT: Always include phone number regardless of validation mode
+      // This allows the server to check for matches between promo code and phone
       const response = await apiRequest("/api/invitations/validate", {
         method: "POST",
         body: JSON.stringify({
           code: validationMode === 'promo' ? promoCode : '',
-          phone: validationMode === 'phone' ? phoneNumber : (phone || ""),
+          // ALWAYS pass the phone number with both validation modes
+          phone: phoneNumber || phone || "",
           salonId: salonId || undefined,
           validationMode: validationMode,
         }),
