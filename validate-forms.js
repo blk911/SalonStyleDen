@@ -53,7 +53,7 @@ const FORM_COMPONENTS = [
   {
     name: 'Style Selection Form',
     file: 'client/src/components/promos/VmbStyleOptions.tsx',
-    endpoint: '/api/style-selections',
+    endpoint: '/api/clients/:clientId/style-selections',
     method: 'POST',
     requiredFields: ['clientId', 'styleOptions'],
   },
@@ -214,16 +214,46 @@ async function verifyEndpointImplementation(formConfig, result) {
   
   const routesContent = await fs.readFile(routesFile, 'utf8');
   const methodLower = formConfig.method.toLowerCase();
-  const endpointPattern = new RegExp(`app\\.${methodLower}\\(['"]${escapeRegExp(formConfig.endpoint)}['"]`);
   
-  if (!endpointPattern.test(routesContent)) {
+  // Extract the endpoint path without the /api prefix
+  const apiPrefix = '/api';
+  const endpointPath = formConfig.endpoint.startsWith(apiPrefix) 
+    ? formConfig.endpoint.substring(apiPrefix.length) 
+    : formConfig.endpoint;
+  
+  // Create endpoint pattern that can handle dynamic routes (with :param)
+  // Convert endpoint patterns like /clients/:clientId/style-selections to regex
+  const dynamicEndpoint = endpointPath.replace(/:[^\/]+/g, '[^/]+');
+  
+  // Look for either app.METHOD or apiRouter.METHOD patterns
+  const endpointPatterns = [
+    new RegExp(`app\\.${methodLower}\\(['"]${escapeRegExp(formConfig.endpoint)}['"]`),
+    new RegExp(`apiRouter\\.${methodLower}\\(['"]${escapeRegExp(endpointPath)}['"]`),
+    new RegExp(`apiRouter\\.${methodLower}\\(['"]${escapeRegExp(dynamicEndpoint)}['"]`),
+    new RegExp(`apiRouter\\.${methodLower}\\(['"]\\/clients\\/.*?style-selections['"]`)
+  ];
+  
+  const endpointExists = endpointPatterns.some(pattern => pattern.test(routesContent));
+  
+  if (!endpointExists) {
     result.issues.push(`Endpoint ${formConfig.method} ${formConfig.endpoint} not implemented in server routes`);
   } else {
     result.checks.push(`Endpoint ${formConfig.method} ${formConfig.endpoint} implemented in server routes`);
     
     // Check if the endpoint implementation uses proper error handling
-    const endpointImplementationPattern = new RegExp(`app\\.${methodLower}\\(['"]${escapeRegExp(formConfig.endpoint)}['"].*?\\{([\\s\\S]*?)\\}\\);`, 's');
-    const match = endpointImplementationPattern.exec(routesContent);
+    // Look for implementation in either app or apiRouter, with support for dynamic routes
+    const endpointImplementationPatterns = [
+      new RegExp(`app\\.${methodLower}\\(['"]${escapeRegExp(formConfig.endpoint)}['"].*?\\{([\\s\\S]*?)\\}\\);`, 's'),
+      new RegExp(`apiRouter\\.${methodLower}\\(['"]${escapeRegExp(endpointPath)}['"].*?\\{([\\s\\S]*?)\\}\\);`, 's'),
+      new RegExp(`apiRouter\\.${methodLower}\\(['"]\\/clients\\/.*?style-selections['"].*?\\{([\\s\\S]*?)\\}\\);`, 's')
+    ];
+    
+    // Check each pattern and use the first match
+    let match = null;
+    for (const pattern of endpointImplementationPatterns) {
+      match = pattern.exec(routesContent);
+      if (match) break;
+    }
     
     if (match) {
       const implementationCode = match[1];
