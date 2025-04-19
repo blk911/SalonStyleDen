@@ -1145,6 +1145,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Get invitation by ID
+  apiRouter.get("/invitations/:id([0-9]+)", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      const invitation = await storage.getInvitation(id);
+      if (!invitation) {
+        return res.status(404).json({ error: "Invitation not found" });
+      }
+      
+      res.json(invitation);
+    } catch (error) {
+      console.error('Error retrieving invitation:', error);
+      res.status(500).json({ error: "Failed to retrieve invitation" });
+    }
+  });
+  
   // Get invitation by hash
   apiRouter.get("/invitations/by-hash/:hash", async (req: Request, res: Response) => {
     try {
@@ -1209,7 +1229,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Now check if a client already exists with this phone
         const allClients = await db.select().from(clients);
         
-        // First try to find exact matches
+        // First try to find exact matches in clients
         const exactMatches = allClients.filter(client => 
           client.phone && client.phone.replace(/\D/g, '') === cleanPhone
         );
@@ -1229,7 +1249,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
         
-        // If no exact match, try last 4 digits
+        // If no exact match in clients, try last 4 digits
         const partialMatches = allClients.filter(client => 
           client.phone && client.phone.replace(/\D/g, '').slice(-4) === last4Digits
         );
@@ -1249,7 +1269,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
         
-        // No client found, return to home page
+        // ALSO check invitations for phone matches
+        const allInvitations = await db.select().from(invitations);
+        
+        // Check for exact phone matches in invitations
+        const exactInvitationMatches = allInvitations.filter(invitation => 
+          invitation.phone && invitation.phone.replace(/\D/g, '') === cleanPhone
+        );
+        
+        if (exactInvitationMatches.length > 0) {
+          const invitation = exactInvitationMatches[0];
+          console.log(`Found invitation with exact phone match: ${invitation.id}`);
+          
+          // Return the invitation info
+          return res.status(200).json({ 
+            success: true,
+            invitation: true,
+            message: "Found invitation with matching phone",
+            invitationId: invitation.id,
+            name: invitation.name,
+            phone: invitation.phone,
+            email: invitation.email,
+            inviteHash: invitation.inviteHash,
+            salonId: invitation.salonId,
+            sponsor: invitation.sponsor
+          });
+        }
+        
+        // Check for last 4 digits match in invitations
+        const partialInvitationMatches = allInvitations.filter(invitation => 
+          invitation.phone && invitation.phone.replace(/\D/g, '').slice(-4) === last4Digits
+        );
+        
+        if (partialInvitationMatches.length > 0) {
+          const invitation = partialInvitationMatches[0];
+          console.log(`Found invitation with last 4 digits match: ${invitation.id}`);
+          
+          // Return the invitation info
+          return res.status(200).json({ 
+            success: true,
+            invitation: true,
+            message: "Found invitation with matching phone (last 4 digits)",
+            invitationId: invitation.id,
+            name: invitation.name,
+            phone: invitation.phone,
+            email: invitation.email,
+            inviteHash: invitation.inviteHash,
+            salonId: invitation.salonId,
+            sponsor: invitation.sponsor
+          });
+        }
+        
+        // No client or invitation found, return to home page
         return res.status(400).json({ 
           error: "No client found with this phone number. Please try again or register as a new client.", 
           redirect: 'home'
