@@ -287,10 +287,10 @@ export default function AdminDashboard() {
           </Card>
 
           <div className="grid gap-6">
-            {/* Client Invitations Table */}
+            {/* Salon to Client Invitations Table */}
             <Card>
               <CardContent className="p-4">
-                <h2 className="text-xl font-semibold mb-4">Client Invitations</h2>
+                <h2 className="text-xl font-semibold mb-4">Salon to Client Invitations</h2>
                 <ScrollArea className="h-[300px]">
                   <Table>
                     <TableHeader>
