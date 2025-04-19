@@ -13,7 +13,8 @@ export default function Sitemap() {
             <h2 className="text-xl font-semibold mb-4">/ (Root)</h2>
             <ul className="space-y-2 pl-6 border-l-2 border-pink-200">
               <li><Link href="/" className="text-pink-600 hover:underline">Home Page</Link></li>
-              <li><Link href="/promos" className="text-pink-600 hover:underline">Promotions Page</Link></li>
+              {/* Temporarily commented out until Promos page is enabled */}
+              {/* <li><Link href="/promos" className="text-pink-600 hover:underline">Promotions Page</Link></li> */}
             </ul>
           </section>
 
@@ -26,11 +27,11 @@ export default function Sitemap() {
                 <span className="text-gray-600">/:id (Dynamic Routes)</span>
                 <ul className="pl-4 mt-2 space-y-2">
                   <li>
-                    {/* ⚠️ CRITICAL: For demo only! These hardcoded IDs must be replaced with dynamic salon IDs in production ⚠️ */}
-                    <Link href="/salon/1" className="text-pink-600 hover:underline">Public Salon Profile</Link>
+                    {/* Example path shown for documentation purposes */}
+                    <span className="text-gray-600">Public Salon Profile (Example path: /salon/{'{id}'})</span>
                   </li>
                   <li>
-                    <Link href="/dashboard/salon/1" className="text-pink-600 hover:underline">Salon Dashboard</Link>
+                    <span className="text-gray-600">Salon Dashboard (Example path: /dashboard/salon/{'{id}'})</span>
                   </li>
                 </ul>
               </li>
@@ -41,13 +42,13 @@ export default function Sitemap() {
           <section>
             <h2 className="text-xl font-semibold mb-4">/client</h2>
             <ul className="space-y-2 pl-6 border-l-2 border-pink-200">
-              <li><Link href="/register/client" className="text-pink-600 hover:underline">Client Registration</Link></li>
+              <li><Link href="/clients" className="text-pink-600 hover:underline">Client Registration</Link></li>
               <li className="pl-4 border-l border-pink-100">
                 <span className="text-gray-600">/:id (Dynamic Routes)</span>
                 <ul className="pl-4 mt-2">
                   <li>
-                    {/* ⚠️ CRITICAL: For demo only! This hardcoded ID must be replaced with dynamic client IDs in production ⚠️ */}
-                    <Link href="/client/1" className="text-pink-600 hover:underline">Client Dashboard</Link>
+                    {/* Example path shown for documentation purposes */}
+                    <span className="text-gray-600">Client Dashboard (Example path: /client/{'{id}'})</span>
                   </li>
                 </ul>
               </li>
