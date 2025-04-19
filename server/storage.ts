@@ -307,38 +307,55 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createClient(insertClient: InsertClient): Promise<Client> {
-    // Check for duplicates
-    const duplicateCheck = await this.isDuplicateContact(insertClient.phone, insertClient.email);
-    if (duplicateCheck.isDuplicate) {
-      // Enhance the error with more details by creating a custom error object
-      const duplicateError = new Error(`This ${duplicateCheck.field} is already registered`);
-      
-      // Find the existing client record for this duplicate contact
-      const existingClients = await db.select().from(clients);
+    // First check if this is a phone in invitations but not in clients
+    if (insertClient.phone) {
+      const invitations = await this.getInvitationsByPhone(insertClient.phone);
+      const allClients = await db.select().from(clients);
       
       // Standardize phone format for comparison
-      const cleanPhone = insertClient.phone?.replace(/\D/g, '');
+      const cleanPhone = insertClient.phone.replace(/\D/g, '');
       
-      // Find matching client based on the duplicate field
-      let existingClient: Client | undefined;
+      // Check if phone exists in clients
+      const clientExists = allClients.some(c => 
+        c.phone && c.phone.replace(/\D/g, '') === cleanPhone
+      );
       
-      if (duplicateCheck.field === 'phone' && cleanPhone) {
-        existingClient = existingClients.find(c => 
-          c.phone && c.phone.replace(/\D/g, '') === cleanPhone
-        );
-      } else if (duplicateCheck.field === 'email' && insertClient.email) {
-        const lowercaseEmail = insertClient.email.toLowerCase();
-        existingClient = existingClients.find(c => 
-          c.email && c.email.toLowerCase() === lowercaseEmail
-        );
+      // If phone exists in invitations but not in clients, this is a valid registration
+      if (invitations.length > 0 && !clientExists) {
+        console.log('DatabaseStorage.createClient - Phone exists in invitations but not clients, proceeding with registration');
+        // Continue with client creation below
+      } else {
+        // Check for duplicates using the normal flow
+        const duplicateCheck = await this.isDuplicateContact(insertClient.phone, insertClient.email);
+        if (duplicateCheck.isDuplicate) {
+          // Enhance the error with more details by creating a custom error object
+          const duplicateError = new Error(`This ${duplicateCheck.field} is already registered`);
+          
+          // Find the existing client record for this duplicate contact
+          const existingClients = await db.select().from(clients);
+          
+          // Find matching client based on the duplicate field
+          let existingClient: Client | undefined;
+          
+          if (duplicateCheck.field === 'phone' && cleanPhone) {
+            existingClient = existingClients.find(c => 
+              c.phone && c.phone.replace(/\D/g, '') === cleanPhone
+            );
+          } else if (duplicateCheck.field === 'email' && insertClient.email) {
+            const lowercaseEmail = insertClient.email.toLowerCase();
+            existingClient = existingClients.find(c => 
+              c.email && c.email.toLowerCase() === lowercaseEmail
+            );
+          }
+          
+          // Add custom properties to the error for better handling in routes
+          (duplicateError as any).status = 'duplicate';
+          (duplicateError as any).field = duplicateCheck.field;
+          (duplicateError as any).client = existingClient;
+          
+          throw duplicateError;
+        }
       }
-      
-      // Add custom properties to the error for better handling in routes
-      (duplicateError as any).status = 'duplicate';
-      (duplicateError as any).field = duplicateCheck.field;
-      (duplicateError as any).client = existingClient;
-      
-      throw duplicateError;
     }
     
     // Proceed with creating the client
