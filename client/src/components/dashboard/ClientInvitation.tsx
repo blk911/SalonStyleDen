@@ -246,7 +246,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   return (
     <div className="space-y-6">
       <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Send Client Invitation</h3>
+        <h3 className="text-lg font-semibold mb-4">Send Salon to Client Invitation</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Line 1: Name and Phone */}
           <div className="flex gap-4">
@@ -377,7 +377,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
 
       {/* Recent Invitations List */}
       <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Recent Client Invitations</h3>
+        <h3 className="text-lg font-semibold mb-4">Recent Salon to Client Invitations</h3>
         {recentInvites.length === 0 ? (
           <p className="text-center text-gray-500 my-4">No invitations have been sent yet.</p>
         ) : (
