@@ -451,17 +451,32 @@ export default function ClientForm() {
                         placeholder="Email" 
                         className={emailExists ? "border-red-500" : ""}
                         onChange={(e) => {
-                          // Use the onChange handler from validation hook
-                          const value = emailProps.onChange(e);
+                          // Check for email format before triggering validation
+                          const value = e.target.value;
                           field.onChange(value);
+                          
+                          // Only trigger validation when there's a reasonably formatted email
+                          // to avoid premature validation errors during typing
+                          if (value && value.includes('@') && value.includes('.') && 
+                              value.indexOf('@') < value.lastIndexOf('.')) {
+                            // Use the onChange handler from validation hook
+                            emailProps.onChange(e);
+                          } else if (emailExists) {
+                            // Reset error state when editing to an invalid format
+                            setEmailExists(false);
+                          }
                         }}
-                        onBlur={emailProps.onBlur ? 
-                          (e) => {
-                            field.onBlur();
-                            emailProps.onBlur?.(e);
-                          } : 
-                          field.onBlur
-                        }
+                        onBlur={(e) => {
+                          field.onBlur();
+                          
+                          // Only validate on blur if the field has a valid-looking email
+                          const value = e.target.value;
+                          if (value && value.includes('@') && value.includes('.') && 
+                              value.indexOf('@') < value.lastIndexOf('.')) {
+                            // Validate email on blur
+                            validateContact('email', value);
+                          }
+                        }}
                       />
                     </FormControl>
                     {emailExists && (

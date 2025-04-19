@@ -406,6 +406,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Contact validation endpoint - handles both email and phone validation
+  apiRouter.post("/validate-contact", async (req: Request, res: Response) => {
+    try {
+      const { phone, email, type } = req.body;
+      
+      console.log(`Validating contact: phone=${phone}, email=${email}, type=${type}`);
+      
+      if (!phone && !email) {
+        return res.status(400).json({
+          exists: false,
+          error: "At least one contact method (phone or email) must be provided"
+        });
+      }
+      
+      // Reuse existing duplicate check functionality from storage
+      const result = await storage.isDuplicateContact(
+        phone || "", 
+        email || ""
+      );
+      
+      return res.json({
+        exists: result.isDuplicate,
+        field: result.field
+      });
+    } catch (error) {
+      console.error("Error validating contact:", error);
+      return res.status(500).json({
+        exists: false,
+        error: "Server error during validation"
+      });
+    }
+  });
+
   // Client routes
   apiRouter.post("/clients", async (req: Request, res: Response) => {
     try {
