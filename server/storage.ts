@@ -294,7 +294,35 @@ async createClient(insertClient: InsertClient): Promise<Client> {
     // Check for duplicates
     const duplicateCheck = await this.isDuplicateContact(insertClient.phone, insertClient.email);
     if (duplicateCheck.isDuplicate) {
-      throw new Error(`This ${duplicateCheck.field} is already registered`);
+      // Enhance the error with more details by creating a custom error object
+      const duplicateError = new Error(`This ${duplicateCheck.field} is already registered`);
+      
+      // Find the existing client record for this duplicate contact
+      const existingClients = await db.select().from(clients);
+      
+      // Standardize phone format for comparison
+      const cleanPhone = insertClient.phone?.replace(/\D/g, '');
+      
+      // Find matching client based on the duplicate field
+      let existingClient: Client | undefined;
+      
+      if (duplicateCheck.field === 'phone' && cleanPhone) {
+        existingClient = existingClients.find(c => 
+          c.phone && c.phone.replace(/\D/g, '') === cleanPhone
+        );
+      } else if (duplicateCheck.field === 'email' && insertClient.email) {
+        const lowercaseEmail = insertClient.email.toLowerCase();
+        existingClient = existingClients.find(c => 
+          c.email && c.email.toLowerCase() === lowercaseEmail
+        );
+      }
+      
+      // Add custom properties to the error for better handling in routes
+      (duplicateError as any).status = 'duplicate';
+      (duplicateError as any).field = duplicateCheck.field;
+      (duplicateError as any).client = existingClient;
+      
+      throw duplicateError;
     }
 
     // Ensure required fields are set with proper formatting
