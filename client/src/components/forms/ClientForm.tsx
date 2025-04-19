@@ -457,14 +457,9 @@ export default function ClientForm() {
                           
                           // Only trigger validation when there's a reasonably formatted email
                           // to avoid premature validation errors during typing
-                          if (value && value.includes('@') && value.includes('.') && 
-                              value.indexOf('@') < value.lastIndexOf('.')) {
-                            // Use the onChange handler from validation hook
-                            emailProps.onChange(e);
-                          } else if (emailExists) {
-                            // Reset error state when editing to an invalid format
-                            setEmailExists(false);
-                          }
+                          // Always use the onChange handler from validation hook
+                          // It will handle both valid format validation and resetting error states
+                          emailProps.onChange(e);
                         }}
                         onBlur={(e) => {
                           field.onBlur();
