@@ -883,43 +883,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // For regular requests, proceed as normal
-      // Validate input data
-      const validatedData = invitationInputSchema.parse(req.body);
-      
-      // Generate a unique hash for this invitation if not provided
-      if (!validatedData.inviteHash) {
-        // Import the generateInviteHash function from client utils
-        const { generateInviteHash } = await import('../client/src/lib/utils');
-        validatedData.inviteHash = generateInviteHash();
-        console.log(`Generated unique invitation hash: ${validatedData.inviteHash}`);
+      try {
+        // Validate input data
+        const validatedData = invitationInputSchema.parse(req.body);
+        
+        // Generate a unique hash for this invitation if not provided
+        if (!validatedData.inviteHash) {
+          // Import the generateInviteHash function from client utils
+          const { generateInviteHash } = await import('../client/src/lib/utils');
+          validatedData.inviteHash = generateInviteHash();
+          console.log(`Generated unique invitation hash: ${validatedData.inviteHash}`);
+        }
+        
+        // Verify salonId is present
+        if (!validatedData.salonId) {
+          throw new Error("Salon ID is required for client invitations");
+        }
+        
+        console.log('Validated invitation data:', validatedData);
+        
+        // Create the invitation in database
+        const invitation = await storage.createInvitation(validatedData);
+        console.log('Created invitation with ID:', invitation.id, 'Hash:', invitation.inviteHash);
+        
+        // Log activity with the invitation hash
+        if (invitation.inviteHash) {
+          try {
+            await storage.createActivityLog({
+              type: "invitation_created",
+              description: `Invitation #${invitation.inviteHash} created for ${invitation.name}`,
+              salonId: Number(invitation.salonId),
+              timestamp: new Date()
+            });
+          } catch (logError) {
+            // Just log the error but don't fail the request if activity logging fails
+            console.error('Failed to log invitation activity:', logError);
+          }
+        }
+        
+        // Return the invitation data
+        res.status(201).json(invitation);
+      } catch (validationError) {
+        console.error('Error processing invitation data:', validationError);
+        
+        if (validationError instanceof z.ZodError) {
+          console.error('Validation error details:', validationError.errors);
+          res.status(400).json({ error: validationError.errors });
+        } else {
+          const errorMessage = validationError instanceof Error 
+            ? validationError.message 
+            : "Failed to create invitation";
+          res.status(400).json({ error: errorMessage });
+        }
       }
-      
-      console.log('Validated invitation data:', validatedData);
-      
-      // Create the invitation in database
-      const invitation = await storage.createInvitation(validatedData);
-      console.log('Created invitation with ID:', invitation.id, 'Hash:', invitation.inviteHash);
-      
-      // Log activity with the invitation hash
-      if (invitation.inviteHash) {
-        await storage.createActivityLog({
-          type: "invitation_created",
-          description: `Invitation #${invitation.inviteHash} created for ${invitation.name}`,
-          salonId: Number(invitation.salonId),
-          timestamp: new Date()
-        });
-      }
-      
-      // Return the invitation data
-      res.status(201).json(invitation);
     } catch (error) {
-      console.error('Error creating invitation:', error);
+      console.error('Unexpected error creating invitation:', error);
       
       if (error instanceof z.ZodError) {
         console.error('Validation error:', error.errors);
         res.status(400).json({ error: error.errors });
       } else {
-        res.status(500).json({ error: "Failed to create invitation" });
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : "Failed to create invitation due to server error";
+        res.status(500).json({ error: errorMessage });
       }
     }
   });
