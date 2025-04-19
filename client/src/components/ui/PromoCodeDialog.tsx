@@ -12,18 +12,29 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
+// Define the type for the client data returned from the invitation validation
+export interface ClientData {
+  clientId: number;
+  name?: string;
+  email?: string;
+  phone?: string;
+  [key: string]: any; // Allow for additional properties
+}
+
 export interface PromoCodeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   phone?: string; // Optional phone number passed from ContactValidationDialog
   salonId?: number; // Optional salon ID for direct invitation verification
-  onSuccess?: (clientData: any) => void; // Callback when verification is successful
+  onSuccess?: (clientData: ClientData) => void; // Callback when verification is successful
 }
 
 export function PromoCodeDialog({
   open,
   onOpenChange,
   phone,
+  salonId,
+  onSuccess,
 }: PromoCodeDialogProps) {
   const [promoCode, setPromoCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -53,7 +64,8 @@ export function PromoCodeDialog({
         method: "POST",
         body: JSON.stringify({
           code: promoCode,
-          phone: phone || "" // Use passed phone number or empty string
+          phone: phone || "", // Use passed phone number or empty string
+          salonId: salonId || undefined, // Include salon ID if available
         }),
       });
       
@@ -68,13 +80,20 @@ export function PromoCodeDialog({
         if (response.clientId) {
           toast({
             title: "Success",
-            description: "Verification successful! Redirecting to your dashboard.",
+            description: "Verification successful!",
           });
           
-          // Close dialog and redirect to the specific client's dashboard
+          // Close dialog
           onOpenChange(false);
-          console.log(`Redirecting to client dashboard for client ID: ${response.clientId}`);
-          setLocation(`/client/${response.clientId}`);
+          
+          // If onSuccess callback is provided, invoke it with the response data
+          if (onSuccess) {
+            onSuccess(response);
+          } else {
+            // Otherwise, fallback to standard redirection
+            console.log(`Redirecting to client dashboard for client ID: ${response.clientId}`);
+            setLocation(`/client/${response.clientId}/dashboard`);
+          }
         } else {
           toast({
             title: "Error",

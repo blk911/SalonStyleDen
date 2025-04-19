@@ -11,7 +11,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
-import { PromoCodeDialog } from '@/components/ui/PromoCodeDialog';
+import { PromoCodeDialog, ClientData } from '@/components/ui/PromoCodeDialog';
 
 interface StyleOption {
   id: number;
@@ -463,7 +463,7 @@ export function VmbStyleOptions({
         open={showPromoCodeDialog}
         onOpenChange={setShowPromoCodeDialog}
         salonId={salonId}
-        onSuccess={(clientData) => {
+        onSuccess={(clientData: ClientData) => {
           // Successfully verified, we now have client data
           toast({
             title: "Welcome back!",
@@ -472,9 +472,9 @@ export function VmbStyleOptions({
           });
           
           // Optional: Navigate to the client dashboard after successful verification
-          if (clientData && clientData.id) {
+          if (clientData && clientData.clientId) {
             // Redirect to client dashboard with the new client ID
-            navigate(`/clients/${clientData.id}/dashboard`);
+            navigate(`/clients/${clientData.clientId}/dashboard`);
           } else {
             // Just refresh the page to get the updated client context
             window.location.reload();
