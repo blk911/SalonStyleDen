@@ -1145,25 +1145,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  apiRouter.get("/invitations/:id", async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: "Invalid ID format" });
-      }
-      
-      const invitation = await storage.getInvitation(id);
-      if (!invitation) {
-        return res.status(404).json({ error: "Invitation not found" });
-      }
-      
-      res.json(invitation);
-    } catch (error) {
-      console.error('Error retrieving invitation:', error);
-      res.status(500).json({ error: "Failed to retrieve invitation" });
-    }
-  });
-
   // Get invitation by hash
   apiRouter.get("/invitations/by-hash/:hash", async (req: Request, res: Response) => {
     try {
