@@ -164,6 +164,7 @@ export default function ClientRegistrationPage() {
         sponsor: salon?.name || invitation?.sponsor || 'Unknown',
         sponsorSalonId: data.sponsorSalonId || salonId || invitation?.salonId,
         isCurrentClient: true,
+        invitationId: invitation?.id // Add invitation ID for linking
       };
       
       console.log('Submitting client data:', clientData);
@@ -177,12 +178,71 @@ export default function ClientRegistrationPage() {
         body: JSON.stringify(clientData),
       });
       
-      if (!clientResponse.ok) {
-        const errorText = await clientResponse.text();
-        throw new Error(`Failed to register client: ${errorText}`);
+      // Parse response JSON
+      const responseData = await clientResponse.json();
+      
+      // Handle duplicate client scenario (HTTP 409 Conflict)
+      if (clientResponse.status === 409 && responseData.status === 'duplicate') {
+        console.log('Duplicate client detected:', responseData);
+        
+        // Try to find existing client by the duplicate contact information
+        let existingClientId: number | undefined;
+        
+        // Search for existing client with this phone or email
+        const searchResponse = await fetch(`/api/clients?${responseData.field}=${encodeURIComponent(data[responseData.field as keyof ClientFormValues] as string)}`, {
+          method: 'GET'
+        });
+        
+        if (searchResponse.ok) {
+          const foundClients = await searchResponse.json();
+          
+          if (foundClients && foundClients.length > 0) {
+            // Use the first matching client
+            existingClientId = foundClients[0].id;
+            console.log('Found existing client with ID:', existingClientId);
+            
+            // Update invitation status if we have an invitation ID
+            if (invitation?.id) {
+              await fetch(`/api/invitations/${invitation.id}`, {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                  status: 'accepted',
+                  clientId: existingClientId // Link invitation to existing client
+                }),
+              });
+            }
+            
+            toast({
+              title: 'Account Already Exists',
+              description: 'We found your existing account. Redirecting to your dashboard.',
+              variant: 'default',
+            });
+            
+            setRegistrationComplete(true);
+            
+            // Redirect to existing client's dashboard after a delay
+            setTimeout(() => {
+              navigate(`/client/${existingClientId}`);
+            }, 1500);
+            
+            return;
+          }
+        }
+        
+        // If we can't find a matching client, show an error
+        throw new Error(`A client with this ${responseData.field} already exists. Please use a different ${responseData.field} or contact support.`);
       }
       
-      const createdClient = await clientResponse.json();
+      // Handle invalid/error response
+      if (!clientResponse.ok) {
+        throw new Error(`Failed to register client: ${JSON.stringify(responseData)}`);
+      }
+      
+      // Handle successful client creation (HTTP 201 Created)
+      const createdClient = responseData;
       console.log('Created client:', createdClient);
       
       // Update invitation status if we have an invitation ID
@@ -192,7 +252,10 @@ export default function ClientRegistrationPage() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ status: 'accepted' }),
+          body: JSON.stringify({ 
+            status: 'accepted',
+            clientId: createdClient.id // Link invitation to new client
+          }),
         });
         
         if (!inviteResponse.ok) {

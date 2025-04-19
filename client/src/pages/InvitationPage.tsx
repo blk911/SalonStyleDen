@@ -87,31 +87,14 @@ export default function InvitationPage() {
   });
   
   // Handle accept invitation
-  const handleAcceptInvitation = async () => {
-    try {
-      toast({
-        title: "Processing invitation acceptance...",
-        description: "Please wait while we process your request."
-      });
-      
-      // In a real implementation, this would send a request to accept the invitation
-      // For now, let's simulate it with a timeout
-      setTimeout(() => {
-        toast({
-          title: "Invitation Accepted!",
-          description: "You have successfully accepted this invitation.",
-          variant: "default"
-        });
-        
-        // Navigate to the client registration page
-        if (invitation?.salonId) {
-          setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
-        }
-      }, 1000);
-    } catch (error) {
+  const handleAcceptInvitation = () => {
+    if (invitation && invitation.id) {
+      // Redirect to client registration with invitation ID
+      setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+    } else {
       toast({
         title: "Error",
-        description: "There was a problem accepting this invitation.",
+        description: "There was a problem with this invitation.",
         variant: "destructive"
       });
     }
@@ -330,9 +313,17 @@ export default function InvitationPage() {
             </Button>
             <Button 
               variant="default"
-              onClick={() => setLocation('/')}
+              className="bg-pink-600 hover:bg-pink-700"
+              onClick={() => {
+                if (invitation && invitation.id) {
+                  // Redirect to client registration with invitation ID
+                  setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+                } else {
+                  setLocation('/');
+                }
+              }}
             >
-              Return to Home
+              Accept Invitation
             </Button>
           </CardFooter>
         </Card>
