@@ -46,12 +46,12 @@ export function PromoCodeDialog({
       // Special case for development mode
       console.log(`Validating promo code: ${promoCode}`);
       
-      // Temporary development function - verify promo code
+      // Verify promo code
       const response = await apiRequest("/api/invitations/validate", {
         method: "POST",
         body: JSON.stringify({
           code: promoCode,
-          phone: phone || "5127715877" // Use passed phone number or fallback to Spencer's
+          phone: phone || "" // Use passed phone number or empty string
         }),
       });
       
@@ -63,35 +63,26 @@ export function PromoCodeDialog({
         });
       } else {
         // Success - redirect to client dashboard with the specific client ID
-        const clientId = response.clientId || 4; // Default to Spencer (ID 4) if no ID is returned
-        
-        toast({
-          title: "Success",
-          description: "Temporary development bypass: Redirecting to client dashboard",
-        });
-        
-        // Close dialog and redirect to the specific client's dashboard
-        onOpenChange(false);
-        console.log(`Redirecting to client dashboard for client ID: ${clientId}`);
-        setLocation(`/client/${clientId}`);
+        if (response.clientId) {
+          toast({
+            title: "Success",
+            description: "Verification successful! Redirecting to your dashboard.",
+          });
+          
+          // Close dialog and redirect to the specific client's dashboard
+          onOpenChange(false);
+          console.log(`Redirecting to client dashboard for client ID: ${response.clientId}`);
+          setLocation(`/client/${response.clientId}`);
+        } else {
+          toast({
+            title: "Error",
+            description: "Client ID not returned from server. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error("Error validating promo code:", error);
-      
-      // Special handling for development mode
-      // For the specific case of "5877" code, handle the error by redirecting directly
-      if (promoCode === "5877") {
-        console.log("Development bypass: Redirecting to client ID 4 (Spencer) despite error");
-        toast({
-          title: "Development Bypass",
-          description: "Error occurred but using development bypass to redirect",
-        });
-        
-        // Close dialog and redirect to the specific client's dashboard
-        onOpenChange(false);
-        setLocation("/client/4"); // Hard-coded client ID for Spencer
-        return;
-      }
       
       toast({
         title: "Error",
@@ -110,13 +101,9 @@ export function PromoCodeDialog({
           <DialogTitle className="text-center">Enter Promo Code</DialogTitle>
         </DialogHeader>
         
-        <div className="p-4 border border-yellow-300 bg-yellow-50 rounded mb-5 text-sm text-center">
-          <strong>Development Mode</strong>: This is a temporary bypass for testing purposes.
-          <ul className="mt-3 list-disc list-inside">
-            <li>Enter the last 4 digits of your phone number as the code</li>
-            <li>For example, if your number is (512) 771-5877, enter: <strong>5877</strong></li>
-          </ul>
-          This functionality will be replaced with proper verification in production.
+        <div className="p-4 border border-pink-100 bg-pink-50 rounded mb-5 text-sm text-center">
+          <p>Enter the promo code you received via text message or email.</p>
+          <p className="mt-2">This code will link your registration to your salon invitation.</p>
         </div>
         
         <form onSubmit={handleSubmit}>

@@ -43,8 +43,8 @@ export function ContactValidationDialog({
         const extractedPhone = phoneMatch[1].replace(/\D/g, '');
         setValidationPhone(extractedPhone);
       } else {
-        // For development fallback
-        setValidationPhone("5127715877");
+        // No fallback needed - if we can't extract phone, leave it empty
+        setValidationPhone("");
       }
     }
   }, [errorField, errorMessage]);
