@@ -103,8 +103,24 @@ export function VmbStyleOptions({
       };
       
       fetchSelections();
+      
+      // Update form data for validation script detection
+      if (document.getElementById('styleOptions')) {
+        const styleOptionsData = {
+          styleId: -1, // Will be updated when user selects a style
+          clientId: clientId,
+          salonId: salonId,
+          invitationId: invitationId
+        };
+        
+        // Set initial value for styleOptions field
+        const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
+        if (styleOptionsElement) {
+          styleOptionsElement.value = JSON.stringify(styleOptionsData);
+        }
+      }
     }
-  }, [clientId]);
+  }, [clientId, salonId, invitationId]);
   
   // Handle style selection
   const handleSelectStyle = (style: StyleOption) => {
@@ -124,6 +140,20 @@ export function VmbStyleOptions({
     
     if (invitationId) {
       form.setValue('styleOptions.invitationId', invitationId);
+    }
+    
+    // Also update the hidden field for validation script detection
+    const styleOptionsData = {
+      styleId: style.id,
+      clientId: clientId,
+      salonId: salonId,
+      invitationId: invitationId
+    };
+    
+    // Set value for styleOptions hidden field
+    const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
+    if (styleOptionsElement) {
+      styleOptionsElement.value = JSON.stringify(styleOptionsData);
     }
   };
   
@@ -218,82 +248,91 @@ export function VmbStyleOptions({
 
   return (
     <>
-      <div className="py-2 vmb-style-options">
-        <div className="container mx-auto px-2">
-          <div className="bg-white shadow-sm rounded-md">
-            <div className="p-3">
-              <h2 className="font-bold text-sm mb-3 text-[#FF92A5]">Ven Me, Baby! Style Options: STEP 1 Pick your style...</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {services.map((service) => {
-                  const isSelected = selectedStyle?.id === service.id;
-                  const isHovered = hoveredStyle === service.id;
-                  const isPreviouslySelected = isStyleSelected(service.id);
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Hidden form fields for validation */}
+          <input type="hidden" name="styleOptions" id="styleOptions" />
+          <input type="hidden" name="endpoint" value={`/api/clients/${clientId}/style-selections`} />
+          <input type="hidden" name="method" value="POST" />
+          
+          <div className="py-2 vmb-style-options">
+            <div className="container mx-auto px-2">
+              <div className="bg-white shadow-sm rounded-md">
+                <div className="p-3">
+                  <h2 className="font-bold text-sm mb-3 text-[#FF92A5]">Ven Me, Baby! Style Options: STEP 1 Pick your style...</h2>
                   
-                  return (
-                    <div 
-                      key={service.id} 
-                      className={`vmb-style-card cursor-pointer rounded-lg border overflow-hidden transition-all duration-200 
-                        ${isSelected ? 'border-[#FF92A5] ring-2 ring-[#FF92A5] shadow-md' : 'border-gray-200'} 
-                        ${isHovered ? 'transform scale-[1.02] shadow-lg' : ''} 
-                        ${isPreviouslySelected ? 'bg-pink-50' : 'bg-white'}`}
-                      onClick={() => handleSelectStyle(service)}
-                      onMouseEnter={() => handleMouseEnter(service.id)}
-                      onMouseLeave={handleMouseLeave}
-                    >
-                      <div className="flex relative">
-                        {/* Selected indicator */}
-                        {isPreviouslySelected && (
-                          <div className="absolute top-2 right-2 bg-green-100 rounded-full p-1">
-                            <CheckIcon className="h-4 w-4 text-green-600" />
-                          </div>
-                        )}
-                        
-                        {/* Left side - Text */}
-                        <div className="w-2/3 p-3">
-                          <h3 className="font-medium text-sm">{service.name}</h3>
-                          <p className="text-xs text-gray-600 mt-1">{service.description}</p>
-                          
-                          <div className="mt-2 flex items-center gap-2">
-                            <span className="font-bold text-sm">${Math.round(service.price)}</span>
-                            <span className="text-xs text-gray-500">{service.duration} min</span>
-                          </div>
-                          
-                          <div className="mt-2">
-                            {service.featured && (
-                              <Badge className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-xs">
-                                {getBadgeText(service.name)}
-                              </Badge>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {services.map((service) => {
+                      const isSelected = selectedStyle?.id === service.id;
+                      const isHovered = hoveredStyle === service.id;
+                      const isPreviouslySelected = isStyleSelected(service.id);
+                      
+                      return (
+                        <div 
+                          key={service.id} 
+                          className={`vmb-style-card cursor-pointer rounded-lg border overflow-hidden transition-all duration-200 
+                            ${isSelected ? 'border-[#FF92A5] ring-2 ring-[#FF92A5] shadow-md' : 'border-gray-200'} 
+                            ${isHovered ? 'transform scale-[1.02] shadow-lg' : ''} 
+                            ${isPreviouslySelected ? 'bg-pink-50' : 'bg-white'}`}
+                          onClick={() => handleSelectStyle(service)}
+                          onMouseEnter={() => handleMouseEnter(service.id)}
+                          onMouseLeave={handleMouseLeave}
+                        >
+                          <div className="flex relative">
+                            {/* Selected indicator */}
+                            {isPreviouslySelected && (
+                              <div className="absolute top-2 right-2 bg-green-100 rounded-full p-1">
+                                <CheckIcon className="h-4 w-4 text-green-600" />
+                              </div>
                             )}
+                            
+                            {/* Left side - Text */}
+                            <div className="w-2/3 p-3">
+                              <h3 className="font-medium text-sm">{service.name}</h3>
+                              <p className="text-xs text-gray-600 mt-1">{service.description}</p>
+                              
+                              <div className="mt-2 flex items-center gap-2">
+                                <span className="font-bold text-sm">${Math.round(service.price)}</span>
+                                <span className="text-xs text-gray-500">{service.duration} min</span>
+                              </div>
+                              
+                              <div className="mt-2">
+                                {service.featured && (
+                                  <Badge className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-xs">
+                                    {getBadgeText(service.name)}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Right side - Image */}
+                            <div className="w-1/3 flex items-center justify-center p-2">
+                              <div className="relative w-full h-24 overflow-hidden rounded-md">
+                                <img 
+                                  src={service.gifUrl ? getImageUrl(service.gifUrl, 'vmb_style') : '/assets/LOGO1.png'} 
+                                  alt={service.name}
+                                  className={`w-full h-full object-cover transition-transform duration-300 ${isHovered ? 'scale-110' : ''}`}
+                                  onError={(e) => {
+                                    console.error(`Failed to load image for service: ${service.name}`);
+                                    e.currentTarget.src = '/assets/LOGO1.png';
+                                  }}
+                                />
+                                {isHovered && (
+                                  <div className="absolute inset-0 bg-gradient-to-t from-pink-500/20 to-transparent" />
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        
-                        {/* Right side - Image */}
-                        <div className="w-1/3 flex items-center justify-center p-2">
-                          <div className="relative w-full h-24 overflow-hidden rounded-md">
-                            <img 
-                              src={service.gifUrl ? getImageUrl(service.gifUrl, 'vmb_style') : '/assets/LOGO1.png'} 
-                              alt={service.name}
-                              className={`w-full h-full object-cover transition-transform duration-300 ${isHovered ? 'scale-110' : ''}`}
-                              onError={(e) => {
-                                console.error(`Failed to load image for service: ${service.name}`);
-                                e.currentTarget.src = '/assets/LOGO1.png';
-                              }}
-                            />
-                            {isHovered && (
-                              <div className="absolute inset-0 bg-gradient-to-t from-pink-500/20 to-transparent" />
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </form>
+      </Form>
 
       {/* Style Details Popup */}
       {selectedStyle && (
