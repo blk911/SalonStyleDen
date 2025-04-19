@@ -115,7 +115,14 @@ export function ContactValidationDialog({
                         // Close the dialog and open PromoCodeDialog in phone validation mode
                         onClose();
                         
-                        // Open the PromoCodeDialog with phone number
+                        // Extract the phone number cleanly
+                        let cleanPhone = "";
+                        if (validationPhone) {
+                          cleanPhone = validationPhone.replace(/\D/g, '');
+                        }
+                        
+                        // Open the PromoCodeDialog with phone number for "No" path
+                        setValidationPhone(cleanPhone);
                         setShowPromoCodeDialog(true);
                       }}
                       className="bg-gray-500 hover:bg-gray-600 w-full sm:w-auto px-6"
