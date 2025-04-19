@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CalendarIcon, UserIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon, UserIcon, ExternalLinkIcon } from "lucide-react";
 
 interface Invitation {
   id: number;
@@ -116,6 +117,7 @@ export default function RecentVmbInvitations({
                       <TableHead className="w-[120px]">Phone</TableHead>
                       <TableHead className="w-[100px]">Status</TableHead>
                       <TableHead className="w-[100px]">Date</TableHead>
+                      <TableHead className="w-[80px] text-right">Page</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -137,6 +139,17 @@ export default function RecentVmbInvitations({
                           </Badge>
                         </TableCell>
                         <TableCell>{new Date(invitation.createdAt).toLocaleDateString()}</TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="h-8 px-2 border-pink-200 text-pink-700 hover:text-pink-800 hover:bg-pink-50"
+                            onClick={() => window.location.href = `/invitation/${invitation.inviteHash}`}
+                          >
+                            <ExternalLinkIcon className="h-4 w-4 mr-1" />
+                            View
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
