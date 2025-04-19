@@ -9,6 +9,9 @@ import pg from 'pg';
 const { Pool } = pg;
 
 async function migrateSponsorSalon() {
+  console.log('================================');
+  console.log('SPONSOR SALON ID MIGRATION SCRIPT');
+  console.log('================================');
   // Connect to database using environment variable
   if (!process.env.DATABASE_URL) {
     console.error('ERROR: DATABASE_URL environment variable not set');

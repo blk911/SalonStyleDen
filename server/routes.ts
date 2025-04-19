@@ -1025,7 +1025,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           let matchedInvitation = invitations[0]; // Default to first invitation
           
           if (salonId) {
-            const salonInvitation = invitations.find(inv => inv.salonId === Number(salonId));
+            const salonInvitation = invitations.find((inv: Invitation) => inv.salonId === Number(salonId));
             if (salonInvitation) {
               matchedInvitation = salonInvitation;
             }

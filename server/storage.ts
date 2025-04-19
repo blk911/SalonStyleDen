@@ -499,6 +499,10 @@ async createClient(insertClient: InsertClient): Promise<Client> {
       
       // Order by creation date
       return matchingInvitations.sort((a, b) => {
+        // Handle null dates by treating them as older than any valid date
+        if (!a.createdAt) return 1;  // a is older (null date)
+        if (!b.createdAt) return -1; // b is older (null date)
+        
         const dateA = new Date(a.createdAt);
         const dateB = new Date(b.createdAt);
         return dateB.getTime() - dateA.getTime(); // Newest first
