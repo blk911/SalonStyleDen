@@ -53,8 +53,13 @@ export function ContactValidationDialog({
     onClose();
   };
   
+  // State to track which validation mode to use for the PromoCodeDialog
+  const [usePhoneValidation, setUsePhoneValidation] = useState(false);
+  
   const handleEnterPromoCode = () => {
-    // Instead of redirecting directly, show the promo code dialog
+    // Set phoneValidation to false for the "Yes" path (promo code)
+    setUsePhoneValidation(false);
+    // Show the promo code dialog with promo code validation mode
     setShowPromoCodeDialog(true);
   };
   
@@ -122,8 +127,14 @@ export function ContactValidationDialog({
                         }
                         
                         // Open the PromoCodeDialog with phone number for "No" path
+                        // Here we ensure the validationPhone is set before showing the dialog
                         setValidationPhone(cleanPhone);
+                        // Set usePhoneValidation to true for the "No" path (phone validation)
+                        setUsePhoneValidation(true);
                         setShowPromoCodeDialog(true);
+                        
+                        // Note: phoneValidation flag is passed as true to PromoCodeDialog
+                        // to ensure it opens in phone validation mode
                       }}
                       className="bg-gray-500 hover:bg-gray-600 w-full sm:w-auto px-6"
                     >
@@ -165,7 +176,7 @@ export function ContactValidationDialog({
           }
         }}
         phone={validationPhone} // Pass the phone number to the promo code dialog
-        phoneValidation={true} // Flag to indicate this is coming from a phone validation path
+        phoneValidation={usePhoneValidation} // Use the correct mode based on which button was clicked
       />
     </>
   );
