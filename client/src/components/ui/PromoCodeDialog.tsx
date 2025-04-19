@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -423,7 +423,7 @@ export function PromoCodeDialog({
           <DialogTitle className="text-center">
             {showRegistrationForm 
               ? 'Complete Your Registration' 
-              : (validationMode === 'promo' ? 'Enter Promo Code' : 'Enter Your Phone Number')}
+              : (validationMode === 'promo' ? 'Enter Promo Code' : 'ENTER YOUR PHONE NUMBER TO COMPLETE REGISTRATION')}
           </DialogTitle>
         </DialogHeader>
         
@@ -446,8 +446,7 @@ export function PromoCodeDialog({
                 </>
               ) : (
                 <>
-                  <p>Enter your phone number to complete registration.</p>
-                  <p className="mt-2">We'll verify your identity and give you access to your account.</p>
+                  <p>We'll verify your identity and give you access to your account.</p>
                 </>
               )}
             </div>
