@@ -166,24 +166,38 @@ export default function ClientRegistrationPage() {
         isCurrentClient: true,
       };
       
+      console.log('Submitting client data:', clientData);
+      
       // Create the client
-      let createdClient;
-      try {
-        createdClient = await apiRequest('/api/clients', { 
-          method: 'POST',
-          data: clientData 
+      const clientResponse = await fetch('/api/clients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(clientData),
+      });
+      
+      if (!clientResponse.ok) {
+        const errorText = await clientResponse.text();
+        throw new Error(`Failed to register client: ${errorText}`);
+      }
+      
+      const createdClient = await clientResponse.json();
+      console.log('Created client:', createdClient);
+      
+      // Update invitation status if we have an invitation ID
+      if (invitation?.id) {
+        const inviteResponse = await fetch(`/api/invitations/${invitation.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: 'accepted' }),
         });
         
-        // Update invitation status if we have an invitation ID
-        if (invitation?.id) {
-          await apiRequest(`/api/invitations/${invitation.id}`, {
-            method: 'PATCH',
-            data: { status: 'accepted' }
-          });
+        if (!inviteResponse.ok) {
+          console.warn('Failed to update invitation status, but client was created');
         }
-      } catch (error) {
-        console.error('API error:', error);
-        throw error;
       }
       
       // Show success message
@@ -196,9 +210,19 @@ export default function ClientRegistrationPage() {
       // Update registration state
       setRegistrationComplete(true);
       
+      // Store client ID for redirection
+      const clientId = createdClient?.id;
+      console.log('Client created with ID:', clientId);
+      
       // Redirect to client dashboard after a short delay
       setTimeout(() => {
-        navigate(`/client/${createdClient.id}`);
+        if (clientId) {
+          navigate(`/client/${clientId}`);
+        } else {
+          // Fallback if we don't have the client ID
+          console.warn('No client ID available for redirection');
+          navigate('/');
+        }
       }, 1500);
       
     } catch (error) {
