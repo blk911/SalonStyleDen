@@ -451,38 +451,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         // Check for existing client first
         if (validatedData.phone || validatedData.email) {
-          // Standardize phone format for comparison
-          const cleanPhone = validatedData.phone?.replace(/\D/g, '');
+          console.log('Checking for existing client with contact info:', 
+            validatedData.phone ? `phone=${validatedData.phone}` : '', 
+            validatedData.email ? `email=${validatedData.email}` : '');
           
-          // Get all clients
-          const allClients = await db.select().from(clients);
-          
-          // Try to match based on phone or email
-          let existingClient = null;
-          
-          if (cleanPhone && cleanPhone.length > 0) {
-            existingClient = allClients.find(c => 
-              c.phone && c.phone.replace(/\D/g, '') === cleanPhone
+          try {
+            // Use the established duplicate checking mechanism
+            const duplicateCheck = await storage.isDuplicateContact(
+              validatedData.phone || "", 
+              validatedData.email || ""
             );
-          }
-          
-          if (!existingClient && validatedData.email) {
-            const lowercaseEmail = validatedData.email.toLowerCase();
-            existingClient = allClients.find(c => 
-              c.email && c.email.toLowerCase() === lowercaseEmail
-            );
-          }
-          
-          // If we found a matching client, return it directly instead of showing error
-          if (existingClient) {
-            console.log('Found existing client with matching contact info:', existingClient.id);
             
-            // Return the existing client data with a 200 status (not an error)
-            return res.status(200).json({
-              ...existingClient,
-              message: 'Existing client found with this contact information',
-              matchFound: true
-            });
+            if (duplicateCheck.isDuplicate) {
+              console.log(`Duplicate detected in field: ${duplicateCheck.field}`);
+              
+              // Find the existing client based on the duplicate field
+              let existingClient = null;
+              const allClients = await storage.getAllClients();
+              
+              if (duplicateCheck.field === 'phone' && validatedData.phone) {
+                // Standardize phone format for comparison
+                const cleanPhone = validatedData.phone.replace(/\D/g, '');
+                
+                existingClient = allClients.find(c => 
+                  c.phone && c.phone.replace(/\D/g, '') === cleanPhone
+                );
+              } else if (duplicateCheck.field === 'email' && validatedData.email) {
+                const lowercaseEmail = validatedData.email.toLowerCase();
+                existingClient = allClients.find(c => 
+                  c.email && c.email.toLowerCase() === lowercaseEmail
+                );
+              }
+              
+              if (existingClient) {
+                console.log('Found existing client with matching contact info:', existingClient.id);
+                
+                // Return the existing client data with a 200 status (not an error)
+                return res.status(200).json({
+                  ...existingClient,
+                  message: 'Existing client found with this contact information',
+                  matchFound: true
+                });
+              }
+              
+              // If we couldn't find a client but have a duplicate, it might be in another table
+              // Default to showing the registration form by returning a 409
+              return res.status(409).json({ 
+                status: 'duplicate',
+                field: duplicateCheck.field,
+                message: `This ${duplicateCheck.field} is already registered. Complete your registration to continue.`,
+                // Return submitted data to pre-fill the registration form
+                name: validatedData.name,
+                phone: validatedData.phone,
+                email: validatedData.email,
+                salonId: validatedData.salonId
+              });
+            }
+          } catch (error) {
+            console.error('Error checking for duplicates:', error);
+            // Continue to client creation if error in duplicate check
           }
         }
         
@@ -546,9 +573,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.get("/clients", async (req: Request, res: Response) => {
     try {
-      const clients = await storage.getAllClients();
+      // Check if we're filtering by phone
+      const phoneFilter = req.query.phone as string;
+      let clients = await storage.getAllClients();
+      
+      // Apply phone filter if provided
+      if (phoneFilter) {
+        console.log(`GET /clients - Filtering by phone: ${phoneFilter}`);
+        
+        // Clean the phone number for comparison
+        const cleanPhoneFilter = phoneFilter.replace(/\D/g, '');
+        const isPartialPhone = cleanPhoneFilter.length <= 4;
+        
+        // Filter clients based on phone number (full or partial)
+        clients = clients.filter(client => {
+          if (!client.phone) return false;
+          
+          const clientPhone = client.phone.replace(/\D/g, '');
+          
+          // If it's a short partial number (4 or fewer digits), match by last digits
+          if (isPartialPhone) {
+            return clientPhone.endsWith(cleanPhoneFilter);
+          }
+          
+          // For longer numbers, require exact match
+          return clientPhone === cleanPhoneFilter;
+        });
+        
+        console.log(`GET /clients - Found ${clients.length} clients matching phone filter`);
+      }
+      
       res.json(clients);
     } catch (error) {
+      console.error('Error retrieving clients:', error);
       res.status(500).json({ error: "Failed to retrieve clients" });
     }
   });

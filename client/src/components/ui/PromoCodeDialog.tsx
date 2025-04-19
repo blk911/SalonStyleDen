@@ -141,18 +141,89 @@ export function PromoCodeDialog({
         if (validationMode === 'phone' && phoneNumber.length >= 4) {
           // Get last 4 digits if full number provided
           const last4 = phoneNumber.slice(-4);
-          console.log(`Trying to find client with last 4 digits: ${last4}`);
+          console.log(`Trying to find client with phone number that ends with: ${last4}`);
           
           try {
-            // Use the validate-contact endpoint to find matching clients
+            // Just try to verify client ID and redirect directly
+            // Simplified approach - directly retrieve existing clients
+            const clientsResponse = await fetch('/api/clients?phone=' + encodeURIComponent(phoneNumber), {
+              method: 'GET'
+            });
+            
+            if (clientsResponse.ok) {
+              const clients = await clientsResponse.json();
+              
+              // Find a client with matching phone (even partial match on last 4 digits)
+              const matchingClient = clients.find((c: any) => {
+                if (!c.phone) return false;
+                const clientPhone = c.phone.replace(/\D/g, '');
+                return clientPhone.endsWith(last4);
+              });
+              
+              if (matchingClient) {
+                console.log("Found matching client:", matchingClient.id);
+                
+                toast({
+                  title: "Success",
+                  description: "Welcome back! Redirecting to your dashboard."
+                });
+                
+                // Close dialog
+                onOpenChange(false);
+                
+                // Redirect to client dashboard
+                setLocation(`/client/${matchingClient.id}/dashboard`);
+                setLoading(false);
+                return;
+              }
+            }
+            
+            // If no matching client found with GET, try validate-contact as fallback
             const contactCheckResponse = await apiRequest("/api/validate-contact", {
               method: "POST",
               body: JSON.stringify({ phone: phoneNumber }),
             });
             
             if (contactCheckResponse.exists) {
-              // Found a matching contact, show registration form to get more info
-              console.log("Found matching contact");
+              // Found a matching contact, try post to quickly get existing client ID
+              console.log("Found matching contact with validate-contact, trying quick login");
+              
+              // Direct approach - try to post with phone to get client ID
+              const directClientResponse = await fetch('/api/clients', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  phone: phoneNumber,
+                  name: "Phone Login",
+                  email: "",
+                  type: "client",
+                  ...(salonId ? { salonId: Number(salonId) } : {})
+                })
+              });
+              
+              const directClientData = await directClientResponse.json();
+              
+              // Check if existing client was found (status 200) or on creation succeeded (status 201)
+              if ((directClientResponse.status === 200 && directClientData.matchFound) || 
+                  (directClientResponse.status === 201 && directClientData.id)) {
+                console.log("Client matched or created:", directClientData.id);
+                
+                toast({
+                  title: "Success",
+                  description: "Redirecting to your dashboard."
+                });
+                
+                // Close dialog
+                onOpenChange(false);
+                
+                // Redirect to client dashboard
+                setLocation(`/client/${directClientData.id}/dashboard`);
+                setLoading(false);
+                return;
+              }
+              
+              // If we got here, we need to show the form
+              console.log("Client needs more information before proceeding");
               
               toast({
                 title: "Phone Number Found",
@@ -348,7 +419,16 @@ export function PromoCodeDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={showRegistrationForm ? "sm:max-w-xl" : "sm:max-w-md"}>
+      <DialogContent 
+        className={showRegistrationForm ? "sm:max-w-xl" : "sm:max-w-md"}
+        aria-describedby="dialog-description">
+        <div id="dialog-description" className="sr-only">
+          {showRegistrationForm 
+            ? 'Complete your client registration form to continue' 
+            : (validationMode === 'promo' 
+                ? 'Enter your promo code to access special offers' 
+                : 'Verify your identity by entering your phone number')}
+        </div>
         <DialogHeader>
           <DialogTitle className="text-center">
             {showRegistrationForm 
