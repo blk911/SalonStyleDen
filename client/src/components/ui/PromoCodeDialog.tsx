@@ -78,69 +78,49 @@ export function PromoCodeDialog({
         console.log(`Validating with phone: ${phoneNumber}`);
       }
       
-      // First check if this is a duplicate phone number by trying to create a client
-      // This allows us to handle duplicate phone numbers properly
-      if (validationMode === 'phone' && phoneNumber.length >= 10) {
+      // For phone validation, check if this is an existing client first
+      // This gives a better user experience than showing an error or registration form
+      if (validationMode === 'phone' && phoneNumber.length >= 4) {
         try {
-          // Try to create a client with minimal data first to check for duplicates
-          const checkResponse = await fetch('/api/clients', {
+          // Check for existing clients with this phone number
+          console.log(`Checking for existing clients with phone: ${phoneNumber}`);
+          const clientCheckResponse = await fetch('/api/clients', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              name: "Temporary Name", // Will be updated in the form
               phone: phoneNumber,
-              email: "temp@example.com", // Will be updated in the form
-              isCurrentClient: true,
               type: "client",
-              salonId: salonId
+              // Minimal data for check only
+              name: "Checking Contact",
+              email: "",
+              ...(salonId ? { salonId: Number(salonId) } : {})
             })
           });
           
-          const checkData = await checkResponse.json();
+          const clientData = await clientCheckResponse.json();
           
-          // If we detect a duplicate (409 Conflict)
-          if (checkResponse.status === 409 && checkData.status === 'duplicate') {
-            console.log("Duplicate phone detected, showing registration form:", checkData);
+          // If 200 OK and matchFound, we found an existing client
+          if (clientCheckResponse.status === 200 && clientData.matchFound) {
+            console.log("Existing client found:", clientData.id);
             
-            // Show registration form instead of error
-            toast({
-              title: "Contact Information Found",
-              description: "Please complete your registration to continue."
-            });
-            
-            // Set the prefill data
-            setPrefilledData({
-              name: checkData.name || "",
-              phone: checkData.phone || phoneNumber,
-              email: checkData.email || "",
-              salonId: salonId || checkData.salonId
-            });
-            
-            // Show the registration form
-            setShowRegistrationForm(true);
-            setLoading(false);
-            return;
-          }
-          
-          // If client was created successfully (rare case), proceed with it
-          if (checkResponse.ok && checkData.id) {
             toast({
               title: "Success",
-              description: "Your account has been created successfully!",
+              description: "Welcome back! Redirecting to your dashboard.",
             });
             
             // Close dialog
             onOpenChange(false);
             
             // Redirect to client dashboard
-            setLocation(`/client/${checkData.id}/dashboard`);
-            setLoading(false);
-            return;
+            if (clientData.id) {
+              console.log(`Redirecting to client dashboard: ${clientData.id}`);
+              setLocation(`/client/${clientData.id}/dashboard`);
+              setLoading(false);
+              return;
+            }
           }
-          
-          // If we get here, it was not a duplicate and not a success, so continue with invitation validation
         } catch (checkError) {
-          console.error("Error checking for duplicate client:", checkError);
+          console.error("Error checking for existing client:", checkError);
           // Continue with normal validation flow
         }
       }
@@ -157,6 +137,44 @@ export function PromoCodeDialog({
       });
       
       if (response.error) {
+        // Try to query clients directly if validation fails
+        if (validationMode === 'phone' && phoneNumber.length >= 4) {
+          // Get last 4 digits if full number provided
+          const last4 = phoneNumber.slice(-4);
+          console.log(`Trying to find client with last 4 digits: ${last4}`);
+          
+          try {
+            // Use the validate-contact endpoint to find matching clients
+            const contactCheckResponse = await apiRequest("/api/validate-contact", {
+              method: "POST",
+              body: JSON.stringify({ phone: phoneNumber }),
+            });
+            
+            if (contactCheckResponse.exists) {
+              // Found a matching contact, show registration form to get more info
+              console.log("Found matching contact");
+              
+              toast({
+                title: "Phone Number Found",
+                description: "Please complete your information to continue."
+              });
+              
+              // Set the prefill data with the phone number
+              setPrefilledData({
+                phone: phoneNumber,
+                ...(salonId ? { salonId: Number(salonId) } : {})
+              });
+              
+              // Show the registration form
+              setShowRegistrationForm(true);
+              setLoading(false);
+              return;
+            }
+          } catch (contactCheckError) {
+            console.error("Error checking contact:", contactCheckError);
+          }
+        }
+        
         // If promo code fails, offer phone validation as fallback
         if (validationMode === 'promo') {
           toast({
@@ -247,6 +265,26 @@ export function PromoCodeDialog({
       });
       
       const data = await response.json();
+      
+      // Check if the server found a matching client instead of creating a new one
+      if (response.status === 200 && data.matchFound) {
+        console.log("Existing client found, redirecting to client dashboard:", data.id);
+        
+        toast({
+          title: "Client Account Found",
+          description: "Redirecting you to your dashboard."
+        });
+        
+        // Close dialog
+        onOpenChange(false);
+        
+        // Redirect to client dashboard with the existing client ID
+        if (data.id) {
+          setLocation(`/client/${data.id}/dashboard`);
+        }
+        
+        return;
+      }
       
       // Check if this was a duplicate detection case
       if (response.status === 409 && data.status === 'duplicate') {

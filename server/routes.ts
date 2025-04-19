@@ -449,7 +449,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Validated client data:', validatedData);
 
       try {
-        // Create client in database
+        // Check for existing client first
+        if (validatedData.phone || validatedData.email) {
+          // Standardize phone format for comparison
+          const cleanPhone = validatedData.phone?.replace(/\D/g, '');
+          
+          // Get all clients
+          const allClients = await db.select().from(clients);
+          
+          // Try to match based on phone or email
+          let existingClient = null;
+          
+          if (cleanPhone && cleanPhone.length > 0) {
+            existingClient = allClients.find(c => 
+              c.phone && c.phone.replace(/\D/g, '') === cleanPhone
+            );
+          }
+          
+          if (!existingClient && validatedData.email) {
+            const lowercaseEmail = validatedData.email.toLowerCase();
+            existingClient = allClients.find(c => 
+              c.email && c.email.toLowerCase() === lowercaseEmail
+            );
+          }
+          
+          // If we found a matching client, return it directly instead of showing error
+          if (existingClient) {
+            console.log('Found existing client with matching contact info:', existingClient.id);
+            
+            // Return the existing client data with a 200 status (not an error)
+            return res.status(200).json({
+              ...existingClient,
+              message: 'Existing client found with this contact information',
+              matchFound: true
+            });
+          }
+        }
+        
+        // No match found, create a new client
         const client = await storage.createClient(validatedData);
         console.log('Created client with ID:', client.id);
 
@@ -464,7 +501,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
             (storageError.message.includes('already registered') || 
              storageError.message.includes('duplicate'))) {
           
-          // Extract which field is duplicate
+          // Enhanced error object from storage layer
+          if ((storageError as any).client && (storageError as any).status === 'duplicate') {
+            // Return the existing client data with a 200 status (not an error)
+            return res.status(200).json({
+              ...(storageError as any).client,
+              message: 'Existing client found with this contact information',
+              matchFound: true
+            });
+          }
+          
+          // Extract which field is duplicate (fallback for old error format)
           const errorMessage = storageError.message;
           const isDuplicatePhone = errorMessage.includes('phone');
           const isDuplicateEmail = errorMessage.includes('email');
