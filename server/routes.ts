@@ -464,7 +464,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
             (storageError.message.includes('already registered') || 
              storageError.message.includes('duplicate'))) {
           
-          // Extract which field is duplicate
+          // Check for enhanced error with custom properties
+          const errorAny = storageError as any;
+          
+          // Look for enhanced error properties added by our storage layer
+          if (errorAny.status === 'duplicate' && errorAny.field) {
+            // Use the field directly from the enhanced error
+            const responseData = { 
+              status: 'duplicate',
+              field: errorAny.field,
+              message: 'This contact information already exists. Complete your registration to continue.',
+              // Return submitted data to pre-fill the registration form
+              name: validatedData.name,
+              phone: validatedData.phone,
+              email: validatedData.email,
+              salonId: validatedData.salonId
+            };
+            
+            // If enhanced error included client data, add it to the response
+            if (errorAny.client) {
+              console.log('Including existing client data in duplicate response:', errorAny.client);
+              responseData.clientId = errorAny.client.id;
+              responseData.name = errorAny.client.name || validatedData.name;
+              responseData.favoriteServices = errorAny.client.favoriteServices || [];
+              // Only include sponsorSalonId if it exists
+              if (errorAny.client.sponsorSalonId) {
+                responseData.sponsorSalonId = errorAny.client.sponsorSalonId;
+              }
+            }
+            
+            return res.status(409).json(responseData);
+          }
+          
+          // Fallback to traditional error message parsing if enhanced properties not found
           const errorMessage = storageError.message;
           const isDuplicatePhone = errorMessage.includes('phone');
           const isDuplicateEmail = errorMessage.includes('email');
