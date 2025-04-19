@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, UserIcon, ExternalLinkIcon } from "lucide-react";
+import { ExternalLinkIcon } from "lucide-react";
 
 interface Invitation {
   id: number;
@@ -90,25 +90,26 @@ export default function RecentVmbInvitations({
   // Format phone number for display
   const formatPhone = (phone: string) => {
     // Show only last 3 digits for privacy
-    return phone.replace(/\d(?=\d{3})/g, "•");
+    return '••••••' + phone.slice(-3);
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="border-pink-100">
-        <CardHeader className="bg-pink-50 pb-3">
-          <CardTitle className="text-base">Salon to Client Invitations</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
+    <Card className="border-pink-100">
+      <CardHeader className="bg-pink-50 pb-3">
+        <CardTitle className="text-lg">VMB Salon Invitations Sent</CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        {/* Inner section with pink background */}
+        <div className="bg-pink-50/50 p-4">
+          <h3 className="font-semibold text-lg mb-4">Salon to Client Invitations</h3>
+          
           {Object.entries(groupedInvitations).map(([sponsor, sponsorInvitations]) => (
-            <div key={sponsor} className="mb-4">
-              {/* Sponsor header */}
-              <div className="bg-pink-50 px-4 py-2 font-semibold text-pink-700 border-y border-pink-100">
-                {sponsor}
-              </div>
+            <div key={sponsor} className="mb-6">
+              {/* Salon sponsor header */}
+              <h4 className="text-pink-600 font-semibold text-lg mb-2">{sponsor}</h4>
               
               {/* Invitations table */}
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto bg-white rounded-md border border-gray-200">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -143,7 +144,7 @@ export default function RecentVmbInvitations({
                           <Button 
                             variant="outline" 
                             size="sm"
-                            className="h-8 px-2 border-pink-200 text-pink-700 hover:text-pink-800 hover:bg-pink-50"
+                            className="h-8 w-16 border-pink-200 text-pink-700 hover:text-pink-800 hover:bg-pink-50"
                             onClick={() => window.location.href = `/invitation/${invitation.inviteHash}`}
                           >
                             <ExternalLinkIcon className="h-4 w-4 mr-1" />
@@ -157,8 +158,8 @@ export default function RecentVmbInvitations({
               </div>
             </div>
           ))}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
