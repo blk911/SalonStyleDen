@@ -70,96 +70,65 @@ export function ContactValidationDialog({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent 
-          className="sm:max-w-md max-h-[90vh] overflow-y-auto"
+          className="sm:max-w-md max-h-[90vh] overflow-y-auto p-0"
         >
-          <DialogHeader>
-            <DialogTitle>
-              {errorField === 'phone' 
-                ? "Phone Number Already Registered" 
-                : errorField === 'email'
-                  ? "Email Already Registered"
-                  : "Contact Validation"
-              }
-            </DialogTitle>
-            <DialogDescription id="contact-validation-description">
-              {errorField === 'phone'
-                ? "This phone number is already associated with an account"
-                : errorField === 'email'
-                  ? "This email address is already associated with an account"
-                  : "Please verify your contact information"
-              }
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="p-6 text-center space-y-4">
+          <div className="p-8">
             {errorField === 'phone' ? (
-              <div className="space-y-5">
-                <div className="text-center">
-                  <h4 className="text-lg font-medium text-gray-700 mb-5">{errorMessage}</h4>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 w-full">
-                    <Button 
-                      onClick={handleGoBack} 
-                      variant="outline"
-                      className="border-pink-300 w-full h-14 px-2 py-3"
-                    >
-                      Go Back
-                    </Button>
+              <div className="flex flex-col gap-5 w-full">
+                <Button 
+                  onClick={handleEnterPromoCode}
+                  className="bg-pink-500 hover:bg-pink-600 w-full h-14 px-2 py-3"
+                >
+                  ENTER YOUR PROMO CODE
+                </Button>
+                
+                <Button 
+                  onClick={() => {
+                    // Close the dialog and open PromoCodeDialog in phone validation mode
+                    onClose();
                     
-                    <Button 
-                      onClick={handleEnterPromoCode}
-                      className="bg-pink-500 hover:bg-pink-600 w-full h-14 px-2 py-3"
-                    >
-                      Yes, I have a promo code
-                    </Button>
+                    // Extract the phone number cleanly
+                    let cleanPhone = "";
+                    if (validationPhone) {
+                      cleanPhone = validationPhone.replace(/\D/g, '');
+                    }
                     
-                    <Button 
-                      onClick={() => {
-                        // Close the dialog and open PromoCodeDialog in phone validation mode
-                        onClose();
-                        
-                        // Extract the phone number cleanly
-                        let cleanPhone = "";
-                        if (validationPhone) {
-                          cleanPhone = validationPhone.replace(/\D/g, '');
-                        }
-                        
-                        // Open the PromoCodeDialog with phone number for "No" path
-                        // Here we ensure the validationPhone is set before showing the dialog
-                        setValidationPhone(cleanPhone);
-                        // Set usePhoneValidation to true for the "No" path (phone validation)
-                        setUsePhoneValidation(true);
-                        setShowPromoCodeDialog(true);
-                        
-                        // Note: phoneValidation flag is passed as true to PromoCodeDialog
-                        // to ensure it opens in phone validation mode
-                      }}
-                      className="bg-gray-500 hover:bg-gray-600 w-full h-14 px-2 py-3"
-                    >
-                      No, continue with phone
-                    </Button>
-                  </div>
-                </div>
+                    // Open the PromoCodeDialog with phone number for "No" path
+                    // Here we ensure the validationPhone is set before showing the dialog
+                    setValidationPhone(cleanPhone);
+                    // Set usePhoneValidation to true for the "No" path (phone validation)
+                    setUsePhoneValidation(true);
+                    setShowPromoCodeDialog(true);
+                  }}
+                  className="bg-gray-500 hover:bg-gray-600 w-full h-14 px-2 py-3"
+                >
+                  ENTER YOUR PHONE NUMBER
+                </Button>
+                
+                <Button 
+                  onClick={handleGoBack} 
+                  variant="outline"
+                  className="border-pink-300 w-full h-14 px-2 py-3"
+                >
+                  BACK
+                </Button>
               </div>
             ) : (
-              <p className="text-gray-500">
-                {errorField === 'email'
-                  ? 'Please use a different email address or check if this client has already been registered.'
-                  : 'This contact information is already in our system. Please check existing clients.'}
-              </p>
+              <div className="flex flex-col gap-5 w-full">
+                <p className="text-gray-800 text-center">
+                  {errorField === 'email'
+                    ? 'Please use a different email address or check if this client has already been registered.'
+                    : 'This contact information is already in our system. Please check existing clients.'}
+                </p>
+                <Button 
+                  onClick={onClose} 
+                  className="bg-pink-500 hover:bg-pink-600 w-full h-14 px-2 py-3"
+                >
+                  OK
+                </Button>
+              </div>
             )}
           </div>
-          
-          {errorField !== 'phone' && (
-            <DialogFooter className="flex justify-center">
-              <Button 
-                onClick={onClose} 
-                className="bg-pink-500 hover:bg-pink-600 px-6"
-              >
-                OK
-              </Button>
-            </DialogFooter>
-          )}
         </DialogContent>
       </Dialog>
       
