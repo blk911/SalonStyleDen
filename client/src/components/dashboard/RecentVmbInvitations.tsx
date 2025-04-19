@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { ExternalLinkIcon } from "lucide-react";
+import { Link, useLocation } from "wouter";
 
 interface Invitation {
   id: number;
@@ -26,6 +27,7 @@ export default function RecentVmbInvitations({
   salonId, 
   limit = 10
 }: RecentVmbInvitationsProps) {
+  const [, setLocation] = useLocation();
   const filterParams = new URLSearchParams();
   if (limit) filterParams.set('limit', limit.toString());
   if (clientId) filterParams.set('clientId', clientId.toString());
@@ -116,13 +118,14 @@ export default function RecentVmbInvitations({
                         </td>
                         <td className="py-2 px-4">04/19/25</td>
                         <td className="py-2 px-4 text-right">
-                          <a 
-                            href={`/invitation/${invitation.inviteHash}`}
-                            className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800"
+                          <Link 
+                            to={`/invitation/${invitation.inviteHash}`}
+                            onClick={() => setLocation(`/invitation/${invitation.inviteHash}`)}
+                            className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
                           >
                             <ExternalLinkIcon className="h-4 w-4" />
                             View
-                          </a>
+                          </Link>
                         </td>
                       </tr>
                     ))}
@@ -172,13 +175,14 @@ export default function RecentVmbInvitations({
                           </td>
                           <td className="py-2 px-4">04/19/25</td>
                           <td className="py-2 px-4 text-right">
-                            <a 
-                              href={`/invitation/${invitation.inviteHash}`}
-                              className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800"
+                            <Link 
+                              to={`/invitation/${invitation.inviteHash}`}
+                              onClick={() => setLocation(`/invitation/${invitation.inviteHash}`)}
+                              className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
                             >
                               <ExternalLinkIcon className="h-4 w-4" />
                               View
-                            </a>
+                            </Link>
                           </td>
                         </tr>
                       ))}
