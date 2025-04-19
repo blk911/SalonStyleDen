@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
+import { PromoCodeDialog } from '@/components/ui/PromoCodeDialog';
 
 interface StyleOption {
   id: number;
@@ -71,6 +72,8 @@ export function VmbStyleOptions({
   const [hoveredStyle, setHoveredStyle] = useState<number | null>(null);
   const [savedSelections, setSavedSelections] = useState<StyleSelection[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPromoCodeDialog, setShowPromoCodeDialog] = useState(false);
+  const [tempSelectedPhone, setTempSelectedPhone] = useState<string>('');
   const { toast } = useToast();
   const [, navigate] = useLocation();
   
@@ -383,7 +386,22 @@ export function VmbStyleOptions({
                 Back
               </Button>
               <Button 
-                onClick={handleSaveSelection}
+                onClick={() => {
+                  // Check if we have a valid client ID
+                  if (!clientId || clientId <= 0) {
+                    // No valid client ID, show the invitation prompt
+                    setIsDetailsOpen(false);
+                    setShowPromoCodeDialog(true);
+                    toast({
+                      title: "Client Registration Required",
+                      description: "Please enter your invitation code to continue.",
+                      variant: "default"
+                    });
+                  } else {
+                    // We have a client ID, proceed with normal selection
+                    handleSaveSelection();
+                  }
+                }}
                 disabled={isSubmitting}
                 className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
               >
