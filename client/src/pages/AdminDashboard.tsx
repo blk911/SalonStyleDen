@@ -278,10 +278,10 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          {/* Recent VMB Invitations Card */}
+          {/* VMB Salon Invitations Card */}
           <Card className="mb-6">
             <CardContent className="p-4">
-              <h2 className="text-xl font-semibold mb-4">Recent VMB Invitations Sent</h2>
+              <h2 className="text-xl font-semibold mb-4">VMB Salon Invitations Sent</h2>
               <RecentVmbInvitations limit={10} />
             </CardContent>
           </Card>
@@ -483,7 +483,7 @@ export default function AdminDashboard() {
                       {activityLogs?.filter(log => log.type === 'vmb_invitation_sent').length === 0 && (
                         <TableRow>
                           <TableCell colSpan={5} className="text-center py-4 text-gray-500">
-                            No VMB invitation activity found
+                            No VMB salon invitation activity found
                           </TableCell>
                         </TableRow>
                       )}

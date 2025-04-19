@@ -834,12 +834,12 @@ export default function SalonDashboard() {
           </section>
         )}
 
-        {/* Recent VMB Invitations Section */}
+        {/* VMB Salon Invitations Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
             <Card className="rounded shadow-sm">
               <CardContent className="p-2">
-                <h3 className="font-medium text-sm mb-2">Recent VMB Invitations Sent</h3>
+                <h3 className="font-medium text-sm mb-2">VMB Salon Invitations Sent</h3>
                 <RecentVmbInvitations salonId={salon?.id} limit={5} />
               </CardContent>
             </Card>

@@ -70,7 +70,7 @@ export default function RecentVmbInvitations({
   if (vmbInvitations.length === 0) {
     return (
       <p className="text-gray-500 italic text-center py-3">
-        No VMB invitations have been sent yet.
+        No VMB salon invitations have been sent yet.
       </p>
     );
   }
@@ -91,7 +91,7 @@ export default function RecentVmbInvitations({
               <div className="flex items-start justify-between mb-1">
                 <div className="flex items-center">
                   <MessageSquareIcon className="h-4 w-4 text-pink-500 mr-2" />
-                  <span className="font-medium text-sm">VMB Invitation</span>
+                  <span className="font-medium text-sm">VMB Salon Invitation</span>
                 </div>
                 <Badge variant="outline" className="bg-pink-50 text-pink-600 border-pink-100">
                   Sent
