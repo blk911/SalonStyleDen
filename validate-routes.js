@@ -151,10 +151,17 @@ async function scanPagesDirectory(dir) {
       const componentName = path.parse(entry.name).name;
       results.components[componentName] = fullPath;
       
+      // Convert kebab-case (not-found) to PascalCase (NotFound) for component name check
+      const pascalCaseName = componentName.split('-')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join('');
+      
       // Read the file to check for default export
       const content = await fs.readFile(fullPath, 'utf8');
       if (!content.includes(`export default ${componentName}`) && 
-          !content.includes(`export default function ${componentName}`)) {
+          !content.includes(`export default function ${componentName}`) &&
+          !content.includes(`export default ${pascalCaseName}`) &&
+          !content.includes(`export default function ${pascalCaseName}`)) {
         results.issues.push(`Component ${componentName} does not have a matching default export`);
         console.log(`  ${YELLOW}!${RESET} Component ${componentName} does not have a matching default export`);
       }

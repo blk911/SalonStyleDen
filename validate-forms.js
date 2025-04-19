@@ -139,17 +139,25 @@ async function analyzeForm(formConfig) {
 }
 
 function checkFormStructure(content, formConfig, result) {
-  // Check for form component
-  if (!content.includes('useForm') && !content.includes('<Form')) {
+  // Check for form component - allow either useForm hook, Form component, or standard HTML form with useState pattern
+  if (!content.includes('useForm') && !content.includes('<Form') && !content.includes('<form') && !content.includes('onSubmit={handleSubmit}')) {
     result.issues.push('No form component or useForm hook detected');
   } else {
     result.checks.push('Form component structure found');
   }
   
-  // Check for required fields
+  // Check for required fields - allow either name attribute or state variables
   for (const field of formConfig.requiredFields) {
     const fieldPattern = new RegExp(`name=['"](${field}|${field}\\[)['"]`);
-    if (!fieldPattern.test(content) && !content.includes(`name="${field}"`) && !content.includes(`name='${field}'`)) {
+    const statePattern = new RegExp(`\\[${field}, set${field.charAt(0).toUpperCase() + field.slice(1)}\\]`);
+    const setStatePattern = new RegExp(`set${field.charAt(0).toUpperCase() + field.slice(1)}\\(`);
+    
+    if (!fieldPattern.test(content) && 
+        !content.includes(`name="${field}"`) && 
+        !content.includes(`name='${field}'`) &&
+        !statePattern.test(content) &&
+        !setStatePattern.test(content) &&
+        !content.includes(`value={${field}}`)) {
       result.issues.push(`Required field '${field}' not found in form`);
     } else {
       result.checks.push(`Required field '${field}' found`);
