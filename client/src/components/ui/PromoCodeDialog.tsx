@@ -166,7 +166,7 @@ export function PromoCodeDialog({
       
       const requestOptions = {
         method: "POST",
-        credentials: "include",
+        credentials: "include" as RequestCredentials,
         body: JSON.stringify({
           code: validationMode === 'promo' ? promoCode : '',
           // ALWAYS pass the phone number with both validation modes
@@ -239,7 +239,10 @@ export function PromoCodeDialog({
           setPrefilledData({
             name: response.name || "",
             phone: response.phone || phoneNumber || phone || "",
-            salonId: salonId || response.salonId
+            salonId: salonId || response.salonId,
+            // Include sponsor information from validation response
+            sponsor: response.sponsor || "Ven Me, Baby! LTD",
+            sponsorSalonId: response.sponsorSalonId || 12
           });
           
           // Show the registration form instead of redirecting
@@ -381,7 +384,10 @@ export function PromoCodeDialog({
           ...prefilledData,
           ...data,
           phone: data.phone || phoneNumber || phone || "",
-          salonId: salonId || data.salonId
+          salonId: salonId || data.salonId,
+          // Include sponsor information from duplicate detection
+          sponsor: data.sponsor || prefilledData?.sponsor || "Ven Me, Baby! LTD",
+          sponsorSalonId: data.sponsorSalonId || prefilledData?.sponsorSalonId || 12
         });
         
         // Keep the form open
