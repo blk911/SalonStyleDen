@@ -1063,59 +1063,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Extract the validation flag if present
       const isValidationOnly = req.body._validateOnly === true;
       if (isValidationOnly) {
-        // For validation-only requests, we only need to check if phone/email already exists
-        // We'll do a more thorough check for client duplicates
+        // For validation-only requests, we'll do a contextual validation for invitations
         try {
-          const { phone, email } = req.body;
+          const { phone, email, senderId } = req.body;
           
-          // Check for duplicate phone/email
-          if (phone) {
-            const cleanPhone = phone.replace(/\D/g, '');
-            console.log('VALIDATION REQUEST: Checking phone number:', cleanPhone);
-            
-            if (cleanPhone.length === 10) {
-              try {
-                // Use the comprehensive isDuplicateContact function which checks ALL tables
-                const phoneExists = await storage.isDuplicateContact(cleanPhone, '');
-                
-                // If phone is detected as duplicate, return proper error
-                if (phoneExists.isDuplicate) {
-                  console.log('VALIDATION FAILED: Duplicate phone detected:', cleanPhone);
-                  return res.status(400).json({ error: 'This phone is already registered' });
-                }
-                
-                console.log('VALIDATION PASSED: Phone is unique:', cleanPhone);
-              } catch (err) {
-                console.error('Error during phone validation:', err);
-                return res.status(500).json({ error: 'Server error during validation' });
-              }
-            } else {
-              console.log('VALIDATION SKIPPED: Invalid phone format, expected 10 digits:', cleanPhone);
-            }
+          if (!senderId) {
+            console.log('VALIDATION ERROR: Missing senderId for invitation validation');
+            return res.status(400).json({ error: 'Missing sender ID for validation' });
           }
           
-          if (email && email.includes('@')) {
-            // Ensure case-insensitive validation for email
-            const lowercaseEmail = email.toLowerCase();
-            console.log('VALIDATION REQUEST: Checking email address:', lowercaseEmail);
-            
-            try {
-              // Use the comprehensive isDuplicateContact function
-              const emailExists = await storage.isDuplicateContact('', lowercaseEmail);
-              
-              if (emailExists.isDuplicate) {
-                console.log('VALIDATION FAILED: Duplicate email detected:', lowercaseEmail);
-                return res.status(400).json({ error: 'This email is already registered' });
-              }
-              
-              console.log('VALIDATION PASSED: Email is unique:', lowercaseEmail);
-            } catch (err) {
-              console.error('Error during email validation:', err);
-              return res.status(500).json({ error: 'Server error during validation' });
-            }
+          console.log(`CONTEXT-AWARE VALIDATION: Validating invitation from sender ${senderId}`);
+          
+          // Use our new context-aware validation method for invitations
+          const validation = await storage.validateInvitation(
+            phone || '', 
+            email || '', 
+            Number(senderId)
+          );
+          
+          if (!validation.isValid) {
+            console.log('VALIDATION FAILED:', validation.message);
+            return res.status(400).json({ error: validation.message });
           }
           
-          // If we got here, validation passed
+          console.log('VALIDATION PASSED: Invitation is valid');
           return res.status(200).json({ valid: true });
         } catch (error) {
           console.error('Validation error:', error);

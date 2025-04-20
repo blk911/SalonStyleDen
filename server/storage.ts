@@ -39,6 +39,11 @@ export interface IStorage {
   getInvitationsByPhone(phone: string, partialMatch?: boolean): Promise<Invitation[]>;
   getInvitationByHash(hash: string): Promise<Invitation | undefined>;
   
+  // Validation methods
+  isDuplicateContact(phone: string, email: string, sponsor?: string, excludeId?: number): Promise<{isDuplicate: boolean, field: string}>;
+  validateInvitation(phone: string, email: string, senderId: number): Promise<{isValid: boolean, message?: string}>;
+  validateRegistration(phone: string, email: string, excludeId?: number): Promise<{isValid: boolean, message?: string}>;
+  
   // Style Selection methods
   createStyleSelection(styleSelection: InsertStyleSelection): Promise<StyleSelection>;
   getStyleSelection(id: number): Promise<StyleSelection | undefined>;
@@ -49,9 +54,6 @@ export interface IStorage {
   createActivityLog(activityLog: InsertActivityLog): Promise<ActivityLog>;
   getRecentActivityLogs(limit?: number): Promise<ActivityLog[]>;
   logVmbInvitationSent(clientId: number, salonId: number, styleId: number): Promise<ActivityLog>;
-  
-  // Duplicate contact validation
-  isDuplicateContact(phone: string, email: string, sponsor?: string, excludeId?: number): Promise<{isDuplicate: boolean, field: string}>;
   
   // Schema access methods (for dynamic validation)
   getSalonsTable(): typeof salons;
@@ -272,7 +274,7 @@ export class DatabaseStorage implements IStorage {
     }
 
     // Check sponsor duplication
-    if (sponsor) {
+    if (sponsor && sponsor.trim() !== '') {
       const sponsorExists = await db.select()
         .from(invitations)
         .where(eq(invitations.sponsor, sponsor))
@@ -332,7 +334,11 @@ export class DatabaseStorage implements IStorage {
         // Continue with client creation below
       } else {
         // Check for duplicates using the normal flow
-        const duplicateCheck = await this.isDuplicateContact(insertClient.phone, insertClient.email);
+        // Ensure we have strings for the isDuplicateContact function
+        const phoneToCheck = insertClient.phone || '';
+        const emailToCheck = insertClient.email || '';
+        
+        const duplicateCheck = await this.isDuplicateContact(phoneToCheck, emailToCheck);
         if (duplicateCheck.isDuplicate) {
           // Enhance the error with more details by creating a custom error object
           const duplicateError = new Error(`This ${duplicateCheck.field} is already registered`);
@@ -513,9 +519,15 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getInvitationsByPhone(phone: string, partialMatch: boolean = false): Promise<Invitation[]> {
+  async getInvitationsByPhone(phone: string | null | undefined, partialMatch: boolean = false): Promise<Invitation[]> {
     try {
-      console.log(`DatabaseStorage.getInvitationsByPhone - Fetching invitations with phone ${phone} (partialMatch: ${partialMatch})`);
+      console.log(`DatabaseStorage.getInvitationsByPhone - Fetching invitations with phone ${phone || 'null'} (partialMatch: ${partialMatch})`);
+      
+      // Handle empty phone cases
+      if (!phone) {
+        console.log(`DatabaseStorage.getInvitationsByPhone - No phone provided, returning empty array`);
+        return [];
+      }
       
       // Clean phone number to digits only for comparison
       const cleanPhone = phone.replace(/\D/g, '');
@@ -554,7 +566,115 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-
+  // Context-aware validation methods
+  
+  async validateInvitation(phone: string, email: string, senderId: number): Promise<{isValid: boolean, message?: string}> {
+    console.log(`DatabaseStorage.validateInvitation - Validating invitation: phone='${phone}', email='${email}', senderId=${senderId}`);
+    
+    // Clean the phone number for comparison
+    const cleanPhone = phone.replace(/\D/g, '');
+    
+    try {
+      // 1. Get the sender's information (could be client or salon)
+      const sender = await this.getClient(senderId);
+      if (!sender) {
+        console.log(`DatabaseStorage.validateInvitation - Sender ID ${senderId} not found`);
+        return { isValid: false, message: "Invalid sender" };
+      }
+      
+      // 2. Check if the sender is trying to invite themselves
+      if (sender.phone && sender.phone.replace(/\D/g, '') === cleanPhone) {
+        console.log(`DatabaseStorage.validateInvitation - Sender trying to invite themselves`);
+        return { isValid: false, message: "You cannot invite yourself" };
+      }
+      
+      if (email && sender.email && sender.email.toLowerCase() === email.toLowerCase()) {
+        console.log(`DatabaseStorage.validateInvitation - Sender trying to invite their own email`);
+        return { isValid: false, message: "You cannot invite yourself" };
+      }
+      
+      // 3. Get all clients and salons for checking duplicates
+      const allClients = await db.select().from(clients);
+      const allSalons = await db.select().from(salons);
+      
+      // 4. Check if the phone number is already registered as a client
+      // Exception: We DO allow sending invitations to people who have pending invitations
+      if (cleanPhone) {
+        const existingClient = allClients.find(client => 
+          client.phone && client.phone.replace(/\D/g, '') === cleanPhone
+        );
+        
+        if (existingClient) {
+          console.log(`DatabaseStorage.validateInvitation - Phone already registered as client: ${cleanPhone}`);
+          return { isValid: false, message: "This phone is already registered as a client" };
+        }
+        
+        // Check if phone belongs to a salon
+        const existingSalon = allSalons.find(salon => 
+          salon.phone && salon.phone.replace(/\D/g, '') === cleanPhone
+        );
+        
+        if (existingSalon) {
+          console.log(`DatabaseStorage.validateInvitation - Phone already registered as salon: ${cleanPhone}`);
+          return { isValid: false, message: "This phone is already registered as a salon" };
+        }
+      }
+      
+      // 5. Check if the email is already registered
+      if (email && email.trim() !== '') {
+        const normalizedEmail = email.toLowerCase();
+        
+        const existingClientEmail = allClients.find(client => 
+          client.email && client.email.toLowerCase() === normalizedEmail
+        );
+        
+        if (existingClientEmail) {
+          console.log(`DatabaseStorage.validateInvitation - Email already registered as client: ${email}`);
+          return { isValid: false, message: "This email is already registered as a client" };
+        }
+        
+        const existingSalonEmail = allSalons.find(salon => 
+          salon.email && salon.email.toLowerCase() === normalizedEmail
+        );
+        
+        if (existingSalonEmail) {
+          console.log(`DatabaseStorage.validateInvitation - Email already registered as salon: ${email}`);
+          return { isValid: false, message: "This email is already registered as a salon" };
+        }
+      }
+      
+      // If we made it here, the invitation is valid
+      console.log(`DatabaseStorage.validateInvitation - Invitation is valid`);
+      return { isValid: true };
+    } catch (error) {
+      console.error('DatabaseStorage.validateInvitation - Error validating invitation:', error);
+      return { isValid: false, message: "Error validating invitation" };
+    }
+  }
+  
+  async validateRegistration(phone: string, email: string, excludeId?: number): Promise<{isValid: boolean, message?: string}> {
+    console.log(`DatabaseStorage.validateRegistration - Validating registration: phone='${phone}', email='${email}'`);
+    
+    try {
+      // For registration, we want to be strict about duplicates
+      const duplicateCheck = await this.isDuplicateContact(phone, email, undefined, excludeId);
+      
+      if (duplicateCheck.isDuplicate) {
+        console.log(`DatabaseStorage.validateRegistration - Duplicate ${duplicateCheck.field} detected`);
+        return { 
+          isValid: false, 
+          message: `This ${duplicateCheck.field} is already registered` 
+        };
+      }
+      
+      // If we made it here, the registration is valid
+      console.log(`DatabaseStorage.validateRegistration - Registration is valid`);
+      return { isValid: true };
+    } catch (error) {
+      console.error('DatabaseStorage.validateRegistration - Error validating registration:', error);
+      return { isValid: false, message: "Error validating registration" };
+    }
+  }
 
   // Style Selection methods
   async createStyleSelection(insertStyleSelection: InsertStyleSelection): Promise<StyleSelection> {

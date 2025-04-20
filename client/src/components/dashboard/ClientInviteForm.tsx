@@ -54,6 +54,36 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     try {
       setLoading(true);
       
+      // Context-aware validation first
+      console.log("Performing context-aware validation...");
+      const validationResponse = await fetch("/api/invitations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          _validateOnly: true,
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+          senderId: clientId,
+        }),
+      });
+      
+      // Handle validation errors
+      if (!validationResponse.ok) {
+        const errorData = await validationResponse.json();
+        toast({
+          title: "Validation failed",
+          description: errorData.error || "Unable to validate contact information",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+      
+      console.log("Validation passed, sending invitation...");
+      
       // Send invitation
       const response = await fetch("/api/invitations", {
         method: "POST",
@@ -71,7 +101,8 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
       });
       
       if (!response.ok) {
-        throw new Error("Failed to send invitation");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to send invitation");
       }
       
       // Get response data
