@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { CheckIcon } from 'lucide-react';
 
@@ -23,6 +23,9 @@ export function PromoConfirmationPopup({ promo, isOpen, onClose }: PromoConfirma
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center text-lg text-[#FF92A5]">Promotion Selected!</DialogTitle>
+          <DialogDescription className="text-center text-sm text-gray-600">
+            Confirmation of your promotion selection.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="flex flex-col items-center space-y-4 py-4">

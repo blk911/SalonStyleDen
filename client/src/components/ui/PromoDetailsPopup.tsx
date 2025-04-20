@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
 interface Promo {
@@ -34,6 +34,9 @@ export function PromoDetailsPopup({ promo, isOpen, onClose, onSave }: PromoDetai
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center text-lg font-bold text-[#FF92A5]">{promo.title}</DialogTitle>
+          <DialogDescription className="text-center text-sm text-gray-600">
+            View details and exclusive offers for this promotion.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="flex flex-col items-center space-y-4 py-4">
