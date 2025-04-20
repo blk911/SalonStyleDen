@@ -10,6 +10,7 @@ import { db } from "./db";
 import { clients, invitations, type Invitation } from "../shared/schema";
 import { eq } from "drizzle-orm";
 import { registerVisualizationRoutes } from "./visualization";
+import { errorMonitor } from './error-monitor';
 
 // Set up multer for file uploads
 const uploadDir = path.join(process.cwd(), 'client/public/uploads');
@@ -80,6 +81,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // API endpoints prefix
   const apiRouter = express.Router();
+  
+  // Health check endpoint
+  apiRouter.get("/health", (req: Request, res: Response) => {
+    res.json({ status: "ok", timestamp: new Date().toISOString() });
+  });
+
+  // Status endpoint
+  apiRouter.get("/status", (req: Request, res: Response) => {
+    res.json({ status: "ok", version: "1.0.0", timestamp: new Date().toISOString() });
+  });
+
+  // Error logging endpoint for monitoring
+  apiRouter.post("/log-error", (req: Request, res: Response) => {
+    try {
+      const { type, message, stack, timestamp } = req.body;
+      
+      console.error(`[CLIENT ERROR] ${type} - ${message}`);
+      if (stack) {
+        console.error(stack);
+      }
+      
+      // Store in error monitor
+      errorMonitor.logError(type, { message, stack } as Error);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error logging client error:', error);
+      res.status(500).json({ success: false });
+    }
+  });
 
   // File upload endpoint for service images
   apiRouter.post("/upload", upload.single('file'), (req: Request, res: Response) => {
