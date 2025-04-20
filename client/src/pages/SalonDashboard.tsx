@@ -733,6 +733,18 @@ export default function SalonDashboard() {
           </div>
         </section>
 
+        {/* VMB Salon Invitations Section */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <Card className="rounded shadow-sm">
+              <CardContent className="p-2">
+                <h3 className="font-medium text-sm mb-2">VMB Salon Invitations Sent</h3>
+                <RecentVmbInvitations salonId={salon?.id} limit={5} />
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
         {/* Ven Me, Baby! Style Options Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
@@ -833,18 +845,6 @@ export default function SalonDashboard() {
             </div>
           </section>
         )}
-
-        {/* VMB Salon Invitations Section */}
-        <section className="py-2">
-          <div className="container mx-auto px-2">
-            <Card className="rounded shadow-sm">
-              <CardContent className="p-2">
-                <h3 className="font-medium text-sm mb-2">VMB Salon Invitations Sent</h3>
-                <RecentVmbInvitations salonId={salon?.id} limit={5} />
-              </CardContent>
-            </Card>
-          </div>
-        </section>
 
         {/* Salon to Client Invitations Section */}
         <section className="py-2">
