@@ -67,6 +67,18 @@ interface ActivityLog {
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
 
+  // Helper function to find client ID for an invitation
+  const findClientIdForInvitation = (invitation: Invitation, clientsList: Client[] | undefined): number | null => {
+    if (!clientsList || clientsList.length === 0) return null;
+    
+    // Match by phone number (most reliable identifier)
+    const matchingClient = clientsList.find(client => 
+      client.phone === invitation.phone
+    );
+    
+    return matchingClient ? matchingClient.id : null;
+  };
+
   const { data: clients, error: clientError, isLoading: clientIsLoading } = useQuery<Client[]>({
     queryKey: ['/api/clients'],
     queryFn: async () => {
@@ -397,17 +409,43 @@ export default function AdminDashboard() {
                                 </td>
                                 <td className="py-2 px-4">{new Date(invitation.createdAt).toLocaleDateString()}</td>
                                 <td className="py-2 px-4 text-right">
-                                  <Link 
-                                    to={`/invitation/${invitation.inviteHash}`}
-                                    className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
-                                    onClick={() => {
-                                      // Navigate to client invitation page using the invitation hash
-                                      setLocation(`/invitation/${invitation.inviteHash}`);
-                                    }}
-                                  >
-                                    <ExternalLinkIcon className="h-4 w-4" />
-                                    View
-                                  </Link>
+                                  {/* Check for matching client first */}
+                                  {(() => {
+                                    // Try to find matching client
+                                    const clientId = findClientIdForInvitation(invitation, clients);
+                                    
+                                    if (clientId) {
+                                      // Client exists - link to client dashboard
+                                      return (
+                                        <Link 
+                                          to={`/client/${clientId}`}
+                                          className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
+                                          onClick={() => {
+                                            // Navigate to client dashboard page
+                                            setLocation(`/client/${clientId}`);
+                                          }}
+                                        >
+                                          <ExternalLinkIcon className="h-4 w-4" />
+                                          View Client Page
+                                        </Link>
+                                      );
+                                    } else {
+                                      // No matching client - link to invitation
+                                      return (
+                                        <Link 
+                                          to={`/invitation/${invitation.inviteHash}`}
+                                          className="inline-flex items-center text-gray-500 font-medium gap-1 text-sm hover:text-gray-700 cursor-pointer"
+                                          onClick={() => {
+                                            // Navigate to invitation page
+                                            setLocation(`/invitation/${invitation.inviteHash}`);
+                                          }}
+                                        >
+                                          <ExternalLinkIcon className="h-4 w-4" />
+                                          View Invite
+                                        </Link>
+                                      );
+                                    }
+                                  })()}
                                 </td>
                               </tr>
                             ))}
