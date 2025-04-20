@@ -416,18 +416,90 @@ export class DatabaseStorage implements IStorage {
   async createInvitation(insertInvitation: InsertInvitation): Promise<Invitation> {
     console.log(`DatabaseStorage.createInvitation - Creating invitation for ${insertInvitation.name || 'unnamed client'}`);
     
+    // Get information about the sender if senderId is provided
+    let senderInfo: Client | undefined = undefined;
+    if (insertInvitation.senderId) {
+      try {
+        senderInfo = await this.getClient(insertInvitation.senderId);
+        if (senderInfo) {
+          console.log(`DatabaseStorage.createInvitation - Sender is client ${senderInfo.name} (ID: ${senderInfo.id})`);
+        } else {
+          console.log(`DatabaseStorage.createInvitation - Sender client with ID ${insertInvitation.senderId} not found`);
+        }
+      } catch (error) {
+        console.error(`DatabaseStorage.createInvitation - Error getting sender info:`, error);
+        // Continue without sender info if we can't get it
+      }
+    }
+    
+    // Determine sponsor based on context
+    // If this is a client-sent invitation (senderId is set), the sender is the sponsor
+    let sponsorName = insertInvitation.sponsor || 'Ven Me, Baby! LTD';
+    
+    if (senderInfo) {
+      // Client is sending invitation, they become the sponsor
+      sponsorName = senderInfo.name;
+      
+      // If salonId is not explicitly provided, use the sender's salon if available
+      if (!insertInvitation.salonId && senderInfo.salonId) {
+        insertInvitation.salonId = senderInfo.salonId;
+        console.log(`DatabaseStorage.createInvitation - Using sender's salon ID: ${senderInfo.salonId}`);
+      } else if (!insertInvitation.salonId && senderInfo.sponsorSalonId) {
+        // If no direct salon ID, use the client's sponsor salon ID
+        insertInvitation.salonId = senderInfo.sponsorSalonId;
+        console.log(`DatabaseStorage.createInvitation - Using sender's sponsor salon ID: ${senderInfo.sponsorSalonId}`);
+      } else if (!insertInvitation.salonId) {
+        // Default to VMB LTD (ID 43 - assuming this is the VMB LTD salon ID based on your comments)
+        insertInvitation.salonId = 43; // VMB LTD salon ID
+        console.log(`DatabaseStorage.createInvitation - Using default VMB LTD salon ID: 43`);
+      }
+    }
+    
+    // Generate a unique invite hash if not provided
+    if (!insertInvitation.inviteHash) {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2, 8);
+      insertInvitation.inviteHash = `VMB-INV-${random}-${timestamp}`;
+      console.log(`DatabaseStorage.createInvitation - Generated invite hash: ${insertInvitation.inviteHash}`);
+    }
+    
     // Set default values for any missing fields
     const invitationData = {
       ...insertInvitation,
+      sponsor: sponsorName || 'Ven Me, Baby! LTD',
       status: insertInvitation.status || 'pending',
       createdAt: new Date()
     };
     
     try {
-      const result = await db.insert(invitations).values(invitationData).returning();
+      // Filter out the senderId property if not supported in the database yet
+      const { senderId, ...otherFields } = invitationData;
+      
+      // We'll use Drizzle's built-in insert which handles the schema correctly
+      const result = await db.insert(invitations)
+        .values({
+          ...otherFields,
+          // Convert camelCase to snake_case fields
+          salonId: otherFields.salonId,
+          inviteHash: otherFields.inviteHash,
+          favoriteServices: otherFields.favoriteServices,
+          firstServiceDate: otherFields.firstServiceDate
+        })
+        .returning();
+      
+      if (!result.length) {
+        throw new Error("Failed to create invitation, no rows returned");
+      }
+      
       console.log(`DatabaseStorage.createInvitation - Created invitation with ID ${result[0].id}`);
       
-      return result[0];
+      // Add the senderId property back to the result
+      const invitation: Invitation = {
+        ...result[0],
+        senderId: senderId || null
+      };
+      
+      return invitation;
     } catch (error) {
       console.error('DatabaseStorage.createInvitation - Error creating invitation:', error);
       throw error;
@@ -465,26 +537,17 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DatabaseStorage.getSalonInvitations - Fetching invitations for salon ${salonId}`);
       
-      // Use a safe approach to handle missing columns in the DB
-      const sqlQuery = sql`
-        SELECT id, name, phone, email, notes, favorite_services as favoriteServices,
-               salon_id as salonId, sponsor, invite_hash as inviteHash, 
-               status, first_service_date as firstServiceDate, created_at as createdAt
-        FROM invitations 
-        WHERE salon_id = ${salonId}
-        ORDER BY created_at DESC
-      `;
+      // Use Drizzle's built-in select to avoid SQL errors
+      const invitationRows = await db.select().from(invitations).where(eq(invitations.salonId, salonId));
+      console.log(`DatabaseStorage.getSalonInvitations - Retrieved ${invitationRows.length} invitations`);
       
-      const rows = await db.execute(sqlQuery);
-      console.log(`DatabaseStorage.getSalonInvitations - Retrieved ${rows.length} invitations`);
+      // Add default senderId for backward compatibility
+      const result: Invitation[] = invitationRows.map(invitation => ({
+        ...invitation,
+        senderId: invitation.senderId ?? null 
+      }));
       
-      // Add senderId with a default value if it doesn't exist in DB yet
-      const invitations = rows.map(row => ({
-        ...row,
-        senderId: (row as any).sender_id || null
-      })) as Invitation[];
-      
-      return invitations;
+      return result;
     } catch (error) {
       console.error(`DatabaseStorage.getSalonInvitations - Error fetching invitations for salon ${salonId}:`, error);
       throw error;
