@@ -928,16 +928,8 @@ export default function ClientDashboard() {
                         </div>
                       )}
                       
-                      {/* Recent VMB Invitations Sent - REDUCED PADDING */}
+                      {/* SHARE VMB Section - MOVED DOWN */}
                       <div className="mt-8 border-t pt-2">
-                        <h3 className="font-semibold text-pink-700 mb-2">SALON TO CLIENT INVITATIONS</h3>
-                        <div className="mb-2">
-                          <InlineVmbInvitations clientId={client.id} />
-                        </div>
-                      </div>
-                      
-                      {/* SHARE VMB Section */}
-                      <div className="mt-4 border-t pt-2">
                         <h3 className="font-semibold text-pink-700 mb-2">SHARE VMB</h3>
                         <Card className="shadow-sm overflow-hidden">
                           <CardHeader className="bg-pink-50 pb-3">
@@ -954,6 +946,14 @@ export default function ClientDashboard() {
                           </CardContent>
                         </Card>
                       </div>
+                      
+                      {/* Recent VMB Invitations Sent - MOVED UP */}
+                      <div className="mt-4 border-t pt-2">
+                        <h3 className="font-semibold text-pink-700 mb-2">SALON TO CLIENT INVITATIONS</h3>
+                        <div className="mb-2">
+                          <InlineVmbInvitations clientId={client.id} />
+                        </div>
+                      </div>
                     </div>
                   ) : salonLoading ? (
                     <p>Loading salon information...</p>
@@ -964,7 +964,23 @@ export default function ClientDashboard() {
               </Card>
             )}
             
-            {/* Standalone SHARE VMB Card - shown whether client has a salon or not */}
+            {/* Invitations Card - MOVED UP */}
+            {invitations && invitations.length > 0 && (
+              <Card className="rounded-xl shadow-sm overflow-hidden">
+                <CardHeader className="bg-pink-50 pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                    <StarIcon className="h-4 w-4" />
+                    Your Invitations
+                  </CardTitle>
+                </CardHeader>
+                
+                <CardContent className="pt-4">
+                  <InlineVmbInvitations clientId={client.id} />
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* Standalone SHARE VMB Card - MOVED DOWN - shown whether client has a salon or not */}
             {!client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
                 <CardHeader className="bg-pink-50 pb-3">
@@ -982,22 +998,6 @@ export default function ClientDashboard() {
                       description: "Your invitation has been sent successfully!"
                     });
                   }} />
-                </CardContent>
-              </Card>
-            )}
-            
-            {/* Invitations Card */}
-            {invitations && invitations.length > 0 && (
-              <Card className="rounded-xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-pink-50 pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
-                    <StarIcon className="h-4 w-4" />
-                    Your Invitations
-                  </CardTitle>
-                </CardHeader>
-                
-                <CardContent className="pt-4">
-                  <InlineVmbInvitations clientId={client.id} />
                 </CardContent>
               </Card>
             )}
