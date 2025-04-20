@@ -4,8 +4,15 @@
  * Provides application-wide access to the activity monitoring system
  * for tracking user interactions, API requests, and system events.
  */
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import activityMonitor, { ActivityEvent, ApiEvent, KeystrokeEvent } from '@/lib/activity-monitor';
+import React, { createContext, ReactNode, useContext, useState, useEffect, useCallback } from 'react';
+import activityMonitor, { 
+  KeystrokeEvent, 
+  ApiEvent, 
+  ActivityEvent, 
+  trackKeystroke, 
+  trackApiRequest, 
+  trackActivity
+} from '@/lib/activity-monitor';
 
 interface MonitoringContextType {
   isMonitoringEnabled: boolean;
@@ -20,8 +27,7 @@ interface MonitoringContextType {
   trackActivity: typeof activityMonitor.trackActivity;
 }
 
-// Create context with default values
-const MonitoringContext = createContext<MonitoringContextType>({
+const defaultContext: MonitoringContextType = {
   isMonitoringEnabled: false,
   enableMonitoring: () => {},
   disableMonitoring: () => {},
@@ -29,72 +35,80 @@ const MonitoringContext = createContext<MonitoringContextType>({
   apiHistory: [],
   activityHistory: [],
   clearHistory: () => {},
-  trackKeystroke: activityMonitor.trackKeystroke,
-  trackApiRequest: activityMonitor.trackApiRequest,
-  trackActivity: activityMonitor.trackActivity
-});
+  trackKeystroke,
+  trackApiRequest,
+  trackActivity
+};
 
-// Provider component
+const MonitoringContext = createContext<MonitoringContextType>(defaultContext);
+
 export function MonitoringProvider({ children }: { children: ReactNode }) {
-  const [isMonitoringEnabled, setIsMonitoringEnabled] = useState<boolean>(false);
+  const [isMonitoringEnabled, setIsMonitoringEnabled] = useState(false);
   const [keystrokeHistory, setKeystrokeHistory] = useState<KeystrokeEvent[]>([]);
   const [apiHistory, setApiHistory] = useState<ApiEvent[]>([]);
   const [activityHistory, setActivityHistory] = useState<ActivityEvent[]>([]);
   
-  // Enable monitoring
-  const enableMonitoring = () => {
-    setIsMonitoringEnabled(true);
-    console.log('[MONITORING] Enabled');
-  };
+  // Load monitoring state from localStorage
+  useEffect(() => {
+    const savedState = localStorage.getItem('vmbMonitoringEnabled');
+    if (savedState === 'true') {
+      setIsMonitoringEnabled(true);
+      console.log('[VMB Monitoring] Monitoring enabled from saved state');
+    }
+  }, []);
   
-  // Disable monitoring
-  const disableMonitoring = () => {
-    setIsMonitoringEnabled(false);
-    console.log('[MONITORING] Disabled');
-  };
-  
-  // Clear all history
-  const clearHistory = () => {
-    activityMonitor.clearHistory();
-    setKeystrokeHistory([]);
-    setApiHistory([]);
-    setActivityHistory([]);
-  };
-  
-  // Update history periodically when monitoring is enabled
+  // Update state with current history every 1 second
   useEffect(() => {
     if (!isMonitoringEnabled) return;
     
-    const intervalId = setInterval(() => {
+    const interval = setInterval(() => {
       setKeystrokeHistory(activityMonitor.getKeystrokeHistory());
       setApiHistory(activityMonitor.getApiHistory());
       setActivityHistory(activityMonitor.getActivityHistory());
     }, 1000);
     
-    return () => clearInterval(intervalId);
+    return () => clearInterval(interval);
   }, [isMonitoringEnabled]);
   
+  const enableMonitoring = useCallback(() => {
+    setIsMonitoringEnabled(true);
+    localStorage.setItem('vmbMonitoringEnabled', 'true');
+    console.log('[VMB Monitoring] Monitoring enabled');
+  }, []);
+  
+  const disableMonitoring = useCallback(() => {
+    setIsMonitoringEnabled(false);
+    localStorage.setItem('vmbMonitoringEnabled', 'false');
+    console.log('[VMB Monitoring] Monitoring disabled');
+  }, []);
+  
+  const clearHistory = useCallback(() => {
+    activityMonitor.clearHistory();
+    setKeystrokeHistory([]);
+    setApiHistory([]);
+    setActivityHistory([]);
+  }, []);
+  
+  const value = {
+    isMonitoringEnabled,
+    enableMonitoring,
+    disableMonitoring,
+    keystrokeHistory,
+    apiHistory,
+    activityHistory,
+    clearHistory,
+    trackKeystroke,
+    trackApiRequest,
+    trackActivity
+  };
+  
   return (
-    <MonitoringContext.Provider
-      value={{
-        isMonitoringEnabled,
-        enableMonitoring,
-        disableMonitoring,
-        keystrokeHistory,
-        apiHistory,
-        activityHistory,
-        clearHistory,
-        trackKeystroke: activityMonitor.trackKeystroke,
-        trackApiRequest: activityMonitor.trackApiRequest,
-        trackActivity: activityMonitor.trackActivity
-      }}
-    >
+    <MonitoringContext.Provider value={value}>
       {children}
     </MonitoringContext.Provider>
   );
 }
 
-// Custom hook for using the monitoring context
 export function useMonitoring() {
   const context = useContext(MonitoringContext);
   if (!context) {
@@ -102,5 +116,3 @@ export function useMonitoring() {
   }
   return context;
 }
-
-export default MonitoringContext;

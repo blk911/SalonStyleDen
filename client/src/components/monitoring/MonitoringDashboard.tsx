@@ -30,11 +30,11 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  PlayIcon,
-  StopIcon,
-  TrashIcon,
-  DownloadIcon,
-  XIcon
+  Play as PlayIcon,
+  Square as StopIcon,
+  Trash as TrashIcon,
+  Download as DownloadIcon,
+  X as XIcon
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
@@ -110,7 +110,7 @@ export default function MonitoringDashboard() {
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500">
                 Status: {isMonitoringEnabled ? (
-                  <Badge variant="success" className="bg-green-500 text-[10px]">Active</Badge>
+                  <Badge variant="default" className="bg-green-500 text-[10px]">Active</Badge>
                 ) : (
                   <Badge variant="destructive" className="bg-gray-400 text-[10px]">Inactive</Badge>
                 )}

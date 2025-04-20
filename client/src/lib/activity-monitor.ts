@@ -29,7 +29,7 @@ export interface ApiEvent {
 
 export interface ActivityEvent {
   timestamp: number;
-  type: 'navigation' | 'click' | 'submit' | 'render' | 'error' | 'api' | 'keystroke';
+  type: 'navigation' | 'click' | 'submit' | 'render' | 'error' | 'api' | 'keystroke' | 'health-check' | 'status-check';
   component: string;
   details: any;
 }
@@ -136,7 +136,7 @@ export async function trackApiRequest<T>(
 
 // General activity tracking (clicks, navigation, etc)
 export function trackActivity(
-  type: 'navigation' | 'click' | 'submit' | 'render' | 'error',
+  type: 'navigation' | 'click' | 'submit' | 'render' | 'error' | 'api' | 'keystroke' | 'health-check' | 'status-check',
   component: string,
   details: any
 ): void {

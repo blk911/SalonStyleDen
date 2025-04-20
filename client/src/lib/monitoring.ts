@@ -160,8 +160,8 @@ export function initMonitoring(): void {
   // Initialize network request monitoring
   const originalFetch = window.fetch;
   window.fetch = async function(input, init) {
-    const url = typeof input === 'string' ? input : input.url;
-    const method = init?.method || (typeof input === 'string' ? 'GET' : input.method) || 'GET';
+    const url = typeof input === 'string' ? input : input instanceof Request ? input.url : String(input);
+    const method = init?.method || (typeof input === 'string' ? 'GET' : input instanceof Request ? input.method : 'GET');
     const requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
     
@@ -185,9 +185,10 @@ export function initMonitoring(): void {
       });
       
       return response;
-    } catch (error) {
+    } catch (err) {
       const endTime = Date.now();
       const duration = endTime - startTime;
+      const error = err as Error;
       
       console.error(`[API-ERR] ${method} ${url} - ID: ${requestId} - Duration: ${duration}ms`, error);
       
@@ -195,7 +196,7 @@ export function initMonitoring(): void {
         requestId,
         method,
         url,
-        error: error.message,
+        error: error.message || String(error),
         duration,
         requestData: init?.body,
         timestamp: new Date().toISOString()
