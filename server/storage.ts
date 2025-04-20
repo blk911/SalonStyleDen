@@ -83,6 +83,11 @@ export class DatabaseStorage implements IStorage {
     const results = await db.select().from(salons).where(eq(salons.id, id));
     return results.length > 0 ? results[0] : undefined;
   }
+  
+  async getSalonByName(name: string): Promise<Salon | undefined> {
+    const results = await db.select().from(salons).where(eq(salons.name, name));
+    return results.length > 0 ? results[0] : undefined;
+  }
 
   async createSalon(insertSalon: InsertSalon): Promise<Salon> {
     // Ensure required fields are set

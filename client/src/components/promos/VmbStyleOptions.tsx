@@ -422,9 +422,9 @@ export function VmbStyleOptions({
               </Button>
               <Button 
                 onClick={() => {
-                  // Always proceed with normal selection regardless of client ID
-                  // This fixes the bug where the PromoCodeDialog was shown instead of the style dialog
-                  handleSaveSelection();
+                  // Close the details dialog and open the confirmation dialog
+                  setIsDetailsOpen(false);
+                  setIsConfirmationOpen(true);
                 }}
                 disabled={isSubmitting}
                 className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
