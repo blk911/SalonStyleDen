@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,44 +109,48 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
   
   return (
     <form onSubmit={handleSubmit} className={hideLabels ? "space-y-2" : "space-y-3"}>
-      <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
-        {!hideLabels && (
-          <Label htmlFor="name" className="text-xs font-medium">
-            Friend's Name
-          </Label>
-        )}
-        <div className="relative">
-          <UserIcon className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-          <Input
-            id="name"
-            name="name"
-            placeholder="Enter your friend's name"
-            value={form.name}
-            onChange={handleChange}
-            className="pl-8"
-          />
+      {/* Name and Phone on one line */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
+          {!hideLabels && (
+            <Label htmlFor="name" className="text-xs font-medium">
+              Friend's Name
+            </Label>
+          )}
+          <div className="relative">
+            <UserIcon className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+            <Input
+              id="name"
+              name="name"
+              placeholder="Enter friend's name"
+              value={form.name}
+              onChange={handleChange}
+              className="pl-8"
+            />
+          </div>
+        </div>
+        
+        <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
+          {!hideLabels && (
+            <Label htmlFor="phone" className="text-xs font-medium">
+              Friend's Phone
+            </Label>
+          )}
+          <div className="relative">
+            <PhoneIcon className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+            <Input
+              id="phone"
+              name="phone"
+              placeholder="Enter phone number"
+              value={form.phone}
+              onChange={handleChange}
+              className="pl-8"
+            />
+          </div>
         </div>
       </div>
       
-      <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
-        {!hideLabels && (
-          <Label htmlFor="phone" className="text-xs font-medium">
-            Friend's Phone
-          </Label>
-        )}
-        <div className="relative">
-          <PhoneIcon className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-          <Input
-            id="phone"
-            name="phone"
-            placeholder="Enter your friend's phone number"
-            value={form.phone}
-            onChange={handleChange}
-            className="pl-8"
-          />
-        </div>
-      </div>
-      
+      {/* Email on separate line */}
       <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
         {!hideLabels && (
           <Label htmlFor="email" className="text-xs font-medium">
@@ -165,18 +170,21 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
         </div>
       </div>
       
-      <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
+      {/* Message with more vertical space */}
+      <div className={hideLabels ? "grid gap-1 mt-2" : "grid gap-2 mt-2"}>
         {!hideLabels && (
           <Label htmlFor="message" className="text-xs font-medium">
             Message (Optional)
           </Label>
         )}
-        <Input
+        <Textarea
           id="message"
           name="message"
           placeholder="Add a personal message"
           value={form.message}
           onChange={handleChange}
+          className="min-h-[60px] resize-none"
+          rows={2}
         />
       </div>
       
