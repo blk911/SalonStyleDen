@@ -43,6 +43,7 @@ const clientFormSchema = z.object({
   phone: z.string().min(10, { message: "Please enter a valid phone number" }),
   email: z.string().email({ message: "Please enter a valid email address" }).or(z.literal("")), // Allow empty email
   isCurrentClient: z.enum(["yes", "no"]).default("no"), // Add default value
+  acceptTerms: z.boolean().refine(val => val === true, { message: "You must accept the terms and conditions" }),
   notes: z.string().optional(),
   favoriteServices: z.array(z.string()).optional(),
   salonId: z.string().optional(),
@@ -154,6 +155,7 @@ export default function ClientForm({
       phone: initialData?.phone || "",
       email: initialData?.email || "",
       isCurrentClient: initialData?.isCurrentClient === true ? "yes" : "no",
+      acceptTerms: initialData?.acceptTerms || false,
       notes: initialData?.notes || "",
       favoriteServices: initialData?.favoriteServices || [],
       salonId: initialData?.salonId ? String(initialData.salonId) : 
@@ -386,6 +388,7 @@ export default function ClientForm({
         phone: data.phone,
         email: data.email,
         isCurrentClient: data.isCurrentClient === "yes",
+        acceptedTerms: data.acceptTerms, // Include terms acceptance flag
         notes: data.notes || "",
         favoriteServices: favoriteServices,
         // Make sure we don't try to parse "loading" as an integer
@@ -751,6 +754,27 @@ export default function ClientForm({
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="acceptTerms"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4 mb-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel className="text-sm">
+                      I accept the <a href="/terms" target="_blank" className="text-pink-600 hover:underline">Terms and Conditions</a> and <a href="/privacy" target="_blank" className="text-pink-600 hover:underline">Privacy Policy</a>
+                    </FormLabel>
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              )}
+            />
+            
             <div className="pt-4">
               <Button type="submit" className="w-full bg-[#FF92A5] hover:bg-[#E57C8E]">
                 Sign me up! Ven Me, Baby!

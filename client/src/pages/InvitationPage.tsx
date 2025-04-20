@@ -86,18 +86,42 @@ export default function InvitationPage() {
     enabled: !!invitation?.salonId,
   });
 
-  // Handle accept invitation
-  const handleAcceptInvitation = () => {
-    if (invitation && invitation.id) {
-      // Redirect to client registration with invitation ID
-      setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
-    } else {
+  // Handle accept invitation or view dashboard
+  const handleAcceptInvitation = async () => {
+    if (!invitation || !invitation.id) {
       toast({
         title: "Error",
         description: "There was a problem with this invitation.",
         variant: "destructive"
       });
+      return;
     }
+
+    // If the invitation is already completed, find the associated client and go to dashboard
+    if (invitation.status === 'completed') {
+      try {
+        // Get client associated with this invitation
+        const response = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
+        if (!response.ok) {
+          throw new Error('Failed to find client record');
+        }
+        
+        const clients = await response.json();
+        
+        if (clients && clients.length > 0) {
+          const clientId = clients[0].id;
+          // Go directly to client dashboard
+          setLocation(`/client/${clientId}`);
+          return;
+        }
+      } catch (error) {
+        console.error('Error finding client:', error);
+        // Fall back to registration if client lookup fails
+      }
+    }
+    
+    // For pending invitations or if client lookup failed, go to registration
+    setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
   };
 
   // Loading state
