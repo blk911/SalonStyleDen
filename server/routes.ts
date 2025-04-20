@@ -1595,6 +1595,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "styleId and salonId are required" });
       }
       
+      // Fetch client to check sponsorship
+      const client = await storage.getClient(Number(clientId));
+      if (!client) {
+        return res.status(404).json({ error: "Client not found" });
+      }
+      
+      // Check sponsorship and update client if needed
+      if (!client.sponsorSalonId) {
+        console.log(`Client ${clientId} has no sponsor salon - assigning default sponsor VMB LTD`);
+        
+        // Update client with default sponsor (VMB LTD, ID: 12)
+        try {
+          await db.update(clients)
+            .set({ 
+              sponsor: "Ven Me, Baby! LTD",
+              sponsorSalonId: 12
+            })
+            .where(eq(clients.id, Number(clientId)));
+            
+          console.log(`Updated client ${clientId} with default sponsor (VMB LTD, ID: 12)`);
+          
+          // Log the sponsorship assignment
+          await storage.createActivityLog({
+            type: "sponsor_assignment",
+            description: `Default sponsor VMB LTD assigned to client ${clientId}`,
+            clientId: Number(clientId),
+            salonId: 12,
+            timestamp: new Date()
+          });
+        } catch (updateError) {
+          console.error(`Failed to update client ${clientId} sponsorship:`, updateError);
+          // Continue with style selection even if sponsorship update fails
+        }
+      } else {
+        console.log(`Client ${clientId} already has sponsor salon ID: ${client.sponsorSalonId}`);
+      }
+      
       // Create style selection
       const styleSelection = await storage.createStyleSelection({
         clientId: Number(clientId),
