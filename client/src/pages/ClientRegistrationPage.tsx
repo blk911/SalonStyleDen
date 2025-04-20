@@ -164,6 +164,7 @@ export default function ClientRegistrationPage() {
         sponsor: salon?.name || invitation?.sponsor || 'Unknown',
         sponsorSalonId: data.sponsorSalonId || salonId || invitation?.salonId,
         isCurrentClient: true,
+        accepted_terms: data.acceptTerms || false, // Make sure we use the correct field name
         invitationId: invitation?.id // Add invitation ID for linking
       };
       
