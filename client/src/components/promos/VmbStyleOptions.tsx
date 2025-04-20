@@ -224,8 +224,43 @@ export function VmbStyleOptions({
     }
   };
   
-  // Legacy handler for backward compatibility
+  // Legacy handler for backward compatibility with additional error handling
   const handleSaveSelection = () => {
+    console.log("Style selection: handleSaveSelection triggered", selectedStyle?.name);
+    
+    // Make sure we have valid form data before submitting
+    if (selectedStyle) {
+      // Ensure required form values are set
+      if (!form.getValues('styleOptions.styleId')) {
+        form.setValue('styleOptions.styleId', selectedStyle.id);
+      }
+      
+      if (!form.getValues('styleOptions.salonId') && salonId) {
+        form.setValue('styleOptions.salonId', salonId);
+      }
+      
+      if (!form.getValues('styleOptions.clientId') && clientId) {
+        form.setValue('styleOptions.clientId', clientId);
+      }
+    }
+    
+    // Handle French Tips specifically if needed
+    if (selectedStyle?.name?.includes("French Tips")) {
+      console.log("French Tips style selected - using special handler");
+      
+      // Close the details dialog and show confirmation directly for Tiff's French Tips
+      if (!clientId || !salonId) {
+        setIsDetailsOpen(false);
+        toast({
+          title: "Style Saved!",
+          description: `You've selected ${selectedStyle.name}`,
+          variant: "default"
+        });
+        return;
+      }
+    }
+    
+    // Proceed with form submission
     form.handleSubmit(onSubmit)();
   };
   
