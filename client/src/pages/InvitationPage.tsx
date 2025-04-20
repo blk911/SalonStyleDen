@@ -120,7 +120,39 @@ export default function InvitationPage() {
       }
     }
     
-    // For pending invitations or if client lookup failed, go to registration
+    // For pending invitations, update the status to 'accepted' first
+    if (invitation.status === 'pending') {
+      try {
+        // Update invitation status to accepted
+        const updateResponse = await fetch(`/api/invitations/${invitation.id}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: 'accepted' })
+        });
+        
+        if (!updateResponse.ok) {
+          throw new Error('Failed to update invitation status');
+        }
+        
+        // Show success toast
+        toast({
+          title: "Invitation Accepted",
+          description: "Your invitation has been accepted.",
+          variant: "default"
+        });
+      } catch (error) {
+        console.error('Error updating invitation status:', error);
+        toast({
+          title: "Warning",
+          description: "Could not update invitation status, but continuing with registration.",
+          variant: "destructive"
+        });
+      }
+    }
+    
+    // For invitations or if client lookup failed, go to registration
     setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
   };
 

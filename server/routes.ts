@@ -1235,7 +1235,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Update invitation status
+  // Update invitation status (PATCH endpoint kept for backward compatibility)
   apiRouter.patch("/invitations/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
@@ -1261,6 +1261,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update invitation status
       console.log(`PATCH /invitations/${id} - Updating status to: ${status}`);
       const updatedInvitation = await storage.updateInvitationStatus(id, status);
+      
+      res.json(updatedInvitation);
+    } catch (error) {
+      console.error('Error updating invitation status:', error);
+      res.status(500).json({ error: "Failed to update invitation status" });
+    }
+  });
+  
+  // Dedicated endpoint for updating invitation status - follows RESTful conventions
+  apiRouter.put("/invitations/:id/status", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      console.log(`PUT /invitations/${id}/status - Updating invitation status`);
+      
+      // Get status from request body
+      const { status } = req.body;
+      
+      if (!status) {
+        return res.status(400).json({ error: "Status is required" });
+      }
+      
+      // Get the invitation to make sure it exists
+      const invitation = await storage.getInvitation(id);
+      if (!invitation) {
+        return res.status(404).json({ error: "Invitation not found" });
+      }
+      
+      // Update invitation status
+      console.log(`PUT /invitations/${id}/status - Updating status to: ${status}`);
+      const updatedInvitation = await storage.updateInvitationStatus(id, status);
+      
+      // Log the status change as an activity
+      try {
+        await storage.createActivityLog({
+          type: "invitation_status_updated",
+          description: `Invitation #${invitation.inviteHash} status changed from ${invitation.status} to ${status}`,
+          salonId: Number(invitation.salonId),
+          timestamp: new Date()
+        });
+      } catch (logError) {
+        console.error('Failed to log invitation status update activity:', logError);
+      }
       
       res.json(updatedInvitation);
     } catch (error) {
