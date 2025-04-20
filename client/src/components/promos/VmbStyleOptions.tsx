@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { CheckIcon, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -385,9 +385,9 @@ export function VmbStyleOptions({
                 {selectedStyle.name}
                 <Sparkles className="h-5 w-5" />
               </DialogTitle>
-              <div id="style-details-description" className="sr-only">
+              <DialogDescription className="text-center text-sm text-gray-600">
                 Style details for {selectedStyle.name} including price and duration.
-              </div>
+              </DialogDescription>
             </DialogHeader>
             
             <div className="flex flex-col items-center space-y-4 py-6">
@@ -448,9 +448,9 @@ export function VmbStyleOptions({
                 <CheckIcon className="h-5 w-5" />
                 Style Selected!
               </DialogTitle>
-              <div id="style-selection-confirmation" className="sr-only">
+              <DialogDescription className="text-center text-sm text-gray-600">
                 Confirmation that {selectedStyle.name} has been added to your selected styles.
-              </div>
+              </DialogDescription>
             </DialogHeader>
             
             <div className="flex flex-col items-center space-y-4 py-6">
