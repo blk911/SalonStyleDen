@@ -388,7 +388,7 @@ export default function ClientForm({
         phone: data.phone,
         email: data.email,
         isCurrentClient: data.isCurrentClient === "yes",
-        accepted_terms: data.acceptTerms || false, // Include terms acceptance flag
+        // Skip acceptedTerms/accepted_terms field as it might not exist in the database yet
         notes: data.notes || "",
         favoriteServices: favoriteServices,
         // Make sure we don't try to parse "loading" as an integer
