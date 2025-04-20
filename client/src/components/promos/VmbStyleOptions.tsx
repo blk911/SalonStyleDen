@@ -266,8 +266,31 @@ export function VmbStyleOptions({
   
   // Reset all dialogs
   const handleCloseAll = () => {
+    // Close all dialogs and reset selection
     setIsConfirmationOpen(false);
     setSelectedStyle(null);
+  };
+  
+  // Handles continuing with the style selection (called from confirmation dialog)
+  const handleConfirmSelection = () => {
+    // Execute the form submission
+    if (selectedStyle) {
+      // Submit the actual style selection to the API
+      handleSaveSelection();
+      
+      // Close confirmation dialog after short delay to give visual feedback
+      setTimeout(() => {
+        setIsConfirmationOpen(false);
+        setSelectedStyle(null);
+        
+        // Show a toast confirmation
+        toast({
+          title: "Style Selected!",
+          description: `${selectedStyle.name} has been added to your style selections.`,
+          variant: "default"
+        });
+      }, 800);
+    }
   };
   
   // Get badge text based on service name
@@ -440,22 +463,31 @@ export function VmbStyleOptions({
       {selectedStyle && (
         <Dialog open={isConfirmationOpen} onOpenChange={(open) => !open && setIsConfirmationOpen(false)}>
           <DialogContent 
-            className="sm:max-w-md border border-green-200 overflow-hidden"
+            className="sm:max-w-md border-2 border-[#FF92A5] p-0 overflow-hidden"
             aria-describedby="style-selection-confirmation"
           >
-            <DialogHeader className="bg-green-50 p-4">
-              <DialogTitle className="text-center text-lg text-green-600 flex items-center justify-center gap-2">
-                <CheckIcon className="h-5 w-5" />
-                Style Selected!
+            <DialogHeader className="bg-pink-50 p-4">
+              <DialogTitle className="text-center text-lg text-[#FF92A5] flex items-center justify-center gap-2">
+                <Sparkles className="h-5 w-5" />
+                Confirm Style Selection
+                <Sparkles className="h-5 w-5" />
               </DialogTitle>
               <DialogDescription className="text-center text-sm text-gray-600">
-                Confirmation that {selectedStyle.name} has been added to your selected styles.
+                Please confirm you want to select {selectedStyle.name} and add it to your style basket.
               </DialogDescription>
             </DialogHeader>
             
             <div className="flex flex-col items-center space-y-4 py-6">
-              <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center shadow-inner">
-                <CheckIcon className="h-10 w-10 text-green-600" />
+              <div className="h-28 w-28 overflow-hidden rounded-full border-2 border-[#FF92A5] shadow-md">
+                <img 
+                  src={selectedStyle.gifUrl ? getImageUrl(selectedStyle.gifUrl, 'vmb_style_popup') : '/assets/LOGO1.png'} 
+                  alt={selectedStyle.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    console.error(`Failed to load image for style: ${selectedStyle.name}`);
+                    e.currentTarget.src = '/assets/LOGO1.png';
+                  }}
+                />
               </div>
               
               <div className="text-center px-6">
@@ -463,19 +495,28 @@ export function VmbStyleOptions({
                 <p className="text-base mt-2">{selectedStyle.description}</p>
                 <p className="mt-1 font-semibold text-gray-700">${Math.round(selectedStyle.price)}</p>
                 <div className="mt-4 p-3 bg-pink-50 rounded-lg border border-pink-100">
-                  <p className="text-sm text-[#FF92A5]">
-                    Thank you for selecting this style! It has been added to your VMB Style basket.
+                  <p className="text-sm text-gray-700">
+                    You're about to select this style. After confirmation, it will be saved to your profile
+                    and shared with your salon.
                   </p>
                 </div>
               </div>
             </div>
             
-            <DialogFooter className="sm:justify-center p-4 bg-gray-50">
+            <DialogFooter className="sm:justify-center gap-4 p-4 bg-gray-50">
               <Button 
+                variant="outline"
                 onClick={handleCloseAll}
+                className="border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleConfirmSelection}
+                disabled={isSubmitting}
                 className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
               >
-                Continue Shopping
+                {isSubmitting ? 'Saving...' : 'Confirm & Save'}
               </Button>
             </DialogFooter>
           </DialogContent>
