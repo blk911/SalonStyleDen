@@ -17,6 +17,7 @@ export interface IStorage {
   
   // Salon methods
   getSalon(id: number): Promise<Salon | undefined>;
+  getSalonByName(name: string): Promise<Salon | undefined>;
   createSalon(salon: InsertSalon): Promise<Salon>;
   getAllSalons(): Promise<Salon[]>;
   updateSalonServices(id: number, services: any[]): Promise<Salon>;

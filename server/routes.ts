@@ -1605,23 +1605,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!client.sponsorSalonId) {
         console.log(`Client ${clientId} has no sponsor salon - assigning default sponsor VMB LTD`);
         
-        // Update client with default sponsor (VMB LTD, ID: 12)
+        // Get the Ven Me, Baby! LTD salon ID
+        const vmbSalon = await storage.getSalonByName("Ven Me, Baby! LTD");
+        const vmbSalonId = vmbSalon ? vmbSalon.id : 43; // Fallback to ID 43 if not found
+        
+        // Update client with default sponsor
         try {
           await db.update(clients)
             .set({ 
               sponsor: "Ven Me, Baby! LTD",
-              sponsorSalonId: 12
+              sponsorSalonId: vmbSalonId
             })
             .where(eq(clients.id, Number(clientId)));
             
-          console.log(`Updated client ${clientId} with default sponsor (VMB LTD, ID: 12)`);
+          console.log(`Updated client ${clientId} with default sponsor (VMB LTD, ID: ${vmbSalonId})`);
           
           // Log the sponsorship assignment
           await storage.createActivityLog({
             type: "sponsor_assignment",
             description: `Default sponsor VMB LTD assigned to client ${clientId}`,
             clientId: Number(clientId),
-            salonId: 12,
+            salonId: vmbSalonId,
             timestamp: new Date()
           });
         } catch (updateError) {
