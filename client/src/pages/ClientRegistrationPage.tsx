@@ -164,7 +164,7 @@ export default function ClientRegistrationPage() {
         sponsor: salon?.name || invitation?.sponsor || 'Unknown',
         sponsorSalonId: data.sponsorSalonId || salonId || invitation?.salonId,
         isCurrentClient: true,
-        // Skip acceptedTerms/accepted_terms field as it might not exist in the database yet
+        accepted_terms: data.acceptTerms || false, // Use snake_case to match database
         invitationId: invitation?.id // Add invitation ID for linking
       };
       
