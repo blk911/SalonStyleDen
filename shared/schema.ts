@@ -64,6 +64,7 @@ export const invitations = pgTable("invitations", {
   notes: text("notes"),
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
   salonId: integer("salon_id"), // Reference to salon sending the invitation
+  senderId: integer("sender_id"), // Reference to the client who sent the invitation
   sponsor: text("sponsor"),
   inviteHash: text("invite_hash").unique(), // Unique hash identifier for tracking invitations
   status: text("status").notNull().default("pending"), // pending, accepted, declined
@@ -105,6 +106,10 @@ export const invitationsRelations = relations(invitations, ({ one }) => ({
   salon: one(salons, {
     fields: [invitations.salonId],
     references: [salons.id],
+  }),
+  sender: one(clients, {
+    fields: [invitations.senderId],
+    references: [clients.id],
   }),
 }));
 

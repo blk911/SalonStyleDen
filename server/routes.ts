@@ -516,36 +516,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
               });
             }
             
-            // Check if this phone exists in invitations (needed for promo code validation flow)
-            if (validatedData.phone) {
-              const invitations = await storage.getInvitationsByPhone(validatedData.phone);
-              if (invitations.length > 0) {
-                console.log('Phone exists in invitations but not clients - allowing registration to proceed');
-                // Continue with client creation
-              } else {
-                // Use the broader duplicate checking mechanism for other tables
-                const duplicateCheck = await storage.isDuplicateContact(
-                  validatedData.phone || "", 
-                  validatedData.email || ""
-                );
-                
-                if (duplicateCheck.isDuplicate) {
-                  console.log(`Duplicate detected in field: ${duplicateCheck.field}`);
-                  
-                  // If we couldn't find a client but have a duplicate, it might be in another table
-                  return res.status(409).json({ 
-                    status: 'duplicate',
-                    field: duplicateCheck.field,
-                    message: `This ${duplicateCheck.field} is already registered. Complete your registration to continue.`,
-                    // Return submitted data to pre-fill the registration form
-                    name: validatedData.name,
-                    phone: validatedData.phone,
-                    email: validatedData.email,
-                    salonId: validatedData.salonId
-                  });
-                }
-              }
+            // Use our context-aware validation specifically for registration
+            console.log('Using context-aware registration validation');
+            const validationResult = await storage.validateRegistration(
+              validatedData.phone || "", 
+              validatedData.email || ""
+            );
+            
+            if (!validationResult.isValid) {
+              console.log(`Registration validation failed: ${validationResult.message}`);
+              
+              // Return a more user-friendly response with form pre-fill data
+              return res.status(409).json({ 
+                status: 'duplicate',
+                message: validationResult.message || 'This contact information is already registered',
+                // Return submitted data to pre-fill the registration form
+                name: validatedData.name,
+                phone: validatedData.phone,
+                email: validatedData.email,
+                salonId: validatedData.salonId
+              });
             }
+            
+            console.log('Registration validation passed - proceeding with client creation');
           } catch (error) {
             console.error('Error checking for duplicates:', error);
             // Continue to client creation if error in duplicate check
