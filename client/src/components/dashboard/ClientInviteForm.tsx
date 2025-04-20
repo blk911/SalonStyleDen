@@ -8,6 +8,7 @@ import { AtSignIcon, PhoneIcon, SendIcon, UserIcon } from "lucide-react";
 
 interface ClientInviteFormProps {
   clientId: number;
+  hideLabels?: boolean;
   onSuccess?: () => void;
 }
 

@@ -936,7 +936,7 @@ export default function ClientDashboard() {
                             <CardTitle className="text-sm">Invite Your Friends</CardTitle>
                           </CardHeader>
                           <CardContent className="p-4">
-                            <ClientInviteForm clientId={client.id} onSuccess={() => {
+                            <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
                               // Refresh the invitations list
                               toast({
                                 title: "Invitation Sent",
@@ -992,7 +992,7 @@ export default function ClientDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-4">
-                  <ClientInviteForm clientId={client.id} onSuccess={() => {
+                  <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
                     toast({
                       title: "Invitation Sent",
                       description: "Your invitation has been sent successfully!"
