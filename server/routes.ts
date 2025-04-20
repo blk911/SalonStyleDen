@@ -552,6 +552,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Create client with sponsor information
         const client = await storage.createClient(clientData);
         console.log('Created client with ID:', client.id, 'Sponsor:', sponsorName, 'SponsorID:', sponsorSalonId);
+        
+        // Check if this client was created from an invitation by checking invitationId in the request
+        if (req.body.invitationId) {
+          const invitationId = parseInt(req.body.invitationId);
+          if (!isNaN(invitationId)) {
+            console.log(`Client was created from invitation ID: ${invitationId}, marking as completed`);
+            
+            try {
+              // Update invitation status to completed
+              await storage.updateInvitationStatus(invitationId, 'completed');
+              console.log(`Updated invitation ${invitationId} status to 'completed'`);
+            } catch (invitationError) {
+              // Log error but don't fail the client creation
+              console.error(`Failed to update invitation ${invitationId} status:`, invitationError);
+            }
+          }
+        }
+        
+        // Also check if there are any invitations with matching phone number
+        if (validatedData.phone) {
+          try {
+            const matchingInvitations = await storage.getInvitationsByPhone(validatedData.phone);
+            
+            if (matchingInvitations.length > 0) {
+              console.log(`Found ${matchingInvitations.length} invitations with matching phone number`);
+              
+              // Update all matching invitations to completed
+              for (const invitation of matchingInvitations) {
+                if (invitation.status !== 'completed') {
+                  console.log(`Updating invitation ${invitation.id} status to 'completed'`);
+                  await storage.updateInvitationStatus(invitation.id, 'completed');
+                }
+              }
+            }
+          } catch (invitationError) {
+            // Log error but don't fail the client creation
+            console.error('Failed to update matching invitations:', invitationError);
+          }
+        }
 
         // Return the client data
         res.status(201).json(client);
@@ -1193,6 +1232,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching invitation by hash:', error);
       res.status(500).json({ error: "Failed to fetch invitation" });
+    }
+  });
+  
+  // Update invitation status
+  apiRouter.patch("/invitations/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      console.log(`PATCH /invitations/${id} - Updating invitation status`);
+      
+      // Get status from request body
+      const { status, clientId } = req.body;
+      
+      if (!status) {
+        return res.status(400).json({ error: "Status is required" });
+      }
+      
+      // Get the invitation to make sure it exists
+      const invitation = await storage.getInvitation(id);
+      if (!invitation) {
+        return res.status(404).json({ error: "Invitation not found" });
+      }
+      
+      // Update invitation status
+      console.log(`PATCH /invitations/${id} - Updating status to: ${status}`);
+      const updatedInvitation = await storage.updateInvitationStatus(id, status);
+      
+      res.json(updatedInvitation);
+    } catch (error) {
+      console.error('Error updating invitation status:', error);
+      res.status(500).json({ error: "Failed to update invitation status" });
     }
   });
   
