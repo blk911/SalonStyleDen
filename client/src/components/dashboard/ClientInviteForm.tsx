@@ -12,7 +12,7 @@ interface ClientInviteFormProps {
   onSuccess?: () => void;
 }
 
-export default function ClientInviteForm({ clientId, onSuccess }: ClientInviteFormProps) {
+export default function ClientInviteForm({ clientId, hideLabels = false, onSuccess }: ClientInviteFormProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -107,11 +107,13 @@ export default function ClientInviteForm({ clientId, onSuccess }: ClientInviteFo
   };
   
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <div className="grid gap-2">
-        <Label htmlFor="name" className="text-xs font-medium">
-          Friend's Name
-        </Label>
+    <form onSubmit={handleSubmit} className={hideLabels ? "space-y-2" : "space-y-3"}>
+      <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
+        {!hideLabels && (
+          <Label htmlFor="name" className="text-xs font-medium">
+            Friend's Name
+          </Label>
+        )}
         <div className="relative">
           <UserIcon className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
           <Input
@@ -125,10 +127,12 @@ export default function ClientInviteForm({ clientId, onSuccess }: ClientInviteFo
         </div>
       </div>
       
-      <div className="grid gap-2">
-        <Label htmlFor="phone" className="text-xs font-medium">
-          Friend's Phone
-        </Label>
+      <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
+        {!hideLabels && (
+          <Label htmlFor="phone" className="text-xs font-medium">
+            Friend's Phone
+          </Label>
+        )}
         <div className="relative">
           <PhoneIcon className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
           <Input
@@ -142,10 +146,12 @@ export default function ClientInviteForm({ clientId, onSuccess }: ClientInviteFo
         </div>
       </div>
       
-      <div className="grid gap-2">
-        <Label htmlFor="email" className="text-xs font-medium">
-          Friend's Email
-        </Label>
+      <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
+        {!hideLabels && (
+          <Label htmlFor="email" className="text-xs font-medium">
+            Friend's Email
+          </Label>
+        )}
         <div className="relative">
           <AtSignIcon className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
           <Input
@@ -159,10 +165,12 @@ export default function ClientInviteForm({ clientId, onSuccess }: ClientInviteFo
         </div>
       </div>
       
-      <div className="grid gap-2">
-        <Label htmlFor="message" className="text-xs font-medium">
-          Message (Optional)
-        </Label>
+      <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
+        {!hideLabels && (
+          <Label htmlFor="message" className="text-xs font-medium">
+            Message (Optional)
+          </Label>
+        )}
         <Input
           id="message"
           name="message"
