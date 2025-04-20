@@ -387,20 +387,9 @@ export function VmbStyleOptions({
               </Button>
               <Button 
                 onClick={() => {
-                  // Check if we have a valid client ID
-                  if (!clientId || clientId <= 0) {
-                    // No valid client ID, show the invitation prompt
-                    setIsDetailsOpen(false);
-                    setShowPromoCodeDialog(true);
-                    toast({
-                      title: "Client Registration Required",
-                      description: "Please enter your invitation code to continue.",
-                      variant: "default"
-                    });
-                  } else {
-                    // We have a client ID, proceed with normal selection
-                    handleSaveSelection();
-                  }
+                  // Always proceed with normal selection regardless of client ID
+                  // This fixes the bug where the PromoCodeDialog was shown instead of the style dialog
+                  handleSaveSelection();
                 }}
                 disabled={isSubmitting}
                 className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
@@ -471,10 +460,10 @@ export function VmbStyleOptions({
             variant: "default"
           });
           
-          // Optional: Navigate to the client dashboard after successful verification
+          // Navigate to the client dashboard after successful verification
           if (clientData && clientData.clientId) {
-            // Redirect to client dashboard with the new client ID
-            navigate(`/clients/${clientData.clientId}/dashboard`);
+            // Redirect to client dashboard with the correct path (/client/:id)
+            navigate(`/client/${clientData.clientId}`);
           } else {
             // Just refresh the page to get the updated client context
             window.location.reload();
