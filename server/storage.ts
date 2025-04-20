@@ -6,7 +6,7 @@ import {
   styleSelections, type StyleSelection, type InsertStyleSelection,
   activityLogs, type ActivityLog, type InsertActivityLog
 } from "@shared/schema";
-import { db } from "./db";
+import { db, pool } from "./db";
 import { eq, sql } from "drizzle-orm";
 
 export interface IStorage {
@@ -328,10 +328,61 @@ export class DatabaseStorage implements IStorage {
         c.phone && c.phone.replace(/\D/g, '') === cleanPhone
       );
       
-      // If phone exists in invitations but not in clients, this is a valid registration
+      // If phone exists in invitations but not in clients, this is a valid registration from an invitation
       if (invitations.length > 0 && !clientExists) {
-        console.log('DatabaseStorage.createClient - Phone exists in invitations but not clients, proceeding with registration');
-        // Continue with client creation below
+        console.log('DatabaseStorage.createClient - Phone exists in invitations but not clients, proceeding with registration from invitation');
+        
+        // Set sponsorship info from the invitation
+        // Get the most recent invitation for this phone
+        const mostRecentInvitation = invitations.reduce((latest, current) => {
+          if (!latest) return current;
+          if (!latest.createdAt || !current.createdAt) return latest;
+          return new Date(current.createdAt) > new Date(latest.createdAt) ? current : latest;
+        }, null as Invitation | null);
+        
+        if (mostRecentInvitation) {
+          console.log(`DatabaseStorage.createClient - Using invitation data for sponsorship: invitation ID ${mostRecentInvitation.id}`);
+          
+          // If the invitation has a salonId, use it as the sponsorSalonId
+          if (mostRecentInvitation.salonId) {
+            insertClient.sponsorSalonId = mostRecentInvitation.salonId;
+            console.log(`DatabaseStorage.createClient - Setting sponsorSalonId to ${mostRecentInvitation.salonId} from invitation`);
+          }
+          
+          // If the invitation has a senderId (client who sent the invitation), note the sponsor relationship
+          if (mostRecentInvitation.senderId) {
+            // This client was invited by another client, so we should get the original client's salon
+            const senderClient = await this.getClient(mostRecentInvitation.senderId);
+            
+            if (senderClient) {
+              insertClient.sponsorName = senderClient.name;
+              console.log(`DatabaseStorage.createClient - Setting sponsorName to ${senderClient.name} from invitation sender`);
+              
+              // If no salonId is set yet but sender has a salon, use that
+              if (!insertClient.salonId && senderClient.salonId) {
+                insertClient.salonId = senderClient.salonId;
+                console.log(`DatabaseStorage.createClient - Setting salonId to ${senderClient.salonId} from invitation sender's salon`);
+              }
+            }
+          } else if (mostRecentInvitation.sponsor) {
+            // Set the sponsor name from the invitation
+            insertClient.sponsorName = mostRecentInvitation.sponsor;
+            console.log(`DatabaseStorage.createClient - Setting sponsorName to ${mostRecentInvitation.sponsor} from invitation`);
+          }
+          
+          // Update invitation status to accepted
+          if (mostRecentInvitation.id) {
+            try {
+              await this.updateInvitationStatus(mostRecentInvitation.id, 'accepted');
+              console.log(`DatabaseStorage.createClient - Updated invitation ${mostRecentInvitation.id} status to 'accepted'`);
+            } catch (error) {
+              console.error(`DatabaseStorage.createClient - Error updating invitation status: ${error}`);
+              // Continue with client creation even if updating invitation fails
+            }
+          }
+        }
+        
+        // Continue with client creation below, with updated sponsorship info
       } else {
         // Check for duplicates using the normal flow
         // Ensure we have strings for the isDuplicateContact function
@@ -375,6 +426,13 @@ export class DatabaseStorage implements IStorage {
       ...insertClient,
       createdAt: new Date()
     }).returning();
+    
+    // Log client creation with sponsor information
+    if (result[0].sponsorName || result[0].sponsorSalonId) {
+      console.log(`DatabaseStorage.createClient - Created client with ID ${result[0].id} and sponsor: ${result[0].sponsorName || 'none'}, sponsorSalonId: ${result[0].sponsorSalonId || 'none'}`);
+    } else {
+      console.log(`DatabaseStorage.createClient - Created client with ID ${result[0].id} (no sponsor information)`);
+    }
     
     return result[0];
   }
@@ -472,34 +530,96 @@ export class DatabaseStorage implements IStorage {
     };
     
     try {
-      // Filter out the senderId property if not supported in the database yet
-      const { senderId, ...otherFields } = invitationData;
+      // Use a safe approach with raw SQL to handle potential missing columns
+      const client = await pool.connect();
       
-      // We'll use Drizzle's built-in insert which handles the schema correctly
-      const result = await db.insert(invitations)
-        .values({
-          ...otherFields,
-          // Convert camelCase to snake_case fields
-          salonId: otherFields.salonId,
-          inviteHash: otherFields.inviteHash,
-          favoriteServices: otherFields.favoriteServices,
-          firstServiceDate: otherFields.firstServiceDate
-        })
-        .returning();
-      
-      if (!result.length) {
-        throw new Error("Failed to create invitation, no rows returned");
+      try {
+        // First, check if the sender_id column exists
+        const columnCheckResult = await client.query(`
+          SELECT column_name 
+          FROM information_schema.columns 
+          WHERE table_name = 'invitations' 
+          AND column_name = 'sender_id'
+        `);
+        
+        const senderIdColumnExists = columnCheckResult.rowCount > 0;
+        console.log(`DatabaseStorage.createInvitation - sender_id column exists: ${senderIdColumnExists}`);
+        
+        // Prepare basic columns that we know exist
+        let columns = [
+          'name', 'phone', 'email', 'notes', 
+          'salon_id', 'sponsor', 'invite_hash', 
+          'status', 'first_service_date', 'created_at'
+        ];
+        
+        // Prepare values array
+        let values = [
+          invitationData.name, 
+          invitationData.phone, 
+          invitationData.email, 
+          invitationData.notes, 
+          invitationData.salonId, 
+          invitationData.sponsor, 
+          invitationData.inviteHash,
+          invitationData.status, 
+          invitationData.firstServiceDate, 
+          invitationData.createdAt
+        ];
+        
+        // Add favorite_services if provided
+        if (invitationData.favoriteServices) {
+          columns.push('favorite_services');
+          values.push(JSON.stringify(invitationData.favoriteServices));
+        }
+        
+        // Add sender_id if the column exists and senderId is provided
+        if (senderIdColumnExists && invitationData.senderId) {
+          columns.push('sender_id');
+          values.push(invitationData.senderId);
+        }
+        
+        // Create placeholders for the query ($1, $2, etc.)
+        const placeholders = values.map((_, index) => `$${index + 1}`).join(', ');
+        
+        // Build and execute the insert query
+        const sqlQuery = `
+          INSERT INTO invitations (${columns.join(', ')})
+          VALUES (${placeholders})
+          RETURNING *
+        `;
+        
+        const result = await client.query(sqlQuery, values);
+        
+        if (result.rowCount === 0) {
+          throw new Error("Failed to create invitation, no rows returned");
+        }
+        
+        const row = result.rows[0];
+        console.log(`DatabaseStorage.createInvitation - Created invitation with ID ${row.id}`);
+        
+        // Convert DB result to Invitation type with senderId
+        const invitation: Invitation = {
+          id: row.id,
+          name: row.name,
+          phone: row.phone,
+          email: row.email,
+          notes: row.notes,
+          salonId: row.salon_id,
+          sponsor: row.sponsor,
+          inviteHash: row.invite_hash,
+          status: row.status,
+          firstServiceDate: row.first_service_date,
+          createdAt: row.created_at,
+          favoriteServices: row.favorite_services,
+          // Add the senderId property, using row value if column exists or provided value
+          senderId: (senderIdColumnExists && row.sender_id) ? row.sender_id : invitationData.senderId || null
+        };
+        
+        return invitation;
+      } finally {
+        // Make sure to release the client back to the pool
+        client.release();
       }
-      
-      console.log(`DatabaseStorage.createInvitation - Created invitation with ID ${result[0].id}`);
-      
-      // Add the senderId property back to the result
-      const invitation: Invitation = {
-        ...result[0],
-        senderId: senderId || null
-      };
-      
-      return invitation;
     } catch (error) {
       console.error('DatabaseStorage.createInvitation - Error creating invitation:', error);
       throw error;
@@ -537,17 +657,47 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DatabaseStorage.getSalonInvitations - Fetching invitations for salon ${salonId}`);
       
-      // Use Drizzle's built-in select to avoid SQL errors
-      const invitationRows = await db.select().from(invitations).where(eq(invitations.salonId, salonId));
-      console.log(`DatabaseStorage.getSalonInvitations - Retrieved ${invitationRows.length} invitations`);
+      // Use a raw SQL query that only selects columns we know exist
+      // This is safer than using the Drizzle model which may include fields not yet in DB
+      const sqlQuery = `
+        SELECT 
+            id, name, phone, email, notes, 
+            salon_id, sponsor, invite_hash, status, 
+            first_service_date, created_at, 
+            favorite_services
+        FROM invitations 
+        WHERE salon_id = $1
+        ORDER BY created_at DESC
+      `;
       
-      // Add default senderId for backward compatibility
-      const result: Invitation[] = invitationRows.map(invitation => ({
-        ...invitation,
-        senderId: invitation.senderId ?? null 
-      }));
-      
-      return result;
+      const client = await pool.connect();
+      try {
+        const result = await client.query(sqlQuery, [salonId]);
+        const rows = result.rows;
+        console.log(`DatabaseStorage.getSalonInvitations - Retrieved ${rows.length} invitations`);
+        
+        // Map the result to our expected format with senderId added
+        const invitationList: Invitation[] = rows.map(row => ({
+          id: row.id,
+          name: row.name,
+          phone: row.phone,
+          email: row.email,
+          notes: row.notes,
+          salonId: row.salon_id,
+          sponsor: row.sponsor,
+          inviteHash: row.invite_hash,
+          status: row.status,
+          firstServiceDate: row.first_service_date,
+          createdAt: row.created_at,
+          favoriteServices: row.favorite_services,
+          // Add the missing senderId field with a default value
+          senderId: null
+        }));
+        
+        return invitationList;
+      } finally {
+        client.release();
+      }
     } catch (error) {
       console.error(`DatabaseStorage.getSalonInvitations - Error fetching invitations for salon ${salonId}:`, error);
       throw error;
@@ -648,33 +798,60 @@ export class DatabaseStorage implements IStorage {
     console.log(`DatabaseStorage.validateInvitation - Validating invitation: phone='${phone}', email='${email}', senderId=${senderId}`);
     
     // Clean the phone number for comparison
-    const cleanPhone = phone.replace(/\D/g, '');
+    const cleanPhone = phone ? phone.replace(/\D/g, '') : '';
     
     try {
-      // 1. Get the sender's information (could be client or salon)
+      // 1. Determine the context (client sending or salon sending)
       const sender = await this.getClient(senderId);
-      if (!sender) {
-        console.log(`DatabaseStorage.validateInvitation - Sender ID ${senderId} not found`);
-        return { isValid: false, message: "Invalid sender" };
+      const isSenderClient = !!sender;
+      
+      console.log(`DatabaseStorage.validateInvitation - Sender is a ${isSenderClient ? 'client' : 'salon'}`);
+      
+      if (isSenderClient) {
+        // CLIENT SENDING INVITATION CONTEXT
+        
+        // 2. Check if the client is trying to invite themselves
+        if (sender.phone && sender.phone.replace(/\D/g, '') === cleanPhone) {
+          console.log(`DatabaseStorage.validateInvitation - Client trying to invite themselves`);
+          return { isValid: false, message: "You cannot invite yourself" };
+        }
+        
+        if (email && sender.email && sender.email.toLowerCase() === email.toLowerCase()) {
+          console.log(`DatabaseStorage.validateInvitation - Client trying to invite their own email`);
+          return { isValid: false, message: "You cannot invite yourself" };
+        }
+        
+        // Client can send invitations to existing invitees (to remind them)
+        // So we don't block invitations to phone numbers that already have pending invitations
+      } else {
+        // SALON SENDING INVITATION CONTEXT - More strict validation
+        
+        // If no sender client is found, try to get the salon
+        const salon = await this.getSalon(senderId);
+        if (!salon) {
+          console.log(`DatabaseStorage.validateInvitation - Invalid sender ID ${senderId}`);
+          return { isValid: false, message: "Invalid sender" };
+        }
+        
+        // Check if the salon is trying to invite themselves
+        if (salon.phone && salon.phone.replace(/\D/g, '') === cleanPhone) {
+          console.log(`DatabaseStorage.validateInvitation - Salon trying to invite their own phone`);
+          return { isValid: false, message: "You cannot invite yourself" };
+        }
+        
+        if (email && salon.email && salon.email.toLowerCase() === email.toLowerCase()) {
+          console.log(`DatabaseStorage.validateInvitation - Salon trying to invite their own email`);
+          return { isValid: false, message: "You cannot invite yourself" };
+        }
       }
       
-      // 2. Check if the sender is trying to invite themselves
-      if (sender.phone && sender.phone.replace(/\D/g, '') === cleanPhone) {
-        console.log(`DatabaseStorage.validateInvitation - Sender trying to invite themselves`);
-        return { isValid: false, message: "You cannot invite yourself" };
-      }
+      // 3. Common validations regardless of sender type
       
-      if (email && sender.email && sender.email.toLowerCase() === email.toLowerCase()) {
-        console.log(`DatabaseStorage.validateInvitation - Sender trying to invite their own email`);
-        return { isValid: false, message: "You cannot invite yourself" };
-      }
-      
-      // 3. Get all clients and salons for checking duplicates
+      // Get all clients and salons for checking duplicates
       const allClients = await db.select().from(clients);
       const allSalons = await db.select().from(salons);
       
       // 4. Check if the phone number is already registered as a client
-      // Exception: We DO allow sending invitations to people who have pending invitations
       if (cleanPhone) {
         const existingClient = allClients.find(client => 
           client.phone && client.phone.replace(/\D/g, '') === cleanPhone
