@@ -270,14 +270,7 @@ export default function InvitationPage() {
                       )}
                     </div>
 
-                    <div className="flex justify-between items-center mt-8">
-                      <Button 
-                        onClick={handleAcceptInvitation}
-                        className="bg-pink-600 hover:bg-pink-700 text-white"
-                      >
-                        Accept Invitation
-                      </Button>
-
+                    <div className="flex justify-end items-center mt-8">
                       <Button 
                         variant="outline"
                         onClick={() => setLocation(`/salon/${salon.id}`)}
