@@ -465,13 +465,26 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DatabaseStorage.getSalonInvitations - Fetching invitations for salon ${salonId}`);
       
-      const result = await db.select()
-        .from(invitations)
-        .where(eq(invitations.salonId, salonId))
-        .orderBy(sql`${invitations.createdAt} DESC`);
+      // Use a safe approach to handle missing columns in the DB
+      const sqlQuery = sql`
+        SELECT id, name, phone, email, notes, favorite_services as favoriteServices,
+               salon_id as salonId, sponsor, invite_hash as inviteHash, 
+               status, first_service_date as firstServiceDate, created_at as createdAt
+        FROM invitations 
+        WHERE salon_id = ${salonId}
+        ORDER BY created_at DESC
+      `;
       
-      console.log(`DatabaseStorage.getSalonInvitations - Retrieved ${result.length} invitations`);
-      return result;
+      const rows = await db.execute(sqlQuery);
+      console.log(`DatabaseStorage.getSalonInvitations - Retrieved ${rows.length} invitations`);
+      
+      // Add senderId with a default value if it doesn't exist in DB yet
+      const invitations = rows.map(row => ({
+        ...row,
+        senderId: (row as any).sender_id || null
+      })) as Invitation[];
+      
+      return invitations;
     } catch (error) {
       console.error(`DatabaseStorage.getSalonInvitations - Error fetching invitations for salon ${salonId}:`, error);
       throw error;
@@ -813,143 +826,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
-  // Context-aware validation method for invitation validation
-  async validateInvitation(phone: string, email: string, senderId: number): Promise<{isValid: boolean, message?: string}> {
-    console.log(`DatabaseStorage.validateInvitation - Context-aware validation for invitation from sender ${senderId}`);
-    
-    try {
-      // Standardize inputs
-      const cleanPhone = phone ? phone.replace(/\D/g, '') : '';
-      const lowercaseEmail = email ? email.toLowerCase() : '';
-      
-      // Validate that at least one contact method is provided
-      if (!cleanPhone && !lowercaseEmail) {
-        return { 
-          isValid: false, 
-          message: 'Please provide either a phone number or email address' 
-        };
-      }
-      
-      // Get sender client for checking
-      const sender = await this.getClient(senderId);
-      if (!sender) {
-        console.log(`DatabaseStorage.validateInvitation - Sender client not found: ${senderId}`);
-        return { 
-          isValid: false, 
-          message: 'Invalid sender client ID' 
-        };
-      }
-      
-      // In invitation context, we should allow:
-      // 1. Invite clients who don't exist in the system yet
-      // 2. Invite clients who already have invitations but from different senders
-      // 3. Block inviting clients who are already registered in the system
-      
-      // Get all clients
-      const allClients = await db.select().from(clients);
-      
-      // Check if phone matches an existing client
-      if (cleanPhone) {
-        const matchingClient = allClients.find(client => 
-          client.phone && client.phone.replace(/\D/g, '') === cleanPhone
-        );
-        
-        if (matchingClient) {
-          console.log(`DatabaseStorage.validateInvitation - Phone matches existing client: ${matchingClient.id}`);
-          return { 
-            isValid: false, 
-            message: 'This phone number is already registered with a client account' 
-          };
-        }
-      }
-      
-      // Check if email matches an existing client
-      if (lowercaseEmail) {
-        const matchingClient = allClients.find(client => 
-          client.email && client.email.toLowerCase() === lowercaseEmail
-        );
-        
-        if (matchingClient) {
-          console.log(`DatabaseStorage.validateInvitation - Email matches existing client: ${matchingClient.id}`);
-          return { 
-            isValid: false, 
-            message: 'This email is already registered with a client account' 
-          };
-        }
-      }
-      
-      // Get existing invitations for this contact
-      const existingInvitations = await db.select().from(invitations);
-      
-      // For phone invitations
-      if (cleanPhone) {
-        const matchingInvitations = existingInvitations.filter(inv => 
-          inv.phone && inv.phone.replace(/\D/g, '') === cleanPhone && 
-          inv.senderId === senderId
-        );
-        
-        if (matchingInvitations.length > 0) {
-          console.log(`DatabaseStorage.validateInvitation - Phone already has invitation from this sender`);
-          return { 
-            isValid: false, 
-            message: 'You have already sent an invitation to this phone number' 
-          };
-        }
-      }
-      
-      // For email invitations
-      if (lowercaseEmail) {
-        const matchingInvitations = existingInvitations.filter(inv => 
-          inv.email && inv.email.toLowerCase() === lowercaseEmail && 
-          inv.senderId === senderId
-        );
-        
-        if (matchingInvitations.length > 0) {
-          console.log(`DatabaseStorage.validateInvitation - Email already has invitation from this sender`);
-          return { 
-            isValid: false, 
-            message: 'You have already sent an invitation to this email address' 
-          };
-        }
-      }
-      
-      // If we got here, the invitation is valid
-      return { isValid: true };
-    } catch (error) {
-      console.error('DatabaseStorage.validateInvitation - Error during validation:', error);
-      return { 
-        isValid: false, 
-        message: 'Server error during validation' 
-      };
-    }
-  }
-  
-  // Context-aware validation method for client registration
-  async validateRegistration(phone: string, email: string, excludeId?: number): Promise<{isValid: boolean, message?: string}> {
-    console.log(`DatabaseStorage.validateRegistration - Validating registration (excludeId=${excludeId})`);
-    
-    try {
-      // For registration, we use stricter rules than invitation
-      // We'll use our existing isDuplicateContact method which checks across all tables
-      const duplicateCheck = await this.isDuplicateContact(phone, email, undefined, excludeId);
-      
-      if (duplicateCheck.isDuplicate) {
-        return {
-          isValid: false,
-          message: `This ${duplicateCheck.field} is already registered in our system`
-        };
-      }
-      
-      // If we got here, registration is valid
-      return { isValid: true };
-    } catch (error) {
-      console.error('DatabaseStorage.validateRegistration - Error during validation:', error);
-      return { 
-        isValid: false, 
-        message: 'Server error during registration validation' 
-      };
-    }
-  }
+
   
   // Schema access method for dynamic validation
   getSalonsTable(): typeof salons {
