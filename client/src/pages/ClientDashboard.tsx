@@ -12,6 +12,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import EditableClientInfo from "@/components/dashboard/EditableClientInfo";
 import RecentVmbInvitations from "@/components/dashboard/RecentVmbInvitations";
+import InlineVmbInvitations from "@/components/dashboard/InlineVmbInvitations";
 import ClientInviteForm from "@/components/dashboard/ClientInviteForm";
 import { getImageUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -930,7 +931,9 @@ export default function ClientDashboard() {
                       {/* Recent VMB Invitations Sent - REDUCED PADDING */}
                       <div className="mt-8 border-t pt-2">
                         <h3 className="font-semibold text-pink-700 mb-2">SALON TO CLIENT INVITATIONS</h3>
-                        <RecentVmbInvitations clientId={client.id} />
+                        <div className="mb-2">
+                          <InlineVmbInvitations clientId={client.id} />
+                        </div>
                       </div>
                       
                       {/* SHARE VMB Section */}
@@ -994,37 +997,7 @@ export default function ClientDashboard() {
                 </CardHeader>
                 
                 <CardContent className="pt-4">
-                  <div className="space-y-3">
-                    {invitations.map(invitation => (
-                      <div 
-                        key={invitation.id}
-                        className="flex flex-col p-3 border rounded-lg hover:bg-pink-50 transition-colors"
-                      >
-                        <div className="flex justify-between items-center">
-                          <h3 className="font-medium">Invited by {invitation.sponsor || invitation.salonName}</h3>
-                          <Badge 
-                            variant="outline" 
-                            className={`
-                              ${invitation.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : ''}
-                              ${invitation.status === 'style_selected' ? 'bg-green-50 text-green-700 border-green-200' : ''}
-                              ${invitation.status === 'completed' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
-                            `}
-                          >
-                            {invitation.status}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-500">
-                          Sent on {new Date(invitation.createdAt).toLocaleDateString()}
-                        </p>
-                        {invitation.firstServiceDate && (
-                          <p className="text-sm flex items-center">
-                            <ClockIcon className="h-3 w-3 mr-1" /> 
-                            First appointment: {invitation.firstServiceDate}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                  <InlineVmbInvitations clientId={client.id} />
                 </CardContent>
               </Card>
             )}
