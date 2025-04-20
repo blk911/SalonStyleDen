@@ -97,32 +97,57 @@ export default function InvitationPage() {
       return;
     }
 
-    // If the invitation is already completed, find the associated client and go to dashboard
-    if (invitation.status === 'completed') {
-      try {
-        // Get client associated with this invitation
-        const response = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
-        if (!response.ok) {
-          throw new Error('Failed to find client record');
-        }
-        
-        const clients = await response.json();
+    try {
+      // First, try to find if client already exists with this phone number
+      console.log(`Checking if client with phone ${invitation.phone} already exists...`);
+      const clientResponse = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
+      
+      // If we found a client, go directly to dashboard regardless of invitation status
+      if (clientResponse.ok) {
+        const clients = await clientResponse.json();
         
         if (clients && clients.length > 0) {
           const clientId = clients[0].id;
+          
+          // Update invitation to completed if it's not already
+          if (invitation.status !== 'completed') {
+            try {
+              await fetch(`/api/invitations/${invitation.id}/status`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: 'completed' })
+              });
+              
+              toast({
+                title: "Account Found",
+                description: "Your account is already registered. Redirecting to your dashboard.",
+                variant: "default"
+              });
+            } catch (error) {
+              console.error('Error updating invitation status:', error);
+            }
+          }
+          
           // Go directly to client dashboard
+          console.log(`Client found with ID ${clientId}, redirecting to dashboard`);
           setLocation(`/client/${clientId}`);
           return;
         }
-      } catch (error) {
-        console.error('Error finding client:', error);
-        // Fall back to registration if client lookup fails
       }
-    }
-    
-    // For pending invitations, update the status to 'accepted' first
-    if (invitation.status === 'pending') {
-      try {
+      
+      // No client exists yet, handle the invitation based on status
+      
+      // If the invitation is already accepted or completed, go to registration
+      if (invitation.status === 'accepted' || invitation.status === 'completed') {
+        // Go directly to registration
+        setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+        return;
+      }
+      
+      // For pending invitations, update the status to 'accepted' first
+      if (invitation.status === 'pending') {
         // Update invitation status to accepted
         const updateResponse = await fetch(`/api/invitations/${invitation.id}/status`, {
           method: 'PUT',
@@ -136,24 +161,28 @@ export default function InvitationPage() {
           throw new Error('Failed to update invitation status');
         }
         
-        // Show success toast
+        // Show toast notification
         toast({
           title: "Invitation Accepted",
-          description: "Your invitation has been accepted.",
+          description: "Your invitation has been accepted. Please complete your registration.",
           variant: "default"
         });
-      } catch (error) {
-        console.error('Error updating invitation status:', error);
-        toast({
-          title: "Warning",
-          description: "Could not update invitation status, but continuing with registration.",
-          variant: "destructive"
-        });
       }
+      
+      // Direct to registration page with the invitation data
+      setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+      
+    } catch (error) {
+      console.error('Error in invitation acceptance flow:', error);
+      toast({
+        title: "Error",
+        description: "There was a problem processing your invitation. Please try again.",
+        variant: "destructive"
+      });
+      
+      // Go to registration as fallback
+      setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
     }
-    
-    // For invitations or if client lookup failed, go to registration
-    setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
   };
 
   // Loading state

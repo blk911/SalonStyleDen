@@ -137,6 +137,54 @@ export default function ClientRegistrationPage() {
   });
 
   // When invitation data is loaded, populate the form
+  // Auto-redirect effect for already processed invitations
+  useEffect(() => {
+    // Check if we have an invitation and if it's already been accepted/completed
+    if (invitation && (invitation.status === "accepted" || invitation.status === "completed")) {
+      // Check if a client already exists with this phone number
+      const checkForExistingClient = async () => {
+        try {
+          console.log(`Auto-checking if client with phone ${invitation.phone} already exists...`);
+          const response = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
+          
+          if (response.ok) {
+            const clients = await response.json();
+            
+            if (clients && clients.length > 0) {
+              const clientId = clients[0].id;
+              console.log(`Client found with ID ${clientId}, auto-redirecting to dashboard`);
+              
+              // Show toast notification
+              toast({
+                title: "Account Found",
+                description: "Your account is already registered. Redirecting to your dashboard.",
+                variant: "default"
+              });
+              
+              // Set registration complete to show transition UI
+              setRegistrationComplete(true);
+              
+              // Redirect to client dashboard after a short delay
+              setTimeout(() => {
+                navigate(`/client/${clientId}`);
+              }, 1000);
+              
+              return true; // Client found and redirect in progress
+            }
+          }
+          return false; // No client found
+        } catch (error) {
+          console.error("Error checking for existing client:", error);
+          return false;
+        }
+      };
+      
+      // Execute the check
+      checkForExistingClient();
+    }
+  }, [invitation, navigate, toast]);
+
+  // Populate form with invitation data
   useEffect(() => {
     if (invitation) {
       form.reset({
