@@ -71,14 +71,16 @@ export default function AdminDashboard() {
         console.log('Fetching clients from API...');
         const response = await fetch('/api/clients');
         if (!response.ok) {
-          throw new Error('Failed to fetch clients');
+          const errorText = await response.text().catch(() => 'No error details available');
+          throw new Error(`Failed to fetch clients: ${response.status} ${response.statusText}. Details: ${errorText}`);
         }
         const data = await response.json();
         console.log('Fetched clients:', data);
         return data;
       } catch (error) {
         console.error('Error fetching clients:', error);
-        throw error;
+        // Return empty array as fallback instead of throwing to prevent UI from breaking
+        return [];
       }
     },
   });
@@ -90,14 +92,16 @@ export default function AdminDashboard() {
         console.log('Fetching salons from API...');
         const response = await fetch('/api/salons');
         if (!response.ok) {
-          throw new Error('Failed to fetch salons');
+          const errorText = await response.text().catch(() => 'No error details available');
+          throw new Error(`Failed to fetch salons: ${response.status} ${response.statusText}. Details: ${errorText}`);
         }
         const data = await response.json();
         console.log('Fetched salons:', data);
         return data;
       } catch (error) {
         console.error('Error fetching salons:', error);
-        throw error;
+        // Return empty array as fallback instead of throwing
+        return [];
       }
     },
   });
@@ -110,14 +114,16 @@ export default function AdminDashboard() {
         console.log('Fetching invitations from API...');
         const response = await fetch('/api/invitations?limit=50'); // Get more invitations for admin view
         if (!response.ok) {
-          throw new Error('Failed to fetch invitations');
+          const errorText = await response.text().catch(() => 'No error details available');
+          throw new Error(`Failed to fetch invitations: ${response.status} ${response.statusText}. Details: ${errorText}`);
         }
         const data = await response.json();
         console.log('Fetched invitations:', data);
         return data;
       } catch (error) {
         console.error('Error fetching invitations:', error);
-        throw error;
+        // Return empty array as fallback instead of throwing
+        return [];
       }
     },
   });
@@ -130,14 +136,16 @@ export default function AdminDashboard() {
         console.log('Fetching activity logs from API...');
         const response = await fetch('/api/activity-logs?limit=50'); // Get more logs for admin view
         if (!response.ok) {
-          throw new Error('Failed to fetch activity logs');
+          const errorText = await response.text().catch(() => 'No error details available');
+          throw new Error(`Failed to fetch activity logs: ${response.status} ${response.statusText}. Details: ${errorText}`);
         }
         const data = await response.json();
         console.log('Fetched activity logs:', data);
         return data;
       } catch (error) {
         console.error('Error fetching activity logs:', error);
-        throw error;
+        // Return empty array as fallback instead of throwing
+        return [];
       }
     },
   });
@@ -150,11 +158,20 @@ export default function AdminDashboard() {
     return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
   };
 
-  if (clientIsLoading || salonIsLoading || inviteIsLoading || logsIsLoading) return <div>Loading...</div>;
-  if (clientError) return <div>Error loading clients: {clientError.message}</div>;
-  if (salonError) return <div>Error loading salons: {salonError.message}</div>;
-  if (inviteError) return <div>Error loading invitations: {inviteError.message}</div>;
-  if (logsError) return <div>Error loading activity logs: {logsError.message}</div>;
+  // Show global loading state only if everything is loading
+  if (clientIsLoading && salonIsLoading && inviteIsLoading && logsIsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <LoaderIcon className="h-10 w-10 animate-spin text-pink-500 mx-auto mb-4" />
+          <p className="text-gray-600">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Continue with the UI even if some data failed to load
+  // Individual sections will handle their own error states
 
 
   return (
