@@ -11,7 +11,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import EditableClientInfo from "@/components/dashboard/EditableClientInfo";
-import RecentVmbInvitations from "@/components/dashboard/RecentVmbInvitations";
 import InlineVmbInvitations from "@/components/dashboard/InlineVmbInvitations";
 import ClientInviteForm from "@/components/dashboard/ClientInviteForm";
 import { getImageUrl } from "@/lib/utils";
