@@ -2,7 +2,7 @@
  * Complete System Purge Script
  * 
  * This script purges all client data, invitations, style selections, and resets all states.
- * It maintains only the essential salon data for Tiffany 5280 Nails Studio and Ven Me, Baby! LTD.
+ * It maintains only the essential salon data for TIFFANY_5280 NAILS STUDIO and Ven Me, Baby! LTD.
  * 
  * Usage: node purge-testing-data.js
  */
@@ -49,7 +49,7 @@ async function purgeSystemData() {
     
     console.log('✅ System purge completed successfully!');
     console.log('✅ The following salons were preserved:');
-    console.log('  - Tiffany 5280 Nails Studio (ID: 42)');
+    console.log('  - TIFFANY_5280 NAILS STUDIO (ID: 42)');
     console.log('  - Ven Me, Baby! LTD (ID: 43)');
     
   } catch (error) {
