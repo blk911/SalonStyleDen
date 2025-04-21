@@ -78,56 +78,56 @@ export default function RecentVmbInvitations({
       <div className="mb-8">
         <h2 className="text-xl font-bold mb-4">VMB Salon Invitations</h2>
         
-        <div className="w-full border rounded-md">
+        <div className="w-full border rounded-md overflow-x-auto">
           {invitations && invitations.length > 0 ? (
             <table className="w-full">
               <thead>
                 <tr className="text-left border-b">
-                  <th className="py-2 px-4 font-medium">Name</th>
-                  <th className="py-2 px-4 font-medium">Email</th>
-                  <th className="py-2 px-4 font-medium">Phone</th>
-                  <th className="py-2 px-4 font-medium">Status</th>
-                  <th className="py-2 px-4 font-medium">Type</th>
-                  <th className="py-2 px-4 font-medium">Date</th>
-                  <th className="py-2 px-4 font-medium text-right">Page</th>
+                  <th className="py-2 px-2 sm:px-4 font-medium text-xs sm:text-sm">Name</th>
+                  <th className="py-2 px-2 sm:px-4 font-medium text-xs sm:text-sm">Email</th>
+                  <th className="py-2 px-2 sm:px-4 font-medium text-xs sm:text-sm">Phone</th>
+                  <th className="py-2 px-2 sm:px-4 font-medium text-xs sm:text-sm">Status</th>
+                  <th className="py-2 px-2 sm:px-4 font-medium text-xs sm:text-sm">Type</th>
+                  <th className="py-2 px-2 sm:px-4 font-medium text-xs sm:text-sm">Date</th>
+                  <th className="py-2 px-2 sm:px-4 font-medium text-right text-xs sm:text-sm">Page</th>
                 </tr>
               </thead>
               <tbody>
                 {invitations.map(invitation => (
                   <tr key={invitation.id} className="border-b">
-                    <td className="py-2 px-4">{invitation.name}</td>
-                    <td className="py-2 px-4">{invitation.email}</td>
-                    <td className="py-2 px-4">{formatPhone(invitation.phone)}</td>
-                    <td className="py-2 px-4">
-                      <span className="px-2 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-medium">
+                    <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm">{invitation.name}</td>
+                    <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">{invitation.email}</td>
+                    <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">{formatPhone(invitation.phone)}</td>
+                    <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm">
+                      <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-yellow-50 text-yellow-700 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap">
                         {invitation.status}
                       </span>
                     </td>
-                    <td className="py-2 px-4">
+                    <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm">
                       {invitation.type === 'client_invitation' ? (
-                        <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
-                          Client Referral
+                        <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-blue-50 text-blue-700 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap">
+                          Client
                         </span>
                       ) : (
-                        <span className="px-2 py-1 bg-pink-50 text-pink-700 rounded-full text-xs font-medium">
-                          Salon Invite
+                        <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-pink-50 text-pink-700 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap">
+                          Salon
                         </span>
                       )}
                     </td>
-                    <td className="py-2 px-4">
+                    <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
                       {new Date(invitation.createdAt).toLocaleDateString('en-US', { 
                         month: 'numeric', 
                         day: 'numeric',
                         year: '2-digit'
                       })}
                     </td>
-                    <td className="py-2 px-4 text-right">
+                    <td className="py-2 px-2 sm:px-4 text-right text-xs sm:text-sm">
                       <Link 
                         to={`/invitation/${invitation.inviteHash}`}
                         onClick={() => setLocation(`/invitation/${invitation.inviteHash}`)}
-                        className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
+                        className="inline-flex items-center text-pink-600 font-medium gap-1 text-xs sm:text-sm hover:text-pink-800 cursor-pointer whitespace-nowrap"
                       >
-                        <ExternalLinkIcon className="h-4 w-4" />
+                        <ExternalLinkIcon className="h-3 w-3 sm:h-4 sm:w-4" />
                         View
                       </Link>
                     </td>
