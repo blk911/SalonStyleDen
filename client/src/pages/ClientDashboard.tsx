@@ -115,6 +115,9 @@ export default function ClientDashboard() {
   // Show/hide state for share form section - default to SHOW
   const [showShareForm, setShowShareForm] = useState(true);
   
+  // Show/hide state for invitations section - default to SHOW
+  const [showInvitations, setShowInvitations] = useState(true);
+  
   // Show "Complete Your Profile" dialog for newly validated clients
   const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(false);
   
@@ -1007,13 +1010,29 @@ export default function ClientDashboard() {
                           </CardContent>
                         </Card>
                       </div>
-                      
-                      {/* Recent VMB Invitations Sent - MOVED UP */}
-                      <div className="mt-4 border-t pt-2">
-                        <h3 className="font-semibold text-pink-700 mb-2">Your Ven Me, Baby! Dashboard</h3>
-                        <div className="mb-2">
-                          <InlineVmbInvitations clientId={client.id} />
-                        </div>
+                      {/* Your Invitations - Collapsible Section */}
+                      <div className="mt-8 border-t pt-2">
+                        <Card className="rounded-xl shadow-sm overflow-hidden">
+                          <CardHeader className="bg-pink-50 pb-2 pt-2">
+                            <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
+                              <span>Your Invitations</span>
+                              <button 
+                                onClick={() => setShowInvitations(!showInvitations)} 
+                                className="flex items-center text-sm text-pink-600 hover:text-pink-800"
+                                aria-label={showInvitations ? "Hide invitations" : "Show invitations"}
+                              >
+                                {showInvitations ? (
+                                  <ChevronUpIcon className="h-5 w-5" />
+                                ) : (
+                                  <ChevronDownIcon className="h-5 w-5" />
+                                )}
+                              </button>
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className={`pt-4 ${showInvitations ? 'block' : 'hidden'}`}>
+                            <InlineVmbInvitations clientId={client.id} />
+                          </CardContent>
+                        </Card>
                       </div>
                     </div>
                   ) : salonLoading ? (
@@ -1021,22 +1040,6 @@ export default function ClientDashboard() {
                   ) : (
                     <p>Salon information not available</p>
                   )}
-                </CardContent>
-              </Card>
-            )}
-            
-            {/* Invitations Card - MOVED UP */}
-            {invitations && invitations.length > 0 && (
-              <Card className="rounded-xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-pink-50 pb-2 pt-2">
-                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
-                    <StarIcon className="h-4 w-4" />
-                    Your Invitations
-                  </CardTitle>
-                </CardHeader>
-                
-                <CardContent className="pt-4">
-                  <InlineVmbInvitations clientId={client.id} />
                 </CardContent>
               </Card>
             )}
@@ -1081,4 +1084,4 @@ export default function ClientDashboard() {
       <Footer />
     </div>
   );
-}
+}// VMB_DASH_RESTRUCTURE_MARKER_20250421
