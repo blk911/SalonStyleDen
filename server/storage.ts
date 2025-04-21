@@ -289,11 +289,17 @@ export class DatabaseStorage implements IStorage {
     // Check for duplicate phone in client, invitations, or salons
     // Only check if a non-empty phone is provided
     if (cleanPhone && cleanPhone.length > 0) {
+      // For clients, we only care about existing clients or salons with the same phone
+      // We don't consider invitations as duplicates for client registration
       if ((clientPhone.length > 0 && (excludeId === undefined || clientPhone[0].id !== excludeId)) || 
-          invitePhone.length > 0 || 
           salonPhone.length > 0) {
         console.log(`DatabaseStorage.isDuplicateContact - DUPLICATE PHONE DETECTED: ${cleanPhone}`);
         return { isDuplicate: true, field: 'phone' };
+      }
+      
+      // Log invitation info but don't treat as duplicate for registration
+      if (invitePhone.length > 0) {
+        console.log(`DatabaseStorage.isDuplicateContact - Phone exists in invitations but NOT treating as duplicate for registration: ${cleanPhone}`);
       }
     } else {
       console.log('DatabaseStorage.isDuplicateContact - Empty phone provided, skipping phone duplicate check');
@@ -301,11 +307,17 @@ export class DatabaseStorage implements IStorage {
     
     // Check for duplicate email in client, invitations, or salons
     if (email && email.trim().length > 0) {
+      // For clients, we only care about existing clients or salons with the same email
+      // We don't consider invitations as duplicates for client registration
       if ((clientEmail.length > 0 && (excludeId === undefined || clientEmail[0].id !== excludeId)) || 
-          inviteEmail.length > 0 || 
           salonEmail.length > 0) {
         console.log(`DatabaseStorage.isDuplicateContact - DUPLICATE EMAIL DETECTED: ${email.toLowerCase()}`);
         return { isDuplicate: true, field: 'email' };
+      }
+      
+      // Log invitation info but don't treat as duplicate for registration
+      if (inviteEmail.length > 0) {
+        console.log(`DatabaseStorage.isDuplicateContact - Email exists in invitations but NOT treating as duplicate for registration: ${email.toLowerCase()}`);
       }
     } else {
       console.log('DatabaseStorage.isDuplicateContact - Empty email provided, skipping email duplicate check');
