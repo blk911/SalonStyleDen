@@ -27,7 +27,9 @@ import {
   HeartIcon,
   StarIcon,
   CheckCircleIcon,
-  ScissorsIcon
+  ScissorsIcon,
+  ChevronDownIcon,
+  ChevronUpIcon
 } from "lucide-react";
 
 // Define client interface
@@ -106,6 +108,9 @@ export default function ClientDashboard() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showPersonalizedOffers, setShowPersonalizedOffers] = useState(false);
   const [showCreatePromo, setShowCreatePromo] = useState(false);
+  
+  // Show/hide state for gift options section - default to HIDE
+  const [showGiftOptions, setShowGiftOptions] = useState(false);
   
   // Show "Complete Your Profile" dialog for newly validated clients
   const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(false);
@@ -409,7 +414,7 @@ export default function ClientDashboard() {
                   <div>
                     <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
                       <ScissorsIcon className="h-4 w-4" />
-                      Your VMB Gifts
+                      Your Ven Me, Baby! <span className="italic font-script">script</span>, Dashboard
                     </CardTitle>
                     {salon && (
                       <CardDescription>Member of {salon.name}</CardDescription>
@@ -423,8 +428,21 @@ export default function ClientDashboard() {
                       {/* Ven Me, Baby! Gift Options - Direct display without salon contact info */}
                       {salon?.services && salon.services.length > 0 && (
                         <div>
-                          <h3 className="text-base font-medium text-pink-700 mb-3">Pick Your Next Ven Me, Baby! Gift</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <h3 className="text-base font-medium text-pink-700 mb-3 flex justify-between items-center">
+                            <span>Pick Your Next Ven Me, Baby! Gift</span>
+                            <button 
+                              onClick={() => setShowGiftOptions(!showGiftOptions)} 
+                              className="flex items-center text-sm text-pink-600 hover:text-pink-800"
+                              aria-label={showGiftOptions ? "Hide gift options" : "Show gift options"}
+                            >
+                              {showGiftOptions ? (
+                                <ChevronUpIcon className="h-5 w-5" />
+                              ) : (
+                                <ChevronDownIcon className="h-5 w-5" />
+                              )}
+                            </button>
+                          </h3>
+                          <div className={`grid grid-cols-1 md:grid-cols-2 gap-3 ${showGiftOptions ? 'block' : 'hidden'}`}>
                             {salon.services.filter(service => service.featured === true).map((service: any) => (
                               <div 
                                 key={service.id} 
