@@ -2,7 +2,7 @@
  * Salon Purge Script
  * 
  * This script will delete all salon records except for the specified ones:
- * - Tiffany 5280 Nails Studio
+ * - TIFFANY 5280 NAILS STUDIO
  * - Deb Dazzles
  * - Jenna's Glamour Nails
  * - Ven Me, Baby! LTD
@@ -49,7 +49,7 @@ async function purgeSalons() {
       .from(salons)
       .where(
         or(
-          ilike(salons.name, '%Tiffany 5280%'),
+          ilike(salons.name, '%TIFFANY 5280%'),
           ilike(salons.name, '%deb%dazzle%'),
           ilike(salons.name, '%jenna%glamour%'),
           ilike(salons.name, '%ven%me%baby%')

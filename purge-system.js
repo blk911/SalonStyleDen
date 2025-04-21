@@ -3,7 +3,7 @@
  * 
  * This script performs a complete purge of all application data except for:
  * - Ven Me, Baby! LTD (ID 43)
- * - TIFFANY_5280 NAILS STUDIO (ID 42)
+ * - TIFFANY 5280 NAILS STUDIO (ID 42)
  *
  * It will remove:
  * 1. All clients
@@ -108,16 +108,16 @@ async function purgeSystem() {
       logWithTime('Successfully purged all clients');
     }
 
-    // 4. Purge all salons except Ven Me, Baby! LTD and TIFFANY_5280 NAILS STUDIO
+    // 4. Purge all salons except Ven Me, Baby! LTD and TIFFANY 5280 NAILS STUDIO
     const salonsResult = await executeQuery(
       "SELECT COUNT(*) FROM salons WHERE id NOT IN (43, 42)"
     );
     const salonCount = parseInt(salonsResult.rows[0].count);
-    logWithTime(`Found ${salonCount} salons to purge (excluding Ven Me, Baby! LTD and TIFFANY_5280 NAILS STUDIO)`);
+    logWithTime(`Found ${salonCount} salons to purge (excluding Ven Me, Baby! LTD and TIFFANY 5280 NAILS STUDIO)`);
     
     if (salonCount > 0) {
       await executeQuery('DELETE FROM salons WHERE id NOT IN (43, 42)');
-      logWithTime('Successfully purged all salons except Ven Me, Baby! LTD and TIFFANY_5280 NAILS STUDIO');
+      logWithTime('Successfully purged all salons except Ven Me, Baby! LTD and TIFFANY 5280 NAILS STUDIO');
     }
 
     // 6. Reset sequence counters
