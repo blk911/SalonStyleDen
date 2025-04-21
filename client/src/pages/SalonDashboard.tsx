@@ -3,7 +3,7 @@ import { useParams, useLocation } from "wouter";
 import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +14,7 @@ import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSal
 import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
 import EditableService, { ServiceData } from "@/components/dashboard/EditableService";
 import ClientInvitation from "@/components/dashboard/ClientInvitation";
+import { ChevronUpIcon, ChevronDownIcon } from "lucide-react";
 
 // Define a type for the social media object that might be in the API response
 interface SocialMediaItem {
@@ -686,6 +687,9 @@ export default function SalonDashboard() {
     );
   }
 
+  // State for show/hide gift options section
+  const [showGiftOptions, setShowGiftOptions] = useState(true);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -729,6 +733,78 @@ export default function SalonDashboard() {
               onSave={handleSaveSalonInfo}
               defaultEditing={shouldOpenEditForm}
             />
+          </div>
+        </section>
+
+        {/* Pick Your Next Ven Me, Baby! Gift Section */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <Card className="rounded-xl shadow-sm overflow-hidden">
+              <CardContent className="p-0">
+                <div className="bg-pink-50 py-2 px-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-medium text-pink-700">Pick Your Next Ven Me, Baby! Gift</h3>
+                    <button 
+                      onClick={() => setShowGiftOptions(!showGiftOptions)} 
+                      className="flex items-center text-sm text-pink-600 hover:text-pink-800"
+                      aria-label={showGiftOptions ? "Hide gift options" : "Show gift options"}
+                    >
+                      {showGiftOptions ? (
+                        <ChevronUpIcon className="h-5 w-5" />
+                      ) : (
+                        <ChevronDownIcon className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+                <div className={`p-4 ${showGiftOptions ? 'block' : 'hidden'}`}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {services.filter(service => service.featured === true).map((service) => (
+                      <div 
+                        key={service.id} 
+                        className="relative border border-pink-100 rounded-lg overflow-hidden"
+                      >
+                        <div className="flex">
+                          <div className="flex-1 p-3">
+                            <h4 className="font-medium text-sm">{service.name}</h4>
+                            <p className="text-xs text-gray-600 mt-1">{service.description}</p>
+                            <div className="mt-2 flex items-center gap-2">
+                              <span className="font-bold text-sm">${service.price}</span>
+                              <span className="text-xs text-gray-500">{service.duration} min</span>
+                            </div>
+                            <div className="mt-2 flex items-center justify-between">
+                              <Button 
+                                size="sm" 
+                                className="bg-pink-600 hover:bg-pink-700 text-white text-xs py-0 h-7 rounded-full px-4"
+                              >
+                                Book Now
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                className="border-pink-200 text-pink-700 hover:bg-pink-50 text-xs h-7"
+                              >
+                                Edit
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="w-1/3 flex-shrink-0">
+                            <img 
+                              src={service.gifUrl || '/assets/salon-card.png'}
+                              alt={service.name}
+                              className="w-full h-24 object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src = '/assets/salon-card.png';
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </section>
 
