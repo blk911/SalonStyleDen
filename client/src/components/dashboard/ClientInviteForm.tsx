@@ -11,9 +11,10 @@ interface ClientInviteFormProps {
   clientId: number;
   hideLabels?: boolean;
   onSuccess?: () => void;
+  hideToggle?: boolean;
 }
 
-export default function ClientInviteForm({ clientId, hideLabels = false, onSuccess }: ClientInviteFormProps) {
+export default function ClientInviteForm({ clientId, hideLabels = false, onSuccess, hideToggle = false }: ClientInviteFormProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -139,25 +140,34 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     }
   };
   
+  // Always show the form when hideToggle is true
+  useEffect(() => {
+    if (hideToggle) {
+      setIsFormOpen(true);
+    }
+  }, [hideToggle]);
+
   return (
     <div className="w-full">
-      {/* Toggle button for showing/hiding form */}
-      <div 
-        className="flex items-center justify-between py-2 px-1 cursor-pointer"
-        onClick={() => setIsFormOpen(!isFormOpen)}
-      >
-        <h3 className="text-md font-medium">Invite Your Friends</h3>
-        <Button variant="ghost" size="sm" className="p-1 h-7 w-7" type="button">
-          {isFormOpen ? (
-            <ChevronUpIcon className="h-5 w-5" />
-          ) : (
-            <ChevronDownIcon className="h-5 w-5" />
-          )}
-        </Button>
-      </div>
+      {/* Toggle button for showing/hiding form - only show when hideToggle is false */}
+      {!hideToggle && (
+        <div 
+          className="flex items-center justify-between py-2 px-1 cursor-pointer"
+          onClick={() => setIsFormOpen(!isFormOpen)}
+        >
+          <h3 className="text-md font-medium">Invite Your Friends</h3>
+          <Button variant="ghost" size="sm" className="p-1 h-7 w-7" type="button">
+            {isFormOpen ? (
+              <ChevronUpIcon className="h-5 w-5" />
+            ) : (
+              <ChevronDownIcon className="h-5 w-5" />
+            )}
+          </Button>
+        </div>
+      )}
       
-      {/* Collapsible form */}
-      {isFormOpen && (
+      {/* Form is always visible when hideToggle is true, otherwise it's collapsible */}
+      {(hideToggle || isFormOpen) && (
         <form onSubmit={handleSubmit} className={hideLabels ? "space-y-2 mt-2" : "space-y-3 mt-2"}>
           {/* Name and Phone on one line */}
           <div className="grid grid-cols-2 gap-2">
