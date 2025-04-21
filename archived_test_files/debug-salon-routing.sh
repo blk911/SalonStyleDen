@@ -155,7 +155,7 @@ test_page_links "/salon/1" "Tiffany's salon page links"
 
 # 4. Test updating Tiffany's salon info
 tiffany_info_payload='{
-  "name": "TIFFANY_5280 NAILS STUDIO",
+  "name": "TIFFANY 5280 NAILS STUDIO",
   "ownerName": "Tiffany",
   "phone": "720-555-5280",
   "email": "tiffany@5280nails.com",
