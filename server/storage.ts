@@ -566,6 +566,20 @@ export class DatabaseStorage implements IStorage {
           invitationData.createdAt
         ];
         
+        // Add message if provided
+        if (invitationData.message) {
+          columns.push('message');
+          values.push(invitationData.message);
+          console.log(`DatabaseStorage.createInvitation - Including message: "${invitationData.message.substring(0, 30)}..."`);
+        }
+        
+        // Add type if provided
+        if (invitationData.type) {
+          columns.push('type');
+          values.push(invitationData.type);
+          console.log(`DatabaseStorage.createInvitation - Setting invitation type: ${invitationData.type}`);
+        }
+        
         // Add favorite_services if provided
         if (invitationData.favoriteServices) {
           columns.push('favorite_services');
@@ -604,6 +618,8 @@ export class DatabaseStorage implements IStorage {
           phone: row.phone,
           email: row.email,
           notes: row.notes,
+          message: row.message || null,
+          type: row.type || null,
           salonId: row.salon_id,
           sponsor: row.sponsor,
           inviteHash: row.invite_hash,
@@ -661,10 +677,10 @@ export class DatabaseStorage implements IStorage {
       // This is safer than using the Drizzle model which may include fields not yet in DB
       const sqlQuery = `
         SELECT 
-            id, name, phone, email, notes, 
+            id, name, phone, email, notes, message, type,
             salon_id, sponsor, invite_hash, status, 
             first_service_date, created_at, 
-            favorite_services
+            favorite_services, sender_id
         FROM invitations 
         WHERE salon_id = $1
         ORDER BY created_at DESC
@@ -676,13 +692,15 @@ export class DatabaseStorage implements IStorage {
         const rows = result.rows;
         console.log(`DatabaseStorage.getSalonInvitations - Retrieved ${rows.length} invitations`);
         
-        // Map the result to our expected format with senderId added
+        // Map the result to our expected format with all fields
         const invitationList: Invitation[] = rows.map(row => ({
           id: row.id,
           name: row.name,
           phone: row.phone,
           email: row.email,
           notes: row.notes,
+          message: row.message || null,
+          type: row.type || null,
           salonId: row.salon_id,
           sponsor: row.sponsor,
           inviteHash: row.invite_hash,
@@ -690,8 +708,8 @@ export class DatabaseStorage implements IStorage {
           firstServiceDate: row.first_service_date,
           createdAt: row.created_at,
           favoriteServices: row.favorite_services,
-          // Add the missing senderId field with a default value
-          senderId: null
+          // Use sender_id from query if available, otherwise null
+          senderId: row.sender_id || null
         }));
         
         return invitationList;

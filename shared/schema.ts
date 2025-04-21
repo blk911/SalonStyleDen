@@ -63,6 +63,8 @@ export const invitations = pgTable("invitations", {
   phone: text("phone").notNull(),
   email: text("email"), // Email is optional for phone-only invitations
   notes: text("notes"),
+  message: text("message"), // Custom message from the sender
+  type: text("type"), // Type of invitation (e.g., "client_invitation")
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
   salonId: integer("salon_id"), // Reference to salon sending the invitation
   senderId: integer("sender_id"), // Reference to the client who sent the invitation
