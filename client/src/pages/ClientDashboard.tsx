@@ -48,6 +48,8 @@ interface ClientData {
   salonId?: number;
   salonName?: string;
   sponsor?: string;
+  sponsorSalonId?: number; // Reference to the salon that sponsored this client
+  sponsorName?: string; // Name of the sponsor (client who invited)
   type: string;
   address?: string;
   city?: string;
@@ -1019,19 +1021,61 @@ export default function ClientDashboard() {
                                   <Diamond className="h-4 w-4 text-purple-500" />
                                 </span>
                               </span>
-                              <button 
-                                onClick={() => setShowInvitations(!showInvitations)} 
-                                className="flex items-center text-sm text-pink-600 hover:text-pink-800"
-                                aria-label={showInvitations ? "Hide invitations" : "Show invitations"}
-                              >
-                                {showInvitations ? (
-                                  <ChevronUpIcon className="h-5 w-5" />
-                                ) : (
-                                  <ChevronDownIcon className="h-5 w-5" />
-                                )}
-                              </button>
+                              <div className="flex items-center gap-2">
+                                <button 
+                                  onClick={() => setShowGiftOptions(!showGiftOptions)} 
+                                  className="flex items-center text-sm text-pink-600 hover:text-pink-800"
+                                  aria-label={showGiftOptions ? "Hide style options" : "Show style options"}
+                                >
+                                  <span className="hidden md:inline mr-1">Style Options</span>
+                                  {showGiftOptions ? (
+                                    <ChevronUpIcon className="h-5 w-5" />
+                                  ) : (
+                                    <ChevronDownIcon className="h-5 w-5" />
+                                  )}
+                                </button>
+                                <span className="mx-1 text-gray-300">|</span>
+                                <button 
+                                  onClick={() => setShowInvitations(!showInvitations)} 
+                                  className="flex items-center text-sm text-pink-600 hover:text-pink-800"
+                                  aria-label={showInvitations ? "Hide invitations" : "Show invitations"}
+                                >
+                                  <span className="hidden md:inline mr-1">Invitations</span>
+                                  {showInvitations ? (
+                                    <ChevronUpIcon className="h-5 w-5" />
+                                  ) : (
+                                    <ChevronDownIcon className="h-5 w-5" />
+                                  )}
+                                </button>
+                              </div>
                             </CardTitle>
                           </CardHeader>
+                          
+                          {/* Style Options Section */}
+                          <CardContent className={`pt-4 ${showGiftOptions ? 'block' : 'hidden'}`}>
+                            <div className="mb-4">
+                              <h3 className="font-semibold text-pink-700 mb-2">Select Your Style Gift</h3>
+                              <p className="text-sm text-gray-600 mb-4">
+                                Choose a style you'd like to receive as a gift from Ven Me, Baby!
+                              </p>
+                              
+                              {salon?.services && (
+                                <VmbStyleOptions 
+                                  services={salon.services} 
+                                  clientId={client.id} 
+                                  salonId={client.sponsorSalonId || client.salonId} 
+                                  onSelectionComplete={(selection) => {
+                                    toast({
+                                      title: "Style Selected!",
+                                      description: "Your style has been added to your gift box.",
+                                    });
+                                  }}
+                                />
+                              )}
+                            </div>
+                          </CardContent>
+                          
+                          {/* Invitations Section */}
                           <CardContent className={`pt-4 ${showInvitations ? 'block' : 'hidden'}`}>
                             <InlineVmbInvitations clientId={client.id} />
                           </CardContent>
