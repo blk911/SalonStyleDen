@@ -14,7 +14,7 @@ import { clients, invitations, styleSelections, activityLogs, salons } from './s
 import { eq, inArray } from 'drizzle-orm';
 
 // Preserved Salon IDs
-const PRESERVED_SALON_IDS = [42, 43]; // TIFFANY_5280 and Ven Me, Baby! LTD
+const PRESERVED_SALON_IDS = [42, 43]; // Tiffany 5280 Nails Studio and Ven Me, Baby! LTD
 
 async function verifyPurgeState() {
   console.log('🔍 Verifying system purge state...');
