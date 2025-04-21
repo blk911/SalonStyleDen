@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -314,44 +314,42 @@ export default function ClientDashboard() {
               </CardContent>
             </Card>
             
-            {/* Share Network Card - Only show if client has no salon */}
-            {!client.salonId && (
-              <Card className="rounded-xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-pink-50 pb-2 pt-2">
-                  <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
-                    <span>{client.name}'s SHARE Network</span>
-                    <button 
-                      onClick={() => setShowShareForm(!showShareForm)} 
-                      className="flex items-center text-sm text-pink-600 hover:text-pink-800"
-                      aria-label={showShareForm ? "Hide invitation form" : "Show invitation form"}
-                    >
-                      {showShareForm ? (
-                        <ChevronUpIcon className="h-5 w-5" />
-                      ) : (
-                        <ChevronDownIcon className="h-5 w-5" />
-                      )}
-                    </button>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className={`pt-4 ${showShareForm ? 'block' : 'hidden'}`}>
-                  <ClientInviteForm 
-                    clientId={client.id}
-                    hideLabels={true}
-                    hideToggle={true}
-                    onSuccess={() => {
-                      toast({
-                        title: "Invitation Sent",
-                        description: "Your invitation has been sent successfully!"
-                      });
-                    }} 
-                  />
-                </CardContent>
-              </Card>
-            )}
+            {/* Share Network Card - Show for both salon and non-salon clients */}
+            <Card className="rounded-xl shadow-sm overflow-hidden">
+              <CardHeader className="bg-pink-50 pb-2 pt-2">
+                <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
+                  <span>{client.name}'s SHARE Network</span>
+                  <button 
+                    onClick={() => setShowShareForm(!showShareForm)} 
+                    className="flex items-center text-sm text-pink-600 hover:text-pink-800"
+                    aria-label={showShareForm ? "Hide invitation form" : "Show invitation form"}
+                  >
+                    {showShareForm ? (
+                      <ChevronUpIcon className="h-5 w-5" />
+                    ) : (
+                      <ChevronDownIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className={`pt-4 ${showShareForm ? 'block' : 'hidden'}`}>
+                <ClientInviteForm 
+                  clientId={client.id}
+                  hideLabels={true}
+                  hideToggle={true}
+                  onSuccess={() => {
+                    toast({
+                      title: "Invitation Sent",
+                      description: "Your invitation has been sent successfully!"
+                    });
+                  }} 
+                />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
       <Footer />
     </div>
   );
-}// VMB_DASH_RESTRUCTURE_MARKER_20250421
+}
