@@ -971,12 +971,13 @@ export default function ClientDashboard() {
                       
                       {/* SHARE VMB Section - MOVED DOWN */}
                       <div className="mt-8 border-t pt-2">
-                        <h3 className="font-semibold text-pink-700 mb-2">SHARE Ven Me, Baby!, WITH YOUR FRIENDS, SO'S, BF, BFF...NOW!</h3>
-                        <Card className="shadow-sm overflow-hidden">
+                        <Card className="rounded-xl shadow-sm overflow-hidden">
                           <CardHeader className="bg-pink-50 pb-2 pt-2">
-                            <CardTitle className="text-sm">VMB is a must share, send via cell or email, send now!</CardTitle>
+                            <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
+                              <span>SHARE Ven Me, Baby!</span>
+                            </CardTitle>
                           </CardHeader>
-                          <CardContent className="p-4">
+                          <CardContent className="pt-4">
                             <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
                               // Refresh the invitations list
                               toast({
@@ -1025,12 +1026,9 @@ export default function ClientDashboard() {
             {!client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
                 <CardHeader className="bg-pink-50 pb-2 pt-2">
-                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
-                    SHARE Ven Me, Baby!, WITH YOUR FRIENDS, SO'S, BF, BFF...NOW!
+                  <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
+                    <span>SHARE Ven Me, Baby!</span>
                   </CardTitle>
-                  <CardDescription>
-                    Invite your friends to join Ven Me, Baby!
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-4">
                   <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
