@@ -338,14 +338,6 @@ export default function ClientDashboard() {
                     <CalendarIcon className="h-4 w-4" />
                     Joined: {new Date(client.createdAt).toLocaleDateString()}
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center justify-center gap-2 min-w-[160px]"
-                  >
-                    <StarIcon className="h-4 w-4 text-pink-500" />
-                    Sponsor: {client.sponsor || "None"}
-                  </Button>
                   {client.salonId && salon && (
                     <Button 
                       variant="outline" 
