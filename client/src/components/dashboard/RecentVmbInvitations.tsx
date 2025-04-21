@@ -9,7 +9,10 @@ interface Invitation {
   name: string;
   phone: string;
   email: string;
+  message?: string | null;
+  type?: string | null;
   salonId: number | null;
+  senderId?: number | null;
   sponsor: string | null;
   status: string;
   inviteHash: string;
@@ -84,6 +87,7 @@ export default function RecentVmbInvitations({
                   <th className="py-2 px-4 font-medium">Email</th>
                   <th className="py-2 px-4 font-medium">Phone</th>
                   <th className="py-2 px-4 font-medium">Status</th>
+                  <th className="py-2 px-4 font-medium">Type</th>
                   <th className="py-2 px-4 font-medium">Date</th>
                   <th className="py-2 px-4 font-medium text-right">Page</th>
                 </tr>
@@ -99,7 +103,24 @@ export default function RecentVmbInvitations({
                         {invitation.status}
                       </span>
                     </td>
-                    <td className="py-2 px-4">04/19/25</td>
+                    <td className="py-2 px-4">
+                      {invitation.type === 'client_invitation' ? (
+                        <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
+                          Client Referral
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 bg-pink-50 text-pink-700 rounded-full text-xs font-medium">
+                          Salon Invite
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-2 px-4">
+                      {new Date(invitation.createdAt).toLocaleDateString('en-US', { 
+                        month: 'numeric', 
+                        day: 'numeric',
+                        year: '2-digit'
+                      })}
+                    </td>
                     <td className="py-2 px-4 text-right">
                       <Link 
                         to={`/invitation/${invitation.inviteHash}`}

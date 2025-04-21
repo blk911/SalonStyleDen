@@ -9,7 +9,10 @@ interface Invitation {
   name: string;
   phone: string;
   email: string;
+  message?: string | null;
+  type?: string | null;
   salonId: number | null;
+  senderId?: number | null;
   sponsor: string | null;
   status: string;
   inviteHash: string;
@@ -127,6 +130,18 @@ export default function InlineVmbInvitations({
               {invitation.sponsor && (
                 <div className="text-xs text-gray-500 mt-1">
                   <span>Sponsored by: {invitation.sponsor}</span>
+                </div>
+              )}
+              
+              {invitation.message && (
+                <div className="text-xs italic text-gray-600 mt-2 border-t border-gray-100 pt-1">
+                  "{invitation.message}"
+                </div>
+              )}
+              
+              {invitation.type === 'client_invitation' && (
+                <div className="text-xs text-blue-500 mt-0.5">
+                  <span>Client referral</span>
                 </div>
               )}
             </CardContent>
