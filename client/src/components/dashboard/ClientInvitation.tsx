@@ -291,9 +291,9 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
           onClick={() => setSendFormOpen(!sendFormOpen)}
         >
-          <h3 className="font-medium text-sm sm:text-base text-pink-700">SEND INVITATIONS</h3>
+          <h3 className="font-medium text-xs sm:text-sm text-pink-800">Send Invitations</h3>
           <ChevronDown 
-            className={`h-5 w-5 text-pink-600 transition-transform ${sendFormOpen ? 'transform rotate-180' : ''}`} 
+            className={`h-4 w-4 text-pink-800 transition-transform ${sendFormOpen ? 'transform rotate-180' : ''}`} 
           />
         </div>
         
@@ -435,9 +435,9 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
           onClick={() => setRecentInvitesOpen(!recentInvitesOpen)}
         >
-          <h3 className="font-medium text-sm sm:text-base text-pink-700">RECENT INVITATIONS</h3>
+          <h3 className="font-medium text-xs sm:text-sm text-pink-800">Recent Invitations</h3>
           <ChevronDown 
-            className={`h-5 w-5 text-pink-600 transition-transform ${recentInvitesOpen ? 'transform rotate-180' : ''}`} 
+            className={`h-4 w-4 text-pink-800 transition-transform ${recentInvitesOpen ? 'transform rotate-180' : ''}`} 
           />
         </div>
         
