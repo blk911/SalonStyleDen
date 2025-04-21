@@ -307,7 +307,7 @@ export default function InvitationPage() {
                   <Collapsible open={styleSectionOpen} onOpenChange={setStyleSectionOpen}>
                     <div className="bg-pink-50 px-4 py-1 rounded-t-md">
                       <CollapsibleTrigger className="flex w-full items-center justify-between">
-                        <h3 className="text-sm font-bold text-pink-700">Ven Me, Baby! Style Options: STEP 1 Pick your style...</h3>
+                        <h3 className="text-lg font-medium text-pink-700">Ven Me, Baby! Style Options</h3>
                         <div className="h-8 w-8 flex items-center justify-center text-pink-700">
                           {styleSectionOpen ? (
                             <ChevronUpIcon className="h-5 w-5" />
