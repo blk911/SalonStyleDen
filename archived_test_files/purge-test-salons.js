@@ -49,7 +49,7 @@ async function purgeSalons() {
       .from(salons)
       .where(
         or(
-          ilike(salons.name, '%tiffany%5280%'),
+          ilike(salons.name, '%Tiffany 5280%'),
           ilike(salons.name, '%deb%dazzle%'),
           ilike(salons.name, '%jenna%glamour%'),
           ilike(salons.name, '%ven%me%baby%')
