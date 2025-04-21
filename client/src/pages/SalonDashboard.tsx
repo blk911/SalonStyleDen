@@ -119,6 +119,9 @@ export default function SalonDashboard() {
     { dayOfWeek: 5, dayName: "Friday", isOpen: true, openTime: "09:00", closeTime: "17:00" },
     { dayOfWeek: 6, dayName: "Saturday", isOpen: true, openTime: "10:00", closeTime: "16:00" },
   ]);
+  
+  // Show/Hide state for style options section
+  const [showStyleOptions, setShowStyleOptions] = useState(false);
 
   // Handler functions for services, promos, and salon info
   const handleSaveSalonInfo = async (updatedSalon: SalonInfo) => {
@@ -733,17 +736,7 @@ export default function SalonDashboard() {
           </div>
         </section>
 
-        {/* VMB Salon Invitations Section */}
-        <section className="py-2">
-          <div className="container mx-auto px-2">
-            <Card className="rounded shadow-sm">
-              <CardContent className="p-2">
-                <h3 className="font-medium text-sm mb-2">VMB Salon Invitations Sent</h3>
-                <RecentVmbInvitations salonId={salon?.id} limit={5} />
-              </CardContent>
-            </Card>
-          </div>
-        </section>
+        {/* VMB Salon Invitations Section - Removed as redundant */}
 
         {/* Ven Me, Baby! Style Options Section */}
         <section className="py-2">
@@ -751,33 +744,53 @@ export default function SalonDashboard() {
             <Card className="rounded shadow-sm">
               <CardContent className="p-2">
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium text-sm">Ven Me, Baby! Style Options</h3>
+                  <h3 
+                    className="font-medium text-sm cursor-pointer flex items-center" 
+                    onClick={() => setShowStyleOptions(!showStyleOptions)}
+                  >
+                    Ven Me, Baby! Style Options
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      className={`h-4 w-4 ml-1 transition-transform ${showStyleOptions ? 'transform rotate-180' : ''}`} 
+                      viewBox="0 0 20 20" 
+                      fill="currentColor"
+                    >
+                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </h3>
                   <Button 
                     size="sm" 
                     variant="outline" 
                     className="text-xs h-7 border-purple-200 text-purple-700 hover:bg-purple-50"
-                    onClick={() => handleAddDefaultServices()}
+                    onClick={() => {
+                      handleAddDefaultServices();
+                      setShowStyleOptions(true); // Show services when reset
+                    }}
                   >
                     Reset Default Styles
                   </Button>
                 </div>
 
-                {services.length === 0 ? (
-                  <div className="text-center p-4">
-                    <p className="text-lg font-medium text-gray-700">VMB STYLE OPTIONS</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Existing style options */}
-                    {services.map(service => (
-                      <EditableService
-                        key={service.id}
-                        service={service}
-                        onSave={handleSaveService}
-                        onDelete={handleDeleteService}
-                      />
-                    ))}
-                  </div>
+                {!showStyleOptions ? null : (
+                  <>
+                    {services.length === 0 ? (
+                      <div className="text-center p-4">
+                        <p className="text-lg font-medium text-gray-700">VMB STYLE OPTIONS</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Existing style options */}
+                        {services.map(service => (
+                          <EditableService
+                            key={service.id}
+                            service={service}
+                            onSave={handleSaveService}
+                            onDelete={handleDeleteService}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>
