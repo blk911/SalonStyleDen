@@ -14,7 +14,7 @@ import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSal
 import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
 import EditableService, { ServiceData } from "@/components/dashboard/EditableService";
 import ClientInvitation from "@/components/dashboard/ClientInvitation";
-import RecentVmbInvitations from "@/components/dashboard/RecentVmbInvitations";
+
 
 // Define a type for the social media object that might be in the API response
 interface SocialMediaItem {
@@ -733,17 +733,7 @@ export default function SalonDashboard() {
           </div>
         </section>
 
-        {/* VMB Salon Invitations Section */}
-        <section className="py-2">
-          <div className="container mx-auto px-2">
-            <Card className="rounded shadow-sm">
-              <CardContent className="p-2">
-                <h3 className="font-medium text-sm mb-2">VMB Salon Invitations Sent</h3>
-                <RecentVmbInvitations salonId={salon?.id} limit={5} />
-              </CardContent>
-            </Card>
-          </div>
-        </section>
+
 
         {/* Ven Me, Baby! Style Options Section */}
         <section className="py-2">
