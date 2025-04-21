@@ -2,7 +2,7 @@
  * Direct Salon Purge Script
  * 
  * This script will delete all salon records except for the specified ones:
- * - Tiffany 5280 Nails Studio
+ * - TIFFANY 5280 NAILS STUDIO
  * - Deb Dazzles
  * - Jenna's Glamour Nails
  * - Ven Me, Baby! LTD
@@ -48,7 +48,7 @@ async function listSalons() {
   const toKeep = salons.filter(salon => {
     const name = salon.name.toLowerCase();
     return (
-      name.includes('tiffany 5280') ||
+      name.includes('tiffany 5280') || name.includes('tiffany_5280') ||
       name.includes('deb dazzle') ||
       name.includes('jenna') ||
       name.includes('ven me')
