@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { PhoneIcon, MailIcon, CalendarIcon, UserIcon, ClockIcon, BuildingIcon, CheckCircleIcon } from "lucide-react";
+import { PhoneIcon, MailIcon, CalendarIcon, UserIcon, ClockIcon, BuildingIcon, CheckCircleIcon, ChevronUpIcon, ChevronDownIcon } from "lucide-react";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import { useToast } from "@/hooks/use-toast";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface Invitation {
   id: number;
@@ -46,6 +47,17 @@ export default function InvitationPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  
+  // State for section visibility with localStorage persistence
+  const [styleSectionOpen, setStyleSectionOpen] = useState(() => {
+    const saved = localStorage.getItem('vmb-invite-style-section-open');
+    return saved ? JSON.parse(saved) : true; // Default to open for better UX
+  });
+  
+  // Save section state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('vmb-invite-style-section-open', JSON.stringify(styleSectionOpen));
+  }, [styleSectionOpen]);
 
   // Format phone number for display
   const formatPhone = (phone: string) => {
@@ -288,22 +300,40 @@ export default function InvitationPage() {
           </CardHeader>
 
           <CardContent className="pt-6">
-            {/* Only showing the VMB Style Options */}
+            {/* VMB Style Options Collapsible Section */}
             {salon && salon.services && salon.services.length > 0 && (
-              <div>
-                <h3 className="text-lg font-medium mb-4">Pick Your Next Ven Me, Baby! Gift</h3>
-                <VmbStyleOptions 
-                  services={salon.services} 
-                  salonId={salon.id}
-                  onSelectionComplete={(selection) => {
-                    console.log("Style selected:", selection);
-                    toast({
-                      title: "Style Selected",
-                      description: `You selected this style!`,
-                      variant: "default"
-                    });
-                  }}
-                />
+              <div className="mt-2">
+                <div className="rounded-md overflow-hidden mb-4">
+                  <Collapsible open={styleSectionOpen} onOpenChange={setStyleSectionOpen}>
+                    <div className="bg-pink-50 px-4 py-2 rounded-t-md">
+                      <CollapsibleTrigger className="flex w-full items-center justify-between">
+                        <h3 className="text-lg font-medium text-pink-700">Ven Me, Baby! Style Options</h3>
+                        <Button variant="ghost" size="sm" className="p-0 h-8 w-8">
+                          {styleSectionOpen ? (
+                            <ChevronUpIcon className="h-5 w-5 text-pink-700" />
+                          ) : (
+                            <ChevronDownIcon className="h-5 w-5 text-pink-700" />
+                          )}
+                        </Button>
+                      </CollapsibleTrigger>
+                    </div>
+                    
+                    <CollapsibleContent className="bg-white p-4 border border-pink-100 rounded-b-md">
+                      <VmbStyleOptions 
+                        services={salon.services} 
+                        salonId={salon.id}
+                        onSelectionComplete={(selection) => {
+                          console.log("Style selected:", selection);
+                          toast({
+                            title: "Style Selected",
+                            description: `You selected this style!`,
+                            variant: "default"
+                          });
+                        }}
+                      />
+                    </CollapsibleContent>
+                  </Collapsible>
+                </div>
               </div>
             )}
           </CardContent>
