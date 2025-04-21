@@ -742,17 +742,17 @@ export default function SalonDashboard() {
         {/* Ven Me, Baby! Style Options Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
-            <Card className="rounded-xl shadow-sm overflow-hidden">
+            <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
               <div 
-                className="bg-gradient-to-r from-purple-100 to-purple-50 p-2 cursor-pointer flex justify-between items-center" 
+                className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
                 onClick={() => setStyleSectionOpen(!styleSectionOpen)}
               >
-                <h3 className="font-medium text-sm sm:text-base text-purple-700">Ven Me, Baby! Style Options</h3>
+                <h3 className="font-medium text-sm sm:text-base text-pink-700">Ven Me, Baby! Style Options</h3>
                 <div className="flex items-center">
                   <Button 
                     size="sm" 
                     variant="outline" 
-                    className="text-xs h-7 mr-2 border-purple-200 text-purple-700 hover:bg-purple-100"
+                    className="text-xs h-7 mr-2 border-pink-200 text-pink-700 hover:bg-pink-50"
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent triggering the header click
                       handleAddDefaultServices();
@@ -761,7 +761,7 @@ export default function SalonDashboard() {
                     Reset Default Styles
                   </Button>
                   <ChevronDown 
-                    className={`h-5 w-5 text-purple-500 transition-transform ${styleSectionOpen ? 'transform rotate-180' : ''}`} 
+                    className={`h-5 w-5 text-pink-600 transition-transform ${styleSectionOpen ? 'transform rotate-180' : ''}`} 
                   />
                 </div>
               </div>
