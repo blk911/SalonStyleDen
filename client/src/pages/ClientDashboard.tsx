@@ -414,7 +414,7 @@ export default function ClientDashboard() {
                   <div>
                     <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
                       <ScissorsIcon className="h-4 w-4" />
-                      Your Ven Me, Baby! <span className="italic">script</span> , Dashboard
+                      Your Ven Me, Baby! <span className="italic font-script">script</span>, Dashboard
                     </CardTitle>
                     {salon && (
                       <CardDescription>Member of {salon.name}</CardDescription>
