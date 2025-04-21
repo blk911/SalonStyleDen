@@ -2,7 +2,7 @@
  * Database Purge Script
  * 
  * This script purges test data from the database while preserving:
- * - TIFFANY 5280 NAILS STUDIO
+ * - Tiffany 5280 Nails Studio
  * - Deb Dazzles
  * - Jenna's Glamour Nails
  * - Ven Me, Baby! LTD
@@ -14,7 +14,7 @@ import { salons, clients, invitations } from './shared/schema.ts';
 
 // List of authorized salon names to keep
 const AUTHORIZED_SALONS = [
-  'TIFFANY 5280 NAILS STUDIO',
+  'Tiffany 5280 Nails Studio',
   'Deb Dazzles',
   'Jenna\'s Glamour Nails',
   'Ven Me, Baby! LTD'

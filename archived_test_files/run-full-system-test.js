@@ -233,7 +233,7 @@ async function testInvitationFlow() {
     phone: TEST_CLIENT_PHONE,
     email: TEST_CLIENT_EMAIL,
     salonId: 1, // Assuming Tiffany 5280 has ID 1
-    sponsor: 'TIFFANY_5280 NAILS STUDIO',
+    sponsor: 'Tiffany 5280 Nails Studio',
     favoriteServices: ['French Tips', 'Gel Manicure'],
     status: 'pending',
     firstServiceDate: new Date().toISOString().split('T')[0]
@@ -292,7 +292,7 @@ async function testClientRegistration() {
     isCurrentClient: false,
     type: 'client',
     sponsorSalonId: 1, // Assuming Tiffany 5280 has ID 1
-    sponsor: 'TIFFANY_5280 NAILS STUDIO'
+    sponsor: 'Tiffany 5280 Nails Studio'
   });
   
   const clientCreated = status === 201 && data.id;
@@ -305,10 +305,10 @@ async function testClientRegistration() {
     // Verify the client was created with the correct sponsor
     const clients = await executeQuery('SELECT * FROM clients WHERE phone = $1', [TEST_CLIENT_PHONE]);
     const clientExists = clients.length > 0;
-    const sponsorCorrect = clientExists && clients[0].sponsor === 'TIFFANY_5280 NAILS STUDIO';
+    const sponsorCorrect = clientExists && clients[0].sponsor === 'Tiffany 5280 Nails Studio';
     
     logResult(
-      `Client created with correct sponsor - Expected: TIFFANY_5280 NAILS STUDIO, Got: ${clientExists ? clients[0].sponsor : 'N/A'}`,
+      `Client created with correct sponsor - Expected: Tiffany 5280 Nails Studio, Got: ${clientExists ? clients[0].sponsor : 'N/A'}`,
       sponsorCorrect
     );
     

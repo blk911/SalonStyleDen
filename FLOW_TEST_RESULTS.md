@@ -53,7 +53,7 @@ POST /api/invitations
   "salonId": 1,
   "firstServiceDate": "2025-04-16",
   "status": "pending",
-  "sponsor": "TIFFANY_5280 NAILS STUDIO"
+  "sponsor": "Tiffany 5280 Nails Studio"
 }
 ```
 
@@ -70,7 +70,7 @@ POST /api/clients
   "favorite_services": ["French Tips"],
   "type": "client",
   "salon_id": 1,
-  "salon_name": "TIFFANY_5280 NAILS STUDIO"
+  "salon_name": "Tiffany 5280 Nails Studio"
 }
 ```
 

@@ -62,7 +62,7 @@ detailed_test "GET" "/api/salons/1" "" "Get Tiffany's salon details"
 
 # 2. Try to update Tiffany's salon info
 update_payload='{
-  "name": "TIFFANY 5280 NAILS STUDIO",
+  "name": "Tiffany 5280 Nails Studio",
   "ownerName": "Tiffany",
   "phone": "720-555-5280",
   "email": "tiffany@5280nails.com",

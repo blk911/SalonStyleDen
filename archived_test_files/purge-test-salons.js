@@ -2,7 +2,7 @@
  * Salon Purge Script
  * 
  * This script will delete all salon records except for the specified ones:
- * - TIFFANY 5280 NAILS STUDIO
+ * - Tiffany 5280 Nails Studio
  * - Deb Dazzles
  * - Jenna's Glamour Nails
  * - Ven Me, Baby! LTD

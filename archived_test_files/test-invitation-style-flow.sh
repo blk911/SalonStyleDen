@@ -52,7 +52,7 @@ INVITATION_DATA='{
   "salonId": 1,
   "firstServiceDate": "2025-04-16",
   "status": "pending",
-  "sponsor": "TIFFANY_5280 NAILS STUDIO"
+  "sponsor": "Tiffany 5280 Nails Studio"
 }'
 
 echo "$INVITATION_DATA" > ./logs/flow-test/invitation_request.json
@@ -90,7 +90,7 @@ CLIENT_DATA='{
   "favoriteServices": ["French Tips"],
   "type": "client",
   "salonId": 1,
-  "salonName": "TIFFANY_5280 NAILS STUDIO"
+  "salonName": "Tiffany 5280 Nails Studio"
 }'
 
 echo "$CLIENT_DATA" > ./logs/flow-test/client_request.json

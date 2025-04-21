@@ -3,7 +3,7 @@
  * 
  * This script will list all salons and delete all salon records 
  * except for the specified ones:
- * - TIFFANY 5280 NAILS STUDIO
+ * - Tiffany 5280 Nails Studio
  * - Deb Dazzles
  * - Jenna's Glamour Nails
  * - Ven Me, Baby! LTD

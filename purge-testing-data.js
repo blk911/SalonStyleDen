@@ -13,7 +13,7 @@ import { clients, invitations, styleSelections, activityLogs } from './shared/sc
 import { eq, not, inArray, sql } from 'drizzle-orm';
 
 // Preserved Salon IDs
-const PRESERVED_SALON_IDS = [42, 43]; // TIFFANY 5280 NAILS STUDIO and Ven Me, Baby! LTD
+const PRESERVED_SALON_IDS = [42, 43]; // Tiffany 5280 Nails Studio and Ven Me, Baby! LTD
 
 async function purgeSystemData() {
   console.log('🧹 Starting complete system purge...');
@@ -49,7 +49,7 @@ async function purgeSystemData() {
     
     console.log('✅ System purge completed successfully!');
     console.log('✅ The following salons were preserved:');
-    console.log('  - TIFFANY 5280 NAILS STUDIO (ID: 42)');
+    console.log('  - Tiffany 5280 Nails Studio (ID: 42)');
     console.log('  - Ven Me, Baby! LTD (ID: 43)');
     
   } catch (error) {

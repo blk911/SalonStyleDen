@@ -38,7 +38,7 @@ async function purgeAllData() {
     
     console.log('\n✅ System purge completed successfully!');
     console.log('✅ The following salons were preserved:');
-    console.log('  - TIFFANY 5280 NAILS STUDIO (ID: 42)');
+    console.log('  - Tiffany 5280 Nails Studio (ID: 42)');
     console.log('  - Ven Me, Baby! LTD (ID: 43)');
     
   } catch (error) {
