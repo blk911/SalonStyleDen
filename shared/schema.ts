@@ -14,7 +14,7 @@ export const users = pgTable("users", {
 // Salon schema
 export const salons = pgTable("salons", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
+  name: text("name", { length: 256 }).notNull(),
   ownerName: text("owner_name").notNull(),
   phone: text("phone").notNull(),
   email: text("email").notNull(),
