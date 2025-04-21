@@ -405,11 +405,11 @@ export default function ClientDashboard() {
             {/* Full-width Salon Card */}
             {client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-pink-50 pb-3">
+                <CardHeader className="bg-pink-50 pb-3 pt-2">
                   <div>
                     <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
                       <ScissorsIcon className="h-4 w-4" />
-                      Your Salon
+                      Your VMB Gifts
                     </CardTitle>
                     {salon && (
                       <CardDescription>Member of {salon.name}</CardDescription>
