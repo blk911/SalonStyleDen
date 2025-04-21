@@ -405,11 +405,11 @@ export default function ClientDashboard() {
             {/* Full-width Salon Card */}
             {client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-pink-50 pb-3">
+                <CardHeader className="bg-pink-50 pb-3 pt-2">
                   <div>
                     <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
                       <ScissorsIcon className="h-4 w-4" />
-                      Your Salon
+                      Your VMB Gifts
                     </CardTitle>
                     {salon && (
                       <CardDescription>Member of {salon.name}</CardDescription>
@@ -949,10 +949,10 @@ export default function ClientDashboard() {
                       
                       {/* SHARE VMB Section - MOVED DOWN */}
                       <div className="mt-8 border-t pt-2">
-                        <h3 className="font-semibold text-pink-700 mb-2">SHARE VMB</h3>
+                        <h3 className="font-semibold text-pink-700 mb-2">SHARE Ven Me, Baby!, WITH YOUR FRIENDS, SO'S, BF, BFF...NOW!</h3>
                         <Card className="shadow-sm overflow-hidden">
                           <CardHeader className="bg-pink-50 pb-3 pt-2">
-                            <CardTitle className="text-sm">Invite Your Friends</CardTitle>
+                            <CardTitle className="text-sm">VMB is a must share, send via cell or email, send now!</CardTitle>
                           </CardHeader>
                           <CardContent className="p-4">
                             <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
@@ -1004,7 +1004,7 @@ export default function ClientDashboard() {
               <Card className="rounded-xl shadow-sm overflow-hidden">
                 <CardHeader className="bg-pink-50 pb-3 pt-2">
                   <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
-                    SHARE VMB
+                    SHARE Ven Me, Baby!, WITH YOUR FRIENDS, SO'S, BF, BFF...NOW!
                   </CardTitle>
                   <CardDescription>
                     Invite your friends to join Ven Me, Baby!
