@@ -391,7 +391,7 @@ export default function InvitationPage() {
             {/* Salon style options if salon is available */}
             {salon && salon.services && salon.services.length > 0 && (
               <div className="mt-8 pt-6 border-t border-gray-100">
-                <h3 className="text-lg font-medium mb-4">VMB Style Options</h3>
+                <h3 className="text-lg font-medium mb-4">Pick Your Next Ven Me, Baby! Gift</h3>
                 <VmbStyleOptions 
                   services={salon.services} 
                   salonId={salon.id}

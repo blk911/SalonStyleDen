@@ -420,7 +420,7 @@ export default function ClientDashboard() {
                 <CardContent className="pt-4">
                   {salon ? (
                     <div className="space-y-4">
-                      {/* VMB Style Options - Direct display without salon contact info */}
+                      {/* Ven Me, Baby! Gift Options - Direct display without salon contact info */}
                       {salon?.services && salon.services.length > 0 && (
                         <div>
                           <h3 className="text-base font-medium text-pink-700 mb-3">Pick Your Next Ven Me, Baby! Gift</h3>
@@ -483,7 +483,7 @@ export default function ClientDashboard() {
                                 </div>
                               </div>
                               <p className="text-sm">
-                                Would you like to select this VMB Style Option? You'll receive personalized offers based on your selection.
+                                Would you like to select this Ven Me, Baby! Gift? You'll receive personalized offers based on your selection.
                               </p>
                               <div className="flex justify-end gap-3 mt-4">
                                 <Button 
