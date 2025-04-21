@@ -19,6 +19,12 @@ const AdminDash = () => {
   );
 };
 
+const LoadingIndicator = () => {
+  return (
+    <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-gray-800"></div>
+  );
+};
+
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -47,16 +53,16 @@ export default function Navbar() {
                     onError={(e) => {
                       // Hide the image if it fails to load
                       e.currentTarget.style.display = 'none';
-                      
+
                       // Get parent element safely
                       const parent = e.currentTarget.parentElement;
                       if (!parent) return;
-                      
+
                       // Create a div to display the brand name fallback
                       const fallbackDiv = document.createElement('div');
                       fallbackDiv.classList.add('brand-name-fallback');
                       fallbackDiv.innerHTML = '<div class="font-serif text-2xl">Ven Me, <span class="text-[#FF92A5] italic">Baby!</span></div>';
-                      
+
                       // Append the fallback to the parent element
                       parent.appendChild(fallbackDiv);
                     }}
@@ -81,6 +87,7 @@ export default function Navbar() {
               <div className="px-2 py-1 text-sm font-medium bg-pink-50 text-pink-600 hover:bg-pink-100 cursor-pointer">Admin</div>
             </Link>
             <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
+            <LoadingIndicator className="text-[#FF92A5]" /> {/* Added LoadingIndicator */}
           </div>
           <div className="flex items-center sm:hidden">
             <button
