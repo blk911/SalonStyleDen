@@ -992,13 +992,18 @@ export default function ClientDashboard() {
                             </CardTitle>
                           </CardHeader>
                           <CardContent className={`pt-4 ${showShareForm ? 'block' : 'hidden'}`}>
-                            <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
-                              // Refresh the invitations list
-                              toast({
-                                title: "Invitation Sent",
-                                description: "Your invitation has been sent successfully!"
-                              });
-                            }} />
+                            <ClientInviteForm 
+                              clientId={client.id} 
+                              hideLabels={true} 
+                              hideToggle={true}
+                              onSuccess={() => {
+                                // Refresh the invitations list
+                                toast({
+                                  title: "Invitation Sent",
+                                  description: "Your invitation has been sent successfully!"
+                                });
+                              }} 
+                            />
                           </CardContent>
                         </Card>
                       </div>
@@ -1056,12 +1061,17 @@ export default function ClientDashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className={`pt-4 ${showShareForm ? 'block' : 'hidden'}`}>
-                  <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
-                    toast({
-                      title: "Invitation Sent",
-                      description: "Your invitation has been sent successfully!"
-                    });
-                  }} />
+                  <ClientInviteForm 
+                    clientId={client.id}
+                    hideLabels={true}
+                    hideToggle={true}
+                    onSuccess={() => {
+                      toast({
+                        title: "Invitation Sent",
+                        description: "Your invitation has been sent successfully!"
+                      });
+                    }} 
+                  />
                 </CardContent>
               </Card>
             )}
