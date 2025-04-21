@@ -305,16 +305,16 @@ export default function InvitationPage() {
               <div className="mt-2">
                 <div className="rounded-md overflow-hidden mb-4">
                   <Collapsible open={styleSectionOpen} onOpenChange={setStyleSectionOpen}>
-                    <div className="bg-pink-50 px-4 py-2 rounded-t-md">
+                    <div className="bg-pink-50 px-4 py-1 rounded-t-md">
                       <CollapsibleTrigger className="flex w-full items-center justify-between">
                         <h3 className="text-lg font-medium text-pink-700">Ven Me, Baby! Style Options</h3>
-                        <Button variant="ghost" size="sm" className="p-0 h-8 w-8">
+                        <div className="h-8 w-8 flex items-center justify-center text-pink-700">
                           {styleSectionOpen ? (
-                            <ChevronUpIcon className="h-5 w-5 text-pink-700" />
+                            <ChevronUpIcon className="h-5 w-5" />
                           ) : (
-                            <ChevronDownIcon className="h-5 w-5 text-pink-700" />
+                            <ChevronDownIcon className="h-5 w-5" />
                           )}
-                        </Button>
+                        </div>
                       </CollapsibleTrigger>
                     </div>
                     
