@@ -250,9 +250,16 @@ export function VmbStyleOptions({
     if (selectedStyle?.name?.includes("French Tips")) {
       console.log("French Tips style selected - using special handler");
       
-      // Close the details dialog and show confirmation directly for Tiff's French Tips
+      // For the special case of French Tips without client/salon ID, we can proceed directly to Step 2
       if (!clientId || !salonId) {
         setIsDetailsOpen(false);
+        
+        // Important: set the confirmed style and show Step 2 directly
+        const confirmedStyleCopy = {...selectedStyle};
+        setConfirmedStyle(confirmedStyleCopy);
+        setShowStep2(true);
+        console.log("French Tips special case: Setting Step 2 with style:", confirmedStyleCopy.name);
+        
         toast({
           title: "Style Saved!",
           description: `You've selected ${selectedStyle.name}`,
@@ -262,6 +269,7 @@ export function VmbStyleOptions({
       }
     }
     
+    console.log("Proceeding with regular form submission");
     // Proceed with form submission
     form.handleSubmit(onSubmit)();
   };
@@ -275,21 +283,35 @@ export function VmbStyleOptions({
   
   // Handles continuing with the style selection (called from confirmation dialog)
   const handleConfirmSelection = () => {
+    console.log("handleConfirmSelection called, selectedStyle:", selectedStyle?.name);
+    
     // Execute the form submission
     if (selectedStyle) {
+      // Store the selected style first before any async operations
+      const confirmedStyleCopy = {...selectedStyle};
+      console.log("Style copied for confirmation:", confirmedStyleCopy.name);
+      
+      // Explicitly set state right away rather than in the timeout
+      setConfirmedStyle(confirmedStyleCopy);
+      console.log("confirmedStyle state set with:", confirmedStyleCopy.name);
+      
       // Submit the actual style selection to the API
       handleSaveSelection();
       
       // Close confirmation dialog after short delay to give visual feedback
       setTimeout(() => {
+        // Close the confirmation dialog
         setIsConfirmationOpen(false);
+        console.log("Confirmation dialog closed");
         
-        // Save the confirmed style and show Step 2
-        setConfirmedStyle(selectedStyle);
+        // CRITICAL: Set the flag to show Step 2 *after* the confirmation is closed
         setShowStep2(true);
+        console.log("showStep2 set to true");
+        
+        // Verify the confirmed style is still available
+        console.log("confirmedStyle at timeout:", confirmedStyleCopy.name);
         
         // Clear the selection state but keep the confirmed style
-        const confirmedStyleCopy = {...selectedStyle};
         setSelectedStyle(null);
         
         // Show a toast confirmation
@@ -394,80 +416,87 @@ export function VmbStyleOptions({
             )}
             
             {/* STEP 2 - Only shown after a style is confirmed */}
-            {showStep2 && confirmedStyle && (
-              <>
-                <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
-                  <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 2 Style Your Invitation...</h2>
-                </div>
-                
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="border rounded px-2 py-2 border-pink-200 bg-pink-50">
-                    <div className="flex">
-                      {/* Left side - blank placeholder for now */}
-                      <div className="w-1/2 text-left pr-2 border-r border-pink-100">
-                        <h3 className="font-medium text-compact text-center">Your Invitation Design</h3>
-                        <div className="flex items-center justify-center h-32">
-                          <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-full flex items-center justify-center">
-                            <p className="text-mini text-gray-500">Personalize your invitation with a message</p>
+            {showStep2 ? (
+              confirmedStyle ? (
+                <>
+                  <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
+                    <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 2 Style Your Invitation...</h2>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-4">
+                    <div className="border rounded px-2 py-2 border-pink-200 bg-pink-50">
+                      <div className="flex flex-col md:flex-row">
+                        {/* Left side - blank placeholder for now */}
+                        <div className="w-full md:w-1/2 text-left pr-2 md:border-r border-pink-100 pb-2 md:pb-0">
+                          <h3 className="font-medium text-compact text-center">Your Invitation Design</h3>
+                          <div className="flex items-center justify-center h-32 mt-2">
+                            <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-full flex items-center justify-center">
+                              <p className="text-mini text-gray-500">Personalize your invitation with a message</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      {/* Right side - Selected style */}
-                      <div className="w-1/2 text-left pl-2">
-                        <h3 className="font-medium text-compact">Selected Style:</h3>
-                        <p className="text-mini text-gray-600">{confirmedStyle.name}</p>
                         
-                        <div className="mt-1 flex items-center gap-2">
-                          <span className="font-bold text-compact">${Math.round(confirmedStyle.price)}</span>
-                          <span className="text-micro">{confirmedStyle.duration} min</span>
-                        </div>
-                        
-                        <div className="mt-2 flex items-center justify-center">
-                          <img 
-                            src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
-                            alt={confirmedStyle.name}
-                            className="h-24 w-24 object-cover rounded-md border border-pink-200"
-                            onError={(e) => {
-                              console.error(`Failed to load image for service: ${confirmedStyle.name}`);
-                              e.currentTarget.src = '/assets/LOGO1.png';
-                            }}
-                          />
-                        </div>
-                        
-                        <div className="mt-2 text-center">
-                          <Badge 
-                            className="bg-[#FF92A5] text-white border-0 text-mini"
-                          >
-                            Confirmed
-                          </Badge>
+                        {/* Right side - Selected style */}
+                        <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
+                          <h3 className="font-medium text-compact">Selected Style:</h3>
+                          <p className="text-mini text-gray-600">{confirmedStyle.name}</p>
+                          
+                          <div className="mt-1 flex items-center gap-2">
+                            <span className="font-bold text-compact">${Math.round(confirmedStyle.price)}</span>
+                            <span className="text-micro">{confirmedStyle.duration} min</span>
+                          </div>
+                          
+                          <div className="mt-2 flex items-center justify-center">
+                            <img 
+                              src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
+                              alt={confirmedStyle.name}
+                              className="h-24 w-24 object-cover rounded-md border border-pink-200"
+                              onError={(e) => {
+                                console.error(`Failed to load image for service: ${confirmedStyle.name}`);
+                                e.currentTarget.src = '/assets/LOGO1.png';
+                              }}
+                            />
+                          </div>
+                          
+                          <div className="mt-2 text-center">
+                            <Badge 
+                              className="bg-[#FF92A5] text-white border-0 text-mini"
+                            >
+                              Confirmed
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
+                  
+                  <div className="mt-4 flex justify-end">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="mr-2 border-pink-200 text-pink-700"
+                      onClick={() => {
+                        console.log("Changing back to Step 1");
+                        setShowStep2(false);
+                        setConfirmedStyle(null);
+                      }}
+                    >
+                      Change Style
+                    </Button>
+                    <Button 
+                      size="sm"
+                      className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
+                    >
+                      Continue
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="p-4 text-center">
+                  <p>Loading your confirmed style...</p>
                 </div>
-                
-                <div className="mt-4 flex justify-end">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="mr-2 border-pink-200 text-pink-700"
-                    onClick={() => {
-                      setShowStep2(false);
-                      setConfirmedStyle(null);
-                    }}
-                  >
-                    Change Style
-                  </Button>
-                  <Button 
-                    size="sm"
-                    className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
-                  >
-                    Continue
-                  </Button>
-                </div>
-              </>
-            )}
+              )
+            ) : null}
           </div>
         </form>
       </Form>
