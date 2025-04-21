@@ -256,13 +256,24 @@ export default function InvitationPage() {
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle className="text-2xl text-pink-700">Invitation for {invitation.name}</CardTitle>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between gap-4 mt-2">
                   <CardDescription>From {invitation.sponsor || invitation.salonName || "Unknown Salon"}</CardDescription>
                   
                   {invitation.type === 'client_invitation' && (
                     <Badge className="bg-blue-100 text-blue-700 border-blue-200">
                       Client Referral
                     </Badge>
+                  )}
+                  
+                  {salon && (
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="border-pink-300 text-pink-700 hover:bg-pink-50" 
+                      onClick={() => setLocation(`/salon/${salon.id}`)}
+                    >
+                      View Salon Page
+                    </Button>
                   )}
                 </div>
               </div>
@@ -277,134 +288,9 @@ export default function InvitationPage() {
           </CardHeader>
 
           <CardContent className="pt-6">
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Left column - Invitation details */}
-              <div>
-                <h3 className="text-lg font-medium mb-4">Invitation Details</h3>
-
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <UserIcon className="h-4 w-4 mr-2 text-gray-500" />
-                    <span>{invitation.name}</span>
-                  </div>
-
-                  <div className="flex items-center">
-                    <PhoneIcon className="h-4 w-4 mr-2 text-gray-500" />
-                    <span>{formatPhone(invitation.phone)}</span>
-                  </div>
-
-                  <div className="flex items-center">
-                    <MailIcon className="h-4 w-4 mr-2 text-gray-500" />
-                    <span>{invitation.email}</span>
-                  </div>
-
-                  {invitation.firstServiceDate && (
-                    <div className="flex items-center">
-                      <CalendarIcon className="h-4 w-4 mr-2 text-gray-500" />
-                      <span>First Service Date: {new Date(invitation.firstServiceDate).toLocaleDateString()}</span>
-                    </div>
-                  )}
-
-                  <div className="flex items-center">
-                    <ClockIcon className="h-4 w-4 mr-2 text-gray-500" />
-                    <span>Sent: {new Date(invitation.createdAt).toLocaleDateString()}</span>
-                  </div>
-
-                  {invitation.inviteHash && (
-                    <div className="mt-4 pt-4 border-t border-gray-100">
-                      <span className="text-xs text-gray-500">Invitation ID: {invitation.inviteHash}</span>
-                    </div>
-                  )}
-                </div>
-
-                {invitation.message && (
-                  <div className="mt-6 pt-4 border-t border-gray-100">
-                    <h4 className="font-medium mb-2">Message</h4>
-                    <div className="bg-pink-50 p-4 rounded-md text-gray-700 italic border border-pink-100">
-                      "{invitation.message}"
-                    </div>
-                    
-                    {invitation.type === 'client_invitation' && (
-                      <Badge className="mt-2 bg-blue-100 text-blue-700">
-                        Client Referral
-                      </Badge>
-                    )}
-                  </div>
-                )}
-                
-                {invitation.notes && (
-                  <div className="mt-6 pt-6 border-t border-gray-100">
-                    <h4 className="font-medium mb-2">Notes</h4>
-                    <p className="text-gray-700">{invitation.notes}</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Right column - Salon details and actions */}
-              <div>
-                {salonLoading ? (
-                  <p>Loading salon information...</p>
-                ) : salon ? (
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">Salon Information</h3>
-
-                    <div className="bg-blue-50 rounded-lg p-4 mb-6">
-                      <div className="flex items-center mb-2">
-                        <BuildingIcon className="h-5 w-5 mr-2 text-blue-600" />
-                        <h4 className="font-medium text-blue-700">{salon.name}</h4>
-                      </div>
-
-                      <div className="space-y-2 text-sm">
-                        <p>Owner: {salon.ownerName}</p>
-                        <p>Phone: {formatPhone(salon.phone)}</p>
-                        <p>Email: {salon.email}</p>
-                      </div>
-
-                      {salon.socialMedia && salon.socialMedia.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-blue-100 flex flex-wrap gap-2">
-                          {salon.socialMedia.map((social, idx) => (
-                            <Badge key={idx} variant="outline" className="bg-blue-100 border-blue-200 text-blue-700">
-                              {social.platform}: {social.handle}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex justify-end items-center mt-8">
-                      <Button 
-                        variant="outline"
-                        onClick={() => setLocation(`/salon/${salon.id}`)}
-                      >
-                        View Salon Page
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-gray-50 p-6 rounded-lg">
-                    <p className="text-gray-500 text-center">No salon information available</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Favorite Services */}
-            {invitation.favoriteServices && invitation.favoriteServices.length > 0 && (
-              <div className="mt-8 pt-6 border-t border-gray-100">
-                <h3 className="text-lg font-medium mb-4">Favorite Services</h3>
-                <div className="flex flex-wrap gap-2">
-                  {invitation.favoriteServices.map((service, idx) => (
-                    <Badge key={idx} className="bg-pink-100 text-pink-700 border-pink-200">
-                      {service}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Salon style options if salon is available */}
+            {/* Only showing the VMB Style Options */}
             {salon && salon.services && salon.services.length > 0 && (
-              <div className="mt-8 pt-6 border-t border-gray-100">
+              <div>
                 <h3 className="text-lg font-medium mb-4">Pick Your Next Ven Me, Baby! Gift</h3>
                 <VmbStyleOptions 
                   services={salon.services} 
