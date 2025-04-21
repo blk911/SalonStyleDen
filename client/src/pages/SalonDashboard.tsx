@@ -706,23 +706,28 @@ export default function SalonDashboard() {
                   <h2 className="font-bold text-xl leading-tight">{salon.name}</h2>
                   <p className="text-gray-700 text-sm">Welcome, {salon.ownerName}!</p>
                 </div>
-                <div className="ml-auto flex items-center gap-2">
-                  <div>
-                    <img 
-                      src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl, 'dashboard_hero') : '/assets/salon-card.png'}
-                      alt={salon.ownerName}
-                      className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
-                      onError={(e) => {
-                        console.log("Owner photo fallback used for:", salon.name);
-                        // Use the standard fallback without hardcoded paths
-                        e.currentTarget.src = '/assets/salon-card.png';
-                      }}
-                    />
-                    {salon.ownerPhotoUrl && (
-                      <p className="text-xs text-center mt-1 text-pink-700">Photo Updated</p>
-                    )}
-                  </div>
+                <div>
+                  <img 
+                    src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl, 'dashboard_hero') : '/assets/salon-card.png'}
+                    alt={salon.ownerName}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
+                    onError={(e) => {
+                      console.log("Owner photo fallback used for:", salon.name);
+                      // Use the standard fallback without hardcoded paths
+                      e.currentTarget.src = '/assets/salon-card.png';
+                    }}
+                  />
                 </div>
+              </div>
+              <div>
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-8 border-pink-400 text-pink-700 bg-white hover:bg-pink-50"
+                  onClick={() => window.open(`/salon/${salon.id}`.replace(/\/\//g, '/'), '_blank')}
+                >
+                  View Public Page
+                </Button>
               </div>
             </div>
           </div>
@@ -894,26 +899,7 @@ export default function SalonDashboard() {
           </div>
         </section>
 
-        {/* Public Page Preview Section */}
-        <section className="py-2">
-          <div className="container mx-auto px-2">
-            <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
-              <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3">
-                <h3 className="font-medium text-sm sm:text-base text-pink-700">Preview Your Public Page</h3>
-              </div>
-              <CardContent className="p-3 bg-white text-center">
-                <p className="text-xs mb-3">See how clients will view your salon's information, style options, and promotions.</p>
-                <Button 
-                  variant="outline"
-                  className="text-xs h-8 border-pink-200 text-pink-700 hover:bg-pink-50"
-                  onClick={() => window.open(`/salon/${salon.id}`.replace(/\/\//g, '/'), '_blank')}
-                >
-                  View Public Page
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
+
       </main>
       <Footer />
     </div>
