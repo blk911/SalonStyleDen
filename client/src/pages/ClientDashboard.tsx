@@ -423,7 +423,7 @@ export default function ClientDashboard() {
                       {/* VMB Style Options - Direct display without salon contact info */}
                       {salon?.services && salon.services.length > 0 && (
                         <div>
-                          <h3 className="text-base font-medium text-pink-700 mb-3">VMB Style Options</h3>
+                          <h3 className="text-base font-medium text-pink-700 mb-3">Pick Your Next Ven Me, Baby! Gift</h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {salon.services.filter(service => service.featured === true).map((service: any) => (
                               <div 
@@ -951,7 +951,7 @@ export default function ClientDashboard() {
                       <div className="mt-8 border-t pt-2">
                         <h3 className="font-semibold text-pink-700 mb-2">SHARE Ven Me, Baby!, WITH YOUR FRIENDS, SO'S, BF, BFF...NOW!</h3>
                         <Card className="shadow-sm overflow-hidden">
-                          <CardHeader className="bg-pink-50 pb-3 pt-2">
+                          <CardHeader className="bg-pink-50 pb-3 pt-1">
                             <CardTitle className="text-sm">VMB is a must share, send via cell or email, send now!</CardTitle>
                           </CardHeader>
                           <CardContent className="p-4">
@@ -1002,7 +1002,7 @@ export default function ClientDashboard() {
             {/* Standalone SHARE VMB Card - MOVED DOWN - shown whether client has a salon or not */}
             {!client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-pink-50 pb-3 pt-2">
+                <CardHeader className="bg-pink-50 pb-3 pt-1">
                   <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
                     SHARE Ven Me, Baby!, WITH YOUR FRIENDS, SO'S, BF, BFF...NOW!
                   </CardTitle>
