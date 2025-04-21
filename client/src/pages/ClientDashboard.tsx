@@ -112,6 +112,9 @@ export default function ClientDashboard() {
   // Show/hide state for gift options section - default to HIDE
   const [showGiftOptions, setShowGiftOptions] = useState(false);
   
+  // Show/hide state for share form section - default to SHOW
+  const [showShareForm, setShowShareForm] = useState(true);
+  
   // Show "Complete Your Profile" dialog for newly validated clients
   const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(false);
   
@@ -975,9 +978,20 @@ export default function ClientDashboard() {
                           <CardHeader className="bg-pink-50 pb-2 pt-2">
                             <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
                               <span>SHARE Ven Me, Baby!</span>
+                              <button 
+                                onClick={() => setShowShareForm(!showShareForm)} 
+                                className="flex items-center text-sm text-pink-600 hover:text-pink-800"
+                                aria-label={showShareForm ? "Hide invitation form" : "Show invitation form"}
+                              >
+                                {showShareForm ? (
+                                  <ChevronUpIcon className="h-5 w-5" />
+                                ) : (
+                                  <ChevronDownIcon className="h-5 w-5" />
+                                )}
+                              </button>
                             </CardTitle>
                           </CardHeader>
-                          <CardContent className="pt-4">
+                          <CardContent className={`pt-4 ${showShareForm ? 'block' : 'hidden'}`}>
                             <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
                               // Refresh the invitations list
                               toast({
@@ -1028,9 +1042,20 @@ export default function ClientDashboard() {
                 <CardHeader className="bg-pink-50 pb-2 pt-2">
                   <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
                     <span>SHARE Ven Me, Baby!</span>
+                    <button 
+                      onClick={() => setShowShareForm(!showShareForm)} 
+                      className="flex items-center text-sm text-pink-600 hover:text-pink-800"
+                      aria-label={showShareForm ? "Hide invitation form" : "Show invitation form"}
+                    >
+                      {showShareForm ? (
+                        <ChevronUpIcon className="h-5 w-5" />
+                      ) : (
+                        <ChevronDownIcon className="h-5 w-5" />
+                      )}
+                    </button>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4">
+                <CardContent className={`pt-4 ${showShareForm ? 'block' : 'hidden'}`}>
                   <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
                     toast({
                       title: "Invitation Sent",
