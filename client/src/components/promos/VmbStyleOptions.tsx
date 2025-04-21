@@ -316,10 +316,10 @@ export function VmbStyleOptions({
           <input type="hidden" name="endpoint" value="/api/clients/:clientId/style-selections" />
           <input type="hidden" name="method" value="POST" />
           
-          <div className="py-2 vmb-style-options">
+          <div className="py-0.5 vmb-style-options">
             <div className="container mx-auto px-2">
               <div className="bg-white shadow-sm rounded-md">
-                <div className="p-3">
+                <div className="px-1 py-0.5">
                   <h2 className="font-bold text-sm mb-3 text-[#FF92A5]">STEP 1 Pick your style...</h2>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -348,7 +348,7 @@ export function VmbStyleOptions({
                             )}
                             
                             {/* Left side - Text */}
-                            <div className="w-2/3 p-3">
+                            <div className="w-2/3 px-3 py-0.5">
                               <h3 className="font-medium text-sm">{service.name}</h3>
                               <p className="text-xs text-gray-600 mt-1">{service.description}</p>
                               
@@ -367,7 +367,7 @@ export function VmbStyleOptions({
                             </div>
                             
                             {/* Right side - Image */}
-                            <div className="w-1/3 flex items-center justify-center p-2">
+                            <div className="w-1/3 flex items-center justify-center px-2 py-0.5">
                               <div className="relative w-full h-24 overflow-hidden rounded-md">
                                 <img 
                                   src={service.gifUrl ? getImageUrl(service.gifUrl, 'vmb_style') : '/assets/LOGO1.png'} 
