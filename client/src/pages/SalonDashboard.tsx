@@ -110,10 +110,34 @@ export default function SalonDashboard() {
   // State for adding new promo
   const [isAddingPromo, setIsAddingPromo] = useState(false);
   
-  // State for section visibility - all sections start collapsed
-  const [styleSectionOpen, setStyleSectionOpen] = useState(false);
-  const [scheduleSectionOpen, setScheduleSectionOpen] = useState(false);
-  const [invitationSectionOpen, setInvitationSectionOpen] = useState(false);
+  // State for section visibility with localStorage persistence
+  const [styleSectionOpen, setStyleSectionOpen] = useState(() => {
+    const saved = localStorage.getItem('vmb-style-section-open');
+    return saved ? JSON.parse(saved) : false;
+  });
+  
+  const [scheduleSectionOpen, setScheduleSectionOpen] = useState(() => {
+    const saved = localStorage.getItem('vmb-schedule-section-open');
+    return saved ? JSON.parse(saved) : false;
+  });
+  
+  const [invitationSectionOpen, setInvitationSectionOpen] = useState(() => {
+    const saved = localStorage.getItem('vmb-invitation-section-open');
+    return saved ? JSON.parse(saved) : false;
+  });
+  
+  // Save section states to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('vmb-style-section-open', JSON.stringify(styleSectionOpen));
+  }, [styleSectionOpen]);
+  
+  useEffect(() => {
+    localStorage.setItem('vmb-schedule-section-open', JSON.stringify(scheduleSectionOpen));
+  }, [scheduleSectionOpen]);
+  
+  useEffect(() => {
+    localStorage.setItem('vmb-invitation-section-open', JSON.stringify(invitationSectionOpen));
+  }, [invitationSectionOpen]);
 
   // Weekly schedule state
   const [weeklySchedule, setWeeklySchedule] = useState<DaySchedule[]>([
