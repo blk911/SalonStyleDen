@@ -262,13 +262,13 @@ export default function InvitationPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="flex-grow container mx-auto px-4 py-0.5">
         <Card className="shadow-sm">
-          <CardHeader className="bg-pink-50 pb-4">
+          <CardHeader className="bg-pink-50 pb-0.5">
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle className="text-2xl text-pink-700">Invitation for {invitation.name}</CardTitle>
-                <div className="flex items-center justify-between gap-4 mt-2">
+                <div className="flex items-center justify-between gap-4 mt-0.5">
                   <CardDescription>From {invitation.sponsor || invitation.salonName || "Unknown Salon"}</CardDescription>
                   
                   {invitation.type === 'client_invitation' && (
@@ -299,13 +299,13 @@ export default function InvitationPage() {
             </div>
           </CardHeader>
 
-          <CardContent className="pt-6">
+          <CardContent className="pt-0.5">
             {/* VMB Style Options Collapsible Section */}
             {salon && salon.services && salon.services.length > 0 && (
-              <div className="mt-2">
-                <div className="rounded-md overflow-hidden mb-4">
+              <div className="mt-0.5">
+                <div className="rounded-md overflow-hidden mb-0.5">
                   <Collapsible open={styleSectionOpen} onOpenChange={setStyleSectionOpen}>
-                    <div className="bg-pink-50 px-4 py-1 rounded-t-md">
+                    <div className="bg-pink-50 px-4 py-0.5 rounded-t-md">
                       <CollapsibleTrigger className="flex w-full items-center justify-between">
                         <h3 className="text-lg font-medium text-pink-700">Ven Me, Baby! Style Options</h3>
                         <div className="h-8 w-8 flex items-center justify-center text-pink-700">
@@ -318,7 +318,7 @@ export default function InvitationPage() {
                       </CollapsibleTrigger>
                     </div>
                     
-                    <CollapsibleContent className="bg-white p-4 border border-pink-100 rounded-b-md">
+                    <CollapsibleContent className="bg-white px-4 py-0.5 border border-pink-100 rounded-b-md">
                       <VmbStyleOptions 
                         services={salon.services} 
                         salonId={salon.id}
@@ -338,7 +338,7 @@ export default function InvitationPage() {
             )}
           </CardContent>
 
-          <CardFooter className="flex justify-between border-t pt-6">
+          <CardFooter className="flex justify-between border-t pt-0.5">
             <Button 
               variant="ghost"
               onClick={() => window.history.back()}
@@ -378,9 +378,9 @@ export default function InvitationPage() {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="flex flex-col items-center py-4">
-            <CheckCircleIcon className="h-16 w-16 text-pink-500 mb-4" />
-            <p className="text-center mb-2">
+          <div className="flex flex-col items-center py-0.5">
+            <CheckCircleIcon className="h-16 w-16 text-pink-500 mb-0.5" />
+            <p className="text-center mb-0.5">
               This invitation can only be accepted once. After acceptance, you'll be directed to complete your registration.
             </p>
             {invitation.firstServiceDate && (
