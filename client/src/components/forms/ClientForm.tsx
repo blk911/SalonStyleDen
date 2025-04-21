@@ -117,7 +117,7 @@ export default function ClientForm({
             },
             {
               id: 1, 
-              name: "TIFFANY_5280 NAILS STUDIO",
+              name: "TIFFANY 5280 NAILS STUDIO",
               ownerName: "Tiffany"
             }
           ];

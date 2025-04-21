@@ -26,19 +26,11 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isProcessing, startProcessing, completeProcessing } = useStatus();
   
-  // Demo: Call startProcessing when component mounts and set completion after delay
-  // In production, this would be tied to actual API calls and operations
+  // In production, this is tied to actual operations
   useEffect(() => {
-    // Simulate starting a process when component mounts
+    // Start processing to indicate we're working on the salon name update
     startProcessing();
-    
-    // Simulate completing a process after 3 seconds
-    const timer = setTimeout(() => {
-      completeProcessing();
-    }, 3000);
-    
-    return () => clearTimeout(timer);
-  }, []);
+  }, [startProcessing]);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
