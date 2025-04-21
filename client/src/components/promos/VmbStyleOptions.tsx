@@ -320,7 +320,9 @@ export function VmbStyleOptions({
             <div className="container mx-auto px-2">
               <div className="bg-white shadow-sm rounded-md">
                 <div className="px-1 py-0.5">
-                  <h2 className="font-bold text-base mb-4 text-[#FF92A5] tracking-wider pl-1 border-l-4 border-[#FF92A5] py-0.5 px-2">STEP 1 Pick your style...</h2>
+                  <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-4 rounded-md">
+                    <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 1 Pick your style...</h2>
+                  </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {services.map((service) => {
