@@ -542,7 +542,7 @@ export class DatabaseStorage implements IStorage {
           AND column_name = 'sender_id'
         `);
         
-        const senderIdColumnExists = columnCheckResult.rowCount > 0;
+        const senderIdColumnExists = columnCheckResult.rowCount ? columnCheckResult.rowCount > 0 : false;
         console.log(`DatabaseStorage.createInvitation - sender_id column exists: ${senderIdColumnExists}`);
         
         // Prepare basic columns that we know exist

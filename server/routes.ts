@@ -60,7 +60,10 @@ const clientInputSchema = z.object({
 const invitationInputSchema = z.object({
   name: z.string().min(2),
   phone: z.string().min(10),
-  email: z.string().email(),
+  email: z.union([
+    z.string().email(),
+    z.string().length(0)  // Allow empty string
+  ]),
   notes: z.string().optional(),
   favoriteServices: z.array(z.string()).optional(),
   salonId: z.number().optional(),
@@ -68,7 +71,8 @@ const invitationInputSchema = z.object({
   sponsor: z.string().optional(), // Add sponsor field
   inviteHash: z.string().optional(), // Unique hash identifier
   firstServiceDate: z.string().optional(), // Add firstServiceDate field
-  status: z.string().optional()
+  status: z.string().optional(),
+  senderId: z.number().optional() // Add senderId for client-to-client invitations
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1100,9 +1104,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log(`Generated unique invitation hash: ${validatedData.inviteHash}`);
         }
         
-        // Verify salonId is present
-        if (!validatedData.salonId) {
-          throw new Error("Salon ID is required for client invitations");
+        // For client-to-client invitations, we don't require salonId upfront
+        // The storage.createInvitation method will handle assigning appropriate salon
+        if (!validatedData.salonId && !validatedData.senderId) {
+          throw new Error("Either Salon ID or Sender ID is required for invitations");
         }
         
         console.log('Validated invitation data:', validatedData);
