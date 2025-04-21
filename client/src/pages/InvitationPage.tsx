@@ -15,9 +15,12 @@ interface Invitation {
   name: string;
   phone: string;
   email: string;
+  message?: string | null;
+  type?: string | null;
   notes?: string;
   favoriteServices?: string[];
   salonId?: number;
+  senderId?: number | null;
   salonName?: string;
   sponsor?: string;
   status?: string;
@@ -239,7 +242,15 @@ export default function InvitationPage() {
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle className="text-2xl text-pink-700">Invitation for {invitation.name}</CardTitle>
-                <CardDescription>From {invitation.sponsor || invitation.salonName || "Unknown Salon"}</CardDescription>
+                <div className="flex items-center gap-2">
+                  <CardDescription>From {invitation.sponsor || invitation.salonName || "Unknown Salon"}</CardDescription>
+                  
+                  {invitation.type === 'client_invitation' && (
+                    <Badge className="bg-blue-100 text-blue-700 border-blue-200">
+                      Client Referral
+                    </Badge>
+                  )}
+                </div>
               </div>
               <Badge className={`
                 ${invitation.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : ''}
@@ -292,6 +303,21 @@ export default function InvitationPage() {
                   )}
                 </div>
 
+                {invitation.message && (
+                  <div className="mt-6 pt-4 border-t border-gray-100">
+                    <h4 className="font-medium mb-2">Message</h4>
+                    <div className="bg-pink-50 p-4 rounded-md text-gray-700 italic border border-pink-100">
+                      "{invitation.message}"
+                    </div>
+                    
+                    {invitation.type === 'client_invitation' && (
+                      <Badge className="mt-2 bg-blue-100 text-blue-700">
+                        Client Referral
+                      </Badge>
+                    )}
+                  </div>
+                )}
+                
                 {invitation.notes && (
                   <div className="mt-6 pt-6 border-t border-gray-100">
                     <h4 className="font-medium mb-2">Notes</h4>
