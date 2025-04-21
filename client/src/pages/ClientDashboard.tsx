@@ -951,7 +951,7 @@ export default function ClientDashboard() {
                       <div className="mt-8 border-t pt-2">
                         <h3 className="font-semibold text-pink-700 mb-2">SHARE VMB</h3>
                         <Card className="shadow-sm overflow-hidden">
-                          <CardHeader className="bg-pink-50 pb-3">
+                          <CardHeader className="bg-pink-50 pb-3 pt-2">
                             <CardTitle className="text-sm">Invite Your Friends</CardTitle>
                           </CardHeader>
                           <CardContent className="p-4">
