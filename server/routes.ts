@@ -932,7 +932,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create a new Tiffany salon
       const newTiffanySalon = await storage.createSalon({
-        name: "TIFFANY 5280 NAILS STUDIO",
+        name: "Tiffany 5280 Nails Studio",
         ownerName: "Tiffany Nguyen",
         phone: "(720) 555-5280",
         email: "tiffany@5280nails.com",
