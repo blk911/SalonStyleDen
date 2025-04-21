@@ -32,7 +32,7 @@ export default function InlineVmbInvitations({
   salonId, 
   limit = 10
 }: InlineVmbInvitationsProps) {
-  // All hooks must be at the top level
+  // All hooks must be called at the top level
   const [, setLocation] = useLocation();
   
   const filterParams = new URLSearchParams();
