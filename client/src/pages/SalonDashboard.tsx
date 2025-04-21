@@ -110,10 +110,10 @@ export default function SalonDashboard() {
   // State for adding new promo
   const [isAddingPromo, setIsAddingPromo] = useState(false);
   
-  // State for section visibility
-  const [styleSectionOpen, setStyleSectionOpen] = useState(true);
-  const [scheduleSectionOpen, setScheduleSectionOpen] = useState(true);
-  const [invitationSectionOpen, setInvitationSectionOpen] = useState(true);
+  // State for section visibility - all sections start collapsed
+  const [styleSectionOpen, setStyleSectionOpen] = useState(false);
+  const [scheduleSectionOpen, setScheduleSectionOpen] = useState(false);
+  const [invitationSectionOpen, setInvitationSectionOpen] = useState(false);
 
   // Weekly schedule state
   const [weeklySchedule, setWeeklySchedule] = useState<DaySchedule[]>([
