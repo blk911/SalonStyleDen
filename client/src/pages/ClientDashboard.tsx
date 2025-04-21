@@ -414,7 +414,7 @@ export default function ClientDashboard() {
                   <div>
                     <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
                       <ScissorsIcon className="h-4 w-4" />
-                      Your Ven Me, Baby! [<span className="italic font-script">script logo</span>], Dashboard
+                      Your Ven Me, Baby! Dashboard
                     </CardTitle>
                     {salon && (
                       <CardDescription>Member of {salon.name}</CardDescription>
@@ -557,7 +557,7 @@ export default function ClientDashboard() {
                           <div className="bg-gradient-to-r from-pink-100 to-pink-50 p-5 rounded-xl border border-pink-200 relative overflow-hidden">
                             <h3 className="font-bold text-lg text-pink-700 mb-3 flex items-center">
                               <StarIcon className="h-5 w-5 mr-2 text-pink-500" />
-                              My VMB Offers
+                              My Ven Me, Baby! Offers
                             </h3>
                             
                             <div className="mt-4">
@@ -986,7 +986,7 @@ export default function ClientDashboard() {
                       
                       {/* Recent VMB Invitations Sent - MOVED UP */}
                       <div className="mt-4 border-t pt-2">
-                        <h3 className="font-semibold text-pink-700 mb-2">Your Ven Me, Baby! [<span className="italic font-script">script logo</span>], Dashboard</h3>
+                        <h3 className="font-semibold text-pink-700 mb-2">Your Ven Me, Baby! Dashboard</h3>
                         <div className="mb-2">
                           <InlineVmbInvitations clientId={client.id} />
                         </div>
