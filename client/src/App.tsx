@@ -5,6 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { logError, initMonitoring } from "@/lib/monitoring";
 import { MonitoringProvider } from "@/contexts/MonitoringContext";
+import { StatusProvider } from "@/contexts/StatusContext";
 import MonitoringDashboard from "@/components/monitoring/MonitoringDashboard";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
@@ -89,11 +90,13 @@ function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <MonitoringProvider>
-          <Router />
-          <MonitoringDashboard />
-          <Toaster />
-        </MonitoringProvider>
+        <StatusProvider>
+          <MonitoringProvider>
+            <Router />
+            <MonitoringDashboard />
+            <Toaster />
+          </MonitoringProvider>
+        </StatusProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
