@@ -3,12 +3,13 @@ import { useParams, useLocation } from "wouter";
 import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, getQueryFn, queryClient } from "@/lib/queryClient";
 import { getImageUrl } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
 import WeeklySchedule, { DaySchedule } from "@/components/dashboard/WeeklySchedule";
 import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSalonInfo";
 import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
@@ -108,6 +109,9 @@ export default function SalonDashboard() {
 
   // State for adding new promo
   const [isAddingPromo, setIsAddingPromo] = useState(false);
+  
+  // State for style options section visibility
+  const [styleSectionOpen, setStyleSectionOpen] = useState(true);
 
   // Weekly schedule state
   const [weeklySchedule, setWeeklySchedule] = useState<DaySchedule[]>([
@@ -738,38 +742,55 @@ export default function SalonDashboard() {
         {/* Ven Me, Baby! Style Options Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
-            <Card className="rounded shadow-sm">
-              <CardContent className="p-2">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium text-sm">Ven Me, Baby! Style Options</h3>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="text-xs h-7 border-purple-200 text-purple-700 hover:bg-purple-50"
-                    onClick={() => handleAddDefaultServices()}
-                  >
-                    Reset Default Styles
-                  </Button>
-                </div>
-
-                {services.length === 0 ? (
-                  <div className="text-center p-4">
-                    <p className="text-lg font-medium text-gray-700">VMB STYLE OPTIONS</p>
+            <Card className="rounded shadow-sm overflow-hidden">
+              <CardHeader 
+                className="bg-gradient-to-r from-purple-100 to-purple-50 pb-2 pt-2 cursor-pointer" 
+                onClick={() => setStyleSectionOpen(!styleSectionOpen)}
+              >
+                <CardTitle className="text-lg flex items-center justify-between gap-2 text-purple-700">
+                  <span className="flex items-center gap-2">
+                    <h3 className="font-medium text-sm sm:text-base">Ven Me, Baby! Style Options</h3>
+                  </span>
+                  <div className="flex items-center">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-xs h-7 mr-2 border-purple-200 text-purple-700 hover:bg-purple-100"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering the header click
+                        handleAddDefaultServices();
+                      }}
+                    >
+                      Reset Default Styles
+                    </Button>
+                    <ChevronDown 
+                      className={`h-5 w-5 text-purple-500 transition-transform ${styleSectionOpen ? 'transform rotate-180' : ''}`} 
+                    />
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Existing style options */}
-                    {services.map(service => (
-                      <EditableService
-                        key={service.id}
-                        service={service}
-                        onSave={handleSaveService}
-                        onDelete={handleDeleteService}
-                      />
-                    ))}
-                  </div>
-                )}
-              </CardContent>
+                </CardTitle>
+              </CardHeader>
+              
+              {styleSectionOpen && (
+                <CardContent className="p-3 bg-white">
+                  {services.length === 0 ? (
+                    <div className="text-center p-4">
+                      <p className="text-lg font-medium text-gray-700">VMB STYLE OPTIONS</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Existing style options */}
+                      {services.map(service => (
+                        <EditableService
+                          key={service.id}
+                          service={service}
+                          onSave={handleSaveService}
+                          onDelete={handleDeleteService}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              )}
             </Card>
           </div>
         </section>
