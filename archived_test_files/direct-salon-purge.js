@@ -48,7 +48,7 @@ async function listSalons() {
   const toKeep = salons.filter(salon => {
     const name = salon.name.toLowerCase();
     return (
-      name.includes('tiffany') ||
+      name.includes('tiffany 5280') ||
       name.includes('deb dazzle') ||
       name.includes('jenna') ||
       name.includes('ven me')
