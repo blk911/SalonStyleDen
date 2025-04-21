@@ -4,6 +4,14 @@
  */
 import { useState, useCallback } from 'react';
 
+// Extend the Window interface to add our global variables for context-aware validation
+declare global {
+  interface Window {
+    _currentSenderId?: number | null;
+    _validationContext?: string | null;
+  }
+}
+
 interface ValidationOptions {
   validateOnChange?: boolean;
   validateOnBlur?: boolean;
@@ -72,15 +80,29 @@ export function useContactValidation(options: ValidationOptions = {}) {
         console.log(`Specifically validating phone 5125551213 to trace issue`);
       }
 
+      // Prepare request body and add sender context if available
+      const requestBody: any = {
+        phone: type === 'phone' ? cleanPhone : '',
+        email: type === 'email' ? value.toLowerCase() : '',
+        type: 'client'
+      };
+      
+      // Add context-aware validation data if available in global scope
+      // This avoids TypeScript errors by using a safer approach
+      if (typeof window !== 'undefined') {
+        if ('_currentSenderId' in window && window['_currentSenderId']) {
+          requestBody.senderId = window['_currentSenderId'];
+        }
+        if ('_validationContext' in window && window['_validationContext']) {
+          requestBody.context = window['_validationContext'];
+        }
+      }
+      
       // Use validation-only server request with a dedicated endpoint for contact validation
       const response = await fetch('/api/validate-contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phone: type === 'phone' ? cleanPhone : '',
-          email: type === 'email' ? value.toLowerCase() : '',
-          type: 'client'
-        })
+        body: JSON.stringify(requestBody)
       });
 
       // Fallback to previous method if the dedicated endpoint isn't available

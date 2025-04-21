@@ -446,9 +446,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Contact validation endpoint - handles both email and phone validation
   apiRouter.post("/validate-contact", async (req: Request, res: Response) => {
     try {
-      const { phone, email, type } = req.body;
+      const { phone, email, type, senderId, context } = req.body;
       
-      console.log(`Validating contact: phone=${phone}, email=${email}, type=${type}`);
+      console.log(`Validating contact: phone=${phone}, email=${email}, type=${type}, senderId=${senderId}, context=${context}`);
       
       if (!phone && !email) {
         return res.status(400).json({
@@ -457,7 +457,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Reuse existing duplicate check functionality from storage
+      // If senderId is provided and context is 'invitation', use the context-aware validation
+      if (senderId && context === 'invitation') {
+        console.log(`Using context-aware invitation validation for sender ${senderId}`);
+        
+        // Use the enhanced context-aware validation for invitations
+        const validation = await storage.validateInvitation(
+          phone || '',
+          email || '',
+          Number(senderId)
+        );
+        
+        if (!validation.isValid) {
+          console.log(`Context-aware validation failed: ${validation.message}`);
+          return res.json({
+            exists: true,
+            field: phone ? 'phone' : 'email',
+            message: validation.message
+          });
+        }
+        
+        console.log('Context-aware validation passed');
+        return res.json({
+          exists: false,
+          field: ''
+        });
+      }
+      
+      // For all other cases, use the standard duplicate check
+      console.log('Using standard duplicate check for validation');
       const result = await storage.isDuplicateContact(
         phone || "", 
         email || ""

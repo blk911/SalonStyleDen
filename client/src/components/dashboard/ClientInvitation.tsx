@@ -80,6 +80,26 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     if (salonId) {
       fetchSalonInfo();
       fetchSalonInvites();
+      
+      // Set global variables for context-aware validation
+      // These will be used by the useContactValidation hook
+      if (typeof window !== 'undefined') {
+        window['_currentSenderId'] = salonId;
+        window['_validationContext'] = 'invitation';
+      }
+      
+      // Clean up function to remove globals when component unmounts
+      return () => {
+        if (typeof window !== 'undefined') {
+          // Use safer bracket notation for property access
+          if ('_currentSenderId' in window) {
+            delete window['_currentSenderId'];
+          }
+          if ('_validationContext' in window) {
+            delete window['_validationContext'];
+          }
+        }
+      };
     }
   }, [salonId]);
 
