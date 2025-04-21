@@ -110,8 +110,9 @@ export default function SalonDashboard() {
   // State for adding new promo
   const [isAddingPromo, setIsAddingPromo] = useState(false);
   
-  // State for style options section visibility
+  // State for section visibility
   const [styleSectionOpen, setStyleSectionOpen] = useState(true);
+  const [scheduleSectionOpen, setScheduleSectionOpen] = useState(true);
 
   // Weekly schedule state
   const [weeklySchedule, setWeeklySchedule] = useState<DaySchedule[]>([
@@ -794,11 +795,27 @@ export default function SalonDashboard() {
         {/* Weekly Schedule Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
-            <WeeklySchedule
-              salonId={salon.id}
-              initialSchedule={weeklySchedule}
-              onScheduleSaved={handleSaveSchedule}
-            />
+            <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
+              <div 
+                className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
+                onClick={() => setScheduleSectionOpen(!scheduleSectionOpen)}
+              >
+                <h3 className="font-medium text-sm sm:text-base text-pink-700">Weekly Schedule</h3>
+                <ChevronDown 
+                  className={`h-5 w-5 text-pink-600 transition-transform ${scheduleSectionOpen ? 'transform rotate-180' : ''}`} 
+                />
+              </div>
+              
+              {scheduleSectionOpen && (
+                <CardContent className="p-3 bg-white">
+                  <WeeklySchedule
+                    salonId={salon.id}
+                    initialSchedule={weeklySchedule}
+                    onScheduleSaved={handleSaveSchedule}
+                  />
+                </CardContent>
+              )}
+            </Card>
           </div>
         </section>
 
