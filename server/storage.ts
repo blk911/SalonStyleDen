@@ -889,11 +889,9 @@ export class DatabaseStorage implements IStorage {
           );
           
           if (existingClientOfThisSalon) {
-            console.log(`DatabaseStorage.validateInvitation - Phone already belongs to a client of this salon: ${cleanPhone}`);
-            return { 
-              isValid: false, 
-              message: "This phone number already belongs to a client of your salon" 
-            };
+            console.log(`DatabaseStorage.validateInvitation - Phone belongs to a client of this salon: ${cleanPhone}, but allowing invitation`);
+            // Allow salon to send invites to their own clients - no validation error
+            return { isValid: true };
           }
           
           // 2. Check if client exists but has a different sponsor salon
@@ -937,11 +935,9 @@ export class DatabaseStorage implements IStorage {
           );
           
           if (existingClientEmailOfThisSalon) {
-            console.log(`DatabaseStorage.validateInvitation - Email already belongs to a client of this salon: ${email}`);
-            return { 
-              isValid: false, 
-              message: "This email already belongs to a client of your salon" 
-            };
+            console.log(`DatabaseStorage.validateInvitation - Email belongs to a client of this salon: ${email}, but allowing invitation`);
+            // Allow salon to send invites to their own clients - no validation error
+            return { isValid: true };
           }
           
           const existingClientEmailWithDifferentSponsor = allClients.find(client => 
