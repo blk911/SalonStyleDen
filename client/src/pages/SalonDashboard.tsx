@@ -113,6 +113,7 @@ export default function SalonDashboard() {
   // State for section visibility
   const [styleSectionOpen, setStyleSectionOpen] = useState(true);
   const [scheduleSectionOpen, setScheduleSectionOpen] = useState(true);
+  const [invitationSectionOpen, setInvitationSectionOpen] = useState(true);
 
   // Weekly schedule state
   const [weeklySchedule, setWeeklySchedule] = useState<DaySchedule[]>([
@@ -873,17 +874,35 @@ export default function SalonDashboard() {
         {/* Salon to Client Invitations Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
-            <ClientInvitation salonId={salon?.id} />
+            <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
+              <div 
+                className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
+                onClick={() => setInvitationSectionOpen(!invitationSectionOpen)}
+              >
+                <h3 className="font-medium text-sm sm:text-base text-pink-700">Send Salon to Client Invitations</h3>
+                <ChevronDown 
+                  className={`h-5 w-5 text-pink-600 transition-transform ${invitationSectionOpen ? 'transform rotate-180' : ''}`} 
+                />
+              </div>
+              
+              {invitationSectionOpen && (
+                <CardContent className="p-3 bg-white">
+                  <ClientInvitation salonId={salon?.id} />
+                </CardContent>
+              )}
+            </Card>
           </div>
         </section>
 
         {/* Public Page Preview Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
-            <Card className="rounded shadow-sm">
-              <CardContent className="p-2 text-center">
-                <h3 className="font-medium text-sm mb-2">Preview Your Public Page</h3>
-                <p className="text-xs mb-2">See how clients will view your salon's information, style options, and promotions.</p>
+            <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
+              <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3">
+                <h3 className="font-medium text-sm sm:text-base text-pink-700">Preview Your Public Page</h3>
+              </div>
+              <CardContent className="p-3 bg-white text-center">
+                <p className="text-xs mb-3">See how clients will view your salon's information, style options, and promotions.</p>
                 <Button 
                   variant="outline"
                   className="text-xs h-8 border-pink-200 text-pink-700 hover:bg-pink-50"
