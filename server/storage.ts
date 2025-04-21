@@ -825,6 +825,10 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`DatabaseStorage.validateInvitation - Sender is a ${isSenderClient ? 'client' : 'salon'}`);
       
+      // Get all clients and salons for checking duplicates
+      const allClients = await db.select().from(clients);
+      const allSalons = await db.select().from(salons);
+      
       if (isSenderClient) {
         // CLIENT SENDING INVITATION CONTEXT
         
@@ -861,25 +865,94 @@ export class DatabaseStorage implements IStorage {
           console.log(`DatabaseStorage.validateInvitation - Salon trying to invite their own email`);
           return { isValid: false, message: "You cannot invite yourself" };
         }
+        
+        // ADDITIONAL SALON CONTEXT VALIDATIONS
+        
+        // 1. Check if the phone belongs to an existing client of THIS salon
+        if (cleanPhone) {
+          const existingClientOfThisSalon = allClients.find(client => 
+            client.phone && 
+            client.phone.replace(/\D/g, '') === cleanPhone && 
+            client.sponsorSalonId === salon.id
+          );
+          
+          if (existingClientOfThisSalon) {
+            console.log(`DatabaseStorage.validateInvitation - Phone already belongs to a client of this salon: ${cleanPhone}`);
+            return { 
+              isValid: false, 
+              message: "This phone number already belongs to a client of your salon" 
+            };
+          }
+          
+          // 2. Check if client exists but has a different sponsor salon
+          const existingClientWithDifferentSponsor = allClients.find(client => 
+            client.phone && 
+            client.phone.replace(/\D/g, '') === cleanPhone && 
+            client.sponsorSalonId !== null && 
+            client.sponsorSalonId !== salon.id
+          );
+          
+          if (existingClientWithDifferentSponsor) {
+            console.log(`DatabaseStorage.validateInvitation - Client exists with different sponsor salon: ${cleanPhone}`);
+            return { 
+              isValid: false, 
+              message: "This client is already registered with another salon" 
+            };
+          }
+          
+          // 3. Check if there's a client with this phone but no sponsor (can invite)
+          const existingClientWithNoSponsor = allClients.find(client => 
+            client.phone && 
+            client.phone.replace(/\D/g, '') === cleanPhone && 
+            (client.sponsorSalonId === null || client.sponsorSalonId === undefined)
+          );
+          
+          if (existingClientWithNoSponsor) {
+            console.log(`DatabaseStorage.validateInvitation - Client exists with no sponsor: ${cleanPhone}`);
+            // This is valid - we allow salons to invite clients who don't have a sponsor yet
+            // Do nothing here, continue validation
+          }
+        }
+        
+        // Do the same checks for email if provided
+        if (email && email.trim() !== '') {
+          const normalizedEmail = email.toLowerCase();
+          
+          const existingClientEmailOfThisSalon = allClients.find(client => 
+            client.email && 
+            client.email.toLowerCase() === normalizedEmail && 
+            client.sponsorSalonId === salon.id
+          );
+          
+          if (existingClientEmailOfThisSalon) {
+            console.log(`DatabaseStorage.validateInvitation - Email already belongs to a client of this salon: ${email}`);
+            return { 
+              isValid: false, 
+              message: "This email already belongs to a client of your salon" 
+            };
+          }
+          
+          const existingClientEmailWithDifferentSponsor = allClients.find(client => 
+            client.email && 
+            client.email.toLowerCase() === normalizedEmail && 
+            client.sponsorSalonId !== null && 
+            client.sponsorSalonId !== salon.id
+          );
+          
+          if (existingClientEmailWithDifferentSponsor) {
+            console.log(`DatabaseStorage.validateInvitation - Client email exists with different sponsor salon: ${email}`);
+            return { 
+              isValid: false, 
+              message: "This client email is already registered with another salon" 
+            };
+          }
+        }
       }
       
       // 3. Common validations regardless of sender type
       
-      // Get all clients and salons for checking duplicates
-      const allClients = await db.select().from(clients);
-      const allSalons = await db.select().from(salons);
-      
-      // 4. Check if the phone number is already registered as a client
+      // 4. Check if the phone number is already registered as a salon (not a client)
       if (cleanPhone) {
-        const existingClient = allClients.find(client => 
-          client.phone && client.phone.replace(/\D/g, '') === cleanPhone
-        );
-        
-        if (existingClient) {
-          console.log(`DatabaseStorage.validateInvitation - Phone already registered as client: ${cleanPhone}`);
-          return { isValid: false, message: "This phone is already registered as a client" };
-        }
-        
         // Check if phone belongs to a salon
         const existingSalon = allSalons.find(salon => 
           salon.phone && salon.phone.replace(/\D/g, '') === cleanPhone
@@ -891,18 +964,9 @@ export class DatabaseStorage implements IStorage {
         }
       }
       
-      // 5. Check if the email is already registered
+      // 5. Check if the email is already registered as a salon (not a client)
       if (email && email.trim() !== '') {
         const normalizedEmail = email.toLowerCase();
-        
-        const existingClientEmail = allClients.find(client => 
-          client.email && client.email.toLowerCase() === normalizedEmail
-        );
-        
-        if (existingClientEmail) {
-          console.log(`DatabaseStorage.validateInvitation - Email already registered as client: ${email}`);
-          return { isValid: false, message: "This email is already registered as a client" };
-        }
         
         const existingSalonEmail = allSalons.find(salon => 
           salon.email && salon.email.toLowerCase() === normalizedEmail
