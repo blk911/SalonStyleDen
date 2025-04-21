@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ChevronDown } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Table,
@@ -62,6 +62,26 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [salonInfo, setSalonInfo] = useState<{name: string} | null>(null);
   const [recentInvites, setRecentInvites] = useState<ClientInvite[]>([]);
+  
+  // State for collapsible sections
+  const [sendFormOpen, setSendFormOpen] = useState(() => {
+    const saved = localStorage.getItem('vmb-send-invitation-form-open');
+    return saved ? JSON.parse(saved) : true; // Open by default
+  });
+  
+  const [recentInvitesOpen, setRecentInvitesOpen] = useState(() => {
+    const saved = localStorage.getItem('vmb-recent-invitations-open');
+    return saved ? JSON.parse(saved) : true; // Open by default
+  });
+  
+  // Save collapsible states to localStorage
+  useEffect(() => {
+    localStorage.setItem('vmb-send-invitation-form-open', JSON.stringify(sendFormOpen));
+  }, [sendFormOpen]);
+  
+  useEffect(() => {
+    localStorage.setItem('vmb-recent-invitations-open', JSON.stringify(recentInvitesOpen));
+  }, [recentInvitesOpen]);
   
   // Use our contact validation hook
   const {
@@ -265,235 +285,262 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Send Salon to Client Invitation</h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Line 1: Name and Phone */}
-          <div className="flex gap-4">
-            <Input
-              placeholder="Client Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="flex-1"
-            />
-            <div className="flex-1 relative">
-              <Input
-                placeholder="Phone Number"
-                type="tel"
-                value={phone}
-                onChange={handlePhoneChange}
-                onBlur={() => {
-                  const cleanPhone = phone.replace(/\D/g, '');
-                  if (cleanPhone.length === 10) {
-                    validateContact('phone', cleanPhone);
-                  }
-                }}
-                required
-                className={`w-full ${phoneExists ? 'border-red-500 focus:ring-red-500' : ''}`}
-              />
-              {phoneExists && (
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500">
-                  <AlertCircle className="h-4 w-4" />
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Line 2: Email and Date */}
-          <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Input
-                placeholder="Email Address"
-                type="email"
-                value={email}
-                onChange={handleEmailChange}
-                onBlur={() => {
-                  if (email && email.includes('@') && email.includes('.')) {
-                    validateContact('email', email);
-                  }
-                }}
-                required
-                className={`w-full ${emailExists ? 'border-red-500 focus:ring-red-500' : ''}`}
-              />
-              {emailExists && (
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500">
-                  <AlertCircle className="h-4 w-4" />
-                </div>
-              )}
-            </div>
-            <Input
-              type="date"
-              value={firstServiceDate}
-              onChange={(e) => setFirstServiceDate(e.target.value)}
-              className="flex-1"
-            />
-          </div>
-
-          {/* Line 3: Salon Name (read-only) */}
-          <Input
-            value={salonInfo?.name || 'Loading salon...'}
-            disabled
-            className="bg-gray-50"
+      {/* Send Invitation Form Section */}
+      <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
+        <div 
+          className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
+          onClick={() => setSendFormOpen(!sendFormOpen)}
+        >
+          <h3 className="font-medium text-sm sm:text-base text-pink-700">Send Salon to Client Invitation</h3>
+          <ChevronDown 
+            className={`h-5 w-5 text-pink-600 transition-transform ${sendFormOpen ? 'transform rotate-180' : ''}`} 
           />
+        </div>
+        
+        {sendFormOpen && (
+          <CardContent className="p-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Line 1: Name and Phone */}
+              <div className="flex gap-4">
+                <Input
+                  placeholder="Client Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="flex-1"
+                />
+                <div className="flex-1 relative">
+                  <Input
+                    placeholder="Phone Number"
+                    type="tel"
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    onBlur={() => {
+                      const cleanPhone = phone.replace(/\D/g, '');
+                      if (cleanPhone.length === 10) {
+                        validateContact('phone', cleanPhone);
+                      }
+                    }}
+                    required
+                    className={`w-full ${phoneExists ? 'border-red-500 focus:ring-red-500' : ''}`}
+                  />
+                  {phoneExists && (
+                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500">
+                      <AlertCircle className="h-4 w-4" />
+                    </div>
+                  )}
+                </div>
+              </div>
 
-          {/* Line 4: Notes */}
-          <Textarea
-            placeholder="Notes (Optional)"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={2}
-          />
+              {/* Line 2: Email and Date */}
+              <div className="flex gap-4">
+                <div className="flex-1 relative">
+                  <Input
+                    placeholder="Email Address"
+                    type="email"
+                    value={email}
+                    onChange={handleEmailChange}
+                    onBlur={() => {
+                      if (email && email.includes('@') && email.includes('.')) {
+                        validateContact('email', email);
+                      }
+                    }}
+                    required
+                    className={`w-full ${emailExists ? 'border-red-500 focus:ring-red-500' : ''}`}
+                  />
+                  {emailExists && (
+                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500">
+                      <AlertCircle className="h-4 w-4" />
+                    </div>
+                  )}
+                </div>
+                <Input
+                  type="date"
+                  value={firstServiceDate}
+                  onChange={(e) => setFirstServiceDate(e.target.value)}
+                  className="flex-1"
+                />
+              </div>
 
-          {/* Line 5: Favorite Services */}
-          <div className="flex flex-wrap gap-2">
-            {DEFAULT_SERVICES.map(service => (
-              <Button
-                key={service}
-                type="button"
-                variant={selectedServices.includes(service) ? "default" : "outline"}
-                onClick={() => {
-                  setSelectedServices(prev => 
-                    prev.includes(service) 
-                      ? prev.filter(s => s !== service)
-                      : [...prev, service]
-                  );
-                }}
-                className={selectedServices.includes(service) ? 'bg-pink-500 hover:bg-pink-600' : ''}
+              {/* Line 3: Salon Name (read-only) */}
+              <Input
+                value={salonInfo?.name || 'Loading salon...'}
+                disabled
+                className="bg-gray-50"
+              />
+
+              {/* Line 4: Notes */}
+              <Textarea
+                placeholder="Notes (Optional)"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={2}
+              />
+
+              {/* Line 5: Favorite Services */}
+              <div className="flex flex-wrap gap-2">
+                {DEFAULT_SERVICES.map(service => (
+                  <Button
+                    key={service}
+                    type="button"
+                    variant={selectedServices.includes(service) ? "default" : "outline"}
+                    onClick={() => {
+                      setSelectedServices(prev => 
+                        prev.includes(service) 
+                          ? prev.filter(s => s !== service)
+                          : [...prev, service]
+                      );
+                    }}
+                    className={selectedServices.includes(service) ? 'bg-pink-500 hover:bg-pink-600' : ''}
+                  >
+                    {service}
+                  </Button>
+                ))}
+              </div>
+
+              {/* Submit Button */}
+              <Button 
+                type="submit" 
+                disabled={isSubmitting || phoneExists || emailExists}
+                className="w-full bg-pink-500 hover:bg-pink-600"
               >
-                {service}
+                {isSubmitting ? 'Sending...' : 'Send Invitation'}
               </Button>
-            ))}
-          </div>
 
-          {/* Submit Button */}
-          <Button 
-            type="submit" 
-            disabled={isSubmitting || phoneExists || emailExists}
-            className="w-full bg-pink-500 hover:bg-pink-600"
-          >
-            {isSubmitting ? 'Sending...' : 'Send Invitation'}
-          </Button>
-
-          {/* Error Alerts */}
-          {phoneExists && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                This phone number is already registered
-              </AlertDescription>
-            </Alert>
-          )}
-          {emailExists && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                This email is already registered
-              </AlertDescription>
-            </Alert>
-          )}
-        </form>
+              {/* Error Alerts */}
+              {phoneExists && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    This phone number is already registered
+                  </AlertDescription>
+                </Alert>
+              )}
+              {emailExists && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    This email is already registered
+                  </AlertDescription>
+                </Alert>
+              )}
+            </form>
+          </CardContent>
+        )}
       </Card>
 
       {/* Recent Invitations List */}
-      <Card className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Recent Salon to Client Invitations</h3>
-        {recentInvites.length === 0 ? (
-          <p className="text-center text-gray-500 my-4">No invitations have been sent yet.</p>
-        ) : (
-          <ScrollArea className="h-[250px]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>First Service</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentInvites.map((invite) => (
-                  <TableRow key={invite.id} className="h-[28px]">
-                    {/* Name with truncation */}
-                    <TableCell className="font-medium py-1">
-                      {invite.name.length > 12 ? (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="cursor-help">
-                                {invite.name.substring(0, 10)}...
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{invite.name}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ) : (
-                        invite.name
-                      )}
-                    </TableCell>
-                    
-                    {/* Phone with truncation */}
-                    <TableCell className="py-1">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="cursor-help">
-                              {formatPhoneNumber(invite.phone).substring(0, 7)}•••
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{formatPhoneNumber(invite.phone)}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    
-                    {/* Email with truncation */}
-                    <TableCell className="py-1">
-                      {invite.email && invite.email.length > 15 ? (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="cursor-help">
-                                {invite.email.substring(0, 12)}...
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{invite.email}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ) : (
-                        invite.email
-                      )}
-                    </TableCell>
-                    
-                    {/* Status badge */}
-                    <TableCell className="py-1">
-                      <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200 text-xs">
-                        {invite.status || 'Pending'}
-                      </Badge>
-                      
-                      {/* Display Invitation Hash ID below status */}
-                      {invite.inviteHash && (
-                        <div className="text-[10px] text-gray-500 mt-1">
-                          #{invite.inviteHash}
-                        </div>
-                      )}
-                    </TableCell>
-                    
-                    {/* Service date with truncation */}
-                    <TableCell className="py-1 text-xs">
-                      {invite.firstServiceDate || 'Not scheduled'}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </ScrollArea>
+      <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
+        <div 
+          className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
+          onClick={() => setRecentInvitesOpen(!recentInvitesOpen)}
+        >
+          <h3 className="font-medium text-sm sm:text-base text-pink-700">Recent Salon to Client Invitations</h3>
+          <ChevronDown 
+            className={`h-5 w-5 text-pink-600 transition-transform ${recentInvitesOpen ? 'transform rotate-180' : ''}`} 
+          />
+        </div>
+        
+        {recentInvitesOpen && (
+          <CardContent className="p-4">
+            {recentInvites.length === 0 ? (
+              <p className="text-center text-gray-500 my-4">No invitations have been sent yet.</p>
+            ) : (
+              <ScrollArea className="h-[250px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>First Service</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recentInvites.map((invite) => (
+                      <TableRow key={invite.id} className="h-[28px]">
+                        {/* Name with truncation */}
+                        <TableCell className="font-medium py-1">
+                          {invite.name.length > 12 ? (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help">
+                                    {invite.name.substring(0, 10)}...
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{invite.name}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          ) : (
+                            invite.name
+                          )}
+                        </TableCell>
+                        
+                        {/* Phone with truncation */}
+                        <TableCell className="py-1">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="cursor-help">
+                                  {formatPhoneNumber(invite.phone).substring(0, 7)}•••
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{formatPhoneNumber(invite.phone)}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </TableCell>
+                        
+                        {/* Email with truncation */}
+                        <TableCell className="py-1">
+                          {invite.email && invite.email.length > 15 ? (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help">
+                                    {invite.email.substring(0, 12)}...
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{invite.email}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          ) : (
+                            invite.email
+                          )}
+                        </TableCell>
+                        
+                        {/* Status badge */}
+                        <TableCell className="py-1">
+                          <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200 text-xs">
+                            {invite.status || 'Pending'}
+                          </Badge>
+                          
+                          {/* Display Invitation Hash ID below status */}
+                          {invite.inviteHash && (
+                            <div className="text-[10px] text-gray-500 mt-1">
+                              #{invite.inviteHash}
+                            </div>
+                          )}
+                        </TableCell>
+                        
+                        {/* Service date with truncation */}
+                        <TableCell className="py-1 text-xs">
+                          {invite.firstServiceDate || 'Not scheduled'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            )}
+          </CardContent>
         )}
       </Card>
       
