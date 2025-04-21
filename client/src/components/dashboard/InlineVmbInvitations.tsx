@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { UserIcon, CalendarIcon, CheckIcon, ClockIcon } from "lucide-react";
+import { UserIcon, CalendarIcon, CheckIcon, ClockIcon, ExternalLinkIcon } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface Invitation {
   id: number;
