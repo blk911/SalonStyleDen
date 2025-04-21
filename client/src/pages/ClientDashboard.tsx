@@ -975,7 +975,7 @@ export default function ClientDashboard() {
                         <Card className="rounded-xl shadow-sm overflow-hidden">
                           <CardHeader className="bg-pink-50 pb-2 pt-2">
                             <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
-                              <span>SHARE Ven Me, Baby!</span>
+                              <span>{client.name}'s SHARE Network</span>
                               <button 
                                 onClick={() => setShowShareForm(!showShareForm)} 
                                 className="flex items-center text-sm text-pink-600 hover:text-pink-800"
@@ -1011,7 +1011,7 @@ export default function ClientDashboard() {
                           <CardHeader className="bg-pink-50 pb-2 pt-2">
                             <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
                               <span className="flex items-center gap-2">
-                                YOUR Ven Me, Baby! Gift Box <span className="flex gap-1 ml-1">
+                                {client.name}'s Ven Me, Baby! Gift Box <span className="flex gap-1 ml-1">
                                   <GiftIcon className="h-4 w-4 text-pink-600" />
                                   <Sparkles className="h-4 w-4 text-yellow-500" />
                                   <ScissorsIcon className="h-4 w-4 text-blue-500" />
@@ -1052,7 +1052,7 @@ export default function ClientDashboard() {
               <Card className="rounded-xl shadow-sm overflow-hidden">
                 <CardHeader className="bg-pink-50 pb-2 pt-2">
                   <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
-                    <span>SHARE Ven Me, Baby!</span>
+                    <span>{client.name}'s SHARE Network</span>
                     <button 
                       onClick={() => setShowShareForm(!showShareForm)} 
                       className="flex items-center text-sm text-pink-600 hover:text-pink-800"
