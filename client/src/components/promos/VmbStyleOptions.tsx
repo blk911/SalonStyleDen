@@ -320,7 +320,7 @@ export function VmbStyleOptions({
             <div className="container mx-auto px-2">
               <div className="bg-white shadow-sm rounded-md">
                 <div className="p-3">
-                  <h2 className="font-bold text-sm mb-3 text-[#FF92A5]">Ven Me, Baby! Style Options: STEP 1 Pick your style...</h2>
+                  {/* Removed heading - now in parent component */}
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {services.map((service) => {
