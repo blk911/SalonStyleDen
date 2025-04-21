@@ -64,6 +64,7 @@ const invitationInputSchema = z.object({
     z.string().email(),
     z.string().length(0)  // Allow empty string
   ]),
+  message: z.string().optional(), // Optional message for client-to-client invitations
   notes: z.string().optional(),
   favoriteServices: z.array(z.string()).optional(),
   salonId: z.number().optional(),
@@ -72,7 +73,8 @@ const invitationInputSchema = z.object({
   inviteHash: z.string().optional(), // Unique hash identifier
   firstServiceDate: z.string().optional(), // Add firstServiceDate field
   status: z.string().optional(),
-  senderId: z.number().optional() // Add senderId for client-to-client invitations
+  senderId: z.number().optional(), // Add senderId for client-to-client invitations
+  type: z.string().optional() // Type of invitation (e.g., "client_invitation")
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1093,46 +1095,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // For regular requests, proceed as normal
       try {
+        console.log("DEBUG - Invitation request body:", req.body);
+        
         // Validate input data
-        const validatedData = invitationInputSchema.parse(req.body);
-        
-        // Generate a unique hash for this invitation if not provided
-        if (!validatedData.inviteHash) {
-          // Import the generateInviteHash function from client utils
-          const { generateInviteHash } = await import('../client/src/lib/utils');
-          validatedData.inviteHash = generateInviteHash();
-          console.log(`Generated unique invitation hash: ${validatedData.inviteHash}`);
-        }
-        
-        // For client-to-client invitations, we don't require salonId upfront
-        // The storage.createInvitation method will handle assigning appropriate salon
-        if (!validatedData.salonId && !validatedData.senderId) {
-          throw new Error("Either Salon ID or Sender ID is required for invitations");
-        }
-        
-        console.log('Validated invitation data:', validatedData);
-        
-        // Create the invitation in database
-        const invitation = await storage.createInvitation(validatedData);
-        console.log('Created invitation with ID:', invitation.id, 'Hash:', invitation.inviteHash);
-        
-        // Log activity with the invitation hash
-        if (invitation.inviteHash) {
-          try {
-            await storage.createActivityLog({
-              type: "invitation_created",
-              description: `Invitation #${invitation.inviteHash} created for ${invitation.name}`,
-              salonId: Number(invitation.salonId),
-              timestamp: new Date()
-            });
-          } catch (logError) {
-            // Just log the error but don't fail the request if activity logging fails
-            console.error('Failed to log invitation activity:', logError);
+        try {
+          const validatedData = invitationInputSchema.parse(req.body);
+          console.log("DEBUG - Validation succeeded, proceeding with invitation");
+          
+          // Generate a unique hash for this invitation if not provided
+          if (!validatedData.inviteHash) {
+            // Import the generateInviteHash function from client utils
+            const { generateInviteHash } = await import('../client/src/lib/utils');
+            validatedData.inviteHash = generateInviteHash();
+            console.log(`Generated unique invitation hash: ${validatedData.inviteHash}`);
           }
-        }
+          
+          // For client-to-client invitations, we don't require salonId upfront
+          // The storage.createInvitation method will handle assigning appropriate salon
+          if (!validatedData.salonId && !validatedData.senderId) {
+            throw new Error("Either Salon ID or Sender ID is required for invitations");
+          }
+          
+          console.log('Validated invitation data:', validatedData);
+          
+          // Create the invitation in database
+          const createdInvitation = await storage.createInvitation(validatedData);
+          console.log('Created invitation with ID:', createdInvitation.id, 'Hash:', createdInvitation.inviteHash);
         
-        // Return the invitation data
-        res.status(201).json(invitation);
+          // Log activity with the invitation hash
+          if (createdInvitation && createdInvitation.inviteHash) {
+            try {
+              await storage.createActivityLog({
+                type: "invitation_created",
+                description: `Invitation #${createdInvitation.inviteHash} created for ${createdInvitation.name}`,
+                salonId: Number(createdInvitation.salonId) || 0,
+                timestamp: new Date()
+              });
+            } catch (logError) {
+              // Just log the error but don't fail the request if activity logging fails
+              console.error('Failed to log invitation activity:', logError);
+            }
+          }
+          
+          // Return the invitation data
+          res.status(201).json(createdInvitation);
+        } catch (parseError) {
+          console.error("DEBUG - Validation error details:", parseError);
+          throw parseError;
+        }
       } catch (validationError) {
         console.error('Error processing invitation data:', validationError);
         
