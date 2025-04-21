@@ -32,6 +32,9 @@ export default function InlineVmbInvitations({
   salonId, 
   limit = 10
 }: InlineVmbInvitationsProps) {
+  // All hooks must be at the top level
+  const [, setLocation] = useLocation();
+  
   const filterParams = new URLSearchParams();
   if (limit) filterParams.set('limit', limit.toString());
   if (clientId) filterParams.set('clientId', clientId.toString());
@@ -88,8 +91,6 @@ export default function InlineVmbInvitations({
         return { bg: 'bg-gray-100', text: 'text-gray-700' };
     }
   };
-
-  const [, setLocation] = useLocation();
 
   // Navigate to invitation detail page
   const goToInvitationPage = (inviteHash: string) => {
