@@ -342,16 +342,22 @@ export function VmbStyleOptions({
                       <div className="mt-1 flex justify-between items-center">
                         <Badge 
                           className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer"
-                          onClick={() => handleSelectStyle(service)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectStyle(service);
+                          }}
                         >
                           Book Now
                         </Badge>
                         <Button 
                           variant="link" 
                           className="text-micro text-pink-500 hover:text-pink-700 p-0 h-auto"
-                          onClick={() => handleSelectStyle(service)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectStyle(service);
+                          }}
                         >
-                          Edit
+                          Select
                         </Button>
                       </div>
                     </div>
