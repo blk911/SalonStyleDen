@@ -26,11 +26,11 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isProcessing, startProcessing, completeProcessing } = useStatus();
   
-  // In production, this is tied to actual operations
-  useEffect(() => {
-    // Start processing to indicate we're working on the salon name update
-    startProcessing();
-  }, [startProcessing]);
+  // Temporarily disabled processing script
+  // useEffect(() => {
+  //   // Start processing to indicate we're working on the salon name update
+  //   startProcessing();
+  // }, [startProcessing]);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);

@@ -87,8 +87,8 @@ export default function MonitoringDashboard() {
 
   if (!isExpanded) {
     return (
-      <div className="fixed bottom-4 right-4 z-50">
-        <Card className="w-auto shadow-lg border-2 border-pink-200">
+      <div className="fixed top-0 right-12 z-50">
+        <Card className="w-auto shadow-lg border-2 border-pink-200 mt-1">
           <CardHeader className="p-2 pb-0 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium">VMB Testing Monitor</CardTitle>
             <div className="flex gap-1">
