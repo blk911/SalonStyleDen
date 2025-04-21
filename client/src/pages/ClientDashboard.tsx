@@ -1011,13 +1011,19 @@ export default function ClientDashboard() {
                           <CardHeader className="bg-pink-50 pb-2 pt-2">
                             <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
                               <span className="flex items-center gap-2">
-                                {client.name}'s Ven Me, Baby! Gift Box <span className="flex gap-1 ml-1">
+                                {client.name}'s Ven Me, Baby! Gift Box 
+                                <span className="flex gap-1 ml-1">
                                   <GiftIcon className="h-4 w-4 text-pink-600" />
                                   <Sparkles className="h-4 w-4 text-yellow-500" />
                                   <ScissorsIcon className="h-4 w-4 text-blue-500" />
                                   <HeartIcon className="h-4 w-4 text-red-500" />
                                   <Diamond className="h-4 w-4 text-purple-500" />
                                 </span>
+                                {invitations && invitations.length > 0 && invitations.some(inv => inv.status === 'pending') && (
+                                  <Badge className="bg-red-500 text-white ml-2 animate-pulse">
+                                    New
+                                  </Badge>
+                                )}
                               </span>
                               <button 
                                 onClick={() => setShowInvitations(!showInvitations)} 

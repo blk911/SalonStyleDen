@@ -1,12 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
+import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { PhoneIcon, MailIcon, CalendarIcon, UserIcon, ClockIcon, BuildingIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { PhoneIcon, MailIcon, CalendarIcon, UserIcon, ClockIcon, BuildingIcon, CheckCircleIcon } from "lucide-react";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import { useToast } from "@/hooks/use-toast";
 
@@ -43,6 +45,7 @@ export default function InvitationPage() {
   const { hash } = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // Format phone number for display
   const formatPhone = (phone: string) => {
@@ -89,8 +92,19 @@ export default function InvitationPage() {
     enabled: !!invitation?.salonId,
   });
 
+  // Show confirmation dialog for pending invitations
+  const promptAcceptInvitation = () => {
+    if (invitation?.status === 'pending') {
+      setShowConfirmDialog(true);
+    } else {
+      handleAcceptInvitation();
+    }
+  };
+
   // Handle accept invitation or view dashboard
   const handleAcceptInvitation = async () => {
+    setShowConfirmDialog(false);
+    
     if (!invitation || !invitation.id) {
       toast({
         title: "Error",
@@ -421,8 +435,13 @@ export default function InvitationPage() {
                 invitation.status === 'completed' 
                   ? 'bg-green-600 hover:bg-green-700' 
                   : 'bg-pink-600 hover:bg-pink-700'
+              } ${
+                invitation.status === 'pending' 
+                  ? 'animate-pulse shadow-lg'  
+                  : ''
               }`}
-              onClick={handleAcceptInvitation}
+              onClick={promptAcceptInvitation}
+              disabled={invitation.status === 'completed'}
             >
               {invitation.status === 'completed' 
                 ? 'View Dashboard' 

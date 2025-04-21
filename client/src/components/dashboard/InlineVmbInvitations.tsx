@@ -89,14 +89,25 @@ export default function InlineVmbInvitations({
     }
   };
 
+  const [, setLocation] = useLocation();
+
+  // Navigate to invitation detail page
+  const goToInvitationPage = (inviteHash: string) => {
+    setLocation(`/invitation/${inviteHash}`);
+  };
+
   return (
     <div className="grid grid-cols-1 gap-3">
       {invitations.map(invitation => {
         const statusStyles = getStatusStyles(invitation.status);
         
         return (
-          <Card key={invitation.id} className="border border-pink-100">
-            <CardContent className="p-3">
+          <Card 
+            key={invitation.id} 
+            className="border border-pink-100 hover:border-pink-300 hover:shadow-md transition-all duration-200 cursor-pointer group"
+            onClick={() => goToInvitationPage(invitation.inviteHash)}
+          >
+            <CardContent className="p-3 relative">
               <div className="flex flex-row justify-between items-center mb-1">
                 <div className="flex items-center gap-2">
                   <UserIcon className="h-4 w-4 text-pink-500" />
@@ -145,6 +156,11 @@ export default function InlineVmbInvitations({
                   <span>Client referral</span>
                 </div>
               )}
+              
+              {/* View Details Icon - Only visible on hover */}
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <ExternalLinkIcon className="h-4 w-4 text-pink-500" />
+              </div>
             </CardContent>
           </Card>
         );
