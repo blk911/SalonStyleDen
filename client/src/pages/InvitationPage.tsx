@@ -451,6 +451,48 @@ export default function InvitationPage() {
         </Card>
       </main>
       <Footer />
+      
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-pink-700">Accept Invitation</DialogTitle>
+            <DialogDescription className="text-center">
+              You're about to accept an invitation from {invitation.sponsor || invitation.salonName || "a salon"}.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex flex-col items-center py-4">
+            <CheckCircleIcon className="h-16 w-16 text-pink-500 mb-4" />
+            <p className="text-center mb-2">
+              This invitation can only be accepted once. After acceptance, you'll be directed to complete your registration.
+            </p>
+            {invitation.firstServiceDate && (
+              <div className="mt-2 p-3 bg-pink-50 rounded-md w-full text-center">
+                <p className="text-sm font-medium">Your first service date is scheduled for:</p>
+                <p className="text-pink-700 font-bold">{new Date(invitation.firstServiceDate).toLocaleDateString()}</p>
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter className="flex justify-between sm:justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              className="bg-pink-600 hover:bg-pink-700"
+              onClick={handleAcceptInvitation}
+            >
+              Accept & Continue
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

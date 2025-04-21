@@ -196,24 +196,18 @@ export default function ClientDashboard() {
 
   // Fetch client's invitations
   const { data: invitations, isLoading: invitationsLoading } = useQuery<Invitation[]>({
-    queryKey: ['/api/invitations'],
+    queryKey: ['/api/invitations', 'client', id],
     queryFn: async () => {
       console.log(`ClientDashboard - Fetching invitations`);
       // In a real implementation, this would filter by client's email or phone
       // For now, we'll just fetch all and filter client-side
-      const response = await fetch('/api/invitations');
+      const response = await fetch(`/api/invitations?clientId=${id}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch invitations: ${response.status}`);
       }
       const data = await response.json();
-      // Filter invitations that match this client's email or phone
-      const clientInvitations = client ? 
-        data.filter((inv: Invitation) => 
-          inv.email.toLowerCase() === client.email.toLowerCase() || 
-          inv.phone.replace(/\D/g, '') === client.phone.replace(/\D/g, '')
-        ) : [];
-      console.log(`ClientDashboard - Found ${clientInvitations.length} invitations for this client`);
-      return clientInvitations;
+      console.log(`ClientDashboard - Fetched ${data.length} invitations for client ${id}`);
+      return data;
     },
     enabled: !!client,
   });
