@@ -742,33 +742,29 @@ export default function SalonDashboard() {
         {/* Ven Me, Baby! Style Options Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
-            <Card className="rounded shadow-sm overflow-hidden">
-              <CardHeader 
-                className="bg-gradient-to-r from-purple-100 to-purple-50 pb-2 pt-2 cursor-pointer" 
+            <Card className="rounded-xl shadow-sm overflow-hidden">
+              <div 
+                className="bg-gradient-to-r from-purple-100 to-purple-50 p-2 cursor-pointer flex justify-between items-center" 
                 onClick={() => setStyleSectionOpen(!styleSectionOpen)}
               >
-                <CardTitle className="text-lg flex items-center justify-between gap-2 text-purple-700">
-                  <span className="flex items-center gap-2">
-                    <h3 className="font-medium text-sm sm:text-base">Ven Me, Baby! Style Options</h3>
-                  </span>
-                  <div className="flex items-center">
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="text-xs h-7 mr-2 border-purple-200 text-purple-700 hover:bg-purple-100"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering the header click
-                        handleAddDefaultServices();
-                      }}
-                    >
-                      Reset Default Styles
-                    </Button>
-                    <ChevronDown 
-                      className={`h-5 w-5 text-purple-500 transition-transform ${styleSectionOpen ? 'transform rotate-180' : ''}`} 
-                    />
-                  </div>
-                </CardTitle>
-              </CardHeader>
+                <h3 className="font-medium text-sm sm:text-base text-purple-700">Ven Me, Baby! Style Options</h3>
+                <div className="flex items-center">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="text-xs h-7 mr-2 border-purple-200 text-purple-700 hover:bg-purple-100"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering the header click
+                      handleAddDefaultServices();
+                    }}
+                  >
+                    Reset Default Styles
+                  </Button>
+                  <ChevronDown 
+                    className={`h-5 w-5 text-purple-500 transition-transform ${styleSectionOpen ? 'transform rotate-180' : ''}`} 
+                  />
+                </div>
+              </div>
               
               {styleSectionOpen && (
                 <CardContent className="p-3 bg-white">
