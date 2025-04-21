@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import BrandName from "@/components/ui/BrandName";
+import { LoadingIndicator } from "@/components/ui/loading-indicator";
 
 // Placeholder Admin Dashboard component
 const AdminDash = () => {
@@ -19,15 +20,20 @@ const AdminDash = () => {
   );
 };
 
-const LoadingIndicator = () => {
-  return (
-    <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-gray-800"></div>
-  );
-};
-
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Demo to toggle between loading and complete states
+  useEffect(() => {
+    // Set an interval to toggle the loading state every 5 seconds
+    const interval = setInterval(() => {
+      setIsLoading(prev => !prev);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -87,7 +93,7 @@ export default function Navbar() {
               <div className="px-2 py-1 text-sm font-medium bg-pink-50 text-pink-600 hover:bg-pink-100 cursor-pointer">Admin</div>
             </Link>
             <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
-            <LoadingIndicator className="text-[#FF92A5]" /> {/* Added LoadingIndicator */}
+            <LoadingIndicator isLoading={isLoading} showCompletion={true} />
           </div>
           <div className="flex items-center sm:hidden">
             <button

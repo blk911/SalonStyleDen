@@ -1,36 +1,50 @@
-
-import { cn } from "@/lib/utils"
-import { Loader2 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 
 interface LoadingIndicatorProps {
-  className?: string
-  size?: number
-  isComplete?: boolean
+  isLoading?: boolean;
+  showCompletion?: boolean;
 }
 
-export function LoadingIndicator({ className, size = 24, isComplete = false }: LoadingIndicatorProps) {
+export function LoadingIndicator({ 
+  isLoading = true, 
+  showCompletion = false 
+}: LoadingIndicatorProps) {
   const [showComplete, setShowComplete] = useState(false);
+  const [isActive, setIsActive] = useState(isLoading);
 
+  // When isLoading changes from true to false, show completion message
   useEffect(() => {
-    if (isComplete) {
+    if (!isLoading && showCompletion) {
+      setIsActive(false);
       setShowComplete(true);
+      
+      // Hide the completion message after 3 seconds
+      const timer = setTimeout(() => {
+        setShowComplete(false);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    } else {
+      setIsActive(isLoading);
+      setShowComplete(false);
     }
-  }, [isComplete]);
+  }, [isLoading, showCompletion]);
+
+  if (!isActive && !showComplete) return null;
 
   return (
     <div className="flex items-center gap-2">
-      {!isComplete && (
-        <Loader2 
-          className={cn("animate-spin text-primary", className)} 
-          size={size}
-        />
-      )}
-      {showComplete && (
-        <span className="text-red-500 font-semibold">
+      {isActive ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin text-pink-600" />
+          <span className="text-xs text-pink-600 font-medium">Processing...</span>
+        </>
+      ) : showComplete ? (
+        <span className="text-xs text-red-600 font-bold">
           TASK COMPLETE
         </span>
-      )}
+      ) : null}
     </div>
-  )
+  );
 }
