@@ -74,6 +74,8 @@ export function VmbStyleOptions({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPromoCodeDialog, setShowPromoCodeDialog] = useState(false);
   const [tempSelectedPhone, setTempSelectedPhone] = useState<string>('');
+  const [confirmedStyle, setConfirmedStyle] = useState<StyleOption | null>(null);
+  const [showStep2, setShowStep2] = useState(false);
   const { toast } = useToast();
   const [, navigate] = useLocation();
   
@@ -281,12 +283,19 @@ export function VmbStyleOptions({
       // Close confirmation dialog after short delay to give visual feedback
       setTimeout(() => {
         setIsConfirmationOpen(false);
+        
+        // Save the confirmed style and show Step 2
+        setConfirmedStyle(selectedStyle);
+        setShowStep2(true);
+        
+        // Clear the selection state but keep the confirmed style
+        const confirmedStyleCopy = {...selectedStyle};
         setSelectedStyle(null);
         
         // Show a toast confirmation
         toast({
           title: "Style Selected!",
-          description: `${selectedStyle.name} has been added to your style selections.`,
+          description: `${confirmedStyleCopy.name} has been added to your style selections.`,
           variant: "default"
         });
       }, 800);
@@ -317,67 +326,148 @@ export function VmbStyleOptions({
           <input type="hidden" name="method" value="POST" />
           
           <div className="vmb-style-options">
-            <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
-              <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 1 Pick your style...</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {services.map((service) => (
-                <div 
-                  key={service.id} 
-                  className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
-                  onClick={() => handleSelectStyle(service)}
-                >
-                  <div className="flex">
-                    {/* Left side - Text (2/3) */}
-                    <div className="w-2/3 text-left pr-2">
-                      <h3 className="font-medium text-compact">{service.name}</h3>
-                      <p className="text-mini text-gray-600">{service.description}</p>
-                      
-                      <div className="mt-1 flex items-center gap-2">
-                        <span className="font-bold text-compact">${Math.round(service.price)}</span>
-                        <span className="text-micro">{service.duration} min</span>
-                      </div>
-                      
-                      <div className="mt-1 flex justify-between items-center">
-                        <Badge 
-                          className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSelectStyle(service);
-                          }}
-                        >
-                          Book Now
-                        </Badge>
-                        <Button 
-                          variant="link" 
-                          className="text-micro text-pink-500 hover:text-pink-700 p-0 h-auto"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSelectStyle(service);
-                          }}
-                        >
-                          Select
-                        </Button>
+            {/* STEP 1 - Hidden when STEP 2 is active */}
+            {!showStep2 && (
+              <>
+                <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
+                  <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 1 Pick your style...</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {services.map((service) => (
+                    <div 
+                      key={service.id} 
+                      className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
+                      onClick={() => handleSelectStyle(service)}
+                    >
+                      <div className="flex">
+                        {/* Left side - Text (2/3) */}
+                        <div className="w-2/3 text-left pr-2">
+                          <h3 className="font-medium text-compact">{service.name}</h3>
+                          <p className="text-mini text-gray-600">{service.description}</p>
+                          
+                          <div className="mt-1 flex items-center gap-2">
+                            <span className="font-bold text-compact">${Math.round(service.price)}</span>
+                            <span className="text-micro">{service.duration} min</span>
+                          </div>
+                          
+                          <div className="mt-1 flex justify-between items-center">
+                            <Badge 
+                              className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSelectStyle(service);
+                              }}
+                            >
+                              Book Now
+                            </Badge>
+                            <Button 
+                              variant="link" 
+                              className="text-micro text-pink-500 hover:text-pink-700 p-0 h-auto"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSelectStyle(service);
+                              }}
+                            >
+                              Select
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        {/* Right side - Image (1/3) */}
+                        <div className="w-1/3 flex items-center justify-end pl-2">
+                          <img 
+                            src={service.gifUrl ? getImageUrl(service.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
+                            alt={service.name}
+                            className="h-20 w-20 object-cover rounded-md"
+                            onError={(e) => {
+                              console.error(`Failed to load image for service: ${service.name}`);
+                              e.currentTarget.src = '/assets/LOGO1.png';
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
-                    
-                    {/* Right side - Image (1/3) */}
-                    <div className="w-1/3 flex items-center justify-end pl-2">
-                      <img 
-                        src={service.gifUrl ? getImageUrl(service.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
-                        alt={service.name}
-                        className="h-20 w-20 object-cover rounded-md"
-                        onError={(e) => {
-                          console.error(`Failed to load image for service: ${service.name}`);
-                          e.currentTarget.src = '/assets/LOGO1.png';
-                        }}
-                      />
+                  ))}
+                </div>
+              </>
+            )}
+            
+            {/* STEP 2 - Only shown after a style is confirmed */}
+            {showStep2 && confirmedStyle && (
+              <>
+                <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
+                  <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 2 Style Your Invitation...</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="border rounded px-2 py-2 border-pink-200 bg-pink-50">
+                    <div className="flex">
+                      {/* Left side - blank placeholder for now */}
+                      <div className="w-1/2 text-left pr-2 border-r border-pink-100">
+                        <h3 className="font-medium text-compact text-center">Your Invitation Design</h3>
+                        <div className="flex items-center justify-center h-32">
+                          <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-full flex items-center justify-center">
+                            <p className="text-mini text-gray-500">Personalize your invitation with a message</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Right side - Selected style */}
+                      <div className="w-1/2 text-left pl-2">
+                        <h3 className="font-medium text-compact">Selected Style:</h3>
+                        <p className="text-mini text-gray-600">{confirmedStyle.name}</p>
+                        
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="font-bold text-compact">${Math.round(confirmedStyle.price)}</span>
+                          <span className="text-micro">{confirmedStyle.duration} min</span>
+                        </div>
+                        
+                        <div className="mt-2 flex items-center justify-center">
+                          <img 
+                            src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
+                            alt={confirmedStyle.name}
+                            className="h-24 w-24 object-cover rounded-md border border-pink-200"
+                            onError={(e) => {
+                              console.error(`Failed to load image for service: ${confirmedStyle.name}`);
+                              e.currentTarget.src = '/assets/LOGO1.png';
+                            }}
+                          />
+                        </div>
+                        
+                        <div className="mt-2 text-center">
+                          <Badge 
+                            className="bg-[#FF92A5] text-white border-0 text-mini"
+                          >
+                            Confirmed
+                          </Badge>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+                
+                <div className="mt-4 flex justify-end">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="mr-2 border-pink-200 text-pink-700"
+                    onClick={() => {
+                      setShowStep2(false);
+                      setConfirmedStyle(null);
+                    }}
+                  >
+                    Change Style
+                  </Button>
+                  <Button 
+                    size="sm"
+                    className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
+                  >
+                    Continue
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </form>
       </Form>
