@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import Navbar from "@/components/layout/Navbar";
@@ -37,6 +37,7 @@ interface ClientData {
   phone: string;
   email: string;
   isCurrentClient: boolean;
+  acceptedTerms?: boolean; // Added field to track terms acceptance status
   notes?: string;
   favoriteServices?: string[];
   salonId?: number;
@@ -107,7 +108,7 @@ export default function ClientDashboard() {
   const [showCreatePromo, setShowCreatePromo] = useState(false);
   
   // Show "Complete Your Profile" dialog for newly validated clients
-  const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(true);
+  const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(false);
   
   // State for invitation form
   const [inviteForm, setInviteForm] = useState({
@@ -202,6 +203,23 @@ export default function ClientDashboard() {
     },
     enabled: !!client,
   });
+
+  // Check client's registration status when data is loaded
+  useEffect(() => {
+    if (client) {
+      console.log(`ClientDashboard - Client data loaded. Checking acceptedTerms status: ${client.acceptedTerms}`);
+      
+      // If the acceptedTerms flag is not true, show the popup
+      // Only show popup when client has NOT accepted terms
+      if (client.acceptedTerms !== true) {
+        console.log('ClientDashboard - Client has not accepted terms, showing profile completion dialog');
+        setShowCompleteProfileDialog(true);
+      } else {
+        console.log('ClientDashboard - Client has already accepted terms, not showing dialog');
+        setShowCompleteProfileDialog(false);
+      }
+    }
+  }, [client]);
 
   const isLoading = clientLoading || (client?.salonId && salonLoading);
 
@@ -359,6 +377,7 @@ export default function ClientDashboard() {
                       phone: client.phone,
                       email: client.email,
                       isCurrentClient: client.isCurrentClient,
+                      acceptedTerms: client.acceptedTerms,
                       notes: client.notes,
                       favoriteServices: client.favoriteServices,
                       salonId: client.salonId,

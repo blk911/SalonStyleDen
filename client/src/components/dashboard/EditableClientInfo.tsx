@@ -29,6 +29,7 @@ export interface ClientInfo {
   phone: string;
   email: string;
   isCurrentClient: boolean;
+  acceptedTerms?: boolean; // Added field to track terms acceptance
   notes?: string;
   favoriteServices?: string[];
   salonId?: number;
@@ -70,8 +71,13 @@ export default function EditableClientInfo({ client, onSave, defaultEditing = fa
 
   // Handle text input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setEditedClient(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    // Handle checkbox inputs
+    if (type === 'checkbox') {
+      setEditedClient(prev => ({ ...prev, [name]: checked }));
+    } else {
+      setEditedClient(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   // Handle image selection and upload
@@ -548,6 +554,30 @@ export default function EditableClientInfo({ client, onSave, defaultEditing = fa
                     >
                       Add
                     </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Terms and Conditions Section */}
+              <div className="border-t pt-4 mt-4">
+                <div className="flex items-start space-x-2">
+                  <div className="pt-0.5">
+                    <input
+                      type="checkbox"
+                      id="acceptedTerms"
+                      name="acceptedTerms"
+                      checked={editedClient.acceptedTerms === true}
+                      onChange={handleChange}
+                      className="h-4 w-4 rounded border-gray-300 text-pink-600 focus:ring-pink-500"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="acceptedTerms" className="text-xs font-medium text-gray-700">
+                      I agree to the Terms and Conditions
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      By checking this box, you agree to receive promotions, style options, and other communications from Ven Me, Baby! and its partner salons.
+                    </p>
                   </div>
                 </div>
               </div>
