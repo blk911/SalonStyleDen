@@ -521,30 +521,30 @@ export function VmbStyleOptions({
               </div>
             </>
             
-            {/* STEP 2 - Only shown after a style is confirmed */}
-            {showStep2 ? (
-              confirmedStyle ? (
-                <>
-                  <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
-                    <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 2 Style Your Invitation...</h2>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="border rounded px-2 py-2 border-pink-200 bg-pink-50">
-                      <div className="flex flex-col md:flex-row">
-                        {/* Left side - blank placeholder for now */}
-                        <div className="w-full md:w-1/2 text-left pr-2 md:border-r border-pink-100 pb-2 md:pb-0">
-                          <h3 className="font-medium text-compact text-center">Your Invitation Design</h3>
-                          <div className="flex items-center justify-center h-32 mt-2">
-                            <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-full flex items-center justify-center">
-                              <p className="text-mini text-gray-500">Personalize your invitation with a message</p>
-                            </div>
-                          </div>
+            {/* STEP 2 - Always visible */}
+            <>
+              <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
+                <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 2 Style Your Invitation...</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-4">
+                <div className="border rounded px-2 py-2 border-pink-200 bg-pink-50">
+                  <div className="flex flex-col md:flex-row">
+                    {/* Left side - blank placeholder for now */}
+                    <div className="w-full md:w-1/2 text-left pr-2 md:border-r border-pink-100 pb-2 md:pb-0">
+                      <h3 className="font-medium text-compact text-center">Your Invitation Design</h3>
+                      <div className="flex items-center justify-center h-32 mt-2">
+                        <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-full flex items-center justify-center">
+                          <p className="text-mini text-gray-500">Personalize your invitation with a message</p>
                         </div>
-                        
-                        {/* Right side - Selected style */}
-                        <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
-                          <h3 className="font-medium text-compact">Selected Style:</h3>
+                      </div>
+                    </div>
+                    
+                    {/* Right side - Selected style */}
+                    <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
+                      <h3 className="font-medium text-compact">Selected Style:</h3>
+                      {confirmedStyle ? (
+                        <>
                           <p className="text-mini text-gray-600">{confirmedStyle.name}</p>
                           
                           <div className="mt-1 flex items-center gap-2">
@@ -571,38 +571,91 @@ export function VmbStyleOptions({
                               Confirmed
                             </Badge>
                           </div>
+                        </>
+                      ) : (
+                        <p className="text-mini text-gray-500">No style selected yet</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+            
+            {/* STEP 3 - Always visible */}
+            <>
+              <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
+                <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 3 Pick your gift options...</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-4">
+                <div className="border rounded px-2 py-2 border-pink-200 bg-pink-50">
+                  <div className="flex flex-col md:flex-row">
+                    {/* Left side - Gift Request Form */}
+                    <div className="w-full md:w-1/2 text-left pr-2 md:border-r border-pink-100 pb-2 md:pb-0">
+                      <h3 className="font-medium text-compact text-center">Gift Request Details</h3>
+                      <div className="flex flex-col space-y-3 mt-2">
+                        <div className="space-y-1">
+                          <label className="text-mini text-gray-700">Personal Message</label>
+                          <input 
+                            type="text"
+                            placeholder="Add a personal message"
+                            className="w-full p-2 text-sm border border-pink-100 rounded"
+                          />
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <label className="text-mini text-gray-700">Recipient Name</label>
+                          <input 
+                            type="text"
+                            placeholder="Recipient's name"
+                            className="w-full p-2 text-sm border border-pink-100 rounded"
+                          />
+                        </div>
+                        
+                        <div className="p-2 bg-pink-50 border border-pink-100 rounded text-xs text-pink-700">
+                          Your gift request will be linked to your client ID, salon selection, and a unique code automatically.
                         </div>
                       </div>
                     </div>
+                    
+                    {/* Right side - Gift Preview */}
+                    <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
+                      <h3 className="font-medium text-compact text-center">Gift Preview</h3>
+                      {confirmedStyle ? (
+                        <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white">
+                          <div className="text-center mb-2">
+                            <div className="text-sm font-medium">You're gifting:</div>
+                            <div className="text-pink-600 font-bold">{confirmedStyle.name}</div>
+                          </div>
+                          
+                          <div className="flex justify-center mb-2">
+                            <img 
+                              src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
+                              alt={confirmedStyle.name}
+                              className="h-20 w-20 object-cover rounded-md border border-pink-100"
+                              onError={(e) => {
+                                console.error(`Failed to load image for service: ${confirmedStyle.name}`);
+                                e.currentTarget.src = '/assets/LOGO1.png';
+                              }}
+                            />
+                          </div>
+                          
+                          <div className="text-center text-xs text-gray-600">
+                            <div>Service Value: ${Math.round(confirmedStyle.price)}</div>
+                            <div>Duration: {confirmedStyle.duration} min</div>
+                            <div className="mt-1 font-medium">Gift Code: <span className="text-pink-600">VMB-{Math.random().toString(36).substring(2, 8).toUpperCase()}</span></div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white text-center">
+                          <p className="text-mini text-gray-500">Select a style first to preview your gift</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  
-                  <div className="mt-4 flex justify-end">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="mr-2 border-pink-200 text-pink-700"
-                      onClick={() => {
-                        console.log("Changing back to Step 1");
-                        setShowStep2(false);
-                        setConfirmedStyle(null);
-                      }}
-                    >
-                      Change Style
-                    </Button>
-                    <Button 
-                      size="sm"
-                      className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
-                    >
-                      Continue
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <div className="p-4 text-center">
-                  <p>Loading your confirmed style...</p>
                 </div>
-              )
-            ) : null}
+              </div>
+            </>
           </div>
         </form>
       </Form>
