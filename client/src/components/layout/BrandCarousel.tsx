@@ -36,8 +36,8 @@ const carouselItems: CarouselCard[] = [
     ]
   },
   {
-    title: "Real-time Gifts Make a Difference",
-    titleComponent: <span className="block text-2xl mt-2">R-T Gifts Say "I value you"</span>,
+    title: "Real-Time Gifts Say \"I value you\"",
+    titleComponent: null,
     titleSuffix: '',
     content: [
       { text: "He's not guessing", isBold: true, suffix: " — you've made it clear." },
