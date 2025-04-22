@@ -419,8 +419,8 @@ export function VmbStyleOptions({
           <input type="hidden" name="method" value="POST" />
           
           <div className="vmb-style-options">
-            {/* STEP 1 - Hidden when STEP 2 is active */}
-            {!showStep2 && (
+            {/* STEP 1 - Only show when no other step is active */}
+            {!showStep2 && !showStep3 && (
               <>
                 <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
                   <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 1 Pick your style...</h2>
@@ -487,7 +487,7 @@ export function VmbStyleOptions({
             )}
             
             {/* STEP 2 - Only shown after a style is confirmed */}
-            {showStep2 && !showStep3 ? (
+            {showStep2 && (
               confirmedStyle ? (
                 <>
                   <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
@@ -559,6 +559,7 @@ export function VmbStyleOptions({
                       className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
                       onClick={() => {
                         console.log("Moving to Step 3: Create Gift Request");
+                        setShowStep2(false);
                         setShowStep3(true);
                       }}
                     >
@@ -571,7 +572,7 @@ export function VmbStyleOptions({
                   <p>Loading your confirmed style...</p>
                 </div>
               )
-            ) : null}
+            )}
             
             {/* STEP 3 - Create Gift Request */}
             {showStep3 && confirmedStyle ? (
@@ -649,11 +650,12 @@ export function VmbStyleOptions({
                     size="sm"
                     className="border-pink-200 text-pink-700"
                     onClick={() => {
-                      console.log("Going back to Step 2");
+                      console.log("Going back to Step 1");
                       setShowStep3(false);
+                      setShowStep2(false); 
                     }}
                   >
-                    Back to Step 2
+                    Back to Style Selection
                   </Button>
                   <Button 
                     size="sm"
