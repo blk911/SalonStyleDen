@@ -485,7 +485,15 @@ export function VmbStyleOptions({
                 <div className="rounded-md overflow-hidden mb-3">
                   <Collapsible open={isStep2Open} onOpenChange={setIsStep2Open}>
                     <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-t-md">
-                      <CollapsibleTrigger className="flex w-full items-center justify-between pb-2 pt-2 px-3">
+                      <CollapsibleTrigger 
+                        className="flex w-full items-center justify-between pb-2 pt-2 px-3"
+                        onClick={() => {
+                          // Clear form fields when Step 2 is opened
+                          setRecipientName("");
+                          setRecipientContact("");
+                          setSignature("");
+                        }}
+                      >
                         <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 2 Style Your Invitation...</h2>
                         <div className="h-6 w-6 flex items-center justify-center text-pink-700">
                           {isStep2Open ? (
@@ -779,7 +787,13 @@ export function VmbStyleOptions({
                 <div className="rounded-md overflow-hidden mb-3">
                   <Collapsible open={isStep3Open} onOpenChange={setIsStep3Open}>
                     <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-t-md">
-                      <CollapsibleTrigger className="flex w-full items-center justify-between pb-2 pt-2 px-3">
+                      <CollapsibleTrigger 
+                        className="flex w-full items-center justify-between pb-2 pt-2 px-3"
+                        onClick={() => {
+                          // Reset gift approval state when Step 3 is opened
+                          setGiftApproved(false);
+                        }}
+                      >
                         <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 3 Pick your gift options...</h2>
                         <div className="h-6 w-6 flex items-center justify-center text-pink-700">
                           {isStep3Open ? (
