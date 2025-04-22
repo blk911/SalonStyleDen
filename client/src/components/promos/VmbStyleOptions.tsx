@@ -90,10 +90,10 @@ export function VmbStyleOptions({
   const [isStep2Open, setIsStep2Open] = useState(true); // Control Step 2 collapsible state
   const [isStep3Open, setIsStep3Open] = useState(true); // Control Step 3 collapsible state
   // New state for the invitation form
-  const [recipientName, setRecipientName] = useState("Bill");
+  const [recipientName, setRecipientName] = useState("");
   const [recipientContact, setRecipientContact] = useState("");
-  const [invitationMessage, setInvitationMessage] = useState(`Hi Bill, I would love a fresh set. My stylist has an opening for a Sculpted Acrylics, will you Ven Me, Baby! ❤️❤️❤️ Tammy`);
-  const [signature, setSignature] = useState("Tammy");
+  const [invitationMessage, setInvitationMessage] = useState(`Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`);
+  const [signature, setSignature] = useState("");
   const [invitationConfirmed, setInvitationConfirmed] = useState(false);
   const [giftApproved, setGiftApproved] = useState(false);
   const personalMessageRef = useRef<HTMLInputElement>(null); // Reference for personal message input
@@ -861,7 +861,7 @@ export function VmbStyleOptions({
                           
                           {/* Message Preview - Text message style */}
                           <div className="rounded-lg p-2 bg-blue-50 border border-blue-100 mb-2 text-xs">
-                            Hi Bill, I would love a fresh set. My stylist has an opening for a Sculpted Acrylics, will you Ven Me, Baby! ❤️ ❤️ ❤️ Tammy
+                            {invitationMessage}
                           </div>
                           
                           <div className="flex justify-center mb-2">
