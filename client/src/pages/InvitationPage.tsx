@@ -338,31 +338,8 @@ export default function InvitationPage() {
             )}
           </CardContent>
 
-          <CardFooter className="flex justify-between border-t pt-0.5">
-            <Button 
-              variant="ghost"
-              onClick={() => window.history.back()}
-            >
-              Go Back
-            </Button>
-            <Button 
-              variant="default"
-              className={`${
-                invitation.status === 'completed' 
-                  ? 'bg-green-600 hover:bg-green-700' 
-                  : 'bg-pink-600 hover:bg-pink-700'
-              } ${
-                invitation.status === 'pending' 
-                  ? 'animate-pulse shadow-lg'  
-                  : ''
-              }`}
-              onClick={promptAcceptInvitation}
-              disabled={invitation.status === 'completed'}
-            >
-              {invitation.status === 'completed' 
-                ? 'View Dashboard' 
-                : 'Accept Invitation'}
-            </Button>
+          <CardFooter className="border-t pt-0.5">
+            {/* Go Back and Accept Invitation buttons have been removed */}
           </CardFooter>
         </Card>
       </main>
