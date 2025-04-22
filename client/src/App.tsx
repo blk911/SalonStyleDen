@@ -93,7 +93,8 @@ function App() {
         <StatusProvider>
           <MonitoringProvider>
             <Router />
-            <MonitoringDashboard />
+            {/* Temporarily hiding the MonitoringDashboard as requested */}
+            {/* <MonitoringDashboard /> */}
             <Toaster />
           </MonitoringProvider>
         </StatusProvider>
