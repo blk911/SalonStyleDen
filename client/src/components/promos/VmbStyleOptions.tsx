@@ -47,7 +47,11 @@ const styleSelectionSchema = z.object({
       required_error: "Client information is required"
     }),
     invitationId: z.number().optional()
-  })
+  }),
+  recipientName: z.string().optional(),
+  recipientContact: z.string().optional(),
+  message: z.string().optional(),
+  signature: z.string().optional()
 });
 
 type StyleSelectionFormValues = z.infer<typeof styleSelectionSchema>;
@@ -80,6 +84,11 @@ export function VmbStyleOptions({
   const [showStep2, setShowStep2] = useState(false);
   const [showStep3, setShowStep3] = useState(false);
   const [stateTracker, setStateTracker] = useState(0); // Debug counter
+  // New state for the invitation form
+  const [recipientName, setRecipientName] = useState("");
+  const [recipientContact, setRecipientContact] = useState("");
+  const [invitationMessage, setInvitationMessage] = useState(`Hi, [NAME], my stylist has an opening and I want to ask if you will Ven Me, Baby! ❤️❤️❤️`);
+  const [signature, setSignature] = useState("");
   const { toast } = useToast();
   const [, navigate] = useLocation();
   
@@ -447,28 +456,58 @@ export function VmbStyleOptions({
                               type="text"
                               placeholder="Who is your Ven Me, Baby!: Enter name"
                               className="w-full p-1.5 text-xs border border-pink-100 rounded"
+                              value={recipientName}
+                              onChange={(e) => {
+                                const newName = e.target.value;
+                                setRecipientName(newName);
+                                
+                                // Update message with new name by replacing [NAME] with the actual name
+                                // If message already has a name, we need to restore [NAME] placeholder first
+                                const baseMessage = "Hi, [NAME], my stylist has an opening and I want to ask if you will Ven Me, Baby! ❤️❤️❤️";
+                                
+                                if (newName) {
+                                  // Replace [NAME] with the actual name
+                                  setInvitationMessage(baseMessage.replace("[NAME]", newName));
+                                } else {
+                                  // If no name, just use the base message with placeholder
+                                  setInvitationMessage(baseMessage);
+                                }
+                              }}
                             />
                             
                             <input 
                               type="text"
                               placeholder="Phone or Email"
                               className="w-full p-1.5 text-xs border border-pink-100 rounded"
+                              value={recipientContact}
+                              onChange={(e) => setRecipientContact(e.target.value)}
                             />
                             
                             <textarea 
                               placeholder={`Hi, [NAME], my stylist has an opening and I want to ask if you will Ven Me, Baby! ❤️❤️❤️`}
                               className="w-full p-1.5 text-xs border border-pink-100 rounded h-16"
+                              value={invitationMessage}
+                              onChange={(e) => setInvitationMessage(e.target.value)}
                             />
                             
                             <input 
                               type="text"
                               placeholder="SIGN HERE!"
                               className="w-full p-1.5 text-xs border border-pink-100 rounded"
+                              value={signature}
+                              onChange={(e) => setSignature(e.target.value)}
                             />
                             
                             <button 
                               type="button"
                               className="w-full bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors text-xs"
+                              onClick={() => {
+                                toast({
+                                  title: "Invitation Confirmed",
+                                  description: `Invitation sent to ${recipientName}`,
+                                  variant: "default"
+                                });
+                              }}
                             >
                               CONFIRM
                             </button>
