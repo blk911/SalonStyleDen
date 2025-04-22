@@ -664,9 +664,14 @@ export function VmbStyleOptions({
                               <div className="flex gap-2 mt-2">
                                 <button 
                                   type="button"
-                                  className="w-1/2 bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors text-xs"
+                                  className="w-full bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors text-xs"
                                   onClick={() => {
                                     setInvitationConfirmed(true);
+                                    
+                                    // Show Step 3 and render the message in the preview
+                                    setIsStep2Open(false);
+                                    setShowStep3(true);
+                                    
                                     toast({
                                       title: "Invitation Confirmed",
                                       description: `Invitation ready for ${recipientName}`,
@@ -675,19 +680,6 @@ export function VmbStyleOptions({
                                   }}
                                 >
                                   CONFIRM
-                                </button>
-                                <button 
-                                  type="button"
-                                  className="w-1/2 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded transition-colors text-xs"
-                                  onClick={() => {
-                                    toast({
-                                      title: "Invitation Sent!",
-                                      description: `Message sent to ${recipientName}`,
-                                      variant: "default"
-                                    });
-                                  }}
-                                >
-                                  SEND
                                 </button>
                               </div>
                               
@@ -814,7 +806,7 @@ export function VmbStyleOptions({
                               ref={personalMessageRef}
                               type="text"
                               placeholder="Add a personal message"
-                              className="w-full p-2 text-sm border border-pink-100 rounded"
+                              className="w-full p-2 text-xs border border-pink-100 rounded"
                             />
                           </div>
                           
@@ -823,17 +815,16 @@ export function VmbStyleOptions({
                             <input 
                               type="text"
                               placeholder="Recipient's name"
-                              className="w-full p-2 text-sm border border-pink-100 rounded"
+                              className="w-full p-2 text-xs border border-pink-100 rounded"
                             />
                           </div>
                           
-                          <div className="p-2 bg-pink-50 border border-pink-100 rounded text-xs text-pink-700">
+                          <div className="p-2 bg-white border border-pink-100 rounded text-xs text-pink-700">
                             <p>Your gift request will be linked to the following IDs:</p>
                             <ul className="list-disc pl-4 pt-1">
-                              <li>Style ID: <span className="font-bold">{confirmedStyle.id}</span></li>
-                              <li>Salon ID: <span className="font-bold">{salonId || 'N/A'}</span></li>
-                              <li>Client ID: <span className="font-bold">{clientId || 'Anonymous'}</span></li>
-                              {invitationId && <li>Invitation ID: <span className="font-bold">{invitationId}</span></li>}
+                              <li>Style ID: <span className="font-bold">1</span></li>
+                              <li>Salon ID: <span className="font-bold">42</span></li>
+                              <li>Client ID: <span className="font-bold">Anonymous</span></li>
                             </ul>
                           </div>
                         </div>
@@ -845,21 +836,21 @@ export function VmbStyleOptions({
                         <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white">
                           <div className="text-center mb-2">
                             <div className="text-sm font-medium">You're gifting:</div>
-                            <div className="text-pink-600 font-bold">{confirmedStyle.name}</div>
+                            <div className="text-pink-600 font-bold">{confirmedStyle ? confirmedStyle.name : "French Tips / Touch-Up"}</div>
                           </div>
                           
                           {/* Message Preview - Text message style */}
                           <div className="rounded-lg p-2 bg-blue-50 border border-blue-100 mb-2 text-xs">
-                            Hi Bill, I would love a fresh set. My stylist has an opening for a Sculpted Acrylics, will you Ven Me, Baby! ❤️❤️❤️ Tammy
+                            Hi Bill, I would love a fresh set. My stylist has an opening for a Sculpted Acrylics, will you Ven Me, Baby! ❤️ ❤️ ❤️ Tammy
                           </div>
                           
                           <div className="flex justify-center mb-2">
                             <img 
-                              src="/assets/sculpted-acrylics.png"
-                              alt={confirmedStyle.name}
+                              src="/assets/french-tips.png"
+                              alt="French Tips / Touch-Up"
                               className="h-20 w-20 object-cover rounded-md border border-pink-100"
                               onError={(e) => {
-                                console.error(`Failed to load image for service: ${confirmedStyle.name}`);
+                                console.error(`Failed to load image for service`);
                                 e.currentTarget.src = '/assets/LOGO1.png';
                               }}
                             />
