@@ -734,11 +734,24 @@ export function VmbStyleOptions({
               {/* Add 6px spacing */}
               <div className="h-[6px]"></div>
               
-              {/* STEP 3 - Always visible */}
-              <div>
-                <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
-                  <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 3 Pick your gift options...</h2>
-                </div>
+              {/* STEP 3 - With Collapsible behavior */}
+              {showStep3 && (
+                <div className="rounded-md overflow-hidden mb-3">
+                  <Collapsible open={isStep3Open} onOpenChange={setIsStep3Open}>
+                    <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-t-md">
+                      <CollapsibleTrigger className="flex w-full items-center justify-between pb-2 pt-2 px-3">
+                        <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 3 Pick your gift options...</h2>
+                        <div className="h-6 w-6 flex items-center justify-center text-pink-700">
+                          {isStep3Open ? (
+                            <ChevronUpIcon className="h-5 w-5" />
+                          ) : (
+                            <ChevronDownIcon className="h-5 w-5" />
+                          )}
+                        </div>
+                      </CollapsibleTrigger>
+                    </div>
+                    
+                    <CollapsibleContent className="bg-white border border-pink-100 rounded-b-md p-3">
                 
                 <div className="grid grid-cols-1 gap-4">
                   <div className="border rounded px-2 py-2 border-pink-200 bg-pink-50">
@@ -830,7 +843,10 @@ export function VmbStyleOptions({
                     )}
                   </div>
                 </div>
-              </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </div>
+              )}
             </div>
           </form>
         </Form>
