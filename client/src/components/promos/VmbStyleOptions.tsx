@@ -90,10 +90,10 @@ export function VmbStyleOptions({
   const [isStep2Open, setIsStep2Open] = useState(true); // Control Step 2 collapsible state
   const [isStep3Open, setIsStep3Open] = useState(true); // Control Step 3 collapsible state
   // New state for the invitation form
-  const [recipientName, setRecipientName] = useState("");
+  const [recipientName, setRecipientName] = useState("Bill");
   const [recipientContact, setRecipientContact] = useState("");
-  const [invitationMessage, setInvitationMessage] = useState(`Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`);
-  const [signature, setSignature] = useState("");
+  const [invitationMessage, setInvitationMessage] = useState(`Hi Bill, I would love a fresh set. My stylist has an opening for a Sculpted Acrylics, will you Ven Me, Baby! ❤️❤️❤️ Tammy`);
+  const [signature, setSignature] = useState("Tammy");
   const [invitationConfirmed, setInvitationConfirmed] = useState(false);
   const personalMessageRef = useRef<HTMLInputElement>(null); // Reference for personal message input
   const { toast } = useToast();
@@ -622,27 +622,74 @@ export function VmbStyleOptions({
                                 }}
                               />
                               
+                              <div className="text-micro text-gray-700 mb-1">Message Preview:</div>
+                              <div className="border border-pink-200 rounded p-2 bg-white">
+                                <div className="rounded-lg p-2 bg-blue-50 border border-blue-100 mb-2 max-w-[280px]">
+                                  {invitationMessage}
+                                </div>
+                                {/* Show the style card */}
+                                <div className="flex items-center gap-2 max-w-[280px] border border-gray-200 rounded-lg p-2 my-2 bg-white">
+                                  <img
+                                    src="/assets/sculpted-acrylics.png"
+                                    alt="Sculpted Acrylics"
+                                    className="h-14 w-14 object-cover rounded-md"
+                                  />
+                                  <div>
+                                    <div className="font-medium text-xs">Sculpted Acrylics</div>
+                                    <div className="text-[10px] text-gray-600">$70 · 60 min</div>
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 mt-2 items-center justify-center">
+                                  <div className="flex gap-1">
+                                    <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
+                                      <span className="text-[8px] font-bold">Z</span>
+                                    </div>
+                                    <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
+                                      <span className="text-[8px] font-bold">V</span>
+                                    </div>
+                                    <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
+                                      <span className="text-[8px] font-bold">CA</span>
+                                    </div>
+                                  </div>
+                                  <div className="text-[8px] text-gray-500">Payment options coming soon</div>
+                                </div>
+                              </div>
                               <textarea 
                                 placeholder={`Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`}
-                                className="w-full p-1.5 text-[10px] border border-pink-100 rounded h-16"
+                                className="w-full p-1.5 text-[10px] border border-pink-100 rounded h-16 mt-2 hidden"
                                 value={invitationMessage}
                                 onChange={(e) => setInvitationMessage(e.target.value)}
                               />
                               
-                              <button 
-                                type="button"
-                                className="w-full bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors text-xs"
-                                onClick={() => {
-                                  setInvitationConfirmed(true);
-                                  toast({
-                                    title: "Invitation Confirmed",
-                                    description: `Invitation sent to ${recipientName}`,
-                                    variant: "default"
-                                  });
-                                }}
-                              >
-                                CONFIRM
-                              </button>
+                              <div className="flex gap-2 mt-2">
+                                <button 
+                                  type="button"
+                                  className="w-1/2 bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors text-xs"
+                                  onClick={() => {
+                                    setInvitationConfirmed(true);
+                                    toast({
+                                      title: "Invitation Confirmed",
+                                      description: `Invitation ready for ${recipientName}`,
+                                      variant: "default"
+                                    });
+                                  }}
+                                >
+                                  CONFIRM
+                                </button>
+                                <button 
+                                  type="button"
+                                  className="w-1/2 bg-green-500 hover:bg-green-600 text-white py-1.5 rounded transition-colors text-xs"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Invitation Sent!",
+                                      description: `Message sent to ${recipientName}`,
+                                      variant: "default"
+                                    });
+                                  }}
+                                >
+                                  SEND
+                                </button>
+                              </div>
                               
                               {invitationConfirmed && (
                                 <div className="mt-2">
@@ -801,9 +848,14 @@ export function VmbStyleOptions({
                             <div className="text-pink-600 font-bold">{confirmedStyle.name}</div>
                           </div>
                           
+                          {/* Message Preview - Text message style */}
+                          <div className="rounded-lg p-2 bg-blue-50 border border-blue-100 mb-2 text-xs hidden">
+                            {invitationMessage}
+                          </div>
+                          
                           <div className="flex justify-center mb-2">
                             <img 
-                              src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
+                              src="/assets/sculpted-acrylics.png"
                               alt={confirmedStyle.name}
                               className="h-20 w-20 object-cover rounded-md border border-pink-100"
                               onError={(e) => {
@@ -814,21 +866,45 @@ export function VmbStyleOptions({
                           </div>
                           
                           <div className="text-center text-xs text-gray-600">
-                            <div>Service Value: ${Math.round(confirmedStyle.price)}</div>
-                            <div>Duration: {confirmedStyle.duration} min</div>
+                            <div>Service Value: $70</div>
+                            <div>Duration: 60 min</div>
                             <div className="mt-1 font-medium">
-                              {invitationId ? (
-                                <div className="mt-2">
-                                  <div className="text-pink-600">Invitation ID: {invitationId}</div>
-                                  <div className="text-xs mt-1">Connection active</div>
-                                </div>
-                              ) : (
-                                <div className="mt-2">
-                                  <div>Gift Code: <span className="text-pink-600">VMB-{Math.random().toString(36).substring(2, 8).toUpperCase()}</span></div>
-                                </div>
-                              )}
+                              <div className="mt-2">
+                                <div>Gift Code: <span className="text-pink-600">VMB-2SKU0Q</span></div>
+                              </div>
                             </div>
                           </div>
+                          
+                          {/* Payment method icons */}
+                          <div className="flex gap-2 mt-3 items-center justify-center">
+                            <div className="flex gap-1">
+                              <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
+                                <span className="text-[8px] font-bold">Z</span>
+                              </div>
+                              <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
+                                <span className="text-[8px] font-bold">V</span>
+                              </div>
+                              <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
+                                <span className="text-[8px] font-bold">CA</span>
+                              </div>
+                            </div>
+                            <div className="text-[8px] text-gray-500">Payment options coming soon</div>
+                          </div>
+                          
+                          {/* SEND GIFT button */}
+                          <button 
+                            type="button"
+                            className="w-full bg-green-500 hover:bg-green-600 text-white py-1.5 rounded transition-colors text-xs mt-3"
+                            onClick={() => {
+                              toast({
+                                title: "Gift Sent!",
+                                description: `Message sent to ${recipientName}`,
+                                variant: "default"
+                              });
+                            }}
+                          >
+                            SEND GIFT
+                          </button>
                         </div>
                       </div>
                     </div>
