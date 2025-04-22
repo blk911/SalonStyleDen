@@ -824,29 +824,22 @@ export function VmbStyleOptions({
                             </ul>
                           </div>
                           
-                          <div className="p-2 bg-white border border-pink-100 rounded text-xs text-pink-700">
-                            <p>Your gift request will be linked to the following IDs:</p>
-                            <ul className="list-disc pl-4 pt-1">
-                              <li>Style ID: <span className="font-bold">1</span></li>
-                              <li>Salon ID: <span className="font-bold">42</span></li>
-                              <li>Client ID: <span className="font-bold">Anonymous</span></li>
-                            </ul>
+                          <div className="flex justify-center items-center mt-4">
+                            <button 
+                              type="button"
+                              className="w-full bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors text-xs"
+                              onClick={() => {
+                                setGiftApproved(true);
+                                toast({
+                                  title: "Gift Approved",
+                                  description: "You can now send your gift invitation",
+                                  variant: "default"
+                                });
+                              }}
+                            >
+                              APPROVE
+                            </button>
                           </div>
-                          
-                          <button 
-                            type="button"
-                            className="w-full bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors text-xs mt-2"
-                            onClick={() => {
-                              setGiftApproved(true);
-                              toast({
-                                title: "Gift Approved",
-                                description: "You can now send your gift invitation",
-                                variant: "default"
-                              });
-                            }}
-                          >
-                            APPROVE
-                          </button>
                         </div>
                       </div>
                       
