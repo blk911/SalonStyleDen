@@ -85,9 +85,9 @@ export function VmbStyleOptions({
   
   // Debug effect to track state changes
   useEffect(() => {
-    console.log(`[STATE DEBUG] showStep2=${showStep2}, confirmedStyle=${confirmedStyle?.name || 'null'}`);
+    console.log(`[STATE DEBUG] showStep2=${showStep2}, showStep3=${showStep3}, confirmedStyle=${confirmedStyle?.name || 'null'}`);
     setStateTracker(prev => prev + 1);
-  }, [showStep2, confirmedStyle]);
+  }, [showStep2, showStep3, confirmedStyle]);
   
   // Initialize React Hook Form
   const form = useForm<StyleSelectionFormValues>({
@@ -456,72 +456,70 @@ export function VmbStyleOptions({
           <input type="hidden" name="method" value="POST" />
           
           <div className="vmb-style-options">
-            {/* STEP 1 - Hidden when STEP 2 is active */}
-            {!showStep2 && (
-              <>
-                <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
-                  <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 1 Pick your style...</h2>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {services.map((service) => (
-                    <div 
-                      key={service.id} 
-                      className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
-                      onClick={() => handleSelectStyle(service)}
-                    >
-                      <div className="flex">
-                        {/* Left side - Text (2/3) */}
-                        <div className="w-2/3 text-left pr-2">
-                          <h3 className="font-medium text-compact">{service.name}</h3>
-                          <p className="text-mini text-gray-600">{service.description}</p>
-                          
-                          <div className="mt-1 flex items-center gap-2">
-                            <span className="font-bold text-compact">${Math.round(service.price)}</span>
-                            <span className="text-micro">{service.duration} min</span>
-                          </div>
-                          
-                          <div className="mt-1 flex justify-between items-center">
-                            <Badge 
-                              className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleSelectStyle(service);
-                              }}
-                            >
-                              Book Now
-                            </Badge>
-                            <Button 
-                              variant="link" 
-                              className="text-micro text-pink-500 hover:text-pink-700 p-0 h-auto"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleSelectStyle(service);
-                              }}
-                            >
-                              Select
-                            </Button>
-                          </div>
+            {/* STEP 1 - Always visible */}
+            <>
+              <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
+                <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 1 Pick your style...</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {services.map((service) => (
+                  <div 
+                    key={service.id} 
+                    className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
+                    onClick={() => handleSelectStyle(service)}
+                  >
+                    <div className="flex">
+                      {/* Left side - Text (2/3) */}
+                      <div className="w-2/3 text-left pr-2">
+                        <h3 className="font-medium text-compact">{service.name}</h3>
+                        <p className="text-mini text-gray-600">{service.description}</p>
+                        
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="font-bold text-compact">${Math.round(service.price)}</span>
+                          <span className="text-micro">{service.duration} min</span>
                         </div>
                         
-                        {/* Right side - Image (1/3) */}
-                        <div className="w-1/3 flex items-center justify-end pl-2">
-                          <img 
-                            src={service.gifUrl ? getImageUrl(service.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
-                            alt={service.name}
-                            className="h-20 w-20 object-cover rounded-md"
-                            onError={(e) => {
-                              console.error(`Failed to load image for service: ${service.name}`);
-                              e.currentTarget.src = '/assets/LOGO1.png';
+                        <div className="mt-1 flex justify-between items-center">
+                          <Badge 
+                            className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectStyle(service);
                             }}
-                          />
+                          >
+                            Book Now
+                          </Badge>
+                          <Button 
+                            variant="link" 
+                            className="text-micro text-pink-500 hover:text-pink-700 p-0 h-auto"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectStyle(service);
+                            }}
+                          >
+                            Select
+                          </Button>
                         </div>
                       </div>
+                      
+                      {/* Right side - Image (1/3) */}
+                      <div className="w-1/3 flex items-center justify-end pl-2">
+                        <img 
+                          src={service.gifUrl ? getImageUrl(service.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
+                          alt={service.name}
+                          className="h-20 w-20 object-cover rounded-md"
+                          onError={(e) => {
+                            console.error(`Failed to load image for service: ${service.name}`);
+                            e.currentTarget.src = '/assets/LOGO1.png';
+                          }}
+                        />
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </>
-            )}
+                  </div>
+                ))}
+              </div>
+            </>
             
             {/* STEP 2 - Only shown after a style is confirmed */}
             {showStep2 ? (
