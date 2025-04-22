@@ -78,6 +78,7 @@ export function VmbStyleOptions({
   const [tempSelectedPhone, setTempSelectedPhone] = useState<string>('');
   const [confirmedStyle, setConfirmedStyle] = useState<StyleOption | null>(null);
   const [showStep2, setShowStep2] = useState(false);
+  const [showStep3, setShowStep3] = useState(false);
   const [stateTracker, setStateTracker] = useState(0); // Debug counter
   const { toast } = useToast();
   const [, navigate] = useLocation();
@@ -523,7 +524,7 @@ export function VmbStyleOptions({
             )}
             
             {/* STEP 2 - Only shown after a style is confirmed */}
-            {showStep2 ? (
+            {showStep2 && !showStep3 ? (
               confirmedStyle ? (
                 <>
                   <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
@@ -593,8 +594,12 @@ export function VmbStyleOptions({
                     <Button 
                       size="sm"
                       className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
+                      onClick={() => {
+                        console.log("Moving to Step 3: Create Gift Request");
+                        setShowStep3(true);
+                      }}
                     >
-                      Continue
+                      Continue to Gift Request
                     </Button>
                   </div>
                 </>
@@ -603,6 +608,108 @@ export function VmbStyleOptions({
                   <p>Loading your confirmed style...</p>
                 </div>
               )
+            ) : null}
+            
+            {/* STEP 3 - Create Gift Request */}
+            {showStep3 && confirmedStyle ? (
+              <>
+                <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
+                  <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 3: CREATE YOUR GIFT REQUEST</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="border rounded px-2 py-2 border-pink-200 bg-pink-50">
+                    <div className="flex flex-col md:flex-row">
+                      {/* Left side - Gift Request Form */}
+                      <div className="w-full md:w-1/2 text-left pr-2 md:border-r border-pink-100 pb-2 md:pb-0">
+                        <h3 className="font-medium text-compact text-center">Gift Request Details</h3>
+                        <div className="flex flex-col space-y-3 mt-2">
+                          <div className="space-y-1">
+                            <label className="text-mini text-gray-700">Personal Message</label>
+                            <input 
+                              type="text"
+                              placeholder="Add a personal message"
+                              className="w-full p-2 text-sm border border-pink-100 rounded"
+                            />
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <label className="text-mini text-gray-700">Recipient Name</label>
+                            <input 
+                              type="text"
+                              placeholder="Recipient's name"
+                              className="w-full p-2 text-sm border border-pink-100 rounded"
+                            />
+                          </div>
+                          
+                          <div className="p-2 bg-pink-50 border border-pink-100 rounded text-xs text-pink-700">
+                            Your gift request will be linked to your client ID, salon selection, and a unique code automatically.
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Right side - Gift Preview */}
+                      <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
+                        <h3 className="font-medium text-compact text-center">Gift Preview</h3>
+                        <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white">
+                          <div className="text-center mb-2">
+                            <div className="text-sm font-medium">You're gifting:</div>
+                            <div className="text-pink-600 font-bold">{confirmedStyle.name}</div>
+                          </div>
+                          
+                          <div className="flex justify-center mb-2">
+                            <img 
+                              src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
+                              alt={confirmedStyle.name}
+                              className="h-20 w-20 object-cover rounded-md border border-pink-100"
+                              onError={(e) => {
+                                console.error(`Failed to load image for service: ${confirmedStyle.name}`);
+                                e.currentTarget.src = '/assets/LOGO1.png';
+                              }}
+                            />
+                          </div>
+                          
+                          <div className="text-center text-xs text-gray-600">
+                            <div>Service Value: ${Math.round(confirmedStyle.price)}</div>
+                            <div>Duration: {confirmedStyle.duration} min</div>
+                            <div className="mt-1 font-medium">Gift Code: <span className="text-pink-600">VMB-{Math.random().toString(36).substring(2, 8).toUpperCase()}</span></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-4 flex justify-between">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-pink-200 text-pink-700"
+                    onClick={() => {
+                      console.log("Going back to Step 2");
+                      setShowStep3(false);
+                    }}
+                  >
+                    Back to Step 2
+                  </Button>
+                  <Button 
+                    size="sm"
+                    className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
+                    onClick={() => {
+                      console.log("Gift request created for:", clientId, salonId, invitationId);
+                      console.log("Selected style:", confirmedStyle.name);
+                      
+                      toast({
+                        title: "Gift Request Created!",
+                        description: "Your gift request has been created and is ready to share.",
+                        variant: "default"
+                      });
+                    }}
+                  >
+                    Create & Share Gift
+                  </Button>
+                </div>
+              </>
             ) : null}
           </div>
         </form>
