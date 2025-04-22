@@ -61,14 +61,10 @@ const carouselItems: CarouselCard[] = [
     ]
   },
   {
-    title: "Ven Me, Baby! Makes Gifting Make Sense",
+    title: "Lorem Ipsum",
     content: [
-      ["The Art of Gifting Refined!", "", ""],
-      ["It's the beautiful middle", "", " between asking and ignoring,"],
-      ["", "between forgetting", " and showing up."],
-      ["It's ", "not", " a gift card."],
-      ["It's a gesture she initiates", "", "—and he finishes."],
-      ["It's ", "attention", " translated into care."]
+      { text: "This is a placeholder card", isBold: true, suffix: " — we'll update this later." },
+      { text: "The content will be replaced", isBold: true, suffix: " in a future update." }
     ]
   },
 ];
