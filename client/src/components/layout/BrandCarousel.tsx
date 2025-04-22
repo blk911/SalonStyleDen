@@ -24,9 +24,9 @@ interface CarouselCard {
 
 const carouselItems: CarouselCard[] = [
   {
-    title: 'The Power of Connection',
-    titleComponent: null,
-    titleSuffix: '',
+    title: 'How ', 
+    titleComponent: <LogoText size="inherit">Ven Me, Baby!</LogoText>, 
+    titleSuffix: ' Works:',
     content: [
       { text: "He's been fishing for attention", isBold: true, suffix: " — you're inviting connection." },
       { text: "When he sees the message,", isBold: true, suffix: " he's thinking about you." },
@@ -36,15 +36,16 @@ const carouselItems: CarouselCard[] = [
     ]
   },
   {
-    title: "VMB Promos help your business!",
+    title: "It Works! Real-Time Gifts Mean More",
     titleComponent: null,
     titleSuffix: '',
     content: [
-      { text: "Prepaid appointments", isBold: true, suffix: " = guaranteed income" },
-      { text: "Recurring revenue", isBold: true, suffix: " = money in your pocket" },
-      { text: "No-shows and ghost bookings?", isBold: true, suffix: " Gone." },
-      { text: "Turn gift moments", isBold: true, suffix: " into client loyalty" },
-      { text: "Build stronger, more personal", isBold: true, suffix: " client connections" }
+      { text: "He's not guessing", isBold: true, suffix: " — you've made it clear." },
+      { text: "Your stylist has a spot today", isBold: true, suffix: " — and he's the one you thought of." },
+      { text: "He gets the nudge", isBold: true, suffix: " — you? Top of mind... or no." },
+      { text: "One click turns timing", isBold: true, suffix: " into thoughtfulness." },
+      { text: "Bottom line: Your time and attention is valuable. How valuable?", isBold: true },
+      { text: "Answer:", isBold: true, suffix: " You'll both find out." }
     ]
   },
   {
