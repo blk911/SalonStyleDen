@@ -451,7 +451,7 @@ export function VmbStyleOptions({
                             
                             <input 
                               type="text"
-                              placeholder="Phone number or email address"
+                              placeholder="Phone or Email"
                               className="w-full p-1.5 text-sm border border-pink-100 rounded"
                             />
                             
