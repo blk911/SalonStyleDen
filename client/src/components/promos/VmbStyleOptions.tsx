@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckIcon, Sparkles, AlertTriangle } from 'lucide-react';
+import { CheckIcon, Sparkles, AlertTriangle, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '../../lib/apiRequest';
 import { getImageUrl } from '../../lib/utils';
@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
 import { PromoCodeDialog, ClientData } from '@/components/ui/PromoCodeDialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface StyleOption {
   id: number;
@@ -191,8 +192,8 @@ export function VmbStyleOptions({
     setShowStep2(true);
     // Do NOT show Step 3 yet - it will be shown after Step 2 is completed
     setShowStep3(false);
-    // Don't hide Step 1, it should remain visible but collapsed
-    // setShowStep1(false) // This was causing Step 1 to disappear
+    // Close the Step 1 collapsible without hiding it completely
+    setIsStep1Open(false);
     
     // Close any open dialogs to avoid conflicts
     setIsDetailsOpen(false);
@@ -260,14 +261,17 @@ export function VmbStyleOptions({
       return;
     }
     
-    // If we have a confirmed style already, just show success message and skip the API call
+    // If we have a confirmed style already, show Step 3 and success message
     if (confirmedStyle) {
       console.log("Already have confirmed style, skipping API call", confirmedStyle.name);
+      
+      // Only now show Step 3 (after form submission from Step 2)
       setShowStep3(true);
+      
       // Show a more helpful message to guide the user to the next step
       toast({
         title: "Gift Options Ready!",
-        description: "Now you can start your Design!",
+        description: "Now you can pick your gift options!",
         variant: "default"
       });
       return;
@@ -409,48 +413,61 @@ export function VmbStyleOptions({
             <input type="hidden" name="method" value="POST" />
             
             <div className="vmb-style-options">
-              {/* STEP 1 - Conditional visibility */}
+              {/* STEP 1 - With Collapsible behavior */}
               {showStep1 && (
-                <div>
-                  <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
-                    <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 1 Pick your style...</h2>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {services.map((service) => (
-                      <div 
-                        key={service.id} 
-                        className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'} cursor-pointer hover:border-pink-400 transition-colors duration-200`}
-                        onClick={() => handleSelectStyle(service)}
-                      >
-                        <div className="flex">
-                          {/* Left side - Text (2/3) */}
-                          <div className="w-2/3 text-left pr-2">
-                            <h3 className="font-medium text-compact">{service.name}</h3>
-                            <p className="text-mini text-gray-600">{service.description}</p>
-                            
-                            <div className="mt-1 flex items-center gap-2">
-                              <span className="font-bold text-compact">${Math.round(service.price)}</span>
-                              <span className="text-micro">{service.duration} min</span>
+                <div className="rounded-md overflow-hidden mb-3">
+                  <Collapsible open={isStep1Open} onOpenChange={setIsStep1Open}>
+                    <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-t-md">
+                      <CollapsibleTrigger className="flex w-full items-center justify-between pb-2 pt-2 px-3">
+                        <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 1 Pick your style...</h2>
+                        <div className="h-6 w-6 flex items-center justify-center text-pink-700">
+                          {isStep1Open ? (
+                            <ChevronUpIcon className="h-5 w-5" />
+                          ) : (
+                            <ChevronDownIcon className="h-5 w-5" />
+                          )}
+                        </div>
+                      </CollapsibleTrigger>
+                    </div>
+                    
+                    <CollapsibleContent className="bg-white border border-pink-100 rounded-b-md p-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {services.map((service) => (
+                          <div 
+                            key={service.id} 
+                            className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'} cursor-pointer hover:border-pink-400 transition-colors duration-200`}
+                            onClick={() => handleSelectStyle(service)}
+                          >
+                            <div className="flex">
+                              {/* Left side - Text (2/3) */}
+                              <div className="w-2/3 text-left pr-2">
+                                <h3 className="font-medium text-compact">{service.name}</h3>
+                                <p className="text-mini text-gray-600">{service.description}</p>
+                                
+                                <div className="mt-1 flex items-center gap-2">
+                                  <span className="font-bold text-compact">${Math.round(service.price)}</span>
+                                  <span className="text-micro">{service.duration} min</span>
+                                </div>
+                              </div>
+                              
+                              {/* Right side - Image (1/3) */}
+                              <div className="w-1/3 flex items-center justify-end pl-2">
+                                <img 
+                                  src={service.gifUrl ? getImageUrl(service.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
+                                  alt={service.name}
+                                  className="h-20 w-20 object-cover rounded-md"
+                                  onError={(e) => {
+                                    console.error(`Failed to load image for service: ${service.name}`);
+                                    e.currentTarget.src = '/assets/LOGO1.png';
+                                  }}
+                                />
+                              </div>
                             </div>
                           </div>
-                          
-                          {/* Right side - Image (1/3) */}
-                          <div className="w-1/3 flex items-center justify-end pl-2">
-                            <img 
-                              src={service.gifUrl ? getImageUrl(service.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
-                              alt={service.name}
-                              className="h-20 w-20 object-cover rounded-md"
-                              onError={(e) => {
-                                console.error(`Failed to load image for service: ${service.name}`);
-                                e.currentTarget.src = '/assets/LOGO1.png';
-                              }}
-                            />
-                          </div>
-                        </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </div>
               )}
               
