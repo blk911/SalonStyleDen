@@ -390,7 +390,7 @@ export function VmbStyleOptions({
                 {services.map((service) => (
                   <div 
                     key={service.id} 
-                    className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'}`}
+                    className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'} cursor-pointer hover:border-pink-400 transition-colors duration-200`}
                     onClick={() => handleSelectStyle(service)}
                   >
                     <div className="flex">
@@ -404,27 +404,7 @@ export function VmbStyleOptions({
                           <span className="text-micro">{service.duration} min</span>
                         </div>
                         
-                        <div className="mt-1 flex justify-between items-center">
-                          <Badge 
-                            className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSelectStyle(service);
-                            }}
-                          >
-                            Book Now
-                          </Badge>
-                          <Button 
-                            variant="link" 
-                            className="text-micro text-pink-500 hover:text-pink-700 p-0 h-auto"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSelectStyle(service);
-                            }}
-                          >
-                            Select
-                          </Button>
-                        </div>
+
                       </div>
                       
                       {/* Right side - Image (1/3) */}
@@ -444,6 +424,9 @@ export function VmbStyleOptions({
                 ))}
               </div>
             </>
+            
+            {/* Add 3px spacing */}
+            <div className="h-[3px]"></div>
             
             {/* STEP 2 - Always visible */}
             <>
@@ -474,21 +457,21 @@ export function VmbStyleOptions({
                     {/* Right side - Selected style */}
                     <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
                       <h3 className="font-medium text-compact text-center">Selected Style</h3>
-                      <div className="flex items-center justify-center h-32 mt-2">
+                      <div className="mt-2">
                         {confirmedStyle ? (
-                          <div className="p-4 border rounded border-gray-200 w-full h-full bg-white">
-                            <div className="flex items-start">
-                              <div className="flex-1 text-left">
-                                <h3 className="font-bold text-gray-800">{confirmedStyle.name}</h3>
-                                <p className="text-sm text-gray-600">{confirmedStyle.description || "Fully custom art, gems, 3D extras."}</p>
+                          <div className="p-4 border rounded-md border-pink-100 w-full bg-white shadow-sm">
+                            <div className="flex">
+                              <div className="flex-1">
+                                <h3 className="font-bold text-lg text-gray-800">{confirmedStyle.name}</h3>
+                                <p className="text-gray-600 mt-1">Fully custom art, gems, 3D extras.</p>
                                 
-                                <div className="mt-2">
-                                  <span className="font-bold text-black text-base">${Math.round(confirmedStyle.price)}</span>
+                                <div className="mt-2 flex items-center">
+                                  <span className="font-bold text-black text-xl">${Math.round(confirmedStyle.price)}</span>
                                   <span className="ml-2 text-gray-500">{confirmedStyle.duration} min</span>
                                 </div>
                               </div>
                               
-                              <div className="ml-4">
+                              <div className="ml-2">
                                 <img 
                                   src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
                                   alt={confirmedStyle.name}
@@ -502,7 +485,7 @@ export function VmbStyleOptions({
                             </div>
                           </div>
                         ) : (
-                          <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-full flex items-center justify-center">
+                          <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-32 flex items-center justify-center">
                             <p className="text-mini text-gray-500">No style selected yet</p>
                           </div>
                         )}
@@ -512,6 +495,9 @@ export function VmbStyleOptions({
                 </div>
               </div>
             </>
+            
+            {/* Add 3px spacing */}
+            <div className="h-[3px]"></div>
             
             {/* STEP 3 - Always visible */}
             <>
