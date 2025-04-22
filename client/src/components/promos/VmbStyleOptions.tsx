@@ -824,22 +824,7 @@ export function VmbStyleOptions({
                             </ul>
                           </div>
                           
-                          <div className="flex justify-center items-center mt-4">
-                            <button 
-                              type="button"
-                              className="w-full bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors text-xs"
-                              onClick={() => {
-                                setGiftApproved(true);
-                                toast({
-                                  title: "Gift Approved",
-                                  description: "You can now send your gift invitation",
-                                  variant: "default"
-                                });
-                              }}
-                            >
-                              APPROVE
-                            </button>
-                          </div>
+                          {/* Note: APPROVE button removed, auto-approval happens when Step 3 is opened */}
                         </div>
                       </div>
                       
