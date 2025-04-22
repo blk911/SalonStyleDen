@@ -313,82 +313,21 @@ export function VmbStyleOptions({
       return;
     }
         
-    // Handle French Tips specifically if needed
-    if (selectedStyle?.name?.includes("French Tips")) {
-      console.log("French Tips style selected - using special handler");
-      
-      // For the special case of French Tips without client/salon ID, we can proceed directly to Step 2
-      if (!clientId || !salonId) {
-        setIsDetailsOpen(false);
-        
-        // Important: set the confirmed style and show Step 2 directly
-        const confirmedStyleCopy = {...selectedStyle};
-        setConfirmedStyle(confirmedStyleCopy);
-        setShowStep2(true);
-        console.log("French Tips special case: Setting Step 2 with style:", confirmedStyleCopy.name);
-        
-        toast({
-          title: "Style Saved!",
-          description: `You've selected ${selectedStyle.name}`,
-          variant: "default"
-        });
-        return;
-      }
-    }
+    // French Tips special case has been removed in favor of the direct style insertion approach
     
     console.log("Proceeding with regular form submission");
     // Proceed with form submission
     form.handleSubmit(onSubmit)();
   };
   
-  // Reset all dialogs
+  // These functions are no longer needed since we're not using popups
+  // Keeping empty implementations for backward compatibility
   const handleCloseAll = () => {
-    // Close all dialogs and reset selection
-    setIsConfirmationOpen(false);
-    setSelectedStyle(null);
+    console.log("handleCloseAll called but not used in direct insertion mode");
   };
   
-  // Handles continuing with the style selection (called from confirmation dialog)
   const handleConfirmSelection = () => {
-    console.log("handleConfirmSelection called, selectedStyle:", selectedStyle?.name);
-    
-    // Execute the form submission
-    if (selectedStyle) {
-      // Store the selected style first before any async operations
-      const confirmedStyleCopy = {...selectedStyle};
-      console.log("Style copied for confirmation:", confirmedStyleCopy.name);
-      
-      // Explicitly set state right away rather than in the timeout
-      setConfirmedStyle(confirmedStyleCopy);
-      console.log("confirmedStyle state set with:", confirmedStyleCopy.name);
-      
-      // Submit the actual style selection to the API
-      handleSaveSelection();
-      
-      // Close confirmation dialog after short delay to give visual feedback
-      setTimeout(() => {
-        // Close the confirmation dialog
-        setIsConfirmationOpen(false);
-        console.log("Confirmation dialog closed");
-        
-        // CRITICAL: Set the flag to show Step 2 *after* the confirmation is closed
-        setShowStep2(true);
-        console.log("showStep2 set to true");
-        
-        // Verify the confirmed style is still available
-        console.log("confirmedStyle at timeout:", confirmedStyleCopy.name);
-        
-        // Clear the selection state but keep the confirmed style
-        setSelectedStyle(null);
-        
-        // Show a toast confirmation
-        toast({
-          title: "Style Selected!",
-          description: `${confirmedStyleCopy.name} has been added to your style selections.`,
-          variant: "default"
-        });
-      }, 800);
-    }
+    console.log("handleConfirmSelection called but not used in direct insertion mode");
   };
   
   // Get badge text based on service name
@@ -619,133 +558,7 @@ export function VmbStyleOptions({
         </form>
       </Form>
 
-      {/* Style Details Popup */}
-      {selectedStyle && (
-        <Dialog open={isDetailsOpen} onOpenChange={(open) => !open && setIsDetailsOpen(false)}>
-          <DialogContent 
-            className="sm:max-w-md border-2 border-[#FF92A5] p-0 overflow-hidden"
-            aria-describedby="style-details-description"
-          >
-            <DialogHeader className="bg-[#FF92A5]/10 p-4">
-              <DialogTitle className="text-center text-lg font-bold text-[#FF92A5] flex items-center justify-center gap-2">
-                <Sparkles className="h-5 w-5" />
-                {selectedStyle.name}
-                <Sparkles className="h-5 w-5" />
-              </DialogTitle>
-              <DialogDescription className="text-center text-sm text-gray-600">
-                Style details for {selectedStyle.name} including price and duration.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="flex flex-col items-center space-y-4 py-6">
-              <div className="h-48 w-full max-w-sm overflow-hidden rounded-lg shadow-md">
-                <img 
-                  src={selectedStyle.gifUrl ? getImageUrl(selectedStyle.gifUrl, 'vmb_style_popup') : '/assets/LOGO1.png'} 
-                  alt={selectedStyle.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    console.error(`Failed to load image for style: ${selectedStyle.name}`);
-                    e.currentTarget.src = '/assets/LOGO1.png';
-                  }}
-                />
-              </div>
-              
-              <div className="text-center px-6 max-w-sm">
-                <p className="text-base">{selectedStyle.description}</p>
-                <div className="mt-3 flex items-center justify-center gap-3">
-                  <span className="font-bold text-xl text-[#FF92A5]">${Math.round(selectedStyle.price)}</span>
-                  <span className="text-sm text-gray-500">{selectedStyle.duration} min</span>
-                </div>
-              </div>
-            </div>
-            
-            <DialogFooter className="sm:justify-center gap-4 p-4 bg-gray-50">
-              <Button 
-                variant="outline" 
-                onClick={() => setIsDetailsOpen(false)}
-                className="border-[#FF92A5] text-[#FF92A5] hover:bg-pink-50"
-              >
-                Back
-              </Button>
-              <Button 
-                onClick={() => {
-                  // Close the details dialog and open the confirmation dialog
-                  setIsDetailsOpen(false);
-                  setIsConfirmationOpen(true);
-                }}
-                disabled={isSubmitting}
-                className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
-              >
-                {isSubmitting ? 'Saving...' : 'Select This Style'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {/* Confirmation Popup */}
-      {selectedStyle && (
-        <Dialog open={isConfirmationOpen} onOpenChange={(open) => !open && setIsConfirmationOpen(false)}>
-          <DialogContent 
-            className="sm:max-w-md border-2 border-[#FF92A5] p-0 overflow-hidden"
-            aria-describedby="style-selection-confirmation"
-          >
-            <DialogHeader className="bg-pink-50 p-4">
-              <DialogTitle className="text-center text-lg text-[#FF92A5] flex items-center justify-center gap-2">
-                <Sparkles className="h-5 w-5" />
-                Confirm Style Selection
-                <Sparkles className="h-5 w-5" />
-              </DialogTitle>
-              <DialogDescription className="text-center text-sm text-gray-600">
-                Please confirm you want to select {selectedStyle.name} and add it to your style basket.
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="flex flex-col items-center space-y-4 py-6">
-              <div className="h-28 w-28 overflow-hidden rounded-full border-2 border-[#FF92A5] shadow-md">
-                <img 
-                  src={selectedStyle.gifUrl ? getImageUrl(selectedStyle.gifUrl, 'vmb_style_popup') : '/assets/LOGO1.png'} 
-                  alt={selectedStyle.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    console.error(`Failed to load image for style: ${selectedStyle.name}`);
-                    e.currentTarget.src = '/assets/LOGO1.png';
-                  }}
-                />
-              </div>
-              
-              <div className="text-center px-6">
-                <h3 className="font-bold text-lg text-[#FF92A5]">{selectedStyle.name}</h3>
-                <p className="text-base mt-2">{selectedStyle.description}</p>
-                <p className="mt-1 font-semibold text-gray-700">${Math.round(selectedStyle.price)}</p>
-                <div className="mt-4 p-3 bg-pink-50 rounded-lg border border-pink-100">
-                  <p className="text-sm text-gray-700">
-                    You're about to select this style. After confirmation, it will be saved to your profile
-                    and shared with your salon.
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <DialogFooter className="sm:justify-center gap-4 p-4 bg-gray-50">
-              <Button 
-                variant="outline"
-                onClick={handleCloseAll}
-                className="border-gray-300 text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleConfirmSelection}
-                disabled={isSubmitting}
-                className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white"
-              >
-                {isSubmitting ? 'Saving...' : 'Confirm & Save'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+      {/* No popups - direct style selection only */}
 
       {/* PromoCode Dialog for anonymous users */}
       <PromoCodeDialog 
