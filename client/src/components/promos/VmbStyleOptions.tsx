@@ -425,8 +425,8 @@ export function VmbStyleOptions({
               </div>
             </>
             
-            {/* Add 3px spacing */}
-            <div className="h-[3px]"></div>
+            {/* Add 6px spacing */}
+            <div className="h-[6px]"></div>
             
             {/* STEP 2 - Always visible */}
             <>
@@ -496,8 +496,8 @@ export function VmbStyleOptions({
               </div>
             </>
             
-            {/* Add 3px spacing */}
-            <div className="h-[3px]"></div>
+            {/* Add 6px spacing */}
+            <div className="h-[6px]"></div>
             
             {/* STEP 3 - Always visible */}
             <>
