@@ -36,7 +36,7 @@ const carouselItems: CarouselCard[] = [
     ]
   },
   {
-    title: "Ven Me, Baby! Gifts Say He Values YOU!",
+    title: "Ven Me, Baby! Says \"I value you\"",
     titleComponent: null,
     titleSuffix: '',
     content: [
