@@ -19,6 +19,7 @@ import Sitemap from "@/pages/Sitemap";
 import AdminDashboard from "@/pages/AdminDashboard";
 import TestImagePage from "@/pages/TestImagePage";
 import NetworkVisualization from "@/pages/NetworkVisualization";
+import MadgeVisualizationPage from "@/pages/MadgeVisualizationPage";
 import InvitationPage from "@/pages/InvitationPage";
 import ClientRegistrationPage from "@/pages/ClientRegistrationPage";
 
@@ -39,6 +40,7 @@ function Router() {
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/test-image/:id" component={TestImagePage} />
       <Route path="/network-visualization" component={NetworkVisualization} />
+      <Route path="/madge-visualization" component={MadgeVisualizationPage} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -10,6 +10,7 @@ import { db } from "./db";
 import { clients, invitations, type Invitation } from "../shared/schema";
 import { eq } from "drizzle-orm";
 import { registerVisualizationRoutes } from "./visualization";
+import { registerMadgeRoutes } from "./madge-api";
 import { errorMonitor } from './error-monitor';
 
 // Set up multer for file uploads
