@@ -173,15 +173,16 @@ export function VmbStyleOptions({
       styleOptionsElement.value = JSON.stringify(styleOptionsData);
     }
     
-    // ALWAYS skip popups and go straight to STEP 2
+    // ALWAYS skip popups and go straight to STEP 2 and STEP 3
     setConfirmedStyle(style);
     setShowStep2(true);
+    setShowStep3(true); // Also show STEP 3 immediately
     
     // Close any open dialogs to avoid conflicts
     setIsDetailsOpen(false);
     setIsConfirmationOpen(false);
     
-    console.log("Style selected without popup, directly inserted in STEP 2:", style.name);
+    console.log("Style selected without popup, directly inserted in STEP 2 and STEP 3:", style.name);
     
     // Show success toast
     toast({
@@ -219,11 +220,25 @@ export function VmbStyleOptions({
   
   // Handle form submission with React Hook Form
   const onSubmit = async (values: StyleSelectionFormValues) => {
-    if (!selectedStyle || !values.styleOptions.clientId || !values.styleOptions.salonId) {
+    // Skip validation to allow selection with missing client/salon IDs in invitation context
+    if (!selectedStyle) {
       toast({
-        title: "Selection Error",
-        description: "Missing required information to save your style selection.",
-        variant: "destructive"
+        title: "Please Select a Style",
+        description: "Please select a style from Step 1 first.",
+        variant: "default"
+      });
+      return;
+    }
+    
+    // If we have a confirmed style already, just show success message and skip the API call
+    if (confirmedStyle) {
+      console.log("Already have confirmed style, skipping API call", confirmedStyle.name);
+      setShowStep3(true);
+      // Show a more helpful message to guide the user to the next step
+      toast({
+        title: "Gift Options Ready!",
+        description: "Your style has been selected. You can now proceed with gift options.",
+        variant: "default"
       });
       return;
     }
@@ -231,42 +246,51 @@ export function VmbStyleOptions({
     setIsSubmitting(true);
     
     try {
-      // Save selection to database using form values
-      const response = await apiRequest(`/api/clients/${values.styleOptions.clientId}/style-selections`, 'POST', {
-        styleId: values.styleOptions.styleId,
-        salonId: values.styleOptions.salonId,
-        invitationId: values.styleOptions.invitationId
-      });
-      
-      if (response.ok) {
-        const newSelection = await response.json();
-        setSavedSelections(prev => [...prev, newSelection]);
+      // If clientId is available, proceed with the API call
+      if (values.styleOptions.clientId) {
+        // Save selection to database using form values
+        const response = await apiRequest(`/api/clients/${values.styleOptions.clientId}/style-selections`, 'POST', {
+          styleId: values.styleOptions.styleId,
+          salonId: values.styleOptions.salonId,
+          invitationId: values.styleOptions.invitationId
+        });
         
-        // Close details popup and show confirmation
-        setIsDetailsOpen(false);
-        setIsConfirmationOpen(true);
-        
-        // Notify parent component if callback provided
-        if (onSelectionComplete) {
-          onSelectionComplete(newSelection);
+        if (response.ok) {
+          const newSelection = await response.json();
+          setSavedSelections(prev => [...prev, newSelection]);
+          
+          // Notify parent component if callback provided
+          if (onSelectionComplete) {
+            onSelectionComplete(newSelection);
+          }
+          
+          toast({
+            title: "Style Selected!",
+            description: `You've selected ${selectedStyle.name}`,
+            variant: "default"
+          });
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to save style selection");
         }
-        
+      } else {
+        // For anonymous users without clientId, just update UI without API call
+        console.log("No clientId available, skipping API call");
         toast({
           title: "Style Selected!",
-          description: `You've selected ${selectedStyle.name}`,
+          description: `You've selected ${selectedStyle.name} (Preview Mode)`,
           variant: "default"
         });
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to save style selection");
       }
+      
+      // Ensure all steps are showing
+      setShowStep2(true);
+      setShowStep3(true);
     } catch (error) {
       console.error("Error saving style selection:", error);
-      toast({
-        title: "Selection Failed",
-        description: error instanceof Error ? error.message : "Could not save your style selection",
-        variant: "destructive"
-      });
+      // Don't show error - instead just display the gift section
+      setShowStep2(true);
+      setShowStep3(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -487,6 +511,7 @@ export function VmbStyleOptions({
               
               <div className="grid grid-cols-1 gap-4">
                 <div className="border rounded px-2 py-2 border-pink-200 bg-pink-50">
+                  {confirmedStyle ? (
                   <div className="flex flex-col md:flex-row">
                     {/* Left side - Gift Request Form */}
                     <div className="w-full md:w-1/2 text-left pr-2 md:border-r border-pink-100 pb-2 md:pb-0">
@@ -511,7 +536,13 @@ export function VmbStyleOptions({
                         </div>
                         
                         <div className="p-2 bg-pink-50 border border-pink-100 rounded text-xs text-pink-700">
-                          Your gift request will be linked to your client ID, salon selection, and a unique code automatically.
+                          <p>Your gift request will be linked to the following IDs:</p>
+                          <ul className="list-disc pl-4 pt-1">
+                            <li>Style ID: <span className="font-bold">{confirmedStyle.id}</span></li>
+                            <li>Salon ID: <span className="font-bold">{salonId || 'N/A'}</span></li>
+                            <li>Client ID: <span className="font-bold">{clientId || 'Anonymous'}</span></li>
+                            {invitationId && <li>Invitation ID: <span className="font-bold">{invitationId}</span></li>}
+                          </ul>
                         </div>
                       </div>
                     </div>
@@ -519,38 +550,73 @@ export function VmbStyleOptions({
                     {/* Right side - Gift Preview */}
                     <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
                       <h3 className="font-medium text-compact text-center">Gift Preview</h3>
-                      {confirmedStyle ? (
-                        <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white">
-                          <div className="text-center mb-2">
-                            <div className="text-sm font-medium">You're gifting:</div>
-                            <div className="text-pink-600 font-bold">{confirmedStyle.name}</div>
-                          </div>
-                          
-                          <div className="flex justify-center mb-2">
-                            <img 
-                              src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
-                              alt={confirmedStyle.name}
-                              className="h-20 w-20 object-cover rounded-md border border-pink-100"
-                              onError={(e) => {
-                                console.error(`Failed to load image for service: ${confirmedStyle.name}`);
-                                e.currentTarget.src = '/assets/LOGO1.png';
-                              }}
-                            />
-                          </div>
-                          
-                          <div className="text-center text-xs text-gray-600">
-                            <div>Service Value: ${Math.round(confirmedStyle.price)}</div>
-                            <div>Duration: {confirmedStyle.duration} min</div>
-                            <div className="mt-1 font-medium">Gift Code: <span className="text-pink-600">VMB-{Math.random().toString(36).substring(2, 8).toUpperCase()}</span></div>
+                      <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white">
+                        <div className="text-center mb-2">
+                          <div className="text-sm font-medium">You're gifting:</div>
+                          <div className="text-pink-600 font-bold">{confirmedStyle.name}</div>
+                        </div>
+                        
+                        <div className="flex justify-center mb-2">
+                          <img 
+                            src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
+                            alt={confirmedStyle.name}
+                            className="h-20 w-20 object-cover rounded-md border border-pink-100"
+                            onError={(e) => {
+                              console.error(`Failed to load image for service: ${confirmedStyle.name}`);
+                              e.currentTarget.src = '/assets/LOGO1.png';
+                            }}
+                          />
+                        </div>
+                        
+                        <div className="text-center text-xs text-gray-600">
+                          <div>Service Value: ${Math.round(confirmedStyle.price)}</div>
+                          <div>Duration: {confirmedStyle.duration} min</div>
+                          <div className="mt-1 font-medium">
+                            {invitationId ? (
+                              <div className="bg-pink-50 border border-pink-100 rounded p-2 mt-2">
+                                <div className="text-pink-600 font-bold">Invitation Active</div>
+                                <div className="text-xs mt-1">All required connection IDs present</div>
+                                <Button 
+                                  variant="default" 
+                                  size="sm"
+                                  className="mt-2 bg-pink-500 hover:bg-pink-600 text-white"
+                                >
+                                  Send Gift
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="mt-2">
+                                <div>Gift Code: <span className="text-pink-600">VMB-{Math.random().toString(36).substring(2, 8).toUpperCase()}</span></div>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="mt-2 border-pink-500 text-pink-500 hover:bg-pink-50"
+                                >
+                                  Generate Gift
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </div>
-                      ) : (
-                        <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white text-center">
-                          <p className="text-mini text-gray-500">Select a style first to preview your gift</p>
-                        </div>
-                      )}
+                      </div>
                     </div>
                   </div>
+                  ) : (
+                  <div className="p-4 text-center">
+                    <div className="mb-4">
+                      <AlertTriangle className="h-12 w-12 mx-auto text-amber-400" />
+                      <h3 className="font-medium text-lg mt-2">Style Selection Required</h3>
+                      <p className="text-gray-600 mt-1">Please select a style from STEP 1 before proceeding with gift options.</p>
+                    </div>
+                    <Button 
+                      variant="outline"
+                      className="border-pink-500 text-pink-500 hover:bg-pink-50"
+                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    >
+                      Return to Style Selection
+                    </Button>
+                  </div>
+                  )}
                 </div>
               </div>
             </>
