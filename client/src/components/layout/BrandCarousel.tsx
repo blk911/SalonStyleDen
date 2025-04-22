@@ -4,13 +4,13 @@ import LogoText from '../shared/LogoText'; // Added import statement
 
 const carouselItems = [
   {
-    title: 'How ', titleComponent: <LogoText size="inherit">Ven Me, Baby!</LogoText>, titleSuffix: ' Works:',
+    title: 'The Power of Connection',
     content: [
-      { text: "Your client selects a curated service offer", isBold: true, suffix: " through your app, site, or QR in-salon." },
-      { text: "She sends it directly", isBold: true, suffix: "—to her partner, admirer, husband, whoever wants to say \"yes\" without guessing." },
-      { text: "He receives your ", textComponent: <LogoText size="inherit">Ven Me, Baby!</LogoText>, isBold: true, suffix: " gift request, timing is everything, she is booked, but has an opening, you are thinking about him, now thinking about YOU!" },
-      { text: "He can be a HERO!", isBold: true, suffix: " Select the pay method, hit enter, be a HERO! It meets your customer, over there, on their phone...in their life!" },
-      { text: "You receive confirmation and prepayment", isBold: true, suffix: "—no gift cards, no chasing, no \"she said he would.\"" }
+      { text: "He's been fishing for attention", isBold: true, suffix: " — you're inviting connection." },
+      { text: "When he sees the message,", isBold: true, suffix: " he's thinking about you." },
+      { text: "His thoughtful click says,", isBold: true, suffix: " \"I notice. I care. I SEE YOU.\"" },
+      { text: "He steps up. You glow up.", isBold: true, suffix: " It's a twin win-win!!" },
+      { text: "Words are free", isBold: true, suffix: " — attention is priceless!" }
     ]
   },
   {
