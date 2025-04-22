@@ -87,7 +87,7 @@ export function VmbStyleOptions({
   // New state for the invitation form
   const [recipientName, setRecipientName] = useState("");
   const [recipientContact, setRecipientContact] = useState("");
-  const [invitationMessage, setInvitationMessage] = useState(`Hi, [NAME], my stylist has an opening and I want to ask if you will Ven Me, Baby! ❤️❤️❤️`);
+  const [invitationMessage, setInvitationMessage] = useState(`Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`);
   const [signature, setSignature] = useState("");
   const { toast } = useToast();
   const [, navigate] = useLocation();
@@ -192,6 +192,20 @@ export function VmbStyleOptions({
     // Close any open dialogs to avoid conflicts
     setIsDetailsOpen(false);
     setIsConfirmationOpen(false);
+    
+    // Update the invitation message to include the selected style name
+    const baseMessage = `Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`;
+    const currentName = recipientName || "[NAME]";
+    const currentSignature = signature || "[SIGNED]";
+    
+    // Replace placeholders
+    let updatedMessage = baseMessage;
+    updatedMessage = updatedMessage.replace("[NAME]", currentName);
+    updatedMessage = updatedMessage.replace("[STY OPT]", style.name);
+    updatedMessage = updatedMessage.replace("[SIGNED]", currentSignature);
+    
+    // Update the message
+    setInvitationMessage(updatedMessage);
     
     console.log("Style selected without popup, directly inserted in STEP 2 and STEP 3:", style.name);
     
@@ -461,17 +475,22 @@ export function VmbStyleOptions({
                                 const newName = e.target.value;
                                 setRecipientName(newName);
                                 
-                                // Update message with new name by replacing [NAME] with the actual name
-                                // If message already has a name, we need to restore [NAME] placeholder first
-                                const baseMessage = "Hi, [NAME], my stylist has an opening and I want to ask if you will Ven Me, Baby! ❤️❤️❤️";
+                                // Update current message - replace [NAME] but keep other placeholders intact
+                                const baseMessage = `Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`;
                                 
-                                if (newName) {
-                                  // Replace [NAME] with the actual name
-                                  setInvitationMessage(baseMessage.replace("[NAME]", newName));
-                                } else {
-                                  // If no name, just use the base message with placeholder
-                                  setInvitationMessage(baseMessage);
-                                }
+                                // Get style name if available
+                                const styleName = confirmedStyle ? confirmedStyle.name : "[STY OPT]";
+                                
+                                // Get signature if available
+                                const currentSignature = signature || "[SIGNED]";
+                                
+                                // Replace all placeholders
+                                let updatedMessage = baseMessage;
+                                updatedMessage = updatedMessage.replace("[NAME]", newName || "[NAME]");
+                                updatedMessage = updatedMessage.replace("[STY OPT]", styleName);
+                                updatedMessage = updatedMessage.replace("[SIGNED]", currentSignature);
+                                
+                                setInvitationMessage(updatedMessage);
                               }}
                             />
                             
@@ -483,19 +502,38 @@ export function VmbStyleOptions({
                               onChange={(e) => setRecipientContact(e.target.value)}
                             />
                             
-                            <textarea 
-                              placeholder={`Hi, [NAME], my stylist has an opening and I want to ask if you will Ven Me, Baby! ❤️❤️❤️`}
-                              className="w-full p-1.5 text-xs border border-pink-100 rounded h-16"
-                              value={invitationMessage}
-                              onChange={(e) => setInvitationMessage(e.target.value)}
-                            />
-                            
                             <input 
                               type="text"
                               placeholder="SIGN HERE!"
                               className="w-full p-1.5 text-xs border border-pink-100 rounded"
                               value={signature}
-                              onChange={(e) => setSignature(e.target.value)}
+                              onChange={(e) => {
+                                const newSignature = e.target.value;
+                                setSignature(newSignature);
+                                
+                                // Update message by replacing [SIGNED] with the actual signature
+                                // Keep other placeholders intact
+                                const baseMessage = `Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`;
+                                
+                                // Get current values
+                                const currentName = recipientName || "[NAME]";
+                                const styleName = confirmedStyle ? confirmedStyle.name : "[STY OPT]";
+                                
+                                // Replace all placeholders
+                                let updatedMessage = baseMessage;
+                                updatedMessage = updatedMessage.replace("[NAME]", currentName);
+                                updatedMessage = updatedMessage.replace("[STY OPT]", styleName);
+                                updatedMessage = updatedMessage.replace("[SIGNED]", newSignature || "[SIGNED]");
+                                
+                                setInvitationMessage(updatedMessage);
+                              }}
+                            />
+                            
+                            <textarea 
+                              placeholder={`Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`}
+                              className="w-full p-1.5 text-xs border border-pink-100 rounded h-16"
+                              value={invitationMessage}
+                              onChange={(e) => setInvitationMessage(e.target.value)}
                             />
                             
                             <button 
