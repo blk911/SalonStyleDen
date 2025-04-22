@@ -86,7 +86,7 @@ export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [selectedLayout, setSelectedLayout] = useState('dot');
-  const [focusPath, setFocusPath] = useState('');
+  const [focusPath, setFocusPath] = useState('fullapp');
   const [generating, setGenerating] = useState(false);
   const [selectedVisualization, setSelectedVisualization] = useState<string | null>(null);
   
@@ -407,7 +407,7 @@ export default function AdminDashboard() {
                       <SelectValue placeholder="Select focus area" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Full Application</SelectItem>
+                      <SelectItem value="fullapp">Full Application</SelectItem>
                       <SelectItem value="client/src/components">Components</SelectItem>
                       <SelectItem value="client/src/pages">Pages</SelectItem>
                       <SelectItem value="client/src/hooks">Hooks</SelectItem>
@@ -434,7 +434,7 @@ export default function AdminDashboard() {
                         body: JSON.stringify({
                           layout: selectedLayout,
                           format: 'svg',
-                          focus: focusPath || undefined,
+                          focus: focusPath === 'fullapp' ? '' : focusPath,
                         }),
                       });
                       
