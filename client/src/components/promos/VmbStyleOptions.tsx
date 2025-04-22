@@ -446,29 +446,29 @@ export function VmbStyleOptions({
                             <input 
                               type="text"
                               placeholder="Who is your Ven Me, Baby!: Enter name"
-                              className="w-full p-1.5 text-sm border border-pink-100 rounded"
+                              className="w-full p-1.5 text-xs border border-pink-100 rounded"
                             />
                             
                             <input 
                               type="text"
                               placeholder="Phone or Email"
-                              className="w-full p-1.5 text-sm border border-pink-100 rounded"
+                              className="w-full p-1.5 text-xs border border-pink-100 rounded"
                             />
                             
                             <textarea 
                               placeholder={`Hi, [NAME], my stylist has an opening and I want to ask if you will Ven Me, Baby! ❤️❤️❤️`}
-                              className="w-full p-1.5 text-sm border border-pink-100 rounded h-16"
+                              className="w-full p-1.5 text-xs border border-pink-100 rounded h-16"
                             />
                             
                             <input 
                               type="text"
                               placeholder="SIGN HERE!"
-                              className="w-full p-1.5 text-sm border border-pink-100 rounded"
+                              className="w-full p-1.5 text-xs border border-pink-100 rounded"
                             />
                             
                             <button 
                               type="button"
-                              className="w-full bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors"
+                              className="w-full bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors text-xs"
                             >
                               CONFIRM
                             </button>
