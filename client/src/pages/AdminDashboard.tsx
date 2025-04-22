@@ -1,12 +1,21 @@
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Link } from 'wouter';
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 import { 
   Tooltip,
   TooltipContent,
@@ -17,8 +26,21 @@ import {
   ExternalLink as ExternalLinkIcon, 
   Loader as LoaderIcon, 
   AlertTriangle as AlertTriangleIcon, 
-  User as UserIcon 
+  User as UserIcon, 
+  Network as NetworkIcon,
+  RefreshCw, 
+  Download,
+  Code, 
+  Eye,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
+import { 
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { useToast } from "@/hooks/use-toast";
 
 interface Client {
   id: number;
@@ -66,6 +88,54 @@ interface ActivityLog {
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [selectedLayout, setSelectedLayout] = useState('dot');
+  const [focusPath, setFocusPath] = useState('');
+  const [generating, setGenerating] = useState(false);
+  const [selectedVisualization, setSelectedVisualization] = useState<string | null>(null);
+  
+  // Section visibility states (stored in localStorage for persistence)
+  const [styleOptionsOpen, setStyleOptionsOpen] = useState(true);
+  const [networkVisualizationOpen, setNetworkVisualizationOpen] = useState(true);
+  const [invitationsOpen, setInvitationsOpen] = useState(true);
+  const [clientsOpen, setClientsOpen] = useState(true);
+  const [activityLogsOpen, setActivityLogsOpen] = useState(true);
+  
+  // Load section states from localStorage
+  useEffect(() => {
+    const loadSectionStates = () => {
+      try {
+        const styleOpt = localStorage.getItem('adminDashboard_styleOptionsOpen');
+        const networkVis = localStorage.getItem('adminDashboard_networkVisualizationOpen');
+        const invites = localStorage.getItem('adminDashboard_invitationsOpen');
+        const clients = localStorage.getItem('adminDashboard_clientsOpen');
+        const logs = localStorage.getItem('adminDashboard_activityLogsOpen');
+        
+        if (styleOpt !== null) setStyleOptionsOpen(styleOpt === 'true');
+        if (networkVis !== null) setNetworkVisualizationOpen(networkVis === 'true');
+        if (invites !== null) setInvitationsOpen(invites === 'true');
+        if (clients !== null) setClientsOpen(clients === 'true');
+        if (logs !== null) setActivityLogsOpen(logs === 'true');
+      } catch (error) {
+        console.error('Error loading section states from localStorage:', error);
+      }
+    };
+    
+    loadSectionStates();
+  }, []);
+  
+  // Save section states to localStorage when they change
+  useEffect(() => {
+    try {
+      localStorage.setItem('adminDashboard_styleOptionsOpen', styleOptionsOpen.toString());
+      localStorage.setItem('adminDashboard_networkVisualizationOpen', networkVisualizationOpen.toString());
+      localStorage.setItem('adminDashboard_invitationsOpen', invitationsOpen.toString());
+      localStorage.setItem('adminDashboard_clientsOpen', clientsOpen.toString());
+      localStorage.setItem('adminDashboard_activityLogsOpen', activityLogsOpen.toString());
+    } catch (error) {
+      console.error('Error saving section states to localStorage:', error);
+    }
+  }, [styleOptionsOpen, networkVisualizationOpen, invitationsOpen, clientsOpen, activityLogsOpen]);
 
   // Helper function to find client ID for an invitation
   const findClientIdForInvitation = (invitation: Invitation, clientsList: Client[] | undefined): number | null => {
@@ -188,118 +258,315 @@ export default function AdminDashboard() {
 
           {/* Ven Me Baby Style Options */}
           <Card className="mb-6">
-            <CardContent className="p-4">
-              <h2 className="text-xl font-semibold mb-4">Ven Me, Baby! Style Options</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-2">
-                    <div className="flex">
-                      {/* Left Side - Text */}
-                      <div className="w-2/3 text-left pr-2">
-                        <h3 className="font-medium">French Tips / Touch-Up</h3>
-                        <p className="text-xs text-gray-600 mb-2">Classic white tips or quick polish refresh.</p>
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold">$40</span>
-                          <span className="text-xs">30 min</span>
+            <CardHeader className="p-4 pb-0">
+              <CollapsibleTrigger 
+                className="w-full flex justify-between items-center cursor-pointer"
+                onClick={() => setStyleOptionsOpen(!styleOptionsOpen)}
+              >
+                <CardTitle className="text-xl font-semibold">Ven Me, Baby! Style Options</CardTitle>
+                {styleOptionsOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+              </CollapsibleTrigger>
+            </CardHeader>
+            <Collapsible open={styleOptionsOpen}>
+              <CardContent className="p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
+                    <CardContent className="p-2">
+                      <div className="flex">
+                        {/* Left Side - Text */}
+                        <div className="w-2/3 text-left pr-2">
+                          <h3 className="font-medium">French Tips / Touch-Up</h3>
+                          <p className="text-xs text-gray-600 mb-2">Classic white tips or quick polish refresh.</p>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">$40</span>
+                            <span className="text-xs">30 min</span>
+                          </div>
+                        </div>
+                        {/* Right Side - Image */}
+                        <div className="w-1/3 flex items-center justify-end pl-2">
+                          <img 
+                            src="/assets/French_Tips.png" 
+                            alt="French Tips" 
+                            className="rounded h-20 w-20 object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/assets/VMB_LOGO.png';
+                            }}
+                          />
                         </div>
                       </div>
-                      {/* Right Side - Image */}
-                      <div className="w-1/3 flex items-center justify-end pl-2">
-                        <img 
-                          src="/assets/French_Tips.png" 
-                          alt="French Tips" 
-                          className="rounded h-20 w-20 object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = '/assets/VMB_LOGO.png';
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
 
-                <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-2">
-                    <div className="flex">
-                      {/* Left Side - Text */}
-                      <div className="w-2/3 text-left pr-2">
-                        <h3 className="font-medium">Luxe Gel Manicure</h3>
-                        <p className="text-xs text-gray-600 mb-2">Glossy, chip-free color with lasting shine.</p>
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold">$55</span>
-                          <span className="text-xs">45 min</span>
+                  <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
+                    <CardContent className="p-2">
+                      <div className="flex">
+                        {/* Left Side - Text */}
+                        <div className="w-2/3 text-left pr-2">
+                          <h3 className="font-medium">Luxe Gel Manicure</h3>
+                          <p className="text-xs text-gray-600 mb-2">Glossy, chip-free color with lasting shine.</p>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">$55</span>
+                            <span className="text-xs">45 min</span>
+                          </div>
+                        </div>
+                        {/* Right Side - Image */}
+                        <div className="w-1/3 flex items-center justify-end pl-2">
+                          <img 
+                            src="/assets/Luxe_Gel_Manicure.png" 
+                            alt="Luxe Gel Manicure" 
+                            className="rounded h-20 w-20 object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/assets/VMB_LOGO.png';
+                            }}
+                          />
                         </div>
                       </div>
-                      {/* Right Side - Image */}
-                      <div className="w-1/3 flex items-center justify-end pl-2">
-                        <img 
-                          src="/assets/Luxe_Gel_Manicure.png" 
-                          alt="Luxe Gel Manicure" 
-                          className="rounded h-20 w-20 object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = '/assets/VMB_LOGO.png';
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
 
-                <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-2">
-                    <div className="flex">
-                      {/* Left Side - Text */}
-                      <div className="w-2/3 text-left pr-2">
-                        <h3 className="font-medium">Sculpted Acrylics</h3>
-                        <p className="text-xs text-gray-600 mb-2">Custom-shaped acrylics for bold length.</p>
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold">$70</span>
-                          <span className="text-xs">60 min</span>
+                  <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
+                    <CardContent className="p-2">
+                      <div className="flex">
+                        {/* Left Side - Text */}
+                        <div className="w-2/3 text-left pr-2">
+                          <h3 className="font-medium">Sculpted Acrylics</h3>
+                          <p className="text-xs text-gray-600 mb-2">Custom-shaped acrylics for bold length.</p>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">$70</span>
+                            <span className="text-xs">60 min</span>
+                          </div>
+                        </div>
+                        {/* Right Side - Image */}
+                        <div className="w-1/3 flex items-center justify-end pl-2">
+                          <img 
+                            src="/assets/Sculpted_Acrylics.png" 
+                            alt="Sculpted Acrylics" 
+                            className="rounded h-20 w-20 object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/assets/VMB_LOGO.png';
+                            }}
+                          />
                         </div>
                       </div>
-                      {/* Right Side - Image */}
-                      <div className="w-1/3 flex items-center justify-end pl-2">
-                        <img 
-                          src="/assets/Sculpted_Acrylics.png" 
-                          alt="Sculpted Acrylics" 
-                          className="rounded h-20 w-20 object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = '/assets/VMB_LOGO.png';
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
 
-                <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-2">
-                    <div className="flex">
-                      {/* Left Side - Text */}
-                      <div className="w-2/3 text-left pr-2">
-                        <h3 className="font-medium">Glam Me! Custom Design</h3>
-                        <p className="text-xs text-gray-600 mb-2">Fully custom art, gems, 3D extras.</p>
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold">$125+</span>
-                          <span className="text-xs">90 min</span>
+                  <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
+                    <CardContent className="p-2">
+                      <div className="flex">
+                        {/* Left Side - Text */}
+                        <div className="w-2/3 text-left pr-2">
+                          <h3 className="font-medium">Glam Me! Custom Design</h3>
+                          <p className="text-xs text-gray-600 mb-2">Fully custom art, gems, 3D extras.</p>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">$125+</span>
+                            <span className="text-xs">90 min</span>
+                          </div>
+                        </div>
+                        {/* Right Side - Image */}
+                        <div className="w-1/3 flex items-center justify-end pl-2">
+                          <img 
+                            src="/assets/Glam_Me_Custom_Design.png" 
+                            alt="Glam Me! Custom Design" 
+                            className="rounded h-20 w-20 object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/assets/VMB_LOGO.png';
+                            }}
+                          />
                         </div>
                       </div>
-                      {/* Right Side - Image */}
-                      <div className="w-1/3 flex items-center justify-end pl-2">
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Collapsible>
+          </Card>
+
+          {/* Network Visualization with Madge + Graphviz */}
+          <Card className="mb-6">
+            <CardHeader className="pb-0">
+              <CollapsibleTrigger 
+                className="w-full flex justify-between items-center cursor-pointer"
+                onClick={() => setNetworkVisualizationOpen(!networkVisualizationOpen)}
+              >
+                <div>
+                  <CardTitle className="flex items-center">
+                    <NetworkIcon className="h-5 w-5 mr-2 text-pink-500" />
+                    Network Visualization
+                  </CardTitle>
+                  <CardDescription>
+                    Explore component dependencies and relationships using Madge + Graphviz
+                  </CardDescription>
+                </div>
+                {networkVisualizationOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+              </CollapsibleTrigger>
+            </CardHeader>
+            <Collapsible open={networkVisualizationOpen}>
+              <CardContent className="pt-4">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                  {/* Left Side - Controls */}
+                  <div className="lg:col-span-1 space-y-4 border-r pr-4">
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Layout Algorithm</label>
+                      <Select
+                        value={selectedLayout}
+                        onValueChange={setSelectedLayout}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select layout" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="dot">Hierarchical (dot)</SelectItem>
+                          <SelectItem value="fdp">Force-Directed (fdp)</SelectItem>
+                          <SelectItem value="twopi">Radial (twopi)</SelectItem>
+                          <SelectItem value="circo">Circular (circo)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Focus Path (optional)</label>
+                      <Select
+                        value={focusPath}
+                        onValueChange={setFocusPath}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select focus area" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">Full Application</SelectItem>
+                          <SelectItem value="client/src/components">Components</SelectItem>
+                          <SelectItem value="client/src/pages">Pages</SelectItem>
+                          <SelectItem value="client/src/hooks">Hooks</SelectItem>
+                          <SelectItem value="client/src/contexts">Contexts</SelectItem>
+                          <SelectItem value="server">Server</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-gray-500 mt-1">Focus the visualization on a specific area of the codebase</p>
+                    </div>
+                    
+                    <Button 
+                      variant="default" 
+                      className="w-full bg-pink-600 hover:bg-pink-700"
+                      disabled={generating}
+                      onClick={async () => {
+                        try {
+                          setGenerating(true);
+                          
+                          const response = await fetch('/api/madge/generate', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                              layout: selectedLayout,
+                              format: 'svg',
+                              focus: focusPath || undefined,
+                            }),
+                          });
+                          
+                          if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || 'Failed to generate visualization');
+                          }
+                          
+                          const data = await response.json();
+                          
+                          if (data.success) {
+                            setSelectedVisualization(data.path);
+                            toast({
+                              title: "Visualization generated",
+                              description: `Created ${data.filename} (${data.size}KB)`,
+                            });
+                          } else {
+                            throw new Error('Failed to generate visualization');
+                          }
+                        } catch (error) {
+                          console.error('Error generating visualization:', error);
+                          toast({
+                            title: "Generation failed",
+                            description: error.message,
+                            variant: "destructive",
+                          });
+                        } finally {
+                          setGenerating(false);
+                        }
+                      }}
+                    >
+                      {generating ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Code className="h-4 w-4 mr-2" />
+                          Generate Visualization
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  
+                  {/* Right Side - Visualization Display */}
+                  <div className="lg:col-span-3 min-h-[400px] border rounded-md p-2 flex items-center justify-center relative">
+                    {!selectedVisualization ? (
+                      <div className="text-center text-gray-500 space-y-3">
+                        <NetworkIcon className="h-16 w-16 mx-auto text-gray-300" />
+                        <p>Generate a network visualization to see component relationships</p>
+                      </div>
+                    ) : (
+                      <div className="w-full h-full overflow-auto flex items-center justify-center">
                         <img 
-                          src="/assets/Glam_Me_Custom_Design.png" 
-                          alt="Glam Me! Custom Design" 
-                          className="rounded h-20 w-20 object-cover"
-                          onError={(e) => {
-                            e.currentTarget.src = '/assets/VMB_LOGO.png';
-                          }}
+                          src={selectedVisualization} 
+                          alt="Network Visualization" 
+                          className="max-w-full"
+                          style={{ maxHeight: '600px' }}
                         />
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </CardContent>
+                    )}
+                    
+                    {selectedVisualization && (
+                      <div className="absolute top-2 right-2 flex gap-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <a 
+                                href={selectedVisualization} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
+                              >
+                                <Eye className="h-4 w-4 text-gray-600" />
+                              </a>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Open in new tab</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <a 
+                                href={selectedVisualization} 
+                                download
+                                className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
+                              >
+                                <Download className="h-4 w-4 text-gray-600" />
+                              </a>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Download visualization</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Collapsible>
           </Card>
 
           {/* Salon to Client Invitations - Grouped by Salon */}
