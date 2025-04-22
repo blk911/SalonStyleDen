@@ -849,8 +849,8 @@ export function VmbStyleOptions({
                           </div>
                           
                           {/* Message Preview - Text message style */}
-                          <div className="rounded-lg p-2 bg-blue-50 border border-blue-100 mb-2 text-xs hidden">
-                            {invitationMessage}
+                          <div className="rounded-lg p-2 bg-blue-50 border border-blue-100 mb-2 text-xs">
+                            Hi Bill, I would love a fresh set. My stylist has an opening for a Sculpted Acrylics, will you Ven Me, Baby! ❤️❤️❤️ Tammy
                           </div>
                           
                           <div className="flex justify-center mb-2">
