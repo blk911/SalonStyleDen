@@ -440,17 +440,60 @@ export function VmbStyleOptions({
                     {/* Left side - blank placeholder for now */}
                     <div className="w-full md:w-1/2 text-left pr-2 md:border-r border-pink-100 pb-2 md:pb-0">
                       <h3 className="font-medium text-compact text-center">Your Invitation Design</h3>
-                      <div className="flex items-center justify-center h-32 mt-2">
-                        <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-full flex items-center justify-center">
-                          <div className="flex flex-col items-center justify-center">
-                            <p className="text-mini text-gray-500">Personalize your invitation with a message</p>
-                            {confirmedStyle && (
-                              <div className="mt-1 text-xs text-pink-600">
-                                {confirmedStyle.name}
-                              </div>
-                            )}
+                      <div className="flex flex-col mt-2">
+                        {confirmedStyle && (
+                          <div className="space-y-3 p-2 border border-dashed border-pink-200 rounded-md w-full">
+                            <div className="space-y-1">
+                              <label className="text-mini text-gray-700">Who is your Ven Me, Baby!: Enter name</label>
+                              <input 
+                                type="text"
+                                placeholder="Recipient's name"
+                                className="w-full p-2 text-sm border border-pink-100 rounded"
+                              />
+                            </div>
+                            
+                            <div className="space-y-1">
+                              <label className="text-mini text-gray-700">Phone or Email</label>
+                              <input 
+                                type="text"
+                                placeholder="Phone number or email address"
+                                className="w-full p-2 text-sm border border-pink-100 rounded"
+                              />
+                            </div>
+                            
+                            <div className="space-y-1">
+                              <label className="text-mini text-gray-700">Note</label>
+                              <textarea 
+                                placeholder={`Hi, [NAME], my stylist has an opening and I want to ask if you will Ven Me, Baby! ❤️❤️❤️`}
+                                className="w-full p-2 text-sm border border-pink-100 rounded h-20"
+                              />
+                            </div>
+                            
+                            <div className="space-y-1">
+                              <label className="text-mini text-gray-700">SIGN HERE!</label>
+                              <input 
+                                type="text"
+                                placeholder="Your signature"
+                                className="w-full p-2 text-sm border border-pink-100 rounded"
+                              />
+                            </div>
+                            
+                            <button 
+                              type="button"
+                              className="w-full bg-pink-500 hover:bg-pink-600 text-white py-2 rounded transition-colors"
+                            >
+                              CONFIRM
+                            </button>
                           </div>
-                        </div>
+                        )}
+                        
+                        {!confirmedStyle && (
+                          <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-32 flex items-center justify-center">
+                            <div className="flex flex-col items-center justify-center">
+                              <p className="text-mini text-gray-500">Select a style first to design your invitation</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                     
