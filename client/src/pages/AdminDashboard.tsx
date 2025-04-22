@@ -481,7 +481,7 @@ export default function AdminDashboard() {
                           } else {
                             throw new Error('Failed to generate visualization');
                           }
-                        } catch (error) {
+                        } catch (error: any) {
                           console.error('Error generating visualization:', error);
                           toast({
                             title: "Generation failed",
@@ -571,47 +571,55 @@ export default function AdminDashboard() {
 
           {/* Salon to Client Invitations - Grouped by Salon */}
           <Card className="mb-6">
-            <CardContent className="p-4">
-              <h2 className="text-xl font-semibold mb-4">Salon to Client Invitations</h2>
-              
-              {/* Loading state */}
-              {inviteIsLoading && (
-                <div className="py-8 text-center">
-                  <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
-                  <p className="text-gray-500 text-sm">Loading invitation data...</p>
-                </div>
-              )}
-              
-              {/* Error state */}
-              {inviteError && !inviteIsLoading && (
-                <div className="py-8 text-center border rounded-md bg-red-50">
-                  <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
-                  <p className="text-red-700 mb-1">Error loading invitations</p>
-                  <p className="text-sm text-red-600">{inviteError.message}</p>
-                </div>
-              )}
-              
-              {/* Empty state */}
-              {!inviteIsLoading && !inviteError && (!invitations || invitations.length === 0) && (
-                <div className="py-8 text-center border rounded-md bg-gray-50">
-                  <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-500">No invitations have been sent yet</p>
-                </div>
-              )}
-              
-              {/* Data grouping */}
-              {!inviteIsLoading && !inviteError && invitations && invitations.length > 0 && (
-                <div className="space-y-6">
-                  {Object.entries(
-                    invitations.reduce((groups, invite) => {
-                      const salonName = invite.sponsor || invite.salonName || 'Unknown Salon';
-                      if (!groups[salonName]) {
-                        groups[salonName] = [];
-                      }
-                      groups[salonName].push(invite);
-                      return groups;
-                    }, {} as Record<string, Invitation[]>)
-                  ).map(([salonName, salonInvites]) => (
+            <CardHeader className="p-4 pb-0">
+              <CollapsibleTrigger 
+                className="w-full flex justify-between items-center cursor-pointer"
+                onClick={() => setInvitationsOpen(!invitationsOpen)}
+              >
+                <CardTitle className="text-xl font-semibold">Salon to Client Invitations</CardTitle>
+                {invitationsOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+              </CollapsibleTrigger>
+            </CardHeader>
+            <Collapsible open={invitationsOpen}>
+              <CardContent className="p-4">
+                {/* Loading state */}
+                {inviteIsLoading && (
+                  <div className="py-8 text-center">
+                    <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
+                    <p className="text-gray-500 text-sm">Loading invitation data...</p>
+                  </div>
+                )}
+                
+                {/* Error state */}
+                {inviteError && !inviteIsLoading && (
+                  <div className="py-8 text-center border rounded-md bg-red-50">
+                    <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
+                    <p className="text-red-700 mb-1">Error loading invitations</p>
+                    <p className="text-sm text-red-600">{inviteError.message}</p>
+                  </div>
+                )}
+                
+                {/* Empty state */}
+                {!inviteIsLoading && !inviteError && (!invitations || invitations.length === 0) && (
+                  <div className="py-8 text-center border rounded-md bg-gray-50">
+                    <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-500">No invitations have been sent yet</p>
+                  </div>
+                )}
+                
+                {/* Data grouping */}
+                {!inviteIsLoading && !inviteError && invitations && invitations.length > 0 && (
+                  <div className="space-y-6">
+                    {Object.entries(
+                      invitations.reduce((groups, invite) => {
+                        const salonName = invite.sponsor || invite.salonName || 'Unknown Salon';
+                        if (!groups[salonName]) {
+                          groups[salonName] = [];
+                        }
+                        groups[salonName].push(invite);
+                        return groups;
+                      }, {} as Record<string, Invitation[]>)
+                    ).map(([salonName, salonInvites]) => (
                     <div key={salonName} className="border rounded-lg overflow-hidden">
                       {/* Salon Header */}
                       <div 
@@ -723,42 +731,51 @@ export default function AdminDashboard() {
                   ))}
                 </div>
               )}
-            </CardContent>
+              </CardContent>
+            </Collapsible>
           </Card>
 
           <div className="grid gap-6">
             {/* Clients Table */}
-            <Card>
-              <CardContent className="p-4">
-                <h2 className="text-xl font-semibold mb-4">Current Clients</h2>
-                
-                {/* Loading state */}
-                {clientIsLoading && (
-                  <div className="py-8 text-center">
-                    <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
-                    <p className="text-gray-500 text-sm">Loading client data...</p>
-                  </div>
-                )}
-                
-                {/* Error state */}
-                {clientError && !clientIsLoading && (
-                  <div className="py-8 text-center border rounded-md bg-red-50">
-                    <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
-                    <p className="text-red-700 mb-1">Error loading clients</p>
-                    <p className="text-sm text-red-600">{clientError.message}</p>
-                  </div>
-                )}
-                
-                {/* Empty state */}
-                {!clientIsLoading && !clientError && (!clients || clients.filter((client: Client) => client.isCurrentClient).length === 0) && (
-                  <div className="py-8 text-center border rounded-md bg-gray-50">
-                    <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">No active clients found</p>
-                  </div>
-                )}
-                
-                {/* Data table */}
-                {!clientIsLoading && !clientError && clients && clients.filter((client: Client) => client.isCurrentClient).length > 0 && (
+            <Card className="mb-6">
+              <CardHeader className="p-4 pb-0">
+                <CollapsibleTrigger 
+                  className="w-full flex justify-between items-center cursor-pointer"
+                  onClick={() => setClientsOpen(!clientsOpen)}
+                >
+                  <CardTitle className="text-xl font-semibold">Current Clients</CardTitle>
+                  {clientsOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                </CollapsibleTrigger>
+              </CardHeader>
+              <Collapsible open={clientsOpen}>
+                <CardContent className="p-4">
+                  {/* Loading state */}
+                  {clientIsLoading && (
+                    <div className="py-8 text-center">
+                      <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
+                      <p className="text-gray-500 text-sm">Loading client data...</p>
+                    </div>
+                  )}
+                  
+                  {/* Error state */}
+                  {clientError && !clientIsLoading && (
+                    <div className="py-8 text-center border rounded-md bg-red-50">
+                      <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
+                      <p className="text-red-700 mb-1">Error loading clients</p>
+                      <p className="text-sm text-red-600">{clientError.message}</p>
+                    </div>
+                  )}
+                  
+                  {/* Empty state */}
+                  {!clientIsLoading && !clientError && (!clients || clients.filter((client: Client) => client.isCurrentClient).length === 0) && (
+                    <div className="py-8 text-center border rounded-md bg-gray-50">
+                      <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500">No active clients found</p>
+                    </div>
+                  )}
+                  
+                  {/* Data table */}
+                  {!clientIsLoading && !clientError && clients && clients.filter((client: Client) => client.isCurrentClient).length > 0 && (
                   <ScrollArea className="h-[300px]">
                     <Table>
                       <TableHeader>
@@ -879,41 +896,50 @@ export default function AdminDashboard() {
                     </Table>
                   </ScrollArea>
                 )}
-              </CardContent>
+                </CardContent>
+              </Collapsible>
             </Card>
 
             {/* Salons Table */}
-            <Card>
-              <CardContent className="p-4">
-                <h2 className="text-xl font-semibold mb-4">Salons</h2>
-                
-                {/* Loading state */}
-                {salonIsLoading && (
-                  <div className="py-8 text-center">
-                    <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
-                    <p className="text-gray-500 text-sm">Loading salon data...</p>
-                  </div>
-                )}
-                
-                {/* Error state */}
-                {salonError && !salonIsLoading && (
-                  <div className="py-8 text-center border rounded-md bg-red-50">
-                    <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
-                    <p className="text-red-700 mb-1">Error loading salons</p>
-                    <p className="text-sm text-red-600">{salonError.message}</p>
-                  </div>
-                )}
-                
-                {/* Empty state */}
-                {!salonIsLoading && !salonError && (!salons || salons.length === 0) && (
-                  <div className="py-8 text-center border rounded-md bg-gray-50">
-                    <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">No salons found</p>
-                  </div>
-                )}
-                
-                {/* Data table */}
-                {!salonIsLoading && !salonError && salons && salons.length > 0 && (
+            <Card className="mb-6">
+              <CardHeader className="p-4 pb-0">
+                <CollapsibleTrigger 
+                  className="w-full flex justify-between items-center cursor-pointer"
+                  onClick={() => setActivityLogsOpen(!activityLogsOpen)}
+                >
+                  <CardTitle className="text-xl font-semibold">Salon Directory</CardTitle>
+                  {activityLogsOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                </CollapsibleTrigger>
+              </CardHeader>
+              <Collapsible open={activityLogsOpen}>
+                <CardContent className="p-4">
+                  {/* Loading state */}
+                  {salonIsLoading && (
+                    <div className="py-8 text-center">
+                      <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
+                      <p className="text-gray-500 text-sm">Loading salon data...</p>
+                    </div>
+                  )}
+                  
+                  {/* Error state */}
+                  {salonError && !salonIsLoading && (
+                    <div className="py-8 text-center border rounded-md bg-red-50">
+                      <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
+                      <p className="text-red-700 mb-1">Error loading salons</p>
+                      <p className="text-sm text-red-600">{salonError.message}</p>
+                    </div>
+                  )}
+                  
+                  {/* Empty state */}
+                  {!salonIsLoading && !salonError && (!salons || salons.length === 0) && (
+                    <div className="py-8 text-center border rounded-md bg-gray-50">
+                      <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-500">No salons found</p>
+                    </div>
+                  )}
+                  
+                  {/* Data table */}
+                  {!salonIsLoading && !salonError && salons && salons.length > 0 && (
                   <ScrollArea className="h-[300px]">
                     <Table>
                       <TableHeader>
@@ -954,7 +980,8 @@ export default function AdminDashboard() {
                     </Table>
                   </ScrollArea>
                 )}
-              </CardContent>
+                </CardContent>
+              </Collapsible>
             </Card>
           </div>
         </div>
