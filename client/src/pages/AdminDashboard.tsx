@@ -35,11 +35,7 @@ import {
   ChevronDown,
   ChevronUp
 } from "lucide-react";
-import { 
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { CollapsibleCard } from "@/components/ui/card-section";
 import { useToast } from "@/hooks/use-toast";
 
 interface Client {
@@ -257,732 +253,680 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
 
           {/* Ven Me Baby Style Options */}
-          <Card className="mb-6">
-            <CardHeader className="p-4 pb-0">
-              <CollapsibleTrigger 
-                className="w-full flex justify-between items-center cursor-pointer"
-                onClick={() => setStyleOptionsOpen(!styleOptionsOpen)}
-              >
-                <CardTitle className="text-xl font-semibold">Ven Me, Baby! Style Options</CardTitle>
-                {styleOptionsOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-              </CollapsibleTrigger>
-            </CardHeader>
-            <Collapsible open={styleOptionsOpen}>
-              <CardContent className="p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
-                    <CardContent className="p-2">
-                      <div className="flex">
-                        {/* Left Side - Text */}
-                        <div className="w-2/3 text-left pr-2">
-                          <h3 className="font-medium">French Tips / Touch-Up</h3>
-                          <p className="text-xs text-gray-600 mb-2">Classic white tips or quick polish refresh.</p>
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">$40</span>
-                            <span className="text-xs">30 min</span>
-                          </div>
-                        </div>
-                        {/* Right Side - Image */}
-                        <div className="w-1/3 flex items-center justify-end pl-2">
-                          <img 
-                            src="/assets/French_Tips.png" 
-                            alt="French Tips" 
-                            className="rounded h-20 w-20 object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = '/assets/VMB_LOGO.png';
-                            }}
-                          />
-                        </div>
+          <CollapsibleCard 
+            title="Ven Me, Baby! Style Options"
+            isOpen={styleOptionsOpen}
+            onToggle={() => setStyleOptionsOpen(!styleOptionsOpen)}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-2">
+                  <div className="flex">
+                    {/* Left Side - Text */}
+                    <div className="w-2/3 text-left pr-2">
+                      <h3 className="font-medium">French Tips / Touch-Up</h3>
+                      <p className="text-xs text-gray-600 mb-2">Classic white tips or quick polish refresh.</p>
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold">$40</span>
+                        <span className="text-xs">30 min</span>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    {/* Right Side - Image */}
+                    <div className="w-1/3 flex items-center justify-end pl-2">
+                      <img 
+                        src="/assets/French_Tips.png" 
+                        alt="French Tips" 
+                        className="rounded h-20 w-20 object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/assets/VMB_LOGO.png';
+                        }}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                  <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
-                    <CardContent className="p-2">
-                      <div className="flex">
-                        {/* Left Side - Text */}
-                        <div className="w-2/3 text-left pr-2">
-                          <h3 className="font-medium">Luxe Gel Manicure</h3>
-                          <p className="text-xs text-gray-600 mb-2">Glossy, chip-free color with lasting shine.</p>
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">$55</span>
-                            <span className="text-xs">45 min</span>
-                          </div>
-                        </div>
-                        {/* Right Side - Image */}
-                        <div className="w-1/3 flex items-center justify-end pl-2">
-                          <img 
-                            src="/assets/Luxe_Gel_Manicure.png" 
-                            alt="Luxe Gel Manicure" 
-                            className="rounded h-20 w-20 object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = '/assets/VMB_LOGO.png';
-                            }}
-                          />
-                        </div>
+              <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-2">
+                  <div className="flex">
+                    {/* Left Side - Text */}
+                    <div className="w-2/3 text-left pr-2">
+                      <h3 className="font-medium">Luxe Gel Manicure</h3>
+                      <p className="text-xs text-gray-600 mb-2">Glossy, chip-free color with lasting shine.</p>
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold">$55</span>
+                        <span className="text-xs">45 min</span>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    {/* Right Side - Image */}
+                    <div className="w-1/3 flex items-center justify-end pl-2">
+                      <img 
+                        src="/assets/Luxe_Gel_Manicure.png" 
+                        alt="Luxe Gel Manicure" 
+                        className="rounded h-20 w-20 object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/assets/VMB_LOGO.png';
+                        }}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                  <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
-                    <CardContent className="p-2">
-                      <div className="flex">
-                        {/* Left Side - Text */}
-                        <div className="w-2/3 text-left pr-2">
-                          <h3 className="font-medium">Sculpted Acrylics</h3>
-                          <p className="text-xs text-gray-600 mb-2">Custom-shaped acrylics for bold length.</p>
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">$70</span>
-                            <span className="text-xs">60 min</span>
-                          </div>
-                        </div>
-                        {/* Right Side - Image */}
-                        <div className="w-1/3 flex items-center justify-end pl-2">
-                          <img 
-                            src="/assets/Sculpted_Acrylics.png" 
-                            alt="Sculpted Acrylics" 
-                            className="rounded h-20 w-20 object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = '/assets/VMB_LOGO.png';
-                            }}
-                          />
-                        </div>
+              <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-2">
+                  <div className="flex">
+                    {/* Left Side - Text */}
+                    <div className="w-2/3 text-left pr-2">
+                      <h3 className="font-medium">Sculpted Acrylics</h3>
+                      <p className="text-xs text-gray-600 mb-2">Custom-shaped acrylics for bold length.</p>
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold">$70</span>
+                        <span className="text-xs">60 min</span>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    {/* Right Side - Image */}
+                    <div className="w-1/3 flex items-center justify-end pl-2">
+                      <img 
+                        src="/assets/Sculpted_Acrylics.png" 
+                        alt="Sculpted Acrylics" 
+                        className="rounded h-20 w-20 object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/assets/VMB_LOGO.png';
+                        }}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                  <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
-                    <CardContent className="p-2">
-                      <div className="flex">
-                        {/* Left Side - Text */}
-                        <div className="w-2/3 text-left pr-2">
-                          <h3 className="font-medium">Glam Me! Custom Design</h3>
-                          <p className="text-xs text-gray-600 mb-2">Fully custom art, gems, 3D extras.</p>
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">$125+</span>
-                            <span className="text-xs">90 min</span>
-                          </div>
-                        </div>
-                        {/* Right Side - Image */}
-                        <div className="w-1/3 flex items-center justify-end pl-2">
-                          <img 
-                            src="/assets/Glam_Me_Custom_Design.png" 
-                            alt="Glam Me! Custom Design" 
-                            className="rounded h-20 w-20 object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = '/assets/VMB_LOGO.png';
-                            }}
-                          />
-                        </div>
+              <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-2">
+                  <div className="flex">
+                    {/* Left Side - Text */}
+                    <div className="w-2/3 text-left pr-2">
+                      <h3 className="font-medium">Glam Me! Custom Design</h3>
+                      <p className="text-xs text-gray-600 mb-2">Fully custom art, gems, 3D extras.</p>
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold">$125+</span>
+                        <span className="text-xs">90 min</span>
                       </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </CardContent>
-            </Collapsible>
-          </Card>
+                    </div>
+                    {/* Right Side - Image */}
+                    <div className="w-1/3 flex items-center justify-end pl-2">
+                      <img 
+                        src="/assets/Glam_Me_Custom_Design.png" 
+                        alt="Glam Me! Custom Design" 
+                        className="rounded h-20 w-20 object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/assets/VMB_LOGO.png';
+                        }}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </CollapsibleCard>
 
           {/* Network Visualization with Madge + Graphviz */}
-          <Card className="mb-6">
-            <CardHeader className="pb-0">
-              <CollapsibleTrigger 
-                className="w-full flex justify-between items-center cursor-pointer"
-                onClick={() => setNetworkVisualizationOpen(!networkVisualizationOpen)}
-              >
+          <CollapsibleCard
+            title="Network Visualization"
+            description="Explore component dependencies and relationships using Madge + Graphviz"
+            isOpen={networkVisualizationOpen}
+            onToggle={() => setNetworkVisualizationOpen(!networkVisualizationOpen)}
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+              {/* Left Side - Controls */}
+              <div className="lg:col-span-1 space-y-4 border-r pr-4">
                 <div>
-                  <CardTitle className="flex items-center">
-                    <NetworkIcon className="h-5 w-5 mr-2 text-pink-500" />
-                    Network Visualization
-                  </CardTitle>
-                  <CardDescription>
-                    Explore component dependencies and relationships using Madge + Graphviz
-                  </CardDescription>
+                  <label className="text-sm font-medium mb-1 block">Layout Algorithm</label>
+                  <Select
+                    value={selectedLayout}
+                    onValueChange={setSelectedLayout}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select layout" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="dot">Hierarchical (dot)</SelectItem>
+                      <SelectItem value="fdp">Force-Directed (fdp)</SelectItem>
+                      <SelectItem value="twopi">Radial (twopi)</SelectItem>
+                      <SelectItem value="circo">Circular (circo)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                {networkVisualizationOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-              </CollapsibleTrigger>
-            </CardHeader>
-            <Collapsible open={networkVisualizationOpen}>
-              <CardContent className="pt-4">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                  {/* Left Side - Controls */}
-                  <div className="lg:col-span-1 space-y-4 border-r pr-4">
-                    <div>
-                      <label className="text-sm font-medium mb-1 block">Layout Algorithm</label>
-                      <Select
-                        value={selectedLayout}
-                        onValueChange={setSelectedLayout}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select layout" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="dot">Hierarchical (dot)</SelectItem>
-                          <SelectItem value="fdp">Force-Directed (fdp)</SelectItem>
-                          <SelectItem value="twopi">Radial (twopi)</SelectItem>
-                          <SelectItem value="circo">Circular (circo)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium mb-1 block">Focus Path (optional)</label>
-                      <Select
-                        value={focusPath}
-                        onValueChange={setFocusPath}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select focus area" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="">Full Application</SelectItem>
-                          <SelectItem value="client/src/components">Components</SelectItem>
-                          <SelectItem value="client/src/pages">Pages</SelectItem>
-                          <SelectItem value="client/src/hooks">Hooks</SelectItem>
-                          <SelectItem value="client/src/contexts">Contexts</SelectItem>
-                          <SelectItem value="server">Server</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-xs text-gray-500 mt-1">Focus the visualization on a specific area of the codebase</p>
-                    </div>
-                    
-                    <Button 
-                      variant="default" 
-                      className="w-full bg-pink-600 hover:bg-pink-700"
-                      disabled={generating}
-                      onClick={async () => {
-                        try {
-                          setGenerating(true);
-                          
-                          const response = await fetch('/api/madge/generate', {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                              layout: selectedLayout,
-                              format: 'svg',
-                              focus: focusPath || undefined,
-                            }),
-                          });
-                          
-                          if (!response.ok) {
-                            const errorData = await response.json();
-                            throw new Error(errorData.error || 'Failed to generate visualization');
-                          }
-                          
-                          const data = await response.json();
-                          
-                          if (data.success) {
-                            setSelectedVisualization(data.path);
-                            toast({
-                              title: "Visualization generated",
-                              description: `Created ${data.filename} (${data.size}KB)`,
-                            });
-                          } else {
-                            throw new Error('Failed to generate visualization');
-                          }
-                        } catch (error: any) {
-                          console.error('Error generating visualization:', error);
-                          toast({
-                            title: "Generation failed",
-                            description: error.message,
-                            variant: "destructive",
-                          });
-                        } finally {
-                          setGenerating(false);
-                        }
-                      }}
-                    >
-                      {generating ? (
-                        <>
-                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Code className="h-4 w-4 mr-2" />
-                          Generate Visualization
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  
-                  {/* Right Side - Visualization Display */}
-                  <div className="lg:col-span-3 min-h-[400px] border rounded-md p-2 flex items-center justify-center relative">
-                    {!selectedVisualization ? (
-                      <div className="text-center text-gray-500 space-y-3">
-                        <NetworkIcon className="h-16 w-16 mx-auto text-gray-300" />
-                        <p>Generate a network visualization to see component relationships</p>
-                      </div>
-                    ) : (
-                      <div className="w-full h-full overflow-auto flex items-center justify-center">
-                        <img 
-                          src={selectedVisualization} 
-                          alt="Network Visualization" 
-                          className="max-w-full"
-                          style={{ maxHeight: '600px' }}
-                        />
-                      </div>
-                    )}
-                    
-                    {selectedVisualization && (
-                      <div className="absolute top-2 right-2 flex gap-2">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <a 
-                                href={selectedVisualization} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
-                              >
-                                <Eye className="h-4 w-4 text-gray-600" />
-                              </a>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Open in new tab</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <a 
-                                href={selectedVisualization} 
-                                download
-                                className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
-                              >
-                                <Download className="h-4 w-4 text-gray-600" />
-                              </a>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Download visualization</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    )}
-                  </div>
+                
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Focus Path (optional)</label>
+                  <Select
+                    value={focusPath}
+                    onValueChange={setFocusPath}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select focus area" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Full Application</SelectItem>
+                      <SelectItem value="client/src/components">Components</SelectItem>
+                      <SelectItem value="client/src/pages">Pages</SelectItem>
+                      <SelectItem value="client/src/hooks">Hooks</SelectItem>
+                      <SelectItem value="client/src/contexts">Contexts</SelectItem>
+                      <SelectItem value="server">Server</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-500 mt-1">Focus the visualization on a specific area of the codebase</p>
                 </div>
-              </CardContent>
-            </Collapsible>
-          </Card>
+                
+                <Button 
+                  variant="default" 
+                  className="w-full bg-pink-600 hover:bg-pink-700"
+                  disabled={generating}
+                  onClick={async () => {
+                    try {
+                      setGenerating(true);
+                      
+                      const response = await fetch('/api/madge/generate', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          layout: selectedLayout,
+                          format: 'svg',
+                          focus: focusPath || undefined,
+                        }),
+                      });
+                      
+                      if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to generate visualization');
+                      }
+                      
+                      const data = await response.json();
+                      
+                      if (data.success) {
+                        setSelectedVisualization(data.path);
+                        toast({
+                          title: "Visualization generated",
+                          description: `Created ${data.filename} (${data.size}KB)`,
+                        });
+                      } else {
+                        throw new Error('Failed to generate visualization');
+                      }
+                    } catch (error: any) {
+                      console.error('Error generating visualization:', error);
+                      toast({
+                        title: "Generation failed",
+                        description: error.message,
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setGenerating(false);
+                    }
+                  }}
+                >
+                  {generating ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Code className="h-4 w-4 mr-2" />
+                      Generate Visualization
+                    </>
+                  )}
+                </Button>
+              </div>
+              
+              {/* Right Side - Visualization Display */}
+              <div className="lg:col-span-3 min-h-[400px] border rounded-md p-2 flex items-center justify-center relative">
+                {!selectedVisualization ? (
+                  <div className="text-center text-gray-500 space-y-3">
+                    <NetworkIcon className="h-16 w-16 mx-auto text-gray-300" />
+                    <p>Generate a network visualization to see component relationships</p>
+                  </div>
+                ) : (
+                  <div className="w-full h-full overflow-auto flex items-center justify-center">
+                    <img 
+                      src={selectedVisualization} 
+                      alt="Network Visualization" 
+                      className="max-w-full"
+                      style={{ maxHeight: '600px' }}
+                    />
+                  </div>
+                )}
+                
+                {selectedVisualization && (
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <a 
+                            href={selectedVisualization} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
+                          >
+                            <Eye className="h-4 w-4 text-gray-600" />
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Open in new tab</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <a 
+                            href={selectedVisualization} 
+                            download
+                            className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
+                          >
+                            <Download className="h-4 w-4 text-gray-600" />
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Download visualization</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CollapsibleCard>
 
           {/* Salon to Client Invitations - Grouped by Salon */}
-          <Card className="mb-6">
-            <CardHeader className="p-4 pb-0">
-              <CollapsibleTrigger 
-                className="w-full flex justify-between items-center cursor-pointer"
-                onClick={() => setInvitationsOpen(!invitationsOpen)}
-              >
-                <CardTitle className="text-xl font-semibold">Salon to Client Invitations</CardTitle>
-                {invitationsOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-              </CollapsibleTrigger>
-            </CardHeader>
-            <Collapsible open={invitationsOpen}>
-              <CardContent className="p-4">
-                {/* Loading state */}
-                {inviteIsLoading && (
-                  <div className="py-8 text-center">
-                    <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
-                    <p className="text-gray-500 text-sm">Loading invitation data...</p>
-                  </div>
-                )}
-                
-                {/* Error state */}
-                {inviteError && !inviteIsLoading && (
-                  <div className="py-8 text-center border rounded-md bg-red-50">
-                    <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
-                    <p className="text-red-700 mb-1">Error loading invitations</p>
-                    <p className="text-sm text-red-600">{inviteError.message}</p>
-                  </div>
-                )}
-                
-                {/* Empty state */}
-                {!inviteIsLoading && !inviteError && (!invitations || invitations.length === 0) && (
-                  <div className="py-8 text-center border rounded-md bg-gray-50">
-                    <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500">No invitations have been sent yet</p>
-                  </div>
-                )}
-                
-                {/* Data grouping */}
-                {!inviteIsLoading && !inviteError && invitations && invitations.length > 0 && (
-                  <div className="space-y-6">
-                    {Object.entries(
-                      invitations.reduce((groups, invite) => {
-                        const salonName = invite.sponsor || invite.salonName || 'Unknown Salon';
-                        if (!groups[salonName]) {
-                          groups[salonName] = [];
-                        }
-                        groups[salonName].push(invite);
-                        return groups;
-                      }, {} as Record<string, Invitation[]>)
-                    ).map(([salonName, salonInvites]) => (
-                    <div key={salonName} className="border rounded-lg overflow-hidden">
-                      {/* Salon Header */}
-                      <div 
-                        className="bg-gradient-to-r from-pink-100 to-pink-50 p-3 flex justify-between items-center cursor-pointer"
-                        onClick={() => {
-                          // Find the salon ID from the first invitation in group
-                          const firstInvite = salonInvites[0];
-                          if (firstInvite && firstInvite.salonId) {
-                            setLocation(`/salon/${firstInvite.salonId}`);
+          <CollapsibleCard
+            title="Salon to Client Invitations" 
+            isOpen={invitationsOpen}
+            onToggle={() => setInvitationsOpen(!invitationsOpen)}
+          >
+            {/* Loading state */}
+            {inviteIsLoading && (
+              <div className="py-8 text-center">
+                <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
+                <p className="text-gray-500 text-sm">Loading invitation data...</p>
+              </div>
+            )}
+            
+            {/* Error state */}
+            {inviteError && !inviteIsLoading && (
+              <div className="py-8 text-center border rounded-md bg-red-50">
+                <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
+                <p className="text-red-700 mb-1">Error loading invitations</p>
+                <p className="text-sm text-red-600">{inviteError.message}</p>
+              </div>
+            )}
+            
+            {/* Empty state */}
+            {!inviteIsLoading && !inviteError && (!invitations || invitations.length === 0) && (
+              <div className="py-8 text-center border rounded-md bg-gray-50">
+                <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
+                <p className="text-gray-500">No invitations have been sent yet</p>
+              </div>
+            )}
+            
+            {/* Data grouping */}
+            {!inviteIsLoading && !inviteError && invitations && invitations.length > 0 && (
+              <div className="space-y-6">
+                {Object.entries(
+                  invitations.reduce((groups, invite) => {
+                    const salonName = invite.sponsor || invite.salonName || 'Unknown Salon';
+                    if (!groups[salonName]) {
+                      groups[salonName] = [];
+                    }
+                    groups[salonName].push(invite);
+                    return groups;
+                  }, {} as Record<string, Invitation[]>)
+                ).map(([salonName, salonInvites]) => (
+                <div key={salonName} className="border rounded-lg overflow-hidden">
+                  {/* Salon Header */}
+                  <div 
+                    className="bg-gradient-to-r from-pink-100 to-pink-50 p-3 flex justify-between items-center cursor-pointer"
+                    onClick={() => {
+                      // Find the salon ID from the first invitation in group
+                      const firstInvite = salonInvites[0];
+                      if (firstInvite && firstInvite.salonId) {
+                        setLocation(`/salon/${firstInvite.salonId}`);
+                      }
+                    }}
+                  >
+                    <h3 className="font-bold text-pink-700">{salonName}</h3>
+                    <div className="flex items-center">
+                      <Badge className="mr-2 bg-pink-100 text-pink-700 border-pink-200">
+                        {salonInvites.length} Invitations
+                      </Badge>
+                      <Link 
+                        to={`/salon/${salonInvites[0]?.salonId}`}
+                        className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent triggering the salon header click
+                          if (salonInvites[0]?.salonId) {
+                            setLocation(`/salon/${salonInvites[0].salonId}`);
                           }
                         }}
                       >
-                        <h3 className="font-bold text-pink-700">{salonName}</h3>
-                        <div className="flex items-center">
-                          <Badge className="mr-2 bg-pink-100 text-pink-700 border-pink-200">
-                            {salonInvites.length} Invitations
-                          </Badge>
-                          <Link 
-                            to={`/salon/${salonInvites[0]?.salonId}`}
-                            className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center"
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevent triggering the salon header click
-                              if (salonInvites[0]?.salonId) {
-                                setLocation(`/salon/${salonInvites[0].salonId}`);
-                              }
-                            }}
-                          >
-                            <span className="hidden md:inline mr-1">View Salon</span>
-                            <ExternalLinkIcon className="h-3 w-3" />
-                          </Link>
-                        </div>
-                      </div>
-                      
-                      {/* Invitations Table */}
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
-                          <thead className="bg-gray-50 text-gray-600">
-                            <tr>
-                              <th className="py-2 px-4">Name</th>
-                              <th className="py-2 px-4">Email</th>
-                              <th className="py-2 px-4">Phone</th>
-                              <th className="py-2 px-4">Status</th>
-                              <th className="py-2 px-4">Date</th>
-                              <th className="py-2 px-4 text-right">Page</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y">
-                            {salonInvites.map((invitation) => (
-                              <tr key={invitation.id} className="hover:bg-gray-50">
-                                <td className="py-2 px-4">{invitation.name}</td>
-                                <td className="py-2 px-4">{invitation.email}</td>
-                                <td className="py-2 px-4">{formatPhoneNumber(invitation.phone)}</td>
-                                <td className="py-2 px-4">
-                                  <span className={`px-2 py-1 rounded-full text-xs font-medium
-                                    ${invitation.status === 'pending' ? 'bg-yellow-50 text-yellow-700' : ''}
-                                    ${invitation.status === 'style_selected' ? 'bg-green-50 text-green-700' : ''}
-                                    ${invitation.status === 'completed' ? 'bg-blue-50 text-blue-700' : ''}
-                                    ${!invitation.status ? 'bg-gray-50 text-gray-700' : ''}
-                                  `}>
-                                    {invitation.status || 'pending'}
-                                  </span>
-                                </td>
-                                <td className="py-2 px-4">{new Date(invitation.createdAt).toLocaleDateString()}</td>
-                                <td className="py-2 px-4 text-right">
-                                  {/* Check for matching client first */}
-                                  {(() => {
-                                    // Try to find matching client
-                                    const clientId = findClientIdForInvitation(invitation, clients);
-                                    
-                                    if (clientId) {
-                                      // Client exists - link to client dashboard
-                                      return (
-                                        <Link 
-                                          to={`/client/${clientId}`}
-                                          className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
-                                          onClick={() => {
-                                            // Navigate to client dashboard page
-                                            setLocation(`/client/${clientId}`);
-                                          }}
-                                        >
-                                          <ExternalLinkIcon className="h-4 w-4" />
-                                          View Client Page
-                                        </Link>
-                                      );
-                                    } else {
-                                      // No matching client - link to invitation
-                                      return (
-                                        <Link 
-                                          to={`/invitation/${invitation.inviteHash}`}
-                                          className="inline-flex items-center text-gray-500 font-medium gap-1 text-sm hover:text-gray-700 cursor-pointer"
-                                          onClick={() => {
-                                            // Navigate to invitation page
-                                            setLocation(`/invitation/${invitation.inviteHash}`);
-                                          }}
-                                        >
-                                          <ExternalLinkIcon className="h-4 w-4" />
-                                          View Invite
-                                        </Link>
-                                      );
-                                    }
-                                  })()}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                        <span className="hidden md:inline mr-1">View Salon</span>
+                        <ExternalLinkIcon className="h-3 w-3" />
+                      </Link>
                     </div>
-                  ))}
+                  </div>
+                  
+                  {/* Invitations Table */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-gray-50 text-gray-600">
+                        <tr>
+                          <th className="py-2 px-4">Name</th>
+                          <th className="py-2 px-4">Email</th>
+                          <th className="py-2 px-4">Phone</th>
+                          <th className="py-2 px-4">Status</th>
+                          <th className="py-2 px-4">Date</th>
+                          <th className="py-2 px-4 text-right">Page</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {salonInvites.map((invitation) => (
+                          <tr key={invitation.id} className="hover:bg-gray-50">
+                            <td className="py-2 px-4">{invitation.name}</td>
+                            <td className="py-2 px-4">{invitation.email}</td>
+                            <td className="py-2 px-4">{formatPhoneNumber(invitation.phone)}</td>
+                            <td className="py-2 px-4">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium
+                                ${invitation.status === 'pending' ? 'bg-yellow-50 text-yellow-700' : ''}
+                                ${invitation.status === 'style_selected' ? 'bg-green-50 text-green-700' : ''}
+                                ${invitation.status === 'completed' ? 'bg-blue-50 text-blue-700' : ''}
+                                ${!invitation.status ? 'bg-gray-50 text-gray-700' : ''}
+                              `}>
+                                {invitation.status || 'pending'}
+                              </span>
+                            </td>
+                            <td className="py-2 px-4">{new Date(invitation.createdAt).toLocaleDateString()}</td>
+                            <td className="py-2 px-4 text-right">
+                              {/* Check for matching client first */}
+                              {(() => {
+                                // Try to find matching client
+                                const clientId = findClientIdForInvitation(invitation, clients);
+                                
+                                if (clientId) {
+                                  // Client exists - link to client dashboard
+                                  return (
+                                    <Link 
+                                      to={`/client/${clientId}`}
+                                      className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
+                                      onClick={() => {
+                                        // Navigate to client dashboard page
+                                        setLocation(`/client/${clientId}`);
+                                      }}
+                                    >
+                                      <ExternalLinkIcon className="h-4 w-4" />
+                                      View Client Page
+                                    </Link>
+                                  );
+                                } else {
+                                  // No matching client - link to invitation
+                                  return (
+                                    <Link 
+                                      to={`/invitation/${invitation.inviteHash}`}
+                                      className="inline-flex items-center text-gray-500 font-medium gap-1 text-sm hover:text-gray-700 cursor-pointer"
+                                      onClick={() => {
+                                        // Navigate to invitation page
+                                        setLocation(`/invitation/${invitation.inviteHash}`);
+                                      }}
+                                    >
+                                      <ExternalLinkIcon className="h-4 w-4" />
+                                      View Invite
+                                    </Link>
+                                  );
+                                }
+                              })()}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              )}
-              </CardContent>
-            </Collapsible>
-          </Card>
+              ))}
+            </div>
+          )}
+          </CollapsibleCard>
 
           <div className="grid gap-6">
             {/* Clients Table */}
-            <Card className="mb-6">
-              <CardHeader className="p-4 pb-0">
-                <CollapsibleTrigger 
-                  className="w-full flex justify-between items-center cursor-pointer"
-                  onClick={() => setClientsOpen(!clientsOpen)}
-                >
-                  <CardTitle className="text-xl font-semibold">Current Clients</CardTitle>
-                  {clientsOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                </CollapsibleTrigger>
-              </CardHeader>
-              <Collapsible open={clientsOpen}>
-                <CardContent className="p-4">
-                  {/* Loading state */}
-                  {clientIsLoading && (
-                    <div className="py-8 text-center">
-                      <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
-                      <p className="text-gray-500 text-sm">Loading client data...</p>
-                    </div>
-                  )}
-                  
-                  {/* Error state */}
-                  {clientError && !clientIsLoading && (
-                    <div className="py-8 text-center border rounded-md bg-red-50">
-                      <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
-                      <p className="text-red-700 mb-1">Error loading clients</p>
-                      <p className="text-sm text-red-600">{clientError.message}</p>
-                    </div>
-                  )}
-                  
-                  {/* Empty state */}
-                  {!clientIsLoading && !clientError && (!clients || clients.filter((client: Client) => client.isCurrentClient).length === 0) && (
-                    <div className="py-8 text-center border rounded-md bg-gray-50">
-                      <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-500">No active clients found</p>
-                    </div>
-                  )}
-                  
-                  {/* Data table */}
-                  {!clientIsLoading && !clientError && clients && clients.filter((client: Client) => client.isCurrentClient).length > 0 && (
-                  <ScrollArea className="h-[300px]">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="max-h-[30px]">
-                          <TableHead className="max-h-[30px] py-1">Name</TableHead>
-                          <TableHead className="max-h-[30px] py-1">Email</TableHead>
-                          <TableHead className="max-h-[30px] py-1">Phone</TableHead>
-                          <TableHead className="max-h-[30px] py-1">Salon</TableHead>
-                          <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {clients.filter((client: Client) => client.isCurrentClient).map((client: Client) => (
-                          <TableRow
-                            key={client.id}
-                            className="hover:bg-gray-50 h-[28px]"
-                          >
-                            {/* Name with truncation */}
-                            <TableCell className="py-0">
-                              {client.name.length > 12 ? (
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <span className="cursor-help">
-                                        {client.name.substring(0, 10)}...
-                                      </span>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>{client.name}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              ) : (
-                                client.name
-                              )}
-                            </TableCell>
-                            
-                            {/* Email with truncation */}
-                            <TableCell className="py-0">
-                              {client.email && client.email.length > 15 ? (
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <span className="cursor-help">
-                                        {client.email.substring(0, 12)}...
-                                      </span>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>{client.email}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              ) : (
-                                client.email
-                              )}
-                            </TableCell>
-                            
-                            {/* Phone with truncation */}
-                            <TableCell className="py-0">
+            <CollapsibleCard
+              title="Current Clients"
+              isOpen={clientsOpen}
+              onToggle={() => setClientsOpen(!clientsOpen)}
+            >
+              {/* Loading state */}
+              {clientIsLoading && (
+                <div className="py-8 text-center">
+                  <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
+                  <p className="text-gray-500 text-sm">Loading client data...</p>
+                </div>
+              )}
+              
+              {/* Error state */}
+              {clientError && !clientIsLoading && (
+                <div className="py-8 text-center border rounded-md bg-red-50">
+                  <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
+                  <p className="text-red-700 mb-1">Error loading clients</p>
+                  <p className="text-sm text-red-600">{clientError.message}</p>
+                </div>
+              )}
+              
+              {/* Empty state */}
+              {!clientIsLoading && !clientError && (!clients || clients.filter((client: Client) => client.isCurrentClient).length === 0) && (
+                <div className="py-8 text-center border rounded-md bg-gray-50">
+                  <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500">No active clients found</p>
+                </div>
+              )}
+              
+              {/* Data table */}
+              {!clientIsLoading && !clientError && clients && clients.filter((client: Client) => client.isCurrentClient).length > 0 && (
+                <ScrollArea className="h-[300px]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="max-h-[30px]">
+                        <TableHead className="max-h-[30px] py-1">Name</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Email</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Phone</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Salon</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {clients.filter((client: Client) => client.isCurrentClient).map((client: Client) => (
+                        <TableRow
+                          key={client.id}
+                          className="hover:bg-gray-50 h-[28px]"
+                        >
+                          {/* Name with truncation */}
+                          <TableCell className="py-0">
+                            {client.name.length > 12 ? (
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <span className="cursor-help">
-                                      {client.phone.substring(0, 7)}•••
+                                      {client.name.substring(0, 10)}...
                                     </span>
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                    <p>{client.phone}</p>
+                                    <p>{client.name}</p>
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
-                            </TableCell>
-                            
-                            {/* Salon name with truncation */}
-                            <TableCell className="py-0">
-                              {client.salonName && client.salonName.length > 10 ? (
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <span className="cursor-help">
-                                        {client.salonName.substring(0, 8)}...
-                                      </span>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>{client.salonName}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              ) : (
-                                client.salonName || 'N/A'
-                              )}
-                            </TableCell>
-                            
-                            {/* Actions */}
-                            <TableCell className="py-0 text-right">
-                              <div className="flex justify-end gap-1">
+                            ) : (
+                              client.name
+                            )}
+                          </TableCell>
+                          
+                          {/* Email with truncation */}
+                          <TableCell className="py-0">
+                            {client.email && client.email.length > 15 ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help">
+                                      {client.email.substring(0, 12)}...
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{client.email}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              client.email
+                            )}
+                          </TableCell>
+                          
+                          {/* Phone with truncation */}
+                          <TableCell className="py-0">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="cursor-help">
+                                    {client.phone.substring(0, 7)}•••
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{client.phone}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </TableCell>
+                          
+                          {/* Salon name with truncation */}
+                          <TableCell className="py-0">
+                            {client.salonName && client.salonName.length > 10 ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help">
+                                      {client.salonName.substring(0, 8)}...
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{client.salonName}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              client.salonName || 'N/A'
+                            )}
+                          </TableCell>
+                          
+                          {/* Actions */}
+                          <TableCell className="py-0 text-right">
+                            <div className="flex justify-end gap-1">
+                              <Link 
+                                to={`/client/${client.id}`}
+                                onClick={() => setLocation(`/client/${client.id}`)}
+                                className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]"
+                              >
+                                Client
+                              </Link>
+                              {client.salonId && (
                                 <Link 
-                                  to={`/client/${client.id}`}
-                                  onClick={() => setLocation(`/client/${client.id}`)}
-                                  className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]"
-                                >
-                                  Client
-                                </Link>
-                                {client.salonId && (
-                                  <Link 
-                                    to={`/salon/${client.salonId}`}
-                                    onClick={() => setLocation(`/salon/${client.salonId}`)}
-                                    className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200"
-                                  >
-                                    Salon
-                                  </Link>
-                                )}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </ScrollArea>
-                )}
-                </CardContent>
-              </Collapsible>
-            </Card>
-
-            {/* Salons Table */}
-            <Card className="mb-6">
-              <CardHeader className="p-4 pb-0">
-                <CollapsibleTrigger 
-                  className="w-full flex justify-between items-center cursor-pointer"
-                  onClick={() => setActivityLogsOpen(!activityLogsOpen)}
-                >
-                  <CardTitle className="text-xl font-semibold">Salon Directory</CardTitle>
-                  {activityLogsOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                </CollapsibleTrigger>
-              </CardHeader>
-              <Collapsible open={activityLogsOpen}>
-                <CardContent className="p-4">
-                  {/* Loading state */}
-                  {salonIsLoading && (
-                    <div className="py-8 text-center">
-                      <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
-                      <p className="text-gray-500 text-sm">Loading salon data...</p>
-                    </div>
-                  )}
-                  
-                  {/* Error state */}
-                  {salonError && !salonIsLoading && (
-                    <div className="py-8 text-center border rounded-md bg-red-50">
-                      <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
-                      <p className="text-red-700 mb-1">Error loading salons</p>
-                      <p className="text-sm text-red-600">{salonError.message}</p>
-                    </div>
-                  )}
-                  
-                  {/* Empty state */}
-                  {!salonIsLoading && !salonError && (!salons || salons.length === 0) && (
-                    <div className="py-8 text-center border rounded-md bg-gray-50">
-                      <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-500">No salons found</p>
-                    </div>
-                  )}
-                  
-                  {/* Data table */}
-                  {!salonIsLoading && !salonError && salons && salons.length > 0 && (
-                  <ScrollArea className="h-[300px]">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="max-h-[30px]">
-                          <TableHead className="max-h-[30px] py-1">ID</TableHead>
-                          <TableHead className="max-h-[30px] py-1">Name</TableHead>
-                          <TableHead className="max-h-[30px] py-1">Owner</TableHead>
-                          <TableHead className="max-h-[30px] py-1">Email</TableHead>
-                          <TableHead className="max-h-[30px] py-1">Phone</TableHead>
-                          <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {salons.map((salon: Salon) => (
-                          <TableRow
-                            key={salon.id}
-                            className="hover:bg-gray-50 h-[30px]"
-                          >
-                            <TableCell className="py-0">{salon.id}</TableCell>
-                            <TableCell className="py-0">{salon.name}</TableCell>
-                            <TableCell className="py-0">{salon.ownerName}</TableCell>
-                            <TableCell className="py-0">{salon.email}</TableCell>
-                            <TableCell className="py-0">{salon.phone}</TableCell>
-                            <TableCell className="py-0 text-right">
-                              <div className="flex justify-end gap-1">
-                                <Link 
-                                  to={`/salon/${salon.id}`}
-                                  onClick={() => setLocation(`/salon/${salon.id}`)}
+                                  to={`/salon/${client.salonId}`}
+                                  onClick={() => setLocation(`/salon/${client.salonId}`)}
                                   className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200"
                                 >
-                                  Salon Page
+                                  Salon
                                 </Link>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </ScrollArea>
-                )}
-                </CardContent>
-              </Collapsible>
-            </Card>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              )}
+            </CollapsibleCard>
+
+            {/* Salons Table */}
+            <CollapsibleCard
+              title="Salon Directory"
+              isOpen={activityLogsOpen}
+              onToggle={() => setActivityLogsOpen(!activityLogsOpen)}
+            >
+              {/* Loading state */}
+              {salonIsLoading && (
+                <div className="py-8 text-center">
+                  <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
+                  <p className="text-gray-500 text-sm">Loading salon data...</p>
+                </div>
+              )}
+              
+              {/* Error state */}
+              {salonError && !salonIsLoading && (
+                <div className="py-8 text-center border rounded-md bg-red-50">
+                  <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
+                  <p className="text-red-700 mb-1">Error loading salons</p>
+                  <p className="text-sm text-red-600">{salonError.message}</p>
+                </div>
+              )}
+              
+              {/* Empty state */}
+              {!salonIsLoading && !salonError && (!salons || salons.length === 0) && (
+                <div className="py-8 text-center border rounded-md bg-gray-50">
+                  <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500">No salons found</p>
+                </div>
+              )}
+              
+              {/* Data table */}
+              {!salonIsLoading && !salonError && salons && salons.length > 0 && (
+                <ScrollArea className="h-[300px]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="max-h-[30px]">
+                        <TableHead className="max-h-[30px] py-1">ID</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Name</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Owner</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Email</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Phone</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {salons.map((salon: Salon) => (
+                        <TableRow
+                          key={salon.id}
+                          className="hover:bg-gray-50 h-[30px]"
+                        >
+                          <TableCell className="py-0">{salon.id}</TableCell>
+                          <TableCell className="py-0">{salon.name}</TableCell>
+                          <TableCell className="py-0">{salon.ownerName}</TableCell>
+                          <TableCell className="py-0">{salon.email}</TableCell>
+                          <TableCell className="py-0">{salon.phone}</TableCell>
+                          <TableCell className="py-0 text-right">
+                            <div className="flex justify-end gap-1">
+                              <Link 
+                                to={`/salon/${salon.id}`}
+                                onClick={() => setLocation(`/salon/${salon.id}`)}
+                                className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200"
+                              >
+                                Salon Page
+                              </Link>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              )}
+            </CollapsibleCard>
           </div>
         </div>
       </main>
