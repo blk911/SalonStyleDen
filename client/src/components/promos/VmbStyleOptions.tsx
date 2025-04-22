@@ -888,20 +888,25 @@ export function VmbStyleOptions({
                             <div className="text-[8px] text-gray-500">Payment options coming soon</div>
                           </div>
                           
-                          {/* SEND GIFT button */}
-                          <button 
-                            type="button"
-                            className="w-full bg-green-500 hover:bg-green-600 text-white py-1.5 rounded transition-colors text-xs mt-3"
-                            onClick={() => {
-                              toast({
-                                title: "Gift Sent!",
-                                description: `Message sent to ${recipientName}`,
-                                variant: "default"
-                              });
-                            }}
-                          >
-                            SEND GIFT
-                          </button>
+                          {/* SEND GIFT button - only shows when gift is approved */}
+                          {giftApproved && (
+                            <button 
+                              type="button"
+                              className="w-full bg-green-500 hover:bg-green-600 text-white py-1.5 rounded transition-colors text-xs mt-3"
+                              onClick={() => {
+                                // Show confirmation dialog
+                                if (window.confirm(`Are you sure you want to send this gift to ${recipientName}?`)) {
+                                  toast({
+                                    title: "Gift Sent!",
+                                    description: `Message sent to ${recipientName}`,
+                                    variant: "default"
+                                  });
+                                }
+                              }}
+                            >
+                              SEND GIFT
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
