@@ -187,7 +187,7 @@ export function VmbStyleOptions({
     // Show success toast
     toast({
       title: "Style Selected!",
-      description: `You've selected ${style.name}`,
+      description: "Now you can start your Design!",
       variant: "default"
     });
     
@@ -237,7 +237,7 @@ export function VmbStyleOptions({
       // Show a more helpful message to guide the user to the next step
       toast({
         title: "Gift Options Ready!",
-        description: "Your style has been selected. You can now proceed with gift options.",
+        description: "Now you can start your Design!",
         variant: "default"
       });
       return;
@@ -331,7 +331,7 @@ export function VmbStyleOptions({
       
       toast({
         title: "Style Saved!",
-        description: `You've selected ${selectedStyle.name}`,
+        description: "Now you can start your Design!",
         variant: "default"
       });
       return;
@@ -457,7 +457,14 @@ export function VmbStyleOptions({
                       <h3 className="font-medium text-compact text-center">Your Invitation Design</h3>
                       <div className="flex items-center justify-center h-32 mt-2">
                         <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-full flex items-center justify-center">
-                          <p className="text-mini text-gray-500">Personalize your invitation with a message</p>
+                          <div className="flex flex-col items-center justify-center w-full h-full">
+                            <p className="text-mini text-gray-500">Personalize your invitation with a message</p>
+                            {confirmedStyle && (
+                              <div className="mt-2 text-xs text-pink-500 font-medium">
+                                Selected: {confirmedStyle.name}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
