@@ -95,6 +95,7 @@ export function VmbStyleOptions({
   const [invitationMessage, setInvitationMessage] = useState(`Hi Bill, I would love a fresh set. My stylist has an opening for a Sculpted Acrylics, will you Ven Me, Baby! ❤️❤️❤️ Tammy`);
   const [signature, setSignature] = useState("Tammy");
   const [invitationConfirmed, setInvitationConfirmed] = useState(false);
+  const [giftApproved, setGiftApproved] = useState(false);
   const personalMessageRef = useRef<HTMLInputElement>(null); // Reference for personal message input
   const { toast } = useToast();
   const [, navigate] = useLocation();
@@ -796,27 +797,17 @@ export function VmbStyleOptions({
                   <div className="border rounded px-2 py-2 border-pink-200 bg-pink-50">
                     {confirmedStyle ? (
                     <div className="flex flex-col md:flex-row">
-                      {/* Left side - Gift Request Form */}
+                      {/* Left side - Ven Me, Baby! Reminders */}
                       <div className="w-full md:w-1/2 text-left pr-2 md:border-r border-pink-100 pb-2 md:pb-0">
-                        <h3 className="font-medium text-compact text-center">Gift Request Details</h3>
+                        <h3 className="font-medium text-compact text-center">Ven Me, Baby! Reminders!</h3>
                         <div className="flex flex-col space-y-3 mt-2">
-                          <div className="space-y-1">
-                            <label className="text-mini text-gray-700">Personal Message</label>
-                            <input 
-                              ref={personalMessageRef}
-                              type="text"
-                              placeholder="Add a personal message"
-                              className="w-full p-2 text-xs border border-pink-100 rounded"
-                            />
-                          </div>
-                          
-                          <div className="space-y-1">
-                            <label className="text-mini text-gray-700">Recipient Name</label>
-                            <input 
-                              type="text"
-                              placeholder="Recipient's name"
-                              className="w-full p-2 text-xs border border-pink-100 rounded"
-                            />
+                          <div className="p-2 bg-white border border-pink-100 rounded text-xs">
+                            <ul className="list-disc pl-4 pt-1 text-gray-700 space-y-2">
+                              <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+                              <li>Praesent efficitur, odio at commodo tempus, nibh enim.</li>
+                              <li>Nullam vitae eros in nisi varius vestibulum et vel urna.</li>
+                              <li>Suspendisse nec dui eu nisi tincidunt finibus vel et libero.</li>
+                            </ul>
                           </div>
                           
                           <div className="p-2 bg-white border border-pink-100 rounded text-xs text-pink-700">
@@ -827,6 +818,21 @@ export function VmbStyleOptions({
                               <li>Client ID: <span className="font-bold">Anonymous</span></li>
                             </ul>
                           </div>
+                          
+                          <button 
+                            type="button"
+                            className="w-full bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors text-xs mt-2"
+                            onClick={() => {
+                              setGiftApproved(true);
+                              toast({
+                                title: "Gift Approved",
+                                description: "You can now send your gift invitation",
+                                variant: "default"
+                              });
+                            }}
+                          >
+                            APPROVE
+                          </button>
                         </div>
                       </div>
                       
