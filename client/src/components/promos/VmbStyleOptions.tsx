@@ -603,6 +603,24 @@ export function VmbStyleOptions({
                             >
                               CONFIRM
                             </button>
+                            
+                            {invitationConfirmed && (
+                              <div className="mt-2">
+                                <button 
+                                  type="button"
+                                  className="w-full bg-blue-500 hover:bg-blue-600 text-white py-1.5 rounded transition-colors text-xs"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Design Preview",
+                                      description: "Invitation preview being prepared...",
+                                      variant: "default"
+                                    });
+                                  }}
+                                >
+                                  Preview Design
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
                         
@@ -645,23 +663,7 @@ export function VmbStyleOptions({
                                 />
                               </div>
                             </div>
-                            {invitationConfirmed && (
-                              <div className="mt-3 flex justify-center">
-                                <button 
-                                  type="button"
-                                  className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-4 rounded transition-colors text-[10px]"
-                                  onClick={() => {
-                                    toast({
-                                      title: "Design Preview",
-                                      description: "Invitation preview being prepared...",
-                                      variant: "default"
-                                    });
-                                  }}
-                                >
-                                  Preview Design
-                                </button>
-                              </div>
-                            )}
+                            
                           </div>
                         ) : (
                           <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-32 flex items-center justify-center">
