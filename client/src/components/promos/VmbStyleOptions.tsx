@@ -927,29 +927,11 @@ export function VmbStyleOptions({
                                 
                                 // Show confirmation dialog
                                 if (window.confirm(`Are you sure you want to send this gift to ${finalName}?`)) {
-                                  // In a real implementation, we would send this data to the server
-                                  // For now, we'll just show a success message and simulate a completed invitation
-                                  
                                   toast({
                                     title: "Gift Sent!",
                                     description: `Message sent to ${finalName} at ${recipientContact}`,
                                     variant: "default"
                                   });
-                                  
-                                  // Give the user a moment to see the success message
-                                  setTimeout(() => {
-                                    // Return to the appropriate dashboard based on context
-                                    if (clientId) {
-                                      // Client dashboard
-                                      navigate(`/client/${clientId}`);
-                                    } else if (salonId) {
-                                      // Salon dashboard
-                                      navigate(`/salon/${salonId}`);
-                                    } else {
-                                      // Default to salon dashboard 42 if no specific context
-                                      navigate('/salon/42');
-                                    }
-                                  }, 1500);
                                 }
                               }}
                             >
