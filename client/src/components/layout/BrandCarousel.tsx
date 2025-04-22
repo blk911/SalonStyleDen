@@ -1,10 +1,32 @@
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Check } from "lucide-react";
 import LogoText from '../shared/LogoText'; // Added import statement
+import { ReactNode } from "react";
 
-const carouselItems = [
+interface CardContentItem {
+  text: string;
+  isBold: boolean;
+  suffix?: string;
+  textComponent?: ReactNode;
+}
+
+type CardContent = 
+  | CardContentItem[]
+  | Array<CardContentItem[]>
+  | Array<[string, string, string]>;
+
+interface CarouselCard {
+  title: string;
+  titleComponent?: ReactNode;
+  titleSuffix?: string;
+  content: CardContent;
+}
+
+const carouselItems: CarouselCard[] = [
   {
     title: 'The Power of Connection',
+    titleComponent: null,
+    titleSuffix: '',
     content: [
       { text: "He's been fishing for attention", isBold: true, suffix: " — you're inviting connection." },
       { text: "When he sees the message,", isBold: true, suffix: " he's thinking about you." },
@@ -15,11 +37,14 @@ const carouselItems = [
   },
   {
     title: "VMB Promos help your business!",
+    titleComponent: null,
+    titleSuffix: '',
     content: [
-      { text: "Prepaid Appointments", isBold: true, suffix: " = Revenue Locked In" },
-      { text: "Clients Feel Seen", isBold: true, suffix: " + Empowered" },
-      { text: "Men Get an Elegant Assist", isBold: true },
-      { text: "You Become the Salon That \"Gets It\"", isBold: true }
+      { text: "Prepaid appointments", isBold: true, suffix: " = guaranteed income" },
+      { text: "Recurring revenue", isBold: true, suffix: " = money in your pocket" },
+      { text: "No-shows and ghost bookings?", isBold: true, suffix: " Gone." },
+      { text: "Turn gift moments", isBold: true, suffix: " into client loyalty" },
+      { text: "Build stronger, more personal", isBold: true, suffix: " client connections" }
     ]
   },
   {
@@ -92,7 +117,8 @@ export default function BrandCarousel() {
                 </h3>
                 <div className="space-y-6 flex-grow">
                   {item.content.map((line, i) => {
-                    if (Array.isArray(line) && line.length === 3) {
+                    // Handle string arrays with 3 elements (special format)
+                    if (Array.isArray(line) && line.length === 3 && typeof line[0] === 'string') {
                       return (
                         <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
                           {line[0]}
@@ -101,7 +127,11 @@ export default function BrandCarousel() {
                         </p>
                       );
                     }
-                    if (Array.isArray(line)) {
+                    
+                    // Handle arrays of CardContentItem objects
+                    if (Array.isArray(line) && line.length === 2 && 
+                        typeof line[0] === 'object' && 'text' in line[0] && 
+                        typeof line[1] === 'object' && 'text' in line[1]) {
                       return (
                         <div key={i} className="mb-4">
                           <p className="text-lg font-bold text-gray-700 leading-relaxed tracking-wide mb-1">
@@ -113,14 +143,23 @@ export default function BrandCarousel() {
                         </div>
                       );
                     }
-                    if (typeof line === 'object' && line.text) {
+                    
+                    // Handle CardContentItem objects
+                    if (!Array.isArray(line) && typeof line === 'object' && 'text' in line) {
                       return (
                         <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
-                          {line.isBold ? <span className="font-bold">{line.text}{line.textComponent}</span> : line.text}
-                          {line.suffix && line.suffix}
+                          {line.isBold ? (
+                            <span className="font-bold">
+                              {line.text}
+                              {line.textComponent}
+                            </span>
+                          ) : line.text}
+                          {line.suffix}
                         </p>
                       );
                     }
+                    
+                    // Handle string content (unlikely with our typed structure but kept for legacy)
                     if (typeof line === 'string') {
                       if (line.startsWith('✔️')) {
                         return (
@@ -132,6 +171,7 @@ export default function BrandCarousel() {
                       }
                       return <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">{line}</p>;
                     }
+                    
                     return null;
                   })}
                 </div>
