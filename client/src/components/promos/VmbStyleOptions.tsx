@@ -471,6 +471,17 @@ export function VmbStyleOptions({
                               placeholder="Who is your Ven Me, Baby!: Enter name"
                               className="w-full p-1.5 text-[10px] border border-pink-100 rounded"
                               value={recipientName}
+                              onKeyDown={(e) => {
+                                // If Enter is pressed, move to next field (Phone/Email)
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  // Find the next input which is the phone/email field
+                                  const nextField = e.currentTarget.parentElement?.querySelector('input[placeholder="Phone: 555-555-5555 OR Email: you@example.com"]');
+                                  if (nextField instanceof HTMLElement) {
+                                    nextField.focus();
+                                  }
+                                }
+                              }}
                               onChange={(e) => {
                                 const newName = e.target.value;
                                 setRecipientName(newName);
@@ -519,6 +530,17 @@ export function VmbStyleOptions({
                                 
                                 setRecipientContact(formattedInput);
                               }}
+                              onKeyDown={(e) => {
+                                // If Enter is pressed, move to next field (SIGN HERE)
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  // Find the next input which is the signature field
+                                  const nextField = e.currentTarget.parentElement?.querySelector('input[placeholder="SIGN HERE!"]');
+                                  if (nextField instanceof HTMLElement) {
+                                    nextField.focus();
+                                  }
+                                }
+                              }}
                             />
                             
                             <input 
@@ -526,6 +548,17 @@ export function VmbStyleOptions({
                               placeholder="SIGN HERE!"
                               className="w-full p-1.5 text-[10px] border border-pink-100 rounded"
                               value={signature}
+                              onKeyDown={(e) => {
+                                // If Enter is pressed, move to next field (message textarea)
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  // Find the next input which is the textarea
+                                  const nextField = e.currentTarget.parentElement?.querySelector('textarea');
+                                  if (nextField instanceof HTMLElement) {
+                                    nextField.focus();
+                                  }
+                                }
+                              }}
                               onChange={(e) => {
                                 const newSignature = e.target.value;
                                 setSignature(newSignature);
