@@ -89,6 +89,7 @@ export function VmbStyleOptions({
   const [recipientContact, setRecipientContact] = useState("");
   const [invitationMessage, setInvitationMessage] = useState(`Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`);
   const [signature, setSignature] = useState("");
+  const [invitationConfirmed, setInvitationConfirmed] = useState(false);
   const { toast } = useToast();
   const [, navigate] = useLocation();
   
@@ -588,19 +589,42 @@ export function VmbStyleOptions({
                               onChange={(e) => setInvitationMessage(e.target.value)}
                             />
                             
-                            <button 
-                              type="button"
-                              className="w-full bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors text-xs"
-                              onClick={() => {
-                                toast({
-                                  title: "Invitation Confirmed",
-                                  description: `Invitation sent to ${recipientName}`,
-                                  variant: "default"
-                                });
-                              }}
-                            >
-                              CONFIRM
-                            </button>
+                            {!invitationConfirmed ? (
+                              <button 
+                                type="button"
+                                className="w-full bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors text-xs"
+                                onClick={() => {
+                                  setInvitationConfirmed(true);
+                                  toast({
+                                    title: "Invitation Confirmed",
+                                    description: `Invitation sent to ${recipientName}`,
+                                    variant: "default"
+                                  });
+                                }}
+                              >
+                                CONFIRM
+                              </button>
+                            ) : (
+                              <div className="flex flex-col">
+                                <div className="flex items-center justify-center mb-1">
+                                  <div className="w-2 h-2 rounded-full bg-green-500 mr-1"></div>
+                                  <span className="text-[10px] text-green-600">Invitation confirmed and sent!</span>
+                                </div>
+                                <button 
+                                  type="button"
+                                  className="w-full bg-blue-500 hover:bg-blue-600 text-white py-1 rounded transition-colors text-[10px]"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Design Preview",
+                                      description: "Invitation preview being prepared...",
+                                      variant: "default"
+                                    });
+                                  }}
+                                >
+                                  Preview Design
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
                         
