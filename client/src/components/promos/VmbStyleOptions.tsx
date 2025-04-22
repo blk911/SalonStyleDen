@@ -901,11 +901,42 @@ export function VmbStyleOptions({
                               type="button"
                               className="w-full bg-green-500 hover:bg-green-600 text-white py-1.5 rounded transition-colors text-xs mt-3"
                               onClick={() => {
+                                // Validate required fields
+                                if (!recipientContact) {
+                                  toast({
+                                    title: "Missing Information",
+                                    description: "Phone or Email is required",
+                                    variant: "destructive"
+                                  });
+                                  return;
+                                }
+                                
+                                // Apply default values if needed
+                                const finalName = recipientName || "Love";
+                                const finalSignature = signature || "Your fav! ME!";
+                                
+                                // Update message with default values if needed
+                                if (!recipientName || !signature) {
+                                  const baseMessage = `Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`;
+                                  const styleName = confirmedStyle ? confirmedStyle.name : "[STY OPT]";
+                                  
+                                  let updatedMessage = baseMessage;
+                                  updatedMessage = updatedMessage.replace("[NAME]", finalName);
+                                  updatedMessage = updatedMessage.replace("[STY OPT]", styleName);
+                                  updatedMessage = updatedMessage.replace("[SIGNED]", finalSignature);
+                                  
+                                  setInvitationMessage(updatedMessage);
+                                  
+                                  // Also update the state values
+                                  if (!recipientName) setRecipientName(finalName);
+                                  if (!signature) setSignature(finalSignature);
+                                }
+                                
                                 // Show confirmation dialog
-                                if (window.confirm(`Are you sure you want to send this gift to ${recipientName}?`)) {
+                                if (window.confirm(`Are you sure you want to send this gift to ${finalName}?`)) {
                                   toast({
                                     title: "Gift Sent!",
-                                    description: `Message sent to ${recipientName}`,
+                                    description: `Message sent to ${finalName} at ${recipientContact}`,
                                     variant: "default"
                                   });
                                 }
