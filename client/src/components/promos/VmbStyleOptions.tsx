@@ -459,23 +459,23 @@ export function VmbStyleOptions({
                       <h3 className="font-medium text-compact text-center">Selected Style</h3>
                       <div className="mt-2">
                         {confirmedStyle ? (
-                          <div className="p-4 border rounded-md border-pink-100 w-full bg-white shadow-sm">
+                          <div className="border rounded px-2 py-2 border-pink-200 bg-pink-50">
                             <div className="flex">
-                              <div className="flex-1">
-                                <h3 className="font-bold text-lg text-gray-800">{confirmedStyle.name}</h3>
-                                <p className="text-gray-600 mt-1">Fully custom art, gems, 3D extras.</p>
+                              <div className="w-2/3 text-left pr-2">
+                                <h3 className="font-medium text-compact">{confirmedStyle.name}</h3>
+                                <p className="text-mini text-gray-600">{confirmedStyle.description}</p>
                                 
-                                <div className="mt-2 flex items-center">
-                                  <span className="font-bold text-black text-xl">${Math.round(confirmedStyle.price)}</span>
-                                  <span className="ml-2 text-gray-500">{confirmedStyle.duration} min</span>
+                                <div className="mt-1 flex items-center gap-2">
+                                  <span className="font-bold text-compact">${Math.round(confirmedStyle.price)}</span>
+                                  <span className="text-micro">{confirmedStyle.duration} min</span>
                                 </div>
                               </div>
                               
-                              <div className="ml-2">
+                              <div className="w-1/3 flex items-center justify-end pl-2">
                                 <img 
                                   src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
                                   alt={confirmedStyle.name}
-                                  className="w-16 h-16 object-cover rounded-md"
+                                  className="h-20 w-20 object-cover rounded-md"
                                   onError={(e) => {
                                     console.error(`Failed to load image for service: ${confirmedStyle.name}`);
                                     e.currentTarget.src = '/assets/LOGO1.png';
