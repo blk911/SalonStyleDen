@@ -442,45 +442,33 @@ export function VmbStyleOptions({
                       <h3 className="font-medium text-compact text-center">Your Invitation Design</h3>
                       <div className="flex flex-col mt-2">
                         {confirmedStyle && (
-                          <div className="space-y-3 p-2 border border-dashed border-pink-200 rounded-md w-full">
-                            <div className="space-y-1">
-                              <label className="text-mini text-gray-700">Who is your Ven Me, Baby!: Enter name</label>
-                              <input 
-                                type="text"
-                                placeholder="Recipient's name"
-                                className="w-full p-2 text-sm border border-pink-100 rounded"
-                              />
-                            </div>
+                          <div className="space-y-2 p-2 border border-dashed border-pink-200 rounded-md w-full">
+                            <input 
+                              type="text"
+                              placeholder="Who is your Ven Me, Baby!: Enter name"
+                              className="w-full p-1.5 text-sm border border-pink-100 rounded"
+                            />
                             
-                            <div className="space-y-1">
-                              <label className="text-mini text-gray-700">Phone or Email</label>
-                              <input 
-                                type="text"
-                                placeholder="Phone number or email address"
-                                className="w-full p-2 text-sm border border-pink-100 rounded"
-                              />
-                            </div>
+                            <input 
+                              type="text"
+                              placeholder="Phone number or email address"
+                              className="w-full p-1.5 text-sm border border-pink-100 rounded"
+                            />
                             
-                            <div className="space-y-1">
-                              <label className="text-mini text-gray-700">Note</label>
-                              <textarea 
-                                placeholder={`Hi, [NAME], my stylist has an opening and I want to ask if you will Ven Me, Baby! ❤️❤️❤️`}
-                                className="w-full p-2 text-sm border border-pink-100 rounded h-20"
-                              />
-                            </div>
+                            <textarea 
+                              placeholder={`Hi, [NAME], my stylist has an opening and I want to ask if you will Ven Me, Baby! ❤️❤️❤️`}
+                              className="w-full p-1.5 text-sm border border-pink-100 rounded h-16"
+                            />
                             
-                            <div className="space-y-1">
-                              <label className="text-mini text-gray-700">SIGN HERE!</label>
-                              <input 
-                                type="text"
-                                placeholder="Your signature"
-                                className="w-full p-2 text-sm border border-pink-100 rounded"
-                              />
-                            </div>
+                            <input 
+                              type="text"
+                              placeholder="SIGN HERE!"
+                              className="w-full p-1.5 text-sm border border-pink-100 rounded"
+                            />
                             
                             <button 
                               type="button"
-                              className="w-full bg-pink-500 hover:bg-pink-600 text-white py-2 rounded transition-colors"
+                              className="w-full bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors"
                             >
                               CONFIRM
                             </button>
