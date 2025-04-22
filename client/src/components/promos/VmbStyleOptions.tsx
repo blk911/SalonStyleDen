@@ -78,6 +78,7 @@ export function VmbStyleOptions({
   const [tempSelectedPhone, setTempSelectedPhone] = useState<string>('');
   const [confirmedStyle, setConfirmedStyle] = useState<StyleOption | null>(null);
   const [showStep2, setShowStep2] = useState(false);
+  const [showStep3, setShowStep3] = useState(false);
   const [stateTracker, setStateTracker] = useState(0); // Debug counter
   const { toast } = useToast();
   const [, navigate] = useLocation();
