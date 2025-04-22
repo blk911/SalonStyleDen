@@ -50,20 +50,14 @@ const carouselItems: CarouselCard[] = [
   },
 
   {
-    title: "The Art of Gifting Refined!",
+    title: "Ven Me, Baby! The Art of Gifting: Redefined!",
     content: [
-      [
-        { text: "Personal care gifting that works!", isBold: true },
-        { text: "Timing matters; fit her schedule!", isBold: false }
-      ],
-      [
-        { text: "Clients promo salon with their inner circle;", isBold: true },
-        { text: "Ven Me, Baby! clients promote your offers!", isBold: false }
-      ],
-      [
-        { text: "Ven Me Baby! Promos are pre-paid;", isBold: true },
-        { text: "Reduce no-shows and cancellations", isBold: false }
-      ]
+      { text: "Forget the gift card trap", isBold: true, suffix: " — VMB is personal, instant, and emotionally clear." },
+      { text: "She chooses. He responds.", isBold: true, suffix: " No awkward guessing. No missed signals." },
+      { text: "Perfectly timed, personally curated care", isBold: true, suffix: " — right when she needs it." },
+      { text: "He gets to show up.", isBold: true, suffix: " She gets to feel seen." },
+      { text: "Prepaid = revenue locked in.", isBold: true, suffix: " No no-shows. No ghosting." },
+      { text: "And yes", isBold: true, suffix: " — clients love sharing what works with their circle." }
     ]
   },
   {
