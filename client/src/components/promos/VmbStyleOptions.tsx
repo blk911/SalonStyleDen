@@ -139,44 +139,47 @@ export function VmbStyleOptions({
   
   // Handle style selection
   const handleSelectStyle = (style: StyleOption) => {
-    // For invitation layout, directly set confirmed style and show STEP 2
-    if (invitationId) {
-      setSelectedStyle(style);
-      
-      // Update form values when style is selected (use type safety)
-      form.setValue('styleOptions.styleId', style.id);
-      
-      // Safely handle possibly undefined values with defaults
-      const clientIdValue = clientId ?? 0;
-      const salonIdValue = salonId ?? 0;
-      const invitationIdValue = invitationId ?? 0;
-      
-      form.setValue('styleOptions.clientId', clientIdValue);
-      form.setValue('styleOptions.salonId', salonIdValue);
-      
-      if (invitationIdValue > 0) {
-        form.setValue('styleOptions.invitationId', invitationIdValue);
-      }
-      
-      // Update the hidden field for validation script detection
-      const styleOptionsData = {
-        styleId: style.id,
-        clientId: clientId || 0, // Use fallback value for safety
-        salonId: salonId || 0,   // Use fallback value for safety
-        invitationId: invitationId || 0
-      };
-      
-      // Set value for styleOptions hidden field
-      const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
-      if (styleOptionsElement) {
-        styleOptionsElement.value = JSON.stringify(styleOptionsData);
-      }
-      
-      // Skip popups in invitation layout, go straight to STEP 2
-      setConfirmedStyle(style);
-      setShowStep2(true);
-      
+    // Always update basic form values regardless of context
+    form.setValue('styleOptions.styleId', style.id);
+    
+    // Safely handle possibly undefined values with defaults
+    const clientIdValue = clientId ?? 0;
+    const salonIdValue = salonId ?? 0;
+    const invitationIdValue = invitationId ?? 0;
+    
+    form.setValue('styleOptions.clientId', clientIdValue);
+    form.setValue('styleOptions.salonId', salonIdValue);
+    
+    if (invitationIdValue > 0) {
+      form.setValue('styleOptions.invitationId', invitationIdValue);
+    }
+    
+    // Update hidden field for validation script detection
+    const styleOptionsData = {
+      styleId: style.id,
+      clientId: clientId || 0, // Use fallback value for safety
+      salonId: salonId || 0,   // Use fallback value for safety
+      invitationId: invitationId || 0
+    };
+    
+    // Set value for styleOptions hidden field
+    const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
+    if (styleOptionsElement) {
+      styleOptionsElement.value = JSON.stringify(styleOptionsData);
+    }
+    
+    // Store the style selection
+    setSelectedStyle(style);
+    
+    // For invitation page context, skip popups and go straight to STEP 2
+    if (window.location.pathname.includes('/invitation/')) {
       console.log("Invitation layout: Style selected without popup, showing STEP 2", style.name);
+      
+      // Skip popups, set confirmed style, and go directly to STEP 2
+      setConfirmedStyle({...style});
+      setShowStep2(true);
+      setIsDetailsOpen(false);
+      setIsConfirmationOpen(false);
       
       // Notify parent component if callback provided
       if (onSelectionComplete) {
@@ -195,37 +198,18 @@ export function VmbStyleOptions({
         onSelectionComplete(styleSelection);
       }
       
+      toast({
+        title: "Style Selected!",
+        description: `You've selected ${style.name}`,
+        variant: "default"
+      });
+      
       return;
     }
     
     // For non-invitation layouts, use the normal popup flow
-    setSelectedStyle(style);
+    console.log("Normal layout: Opening style details popup", style.name);
     setIsDetailsOpen(true);
-    
-    // Update form values when style is selected
-    form.setValue('styleOptions.styleId', style.id);
-    
-    if (clientId) {
-      form.setValue('styleOptions.clientId', clientId);
-    }
-    
-    if (salonId) {
-      form.setValue('styleOptions.salonId', salonId);
-    }
-    
-    // Also update the hidden field for validation script detection
-    const styleOptionsData = {
-      styleId: style.id,
-      clientId: clientId,
-      salonId: salonId,
-      invitationId: invitationId
-    };
-    
-    // Set value for styleOptions hidden field
-    const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
-    if (styleOptionsElement) {
-      styleOptionsElement.value = JSON.stringify(styleOptionsData);
-    }
   };
   
   // Handle mouse over effect
@@ -313,28 +297,7 @@ export function VmbStyleOptions({
     }
     
     // For invitation context, just set the confirmed style without doing an API call yet
-    if (invitationId && selectedStyle) {
-      console.log("Invitation context: Setting confirmed style without additional API call");
-        
-      // Important: set the confirmed style and show Step 2 directly
-      const confirmedStyleCopy = {...selectedStyle};
-      setConfirmedStyle(confirmedStyleCopy);
-      setShowStep2(true);
-      setIsDetailsOpen(false);
-      setIsConfirmationOpen(false);
-      
-      console.log("Invitation context: Set to Step 2 with style:", confirmedStyleCopy.name);
-      
-      toast({
-        title: "Style Saved!",
-        description: `You've selected ${selectedStyle.name}`,
-        variant: "default"
-      });
-      return;
-    }
-    
-    // For invitation context, just set the confirmed style without doing an API call yet
-    if (invitationId && selectedStyle) {
+    if ((invitationId || window.location.pathname.includes('/invitation/')) && selectedStyle) {
       console.log("Invitation context: Setting confirmed style without additional API call");
         
       // Important: set the confirmed style and show Step 2 directly
@@ -614,7 +577,7 @@ export function VmbStyleOptions({
             {showStep3 && confirmedStyle ? (
               <>
                 <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
-                  <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 3: CREATE YOUR GIFT REQUEST</h2>
+                  <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 3 Pick your gift options...</h2>
                 </div>
                 
                 <div className="grid grid-cols-1 gap-4">
