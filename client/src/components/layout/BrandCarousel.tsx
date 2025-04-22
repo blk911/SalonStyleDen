@@ -48,23 +48,7 @@ const carouselItems: CarouselCard[] = [
       { text: "How valuable:", isBold: true, suffix: " You'll both find out." }
     ]
   },
-  {
-    title: "It Works Because it's—REAL!",
-    content: [
-      [
-        { text: "Because perfect timing is everything.", isBold: true },
-        { text: "She's thinking of you, has an opening today, and knows exactly what she wants.", isBold: false }
-      ],
-      [
-        { text: "Because connection matters more than convenience.", isBold: true },
-        { text: "A Ven Me Baby request shows you're in each other's thoughts.", isBold: false }
-      ],
-      [
-        { text: "Because spontaneous care speaks volumes.", isBold: true },
-        { text: "She's ready, you're thoughtful, and her appointment is secured.", isBold: false }
-      ]
-    ]
-  },
+
   {
     title: "The Art of Gifting Refined!",
     content: [
