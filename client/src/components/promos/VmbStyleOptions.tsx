@@ -87,6 +87,8 @@ export function VmbStyleOptions({
   const [stateTracker, setStateTracker] = useState(0); // Debug counter
   const [showStep1, setShowStep1] = useState(true); // Always true now - we'll use isStep1Open to control collapse
   const [isStep1Open, setIsStep1Open] = useState(true); // Control Step 1 collapsible state
+  const [isStep2Open, setIsStep2Open] = useState(true); // Control Step 2 collapsible state
+  const [isStep3Open, setIsStep3Open] = useState(true); // Control Step 3 collapsible state
   // New state for the invitation form
   const [recipientName, setRecipientName] = useState("");
   const [recipientContact, setRecipientContact] = useState("");
@@ -267,6 +269,9 @@ export function VmbStyleOptions({
       
       // Only now show Step 3 (after form submission from Step 2)
       setShowStep3(true);
+      
+      // Close Step 2 when Step 3 appears, but keep it visible as a collapsible
+      setIsStep2Open(false);
       
       // Show a more helpful message to guide the user to the next step
       toast({
@@ -474,12 +479,24 @@ export function VmbStyleOptions({
               {/* Add 6px spacing */}
               <div className="h-[6px]"></div>
               
-              {/* STEP 2 - Conditional visibility */}
+              {/* STEP 2 - With Collapsible behavior */}
               {showStep2 && (
-                <div>
-                  <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
-                    <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 2 Style Your Invitation...</h2>
-                  </div>
+                <div className="rounded-md overflow-hidden mb-3">
+                  <Collapsible open={isStep2Open} onOpenChange={setIsStep2Open}>
+                    <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-t-md">
+                      <CollapsibleTrigger className="flex w-full items-center justify-between pb-2 pt-2 px-3">
+                        <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 2 Style Your Invitation...</h2>
+                        <div className="h-6 w-6 flex items-center justify-center text-pink-700">
+                          {isStep2Open ? (
+                            <ChevronUpIcon className="h-5 w-5" />
+                          ) : (
+                            <ChevronDownIcon className="h-5 w-5" />
+                          )}
+                        </div>
+                      </CollapsibleTrigger>
+                    </div>
+                    
+                    <CollapsibleContent className="bg-white border border-pink-100 rounded-b-md p-3">
                   
                   <div className="grid grid-cols-1 gap-4">
                     <div className="border rounded px-2 py-2 border-pink-200 bg-pink-50">
@@ -633,8 +650,9 @@ export function VmbStyleOptions({
                                     type="button"
                                     className="w-full bg-blue-500 hover:bg-blue-600 text-white py-1.5 rounded transition-colors text-xs"
                                     onClick={() => {
-                                      // Hide Step 2 when Preview Design is clicked
-                                      setShowStep2(false);
+                                      // Show Step 3 and collapse Step 2 when Preview Design is clicked
+                                      setIsStep2Open(false);
+                                      setShowStep3(true);
                                       
                                       // Focus on the Personal Message field in Gift Request
                                       setTimeout(() => {
@@ -708,6 +726,8 @@ export function VmbStyleOptions({
                       </div>
                     </div>
                   </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </div>
               )}
               
