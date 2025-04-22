@@ -61,11 +61,8 @@ const carouselItems: CarouselCard[] = [
     ]
   },
   {
-    title: "Lorem Ipsum",
-    content: [
-      { text: "This is a placeholder card", isBold: true, suffix: " — we'll update this later." },
-      { text: "The content will be replaced", isBold: true, suffix: " in a future update." }
-    ]
+    title: "One, Two, Three! Ven Me, Baby!",
+    content: []
   },
 ];
 
