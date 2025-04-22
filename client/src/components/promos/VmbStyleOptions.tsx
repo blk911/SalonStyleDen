@@ -84,7 +84,8 @@ export function VmbStyleOptions({
   const [showStep2, setShowStep2] = useState(false);
   const [showStep3, setShowStep3] = useState(false);
   const [stateTracker, setStateTracker] = useState(0); // Debug counter
-  const [showStep1, setShowStep1] = useState(true); // New state to control Step 1 visibility
+  const [showStep1, setShowStep1] = useState(true); // Always true now - we'll use isStep1Open to control collapse
+  const [isStep1Open, setIsStep1Open] = useState(true); // Control Step 1 collapsible state
   // New state for the invitation form
   const [recipientName, setRecipientName] = useState("");
   const [recipientContact, setRecipientContact] = useState("");
@@ -185,11 +186,13 @@ export function VmbStyleOptions({
       styleOptionsElement.value = JSON.stringify(styleOptionsData);
     }
     
-    // ALWAYS skip popups and go straight to STEP 2 and STEP 3
+    // Set confirmed style and show Step 2, but keep Step 1 visible (just collapsed)
     setConfirmedStyle(style);
     setShowStep2(true);
-    setShowStep3(true); // Also show STEP 3 immediately
-    setShowStep1(false); // Hide Step 1 after style selection
+    // Do NOT show Step 3 yet - it will be shown after Step 2 is completed
+    setShowStep3(false);
+    // Don't hide Step 1, it should remain visible but collapsed
+    // setShowStep1(false) // This was causing Step 1 to disappear
     
     // Close any open dialogs to avoid conflicts
     setIsDetailsOpen(false);
