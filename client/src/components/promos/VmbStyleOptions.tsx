@@ -790,8 +790,16 @@ export function VmbStyleOptions({
                       <CollapsibleTrigger 
                         className="flex w-full items-center justify-between pb-2 pt-2 px-3"
                         onClick={() => {
-                          // Reset gift approval state when Step 3 is opened
-                          setGiftApproved(false);
+                          // Auto-approve gift when Step 3 is opened
+                          setGiftApproved(true);
+                          
+                          if (!isStep3Open) {
+                            toast({
+                              title: "Gift Ready to Send",
+                              description: "Your gift is now approved and ready to send",
+                              variant: "default"
+                            });
+                          }
                         }}
                       >
                         <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 3 Pick your gift options...</h2>
@@ -919,11 +927,29 @@ export function VmbStyleOptions({
                                 
                                 // Show confirmation dialog
                                 if (window.confirm(`Are you sure you want to send this gift to ${finalName}?`)) {
+                                  // In a real implementation, we would send this data to the server
+                                  // For now, we'll just show a success message and simulate a completed invitation
+                                  
                                   toast({
                                     title: "Gift Sent!",
                                     description: `Message sent to ${finalName} at ${recipientContact}`,
                                     variant: "default"
                                   });
+                                  
+                                  // Give the user a moment to see the success message
+                                  setTimeout(() => {
+                                    // Return to the appropriate dashboard based on context
+                                    if (clientId) {
+                                      // Client dashboard
+                                      navigate(`/client/${clientId}`);
+                                    } else if (salonId) {
+                                      // Salon dashboard
+                                      navigate(`/salon/${salonId}`);
+                                    } else {
+                                      // Default to salon dashboard 42 if no specific context
+                                      navigate('/salon/42');
+                                    }
+                                  }, 1500);
                                 }
                               }}
                             >
