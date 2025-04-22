@@ -419,8 +419,8 @@ export function VmbStyleOptions({
           <input type="hidden" name="method" value="POST" />
           
           <div className="vmb-style-options">
-            {/* STEP 1 - Hidden when STEP 2 is active */}
-            {!showStep2 && (
+            {/* STEP 1 - Hidden when STEP 2 or STEP 3 is active */}
+            {!showStep2 && !showStep3 && (
               <>
                 <div className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 mb-3 rounded-md">
                   <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 1 Pick your style...</h2>
