@@ -44,8 +44,8 @@ const carouselItems: CarouselCard[] = [
       { text: "Your stylist has a spot today", isBold: true, suffix: " — and he's the one you thought of." },
       { text: "He gets the nudge", isBold: true, suffix: " — you? Top of mind... or no." },
       { text: "One click turns timing", isBold: true, suffix: " into thoughtfulness." },
-      { text: "Bottom line: Your time and attention is valuable. How valuable?", isBold: true },
-      { text: "Answer:", isBold: true, suffix: " You'll both find out." }
+      { text: "Bottom line: Your time and attention is valuable.", isBold: true },
+      { text: "How valuable:", isBold: true, suffix: " You'll both find out." }
     ]
   },
   {
