@@ -83,6 +83,8 @@ export function VmbStyleOptions({
   const { toast } = useToast();
   const [, navigate] = useLocation();
   
+  // Function already defined below - removed duplicate
+  
   // Debug effect to track state changes
   useEffect(() => {
     console.log(`[STATE DEBUG] showStep2=${showStep2}, showStep3=${showStep3}, confirmedStyle=${confirmedStyle?.name || 'null'}`);
@@ -457,11 +459,11 @@ export function VmbStyleOptions({
                       <h3 className="font-medium text-compact text-center">Your Invitation Design</h3>
                       <div className="flex items-center justify-center h-32 mt-2">
                         <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-full flex items-center justify-center">
-                          <div className="flex flex-col items-center justify-center w-full h-full">
+                          <div className="flex flex-col items-center justify-center">
                             <p className="text-mini text-gray-500">Personalize your invitation with a message</p>
                             {confirmedStyle && (
-                              <div className="mt-2 text-xs text-pink-500 font-medium">
-                                Selected: {confirmedStyle.name}
+                              <div className="mt-1 text-xs text-pink-600">
+                                {confirmedStyle.name}
                               </div>
                             )}
                           </div>
@@ -471,39 +473,36 @@ export function VmbStyleOptions({
                     
                     {/* Right side - Selected style */}
                     <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
-                      <h3 className="font-medium text-compact">Selected Style:</h3>
-                      {confirmedStyle ? (
-                        <>
-                          <p className="text-mini text-gray-600">{confirmedStyle.name}</p>
-                          
-                          <div className="mt-1 flex items-center gap-2">
-                            <span className="font-bold text-compact">${Math.round(confirmedStyle.price)}</span>
-                            <span className="text-micro">{confirmedStyle.duration} min</span>
+                      <h3 className="font-medium text-compact text-center">Selected Style</h3>
+                      <div className="flex items-center justify-center h-32 mt-2">
+                        {confirmedStyle ? (
+                          <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-full flex items-center justify-center">
+                            <div className="flex-1 text-left">
+                              <div className="font-bold text-gray-800">{confirmedStyle.name}</div>
+                              <div className="text-xs text-gray-600">Fully custom art, gems, 3D extras.</div>
+                              <div className="mt-1">
+                                <span className="font-bold text-black">${Math.round(confirmedStyle.price)}</span>
+                                <span className="ml-2 text-gray-500">{confirmedStyle.duration} min</span>
+                              </div>
+                            </div>
+                            <div className="flex-shrink-0 ml-2">
+                              <img 
+                                src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
+                                alt={confirmedStyle.name}
+                                className="h-16 w-16 object-cover rounded-md border border-gray-200"
+                                onError={(e) => {
+                                  console.error(`Failed to load image for service: ${confirmedStyle.name}`);
+                                  e.currentTarget.src = '/assets/LOGO1.png';
+                                }}
+                              />
+                            </div>
                           </div>
-                          
-                          <div className="mt-2 flex items-center justify-center">
-                            <img 
-                              src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
-                              alt={confirmedStyle.name}
-                              className="h-24 w-24 object-cover rounded-md border border-pink-200"
-                              onError={(e) => {
-                                console.error(`Failed to load image for service: ${confirmedStyle.name}`);
-                                e.currentTarget.src = '/assets/LOGO1.png';
-                              }}
-                            />
+                        ) : (
+                          <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-full flex items-center justify-center">
+                            <p className="text-mini text-gray-500">No style selected yet</p>
                           </div>
-                          
-                          <div className="mt-2 text-center">
-                            <Badge 
-                              className="bg-[#FF92A5] text-white border-0 text-mini"
-                            >
-                              Confirmed
-                            </Badge>
-                          </div>
-                        </>
-                      ) : (
-                        <p className="text-mini text-gray-500">No style selected yet</p>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -580,27 +579,13 @@ export function VmbStyleOptions({
                           <div>Duration: {confirmedStyle.duration} min</div>
                           <div className="mt-1 font-medium">
                             {invitationId ? (
-                              <div className="bg-pink-50 border border-pink-100 rounded p-2 mt-2">
-                                <div className="text-pink-600 font-bold">Invitation Active</div>
-                                <div className="text-xs mt-1">All required connection IDs present</div>
-                                <Button 
-                                  variant="default" 
-                                  size="sm"
-                                  className="mt-2 bg-pink-500 hover:bg-pink-600 text-white"
-                                >
-                                  Send Gift
-                                </Button>
+                              <div className="mt-2">
+                                <div className="text-pink-600">Invitation ID: {invitationId}</div>
+                                <div className="text-xs mt-1">Connection active</div>
                               </div>
                             ) : (
                               <div className="mt-2">
                                 <div>Gift Code: <span className="text-pink-600">VMB-{Math.random().toString(36).substring(2, 8).toUpperCase()}</span></div>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  className="mt-2 border-pink-500 text-pink-500 hover:bg-pink-50"
-                                >
-                                  Generate Gift
-                                </Button>
                               </div>
                             )}
                           </div>
@@ -610,18 +595,11 @@ export function VmbStyleOptions({
                   </div>
                   ) : (
                   <div className="p-4 text-center">
-                    <div className="mb-4">
+                    <div>
                       <AlertTriangle className="h-12 w-12 mx-auto text-amber-400" />
                       <h3 className="font-medium text-lg mt-2">Style Selection Required</h3>
                       <p className="text-gray-600 mt-1">Please select a style from STEP 1 before proceeding with gift options.</p>
                     </div>
-                    <Button 
-                      variant="outline"
-                      className="border-pink-500 text-pink-500 hover:bg-pink-50"
-                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    >
-                      Return to Style Selection
-                    </Button>
                   </div>
                   )}
                 </div>
