@@ -469,7 +469,7 @@ export function VmbStyleOptions({
                             <input 
                               type="text"
                               placeholder="Who is your Ven Me, Baby!: Enter name"
-                              className="w-full p-1.5 text-xs border border-pink-100 rounded"
+                              className="w-full p-1.5 text-[10px] border border-pink-100 rounded"
                               value={recipientName}
                               onChange={(e) => {
                                 const newName = e.target.value;
@@ -496,16 +496,35 @@ export function VmbStyleOptions({
                             
                             <input 
                               type="text"
-                              placeholder="Phone or Email"
-                              className="w-full p-1.5 text-xs border border-pink-100 rounded"
+                              placeholder="Phone: 555-555-5555 OR Email: you@example.com"
+                              className="w-full p-1.5 text-[10px] border border-pink-100 rounded"
                               value={recipientContact}
-                              onChange={(e) => setRecipientContact(e.target.value)}
+                              onChange={(e) => {
+                                // Format the phone number as user types if it looks like a phone number
+                                const input = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                                let formattedInput = e.target.value;
+                                
+                                // If input contains only digits and is 10 or fewer digits, assume it's a phone
+                                if (/^\d+$/.test(input) && input.length <= 10) {
+                                  // Format as phone: XXX-XXX-XXXX
+                                  if (input.length <= 3) {
+                                    formattedInput = input;
+                                  } else if (input.length <= 6) {
+                                    formattedInput = `${input.slice(0, 3)}-${input.slice(3)}`;
+                                  } else {
+                                    formattedInput = `${input.slice(0, 3)}-${input.slice(3, 6)}-${input.slice(6, 10)}`;
+                                  }
+                                }
+                                // Otherwise treat as email (no special formatting)
+                                
+                                setRecipientContact(formattedInput);
+                              }}
                             />
                             
                             <input 
                               type="text"
                               placeholder="SIGN HERE!"
-                              className="w-full p-1.5 text-xs border border-pink-100 rounded"
+                              className="w-full p-1.5 text-[10px] border border-pink-100 rounded"
                               value={signature}
                               onChange={(e) => {
                                 const newSignature = e.target.value;
@@ -531,7 +550,7 @@ export function VmbStyleOptions({
                             
                             <textarea 
                               placeholder={`Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`}
-                              className="w-full p-1.5 text-xs border border-pink-100 rounded h-16"
+                              className="w-full p-1.5 text-[10px] border border-pink-100 rounded h-16"
                               value={invitationMessage}
                               onChange={(e) => setInvitationMessage(e.target.value)}
                             />
