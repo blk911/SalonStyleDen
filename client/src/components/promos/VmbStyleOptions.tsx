@@ -935,8 +935,11 @@ export function VmbStyleOptions({
                                     // Set loading state
                                     setIsSubmitting(true);
                                     
+                                    // Get the style ID from the confirmed style if available
+                                    const styleId = confirmedStyle ? confirmedStyle.id : undefined;
+                                    
                                     // Call the complete endpoint
-                                    apiRequest(`/api/invitations/${invitationId}/complete`, 'POST')
+                                    apiRequest(`/api/invitations/${invitationId}/complete`, 'POST', { styleId })
                                       .then(async (response) => {
                                         if (response.ok) {
                                           const result = await response.json();

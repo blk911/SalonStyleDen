@@ -1362,7 +1362,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid ID format" });
       }
       
-      console.log(`POST /invitations/${id}/complete - Completing invitation flow`);
+      // Get the selected style ID if provided in the request body
+      const { styleId } = req.body;
+      
+      console.log(`POST /invitations/${id}/complete - Completing invitation flow with styleId: ${styleId || 'none'}`);
       
       // Get the invitation to make sure it exists
       const invitation = await storage.getInvitation(id);
@@ -1370,9 +1373,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Invitation not found" });
       }
       
-      // If status is not already "sent", update it
+      // If status is not already "sent", update it with the styleId if available
       if (invitation.status !== "sent") {
-        await storage.updateGiftStatus(id, "sent");
+        await storage.updateGiftStatus(id, "sent", styleId ? Number(styleId) : undefined);
       }
       
       // Post to client dashboard if there's a sender
