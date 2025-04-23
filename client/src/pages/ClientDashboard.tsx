@@ -971,12 +971,7 @@ export default function ClientDashboard() {
                       
 
                       
-                      {/* Recent VMB Invitations Sent - MOVED UP */}
-                      <div className="mt-4 border-t pt-2">
-                        <div className="mb-2">
-                          <InlineVmbInvitations clientId={client.id} />
-                        </div>
-                      </div>
+                      {/* Recent VMB Invitations Sent - REMOVED */}
                     </div>
                   ) : salonLoading ? (
                     <p>Loading salon information...</p>
@@ -987,38 +982,9 @@ export default function ClientDashboard() {
               </Card>
             )}
             
-            {/* Invitations Card - MOVED UP */}
-            {invitations && invitations.length > 0 && (
-              <Card className="rounded-xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-pink-50 pb-2 pt-2">
-                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
-                    <StarIcon className="h-4 w-4" />
-                    Your Invitations
-                  </CardTitle>
-                </CardHeader>
-                
-                <CardContent className="pt-4">
-                  <InlineVmbInvitations clientId={client.id} />
-                </CardContent>
-              </Card>
-            )}
+            {/* Invitations Card - REMOVED */}
             
-            {/* Standalone SHARE VMB Card - MOVED DOWN - shown when client doesn't have a salon */}
-            {!client.salonId && (
-              <Card className="rounded-xl shadow-sm overflow-hidden">
-                <div className="bg-pink-50 py-2 px-4 border-b border-pink-100">
-                  <h3 className="font-semibold text-lg text-pink-700">Invite Your Friends</h3>
-                </div>
-                <CardContent className="pt-4">
-                  <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
-                    toast({
-                      title: "Invitation Sent",
-                      description: "Your invitation has been sent successfully!"
-                    });
-                  }} />
-                </CardContent>
-              </Card>
-            )}
+            {/* Standalone section removed */}
           </div>
         </div>
       </main>
