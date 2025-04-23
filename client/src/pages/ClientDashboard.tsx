@@ -990,14 +990,19 @@ export default function ClientDashboard() {
                         </h3>
                         {showInviteForm && (
                           <div className="mt-2">
-                            <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
-                              // Refresh the invitations list
-                              toast({
-                                title: "Invitation Sent",
-                                description: "Your invitation has been sent successfully!"
-                              });
-                              setShowInviteForm(false);
-                            }} />
+                            <div className="bg-pink-50 py-2 px-3 rounded-t-md border border-pink-100">
+                              <h4 className="text-sm font-medium text-pink-700">Invite Your Friends</h4>
+                            </div>
+                            <div className="p-4 border border-t-0 border-gray-200 rounded-b-md">
+                              <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
+                                // Refresh the invitations list
+                                toast({
+                                  title: "Invitation Sent",
+                                  description: "Your invitation has been sent successfully!"
+                                });
+                                setShowInviteForm(false);
+                              }} />
+                            </div>
                           </div>
                         )}
                       </div>
