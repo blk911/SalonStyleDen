@@ -25,6 +25,12 @@ const AdminDash = () => {
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isProcessing, startProcessing, completeProcessing } = useStatus();
+  
+  // Temporarily disabled processing script
+  // useEffect(() => {
+  //   // Start processing to indicate we're working on the salon name update
+  //   startProcessing();
+  // }, [startProcessing]);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -68,32 +74,29 @@ export default function Navbar() {
               </Link>
             </div>
           </div>
-          
-          {/* Navigation links - centered & simplified */}
-          <div className="flex items-center justify-center flex-1">
-            <div className="flex justify-center space-x-10 w-full">
+          <div className="hidden sm:flex sm:items-center justify-center w-full">
+            <div className="flex items-center space-x-8">
               <Link href="/">
-                <span className="text-gray-500 text-sm">Home</span>
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home</div>
               </Link>
               <Link href="/salons">
-                <span className="text-gray-500 text-sm">Salons</span>
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
               </Link>
               <Link href="/clients">
-                <span className="text-gray-500 text-sm">Clients</span>
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
               </Link>
               <Link href="/admin">
-                <span className="text-gray-500 text-sm">Admin</span>
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
               </Link>
-              <span className="text-gray-500 text-sm">About</span>
-              <span className="text-red-500 text-sm">TASK COMPLETE</span>
+              <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
+              <div className="text-red-500 text-sm font-medium">TASK COMPLETE</div>
             </div>
-          </div>
-          
-          <div className="flex items-center">
             <LoadingIndicator />
+          </div>
+          <div className="flex items-center sm:hidden">
             <button
               type="button"
-              className="sm:hidden inline-flex items-center justify-center p-1 rounded-md text-gray-700 hover:text-[#FF92A5] focus:outline-none"
+              className="inline-flex items-center justify-center p-1 rounded-md text-gray-700 hover:text-[#FF92A5] focus:outline-none"
               onClick={toggleMobileMenu}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -103,24 +106,23 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-      
       {/* Mobile menu */}
       <div className={`sm:hidden ${mobileMenuOpen ? "block" : "hidden"}`}>
-        <div className="flex flex-wrap justify-center gap-6 py-3">
+        <div className="flex flex-wrap justify-center gap-4 py-3">
           <Link href="/">
-            <span className="text-gray-500 text-sm">Home</span>
+            <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home</div>
           </Link>
           <Link href="/salons">
-            <span className="text-gray-500 text-sm">Salons</span>
+            <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
           </Link>
           <Link href="/clients">
-            <span className="text-gray-500 text-sm">Clients</span>
+            <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
           </Link>
           <Link href="/admin">
-            <span className="text-gray-500 text-sm">Admin</span>
+            <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
           </Link>
-          <span className="text-gray-500 text-sm">About</span>
-          <span className="text-red-500 text-sm">TASK COMPLETE</span>
+          <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
+          <div className="text-red-500 text-sm font-medium">TASK COMPLETE</div>
         </div>
       </div>
     </nav>
