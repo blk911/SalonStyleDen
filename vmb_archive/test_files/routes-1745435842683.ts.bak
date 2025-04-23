@@ -841,7 +841,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  
+  // Data migration endpoint for fixing stored image URLs - used by both API and direct HTML page
   app.post("/api/migrate/service-images", async (req: Request, res: Response) => {
     try {
       console.log('Starting migration of service images to local assets');
