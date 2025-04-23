@@ -126,11 +126,8 @@ export default function ClientDashboard() {
   // State for invitation preview
   const [showInvitePreview, setShowInvitePreview] = useState(false);
   
-  // State for showing/hiding invite form in the salon section
+  // State for showing/hiding invite form
   const [showInviteForm, setShowInviteForm] = useState(false);
-  
-  // State for showing/hiding invite form in the standalone section
-  const [showStandaloneInviteForm, setShowStandaloneInviteForm] = useState(false);
 
   // Add debugging information to trace API calls
   console.log(`ClientDashboard - Fetching client with ID: ${id}`);
@@ -992,18 +989,16 @@ export default function ClientDashboard() {
                           </button>
                         </h3>
                         {showInviteForm && (
-                          <Card className="shadow-sm overflow-hidden">
-                            <CardContent className="p-4">
-                              <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
-                                // Refresh the invitations list
-                                toast({
-                                  title: "Invitation Sent",
-                                  description: "Your invitation has been sent successfully!"
-                                });
-                                setShowInviteForm(false);
-                              }} />
-                            </CardContent>
-                          </Card>
+                          <div className="mt-2">
+                            <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
+                              // Refresh the invitations list
+                              toast({
+                                title: "Invitation Sent",
+                                description: "Your invitation has been sent successfully!"
+                              });
+                              setShowInviteForm(false);
+                            }} />
+                          </div>
                         )}
                       </div>
                       
@@ -1043,35 +1038,21 @@ export default function ClientDashboard() {
             {!client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
                 <CardHeader className="bg-pink-50 pb-2 pt-2">
-                  <CardTitle className="text-lg flex items-center justify-between text-pink-700">
-                    <span>Share Ven Me, Baby!</span>
-                    <button 
-                      onClick={() => setShowStandaloneInviteForm(!showStandaloneInviteForm)} 
-                      className="flex items-center text-sm text-pink-600 hover:text-pink-800"
-                      aria-label={showStandaloneInviteForm ? "Hide invitation form" : "Show invitation form"}
-                    >
-                      {showStandaloneInviteForm ? (
-                        <ChevronUpIcon className="h-5 w-5" />
-                      ) : (
-                        <ChevronDownIcon className="h-5 w-5" />
-                      )}
-                    </button>
+                  <CardTitle className="text-lg text-pink-700">
+                    Share Ven Me, Baby!
                   </CardTitle>
                   <CardDescription>
                     Invite Your Friends
                   </CardDescription>
                 </CardHeader>
-                {showStandaloneInviteForm && (
-                  <CardContent className="pt-4">
-                    <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
-                      toast({
-                        title: "Invitation Sent",
-                        description: "Your invitation has been sent successfully!"
-                      });
-                      setShowStandaloneInviteForm(false);
-                    }} />
-                  </CardContent>
-                )}
+                <CardContent className="pt-4">
+                  <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
+                    toast({
+                      title: "Invitation Sent",
+                      description: "Your invitation has been sent successfully!"
+                    });
+                  }} />
+                </CardContent>
               </Card>
             )}
           </div>
