@@ -74,22 +74,23 @@ export default function Navbar() {
               </Link>
             </div>
           </div>
-          <div className="hidden sm:ml-4 sm:flex sm:items-center space-x-6">
-            <Link href="/">
-              <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home</div>
-            </Link>
-            <Link href="/salons">
-              <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
-            </Link>
-            <Link href="/clients">
-              <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
-            </Link>
-            {/* VMB Promos link removed as requested */}
-            {/* Temporary Admin Button */}
-            <Link href="/admin">
-              <div className="px-2 py-1 text-sm font-medium bg-pink-50 text-pink-600 hover:bg-pink-100 cursor-pointer">Admin</div>
-            </Link>
-            <div className="px-2 py-1 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
+          <div className="hidden sm:flex sm:items-center justify-center w-full">
+            <div className="flex items-center space-x-8">
+              <Link href="/">
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home</div>
+              </Link>
+              <Link href="/salons">
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
+              </Link>
+              <Link href="/clients">
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
+              </Link>
+              <Link href="/admin">
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
+              </Link>
+              <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
+              <div className="text-red-500 text-sm font-medium">TASK COMPLETE</div>
+            </div>
             <LoadingIndicator />
           </div>
           <div className="flex items-center sm:hidden">
@@ -107,21 +108,21 @@ export default function Navbar() {
       </div>
       {/* Mobile menu */}
       <div className={`sm:hidden ${mobileMenuOpen ? "block" : "hidden"}`}>
-        <div className="px-2 pt-1 pb-2 space-y-1">
+        <div className="flex flex-wrap justify-center gap-4 py-3">
           <Link href="/">
-            <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">Home</div>
+            <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home</div>
           </Link>
           <Link href="/salons">
-            <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
+            <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
           </Link>
-          {/* VMB Promos link removed from mobile menu as requested */}
           <Link href="/clients">
-            <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
+            <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
           </Link>
           <Link href="/admin">
-            <div className="block px-2 py-1 text-base font-medium bg-pink-50 text-pink-600 hover:bg-pink-100 cursor-pointer">Admin</div>
+            <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
           </Link>
-          <div className="block px-2 py-1 text-base font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
+          <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
+          <div className="text-red-500 text-sm font-medium">TASK COMPLETE</div>
         </div>
       </div>
     </nav>
