@@ -11,11 +11,7 @@ export function LoadingIndicator() {
           <Loader2 className="h-4 w-4 animate-spin text-pink-600" />
           <span className="text-xs text-pink-600 font-medium">Processing...</span>
         </>
-      ) : (
-        <span className="text-xs text-red-600 font-bold">
-          TASK COMPLETE
-        </span>
-      )}
+      ) : null}
     </div>
   );
 }

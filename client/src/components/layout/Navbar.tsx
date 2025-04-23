@@ -89,7 +89,6 @@ export default function Navbar() {
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
               </Link>
               <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
-              <div className="text-red-500 text-sm font-medium">TASK COMPLETE</div>
             </div>
             <LoadingIndicator />
           </div>
@@ -122,7 +121,6 @@ export default function Navbar() {
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
           </Link>
           <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
-          <div className="text-red-500 text-sm font-medium">TASK COMPLETE</div>
         </div>
       </div>
     </nav>
