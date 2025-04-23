@@ -801,7 +801,7 @@ export default function SalonDashboard() {
                 <CardContent className="p-3 bg-white">
                   {services.length === 0 ? (
                     <div className="text-center p-4">
-                      <p className="text-lg font-medium text-gray-700">VMB STYLE OPTIONS</p>
+                      <p className="text-base font-medium text-gray-700">VMB STYLE OPTIONS</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
