@@ -125,9 +125,6 @@ export default function ClientDashboard() {
   
   // State for invitation preview
   const [showInvitePreview, setShowInvitePreview] = useState(false);
-  
-  // State for showing/hiding invite form
-  const [showInviteForm, setShowInviteForm] = useState(false);
 
   // Add debugging information to trace API calls
   console.log(`ClientDashboard - Fetching client with ID: ${id}`);
@@ -974,12 +971,10 @@ export default function ClientDashboard() {
                       
                       {/* SHARE VMB Section - MOVED DOWN */}
                       <div className="mt-8 border-t pt-2">
-                        <h3 className="font-semibold text-pink-700 mb-2">
-                          <div className="bg-pink-50 py-2 px-3 rounded-md border border-pink-100">
-                            <span>Invite Your Friends</span>
-                          </div>
-                        </h3>
-                        <div className="mt-2">
+                        <div className="bg-pink-50 py-2 px-3 rounded-t-md border border-pink-100">
+                          <h3 className="font-semibold text-pink-700">Invite Your Friends</h3>
+                        </div>
+                        <div className="p-4 border border-t-0 border-gray-200 rounded-b-md">
                           <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
                             // Refresh the invitations list
                             toast({
@@ -1025,14 +1020,9 @@ export default function ClientDashboard() {
             {/* Standalone SHARE VMB Card - MOVED DOWN - shown when client doesn't have a salon */}
             {!client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-pink-50 pb-2 pt-2">
-                  <CardTitle className="text-lg text-pink-700">
-                    Share Ven Me, Baby!
-                  </CardTitle>
-                  <CardDescription>
-                    Invite Your Friends
-                  </CardDescription>
-                </CardHeader>
+                <div className="bg-pink-50 py-2 px-4 border-b border-pink-100">
+                  <h3 className="font-semibold text-lg text-pink-700">Invite Your Friends</h3>
+                </div>
                 <CardContent className="pt-4">
                   <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
                     toast({
