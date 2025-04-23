@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VMB Debug Report - 4/23/2025, 6:33:39 PM</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; color: #333; }
+    h1, h2, h3 { color: #444; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .summary { background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+    .test-result { margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; overflow: hidden; }
+    .test-header { padding: 10px 15px; background-color: #f8f8f8; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
+    .test-output { padding: 15px; white-space: pre-wrap; overflow-x: auto; background-color: #f9f9f9; max-height: 300px; overflow-y: auto; }
+    .success { color: green; }
+    .failure { color: red; }
+    .warning { color: orange; }
+    .file-list { list-style: none; padding: 0; }
+    .file-list li { padding: 5px 0; border-bottom: 1px solid #eee; }
+    .endpoint-list { list-style: none; padding: 0; }
+    .endpoint-list li { padding: 5px 0; border-bottom: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>VMB Debug Report</h1>
+    <p>Generated on: 4/23/2025, 6:33:39 PM</p>
+    
+    <div class="summary">
+      <h2>Summary</h2>
+      <p><strong>API Health Check:</strong> <span class="success">5/5 endpoints passed</span></p>
+      <p><strong>Potential Dead Files:</strong> <span class="warning">32</span></p>
+      <p><strong>Potentially Unused Endpoints:</strong> <span class="warning">1</span></p>
+      <p><strong>Component File Naming:</strong> <span class="warning">25/74 follow convention</span></p>
+      <p><strong>Console.log Statements:</strong> <span class="warning">454 in 32 files</span></p>
+    </div>
+    
+    <h2>API Health Check</h2>
+    <div class="test-result">
+      <div class="test-header">
+        <h3>API Endpoint Tests</h3>
+        <span class="success">PASSED</span>
+      </div>
+      <div class="test-output">
+        <ul class="endpoint-list">
+          
+            <li>
+              /api/health: 
+              <span class="success">
+                PASSED 
+                (Status: 200)
+                
+              </span>
+            </li>
+          
+
+            <li>
+              /api/status: 
+              <span class="success">
+                PASSED 
+                (Status: 200)
+                
+              </span>
+            </li>
+          
+
+            <li>
+              /api/clients: 
+              <span class="success">
+                PASSED 
+                (Status: 200)
+                
+              </span>
+            </li>
+          
+
+            <li>
+              /api/salons: 
+              <span class="success">
+                PASSED 
+                (Status: 200)
+                
+              </span>
+            </li>
+          
+
+            <li>
+              /api/invitations: 
+              <span class="success">
+                PASSED 
+                (Status: 200)
+                
+              </span>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+    
+    <h2>Potential Dead Files</h2>
+    <ul class="file-list">
+      <li>.cache/replit/env/latest</li>
+<li>.cache/replit/env/latest.json</li>
+<li>.local/state/replit/agent/.latest.json</li>
+<li>attached_assets/Pasted-COMPREHENSIVE-TESTING-PLAN-1-NAVIGATION-ROUTING-Test-all-navigation-links-on-every-page-Verify-1745120394622.txt</li>
+<li>attached_assets/Pasted-being-displayed-because-of-this-mismatch-test-ph-loader-report-show-loaction-of-file-show-en-1744727984131.txt</li>
+<li>client/src/components/ui/aspect-ratio.tsx</li>
+<li>client/src/pages/TestImagePage.tsx</li>
+<li>db-integrity-test.js</li>
+<li>frontend-test.js</li>
+<li>vmb_archive/archived_logs/client_form_test_results.log</li>
+<li>vmb_archive/archived_logs/test_report.log</li>
+<li>vmb_archive/docs/FLOW_TEST_RESULTS.md</li>
+<li>vmb_archive/scripts/purge-testing-data.js</li>
+<li>vmb_archive/test_data/service_gifurl_test.json</li>
+<li>vmb_archive/test_files/archived_test_files/clear-test-data.js</li>
+<li>vmb_archive/test_files/archived_test_files/purge-test-data.js</li>
+<li>vmb_archive/test_files/archived_test_files/purge-test-salons.js</li>
+<li>vmb_archive/test_files/archived_test_files/run-all-system-tests.js</li>
+<li>vmb_archive/test_files/archived_test_files/run-all-tests.sh</li>
+<li>vmb_archive/test_files/archived_test_files/run-client-form-test.cjs</li>
+<li>vmb_archive/test_files/archived_test_files/run-full-system-test.js</li>
+<li>vmb_archive/test_files/archived_test_files/test-all-components.sh</li>
+<li>vmb_archive/test_files/archived_test_files/test-app.sh</li>
+<li>vmb_archive/test_files/archived_test_files/test-client-invite-form.js</li>
+<li>vmb_archive/test_files/archived_test_files/test-components.js</li>
+<li>vmb_archive/test_files/archived_test_files/test-database.js</li>
+<li>vmb_archive/test_files/archived_test_files/test-invitation-style-flow.sh</li>
+<li>vmb_archive/test_files/archived_test_files/test-photo-handler.js</li>
+<li>vmb_archive/test_files/archived_test_files/test-photo-upload.js</li>
+<li>vmb_archive/test_files/archived_test_files/test-salon-endpoints.sh</li>
+<li>vmb_archive/test_files/archived_test_files/test-salon-owner-display.sh</li>
+<li>vmb_archive/test_files/archived_test_files/test-sponsor-rules.js</li>
+    </ul>
+    
+    <h2>Potentially Unused Endpoints</h2>
+    <ul class="endpoint-list">
+      <li>POST /api/migrate/service-images</li>
+    </ul>
+    
+    <h2>Component File Naming</h2>
+    <div class="test-result">
+      <div class="test-header">
+        <h3>Component Naming Convention Check</h3>
+        <span class="warning">ISSUES FOUND</span>
+      </div>
+      <div class="test-output">
+        <p>Total Components: 74</p>
+        <p>Components Following PascalCase Convention: 25</p>
+        <p>Components Not Following Convention: 49</p>
+      </div>
+    </div>
+    
+    <h2>Console.log Statements</h2>
+    <div class="test-result">
+      <div class="test-header">
+        <h3>Console.log Usage Check</h3>
+        <span class="warning">ISSUES FOUND</span>
+      </div>
+      <div class="test-output">
+        <p>Total console.log Statements: 454</p>
+        <p>Files with console.log Statements: 32</p>
+        
+        <h4>Top Files with console.log Statements:</h4>
+        <ul class="file-list">
+          
+            <li>server/routes.ts: 125 statements</li>
+          
+
+            <li>server/storage.ts: 114 statements</li>
+          
+
+            <li>client/src/pages/SalonDashboard.tsx: 26 statements</li>
+          
+
+            <li>client/src/components/ui/PromoCodeDialog.tsx: 20 statements</li>
+          
+
+            <li>client/src/lib/utils.ts: 18 statements</li>
+          
+
+            <li>client/src/pages/ClientDashboard.tsx: 17 statements</li>
+          
+
+            <li>client/src/components/forms/ClientForm.tsx: 14 statements</li>
+          
+
+            <li>client/src/components/promos/VmbStyleOptions.tsx: 14 statements</li>
+          
+
+            <li>client/src/components/dashboard/EditableClientInfo.tsx: 11 statements</li>
+          
+
+            <li>client/src/components/dashboard/EditableSalonInfo.tsx: 11 statements</li>
+          
+          <li>...and 22 more files</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+  
