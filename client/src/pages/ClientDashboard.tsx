@@ -974,37 +974,20 @@ export default function ClientDashboard() {
                       
                       {/* SHARE VMB Section - MOVED DOWN */}
                       <div className="mt-8 border-t pt-2">
-                        <h3 className="font-semibold text-pink-700 mb-2 flex items-center justify-between">
-                          <span>Share Ven Me, Baby!</span>
-                          <button 
-                            onClick={() => setShowInviteForm(!showInviteForm)} 
-                            className="flex items-center text-sm text-pink-600 hover:text-pink-800"
-                            aria-label={showInviteForm ? "Hide invitation form" : "Show invitation form"}
-                          >
-                            {showInviteForm ? (
-                              <ChevronUpIcon className="h-5 w-5" />
-                            ) : (
-                              <ChevronDownIcon className="h-5 w-5" />
-                            )}
-                          </button>
-                        </h3>
-                        {showInviteForm && (
-                          <div className="mt-2">
-                            <div className="bg-pink-50 py-2 px-3 rounded-t-md border border-pink-100">
-                              <h4 className="text-sm font-medium text-pink-700">Invite Your Friends</h4>
-                            </div>
-                            <div className="p-4 border border-t-0 border-gray-200 rounded-b-md">
-                              <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
-                                // Refresh the invitations list
-                                toast({
-                                  title: "Invitation Sent",
-                                  description: "Your invitation has been sent successfully!"
-                                });
-                                setShowInviteForm(false);
-                              }} />
-                            </div>
+                        <h3 className="font-semibold text-pink-700 mb-2">
+                          <div className="bg-pink-50 py-2 px-3 rounded-md border border-pink-100">
+                            <span>Invite Your Friends</span>
                           </div>
-                        )}
+                        </h3>
+                        <div className="mt-2">
+                          <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
+                            // Refresh the invitations list
+                            toast({
+                              title: "Invitation Sent",
+                              description: "Your invitation has been sent successfully!"
+                            });
+                          }} />
+                        </div>
                       </div>
                       
                       {/* Recent VMB Invitations Sent - MOVED UP */}
