@@ -1354,6 +1354,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Complete the invitation sequence by posting to dashboards and tracking
+  apiRouter.post("/invitations/:id/complete", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      console.log(`POST /invitations/${id}/complete - Completing invitation flow`);
+      
+      // Get the invitation to make sure it exists
+      const invitation = await storage.getInvitation(id);
+      if (!invitation) {
+        return res.status(404).json({ error: "Invitation not found" });
+      }
+      
+      // If status is not already "sent", update it
+      if (invitation.status !== "sent") {
+        await storage.updateGiftStatus(id, "sent");
+      }
+      
+      // Post to client dashboard if there's a sender
+      const clientResult = await storage.postToClientDashboard(id);
+      
+      // Post to salon dashboard if there's a salon
+      const salonResult = await storage.postToSalonDashboard(id);
+      
+      // Create a comprehensive activity log entry for this completed invitation
+      const activityLog = await storage.createActivityLog({
+        type: "invitation_completed",
+        description: `Gift invitation #${invitation.inviteHash} for ${invitation.name} has been completed and posted to dashboards`,
+        salonId: invitation.salonId || undefined,
+        clientId: invitation.senderId || undefined,
+        timestamp: new Date()
+      });
+      
+      // Return success with information about where the invitation was posted
+      res.status(200).json({
+        id: invitation.id,
+        inviteHash: invitation.inviteHash,
+        status: "sent",
+        postedToClient: clientResult,
+        postedToSalon: salonResult,
+        message: "Invitation has been completed and posted to dashboards",
+        logId: activityLog.id
+      });
+    } catch (error) {
+      console.error("Error completing invitation:", error);
+      res.status(500).json({ error: "Failed to complete invitation process" });
+    }
+  });
+  
   // Invitation validation endpoint - Validates promo codes and phone numbers
   apiRouter.post("/invitations/validate", async (req: Request, res: Response) => {
     try {

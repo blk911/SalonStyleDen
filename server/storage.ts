@@ -1164,6 +1164,165 @@ export class DatabaseStorage implements IStorage {
   
 
   
+  // Gift tracking methods for invitation lifecycle
+  async updateGiftStatus(invitationId: number, status: string, styleId?: number): Promise<Invitation> {
+    try {
+      console.log(`DatabaseStorage.updateGiftStatus - Updating invitation ${invitationId} status to ${status}`);
+      
+      // Get the current invitation
+      const invitation = await this.getInvitation(invitationId);
+      if (!invitation) {
+        throw new Error(`Invitation with ID ${invitationId} not found`);
+      }
+      
+      // Prepare update data with the new status
+      const updateData: Partial<Invitation> = {
+        status: status
+      };
+      
+      // Update the invitation status in the database
+      const result = await db
+        .update(invitations)
+        .set(updateData)
+        .where(eq(invitations.id, invitationId))
+        .returning();
+      
+      if (result.length === 0) {
+        throw new Error(`Failed to update invitation status for ID ${invitationId}`);
+      }
+      
+      // Log the status change as an activity
+      await this.createActivityLog({
+        type: "gift_status_updated",
+        description: `Gift invitation #${invitation.inviteHash} status updated to ${status}`,
+        salonId: invitation.salonId || undefined,
+        clientId: invitation.senderId || undefined,
+        timestamp: new Date()
+      });
+      
+      console.log(`DatabaseStorage.updateGiftStatus - Updated invitation ${invitationId} status to ${status}`);
+      
+      return result[0];
+    } catch (error) {
+      console.error(`DatabaseStorage.updateGiftStatus - Error updating gift status:`, error);
+      throw error;
+    }
+  }
+
+  async trackGiftRedemption(invitationId: number, clientId: number, salonId: number): Promise<ActivityLog> {
+    try {
+      console.log(`DatabaseStorage.trackGiftRedemption - Tracking redemption for invitation ${invitationId}`);
+      
+      // Get the invitation details
+      const invitation = await this.getInvitation(invitationId);
+      if (!invitation) {
+        throw new Error(`Invitation with ID ${invitationId} not found`);
+      }
+      
+      // Update the invitation status to redeemed
+      await this.updateGiftStatus(invitationId, 'redeemed');
+      
+      // Create a detailed activity log for the redemption
+      const log = {
+        type: "gift_redeemed",
+        description: `Gift invitation #${invitation.inviteHash} redeemed by client ID ${clientId} at salon ID ${salonId}`,
+        clientId,
+        salonId,
+        timestamp: new Date()
+      };
+      
+      const result = await this.createActivityLog(log);
+      console.log(`DatabaseStorage.trackGiftRedemption - Activity log created with ID ${result.id}`);
+      
+      return result;
+    } catch (error) {
+      console.error('DatabaseStorage.trackGiftRedemption - Error tracking gift redemption:', error);
+      throw error;
+    }
+  }
+
+  async postToClientDashboard(invitationId: number): Promise<boolean> {
+    try {
+      console.log(`DatabaseStorage.postToClientDashboard - Posting invitation ${invitationId} to client dashboard`);
+      
+      // Get the invitation details
+      const invitation = await this.getInvitation(invitationId);
+      if (!invitation) {
+        throw new Error(`Invitation with ID ${invitationId} not found`);
+      }
+      
+      // Check if we have a sender (client) for this invitation
+      if (!invitation.senderId) {
+        console.log(`DatabaseStorage.postToClientDashboard - No sender ID for invitation ${invitationId}, skipping client dashboard post`);
+        return false;
+      }
+      
+      // Get the sender client info
+      const client = await this.getClient(invitation.senderId);
+      if (!client) {
+        console.log(`DatabaseStorage.postToClientDashboard - Sender client ${invitation.senderId} not found, skipping client dashboard post`);
+        return false;
+      }
+      
+      // Create an activity log entry for the client dashboard
+      await this.createActivityLog({
+        type: "invitation_posted_to_client",
+        description: `Gift invitation #${invitation.inviteHash} for ${invitation.name} posted to ${client.name}'s dashboard`,
+        clientId: invitation.senderId,
+        salonId: invitation.salonId || undefined,
+        timestamp: new Date()
+      });
+      
+      console.log(`DatabaseStorage.postToClientDashboard - Successfully posted invitation ${invitationId} to client ${invitation.senderId} dashboard`);
+      
+      return true;
+    } catch (error) {
+      console.error('DatabaseStorage.postToClientDashboard - Error posting to client dashboard:', error);
+      return false;
+    }
+  }
+
+  async postToSalonDashboard(invitationId: number): Promise<boolean> {
+    try {
+      console.log(`DatabaseStorage.postToSalonDashboard - Posting invitation ${invitationId} to salon dashboard`);
+      
+      // Get the invitation details
+      const invitation = await this.getInvitation(invitationId);
+      if (!invitation) {
+        throw new Error(`Invitation with ID ${invitationId} not found`);
+      }
+      
+      // Check if we have a salon ID for this invitation
+      if (!invitation.salonId) {
+        console.log(`DatabaseStorage.postToSalonDashboard - No salon ID for invitation ${invitationId}, skipping salon dashboard post`);
+        return false;
+      }
+      
+      // Get the salon info
+      const salon = await this.getSalon(invitation.salonId);
+      if (!salon) {
+        console.log(`DatabaseStorage.postToSalonDashboard - Salon ${invitation.salonId} not found, skipping salon dashboard post`);
+        return false;
+      }
+      
+      // Create an activity log entry for the salon dashboard
+      await this.createActivityLog({
+        type: "invitation_posted_to_salon",
+        description: `Gift invitation #${invitation.inviteHash} for ${invitation.name} posted to ${salon.name}'s VMB Gifts section`,
+        salonId: invitation.salonId,
+        clientId: invitation.senderId || undefined,
+        timestamp: new Date()
+      });
+      
+      console.log(`DatabaseStorage.postToSalonDashboard - Successfully posted invitation ${invitationId} to salon ${invitation.salonId} dashboard`);
+      
+      return true;
+    } catch (error) {
+      console.error('DatabaseStorage.postToSalonDashboard - Error posting to salon dashboard:', error);
+      return false;
+    }
+  }
+
   // Schema access method for dynamic validation
   getSalonsTable(): typeof salons {
     return salons;
