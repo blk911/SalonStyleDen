@@ -378,7 +378,7 @@ export default function ClientDashboard() {
               <Card className="rounded-xl shadow-sm overflow-hidden">
                 <CardHeader className="bg-pink-50 pb-2 pt-2">
                   <div className="flex justify-between items-center">
-                    <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                    <CardTitle className="text-base flex items-center gap-2 text-pink-700">
                       <ScissorsIcon className="h-4 w-4" />
                       Your Ven Me, Baby! Dashboard
                     </CardTitle>
@@ -392,7 +392,7 @@ export default function ClientDashboard() {
                       {salon?.services && salon.services.length > 0 && (
                         <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
                           <CardHeader className="bg-pink-50 pb-2 pt-2">
-                            <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
+                            <CardTitle className="text-base flex items-center justify-between gap-2 text-pink-700">
                               <span>Pick Your Next Ven Me, Baby! Gift</span>
                               <button 
                                 onClick={() => setShowGiftOptions(!showGiftOptions)} 
@@ -522,7 +522,7 @@ export default function ClientDashboard() {
                       {showPersonalizedOffers && selectedStyle && (
                         <div className="mt-8 border-t pt-4">
                           <div className="bg-gradient-to-r from-pink-100 to-pink-50 p-5 rounded-xl border border-pink-200 relative overflow-hidden">
-                            <h3 className="font-bold text-lg text-pink-700 mb-3 flex items-center">
+                            <h3 className="font-bold text-base text-pink-700 mb-3 flex items-center">
                               <StarIcon className="h-5 w-5 mr-2 text-pink-500" />
                               My Ven Me, Baby! Offers
                             </h3>
