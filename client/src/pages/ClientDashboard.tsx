@@ -125,6 +125,9 @@ export default function ClientDashboard() {
   
   // State for invitation preview
   const [showInvitePreview, setShowInvitePreview] = useState(false);
+  
+  // State for showing/hiding invite form
+  const [showInviteForm, setShowInviteForm] = useState(false);
 
   // Add debugging information to trace API calls
   console.log(`ClientDashboard - Fetching client with ID: ${id}`);
@@ -971,26 +974,41 @@ export default function ClientDashboard() {
                       
                       {/* SHARE VMB Section - MOVED DOWN */}
                       <div className="mt-8 border-t pt-2">
-                        <h3 className="font-semibold text-pink-700 mb-2">SHARE Ven Me, Baby!, WITH YOUR FRIENDS, SO'S, BF, BFF...NOW!</h3>
+                        <h3 className="font-semibold text-pink-700 mb-2 flex items-center justify-between">
+                          <span>Share Ven Me, Baby!</span>
+                          <button 
+                            onClick={() => setShowInviteForm(!showInviteForm)} 
+                            className="flex items-center text-sm text-pink-600 hover:text-pink-800"
+                            aria-label={showInviteForm ? "Hide invitation form" : "Show invitation form"}
+                          >
+                            {showInviteForm ? (
+                              <ChevronUpIcon className="h-5 w-5" />
+                            ) : (
+                              <ChevronDownIcon className="h-5 w-5" />
+                            )}
+                          </button>
+                        </h3>
                         <Card className="shadow-sm overflow-hidden">
                           <CardHeader className="bg-pink-50 pb-2 pt-2">
-                            <CardTitle className="text-sm">VMB is a must share, send via cell or email, send now!</CardTitle>
+                            <CardTitle className="text-sm">INVITE YOUR FRIEND...</CardTitle>
                           </CardHeader>
-                          <CardContent className="p-4">
-                            <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
-                              // Refresh the invitations list
-                              toast({
-                                title: "Invitation Sent",
-                                description: "Your invitation has been sent successfully!"
-                              });
-                            }} />
-                          </CardContent>
+                          {showInviteForm && (
+                            <CardContent className="p-4">
+                              <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
+                                // Refresh the invitations list
+                                toast({
+                                  title: "Invitation Sent",
+                                  description: "Your invitation has been sent successfully!"
+                                });
+                                setShowInviteForm(false);
+                              }} />
+                            </CardContent>
+                          )}
                         </Card>
                       </div>
                       
                       {/* Recent VMB Invitations Sent - MOVED UP */}
                       <div className="mt-4 border-t pt-2">
-                        <h3 className="font-semibold text-pink-700 mb-2">Your Ven Me, Baby! Dashboard</h3>
                         <div className="mb-2">
                           <InlineVmbInvitations clientId={client.id} />
                         </div>
@@ -1021,25 +1039,39 @@ export default function ClientDashboard() {
               </Card>
             )}
             
-            {/* Standalone SHARE VMB Card - MOVED DOWN - shown whether client has a salon or not */}
+            {/* Standalone SHARE VMB Card - MOVED DOWN - shown when client doesn't have a salon */}
             {!client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
                 <CardHeader className="bg-pink-50 pb-2 pt-2">
-                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
-                    SHARE Ven Me, Baby!, WITH YOUR FRIENDS, SO'S, BF, BFF...NOW!
+                  <CardTitle className="text-lg flex items-center justify-between text-pink-700">
+                    <span>Share Ven Me, Baby!</span>
+                    <button 
+                      onClick={() => setShowInviteForm(!showInviteForm)} 
+                      className="flex items-center text-sm text-pink-600 hover:text-pink-800"
+                      aria-label={showInviteForm ? "Hide invitation form" : "Show invitation form"}
+                    >
+                      {showInviteForm ? (
+                        <ChevronUpIcon className="h-5 w-5" />
+                      ) : (
+                        <ChevronDownIcon className="h-5 w-5" />
+                      )}
+                    </button>
                   </CardTitle>
                   <CardDescription>
-                    Invite your friends to join Ven Me, Baby!
+                    INVITE YOUR FRIEND...
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="pt-4">
-                  <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
-                    toast({
-                      title: "Invitation Sent",
-                      description: "Your invitation has been sent successfully!"
-                    });
-                  }} />
-                </CardContent>
+                {showInviteForm && (
+                  <CardContent className="pt-4">
+                    <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
+                      toast({
+                        title: "Invitation Sent",
+                        description: "Your invitation has been sent successfully!"
+                      });
+                      setShowInviteForm(false);
+                    }} />
+                  </CardContent>
+                )}
               </Card>
             )}
           </div>
