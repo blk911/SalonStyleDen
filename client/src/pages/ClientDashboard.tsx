@@ -322,9 +322,11 @@ export default function ClientDashboard() {
                 </div>
               </div>
               
-              <div className="mt-4 md:mt-0">
-                {/* Buttons removed as requested */}
-              </div>
+              {salon && (
+                <div className="mt-4 md:mt-0 text-right">
+                  <span className="text-sm font-medium text-pink-700">Member: {salon.name}</span>
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -380,9 +382,6 @@ export default function ClientDashboard() {
                       <ScissorsIcon className="h-4 w-4" />
                       Your Ven Me, Baby! Dashboard
                     </CardTitle>
-                    {salon && (
-                      <CardDescription className="text-right">Member: {salon.name}</CardDescription>
-                    )}
                   </div>
                 </CardHeader>
                 
