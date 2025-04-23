@@ -927,11 +927,54 @@ export function VmbStyleOptions({
                                 
                                 // Show confirmation dialog
                                 if (window.confirm(`Are you sure you want to send this gift to ${finalName}?`)) {
-                                  toast({
-                                    title: "Gift Sent!",
-                                    description: `Message sent to ${finalName} at ${recipientContact}`,
-                                    variant: "default"
-                                  });
+                                  // First, check if we have an invitation ID to complete
+                                  if (invitationId) {
+                                    // Call the new API endpoint to complete the invitation and post to dashboards
+                                    console.log(`Completing invitation ${invitationId} and posting to dashboards`);
+                                    
+                                    // Set loading state
+                                    setIsSubmitting(true);
+                                    
+                                    // Call the complete endpoint
+                                    apiRequest(`/api/invitations/${invitationId}/complete`, 'POST')
+                                      .then(async (response) => {
+                                        if (response.ok) {
+                                          const result = await response.json();
+                                          console.log("Invitation completed successfully:", result);
+                                          
+                                          // Show more informative toast with dashboard posting details
+                                          toast({
+                                            title: "Gift Sent & Posted!",
+                                            description: `Gift sent to ${finalName} and posted to ${result.postedToSalon ? 'salon' : ''}${result.postedToClient && result.postedToSalon ? ' and ' : ''}${result.postedToClient ? 'client' : ''} dashboard${result.postedToClient && result.postedToSalon ? 's' : ''}`,
+                                            variant: "default"
+                                          });
+                                          
+                                          // Disable buttons to prevent double-sending
+                                          setInvitationConfirmed(true);
+                                        } else {
+                                          const errorData = await response.json();
+                                          throw new Error(errorData.error || "Failed to complete invitation");
+                                        }
+                                      })
+                                      .catch(error => {
+                                        console.error("Error completing invitation:", error);
+                                        toast({
+                                          title: "Error Sending Gift",
+                                          description: `There was a problem posting to dashboards: ${error.message}`,
+                                          variant: "destructive"
+                                        });
+                                      })
+                                      .finally(() => {
+                                        setIsSubmitting(false);
+                                      });
+                                  } else {
+                                    // Regular gift sent without invitation completion
+                                    toast({
+                                      title: "Gift Sent!",
+                                      description: `Message sent to ${finalName} at ${recipientContact}`,
+                                      variant: "default"
+                                    });
+                                  }
                                 }
                               }}
                             >
