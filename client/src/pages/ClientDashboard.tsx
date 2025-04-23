@@ -309,8 +309,8 @@ export default function ClientDashboard() {
       </Dialog>
       
       <main className="flex-grow">
-        {/* Hero Section with Client Info - REDUCED PADDING TO 1px */}
-        <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-1 border-b border-pink-200">
+        {/* Hero Section with Client Info - REDUCED PADDING TO 2px */}
+        <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-2 border-b border-pink-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="flex items-center">
@@ -331,9 +331,9 @@ export default function ClientDashboard() {
           </div>
         </section>
 
-        {/* REDUCED SPACE TO 1px */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1">
-          <div className="space-y-4">
+        {/* REDUCED SPACE TO 3px */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="space-y-6">
             {/* Add dialog for editing client profile */}
             <Dialog open={isEditing} onOpenChange={setIsEditing}>
               <DialogContent className="max-w-4xl">
@@ -376,23 +376,23 @@ export default function ClientDashboard() {
             {/* Full-width Salon Card */}
             {client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
-                <CardHeader className="bg-pink-50 pb-1 pt-1">
+                <CardHeader className="bg-pink-50 pb-2 pt-2">
                   <div className="flex justify-between items-center">
-                    <CardTitle className="collapsible-heading flex items-center gap-2">
+                    <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
                       <ScissorsIcon className="h-4 w-4" />
                       Your Ven Me, Baby! Dashboard
                     </CardTitle>
                   </div>
                 </CardHeader>
                 
-                <CardContent className="pt-2">
+                <CardContent className="pt-4">
                   {salon ? (
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                       {/* Ven Me, Baby! Gift Options - Direct display without salon contact info */}
                       {salon?.services && salon.services.length > 0 && (
-                        <Card className="rounded-xl shadow-sm overflow-hidden mt-2">
-                          <CardHeader className="bg-pink-50 pb-1 pt-1">
-                            <CardTitle className="collapsible-heading flex items-center justify-between gap-2">
+                        <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
+                          <CardHeader className="bg-pink-50 pb-2 pt-2">
+                            <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
                               <span>Pick Your Next Ven Me, Baby! Gift</span>
                               <button 
                                 onClick={() => setShowGiftOptions(!showGiftOptions)} 
@@ -407,7 +407,7 @@ export default function ClientDashboard() {
                               </button>
                             </CardTitle>
                           </CardHeader>
-                          <CardContent className={`pt-2 ${showGiftOptions ? 'block' : 'hidden'}`}>
+                          <CardContent className={`pt-4 ${showGiftOptions ? 'block' : 'hidden'}`}>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {salon.services.filter(service => service.featured === true).map((service: any) => (
                               <div 
@@ -522,7 +522,7 @@ export default function ClientDashboard() {
                       {showPersonalizedOffers && selectedStyle && (
                         <div className="mt-8 border-t pt-4">
                           <div className="bg-gradient-to-r from-pink-100 to-pink-50 p-5 rounded-xl border border-pink-200 relative overflow-hidden">
-                            <h3 className="collapsible-heading font-bold mb-3 flex items-center">
+                            <h3 className="font-bold text-lg text-pink-700 mb-3 flex items-center">
                               <StarIcon className="h-5 w-5 mr-2 text-pink-500" />
                               My Ven Me, Baby! Offers
                             </h3>
@@ -569,7 +569,7 @@ export default function ClientDashboard() {
                             {/* Create Promo Container */}
                             {showCreatePromo && (
                               <div className="mt-4 bg-white p-4 rounded-lg shadow-sm border border-pink-100">
-                                <h5 className="collapsible-heading mb-4">Create Promo</h5>
+                                <h5 className="font-medium text-pink-700 mb-4">Create Promo</h5>
                                 
                                 <div className="space-y-4">
                                   <p className="text-sm text-gray-600">
