@@ -375,13 +375,18 @@ export default function ClientDashboard() {
             {client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
                 <CardHeader className="bg-pink-50 pb-2 pt-2">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col">
                     <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
                       <ScissorsIcon className="h-4 w-4" />
                       Your Ven Me, Baby! Dashboard
                     </CardTitle>
                     {salon && (
-                      <CardDescription className="text-right">Member: {salon.name}</CardDescription>
+                      <CardDescription className="text-left relative">
+                        Member of {salon.name}
+                        <div className="absolute top-0 right-0 w-6 h-6">
+                          {/* This is a placeholder for the arrow in the screenshot */}
+                        </div>
+                      </CardDescription>
                     )}
                   </div>
                 </CardHeader>
