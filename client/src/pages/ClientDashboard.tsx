@@ -969,21 +969,7 @@ export default function ClientDashboard() {
                         </div>
                       )}
                       
-                      {/* SHARE VMB Section - MOVED DOWN */}
-                      <div className="mt-8 border-t pt-2">
-                        <div className="bg-pink-50 py-2 px-3 rounded-t-md border border-pink-100">
-                          <h3 className="font-semibold text-pink-700">Invite Your Friends</h3>
-                        </div>
-                        <div className="p-4 border border-t-0 border-gray-200 rounded-b-md">
-                          <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
-                            // Refresh the invitations list
-                            toast({
-                              title: "Invitation Sent",
-                              description: "Your invitation has been sent successfully!"
-                            });
-                          }} />
-                        </div>
-                      </div>
+
                       
                       {/* Recent VMB Invitations Sent - MOVED UP */}
                       <div className="mt-4 border-t pt-2">
