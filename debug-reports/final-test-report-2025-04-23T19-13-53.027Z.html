@@ -1,0 +1,793 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VMB Final Test Report - 4/23/2025, 7:13:53 PM</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; color: #333; }
+    h1, h2, h3 { color: #444; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .summary { background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+    .test-result { margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; overflow: hidden; }
+    .test-header { padding: 10px 15px; background-color: #f8f8f8; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
+    .test-content { padding: 15px; }
+    .success { color: green; }
+    .failure { color: red; }
+    .warning { color: orange; }
+    .item-list { list-style: none; padding: 0; }
+    .item-list li { padding: 8px; border-bottom: 1px solid #eee; }
+    .item-list li:last-child { border-bottom: none; }
+    .details { margin-top: 5px; font-size: 0.9em; color: #666; }
+    .issue { margin-left: 20px; color: #e74c3c; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>VMB Final Test Report</h1>
+    <p>Generated on: 4/23/2025, 7:13:53 PM</p>
+    
+    <div class="summary">
+      <h2>Summary</h2>
+      <table width="100%">
+        <tr>
+          <td><strong>API Endpoints:</strong></td>
+          <td><span class="success">8/8 passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Components:</strong></td>
+          <td><span class="warning">25/74 passed</span></td>
+        </tr>
+        <tr>
+          <td><strong>Routes:</strong></td>
+          <td><span class="success">14/14 passed</span></td>
+        </tr>
+      </table>
+    </div>
+    
+    <div class="test-result">
+      <div class="test-header">
+        <h2>API Endpoints</h2>
+        <span class="success">PASSED</span>
+      </div>
+      <div class="test-content">
+        <ul class="item-list">
+          
+            <li>
+              <strong>Health Check</strong> 
+              <span class="success">✓</span>
+              <div class="details">
+                GET /api/health
+                
+                
+              </div>
+            </li>
+          
+            <li>
+              <strong>Status</strong> 
+              <span class="success">✓</span>
+              <div class="details">
+                GET /api/status
+                
+                
+              </div>
+            </li>
+          
+            <li>
+              <strong>Get All Clients</strong> 
+              <span class="success">✓</span>
+              <div class="details">
+                GET /api/clients
+                
+                
+              </div>
+            </li>
+          
+            <li>
+              <strong>Get All Salons</strong> 
+              <span class="success">✓</span>
+              <div class="details">
+                GET /api/salons
+                
+                
+              </div>
+            </li>
+          
+            <li>
+              <strong>Get All Invitations</strong> 
+              <span class="success">✓</span>
+              <div class="details">
+                GET /api/invitations
+                
+                
+              </div>
+            </li>
+          
+            <li>
+              <strong>Get Client by ID</strong> 
+              <span class="success">✓</span>
+              <div class="details">
+                GET /api/clients/2
+                
+                
+              </div>
+            </li>
+          
+            <li>
+              <strong>Get Salon by ID</strong> 
+              <span class="success">✓</span>
+              <div class="details">
+                GET /api/salons/42
+                
+                
+              </div>
+            </li>
+          
+            <li>
+              <strong>Get Style Selections</strong> 
+              <span class="success">✓</span>
+              <div class="details">
+                GET /api/clients/2/style-selections
+                
+                
+              </div>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+    
+    <div class="test-result">
+      <div class="test-header">
+        <h2>Components</h2>
+        <span class="warning">ISSUES FOUND</span>
+      </div>
+      <div class="test-content">
+        <ul class="item-list">
+          
+            <li>
+              <strong>dashboard/ClientInvitation</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>dashboard/ClientInviteForm</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>dashboard/EditableClientInfo</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>dashboard/EditablePromo</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>dashboard/EditableSalonInfo</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>dashboard/EditableService</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>dashboard/InlineVmbInvitations</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>dashboard/RecentVmbInvitations</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>dashboard/WeeklySchedule</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>forms/ClientForm</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>forms/SalonForm</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>layout/BrandCarousel</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>layout/Footer</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>layout/Hero</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>layout/Navbar</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>monitoring/MonitoringDashboard</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>promos/VmbStyleOptions</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>shared/LogoText</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>shared/SuccessModal</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>shared/VerificationModal</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>ui/BrandName</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>ui/ContactValidationDialog</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>ui/PromoCodeDialog</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>ui/PromoConfirmationPopup</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>ui/PromoDetailsPopup</strong> 
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>ui/accordion</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/alert-dialog</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/alert</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/aspect-ratio</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/avatar</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/badge</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/breadcrumb</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/button</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/calendar</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/card-section</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/card</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/carousel</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/chart</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/checkbox</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/collapsible</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/command</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/context-menu</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/dialog</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/drawer</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/dropdown-menu</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/form</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/hover-card</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/input-otp</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/input</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/label</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/loading-indicator</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/menubar</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/navigation-menu</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/pagination</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/popover</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/progress</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/radio-group</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/resizable</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/scroll-area</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/select</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/separator</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/sheet</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/sidebar</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/skeleton</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/slider</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/switch</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/table</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/tabs</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/textarea</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/toast</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/toaster</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/toggle-group</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/toggle</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+            <li>
+              <strong>ui/tooltip</strong> 
+              <span class="warning">⚠</span>
+              <div class="issues">
+                  <div class="issue">No export found</div>
+                </div>
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+    
+    <div class="test-result">
+      <div class="test-header">
+        <h2>Routes</h2>
+        <span class="success">PASSED</span>
+      </div>
+      <div class="test-content">
+        <ul class="item-list">
+          
+            <li>
+              <strong>/</strong> → Home
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>/salon/:id</strong> → SalonPublicPage
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>/dashboard/salon/:id</strong> → SalonDashboard
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>/client/register</strong> → ClientRegistrationPage
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>/client/:id</strong> → ClientDashboard
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>/clients</strong> → ClientsPage
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>/salons</strong> → SalonsPage
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>/invitation/:hash</strong> → InvitationPage
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>/promos</strong> → PromosPage
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>/sitemap</strong> → Sitemap
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>/admin</strong> → AdminDashboard
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>/test-image/:id</strong> → TestImagePage
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>/network-visualization</strong> → NetworkVisualization
+              <span class="success">✓</span>
+              
+            </li>
+          
+            <li>
+              <strong>/madge-visualization</strong> → MadgeVisualizationPage
+              <span class="success">✓</span>
+              
+            </li>
+          
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+  
