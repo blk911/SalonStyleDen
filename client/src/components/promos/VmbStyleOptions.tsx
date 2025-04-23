@@ -998,7 +998,7 @@ export function VmbStyleOptions({
                     <div className="p-4 text-center">
                       <div>
                         <AlertTriangle className="h-12 w-12 mx-auto text-amber-400" />
-                        <h3 className="font-medium text-lg mt-2">Style Selection Required</h3>
+                        <h3 className="font-medium text-base mt-2">Style Selection Required</h3>
                         <p className="text-gray-600 mt-1">Please select a style from STEP 1 before proceeding with gift options.</p>
                       </div>
                     </div>

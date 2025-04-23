@@ -155,7 +155,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
           className="flex items-center justify-between py-2 px-1 cursor-pointer"
           onClick={() => setIsFormOpen(!isFormOpen)}
         >
-          <h3 className="text-md font-medium">Invite Your Friends</h3>
+          <h3 className="text-sm font-medium">Invite Your Friends</h3>
           <Button variant="ghost" size="sm" className="p-1 h-7 w-7" type="button">
             {isFormOpen ? (
               <ChevronUpIcon className="h-5 w-5" />

@@ -76,7 +76,7 @@ export default function RecentVmbInvitations({
     <div>
       {/* Salon Invitations */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">VMB Salon Invitations</h2>
+        <h2 className="text-lg font-bold mb-4">VMB Salon Invitations</h2>
         
         <div className="w-full border rounded-md overflow-x-auto">
           {invitations && invitations.length > 0 ? (
