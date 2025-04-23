@@ -1,0 +1,197 @@
+Scan started at Wed 23 Apr 2025 02:48:27 PM UTC
+./clean-project.js
+./client/src/App.tsx
+./client/src/components/dashboard/ClientInvitation.tsx
+./client/src/components/dashboard/EditableService.tsx
+./client/src/components/layout/BrandCarousel.tsx
+./client/src/components/layout/Hero.tsx
+./client/src/components/monitoring/MonitoringDashboard.tsx
+./client/src/components/promos/VmbStyleOptions.tsx
+./client/src/components/ui/aspect-ratio.tsx
+./client/src/components/ui/avatar.tsx
+./client/src/components/ui/chart.tsx
+./client/src/components/ui/PromoCodeDialog.tsx
+./client/src/components/ui/radio-group.tsx
+./client/src/components/ui/sidebar.tsx
+./client/src/hooks/useContactValidation.ts
+./client/src/lib/activity-monitor.ts
+./client/src/lib/utils.ts
+./client/src/pages/AdminDashboard.tsx
+./client/src/pages/ClientDashboard.tsx
+./client/src/pages/ClientsPage.tsx
+./client/src/pages/PromosPage.tsx
+./client/src/pages/SalonPublicPage.tsx
+./client/src/pages/TestImagePage.tsx
+./generate-network-map.js
+./generate-vmb-network.js
+./server/routes.ts
+./server/storage.ts
+./server/utils/importData.ts
+./server/visualization.ts
+./vmb_archive/benchmarks/ClientDashboard_benchmark_20250421.tsx
+./vmb_archive/scripts/cleanup-port.js
+./vmb_archive/scripts/purge-all-invitations.js
+./vmb_archive/scripts/purge-system.js
+./vmb_archive/scripts/purge-testing-data.js
+./vmb_archive/scripts/validate-invitation-fix.js
+./vmb_archive/scripts/verify-purge.js
+./vmb_archive/test_files/archived_test_files/direct-salon-purge.js
+./vmb_archive/test_files/archived_test_files/full-purge.js
+./vmb_archive/test_files/archived_test_files/purge-database.js
+./vmb_archive/test_files/archived_test_files/purge-salons.js
+./vmb_archive/test_files/archived_test_files/purge-test-data.js
+./vmb_archive/test_files/archived_test_files/purge-test-salons.js
+./vmb_archive/test_files/archived_test_files/run-all-system-tests.js
+./vmb_archive/test_files/archived_test_files/run-full-system-test.js
+./vmb_archive/test_files/archived_test_files/scan-components.js
+./vmb_archive/test_files/archived_test_files/test-client-invite-form.js
+./vmb_archive/test_files/archived_test_files/test-components.js
+./vmb_archive/test_files/archived_test_files/test-database.js
+./vmb_archive/test_files/archived_test_files/test-photo-handler.js
+./vmb_archive/test_files/archived_test_files/test-photo-upload.js
+./vmb_archive/test_files/archived_test_files/test-sponsor-rules.js
+./vmb_archive/test_files/archived_test_files/trace-client-form-flow.js
+./vmb_archive/test_files/archived_test_files/validate-client-form.js
+./vmb_archive/test_files/archived_test_files/validate-client-journey.js
+./vmb_archive/test_files/archived_test_files/validate-forms.js
+./vmb_archive/test_files/archived_test_files/validate-routes.js
+[0;31m❌[0m Found 56 potential test files that may not be needed in production
+
+[1;33mPOTENTIALLY UNUSED FILES:[0m
+./client/src/components/ui/accordion.tsx
+./client/src/components/ui/alert-dialog.tsx
+./client/src/components/ui/aspect-ratio.tsx
+./client/src/components/ui/breadcrumb.tsx
+./client/src/components/ui/calendar.tsx
+./client/src/components/ui/context-menu.tsx
+./client/src/components/ui/drawer.tsx
+./client/src/components/ui/dropdown-menu.tsx
+./client/src/components/ui/hover-card.tsx
+./client/src/components/ui/input-otp.tsx
+./client/src/components/ui/menubar.tsx
+./client/src/components/ui/navigation-menu.tsx
+./client/src/components/ui/pagination.tsx
+./client/src/components/ui/progress.tsx
+./client/src/components/ui/resizable.tsx
+./client/src/components/ui/sidebar.tsx
+./client/src/components/ui/slider.tsx
+./client/src/components/ui/toggle-group.tsx
+./client/src/lib/visualizer.ts
+./client/src/main.tsx
+./client/src/types/d3-force.d.ts
+./client/src/types/d3-selection.d.ts
+./drizzle.config.ts
+./server/utils/loadSampleData.ts
+./list-all-salons.js
+./list-salons.js
+./clean-project.js
+./scan-for-obsolete-files.js
+./vmb_archive/test_files/archived_test_files/clear-test-data.js
+./vmb_archive/test_files/archived_test_files/direct-salon-purge.js
+./vmb_archive/test_files/archived_test_files/full-purge.js
+./vmb_archive/test_files/archived_test_files/purge-database.js
+./vmb_archive/test_files/archived_test_files/purge-invitations.js
+./vmb_archive/test_files/archived_test_files/purge-salons.js
+./vmb_archive/test_files/archived_test_files/purge-test-data.js
+./vmb_archive/test_files/archived_test_files/purge-test-salons.js
+./vmb_archive/test_files/archived_test_files/run-all-system-tests.js
+./vmb_archive/test_files/archived_test_files/run-deep-validation.js
+./vmb_archive/test_files/archived_test_files/run-full-system-test.js
+./vmb_archive/test_files/archived_test_files/scan-components.js
+./vmb_archive/test_files/archived_test_files/test-client-invite-form.js
+./vmb_archive/test_files/archived_test_files/test-components.js
+./vmb_archive/test_files/archived_test_files/test-database.js
+./vmb_archive/test_files/archived_test_files/test-photo-handler.js
+./vmb_archive/test_files/archived_test_files/test-photo-upload.js
+./vmb_archive/test_files/archived_test_files/test-sponsor-rules.js
+./vmb_archive/test_files/archived_test_files/trace-client-form-flow.js
+./vmb_archive/test_files/archived_test_files/validate-client-form.js
+./vmb_archive/test_files/archived_test_files/validate-client-journey.js
+./vmb_archive/test_files/archived_test_files/validate-forms.js
+./vmb_archive/test_files/archived_test_files/validate-routes.js
+./vmb_archive/scripts/cleanup-port.js
+./vmb_archive/scripts/clear-port.js
+./vmb_archive/scripts/clear-process.js
+./vmb_archive/scripts/kill-port.js
+./vmb_archive/scripts/migrate-invitation-hashes.js
+./vmb_archive/scripts/migrate-invitation-message-type.js
+./vmb_archive/scripts/migrate-invitations-sender.js
+./vmb_archive/scripts/migrate-optional-email.js
+./vmb_archive/scripts/migrate-sponsor-name.js
+./vmb_archive/scripts/migrate-sponsor-salon.js
+./vmb_archive/scripts/purge-all-invitations.js
+./vmb_archive/scripts/purge-data.js
+./vmb_archive/scripts/purge-system.js
+./vmb_archive/scripts/purge-testing-data.js
+./vmb_archive/scripts/verify-data.js
+./vmb_archive/scripts/verify-invitations.js
+./vmb_archive/scripts/verify-purge.js
+./vmb_archive/scripts/verify-purge-state.js
+./vmb_archive/scripts/validate-invitation-fix.js
+./vmb_archive/benchmarks/ClientDashboard_benchmark_20250421.tsx
+./vmb_archive/benchmarks/client_dashboard_personalization_20250421.tsx
+./purge-invitation-data.js
+./purge-invites.js
+./vmb_benchmark_2025-04-22.js
+./generate-network-map.js
+./generate-vmb-network.js
+./run-visualization.js
+[0;31m❌[0m Found 78 potentially unused files
+\033[1;33mAPI ENDPOINTS FOUND:\033[0m
+./server/index.ts:  if (app.get("env") === "development") {
+./server/madge-api.ts:  app.get('/api/madge/visualizations', async (req: Request, res: Response) => {
+./server/madge-api.ts:  app.post('/api/madge/generate', async (req: Request, res: Response) => {
+./server/routes.ts:  app.post("/api/migrate/service-images", async (req: Request, res: Response) => {
+./server/visualization.ts:  app.get('/api/components', async (req: Request, res: Response) => {
+./server/visualization.ts:  app.get('/api/endpoints', async (req: Request, res: Response) => {
+./server/visualization.ts:  app.get('/api/schema', async (req: Request, res: Response) => {
+
+[1;33mROUTE PARAMETER VALIDATION:[0m
+[0;32m✅[0m All route parameters appear consistent
+
+[1;33mROUTE HANDLER CHECK:[0m
+[0;31m❌[0m Routes potentially missing proper request handlers:
+./server/index.ts:  if (app.get("env") === "development") {
+[0;31m❌[0m Found 451 console.log statements that might need cleanup:
+./client/src/components/ui/PromoCodeDialog.tsx:        console.log(`Validating promo code: ${promoCode}`);
+./client/src/components/ui/PromoCodeDialog.tsx:        console.log(`Validating with phone: ${phoneNumber}`);
+./client/src/components/ui/PromoCodeDialog.tsx:          console.log(`Checking for existing clients with phone: ${phoneNumber}`);
+./client/src/components/ui/PromoCodeDialog.tsx:            console.log("Existing client found:", clientData.id);
+./client/src/components/ui/PromoCodeDialog.tsx:              console.log(`Redirecting to client dashboard: ${clientData.id}`);
+./client/src/components/ui/PromoCodeDialog.tsx:      console.log("Making API request to /api/invitations/validate", "POST");
+./client/src/components/ui/PromoCodeDialog.tsx:      console.log("API request options:", requestOptions);
+./client/src/components/ui/PromoCodeDialog.tsx:      console.log("API response status:", apiResponse.status);
+./client/src/components/ui/PromoCodeDialog.tsx:      console.log("Validation response:", response);
+./client/src/components/ui/PromoCodeDialog.tsx:            console.log(`Redirecting to client dashboard for client ID: ${response.clientId}`);
+./client/src/components/ui/PromoCodeDialog.tsx:      console.log("Registration form submitted with data:", clientData);
+./client/src/components/ui/PromoCodeDialog.tsx:        console.log("Checking for existing client with phone:", clientData.phone);
+./client/src/components/ui/PromoCodeDialog.tsx:            console.log(`Found ${clients.length} clients with matching phone`);
+./client/src/components/ui/PromoCodeDialog.tsx:              console.log("Using existing client:", existingClient.id);
+./client/src/components/ui/PromoCodeDialog.tsx:      console.log("No matching client found, proceeding with registration");
+./client/src/components/ui/PromoCodeDialog.tsx:      console.log("Registration API response:", response.status, data);
+./client/src/components/ui/PromoCodeDialog.tsx:        console.log("Server found existing client, redirecting to dashboard:", data.id);
+./client/src/components/ui/PromoCodeDialog.tsx:        console.log("409 Duplicate detected, client exists but needs more info");
+./client/src/components/ui/PromoCodeDialog.tsx:          console.log("Duplicate has ID, redirecting:", data.id);
+./client/src/components/forms/SalonForm.tsx:      console.log("Submitting salon data:", salonData);
+... and 431 more
+[1;33mDATABASE QUERIES FOUND:[0m
+./server/db.ts:      await client.query('SELECT 1');
+./server/storage.ts:          SELECT column_name 
+./server/storage.ts:          INSERT INTO invitations (${columns.join(', ')})
+./server/storage.ts:        SELECT 
+
+[0;32m✅[0m No obvious SQL injection risks found
+
+[1;33mCHECKING ORM USAGE:[0m
+[0;32m✅[0m No obvious ORM issues detected
+[0;32m✅[0m All components appear to have proper imports
+
+[0;32m✅[0m No obvious useEffect issues detected
+[0;31m❌[0m Direct DOM manipulation found (consider using refs):
+./client/src/components/promos/VmbStyleOptions.tsx:      if (document.getElementById('styleOptions')) {
+./client/src/components/promos/VmbStyleOptions.tsx:        const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
+./client/src/components/promos/VmbStyleOptions.tsx:    const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
+./client/src/pages/Home.tsx:      document.getElementById("salon-form-container")?.scrollIntoView({ behavior: "smooth", block: "start" });
+./client/src/pages/Home.tsx:      document.getElementById("client-form-container")?.scrollIntoView({ behavior: "smooth", block: "start" });
+./client/src/main.tsx:createRoot(document.getElementById("root")!).render(<App />);
+[1;33mCHECKING POTENTIALLY PROBLEMATIC IMPORTS:[0m
