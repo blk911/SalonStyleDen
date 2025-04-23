@@ -157,4 +157,9 @@
   .grid-cols-responsive {
     @apply grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-2;
   }
+  
+  /* Collapsible section headings - consistent site-wide */
+  .collapsible-heading {
+    @apply text-base font-medium text-pink-700;
+  }
 }

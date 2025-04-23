@@ -378,7 +378,7 @@ export default function ClientDashboard() {
               <Card className="rounded-xl shadow-sm overflow-hidden">
                 <CardHeader className="bg-pink-50 pb-1 pt-1">
                   <div className="flex justify-between items-center">
-                    <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                    <CardTitle className="collapsible-heading flex items-center gap-2">
                       <ScissorsIcon className="h-4 w-4" />
                       Your Ven Me, Baby! Dashboard
                     </CardTitle>
@@ -392,7 +392,7 @@ export default function ClientDashboard() {
                       {salon?.services && salon.services.length > 0 && (
                         <Card className="rounded-xl shadow-sm overflow-hidden mt-2">
                           <CardHeader className="bg-pink-50 pb-1 pt-1">
-                            <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
+                            <CardTitle className="collapsible-heading flex items-center justify-between gap-2">
                               <span>Pick Your Next Ven Me, Baby! Gift</span>
                               <button 
                                 onClick={() => setShowGiftOptions(!showGiftOptions)} 
@@ -522,7 +522,7 @@ export default function ClientDashboard() {
                       {showPersonalizedOffers && selectedStyle && (
                         <div className="mt-8 border-t pt-4">
                           <div className="bg-gradient-to-r from-pink-100 to-pink-50 p-5 rounded-xl border border-pink-200 relative overflow-hidden">
-                            <h3 className="font-bold text-lg text-pink-700 mb-3 flex items-center">
+                            <h3 className="collapsible-heading font-bold mb-3 flex items-center">
                               <StarIcon className="h-5 w-5 mr-2 text-pink-500" />
                               My Ven Me, Baby! Offers
                             </h3>
@@ -569,7 +569,7 @@ export default function ClientDashboard() {
                             {/* Create Promo Container */}
                             {showCreatePromo && (
                               <div className="mt-4 bg-white p-4 rounded-lg shadow-sm border border-pink-100">
-                                <h5 className="font-medium text-pink-700 mb-4">Create Promo</h5>
+                                <h5 className="collapsible-heading mb-4">Create Promo</h5>
                                 
                                 <div className="space-y-4">
                                   <p className="text-sm text-gray-600">
