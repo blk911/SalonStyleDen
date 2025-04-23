@@ -57,6 +57,12 @@ export interface IStorage {
   
   // Schema access methods (for dynamic validation)
   getSalonsTable(): typeof salons;
+  
+  // Gift tracking methods for invitation lifecycle
+  updateGiftStatus(invitationId: number, status: string, styleId?: number): Promise<Invitation>;
+  trackGiftRedemption(invitationId: number, clientId: number, salonId: number): Promise<ActivityLog>;
+  postToClientDashboard(invitationId: number): Promise<boolean>;
+  postToSalonDashboard(invitationId: number): Promise<boolean>;
 }
 
 // Copy over all the implementation from old storage.ts then add getSalonsTable method at the end
