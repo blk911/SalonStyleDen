@@ -162,7 +162,7 @@ export default function InlineVmbInvitations({
                     className="text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 flex items-center gap-1 cursor-pointer"
                   >
                     <CheckIcon className="h-3 w-3" />
-                    <span>View Complete Invite</span>
+                    <span>View Complete Invite #{invitation.id}</span>
                   </div>
                 </div>
               )}
