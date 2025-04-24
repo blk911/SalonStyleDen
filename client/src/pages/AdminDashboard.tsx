@@ -97,7 +97,6 @@ export default function AdminDashboard() {
   const [invitationsOpen, setInvitationsOpen] = useState(true);
   const [clientsOpen, setClientsOpen] = useState(true);
   const [activityLogsOpen, setActivityLogsOpen] = useState(true);
-  const [salonsOpen, setSalonsOpen] = useState(true); // New state for salon directory
   
   // Load section states from localStorage
   useEffect(() => {
@@ -108,14 +107,12 @@ export default function AdminDashboard() {
         const invites = localStorage.getItem('adminDashboard_invitationsOpen');
         const clients = localStorage.getItem('adminDashboard_clientsOpen');
         const logs = localStorage.getItem('adminDashboard_activityLogsOpen');
-        const salonsState = localStorage.getItem('adminDashboard_salonsOpen');
         
         if (styleOpt !== null) setStyleOptionsOpen(styleOpt === 'true');
         if (networkVis !== null) setNetworkVisualizationOpen(networkVis === 'true');
         if (invites !== null) setInvitationsOpen(invites === 'true');
         if (clients !== null) setClientsOpen(clients === 'true');
         if (logs !== null) setActivityLogsOpen(logs === 'true');
-        if (salonsState !== null) setSalonsOpen(salonsState === 'true');
       } catch (error) {
         console.error('Error loading section states from localStorage:', error);
       }
@@ -132,11 +129,10 @@ export default function AdminDashboard() {
       localStorage.setItem('adminDashboard_invitationsOpen', invitationsOpen.toString());
       localStorage.setItem('adminDashboard_clientsOpen', clientsOpen.toString());
       localStorage.setItem('adminDashboard_activityLogsOpen', activityLogsOpen.toString());
-      localStorage.setItem('adminDashboard_salonsOpen', salonsOpen.toString());
     } catch (error) {
       console.error('Error saving section states to localStorage:', error);
     }
-  }, [styleOptionsOpen, networkVisualizationOpen, invitationsOpen, clientsOpen, activityLogsOpen, salonsOpen]);
+  }, [styleOptionsOpen, networkVisualizationOpen, invitationsOpen, clientsOpen, activityLogsOpen]);
 
   // Helper function to find client ID for an invitation
   const findClientIdForInvitation = (invitation: Invitation, clientsList: Client[] | undefined): number | null => {
@@ -873,9 +869,8 @@ export default function AdminDashboard() {
             {/* Salons Table */}
             <CollapsibleCard
               title="Salon Directory"
-              titleClassName="bg-pink-100 text-pink-800 px-2 py-1 rounded"
-              isOpen={salonsOpen}
-              onToggle={() => setSalonsOpen(!salonsOpen)}
+              isOpen={activityLogsOpen}
+              onToggle={() => setActivityLogsOpen(!activityLogsOpen)}
             >
               {/* Loading state */}
               {salonIsLoading && (
