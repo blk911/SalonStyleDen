@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { PhoneIcon, MailIcon, CalendarIcon, UserIcon, ClockIcon, BuildingIcon, CheckCircleIcon, ChevronUpIcon, ChevronDownIcon } from "lucide-react";
+import { PhoneIcon, MailIcon, CalendarIcon, UserIcon, ClockIcon, BuildingIcon, CheckCircleIcon, ChevronUpIcon, ChevronDownIcon, ArrowLeftIcon } from "lucide-react";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -381,7 +381,39 @@ export default function InvitationPage() {
           </CardContent>
 
           <CardFooter className="border-t pt-0.5">
-            {/* Go Back and Accept Invitation buttons have been removed */}
+            {isPreviewView ? (
+              <div className="w-full flex justify-between items-center">
+                <div className="text-sm text-gray-500">
+                  {invitation.senderId ? 
+                    "This is a preview of a client gift request form" : 
+                    "This is a preview of a salon invitation"}
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => window.history.back()}
+                  className={invitation.senderId ? 
+                    "border-pink-200 text-pink-700 hover:bg-pink-50" : 
+                    "border-amber-200 text-amber-700 hover:bg-amber-50"}
+                >
+                  <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                  Back to Dashboard
+                </Button>
+              </div>
+            ) : (
+              // Regular footer for non-preview mode
+              <div className="w-full flex justify-end">
+                {invitation.status === 'pending' && (
+                  <Button
+                    onClick={promptAcceptInvitation}
+                    className={invitation.senderId ? 
+                      "bg-pink-600 hover:bg-pink-700 text-white" : 
+                      "bg-amber-600 hover:bg-amber-700 text-white"}
+                  >
+                    Accept Invitation
+                  </Button>
+                )}
+              </div>
+            )}
           </CardFooter>
         </Card>
       </main>
