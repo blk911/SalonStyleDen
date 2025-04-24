@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UserIcon, CalendarIcon, CheckIcon, ClockIcon, ExternalLinkIcon } from "lucide-react";
 import { useLocation } from "wouter";
+import InviteCompleteStatus from "./InviteCompleteStatus";
 
 interface Invitation {
   id: number;
@@ -97,8 +98,16 @@ export default function InlineVmbInvitations({
     setLocation(`/invitation/${inviteHash}`);
   };
 
+  // Count completed invitations
+  const completedInvitations = invitations.filter(invite => 
+    invite.status === 'complete' || invite.status === 'accepted'
+  );
+  
   return (
     <div className="grid grid-cols-1 gap-3">
+      {/* Invite COMPLETE Status at the top */}
+      <InviteCompleteStatus inviteCount={completedInvitations.length} compact={true} />
+      
       {invitations.map(invitation => {
         const statusStyles = getStatusStyles(invitation.status);
         

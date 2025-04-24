@@ -24,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import InviteCompleteStatus from "./InviteCompleteStatus";
 
 const DEFAULT_SERVICES = [
   "French Tips",
@@ -283,8 +284,16 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     }
   };
 
+  // Count completed invitations
+  const completedInvitations = recentInvites.filter(invite => 
+    invite.status === 'complete' || invite.status === 'accepted'
+  );
+  
   return (
     <div className="space-y-6">
+      {/* Invite Complete Status */}
+      <InviteCompleteStatus inviteCount={completedInvitations.length} />
+      
       {/* Send Invitation Form Section */}
       <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
         <div 
