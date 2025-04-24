@@ -845,7 +845,7 @@ export function VmbStyleOptions({
                           
                           {/* Standardized Message Format */}
                           <div className={`rounded-lg ${isMobile ? 'p-1.5' : 'p-2'} bg-blue-50 border border-blue-100 mb-2 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
-                            Hi [NAME], I would love a fresh set. My stylist has an opening for a {confirmedStyle?.name || "[STY OPT]"}, {confirmedStyle ? `$${confirmedStyle.price} for ${confirmedStyle.duration} min` : "[price and time]"} will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]
+                            Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], [price and time] will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]
                           </div>
                           
                           {/* Service Image */}
@@ -870,7 +870,7 @@ export function VmbStyleOptions({
                           {/* Unique Gift ID */}
                           <div className="mt-2 text-center text-xs font-medium">
                             <div className="text-gray-700">Your VMB gift has a unique ID:</div>
-                            <div className="text-pink-600 font-bold">VMB-{Math.random().toString(36).substring(2, 8).toUpperCase()}</div>
+                            <div className="text-pink-600 font-bold">VMB-[RANDOM ID]</div>
                           </div>
                           
                           {/* Payment Method Icons */}
