@@ -90,7 +90,11 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [notes, setNotes] = useState("Hi [client name], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to chooee... Ven Me, Baby! ❤️❤️❤️");
+  
+  // Default message for salon-to-client invitations
+  const defaultSalonToClientMessage = "Hi [client name], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to chooee... Ven Me, Baby! ❤️❤️❤️";
+  
+  const [notes, setNotes] = useState(defaultSalonToClientMessage);
   const [firstServiceDate, setFirstServiceDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -318,7 +322,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     setName("");
     setPhone("");
     setEmail("");
-    setNotes("Hi [client name], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to chooee... Ven Me, Baby! ❤️❤️❤️");
+    setNotes(defaultSalonToClientMessage);
     setFirstServiceDate(new Date().toISOString().split('T')[0]);
     setSelectedServices([]);
   };

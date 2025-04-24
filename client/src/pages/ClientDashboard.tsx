@@ -119,13 +119,18 @@ export default function ClientDashboard() {
   // Show "Complete Your Profile" dialog for newly validated clients
   const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(false);
   
-  // State for invitation form
+  // State for invitation form with default client-to-others message template
   const [inviteForm, setInviteForm] = useState({
     recipientName: '',
     recipientPhone: '',
     recipientEmail: '',
     message: ''
   });
+  
+  // Define client-to-others default message template
+  const getDefaultClientToOthersMessage = () => {
+    return `Hi! ${inviteForm.recipientName || '[recpt name]'},\n\nI love this style - ${selectedStyle?.name || '[selected opt]'}. My nails are a mess and ${salon?.ownerName || '[sal own nm]'} has an opening.\n\nI would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ ${client?.name || ''}`;
+  };
   
   // State for invitation preview
   const [showInvitePreview, setShowInvitePreview] = useState(false);
@@ -644,12 +649,12 @@ export default function ClientDashboard() {
                                     />
                                   </div>
                                   
-                                  {/* Custom Message Field */}
+                                  {/* Custom Message Field - Client-to-Others Message Template */}
                                   <textarea
                                     id="message"
                                     rows={4}
                                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                    placeholder={`Hi! ${inviteForm.recipientName || '[recpt name]'},\n\nI love this style - ${selectedStyle?.name || '[selected opt]'}. My nails are a mess and ${salon?.ownerName || '[sal own nm]'} has an opening.\n\nI would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ ${client.name}`}
+                                    placeholder={getDefaultClientToOthersMessage()}
                                     value={inviteForm.message}
                                     onChange={(e) => setInviteForm({...inviteForm, message: e.target.value})}
                                   />
