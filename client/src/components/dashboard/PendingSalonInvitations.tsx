@@ -105,8 +105,13 @@ export default function PendingSalonInvitations({
 
   // Handle viewing an invitation
   const handleViewInvitation = (invitation: Invitation) => {
+    // Option 1: Show in a dialog (current implementation)
     setSelectedInvitation(invitation);
     setShowInvitationDialog(true);
+    
+    // Option 2: Direct to invitation page with preview mode
+    // This would navigate directly to the invitation page with the preview mode
+    // setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
   };
 
   return (
@@ -228,9 +233,9 @@ export default function PendingSalonInvitations({
               onClick={() => {
                 setShowInvitationDialog(false);
                 
-                // Navigate to the full invitation page if needed
+                // Navigate to the full invitation page with preview mode
                 if (selectedInvitation) {
-                  setLocation(`/invitation/${selectedInvitation.inviteHash}`);
+                  setLocation(`/invitation/${selectedInvitation.inviteHash}?view=preview&prefill=true`);
                 }
               }}
               className={selectedInvitation?.senderId ? 
@@ -238,8 +243,8 @@ export default function PendingSalonInvitations({
                 "bg-amber-600 hover:bg-amber-700 text-white"}
             >
               {selectedInvitation?.senderId ? 
-                "View Full Gift Request" : 
-                "Accept Salon Invitation"}
+                "View Complete Gift Request" : 
+                "View Complete Invitation"}
             </Button>
           </div>
         </DialogContent>

@@ -355,14 +355,23 @@ export default function InvitationPage() {
                           });
                         }}
                         // Set the initial style selection if viewing a pending invitation
-                        initialStyleId={
-                          invitation && invitation.favoriteServices && Array.isArray(invitation.favoriteServices) && invitation.favoriteServices.length > 0 && salon && salon.services 
-                            ? salon.services.find(s => s.name === invitation.favoriteServices[0])?.id 
-                            : undefined
-                        }
+                        initialStyleId={(() => {
+                          // Complex logic moved to an IIFE to avoid TSLint errors
+                          if (!invitation || !salon || !salon.services) return undefined;
+                          // Safely check favoriteServices
+                          const favServices = invitation.favoriteServices;
+                          if (!favServices || !Array.isArray(favServices) || favServices.length === 0) return undefined;
+                          // Find the matching service
+                          const foundService = salon.services.find(s => s.name === favServices[0]);
+                          return foundService?.id;
+                        })()}
                         isPreviewMode={isPreviewView}
                         shouldPrefill={shouldPrefill}
-                        prefilledServices={invitation && invitation.favoriteServices && Array.isArray(invitation.favoriteServices) ? invitation.favoriteServices : []}
+                        prefilledServices={(() => {
+                          if (!invitation) return [];
+                          const favServices = invitation.favoriteServices;
+                          return (favServices && Array.isArray(favServices)) ? favServices : [];
+                        })()}
                       />
                     </CollapsibleContent>
                   </Collapsible>
