@@ -1,5 +1,4 @@
 import React from 'react';
-import { MessageCircleIcon } from 'lucide-react';
 
 interface RenderedInvitationProps {
   recipientName?: string;
@@ -27,54 +26,55 @@ export const RenderedInvitation: React.FC<RenderedInvitationProps> = ({
   onPass
 }) => {
   return (
-    <div className="border-2 border-teal-600 rounded-md p-5 max-w-md mx-auto bg-white">
-      <div className="flex items-start gap-2 mb-3">
-        <MessageCircleIcon className="h-5 w-5 text-gray-600 mt-1 flex-shrink-0" />
-        <div className="text-gray-800 leading-relaxed">
-          <p>
-            Hi <span className="font-semibold">{recipientName}</span>, I would love a fresh set. My stylist has an opening for a <span className="font-semibold">{styleOption}</span>, {priceAndTime}
-          </p>
-          <p>will you Ven Me, Baby! <span className="text-red-500">❤️ ❤️ ❤️</span> <span className="font-semibold">{signature}</span></p>
-        </div>
+    <div className="border-2 border-teal-600 rounded-md p-6 max-w-md mx-auto">
+      {/* Message text */}
+      <div className="text-center mb-4">
+        <p className="mb-1">
+          Hi {recipientName}, I would love a fresh set. My stylist has an opening 
+          for a {styleOption}, {priceAndTime}
+        </p>
+        <p>will you Ven Me, Baby! <span className="text-pink-500">❤️ ❤️ ❤️</span> {signature}</p>
       </div>
 
-      <div className="text-center my-3 text-sm">
-        Your VMB gift has a unique ID: <span className="font-bold text-pink-600">VMB-{inviteId}</span>
+      {/* Unique ID */}
+      <div className="text-center mb-4">
+        Your VMB gift has a unique ID: <strong className="text-pink-600">VMB-{inviteId}</strong>
       </div>
 
-      <div className="space-y-2 mt-4">
-        {/* Payment option buttons in first row */}
+      {/* Buttons */}
+      <div>
+        {/* Payment options */}
         <div className="grid grid-cols-3 gap-2 mb-3">
           <button 
-            className="bg-green-100 hover:bg-green-200 text-green-700 py-2 px-3 rounded border border-green-200 transition-colors"
+            className="bg-green-100 text-green-800 py-2 px-4 rounded border border-green-200"
             onClick={onVenSelected}
           >
             VEN
           </button>
           <button 
-            className="bg-blue-100 hover:bg-blue-200 text-blue-700 py-2 px-3 rounded border border-blue-200 transition-colors"
+            className="bg-blue-100 text-blue-800 py-2 px-4 rounded border border-blue-200"
             onClick={onCashAppSelected}
           >
             C app
           </button>
           <button 
-            className="bg-orange-100 hover:bg-orange-200 text-orange-700 py-2 px-3 rounded border border-orange-200 transition-colors"
+            className="bg-orange-100 text-orange-800 py-2 px-4 rounded border border-orange-200"
             onClick={onZelleSelected}
           >
             Zel
           </button>
         </div>
 
-        {/* Response buttons in second row */}
+        {/* Response options */}
         <div className="grid grid-cols-2 gap-2">
           <button 
-            className="bg-red-100 hover:bg-red-200 text-red-700 py-2 px-3 rounded border border-red-200 transition-colors"
+            className="bg-red-100 text-red-800 py-2 px-4 rounded border border-red-200"
             onClick={onPass}
           >
             Pass
           </button>
           <button 
-            className="bg-green-100 hover:bg-green-200 text-green-700 py-2 px-3 rounded border border-green-200 transition-colors"
+            className="bg-green-100 text-green-800 py-2 px-4 rounded border border-green-200"
             onClick={onDecline}
           >
             Decline
