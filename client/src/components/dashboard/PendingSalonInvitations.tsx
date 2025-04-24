@@ -114,21 +114,33 @@ export default function PendingSalonInvitations({
       {invitations.map(invitation => (
         <Card 
           key={invitation.id} 
-          className="border border-amber-100 hover:border-amber-300 hover:shadow-md transition-all duration-200"
+          className={invitation.senderId ? 
+            "border border-pink-100 hover:border-pink-300 hover:shadow-md transition-all duration-200" :
+            "border border-amber-100 hover:border-amber-300 hover:shadow-md transition-all duration-200"
+          }
         >
           <CardContent className="p-3 relative">
             <div className="flex flex-row justify-between items-center mb-1">
               <div className="flex items-center gap-2">
-                <UserIcon className="h-4 w-4 text-amber-500" />
+                <UserIcon className={`h-4 w-4 ${invitation.senderId ? 'text-pink-500' : 'text-amber-500'}`} />
                 <span className="font-medium">{invitation.name}</span>
-                <Badge className="bg-amber-100 text-amber-700">
-                  PENDING #{invitation.id}
+                <Badge className={invitation.senderId ? 
+                  "bg-pink-100 text-pink-700" : 
+                  "bg-amber-100 text-amber-700"
+                }>
+                  {invitation.senderId ? 
+                    `[${invitation.id}] Ven Me, Baby! Gift Request Form` : 
+                    `Salon Invite; ${invitation.name} [${invitation.id}]`}
                 </Badge>
               </div>
               <Button
                 size="sm"
                 variant="outline"
-                className="h-8 px-2 border-amber-200 text-amber-700 hover:bg-amber-50"
+                className={`h-8 px-2 ${
+                  invitation.senderId ? 
+                  'border-pink-200 text-pink-700 hover:bg-pink-50' : 
+                  'border-amber-200 text-amber-700 hover:bg-amber-50'
+                }`}
                 onClick={() => handleViewInvitation(invitation)}
               >
                 <ExternalLinkIcon className="h-3.5 w-3.5 mr-1" />
@@ -138,25 +150,25 @@ export default function PendingSalonInvitations({
             
             <div className="text-xs text-gray-500 mt-2 space-y-1">
               <div className="flex items-center gap-1">
-                <CalendarIcon className="h-3 w-3" />
+                <CalendarIcon className={`h-3 w-3 ${invitation.senderId ? 'text-pink-400' : 'text-amber-400'}`} />
                 <span>Sent: {formatDate(invitation.createdAt)}</span>
               </div>
               
               {invitation.firstServiceDate && (
                 <div className="flex items-center gap-1">
-                  <ClockIcon className="h-3 w-3" />
+                  <ClockIcon className={`h-3 w-3 ${invitation.senderId ? 'text-pink-400' : 'text-amber-400'}`} />
                   <span>Appointment: {formatDate(invitation.firstServiceDate)}</span>
                 </div>
               )}
               
               <div className="flex items-center gap-1">
-                <PhoneIcon className="h-3 w-3" />
+                <PhoneIcon className={`h-3 w-3 ${invitation.senderId ? 'text-pink-400' : 'text-amber-400'}`} />
                 <span>{formatPhonePartial(invitation.phone)}</span>
               </div>
               
               {invitation.styleOption && (
                 <div className="flex items-center gap-1">
-                  <GiftIcon className="h-3 w-3" />
+                  <GiftIcon className={`h-3 w-3 ${invitation.senderId ? 'text-pink-400' : 'text-amber-400'}`} />
                   <span>Style: {invitation.styleOption}</span>
                 </div>
               )}
@@ -181,9 +193,15 @@ export default function PendingSalonInvitations({
       <Dialog open={showInvitationDialog} onOpenChange={setShowInvitationDialog}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Invitation Details</DialogTitle>
+            <DialogTitle>
+              {selectedInvitation?.senderId ? 
+                "Gift Request Details" : 
+                "Salon Invitation Details"}
+            </DialogTitle>
             <DialogDescription>
-              {selectedInvitation?.sponsor} has sent you a Ven Me, Baby! invitation
+              {selectedInvitation?.senderId ?
+                `You created this gift request for ${selectedInvitation?.name}` :
+                `${selectedInvitation?.sponsor} has sent you a Ven Me, Baby! invitation`}
             </DialogDescription>
           </DialogHeader>
           
@@ -214,8 +232,13 @@ export default function PendingSalonInvitations({
                   setLocation(`/invitation/${selectedInvitation.inviteHash}`);
                 }
               }}
+              className={selectedInvitation?.senderId ? 
+                "bg-pink-600 hover:bg-pink-700 text-white" : 
+                "bg-amber-600 hover:bg-amber-700 text-white"}
             >
-              Accept Invitation
+              {selectedInvitation?.senderId ? 
+                "View Full Gift Request" : 
+                "Accept Salon Invitation"}
             </Button>
           </div>
         </DialogContent>
