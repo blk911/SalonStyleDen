@@ -44,9 +44,12 @@ interface Salon {
 
 export default function InvitationPage() {
   const { hash } = useParams();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  
+  // Check if we're viewing a complete invitation
+  const isCompleteView = location.includes('complete=true');
   
   // State for section visibility with localStorage persistence
   const [styleSectionOpen, setStyleSectionOpen] = useState(() => {
