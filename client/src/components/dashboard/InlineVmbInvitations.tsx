@@ -94,8 +94,14 @@ export default function InlineVmbInvitations({
   };
 
   // Navigate to invitation detail page
-  const goToInvitationPage = (inviteHash: string) => {
-    setLocation(`/invitation/${inviteHash}`);
+  const goToInvitationPage = (invitation: Invitation) => {
+    // If invitation is complete, go to the complete invitation page with ID
+    // Otherwise go to the regular invitation page with hash
+    if (invitation.status.toLowerCase() === 'complete') {
+      setLocation(`/complete-invitation/${invitation.id}`);
+    } else {
+      setLocation(`/invitation/${invitation.inviteHash}`);
+    }
   };
 
   // Count completed invitations
@@ -117,7 +123,7 @@ export default function InlineVmbInvitations({
           <Card 
             key={invitation.id} 
             className="border border-pink-100 hover:border-pink-300 hover:shadow-md transition-all duration-200 cursor-pointer group"
-            onClick={() => goToInvitationPage(invitation.inviteHash)}
+            onClick={() => goToInvitationPage(invitation)}
           >
             <CardContent className="p-3 relative">
               <div className="flex flex-row justify-between items-center mb-1">
@@ -155,10 +161,10 @@ export default function InlineVmbInvitations({
                       // Go to the CompleteInvitationPage with the invitation ID
                       setLocation(`/complete-invitation/${invitation.id}`);
                     }}
-                    className="text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 flex items-center gap-1 cursor-pointer"
+                    className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center gap-1 cursor-pointer"
                   >
-                    <CheckIcon className="h-3 w-3" />
-                    <span>View Complete Invite #{invitation.id}</span>
+                    <ExternalLinkIcon className="h-3 w-3" />
+                    <span>View #{invitation.id}</span>
                   </div>
                 </div>
               )}
