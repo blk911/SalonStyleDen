@@ -527,15 +527,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
             ) : (
               <ScrollArea className="h-[200px]">
                 <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-1/3"></TableHead>
-                      <TableHead className="text-center w-1/6"><Phone className="h-3 w-3 inline-block" /></TableHead>
-                      <TableHead className="text-center w-1/6"><Mail className="h-3 w-3 inline-block" /></TableHead>
-                      <TableHead className="text-center w-1/6"><LinkIcon className="h-3 w-3 inline-block" /></TableHead>
-                      <TableHead className="text-center w-1/6"><Calendar className="h-3 w-3 inline-block" /></TableHead>
-                    </TableRow>
-                  </TableHeader>
+                  {/* Removed table header - no labels above clients as requested */}
                   <TableBody>
                     {pendingInvitations.map((invite) => (
                       <TableRow key={invite.id} className="h-[28px]">
