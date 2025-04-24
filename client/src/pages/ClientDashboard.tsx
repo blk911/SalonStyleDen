@@ -945,7 +945,31 @@ export default function ClientDashboard() {
               </Card>
             )}
             
-            {/* Invitations Card - REMOVED */}
+            {/* Invitations Card - Restored */}
+            <Card className="rounded-xl shadow-sm overflow-hidden mt-6">
+              <CardHeader className="bg-pink-50 pb-2 pt-2">
+                <CardTitle className="text-base flex items-center justify-between gap-2 text-pink-700">
+                  <span>My Invitations</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                {invitationsLoading ? (
+                  <div className="py-4 text-center">
+                    <p className="text-gray-500">Loading invitations...</p>
+                  </div>
+                ) : invitationsError ? (
+                  <div className="py-4 text-center">
+                    <p className="text-red-500">Error loading invitations</p>
+                  </div>
+                ) : invitations && invitations.length > 0 ? (
+                  <InlineVmbInvitations clientId={client?.id} limit={5} />
+                ) : (
+                  <div className="py-4 text-center">
+                    <p className="text-gray-500">No invitations yet</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
             
             {/* Standalone section removed */}
           </div>

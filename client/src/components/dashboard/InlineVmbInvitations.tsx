@@ -105,8 +105,10 @@ export default function InlineVmbInvitations({
   
   return (
     <div className="grid grid-cols-1 gap-3">
-      {/* Invite COMPLETE Status at the top */}
-      <InviteCompleteStatus inviteCount={completedInvitations.length} compact={true} />
+      {/* Invite COMPLETE Status at the top - only show if there are completed invitations */}
+      {completedInvitations.length > 0 && (
+        <InviteCompleteStatus inviteCount={completedInvitations.length} compact={true} />
+      )}
       
       {invitations.map(invitation => {
         const statusStyles = getStatusStyles(invitation.status);
