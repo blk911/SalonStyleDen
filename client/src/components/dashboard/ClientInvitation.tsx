@@ -291,8 +291,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   
   return (
     <div className="space-y-6">
-      {/* Invite Complete Status */}
-      <InviteCompleteStatus inviteCount={completedInvitations.length} />
+      {/* Recent Invitation List (Detailed) - Moved below the Send Invitation Form */}
       
       {/* Send Invitation Form Section */}
       <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
@@ -552,6 +551,16 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           </CardContent>
         )}
       </Card>
+      
+      {/* Enhanced Invitation Details Section - Shows completed invitations with detailed information */}
+      {completedInvitations.length > 0 && (
+        <div className="mt-6">
+          <InviteCompleteStatus 
+            inviteCount={completedInvitations.length} 
+            invitations={recentInvites} 
+          />
+        </div>
+      )}
       
       {/* Use our shared validation dialog component */}
       <ContactValidationDialog
