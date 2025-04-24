@@ -23,7 +23,7 @@ export default function InviteCompleteStatus({
           )}
           <div className="flex items-center mt-1">
             <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium whitespace-nowrap">
-              INVITE COMPLETE
+              COMPLETE
             </span>
             {inviteCount > 0 && (
               <span className="ml-2 text-sm text-gray-600">

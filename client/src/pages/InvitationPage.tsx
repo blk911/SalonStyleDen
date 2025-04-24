@@ -293,11 +293,12 @@ export default function InvitationPage() {
                 </div>
               </div>
               <Badge className={`
-                ${invitation.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : ''}
-                ${invitation.status === 'accepted' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                ${invitation.status === 'completed' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
+                ${invitation.status === 'pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' : ''}
+                ${invitation.status === 'accepted' ? 'bg-green-100 text-green-700 border-green-200' : ''}
+                ${invitation.status === 'complete' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : ''}
+                ${invitation.status === 'completed' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : ''}
               `}>
-                {invitation.status || 'pending'}
+                {(invitation.status || 'pending').toUpperCase()} #{invitation.id}
               </Badge>
             </div>
           </CardHeader>
