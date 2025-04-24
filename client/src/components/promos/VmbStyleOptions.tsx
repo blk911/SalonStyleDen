@@ -967,6 +967,12 @@ export function VmbStyleOptions({
                 <p className="font-medium mt-1">{confirmedStyle?.name || "Selected Style"}</p>
                 <p className="text-xs mt-2">Recipient: {recipientName || "Friend"}</p>
                 <p className="text-xs">{recipientContact || "No contact provided"}</p>
+                {invitationId && (
+                  <div className="mt-2 bg-green-50 p-1.5 rounded border border-green-100 text-[10px]">
+                    <p className="font-medium text-green-700">Completing Invitation ID: {invitationId}</p>
+                    <p className="text-green-600">Status will change to COMPLETE</p>
+                  </div>
+                )}
               </div>
             </div>
             <DialogFooter className="sm:justify-between">
@@ -1036,8 +1042,11 @@ export function VmbStyleOptions({
                   <>
                     <span className="mr-2">Processing...</span>
                     <Sparkles className="h-4 w-4 animate-spin" />
-                  </> : 
-                  'Confirm & Send'
+                  </> : (
+                    invitationId ? 
+                    'Complete Invitation & Send' : 
+                    'Confirm & Send'
+                  )
                 }
               </Button>
             </DialogFooter>
