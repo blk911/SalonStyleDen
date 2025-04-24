@@ -849,6 +849,177 @@ export default function AdminDashboard() {
                 </ScrollArea>
               )}
             </CollapsibleCard>
+
+            {/* Network Visualization with Madge + Graphviz */}
+            <CollapsibleCard
+              title="Network Visualization"
+              description="Explore component dependencies and relationships using Madge + Graphviz"
+              isOpen={networkVisualizationOpen}
+              onToggle={() => setNetworkVisualizationOpen(!networkVisualizationOpen)}
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                {/* Left Side - Controls */}
+                <div className="lg:col-span-1 space-y-4 border-r pr-4">
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Layout Algorithm</label>
+                    <Select
+                      value={selectedLayout}
+                      onValueChange={setSelectedLayout}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select layout" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="dot">Hierarchical (dot)</SelectItem>
+                        <SelectItem value="fdp">Force-Directed (fdp)</SelectItem>
+                        <SelectItem value="twopi">Radial (twopi)</SelectItem>
+                        <SelectItem value="circo">Circular (circo)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Focus Path (optional)</label>
+                    <Select
+                      value={focusPath}
+                      onValueChange={setFocusPath}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select focus area" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="fullapp">Full Application</SelectItem>
+                        <SelectItem value="client/src/components">Components</SelectItem>
+                        <SelectItem value="client/src/pages">Pages</SelectItem>
+                        <SelectItem value="client/src/hooks">Hooks</SelectItem>
+                        <SelectItem value="client/src/contexts">Contexts</SelectItem>
+                        <SelectItem value="server">Server</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-gray-500 mt-1">Focus the visualization on a specific area of the codebase</p>
+                  </div>
+                  
+                  <Button 
+                    variant="default" 
+                    className="w-full bg-pink-600 hover:bg-pink-700"
+                    disabled={generating}
+                    onClick={async () => {
+                      try {
+                        setGenerating(true);
+                        
+                        const response = await fetch('/api/madge/generate', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            layout: selectedLayout,
+                            format: 'svg',
+                            focus: focusPath === 'fullapp' ? '' : focusPath,
+                          }),
+                        });
+                        
+                        if (!response.ok) {
+                          const errorData = await response.json();
+                          throw new Error(errorData.error || 'Failed to generate visualization');
+                        }
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                          setSelectedVisualization(data.path);
+                          toast({
+                            title: "Visualization generated",
+                            description: `Created ${data.filename} (${data.size}KB)`,
+                          });
+                        } else {
+                          throw new Error('Failed to generate visualization');
+                        }
+                      } catch (error: any) {
+                        console.error('Error generating visualization:', error);
+                        toast({
+                          title: "Generation failed",
+                          description: error.message,
+                          variant: "destructive",
+                        });
+                      } finally {
+                        setGenerating(false);
+                      }
+                    }}
+                  >
+                    {generating ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Code className="h-4 w-4 mr-2" />
+                        Generate Visualization
+                      </>
+                    )}
+                  </Button>
+                </div>
+                
+                {/* Right Side - Visualization Display */}
+                <div className="lg:col-span-3 min-h-[400px] border rounded-md p-2 flex items-center justify-center relative">
+                  {!selectedVisualization ? (
+                    <div className="text-center text-gray-500 space-y-3">
+                      <NetworkIcon className="h-16 w-16 mx-auto text-gray-300" />
+                      <p>Generate a network visualization to see component relationships</p>
+                    </div>
+                  ) : (
+                    <div className="w-full h-full overflow-auto flex items-center justify-center">
+                      <img 
+                        src={selectedVisualization} 
+                        alt="Network Visualization" 
+                        className="max-w-full"
+                        style={{ maxHeight: '600px' }}
+                      />
+                    </div>
+                  )}
+                  
+                  {selectedVisualization && (
+                    <div className="absolute top-2 right-2 flex gap-2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <a 
+                              href={selectedVisualization} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
+                            >
+                              <Eye className="h-4 w-4 text-gray-600" />
+                            </a>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Open in new tab</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <a 
+                              href={selectedVisualization} 
+                              download
+                              className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
+                            >
+                              <Download className="h-4 w-4 text-gray-600" />
+                            </a>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Download visualization</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CollapsibleCard>
           </div>
         </div>
       </main>
