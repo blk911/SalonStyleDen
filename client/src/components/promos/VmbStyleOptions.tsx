@@ -705,7 +705,7 @@ export function VmbStyleOptions({
                               {invitationMessage}
                             </div>
                             
-                            {/* Show the style card */}
+                            {/* Invitation preview card with service details */}
                             <div className="flex items-center gap-2 border border-gray-200 rounded-lg p-2 my-2 bg-white">
                               <img
                                 src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
@@ -722,19 +722,30 @@ export function VmbStyleOptions({
                               </div>
                             </div>
                             
-                            <div className="flex gap-2 mt-2 items-center justify-center">
-                              <div className="flex gap-1">
-                                <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
-                                  <span className="text-[8px] font-bold">Z</span>
-                                </div>
-                                <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
-                                  <span className="text-[8px] font-bold">V</span>
-                                </div>
-                                <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
-                                  <span className="text-[8px] font-bold">CA</span>
+                            {/* Unique hash/ID for the invitation */}
+                            <div className="mb-2 text-center">
+                              <div className="text-[10px] text-gray-500">Your VMB gift has a unique ID:</div>
+                              <div className="text-[10px] font-mono bg-gray-50 p-1 rounded border border-gray-100">
+                                VMB-{Math.random().toString(36).substring(2, 8).toUpperCase()}
+                              </div>
+                            </div>
+                            
+                            {/* Payment options */}
+                            <div className="flex flex-col mt-3 items-center justify-center gap-1">
+                              <div className="text-[10px] font-medium text-gray-700">Payment methods available:</div>
+                              <div className="flex gap-2 items-center justify-center">
+                                <div className="flex items-center gap-1.5">
+                                  <div className="h-7 w-7 rounded-full bg-blue-500 text-white shadow-sm flex items-center justify-center hover:bg-blue-600 cursor-pointer">
+                                    <span className="text-[9px] font-bold">Z</span>
+                                  </div>
+                                  <div className="h-7 w-7 rounded-full bg-teal-500 text-white shadow-sm flex items-center justify-center hover:bg-teal-600 cursor-pointer">
+                                    <span className="text-[9px] font-bold">V</span>
+                                  </div>
+                                  <div className="h-7 w-7 rounded-full bg-green-500 text-white shadow-sm flex items-center justify-center hover:bg-green-600 cursor-pointer">
+                                    <span className="text-[9px] font-bold">CA</span>
+                                  </div>
                                 </div>
                               </div>
-                              <div className="text-[8px] text-gray-500">Payment options coming soon</div>
                             </div>
                           </div>
                         </div>
