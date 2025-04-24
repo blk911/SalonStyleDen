@@ -126,7 +126,7 @@ export default function InlineVmbInvitations({
                   <span className="font-medium">{invitation.name}</span>
                 </div>
                 <Badge className={`${statusStyles.bg} ${statusStyles.text}`}>
-                  {invitation.status}
+                  {invitation.status} #{invitation.id}
                 </Badge>
               </div>
               
@@ -143,12 +143,7 @@ export default function InlineVmbInvitations({
                   </div>
                 )}
                 
-                {invitation.status === 'accepted' && (
-                  <div className="flex items-center gap-1 text-green-600">
-                    <CheckIcon className="h-3 w-3" />
-                    <span>Accepted</span>
-                  </div>
-                )}
+                {/* Removed the Accepted indicator since it's shown in the badge */}
               </div>
               
               {/* Display "Complete Invite" button for completed/accepted invitations */}
