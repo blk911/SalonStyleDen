@@ -517,46 +517,8 @@ export function VmbStyleOptions({
                   <div className="grid grid-cols-1 gap-4">
                     <div className={`border rounded ${isMobile ? 'px-2 py-1' : 'px-2 py-2'} border-pink-200 bg-pink-50`}>
                       <div className="flex flex-col md:flex-row">
-                      {/* Left side - Selected style */}
-                      <div className={`${isMobile ? 'w-full' : 'w-full md:w-1/2'} text-left ${isMobile ? 'pr-0' : 'pr-2'} ${isMobile ? '' : 'md:border-r border-pink-100'} pb-2 md:pb-0`}>
-                        <h3 className={`font-medium ${isMobile ? 'text-sm' : 'text-compact'} text-center`}>Selected Style</h3>
-                        <div className="mt-2">
-                          {confirmedStyle ? (
-                            <div className="border rounded px-2 py-2 border-pink-200 bg-pink-50">
-                              <div className="flex">
-                                <div className="w-2/3 text-left pr-2">
-                                  <h3 className="font-medium text-compact">{confirmedStyle.name}</h3>
-                                  <p className="text-micro text-gray-600">{confirmedStyle.description}</p>
-                                  
-                                  <div className="mt-1 flex items-center gap-2">
-                                    <span className="font-bold text-compact">${Math.round(confirmedStyle.price)}</span>
-                                    <span className="text-micro">{confirmedStyle.duration} min</span>
-                                  </div>
-                                </div>
-                                
-                                <div className="w-1/3 flex items-center justify-end pl-2">
-                                  <img 
-                                    src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
-                                    alt={confirmedStyle.name}
-                                    className="h-20 w-20 object-cover rounded-md"
-                                    onError={(e) => {
-                                      console.error(`Failed to load image for service: ${confirmedStyle.name}`);
-                                      e.currentTarget.src = '/assets/LOGO1.png';
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-32 flex items-center justify-center">
-                              <p className="text-mini text-gray-500">No style selected yet</p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Right side - Invitation Design Form */}
-                      <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
+                      {/* Left side - Form Fields */}
+                      <div className="w-full md:w-1/2 text-left pr-2 md:border-r border-pink-100 pb-2 md:pb-0">
                         <h3 className="font-medium text-compact text-center">Your Invitation Design</h3>
                         <div className="mt-2">
                           {confirmedStyle ? (
@@ -677,42 +639,6 @@ export function VmbStyleOptions({
                                 }}
                               />
                               
-                              <div className="text-micro text-gray-700 mb-1">Message Preview:</div>
-                              <div className="border border-pink-200 rounded p-2 bg-white">
-                                <div className="rounded-lg p-2 bg-blue-50 border border-blue-100 mb-2 max-w-[280px]">
-                                  {invitationMessage}
-                                </div>
-                                {/* Show the style card */}
-                                <div className="flex items-center gap-2 max-w-[280px] border border-gray-200 rounded-lg p-2 my-2 bg-white">
-                                  <img
-                                    src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
-                                    alt={confirmedStyle.name}
-                                    className="h-14 w-14 object-cover rounded-md"
-                                    onError={(e) => {
-                                      console.error(`Failed to load image for service: ${confirmedStyle.name}`);
-                                      e.currentTarget.src = '/assets/LOGO1.png';
-                                    }}
-                                  />
-                                  <div>
-                                    <div className="font-medium text-xs">{confirmedStyle.name}</div>
-                                    <div className="text-[10px] text-gray-600">${Math.round(confirmedStyle.price)} · {confirmedStyle.duration} min</div>
-                                  </div>
-                                </div>
-                                <div className="flex gap-2 mt-2 items-center justify-center">
-                                  <div className="flex gap-1">
-                                    <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
-                                      <span className="text-[8px] font-bold">Z</span>
-                                    </div>
-                                    <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
-                                      <span className="text-[8px] font-bold">V</span>
-                                    </div>
-                                    <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
-                                      <span className="text-[8px] font-bold">CA</span>
-                                    </div>
-                                  </div>
-                                  <div className="text-[8px] text-gray-500">Payment options coming soon</div>
-                                </div>
-                              </div>
                               <textarea 
                                 placeholder={`Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`}
                                 className="w-full p-1.5 text-[10px] border border-pink-100 rounded h-16 mt-2 hidden"
