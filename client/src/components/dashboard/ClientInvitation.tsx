@@ -335,16 +335,20 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     }
   };
 
-  // Filter invitations by status
-  const pendingInvitations = recentInvites.filter(invite => 
+  // Sort invitations by most recent first and filter by status
+  const sortedInvites = [...recentInvites].sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  const pendingInvitations = sortedInvites.filter(invite => 
     invite.status === 'pending' || !invite.status
   );
   
-  const scheduledInvitations = recentInvites.filter(invite => 
+  const scheduledInvitations = sortedInvites.filter(invite => 
     invite.status === 'scheduled' || invite.status === 'appointment'
   );
   
-  const completedInvitations = recentInvites.filter(invite => 
+  const completedInvitations = sortedInvites.filter(invite => 
     invite.status === 'complete' || invite.status === 'accepted'
   );
   
@@ -525,11 +529,11 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead className="text-center"><Phone className="h-3 w-3 inline-block" /></TableHead>
-                      <TableHead className="text-center"><Mail className="h-3 w-3 inline-block" /></TableHead>
-                      <TableHead className="text-center"><LinkIcon className="h-3 w-3 inline-block" /></TableHead>
-                      <TableHead className="text-center"><Calendar className="h-3 w-3 inline-block" /></TableHead>
+                      <TableHead className="w-1/3"></TableHead>
+                      <TableHead className="text-center w-1/6"><Phone className="h-3 w-3 inline-block" /></TableHead>
+                      <TableHead className="text-center w-1/6"><Mail className="h-3 w-3 inline-block" /></TableHead>
+                      <TableHead className="text-center w-1/6"><LinkIcon className="h-3 w-3 inline-block" /></TableHead>
+                      <TableHead className="text-center w-1/6"><Calendar className="h-3 w-3 inline-block" /></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -547,7 +551,6 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p className="font-medium">{invite.name}</p>
-                                  <p className="text-xs text-gray-500">Client Name</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
@@ -565,7 +568,6 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p className="font-medium">{formatPhoneNumber(invite.phone)}</p>
-                                <p className="text-xs text-gray-500">Client Phone</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -580,7 +582,6 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p className="font-medium">{invite.email}</p>
-                                <p className="text-xs text-gray-500">Client Email</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -595,7 +596,6 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p className="font-medium">{invite.inviteHash || 'No ID'}</p>
-                                <p className="text-xs text-gray-500">Invitation ID</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
@@ -610,7 +610,6 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p className="font-medium">{formatDate(invite.firstServiceDate) || 'Not scheduled'}</p>
-                                <p className="text-xs text-gray-500">First Service Date</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
