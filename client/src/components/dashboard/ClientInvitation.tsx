@@ -16,7 +16,10 @@ import {
   CheckCircle, 
   LinkIcon,
   CalendarClock,
-  GiftIcon
+  GiftIcon,
+  X,
+  Send,
+  Loader2
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
@@ -28,6 +31,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
+import { RenderedInvitation } from '@/components/invitations/RenderedInvitation';
 import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
 import { useContactValidation } from "@/hooks/useContactValidation";
 import { 
@@ -100,6 +112,15 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [salonInfo, setSalonInfo] = useState<{name: string} | null>(null);
   const [recentInvites, setRecentInvites] = useState<ClientInvite[]>([]);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewData, setPreviewData] = useState<{
+    name: string;
+    phone: string;
+    email: string;
+    notes: string;
+    firstServiceDate: string;
+    favoriteServices: string[];
+  } | null>(null);
   
   // State for collapsible sections - all closed by default
   const [sendFormOpen, setSendFormOpen] = useState(() => {
@@ -474,13 +495,48 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                 ))}
               </div>
 
-              {/* Submit Button */}
+              {/* Preview Button */}
               <Button 
-                type="submit" 
-                disabled={isSubmitting || phoneExists || emailExists}
+                type="button" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  
+                  // Validate fields first
+                  const cleanPhone = phone.replace(/\D/g, '');
+                  if (!name || cleanPhone.length !== 10 || !email) {
+                    toast({
+                      title: "Missing Information",
+                      description: "Please fill out all required fields",
+                      variant: "destructive"
+                    });
+                    return;
+                  }
+                  
+                  if (phoneExists || emailExists) {
+                    toast({
+                      title: "Validation Error",
+                      description: "Please fix validation errors before continuing",
+                      variant: "destructive"
+                    });
+                    return;
+                  }
+                  
+                  // Set preview data and show modal
+                  setPreviewData({
+                    name,
+                    phone,
+                    email,
+                    notes,
+                    firstServiceDate,
+                    favoriteServices: selectedServices,
+                  });
+                  setShowPreviewModal(true);
+                }}
+                disabled={isSubmitting}
                 className="w-full bg-pink-500 hover:bg-pink-600"
               >
-                {isSubmitting ? 'Sending...' : 'Send Invitation'}
+                <Send className="h-4 w-4 mr-2" />
+                Preview Invitation
               </Button>
 
               {/* Error Alerts */}
