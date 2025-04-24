@@ -64,6 +64,12 @@ interface VmbStyleOptionsProps {
   clientId?: number;
   salonId?: number;
   invitationId?: number;
+  salonInitiated?: boolean; // Flag to indicate this is a salon-initiated invitation
+  recipientData?: {
+    name: string;
+    phone: string;
+    sponsor: string;
+  };
   onSelectionComplete?: (selection: StyleSelection) => void;
 }
 
@@ -72,6 +78,8 @@ export function VmbStyleOptions({
   clientId, 
   salonId, 
   invitationId,
+  salonInitiated = false, // Default to false for backward compatibility
+  recipientData,
   onSelectionComplete 
 }: VmbStyleOptionsProps) {
   // States for handling selection and popups
