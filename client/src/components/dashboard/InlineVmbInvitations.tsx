@@ -151,6 +151,22 @@ export default function InlineVmbInvitations({
                 )}
               </div>
               
+              {/* Display "Complete Invite" button for completed/accepted invitations */}
+              {(invitation.status === 'complete' || invitation.status === 'accepted') && (
+                <div className="mt-2 flex justify-end">
+                  <div 
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent card click
+                      setLocation(`/invitation/${invitation.inviteHash}`);
+                    }}
+                    className="text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 flex items-center gap-1 cursor-pointer"
+                  >
+                    <CheckIcon className="h-3 w-3" />
+                    <span>View Complete Invite</span>
+                  </div>
+                </div>
+              )}
+              
               {invitation.sponsor && (
                 <div className="text-xs text-gray-500 mt-1">
                   <span>Sponsored by: {invitation.sponsor}</span>

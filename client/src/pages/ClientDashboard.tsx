@@ -953,11 +953,11 @@ export default function ClientDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4">
-                {isLoading ? (
+                {invitationsLoading ? (
                   <div className="py-4 text-center">
                     <p className="text-gray-500">Loading invitations...</p>
                   </div>
-                ) : clientError ? (
+                ) : !invitations ? (
                   <div className="py-4 text-center">
                     <p className="text-red-500">Error loading invitations</p>
                   </div>
