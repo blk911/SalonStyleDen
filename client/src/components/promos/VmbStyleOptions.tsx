@@ -71,6 +71,10 @@ interface VmbStyleOptionsProps {
     sponsor: string;
   };
   onSelectionComplete?: (selection: StyleSelection) => void;
+  initialStyleId?: number; // To pre-select a specific style
+  isPreviewMode?: boolean; // When viewing an existing invitation
+  shouldPrefill?: boolean; // Whether to prefill form data
+  prefilledServices?: string[]; // List of favorite services
 }
 
 export function VmbStyleOptions({ 
@@ -80,7 +84,11 @@ export function VmbStyleOptions({
   invitationId,
   salonInitiated = false, // Default to false for backward compatibility
   recipientData,
-  onSelectionComplete 
+  onSelectionComplete,
+  initialStyleId,
+  isPreviewMode = false,
+  shouldPrefill = false,
+  prefilledServices = []
 }: VmbStyleOptionsProps) {
   // States for handling selection and popups
   const [selectedStyle, setSelectedStyle] = useState<StyleOption | null>(null);
@@ -138,6 +146,31 @@ export function VmbStyleOptions({
     }
   });
   
+  // Handle initial style selection from props (for previewing existing invitations)
+  useEffect(() => {
+    if (initialStyleId && services && services.length > 0) {
+      const style = services.find(s => s.id === initialStyleId);
+      if (style) {
+        // Set the selected style
+        setSelectedStyle(style);
+        setConfirmedStyle(style);
+        
+        // Update form values
+        form.setValue('styleOptions.styleId', style.id);
+        
+        // For preview mode, skip to step 3
+        if (isPreviewMode) {
+          setIsStep1Open(false);
+          setIsStep2Open(false);
+          setIsStep3Open(true);
+          setShowStep3(true);
+        }
+        
+        console.log(`Pre-selected style from initialStyleId: ${style.name}`);
+      }
+    }
+  }, [initialStyleId, services, form, isPreviewMode]);
+  
   // Special handling for salon-initiated invitations
   useEffect(() => {
     if (salonInitiated) {
@@ -174,7 +207,22 @@ export function VmbStyleOptions({
         setShowStep3(true);
       }
     }
-  }, [salonInitiated, recipientData, confirmedStyle]);
+    
+    // Pre-fill mode (when viewing an existing invitation)
+    if (shouldPrefill && recipientData) {
+      setRecipientName(recipientData.name);
+      setRecipientContact(recipientData.phone);
+      setSignature(recipientData.sponsor);
+      
+      // Skip to step 3 for previews
+      if (isPreviewMode) {
+        setIsStep1Open(false);
+        setIsStep2Open(false);
+        setIsStep3Open(true);
+        setShowStep3(true);
+      }
+    }
+  }, [salonInitiated, recipientData, confirmedStyle, shouldPrefill, isPreviewMode]);
 
   // Fetch any existing style selections for this client
   useEffect(() => {

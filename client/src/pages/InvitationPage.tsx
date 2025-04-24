@@ -21,7 +21,7 @@ interface Invitation {
   message?: string | null;
   type?: string | null;
   notes?: string;
-  favoriteServices?: string[];
+  favoriteServices?: string[] | undefined;
   salonId?: number;
   senderId?: number | null;
   salonName?: string;
@@ -355,12 +355,14 @@ export default function InvitationPage() {
                           });
                         }}
                         // Set the initial style selection if viewing a pending invitation
-                        initialStyleId={invitation.favoriteServices && invitation.favoriteServices.length > 0 
-                          ? salon.services.find(s => s.name === invitation.favoriteServices[0])?.id 
-                          : undefined}
+                        initialStyleId={
+                          invitation && invitation.favoriteServices && Array.isArray(invitation.favoriteServices) && invitation.favoriteServices.length > 0 && salon && salon.services 
+                            ? salon.services.find(s => s.name === invitation.favoriteServices[0])?.id 
+                            : undefined
+                        }
                         isPreviewMode={isPreviewView}
                         shouldPrefill={shouldPrefill}
-                        prefilledServices={invitation.favoriteServices || []}
+                        prefilledServices={invitation && invitation.favoriteServices && Array.isArray(invitation.favoriteServices) ? invitation.favoriteServices : []}
                       />
                     </CollapsibleContent>
                   </Collapsible>
