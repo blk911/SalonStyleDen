@@ -838,43 +838,19 @@ export function VmbStyleOptions({
                       <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
                         <h3 className="font-medium text-compact text-center">Your Ven Me, Baby! Promo</h3>
                         <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white shadow-sm">
-                          <div className="text-center mb-2">
-                            <div className="text-sm font-medium">You're gifting:</div>
-                            <div className="text-pink-600 font-bold">{confirmedStyle ? confirmedStyle.name : "French Tips / Touch-Up"}</div>
-                          </div>
-                          
-                          {/* Standardized Message Format */}
-                          <div className={`rounded-lg ${isMobile ? 'p-1.5' : 'p-2'} bg-blue-50 border border-blue-100 mb-2 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
+                          {/* 1. Standardized Message Format */}
+                          <div className={`rounded-lg ${isMobile ? 'p-1.5' : 'p-2'} bg-blue-50 border border-blue-100 mb-3 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
                             Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], [price and time] will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]
                           </div>
                           
-                          {/* Service Image */}
-                          <div className="flex justify-center mb-2">
-                            <img 
-                              src={confirmedStyle?.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/french-tips.png'}
-                              alt={confirmedStyle?.name || "Service Image"}
-                              className="h-20 w-20 object-cover rounded-md border border-pink-100"
-                              onError={(e) => {
-                                console.error(`Failed to load image for service`);
-                                e.currentTarget.src = '/assets/LOGO1.png';
-                              }}
-                            />
-                          </div>
-                          
-                          {/* Service Details */}
-                          <div className="text-center text-xs text-gray-600">
-                            <div>Service Value: ${confirmedStyle?.price || 70}</div>
-                            <div>Duration: {confirmedStyle?.duration || 60} min</div>
-                          </div>
-                          
-                          {/* Unique Gift ID */}
-                          <div className="mt-2 text-center text-xs font-medium">
+                          {/* 2. Unique Gift ID */}
+                          <div className="mb-3 text-center text-xs font-medium">
                             <div className="text-gray-700">Your VMB gift has a unique ID:</div>
                             <div className="text-pink-600 font-bold">VMB-[RANDOM ID]</div>
                           </div>
                           
-                          {/* Payment Method Icons */}
-                          <div className="flex flex-col mt-3 items-center justify-center gap-1">
+                          {/* 3. Payment Method Icons */}
+                          <div className="flex flex-col items-center justify-center gap-1">
                             <div className="text-[10px] font-medium text-gray-700">Payment methods available:</div>
                             <div className="flex gap-2 items-center justify-center">
                               <div className="flex items-center gap-1.5">
