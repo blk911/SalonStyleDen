@@ -64,15 +64,15 @@ export function RenderedInvitation({
           
           <div className="flex justify-center space-x-4 mt-4">
             <Button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center space-x-2">
-              <FaCashApp className="h-5 w-5" />
+              <FaMoneyBillWave className="h-5 w-5" />
               <span>CashApp</span>
             </Button>
             <Button className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center space-x-2">
-              <SiZelle className="h-5 w-5" />
+              <FaMoneyBillWave className="h-5 w-5" />
               <span>Zelle</span>
             </Button>
             <Button className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center space-x-2">
-              <FaVenmo className="h-5 w-5" />
+              <FaMoneyBillWave className="h-5 w-5" />
               <span>Venmo</span>
             </Button>
           </div>

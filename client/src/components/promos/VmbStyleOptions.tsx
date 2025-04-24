@@ -99,6 +99,8 @@ export function VmbStyleOptions({
   const [invitationConfirmed, setInvitationConfirmed] = useState(false);
   const [giftApproved, setGiftApproved] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showFinalInvitationModal, setShowFinalInvitationModal] = useState(false);
+  const [finalInvitationId, setFinalInvitationId] = useState("");
   const personalMessageRef = useRef<HTMLInputElement>(null); // Reference for personal message input
   const { toast } = useToast();
   const [, navigate] = useLocation();
@@ -988,6 +990,14 @@ export function VmbStyleOptions({
                   // Apply default values
                   const finalName = recipientName || "Love";
                   
+                  // Generate a unique ID for this invitation using a timestamp + random string
+                  const timestamp = Date.now().toString(36);
+                  const randomStr = Math.random().toString(36).substring(2, 8);
+                  const uniqueInviteId = `${timestamp}-${randomStr}`;
+                  
+                  // Save the unique ID for the final invitation
+                  setFinalInvitationId(uniqueInviteId);
+                  
                   // Check if we have an invitation ID to complete
                   if (invitationId) {
                     // Set loading state
@@ -997,7 +1007,10 @@ export function VmbStyleOptions({
                     const styleId = confirmedStyle ? confirmedStyle.id : undefined;
                     
                     // Call the complete endpoint
-                    apiRequest(`/api/invitations/${invitationId}/complete`, 'POST', { styleId })
+                    apiRequest(`/api/invitations/${invitationId}/complete`, 'POST', { 
+                      styleId,
+                      finalInviteId: uniqueInviteId // Add the final invite ID to be saved with the completion
+                    })
                       .then(async (response) => {
                         if (response.ok) {
                           const result = await response.json();
@@ -1005,13 +1018,16 @@ export function VmbStyleOptions({
                           
                           // Show more informative toast with dashboard posting details
                           toast({
-                            title: "Gift Request Sent & Posted!",
-                            description: `Request sent to ${finalName} and posted to dashboards`,
+                            title: "Gift Request Ready!",
+                            description: `Request for ${finalName} prepared with unique ID`,
                             variant: "default"
                           });
                           
                           // Disable buttons to prevent double-sending
                           setInvitationConfirmed(true);
+                          
+                          // Show the final rendered invitation
+                          setShowFinalInvitationModal(true);
                         } else {
                           const errorData = await response.json();
                           throw new Error(errorData.error || "Failed to complete invitation");
@@ -1020,8 +1036,8 @@ export function VmbStyleOptions({
                       .catch(error => {
                         console.error("Error completing invitation:", error);
                         toast({
-                          title: "Error Sending Gift Request",
-                          description: `There was a problem posting to dashboards: ${error.message}`,
+                          title: "Error Preparing Gift Request",
+                          description: `There was a problem processing the request: ${error.message}`,
                           variant: "destructive"
                         });
                       })
@@ -1031,10 +1047,13 @@ export function VmbStyleOptions({
                   } else {
                     // Regular gift sent without invitation completion
                     toast({
-                      title: "Gift Request Sent!",
-                      description: `Message sent to ${finalName} at ${recipientContact}`,
+                      title: "Gift Request Ready!",
+                      description: `Request for ${finalName} at ${recipientContact} prepared`,
                       variant: "default"
                     });
+                    
+                    // Show the final rendered invitation even for direct sends
+                    setShowFinalInvitationModal(true);
                   }
                 }}
                 disabled={isSubmitting}
@@ -1049,6 +1068,49 @@ export function VmbStyleOptions({
                     'Confirm & Send'
                   )
                 }
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Final Rendered Invitation Modal */}
+        <Dialog open={showFinalInvitationModal} onOpenChange={setShowFinalInvitationModal}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Your Gift Request Is Ready!</DialogTitle>
+              <DialogDescription>
+                This is your final gift request with unique ID. It can't be modified once sent.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="py-4">
+              <RenderedInvitation
+                inviteId={finalInvitationId}
+                recipientName={recipientName || "Friend"}
+                styleOption={confirmedStyle?.name || "Selected Style"}
+                price={confirmedStyle ? `$${confirmedStyle.price}` : "$45"}
+                time={confirmedStyle ? `${confirmedStyle.duration} min` : "30 min"}
+                senderName={signature || "Your Friend"}
+                imageUrl={confirmedStyle?.gifUrl || "/assets/french-tips.png"}
+              />
+            </div>
+            
+            <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-3">
+              <div className="text-sm text-gray-500">
+                Unique ID: <span className="font-mono">INV-FINAL-{finalInvitationId}</span>
+              </div>
+              <Button 
+                type="button" 
+                onClick={() => {
+                  setShowFinalInvitationModal(false);
+                  toast({
+                    title: "Gift Request Sent!",
+                    description: "Your gift request has been sent to the recipient",
+                    variant: "default"
+                  });
+                }}
+              >
+                Close
               </Button>
             </DialogFooter>
           </DialogContent>
