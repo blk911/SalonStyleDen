@@ -96,9 +96,9 @@ export function VmbStyleOptions({
   const [showStep3, setShowStep3] = useState(true);  // Set to true for testing
   const [stateTracker, setStateTracker] = useState(0); // Debug counter
   const [showStep1, setShowStep1] = useState(true); // Always true now - we'll use isStep1Open to control collapse
-  const [isStep1Open, setIsStep1Open] = useState(false); // Closed by default
-  const [isStep2Open, setIsStep2Open] = useState(false); // Closed by default
-  const [isStep3Open, setIsStep3Open] = useState(false); // Closed by default
+  const [isStep1Open, setIsStep1Open] = useState(() => !salonInitiated); // Open for client-initiated, closed for salon-initiated
+  const [isStep2Open, setIsStep2Open] = useState(() => !salonInitiated); // Open for client-initiated, closed for salon-initiated
+  const [isStep3Open, setIsStep3Open] = useState(() => salonInitiated); // Closed for client-initiated, open for salon-initiated
   // New state for the invitation form
   const [recipientName, setRecipientName] = useState("");
   const [recipientContact, setRecipientContact] = useState("");
@@ -138,6 +138,33 @@ export function VmbStyleOptions({
     }
   });
   
+  // Initialize form with recipient data for salon-initiated invitations
+  useEffect(() => {
+    // If this is a salon-initiated invitation with recipient data, pre-populate the form
+    if (salonInitiated && recipientData) {
+      console.log("[SALON INITIATED] Pre-populating form with recipient data", recipientData);
+      
+      // Set the recipient name and contact directly
+      setRecipientName(recipientData.name);
+      setRecipientContact(recipientData.phone);
+      setSignature(recipientData.sponsor);
+      
+      // Update the invitation message with the recipient data
+      const baseMessage = `Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`;
+      let updatedMessage = baseMessage;
+      updatedMessage = updatedMessage.replace("[NAME]", recipientData.name);
+      updatedMessage = updatedMessage.replace("[STY OPT]", "your selected style");
+      updatedMessage = updatedMessage.replace("[SIGNED]", recipientData.sponsor);
+      
+      // Update the message
+      setInvitationMessage(updatedMessage);
+      
+      // Mark the invitation as confirmed since it's already pre-determined
+      setInvitationConfirmed(true);
+      setGiftApproved(true);
+    }
+  }, [salonInitiated, recipientData]);
+
   // Fetch any existing style selections for this client
   useEffect(() => {
     if (clientId) {
@@ -793,8 +820,12 @@ export function VmbStyleOptions({
                           }
                         }}
                       >
-                        <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 3: Preview and Send</h2>
-                        <div className="h-6 w-6 flex items-center justify-center text-pink-700">
+                        <h2 className={`font-medium text-sm sm:text-base ${salonInitiated ? 'text-amber-700' : 'text-pink-700'}`}>
+                        {salonInitiated 
+                          ? "SALON INVITATION: Preview and Send" 
+                          : "STEP 3: Preview and Send"}
+                      </h2>
+                        <div className={`h-6 w-6 flex items-center justify-center ${salonInitiated ? 'text-amber-700' : 'text-pink-700'}`}>
                           {isStep3Open ? (
                             <ChevronUpIcon className="h-5 w-5" />
                           ) : (
@@ -804,10 +835,10 @@ export function VmbStyleOptions({
                       </CollapsibleTrigger>
                     </div>
                     
-                    <CollapsibleContent className="bg-white border border-pink-100 rounded-b-md p-3">
+                    <CollapsibleContent className={`bg-white border ${salonInitiated ? 'border-amber-100' : 'border-pink-100'} rounded-b-md p-3`}>
                 
                 <div className="grid grid-cols-1 gap-4">
-                  <div className={`border rounded ${isMobile ? 'px-2 py-1' : 'px-2 py-2'} border-pink-200 bg-pink-50`}>
+                  <div className={`border rounded ${isMobile ? 'px-2 py-1' : 'px-2 py-2'} ${salonInitiated ? 'border-amber-200 bg-amber-50' : 'border-pink-200 bg-pink-50'}`}>
                     {confirmedStyle ? (
                     <div className="flex flex-col md:flex-row">
                       {/* Left side - Ven Me, Baby! Reminders */}
@@ -815,7 +846,7 @@ export function VmbStyleOptions({
                         <div>
                           <h3 className={`font-medium ${isMobile ? 'text-sm' : 'text-compact'} text-center`}>Ven Me, Baby! Reminders!</h3>
                           <div className="flex flex-col space-y-3 mt-2">
-                            <div className="p-2 bg-white border border-pink-100 rounded text-xs">
+                            <div className={`p-2 bg-white border rounded text-xs ${salonInitiated ? 'border-amber-100' : 'border-pink-100'}`}>
                               <ul className="list-disc pl-4 pt-1 text-gray-700 space-y-2">
                                 <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
                                 <li>Praesent efficitur, odio at commodo tempus, nibh enim.</li>
@@ -836,15 +867,17 @@ export function VmbStyleOptions({
                               setShowConfirmDialog(true);
                             }}
                           >
-                            SEND GIFT
+                            {salonInitiated ? "SEND SALON INVITATION" : "SEND GIFT"}
                           </button>
                         </div>
                       </div>
                       
                       {/* Right side - Gift Preview */}
                       <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
-                        <h3 className="font-medium text-compact text-center">Your Ven Me, Baby! Promo</h3>
-                        <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white shadow-sm">
+                        <h3 className="font-medium text-compact text-center">
+                          {salonInitiated ? "Salon Initiated Invitation" : "Your Ven Me, Baby! Promo"}
+                        </h3>
+                        <div className={`border rounded-md p-3 mt-2 bg-white shadow-sm ${salonInitiated ? 'border-amber-100' : 'border-pink-100'}`}>
                           {/* 1. Standardized Message Format */}
                           <div className={`rounded-lg ${isMobile ? 'p-1.5' : 'p-2'} bg-blue-50 border border-blue-100 mb-3 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
                             Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], [price and time] will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]
@@ -852,8 +885,12 @@ export function VmbStyleOptions({
                           
                           {/* 2. Unique Gift ID */}
                           <div className="mb-3 text-center text-xs font-medium">
-                            <div className="text-gray-700">Your VMB gift has a unique ID:</div>
-                            <div className="text-pink-600 font-bold">VMB-[RANDOM ID]</div>
+                            <div className="text-gray-700">
+                              {salonInitiated ? "Salon invitation has a unique ID:" : "Your VMB gift has a unique ID:"}
+                            </div>
+                            <div className={`font-bold ${salonInitiated ? 'text-amber-600' : 'text-pink-600'}`}>
+                              VMB-[RANDOM ID]
+                            </div>
                           </div>
                           
                           {/* 3. Payment Method Icons */}
@@ -915,7 +952,7 @@ export function VmbStyleOptions({
                                 setShowConfirmDialog(true);
                               }}
                             >
-                              SEND GIFT REQUEST
+                              {salonInitiated ? "SEND SALON INVITATION" : "SEND GIFT REQUEST"}
                             </button>
                           )}
                         </div>
