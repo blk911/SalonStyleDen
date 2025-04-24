@@ -97,6 +97,7 @@ export function VmbStyleOptions({
   const [signature, setSignature] = useState("");
   const [invitationConfirmed, setInvitationConfirmed] = useState(false);
   const [giftApproved, setGiftApproved] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const personalMessageRef = useRef<HTMLInputElement>(null); // Reference for personal message input
   const { toast } = useToast();
   const [, navigate] = useLocation();
@@ -820,7 +821,7 @@ export function VmbStyleOptions({
                             type="button"
                             className="w-3/4 bg-green-500 hover:bg-green-600 text-white py-2 rounded-md transition-colors text-sm font-medium"
                             onClick={() => {
-                              if (window.confirm(`Are you sure you want to send this gift?`)) {
+                              if (window.confirm(`Are you sure you want to send this gift request?`)) {
                                 toast({
                                   title: "Gift Sent Successfully!",
                                   description: "Your gift invitation has been sent",
@@ -960,7 +961,7 @@ export function VmbStyleOptions({
                                 }
                               }}
                             >
-                              SEND GIFT
+                              SEND GIFT REQUEST
                             </button>
                           )}
                         </div>
