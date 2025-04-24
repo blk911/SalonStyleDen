@@ -978,29 +978,39 @@ export default function ClientDashboard() {
               </Card>
             )}
             
-            {/* Invitations Card - Restored */}
+            {/* Personal Invitations Card */}
             <Card className="rounded-xl shadow-sm overflow-hidden mt-6">
-              <CardHeader className="bg-pink-50 pb-2 pt-2">
+              <CardHeader className="bg-gradient-to-r from-pink-50 to-pink-100 pb-2 pt-2">
                 <CardTitle className="text-base flex items-center justify-between gap-2 text-pink-700">
-                  <span>My Invitations</span>
+                  <div className="flex items-center gap-2">
+                    <HeartIcon className="h-4 w-4" />
+                    <span>Personal Invitations</span>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      // Using local state variable here (create one if you need this to persist)
+                      // For now, this is just for UI consistency
+                      toast({
+                        title: "Feature Coming Soon",
+                        description: "The ability to send personal invitations will be available soon.",
+                        variant: "default"
+                      });
+                    }} 
+                    className="flex items-center text-sm text-pink-600 hover:text-pink-800"
+                    aria-label="Show personal invitations"
+                  >
+                    <ChevronDownIcon className="h-5 w-5" />
+                  </button>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-4">
-                {invitationsLoading ? (
-                  <div className="py-4 text-center">
-                    <p className="text-gray-500">Loading invitations...</p>
-                  </div>
-                ) : !invitations ? (
-                  <div className="py-4 text-center">
-                    <p className="text-red-500">Error loading invitations</p>
-                  </div>
-                ) : invitations && invitations.length > 0 ? (
-                  <InlineVmbInvitations clientId={client?.id} limit={5} />
-                ) : (
-                  <div className="py-4 text-center">
-                    <p className="text-gray-500">No invitations yet</p>
-                  </div>
-                )}
+              <CardContent className="p-4 hidden">
+                {/* This content is hidden by default - will be used when personal invitations feature is implemented */}
+                <div className="py-4 text-center">
+                  <p className="text-gray-500">You haven't sent any personal invitations yet.</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Create a personal invitation to share your favorite salon experience with friends.
+                  </p>
+                </div>
               </CardContent>
             </Card>
             
