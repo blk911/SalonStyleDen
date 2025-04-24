@@ -817,7 +817,7 @@ export function VmbStyleOptions({
                       
                       {/* Right side - Gift Preview */}
                       <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
-                        <h3 className="font-medium text-compact text-center">Gift Preview</h3>
+                        <h3 className="font-medium text-compact text-center">Your Ven Me, Baby! Promo</h3>
                         <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white">
                           <div className="text-center mb-2">
                             <div className="text-sm font-medium">You're gifting:</div>
@@ -831,8 +831,8 @@ export function VmbStyleOptions({
                           
                           <div className="flex justify-center mb-2">
                             <img 
-                              src="/assets/french-tips.png"
-                              alt="French Tips / Touch-Up"
+                              src={confirmedStyle?.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/french-tips.png'}
+                              alt={confirmedStyle?.name || "Service Image"}
                               className="h-20 w-20 object-cover rounded-md border border-pink-100"
                               onError={(e) => {
                                 console.error(`Failed to load image for service`);
@@ -842,29 +842,31 @@ export function VmbStyleOptions({
                           </div>
                           
                           <div className="text-center text-xs text-gray-600">
-                            <div>Service Value: $70</div>
-                            <div>Duration: 60 min</div>
+                            <div>Service Value: ${confirmedStyle?.price || 70}</div>
+                            <div>Duration: {confirmedStyle?.duration || 60} min</div>
                             <div className="mt-1 font-medium">
                               <div className="mt-2">
-                                <div>Gift Code: <span className="text-pink-600">VMB-2SKU0Q</span></div>
+                                <div>Gift Code: <span className="text-pink-600">VMB-{Math.random().toString(36).substring(2, 7).toUpperCase()}</span></div>
                               </div>
                             </div>
                           </div>
                           
                           {/* Payment method icons */}
-                          <div className="flex gap-2 mt-3 items-center justify-center">
-                            <div className="flex gap-1">
-                              <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
-                                <span className="text-[8px] font-bold">Z</span>
-                              </div>
-                              <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
-                                <span className="text-[8px] font-bold">V</span>
-                              </div>
-                              <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
-                                <span className="text-[8px] font-bold">CA</span>
+                          <div className="flex flex-col mt-3 items-center justify-center gap-1">
+                            <div className="text-[10px] font-medium text-gray-700">Payment methods available:</div>
+                            <div className="flex gap-2 items-center justify-center">
+                              <div className="flex items-center gap-1.5">
+                                <div className="h-7 w-7 rounded-full bg-blue-500 text-white shadow-sm flex items-center justify-center hover:bg-blue-600 cursor-pointer">
+                                  <span className="text-[9px] font-bold">Z</span>
+                                </div>
+                                <div className="h-7 w-7 rounded-full bg-teal-500 text-white shadow-sm flex items-center justify-center hover:bg-teal-600 cursor-pointer">
+                                  <span className="text-[9px] font-bold">V</span>
+                                </div>
+                                <div className="h-7 w-7 rounded-full bg-green-500 text-white shadow-sm flex items-center justify-center hover:bg-green-600 cursor-pointer">
+                                  <span className="text-[9px] font-bold">CA</span>
+                                </div>
                               </div>
                             </div>
-                            <div className="text-[8px] text-gray-500">Payment options coming soon</div>
                           </div>
                           
                           {/* SEND GIFT button - only shows when gift is approved */}
