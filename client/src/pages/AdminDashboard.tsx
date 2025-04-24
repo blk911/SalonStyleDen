@@ -49,12 +49,31 @@ interface Client {
   salonId?: number; // Added salonId to Client interface
 }
 
+interface Service {
+  id: number;
+  name: string;
+  price: number;
+  duration: number;
+  description: string;
+  featured?: boolean;
+  gifUrl?: string;
+}
+
+interface Promo {
+  id: number;
+  title: string;
+  description?: string;
+  endDate?: string;
+}
+
 interface Salon {
   id: number;
   name: string;
   ownerName: string;
   email: string;
   phone: string;
+  services?: Service[];
+  promos?: Promo[];
 }
 
 interface Invitation {
@@ -888,11 +907,11 @@ export default function AdminDashboard() {
               )}
             </CollapsibleCard>
 
-            {/* Salons Table */}
+            {/* Salons Directory */}
             <CollapsibleCard
               title="Salon Directory"
-              isOpen={activityLogsOpen}
-              onToggle={() => setActivityLogsOpen(!activityLogsOpen)}
+              isOpen={salonDirectoryOpen}
+              onToggle={() => setSalonDirectoryOpen(!salonDirectoryOpen)}
             >
               {/* Loading state */}
               {salonIsLoading && (
@@ -919,46 +938,85 @@ export default function AdminDashboard() {
                 </div>
               )}
               
-              {/* Data table */}
+              {/* Salons with collapsible entries */}
               {!salonIsLoading && !salonError && salons && salons.length > 0 && (
-                <ScrollArea className="h-[300px]">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="max-h-[30px]">
-                        <TableHead className="max-h-[30px] py-1">ID</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Name</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Owner</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Email</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Phone</TableHead>
-                        <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {salons.map((salon: Salon) => (
-                        <TableRow
-                          key={salon.id}
-                          className="hover:bg-gray-50 h-[30px]"
+                <ScrollArea className="h-[400px] mt-2">
+                  <div className="space-y-3">
+                    {salons.map((salon: Salon) => (
+                      <div key={salon.id} className="border rounded-md overflow-hidden">
+                        {/* Salon Header - Pink Background */}
+                        <div 
+                          className="bg-pink-100 px-4 py-2 flex justify-between items-center cursor-pointer"
+                          onClick={() => setExpandedSalon(expandedSalon === salon.id ? null : salon.id)}
                         >
-                          <TableCell className="py-0">{salon.id}</TableCell>
-                          <TableCell className="py-0">{salon.name}</TableCell>
-                          <TableCell className="py-0">{salon.ownerName}</TableCell>
-                          <TableCell className="py-0">{salon.email}</TableCell>
-                          <TableCell className="py-0">{salon.phone}</TableCell>
-                          <TableCell className="py-0 text-right">
-                            <div className="flex justify-end gap-1">
-                              <Link 
-                                to={`/salon/${salon.id}`}
-                                onClick={() => setLocation(`/salon/${salon.id}`)}
-                                className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200"
-                              >
-                                Salon Page
-                              </Link>
+                          <div className="flex items-center">
+                            <span className="font-medium text-pink-800">{salon.name}</span>
+                            <span className="ml-2 text-xs text-pink-600">ID: {salon.id}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Link 
+                              to={`/salon/${salon.id}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setLocation(`/salon/${salon.id}`);
+                              }}
+                              className="mr-3 px-2 py-1 text-[10px] bg-pink-200 text-pink-700 rounded hover:bg-pink-300"
+                            >
+                              Salon Page
+                            </Link>
+                            {expandedSalon === salon.id ? (
+                              <ChevronUp className="h-4 w-4 text-pink-600" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4 text-pink-600" />
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Salon Details - Hidden until expanded */}
+                        {expandedSalon === salon.id && (
+                          <div className="p-4 bg-white">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <h3 className="text-sm font-medium text-gray-700 mb-2">Salon Information</h3>
+                                <dl className="space-y-1 text-sm">
+                                  <div className="flex">
+                                    <dt className="w-24 font-medium text-gray-500">Owner:</dt>
+                                    <dd>{salon.ownerName}</dd>
+                                  </div>
+                                  <div className="flex">
+                                    <dt className="w-24 font-medium text-gray-500">Email:</dt>
+                                    <dd>{salon.email}</dd>
+                                  </div>
+                                  <div className="flex">
+                                    <dt className="w-24 font-medium text-gray-500">Phone:</dt>
+                                    <dd>{formatPhoneNumber(salon.phone)}</dd>
+                                  </div>
+                                </dl>
+                              </div>
+                              
+                              <div>
+                                <h3 className="text-sm font-medium text-gray-700 mb-2">Services & Stats</h3>
+                                <dl className="space-y-1 text-sm">
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-500">Services:</dt>
+                                    <dd>{salon.services?.length || 0} services</dd>
+                                  </div>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-500">Active Promos:</dt>
+                                    <dd>{salon.promos?.length || 0} promotions</dd>
+                                  </div>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-500">Clients:</dt>
+                                    <dd>{clients?.filter(c => c.salonId === salon.id).length || 0} clients</dd>
+                                  </div>
+                                </dl>
+                              </div>
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </ScrollArea>
               )}
             </CollapsibleCard>
