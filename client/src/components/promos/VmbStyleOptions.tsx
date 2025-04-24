@@ -14,6 +14,7 @@ import { Form } from '@/components/ui/form';
 import { PromoCodeDialog, ClientData } from '@/components/ui/PromoCodeDialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useMediaQuery } from 'react-responsive';
+import { RenderedInvitation } from '@/components/invitations/RenderedInvitation';
 
 interface StyleOption {
   id: number;
