@@ -607,14 +607,25 @@ export function VmbStyleOptions({
                                 className="w-full p-1.5 text-[10px] border border-pink-100 rounded"
                                 value={signature}
                                 onKeyDown={(e) => {
-                                  // If Enter is pressed, move to next field (message textarea)
+                                  // If Enter is pressed, set invitation confirmed to show the Preview button
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    // Find the next input which is the textarea
-                                    const nextField = e.currentTarget.parentElement?.querySelector('textarea');
-                                    if (nextField instanceof HTMLElement) {
-                                      nextField.focus();
-                                    }
+                                    setInvitationConfirmed(true);
+                                    
+                                    // Show a toast letting the user know they can preview
+                                    toast({
+                                      title: "Design Ready",
+                                      description: "Click PREVIEW DESIGN to continue",
+                                      variant: "default"
+                                    });
+                                    
+                                    // Find the Preview Design button and focus it
+                                    setTimeout(() => {
+                                      const previewButton = e.currentTarget.parentElement?.querySelector('button');
+                                      if (previewButton instanceof HTMLElement) {
+                                        previewButton.focus();
+                                      }
+                                    }, 100);
                                   }
                                 }}
                                 onChange={(e) => {
@@ -649,53 +660,31 @@ export function VmbStyleOptions({
                               <div className="flex gap-2 mt-2">
                                 <button 
                                   type="button"
-                                  className="w-full bg-pink-500 hover:bg-pink-600 text-white py-1.5 rounded transition-colors text-xs"
+                                  className="w-full bg-blue-500 hover:bg-blue-600 text-white py-1.5 rounded transition-colors text-xs"
                                   onClick={() => {
                                     setInvitationConfirmed(true);
                                     
-                                    // Show Step 3 and render the message in the preview
+                                    // Show Step 3 and collapse Step 2 when Preview Design is clicked
                                     setIsStep2Open(false);
                                     setShowStep3(true);
                                     
+                                    // Focus on the Personal Message field in Gift Request
+                                    setTimeout(() => {
+                                      if (personalMessageRef.current) {
+                                        personalMessageRef.current.focus();
+                                      }
+                                    }, 100);
+                                    
                                     toast({
-                                      title: "Invitation Confirmed",
-                                      description: `Invitation ready for ${recipientName}`,
+                                      title: "Design Preview",
+                                      description: "Invitation preview being prepared...",
                                       variant: "default"
                                     });
                                   }}
                                 >
-                                  CONFIRM
+                                  PREVIEW DESIGN
                                 </button>
                               </div>
-                              
-                              {invitationConfirmed && (
-                                <div className="mt-2">
-                                  <button 
-                                    type="button"
-                                    className="w-full bg-blue-500 hover:bg-blue-600 text-white py-1.5 rounded transition-colors text-xs"
-                                    onClick={() => {
-                                      // Show Step 3 and collapse Step 2 when Preview Design is clicked
-                                      setIsStep2Open(false);
-                                      setShowStep3(true);
-                                      
-                                      // Focus on the Personal Message field in Gift Request
-                                      setTimeout(() => {
-                                        if (personalMessageRef.current) {
-                                          personalMessageRef.current.focus();
-                                        }
-                                      }, 100);
-                                      
-                                      toast({
-                                        title: "Design Preview",
-                                        description: "Invitation preview being prepared...",
-                                        variant: "default"
-                                      });
-                                    }}
-                                  >
-                                    Preview Design
-                                  </button>
-                                </div>
-                              )}
                             </div>
                           ) : (
                             <div className="text-center p-2 border border-dashed border-pink-200 rounded-md w-full h-32 flex items-center justify-center">
