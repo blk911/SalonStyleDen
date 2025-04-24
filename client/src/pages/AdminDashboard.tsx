@@ -873,8 +873,9 @@ export default function AdminDashboard() {
             {/* Salons Table */}
             <CollapsibleCard
               title="Salon Directory"
-              isOpen={activityLogsOpen}
-              onToggle={() => setActivityLogsOpen(!activityLogsOpen)}
+              titleClassName="bg-pink-100 text-pink-800 px-2 py-1 rounded"
+              isOpen={salonsOpen}
+              onToggle={() => setSalonsOpen(!salonsOpen)}
             >
               {/* Loading state */}
               {salonIsLoading && (

@@ -10,6 +10,7 @@ interface CardSectionProps {
   onToggle: () => void;
   children: React.ReactNode;
   className?: string;
+  titleClassName?: string;
 }
 
 export function CollapsibleCard({
@@ -19,6 +20,7 @@ export function CollapsibleCard({
   onToggle,
   children,
   className = "mb-6",
+  titleClassName,
 }: CardSectionProps) {
   return (
     <Collapsible open={isOpen} className={className}>
@@ -26,7 +28,7 @@ export function CollapsibleCard({
         <CardHeader className="p-4 pb-0">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="text-xl font-semibold">{title}</CardTitle>
+              <CardTitle className={`text-xl font-semibold ${titleClassName || ''}`}>{title}</CardTitle>
               {description && <CardDescription>{description}</CardDescription>}
             </div>
             <CollapsibleTrigger asChild>
