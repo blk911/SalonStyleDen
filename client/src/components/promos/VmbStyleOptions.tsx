@@ -859,8 +859,8 @@ export function VmbStyleOptions({
                           }
                         }}
                       >
-                        <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 3: Preview and Send</h2>
-                        <div className="h-6 w-6 flex items-center justify-center text-pink-700">
+                        <h2 className={`font-medium text-sm sm:text-base ${salonInitiated ? 'text-amber-700' : 'text-pink-700'}`}>STEP 3: Preview and Send</h2>
+                        <div className={`h-6 w-6 flex items-center justify-center ${salonInitiated ? 'text-amber-700' : 'text-pink-700'}`}>
                           {isStep3Open ? (
                             <ChevronUpIcon className="h-5 w-5" />
                           ) : (
