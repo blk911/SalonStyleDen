@@ -781,7 +781,7 @@ export function VmbStyleOptions({
                           }
                         }}
                       >
-                        <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 3 Pick your gift options...</h2>
+                        <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 3: Preview and Send</h2>
                         <div className="h-6 w-6 flex items-center justify-center text-pink-700">
                           {isStep3Open ? (
                             <ChevronUpIcon className="h-5 w-5" />
@@ -799,36 +799,56 @@ export function VmbStyleOptions({
                     {confirmedStyle ? (
                     <div className="flex flex-col md:flex-row">
                       {/* Left side - Ven Me, Baby! Reminders */}
-                      <div className={`${isMobile ? 'w-full' : 'w-full md:w-1/2'} text-left ${isMobile ? 'pr-0' : 'pr-2'} ${isMobile ? '' : 'md:border-r border-pink-100'} pb-2 md:pb-0`}>
-                        <h3 className={`font-medium ${isMobile ? 'text-sm' : 'text-compact'} text-center`}>Ven Me, Baby! Reminders!</h3>
-                        <div className="flex flex-col space-y-3 mt-2">
-                          <div className="p-2 bg-white border border-pink-100 rounded text-xs">
-                            <ul className="list-disc pl-4 pt-1 text-gray-700 space-y-2">
-                              <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
-                              <li>Praesent efficitur, odio at commodo tempus, nibh enim.</li>
-                              <li>Nullam vitae eros in nisi varius vestibulum et vel urna.</li>
-                              <li>Suspendisse nec dui eu nisi tincidunt finibus vel et libero.</li>
-                            </ul>
+                      <div className={`${isMobile ? 'w-full' : 'w-full md:w-1/2'} text-left ${isMobile ? 'pr-0' : 'pr-2'} ${isMobile ? '' : 'md:border-r border-pink-100'} pb-2 md:pb-0 flex flex-col justify-between`}>
+                        <div>
+                          <h3 className={`font-medium ${isMobile ? 'text-sm' : 'text-compact'} text-center`}>Ven Me, Baby! Reminders!</h3>
+                          <div className="flex flex-col space-y-3 mt-2">
+                            <div className="p-2 bg-white border border-pink-100 rounded text-xs">
+                              <ul className="list-disc pl-4 pt-1 text-gray-700 space-y-2">
+                                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+                                <li>Praesent efficitur, odio at commodo tempus, nibh enim.</li>
+                                <li>Nullam vitae eros in nisi varius vestibulum et vel urna.</li>
+                                <li>Suspendisse nec dui eu nisi tincidunt finibus vel et libero.</li>
+                              </ul>
+                            </div>
                           </div>
-                          
-                          {/* Note: APPROVE button removed, auto-approval happens when Step 3 is opened */}
+                        </div>
+                        
+                        {/* SEND GIFT button at the bottom of left panel */}
+                        <div className="flex justify-center mt-4">
+                          <button 
+                            type="button"
+                            className="w-3/4 bg-green-500 hover:bg-green-600 text-white py-2 rounded-md transition-colors text-sm font-medium"
+                            onClick={() => {
+                              if (window.confirm(`Are you sure you want to send this gift?`)) {
+                                toast({
+                                  title: "Gift Sent Successfully!",
+                                  description: "Your gift invitation has been sent",
+                                  variant: "default"
+                                });
+                              }
+                            }}
+                          >
+                            SEND GIFT
+                          </button>
                         </div>
                       </div>
                       
                       {/* Right side - Gift Preview */}
                       <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
                         <h3 className="font-medium text-compact text-center">Your Ven Me, Baby! Promo</h3>
-                        <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white">
+                        <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white shadow-sm">
                           <div className="text-center mb-2">
                             <div className="text-sm font-medium">You're gifting:</div>
                             <div className="text-pink-600 font-bold">{confirmedStyle ? confirmedStyle.name : "French Tips / Touch-Up"}</div>
                           </div>
                           
-                          {/* Message Preview - Text message style */}
+                          {/* Standardized Message Format */}
                           <div className={`rounded-lg ${isMobile ? 'p-1.5' : 'p-2'} bg-blue-50 border border-blue-100 mb-2 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
-                            {invitationMessage}
+                            Hi [NAME], I would love a fresh set. My stylist has an opening for a {confirmedStyle?.name || "[STY OPT]"}, {confirmedStyle ? `$${confirmedStyle.price} for ${confirmedStyle.duration} min` : "[price and time]"} will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]
                           </div>
                           
+                          {/* Service Image */}
                           <div className="flex justify-center mb-2">
                             <img 
                               src={confirmedStyle?.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/french-tips.png'}
@@ -841,17 +861,19 @@ export function VmbStyleOptions({
                             />
                           </div>
                           
+                          {/* Service Details */}
                           <div className="text-center text-xs text-gray-600">
                             <div>Service Value: ${confirmedStyle?.price || 70}</div>
                             <div>Duration: {confirmedStyle?.duration || 60} min</div>
-                            <div className="mt-1 font-medium">
-                              <div className="mt-2">
-                                <div>Gift Code: <span className="text-pink-600">VMB-{Math.random().toString(36).substring(2, 7).toUpperCase()}</span></div>
-                              </div>
-                            </div>
                           </div>
                           
-                          {/* Payment method icons */}
+                          {/* Unique Gift ID */}
+                          <div className="mt-2 text-center text-xs font-medium">
+                            <div className="text-gray-700">Your VMB gift has a unique ID:</div>
+                            <div className="text-pink-600 font-bold">VMB-{Math.random().toString(36).substring(2, 8).toUpperCase()}</div>
+                          </div>
+                          
+                          {/* Payment Method Icons */}
                           <div className="flex flex-col mt-3 items-center justify-center gap-1">
                             <div className="text-[10px] font-medium text-gray-700">Payment methods available:</div>
                             <div className="flex gap-2 items-center justify-center">
