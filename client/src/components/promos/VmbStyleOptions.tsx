@@ -156,11 +156,11 @@ export function VmbStyleOptions({
         
         // Pre-format the message with available data
         if (confirmedStyle) {
-          const baseMessage = `Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`;
-          let updatedMessage = baseMessage;
+          // Use salon-to-client message template for salon-initiated invitations
+          const salonToClientMessage = `Hi [NAME], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️\n\nPS: Clients register here: click [index link] to see your invitation!`;
+          
+          let updatedMessage = salonToClientMessage;
           updatedMessage = updatedMessage.replace("[NAME]", recipientData.name);
-          updatedMessage = updatedMessage.replace("[STY OPT]", confirmedStyle.name);
-          updatedMessage = updatedMessage.replace("[SIGNED]", recipientData.sponsor);
           setInvitationMessage(updatedMessage);
         }
       }
@@ -262,11 +262,11 @@ export function VmbStyleOptions({
       
       // If we have recipient data, update the message
       if (recipientData) {
-        const baseMessage = `Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`;
-        let updatedMessage = baseMessage;
+        // Use salon-to-client message template for salon-initiated invitations
+        const salonToClientMessage = `Hi [NAME], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️\n\nPS: Clients register here: click [index link] to see your invitation!`;
+        
+        let updatedMessage = salonToClientMessage;
         updatedMessage = updatedMessage.replace("[NAME]", recipientData.name);
-        updatedMessage = updatedMessage.replace("[STY OPT]", style.name);
-        updatedMessage = updatedMessage.replace("[SIGNED]", recipientData.sponsor);
         setInvitationMessage(updatedMessage);
         
         // Also update form fields

@@ -331,6 +331,12 @@ export default function InvitationPage() {
                       <VmbStyleOptions 
                         services={salon.services} 
                         salonId={salon.id}
+                        salonInitiated={!invitation.senderId} // TRUE for salon-to-client (senderId null)
+                        recipientData={{
+                          name: invitation.name,
+                          phone: invitation.phone,
+                          sponsor: invitation.sponsor || salon.name
+                        }}
                         onSelectionComplete={(selection) => {
                           console.log("Style selected:", selection);
                           toast({
