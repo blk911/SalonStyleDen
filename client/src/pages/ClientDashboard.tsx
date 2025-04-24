@@ -113,6 +113,9 @@ export default function ClientDashboard() {
   // Show/hide state for gift options section - default to HIDE
   const [showGiftOptions, setShowGiftOptions] = useState(false);
   
+  // Show/hide state for pending invitations section - default to HIDE
+  const [showPendingInvitations, setShowPendingInvitations] = useState(false);
+  
   // Show "Complete Your Profile" dialog for newly validated clients
   const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(false);
   
@@ -451,6 +454,35 @@ export default function ClientDashboard() {
                           </CardContent>
                         </Card>
                       )}
+                      
+                      {/* Pending Salon Invitations Section */}
+                      <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
+                        <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100 pb-2 pt-2">
+                          <CardTitle className="text-base flex items-center justify-between gap-2 text-amber-700">
+                            <div className="flex items-center gap-2">
+                              <StarIcon className="h-4 w-4" />
+                              <span>Pending Invitations From Salons</span>
+                            </div>
+                            <button 
+                              onClick={() => setShowPendingInvitations(!showPendingInvitations)} 
+                              className="flex items-center text-sm text-amber-600 hover:text-amber-800"
+                              aria-label={showPendingInvitations ? "Hide pending invitations" : "Show pending invitations"}
+                            >
+                              {showPendingInvitations ? (
+                                <ChevronUpIcon className="h-5 w-5" />
+                              ) : (
+                                <ChevronDownIcon className="h-5 w-5" />
+                              )}
+                            </button>
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className={`pt-4 ${showPendingInvitations ? 'block' : 'hidden'}`}>
+                          <PendingSalonInvitations 
+                            clientId={client.id} 
+                            limit={5} 
+                          />
+                        </CardContent>
+                      </Card>
                       
                       {/* Style Selection Confirmation Dialog */}
                       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
