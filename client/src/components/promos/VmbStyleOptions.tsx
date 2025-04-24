@@ -164,6 +164,18 @@ export function VmbStyleOptions({
       setGiftApproved(true);
     }
   }, [salonInitiated, recipientData]);
+  
+  // Effect for auto-selecting a style in salon-initiated invitations
+  useEffect(() => {
+    // If this is a salon-initiated invitation with recipient data, auto-select a style
+    if (salonInitiated && recipientData && services && services.length > 0) {
+      // Automatically select the first style (can be changed by salon owner later)
+      setTimeout(() => {
+        console.log("[SALON INITIATED] Auto-selecting first style:", services[0].name);
+        handleSelectStyle(services[0]);
+      }, 300); // Slight delay to ensure component is fully mounted
+    }
+  }, [salonInitiated, recipientData, services]);
 
   // Fetch any existing style selections for this client
   useEffect(() => {
@@ -1004,14 +1016,18 @@ export function VmbStyleOptions({
         <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Confirm Gift Request</DialogTitle>
+              <DialogTitle>
+                {salonInitiated ? "Confirm Salon Invitation" : "Confirm Gift Request"}
+              </DialogTitle>
               <DialogDescription>
-                Are you sure you want to send this gift request? This action cannot be undone.
+                {salonInitiated 
+                  ? "Are you sure you want to send this salon invitation? This action cannot be undone."
+                  : "Are you sure you want to send this gift request? This action cannot be undone."}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-3 py-3">
-              <div className="bg-blue-50 p-3 rounded-md border border-blue-100 text-sm">
-                <p>The following gift will be sent:</p>
+              <div className={`p-3 rounded-md border text-sm ${salonInitiated ? 'bg-amber-50 border-amber-100' : 'bg-blue-50 border-blue-100'}`}>
+                <p>{salonInitiated ? "The following invitation will be sent:" : "The following gift will be sent:"}</p>
                 <p className="font-medium mt-1">{confirmedStyle?.name || "Selected Style"}</p>
                 <p className="text-xs mt-2">Recipient: {recipientName || "Friend"}</p>
                 <p className="text-xs">{recipientContact || "No contact provided"}</p>
@@ -1063,8 +1079,10 @@ export function VmbStyleOptions({
                           
                           // Show more informative toast with dashboard posting details
                           toast({
-                            title: "Gift Request Ready!",
-                            description: `Request for ${finalName} prepared with unique ID`,
+                            title: salonInitiated ? "Salon Invitation Ready!" : "Gift Request Ready!",
+                            description: salonInitiated 
+                              ? `Invitation for ${finalName} prepared with unique ID`
+                              : `Request for ${finalName} prepared with unique ID`,
                             variant: "default"
                           });
                           
@@ -1092,8 +1110,10 @@ export function VmbStyleOptions({
                   } else {
                     // Regular gift sent without invitation completion
                     toast({
-                      title: "Gift Request Ready!",
-                      description: `Request for ${finalName} at ${recipientContact} prepared`,
+                      title: salonInitiated ? "Salon Invitation Ready!" : "Gift Request Ready!",
+                      description: salonInitiated
+                        ? `Invitation for ${finalName} at ${recipientContact} prepared`
+                        : `Request for ${finalName} at ${recipientContact} prepared`,
                       variant: "default"
                     });
                     
@@ -1122,9 +1142,15 @@ export function VmbStyleOptions({
         <Dialog open={showFinalInvitationModal} onOpenChange={setShowFinalInvitationModal}>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>Your Gift Request Is Ready!</DialogTitle>
+              <DialogTitle>
+                {salonInitiated 
+                  ? "Salon Invitation Ready!" 
+                  : "Your Gift Request Is Ready!"}
+              </DialogTitle>
               <DialogDescription>
-                This is your final gift request with unique ID. It can't be modified once sent.
+                {salonInitiated
+                  ? "This is the final salon invitation with unique ID. It can't be modified once sent."
+                  : "This is your final gift request with unique ID. It can't be modified once sent."}
               </DialogDescription>
             </DialogHeader>
             
@@ -1142,15 +1168,19 @@ export function VmbStyleOptions({
             
             <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-3">
               <div className="text-sm text-gray-500">
-                Unique ID: <span className="font-mono">INV-FINAL-{finalInvitationId}</span>
+                Unique ID: <span className={`font-mono ${salonInitiated ? 'text-amber-600' : 'text-pink-600'}`}>
+                  INV-FINAL-{finalInvitationId}
+                </span>
               </div>
               <Button 
                 type="button" 
                 onClick={() => {
                   setShowFinalInvitationModal(false);
                   toast({
-                    title: "Gift Request Sent!",
-                    description: "Your gift request has been sent to the recipient",
+                    title: salonInitiated ? "Salon Invitation Sent!" : "Gift Request Sent!",
+                    description: salonInitiated 
+                      ? `Invitation has been sent to ${recipientName || "the recipient"}`
+                      : "Your gift request has been sent to the recipient",
                     variant: "default"
                   });
                 }}
