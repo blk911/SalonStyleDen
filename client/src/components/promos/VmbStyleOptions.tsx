@@ -821,13 +821,8 @@ export function VmbStyleOptions({
                             type="button"
                             className="w-3/4 bg-green-500 hover:bg-green-600 text-white py-2 rounded-md transition-colors text-sm font-medium"
                             onClick={() => {
-                              if (window.confirm(`Are you sure you want to send this gift request?`)) {
-                                toast({
-                                  title: "Gift Sent Successfully!",
-                                  description: "Your gift invitation has been sent",
-                                  variant: "default"
-                                });
-                              }
+                              // Show confirmation dialog
+                              setShowConfirmDialog(true);
                             }}
                           >
                             SEND GIFT
@@ -868,7 +863,7 @@ export function VmbStyleOptions({
                             </div>
                           </div>
                           
-                          {/* SEND GIFT button - only shows when gift is approved */}
+                          {/* SEND GIFT REQUEST button - only shows when gift is approved */}
                           {giftApproved && (
                             <button 
                               type="button"
@@ -905,60 +900,8 @@ export function VmbStyleOptions({
                                   if (!signature) setSignature(finalSignature);
                                 }
                                 
-                                // Show confirmation dialog
-                                if (window.confirm(`Are you sure you want to send this gift to ${finalName}?`)) {
-                                  // First, check if we have an invitation ID to complete
-                                  if (invitationId) {
-                                    // Call the new API endpoint to complete the invitation and post to dashboards
-                                    console.log(`Completing invitation ${invitationId} and posting to dashboards`);
-                                    
-                                    // Set loading state
-                                    setIsSubmitting(true);
-                                    
-                                    // Get the style ID from the confirmed style if available
-                                    const styleId = confirmedStyle ? confirmedStyle.id : undefined;
-                                    
-                                    // Call the complete endpoint
-                                    apiRequest(`/api/invitations/${invitationId}/complete`, 'POST', { styleId })
-                                      .then(async (response) => {
-                                        if (response.ok) {
-                                          const result = await response.json();
-                                          console.log("Invitation completed successfully:", result);
-                                          
-                                          // Show more informative toast with dashboard posting details
-                                          toast({
-                                            title: "Gift Sent & Posted!",
-                                            description: `Gift sent to ${finalName} and posted to ${result.postedToSalon ? 'salon' : ''}${result.postedToClient && result.postedToSalon ? ' and ' : ''}${result.postedToClient ? 'client' : ''} dashboard${result.postedToClient && result.postedToSalon ? 's' : ''}`,
-                                            variant: "default"
-                                          });
-                                          
-                                          // Disable buttons to prevent double-sending
-                                          setInvitationConfirmed(true);
-                                        } else {
-                                          const errorData = await response.json();
-                                          throw new Error(errorData.error || "Failed to complete invitation");
-                                        }
-                                      })
-                                      .catch(error => {
-                                        console.error("Error completing invitation:", error);
-                                        toast({
-                                          title: "Error Sending Gift",
-                                          description: `There was a problem posting to dashboards: ${error.message}`,
-                                          variant: "destructive"
-                                        });
-                                      })
-                                      .finally(() => {
-                                        setIsSubmitting(false);
-                                      });
-                                  } else {
-                                    // Regular gift sent without invitation completion
-                                    toast({
-                                      title: "Gift Sent!",
-                                      description: `Message sent to ${finalName} at ${recipientContact}`,
-                                      variant: "default"
-                                    });
-                                  }
-                                }
+                                // Show custom confirmation dialog
+                                setShowConfirmDialog(true);
                               }}
                             >
                               SEND GIFT REQUEST
@@ -1008,6 +951,98 @@ export function VmbStyleOptions({
             }
           }}
         />
+
+        {/* Custom Confirmation Dialog */}
+        <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Confirm Gift Request</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to send this gift request? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-3">
+              <div className="bg-blue-50 p-3 rounded-md border border-blue-100 text-sm">
+                <p>The following gift will be sent:</p>
+                <p className="font-medium mt-1">{confirmedStyle?.name || "Selected Style"}</p>
+                <p className="text-xs mt-2">Recipient: {recipientName || "Friend"}</p>
+                <p className="text-xs">{recipientContact || "No contact provided"}</p>
+              </div>
+            </div>
+            <DialogFooter className="sm:justify-between">
+              <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+                Cancel
+              </Button>
+              <Button 
+                type="button" 
+                onClick={() => {
+                  setShowConfirmDialog(false);
+                  
+                  // Apply default values
+                  const finalName = recipientName || "Love";
+                  
+                  // Check if we have an invitation ID to complete
+                  if (invitationId) {
+                    // Set loading state
+                    setIsSubmitting(true);
+                    
+                    // Get the style ID from the confirmed style if available
+                    const styleId = confirmedStyle ? confirmedStyle.id : undefined;
+                    
+                    // Call the complete endpoint
+                    apiRequest(`/api/invitations/${invitationId}/complete`, 'POST', { styleId })
+                      .then(async (response) => {
+                        if (response.ok) {
+                          const result = await response.json();
+                          console.log("Invitation completed successfully:", result);
+                          
+                          // Show more informative toast with dashboard posting details
+                          toast({
+                            title: "Gift Request Sent & Posted!",
+                            description: `Request sent to ${finalName} and posted to dashboards`,
+                            variant: "default"
+                          });
+                          
+                          // Disable buttons to prevent double-sending
+                          setInvitationConfirmed(true);
+                        } else {
+                          const errorData = await response.json();
+                          throw new Error(errorData.error || "Failed to complete invitation");
+                        }
+                      })
+                      .catch(error => {
+                        console.error("Error completing invitation:", error);
+                        toast({
+                          title: "Error Sending Gift Request",
+                          description: `There was a problem posting to dashboards: ${error.message}`,
+                          variant: "destructive"
+                        });
+                      })
+                      .finally(() => {
+                        setIsSubmitting(false);
+                      });
+                  } else {
+                    // Regular gift sent without invitation completion
+                    toast({
+                      title: "Gift Request Sent!",
+                      description: `Message sent to ${finalName} at ${recipientContact}`,
+                      variant: "default"
+                    });
+                  }
+                }}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 
+                  <>
+                    <span className="mr-2">Processing...</span>
+                    <Sparkles className="h-4 w-4 animate-spin" />
+                  </> : 
+                  'Confirm & Send'
+                }
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
