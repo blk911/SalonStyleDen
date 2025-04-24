@@ -1151,9 +1151,11 @@ export function VmbStyleOptions({
         <Dialog open={showFinalInvitationModal} onOpenChange={setShowFinalInvitationModal}>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle>Your Gift Request Is Ready!</DialogTitle>
+              <DialogTitle>{salonInitiated ? "Salon Invitation Ready!" : "Your Gift Request Is Ready!"}</DialogTitle>
               <DialogDescription>
-                This is your final gift request with unique ID. It can't be modified once sent.
+                {salonInitiated 
+                  ? "This is the salon invitation with a unique ID. Review and click Send to complete."
+                  : "This is your final gift request with unique ID. It can't be modified once sent."}
               </DialogDescription>
             </DialogHeader>
             
@@ -1166,6 +1168,7 @@ export function VmbStyleOptions({
                 time={confirmedStyle ? `${confirmedStyle.duration} min` : "30 min"}
                 senderName={signature || "Your Friend"}
                 imageUrl={confirmedStyle?.gifUrl || "/assets/french-tips.png"}
+                salonInitiated={salonInitiated}
               />
             </div>
             
@@ -1178,13 +1181,15 @@ export function VmbStyleOptions({
                 onClick={() => {
                   setShowFinalInvitationModal(false);
                   toast({
-                    title: "Gift Request Sent!",
-                    description: "Your gift request has been sent to the recipient",
+                    title: salonInitiated ? "Salon Invitation Sent!" : "Gift Request Sent!",
+                    description: salonInitiated 
+                      ? "Your salon invitation has been sent to the client" 
+                      : "Your gift request has been sent to the recipient",
                     variant: "default"
                   });
                 }}
               >
-                Close
+                {salonInitiated ? "Send" : "Close"}
               </Button>
             </DialogFooter>
           </DialogContent>
