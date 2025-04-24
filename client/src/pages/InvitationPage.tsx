@@ -48,14 +48,23 @@ export default function InvitationPage() {
   const { toast } = useToast();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   
-  // Check if we're viewing a complete invitation
+  // Parse query parameters to determine view mode and prefill status
   const isCompleteView = location.includes('complete=true');
+  const isPreviewView = location.includes('view=preview');
+  const shouldPrefill = location.includes('prefill=true');
   
   // State for section visibility with localStorage persistence
   const [styleSectionOpen, setStyleSectionOpen] = useState(() => {
+    // If this is a preview view, we want steps 1 and 2 to be closed
+    if (isPreviewView) {
+      return false;
+    }
     const saved = localStorage.getItem('vmb-invite-style-section-open');
     return saved ? JSON.parse(saved) : true; // Default to open for better UX
   });
+  
+  // For preview mode, we want to skip to step 3
+  const [showStep3, setShowStep3] = useState(isPreviewView);
   
   // Save section state to localStorage when it changes
   useEffect(() => {
@@ -345,6 +354,13 @@ export default function InvitationPage() {
                             variant: "default"
                           });
                         }}
+                        // Set the initial style selection if viewing a pending invitation
+                        initialStyleId={invitation.favoriteServices && invitation.favoriteServices.length > 0 
+                          ? salon.services.find(s => s.name === invitation.favoriteServices[0])?.id 
+                          : undefined}
+                        isPreviewMode={isPreviewView}
+                        shouldPrefill={shouldPrefill}
+                        prefilledServices={invitation.favoriteServices || []}
                       />
                     </CollapsibleContent>
                   </Collapsible>
