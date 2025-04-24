@@ -666,6 +666,24 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                             </Tooltip>
                           </TooltipProvider>
                         </TableCell>
+
+                        {/* View button with icon */}
+                        <TableCell className="py-1 text-center">
+                          <Link to={`/invitation/${invite.inviteHash}`} className="inline-block">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-6 w-6 p-0 text-amber-700 hover:text-amber-900 hover:bg-amber-50">
+                                    <GiftIcon className="h-3.5 w-3.5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="font-medium">View Invitation</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </Link>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
