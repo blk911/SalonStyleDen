@@ -130,7 +130,7 @@ export default function PendingSalonInvitations({
                 }>
                   {invitation.senderId ? 
                     `[${invitation.id}] Ven Me, Baby! Gift Request Form` : 
-                    `Salon Invite; ${invitation.name} [${invitation.id}]`}
+                    `SALON INVITE: [${invitation.id}]`}
                 </Badge>
               </div>
               <Button

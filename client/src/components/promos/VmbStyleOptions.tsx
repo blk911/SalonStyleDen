@@ -138,6 +138,44 @@ export function VmbStyleOptions({
     }
   });
   
+  // Special handling for salon-initiated invitations
+  useEffect(() => {
+    if (salonInitiated) {
+      console.log("Salon-initiated invitation - setting up special flow");
+      
+      // For salon-initiated invitations:
+      // 1. Close Step 1 (style selection) after user selects
+      // 2. Keep Step 2 closed (we already have client contact info)
+      // 3. Open Step 3 directly (Preview and Send)
+      
+      // Pre-populate recipient data if available
+      if (recipientData) {
+        setRecipientName(recipientData.name);
+        setRecipientContact(recipientData.phone);
+        setSignature(recipientData.sponsor);
+        
+        // Pre-format the message with available data
+        if (confirmedStyle) {
+          const baseMessage = `Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`;
+          let updatedMessage = baseMessage;
+          updatedMessage = updatedMessage.replace("[NAME]", recipientData.name);
+          updatedMessage = updatedMessage.replace("[STY OPT]", confirmedStyle.name);
+          updatedMessage = updatedMessage.replace("[SIGNED]", recipientData.sponsor);
+          setInvitationMessage(updatedMessage);
+        }
+      }
+      
+      // For salon-initiated, we want to skip Step 2
+      setIsStep2Open(false);
+      
+      // If we have a style selected, automatically open Step 3
+      if (confirmedStyle) {
+        setIsStep3Open(true);
+        setShowStep3(true);
+      }
+    }
+  }, [salonInitiated, recipientData, confirmedStyle]);
+
   // Fetch any existing style selections for this client
   useEffect(() => {
     if (clientId) {
@@ -211,36 +249,64 @@ export function VmbStyleOptions({
     
     // Set confirmed style and show Step 2, but keep Step 1 visible (just collapsed)
     setConfirmedStyle(style);
-    setShowStep2(true);
-    // Do NOT show Step 3 yet - it will be shown after Step 2 is completed
-    setShowStep3(false);
-    // Close the Step 1 collapsible without hiding it completely
-    setIsStep1Open(false);
+    
+    // Special handling for salon-initiated invitations
+    if (salonInitiated) {
+      console.log("Salon-initiated flow: Skip Step 2, go directly to Step 3");
+      setShowStep2(true);
+      setShowStep3(true);
+      // Close Step 1 & 2, open Step 3
+      setIsStep1Open(false);
+      setIsStep2Open(false);
+      setIsStep3Open(true);
+      
+      // If we have recipient data, update the message
+      if (recipientData) {
+        const baseMessage = `Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`;
+        let updatedMessage = baseMessage;
+        updatedMessage = updatedMessage.replace("[NAME]", recipientData.name);
+        updatedMessage = updatedMessage.replace("[STY OPT]", style.name);
+        updatedMessage = updatedMessage.replace("[SIGNED]", recipientData.sponsor);
+        setInvitationMessage(updatedMessage);
+        
+        // Also update form fields
+        setRecipientName(recipientData.name);
+        setRecipientContact(recipientData.phone);
+        setSignature(recipientData.sponsor);
+      }
+    } else {
+      // Regular flow
+      setShowStep2(true);
+      // Do NOT show Step 3 yet - it will be shown after Step 2 is completed
+      setShowStep3(false);
+      // Close the Step 1 collapsible without hiding it completely
+      setIsStep1Open(false);
+      
+      // Update the invitation message to include the selected style name
+      const baseMessage = `Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`;
+      const currentName = recipientName || "[NAME]";
+      const currentSignature = signature || "[SIGNED]";
+      
+      // Replace placeholders
+      let updatedMessage = baseMessage;
+      updatedMessage = updatedMessage.replace("[NAME]", currentName);
+      updatedMessage = updatedMessage.replace("[STY OPT]", style.name);
+      updatedMessage = updatedMessage.replace("[SIGNED]", currentSignature);
+      
+      // Update the message
+      setInvitationMessage(updatedMessage);
+    }
     
     // Close any open dialogs to avoid conflicts
     setIsDetailsOpen(false);
     setIsConfirmationOpen(false);
     
-    // Update the invitation message to include the selected style name
-    const baseMessage = `Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`;
-    const currentName = recipientName || "[NAME]";
-    const currentSignature = signature || "[SIGNED]";
-    
-    // Replace placeholders
-    let updatedMessage = baseMessage;
-    updatedMessage = updatedMessage.replace("[NAME]", currentName);
-    updatedMessage = updatedMessage.replace("[STY OPT]", style.name);
-    updatedMessage = updatedMessage.replace("[SIGNED]", currentSignature);
-    
-    // Update the message
-    setInvitationMessage(updatedMessage);
-    
     console.log("Style selected without popup, directly inserted in STEP 2 and STEP 3:", style.name);
     
-    // Show success toast
+    // Show success toast - customize message for salon-initiated
     toast({
       title: "Style Selected!",
-      description: "Now you can start your Design!",
+      description: salonInitiated ? "Preview and send your invitation!" : "Now you can start your Design!",
       variant: "default"
     });
     
