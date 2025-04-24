@@ -9,6 +9,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Link } from 'wouter';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import InviteCompleteStatus from "@/components/dashboard/InviteCompleteStatus";
 import { 
   Select, 
   SelectContent, 
@@ -546,6 +547,18 @@ export default function AdminDashboard() {
             isOpen={invitationsOpen}
             onToggle={() => setInvitationsOpen(!invitationsOpen)}
           >
+            {/* Invitations Count Summary */}
+            {invitations && invitations.length > 0 && (
+              <div className="mb-4">
+                <InviteCompleteStatus 
+                  inviteCount={invitations.filter(invite => 
+                    invite.status === 'complete' || invite.status === 'accepted'
+                  ).length} 
+                  showTitle={true}
+                />
+              </div>
+            )}
+            
             {/* Loading state */}
             {inviteIsLoading && (
               <div className="py-8 text-center">
