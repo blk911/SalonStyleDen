@@ -706,6 +706,50 @@ export function VmbStyleOptions({
                           )}
                         </div>
                       </div>
+                      
+                      {/* Right side - Message Preview and Style Card */}
+                      {confirmedStyle && (
+                        <div className="w-full md:w-1/2 text-left md:pl-2 mt-2 md:mt-0">
+                          <h3 className="font-medium text-compact text-center">Message Preview</h3>
+                          <div className="mt-2 border border-dashed border-pink-200 rounded-md p-2">
+                            <div className="rounded-lg p-2 bg-blue-50 border border-blue-100 mb-2">
+                              {invitationMessage}
+                            </div>
+                            
+                            {/* Show the style card */}
+                            <div className="flex items-center gap-2 border border-gray-200 rounded-lg p-2 my-2 bg-white">
+                              <img
+                                src={confirmedStyle.gifUrl ? getImageUrl(confirmedStyle.gifUrl, 'vmb_style') : '/assets/LOGO1.png'}
+                                alt={confirmedStyle.name}
+                                className="h-14 w-14 object-cover rounded-md"
+                                onError={(e) => {
+                                  console.error(`Failed to load image for service: ${confirmedStyle.name}`);
+                                  e.currentTarget.src = '/assets/LOGO1.png';
+                                }}
+                              />
+                              <div>
+                                <div className="font-medium text-xs">{confirmedStyle.name}</div>
+                                <div className="text-[10px] text-gray-600">${Math.round(confirmedStyle.price)} · {confirmedStyle.duration} min</div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex gap-2 mt-2 items-center justify-center">
+                              <div className="flex gap-1">
+                                <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
+                                  <span className="text-[8px] font-bold">Z</span>
+                                </div>
+                                <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
+                                  <span className="text-[8px] font-bold">V</span>
+                                </div>
+                                <div className="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center opacity-50">
+                                  <span className="text-[8px] font-bold">CA</span>
+                                </div>
+                              </div>
+                              <div className="text-[8px] text-gray-500">Payment options coming soon</div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       </div>
                     </div>
                   </div>
