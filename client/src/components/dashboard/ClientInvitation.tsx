@@ -842,6 +842,80 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         errorMessage={errorMessage}
         onClose={handleCustomDialogClose}
       />
+      
+      {/* Preview Modal */}
+      <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
+        <DialogContent className="max-w-md mx-auto">
+          <DialogHeader>
+            <DialogTitle className="text-center text-amber-800">Preview Invitation</DialogTitle>
+            <DialogDescription className="text-center">
+              Review your invitation before sending
+            </DialogDescription>
+          </DialogHeader>
+          
+          {previewData && (
+            <div className="py-4">
+              <div className="mb-4 border border-amber-200 rounded-md p-3 bg-amber-50">
+                <p className="text-sm font-medium text-gray-700">Recipient: {previewData.name}</p>
+                <p className="text-sm text-gray-600">Phone: {formatPhoneNumber(previewData.phone)}</p>
+                <p className="text-sm text-gray-600">Email: {previewData.email}</p>
+                <p className="text-sm text-gray-600">Service Date: {formatDate(previewData.firstServiceDate)}</p>
+                {previewData.favoriteServices.length > 0 && (
+                  <div className="mt-1">
+                    <p className="text-sm text-gray-700">Services:</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {previewData.favoriteServices.map(service => (
+                        <Badge key={service} variant="outline" className="bg-amber-50">{service}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="border border-gray-200 rounded-md overflow-hidden">
+                <RenderedInvitation 
+                  inviteId="PREVIEW"
+                  recipientName={previewData.name}
+                  styleOption={previewData.favoriteServices[0] || "Salon Service"}
+                  price="varies"
+                  time="scheduled"
+                  senderName={salonInfo?.name || ''}
+                  salonName={salonInfo?.name || ''}
+                  salonInitiated={true}
+                />
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter className="flex gap-2 sm:justify-between">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setShowPreviewModal(false)}
+              className="w-full"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Back to Form
+            </Button>
+            <Button 
+              type="button" 
+              className="w-full bg-amber-500 hover:bg-amber-600 text-white"
+              onClick={(e) => {
+                setShowPreviewModal(false);
+                // Trigger the form submission after confirmation
+                handleSubmit(e as unknown as React.FormEvent);
+              }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : 
+                <Send className="h-4 w-4 mr-2" />
+              }
+              Confirm & Send
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
