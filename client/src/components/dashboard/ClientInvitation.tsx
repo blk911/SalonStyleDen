@@ -2,10 +2,22 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AlertCircle, ChevronDown } from "lucide-react";
+import { 
+  AlertCircle, 
+  ChevronDown, 
+  Clock, 
+  Calendar, 
+  Phone, 
+  Mail, 
+  Clock3, 
+  CheckCircle, 
+  LinkIcon,
+  CalendarClock,
+  GiftIcon
+} from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Table,
@@ -24,7 +36,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import InviteCompleteStatus from "./InviteCompleteStatus";
+import { format } from "date-fns";
+import { Link } from "wouter";
 
 const DEFAULT_SERVICES = [
   "French Tips",
@@ -52,6 +65,26 @@ interface ClientInvitationProps {
   salonId?: number;
 }
 
+// Helper function to format phone numbers
+function formatPhoneNumber(phoneNumberString: string) {
+  const cleaned = phoneNumberString.replace(/\D/g, '');
+  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+  if (match) {
+    return `(${match[1]}) ${match[2]}-${match[3]}`;
+  }
+  return phoneNumberString;
+}
+
+// Helper function to format dates
+function formatDate(dateString: string | undefined) {
+  if (!dateString) return 'No date';
+  try {
+    return format(new Date(dateString), 'MMM d, yyyy');
+  } catch (e) {
+    return dateString;
+  }
+}
+
 export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const { toast } = useToast();
   const [name, setName] = useState("");
@@ -70,8 +103,18 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     return saved ? JSON.parse(saved) : true; // Open by default
   });
   
-  const [recentInvitesOpen, setRecentInvitesOpen] = useState(() => {
-    const saved = localStorage.getItem('vmb-recent-invitations-open');
+  const [pendingInvitesOpen, setPendingInvitesOpen] = useState(() => {
+    const saved = localStorage.getItem('vmb-pending-invitations-open');
+    return saved ? JSON.parse(saved) : true; // Open by default
+  });
+  
+  const [scheduledInvitesOpen, setScheduledInvitesOpen] = useState(() => {
+    const saved = localStorage.getItem('vmb-scheduled-invitations-open');
+    return saved ? JSON.parse(saved) : true; // Open by default
+  });
+  
+  const [completedInvitesOpen, setCompletedInvitesOpen] = useState(() => {
+    const saved = localStorage.getItem('vmb-completed-invitations-open');
     return saved ? JSON.parse(saved) : true; // Open by default
   });
   
@@ -81,8 +124,16 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   }, [sendFormOpen]);
   
   useEffect(() => {
-    localStorage.setItem('vmb-recent-invitations-open', JSON.stringify(recentInvitesOpen));
-  }, [recentInvitesOpen]);
+    localStorage.setItem('vmb-pending-invitations-open', JSON.stringify(pendingInvitesOpen));
+  }, [pendingInvitesOpen]);
+  
+  useEffect(() => {
+    localStorage.setItem('vmb-scheduled-invitations-open', JSON.stringify(scheduledInvitesOpen));
+  }, [scheduledInvitesOpen]);
+  
+  useEffect(() => {
+    localStorage.setItem('vmb-completed-invitations-open', JSON.stringify(completedInvitesOpen));
+  }, [completedInvitesOpen]);
   
   // Use our contact validation hook
   const {
@@ -92,7 +143,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     errorMessage,
     showErrorDialog,
     setShowErrorDialog,
-    formatPhoneNumber,
+    formatPhoneNumber: formatContactPhone,
     validateContact,
     handleDialogClose
   } = useContactValidation();
@@ -159,7 +210,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
 
   // Handle phone number changes with validation
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
+    const formatted = formatContactPhone(e.target.value);
     setPhone(formatted);
     
     // Validate if the phone number is complete
@@ -284,15 +335,24 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     }
   };
 
-  // Count completed invitations
+  // Filter invitations by status
+  const pendingInvitations = recentInvites.filter(invite => 
+    invite.status === 'pending' || !invite.status
+  );
+  
+  const scheduledInvitations = recentInvites.filter(invite => 
+    invite.status === 'scheduled' || invite.status === 'appointment'
+  );
+  
   const completedInvitations = recentInvites.filter(invite => 
     invite.status === 'complete' || invite.status === 'accepted'
   );
   
+  // We'll remove this import and use our local types since they're already compatible
+  // This fixes the type error related to the incompatible status field
+  
   return (
     <div className="space-y-6">
-      {/* Recent Invitation List (Detailed) - Moved below the Send Invitation Form */}
-      
       {/* Send Invitation Form Section */}
       <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
         <div 
@@ -437,36 +497,43 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         )}
       </Card>
 
-      {/* Recent Invitations List */}
-      <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
+      {/* PENDING INVITATIONS Section */}
+      <Card className="rounded-xl shadow-sm overflow-hidden border border-amber-200">
         <div 
-          className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
-          onClick={() => setRecentInvitesOpen(!recentInvitesOpen)}
+          className="bg-gradient-to-br from-amber-50 to-amber-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
+          onClick={() => setPendingInvitesOpen(!pendingInvitesOpen)}
         >
-          <h3 className="font-medium text-xs sm:text-sm text-pink-800">Recent Invitations</h3>
+          <h3 className="font-medium text-xs sm:text-sm text-amber-800 flex items-center">
+            <Clock3 className="h-3.5 w-3.5 mr-1.5 text-amber-700" /> 
+            Pending Invitations {pendingInvitations.length > 0 && (
+              <Badge className="ml-2 bg-amber-100 text-amber-800 border-amber-200 text-[10px]">
+                {pendingInvitations.length}
+              </Badge>
+            )}
+          </h3>
           <ChevronDown 
-            className={`h-4 w-4 text-pink-800 transition-transform ${recentInvitesOpen ? 'transform rotate-180' : ''}`} 
+            className={`h-4 w-4 text-amber-800 transition-transform ${pendingInvitesOpen ? 'transform rotate-180' : ''}`} 
           />
         </div>
         
-        {recentInvitesOpen && (
+        {pendingInvitesOpen && (
           <CardContent className="p-4">
-            {recentInvites.length === 0 ? (
-              <p className="text-center text-gray-500 my-4">No invitations have been sent yet.</p>
+            {pendingInvitations.length === 0 ? (
+              <p className="text-center text-gray-500 my-4">No pending invitations.</p>
             ) : (
-              <ScrollArea className="h-[250px]">
+              <ScrollArea className="h-[200px]">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Phone</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>Invite ID</TableHead>
                       <TableHead>First Service</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {recentInvites.map((invite) => (
+                    {pendingInvitations.map((invite) => (
                       <TableRow key={invite.id} className="h-[28px]">
                         {/* Name with truncation */}
                         <TableCell className="font-medium py-1">
@@ -524,18 +591,9 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                           )}
                         </TableCell>
                         
-                        {/* Status badge */}
-                        <TableCell className="py-1">
-                          <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200 text-xs">
-                            {invite.status || 'Pending'}
-                          </Badge>
-                          
-                          {/* Display Invitation Hash ID below status */}
-                          {invite.inviteHash && (
-                            <div className="text-[10px] text-gray-500 mt-1">
-                              #{invite.inviteHash}
-                            </div>
-                          )}
+                        {/* Invitation Hash ID */}
+                        <TableCell className="py-1 text-[10px] text-gray-600">
+                          {invite.inviteHash || 'No ID'}
                         </TableCell>
                         
                         {/* Service date with truncation */}
@@ -552,15 +610,163 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         )}
       </Card>
       
-      {/* Enhanced Invitation Details Section - Shows completed invitations with detailed information */}
-      {completedInvitations.length > 0 && (
-        <div className="mt-6">
-          <InviteCompleteStatus 
-            inviteCount={completedInvitations.length} 
-            invitations={recentInvites} 
+      {/* APPOINTMENT SCHEDULED Section */}
+      <Card className="rounded-xl shadow-sm overflow-hidden border border-indigo-200">
+        <div 
+          className="bg-gradient-to-br from-indigo-50 to-indigo-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
+          onClick={() => setScheduledInvitesOpen(!scheduledInvitesOpen)}
+        >
+          <h3 className="font-medium text-xs sm:text-sm text-indigo-800 flex items-center">
+            <CalendarClock className="h-3.5 w-3.5 mr-1.5 text-indigo-700" /> 
+            Appointment Scheduled {scheduledInvitations.length > 0 && (
+              <Badge className="ml-2 bg-indigo-100 text-indigo-800 border-indigo-200 text-[10px]">
+                {scheduledInvitations.length}
+              </Badge>
+            )}
+          </h3>
+          <ChevronDown 
+            className={`h-4 w-4 text-indigo-800 transition-transform ${scheduledInvitesOpen ? 'transform rotate-180' : ''}`} 
           />
         </div>
-      )}
+        
+        {scheduledInvitesOpen && (
+          <CardContent className="p-4">
+            {scheduledInvitations.length === 0 ? (
+              <p className="text-center text-gray-500 my-4">No scheduled appointments.</p>
+            ) : (
+              <div className="space-y-4">
+                {scheduledInvitations.map(invite => (
+                  <Card key={invite.id} className="overflow-hidden border-indigo-200">
+                    <CardHeader className="py-2 px-3 bg-gradient-to-r from-indigo-50 to-indigo-100 flex flex-row items-center justify-between">
+                      <CardTitle className="text-sm font-medium text-indigo-800 flex items-center">
+                        <Calendar className="h-4 w-4 mr-1.5 text-indigo-600" />
+                        {invite.name}
+                      </CardTitle>
+                      <Badge className="bg-indigo-100 text-indigo-700 border-indigo-200 text-[10px]">
+                        {formatDate(invite.firstServiceDate)}
+                      </Badge>
+                    </CardHeader>
+                    <CardContent className="p-3 text-xs grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div className="flex items-center">
+                        <Phone className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
+                        <span className="font-medium text-gray-700">Phone:</span>
+                        <span className="ml-1">{formatPhoneNumber(invite.phone)}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Mail className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
+                        <span className="font-medium text-gray-700">Email:</span>
+                        <span className="ml-1 truncate">{invite.email}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Clock className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
+                        <span className="font-medium text-gray-700">Created:</span>
+                        <span className="ml-1">{formatDate(invite.createdAt)}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <LinkIcon className="h-3.5 w-3.5 mr-1.5 text-indigo-500" />
+                        <Link to={`/appointments/${invite.id}`} className="text-indigo-600 hover:underline">
+                          View Appointment
+                        </Link>
+                      </div>
+                      {invite.favoriteServices && invite.favoriteServices.length > 0 && (
+                        <div className="col-span-1 sm:col-span-2 flex flex-wrap gap-1 mt-1">
+                          {invite.favoriteServices.map(service => (
+                            <Badge key={service} variant="outline" className="text-[9px] bg-indigo-50">{service}</Badge>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        )}
+      </Card>
+      
+      {/* COMPLETED VMB PROMOS Section */}
+      <Card className="rounded-xl shadow-sm overflow-hidden border border-emerald-200">
+        <div 
+          className="bg-gradient-to-br from-emerald-50 to-emerald-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
+          onClick={() => setCompletedInvitesOpen(!completedInvitesOpen)}
+        >
+          <h3 className="font-medium text-xs sm:text-sm text-emerald-800 flex items-center">
+            <GiftIcon className="h-3.5 w-3.5 mr-1.5 text-emerald-700" /> 
+            Completed VMB Promos {completedInvitations.length > 0 && (
+              <Badge className="ml-2 bg-emerald-100 text-emerald-800 border-emerald-200 text-[10px]">
+                {completedInvitations.length}
+              </Badge>
+            )}
+          </h3>
+          <ChevronDown 
+            className={`h-4 w-4 text-emerald-800 transition-transform ${completedInvitesOpen ? 'transform rotate-180' : ''}`} 
+          />
+        </div>
+        
+        {completedInvitesOpen && (
+          <CardContent className="p-4">
+            {completedInvitations.length === 0 ? (
+              <p className="text-center text-gray-500 my-4">No completed promotions.</p>
+            ) : (
+              <div className="space-y-4">
+                {completedInvitations.map(invite => (
+                  <Card key={invite.id} className="overflow-hidden border-emerald-200">
+                    <CardHeader className="py-2 px-3 bg-gradient-to-r from-emerald-50 to-emerald-100 flex flex-row items-center justify-between">
+                      <CardTitle className="text-sm font-medium text-emerald-800 flex items-center">
+                        <CheckCircle className="h-4 w-4 mr-1.5 text-emerald-600" />
+                        {invite.name}
+                      </CardTitle>
+                      <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-[10px]">
+                        ID: {invite.id}
+                      </Badge>
+                    </CardHeader>
+                    <CardContent className="p-3 text-xs grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div className="flex items-center">
+                        <Phone className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
+                        <span className="font-medium text-gray-700">Phone:</span>
+                        <span className="ml-1">{formatPhoneNumber(invite.phone)}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Mail className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
+                        <span className="font-medium text-gray-700">Email:</span>
+                        <span className="ml-1 truncate">{invite.email}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
+                        <span className="font-medium text-gray-700">First Service:</span>
+                        <span className="ml-1">{formatDate(invite.firstServiceDate)}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Clock className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
+                        <span className="font-medium text-gray-700">Created:</span>
+                        <span className="ml-1">{formatDate(invite.createdAt)}</span>
+                      </div>
+                      <div className="col-span-1 sm:col-span-2 flex items-center mt-1">
+                        <LinkIcon className="h-3.5 w-3.5 mr-1.5 text-emerald-500" />
+                        <Link to={`/invitations/${invite.inviteHash}`} className="text-emerald-600 hover:underline">
+                          View Completed Invitation
+                        </Link>
+                      </div>
+                      {invite.favoriteServices && invite.favoriteServices.length > 0 && (
+                        <div className="col-span-1 sm:col-span-2 flex flex-wrap gap-1 mt-1">
+                          {invite.favoriteServices.map(service => (
+                            <Badge key={service} variant="outline" className="text-[9px] bg-emerald-50">{service}</Badge>
+                          ))}
+                        </div>
+                      )}
+                      {invite.notes && (
+                        <div className="col-span-1 sm:col-span-2 mt-1">
+                          <p className="text-[10px] text-gray-600 italic">{invite.notes}</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        )}
+      </Card>
       
       {/* Use our shared validation dialog component */}
       <ContactValidationDialog
