@@ -22,6 +22,7 @@ import NetworkVisualization from "@/pages/NetworkVisualization";
 import MadgeVisualizationPage from "@/pages/MadgeVisualizationPage";
 import InvitationPage from "@/pages/InvitationPage";
 import ClientRegistrationPage from "@/pages/ClientRegistrationPage";
+import CompleteInvitationPage from "@/pages/CompleteInvitationPage";
 
 function Router() {
   return (
@@ -34,6 +35,7 @@ function Router() {
       <Route path="/clients" component={ClientsPage} />
       <Route path="/salons" component={SalonsPage} />
       <Route path="/invitation/:hash" component={InvitationPage} />
+      <Route path="/complete-invitation/:id" component={CompleteInvitationPage} />
       {/* Temporarily hiding the Promos page */}
       {/* <Route path="/promos" component={PromosPage} /> */}
       <Route path="/sitemap" component={Sitemap} />
