@@ -83,8 +83,8 @@ export function VmbStyleOptions({
   const [showPromoCodeDialog, setShowPromoCodeDialog] = useState(false);
   const [tempSelectedPhone, setTempSelectedPhone] = useState<string>('');
   const [confirmedStyle, setConfirmedStyle] = useState<StyleOption | null>(null);
-  const [showStep2, setShowStep2] = useState(false);
-  const [showStep3, setShowStep3] = useState(false);
+  const [showStep2, setShowStep2] = useState(true);  // Set to true for testing
+  const [showStep3, setShowStep3] = useState(true);  // Set to true for testing
   const [stateTracker, setStateTracker] = useState(0); // Debug counter
   const [showStep1, setShowStep1] = useState(true); // Always true now - we'll use isStep1Open to control collapse
   const [isStep1Open, setIsStep1Open] = useState(true); // Control Step 1 collapsible state

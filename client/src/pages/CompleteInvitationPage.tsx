@@ -1,287 +1,303 @@
-import { useQuery } from "@tanstack/react-query";
-import { useParams, useLocation } from "wouter";
-import { useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'wouter';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useQuery } from '@tanstack/react-query';
+import { Loader2, User, Clock, Gift, ArrowLeft, ExternalLink, Heart } from 'lucide-react';
 import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { PhoneIcon, MailIcon, CalendarIcon, UserIcon, ClockIcon, BuildingIcon, CheckCircleIcon } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Link } from 'wouter';
+import { Separator } from '@/components/ui/separator';
+
+interface StyleOption {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  duration: number;
+  imageUrl?: string;
+  createdAt: string;
+}
 
 interface Invitation {
   id: number;
   name: string;
-  phone: string;
-  email: string;
-  message?: string | null;
-  type?: string | null;
-  notes?: string;
-  favoriteServices?: string[];
+  hash: string;
+  clientId?: number;
   salonId?: number;
-  senderId?: number | null;
-  salonName?: string;
-  sponsor?: string;
-  status?: string;
-  firstServiceDate?: string;
+  styleId?: number;
+  status: 'pending' | 'accepted' | 'complete' | 'rejected';
+  message?: string;
+  recipientName?: string;
+  recipientContact?: string;
   createdAt: string;
-  inviteHash: string;
-}
-
-interface Salon {
-  id: number;
-  name: string;
-  ownerName: string;
-  email: string;
-  phone: string;
-  socialMedia?: Array<{platform: string, handle: string}>;
-  services?: Array<any>;
+  sender?: string;
+  signature?: string;
+  expiresAt?: string;
+  sponsor?: string;
+  type?: string;
+  giftCode?: string;
 }
 
 export default function CompleteInvitationPage() {
-  const { id } = useParams();
-  const [, setLocation] = useLocation();
-  const { toast } = useToast();
+  const { id } = useParams<{ id: string }>();
+  const invitationId = parseInt(id);
+  const [style, setStyle] = useState<StyleOption | null>(null);
   
-  // Format phone number for display
-  const formatPhone = (phone: string) => {
-    if (!phone) return "";
+  // Fetch the invitation details
+  const { data: invitation, isLoading, error } = useQuery({
+    queryKey: [`/api/invitations/${invitationId}`],
+    enabled: !isNaN(invitationId)
+  });
 
-    // Simple US phone formatting
-    const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length === 10) {
-      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+  // Fetch style details when invitation loads
+  useEffect(() => {
+    if (invitation?.styleId) {
+      const fetchStyle = async () => {
+        try {
+          const response = await fetch(`/api/styles/${invitation.styleId}`);
+          if (response.ok) {
+            const styleData = await response.json();
+            setStyle(styleData);
+          }
+        } catch (error) {
+          console.error('Error fetching style details:', error);
+        }
+      };
+      
+      fetchStyle();
     }
-    return phone;
-  };
+  }, [invitation]);
 
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    });
-  };
-
-  // Fetch invitation by ID
-  const { 
-    data: invitation,
-    isLoading: invitationLoading,
-    error: invitationError
-  } = useQuery<Invitation>({
-    queryKey: ['/api/invitations', id],
-    queryFn: async () => {
-      const response = await fetch(`/api/invitations/${id}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch invitation: ${response.status}`);
-      }
-      return response.json();
-    },
-    enabled: !!id,
-  });
-
-  // Fetch salon if invitation has a salonId
-  const { 
-    data: salon,
-    isLoading: salonLoading
-  } = useQuery<Salon>({
-    queryKey: ['/api/salons', invitation?.salonId],
-    queryFn: async () => {
-      const response = await fetch(`/api/salons/${invitation?.salonId}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch salon: ${response.status}`);
-      }
-      return response.json();
-    },
-    enabled: !!invitation?.salonId,
-  });
-
-  // Loading state
-  if (invitationLoading) {
+  // Handle loading state
+  if (isLoading) {
     return (
-      <div className="flex flex-col min-h-screen">
+      <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <main className="flex-grow container mx-auto px-4 py-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center py-12">
-                <p>Loading invitation details...</p>
-              </div>
-            </CardContent>
-          </Card>
-        </main>
-        <Footer />
+        <div className="container max-w-4xl mx-auto py-8 px-4">
+          <div className="flex justify-center items-center p-12">
+            <Loader2 className="h-8 w-8 animate-spin text-pink-500" />
+            <span className="ml-2 text-lg text-gray-600">Loading invitation #{id}...</span>
+          </div>
+        </div>
       </div>
     );
   }
 
-  // Error state
-  if (invitationError || !invitation) {
+  // Handle error state
+  if (error || !invitation) {
     return (
-      <div className="flex flex-col min-h-screen">
+      <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <main className="flex-grow container mx-auto px-4 py-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-red-500 mb-2">Invitation Not Found</h2>
-                <p>The invitation you're looking for doesn't exist or has expired.</p>
-                <Button 
-                  className="mt-6"
-                  onClick={() => setLocation('/')}
-                >
-                  Return to Home
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </main>
-        <Footer />
+        <div className="container max-w-4xl mx-auto py-8 px-4">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <h1 className="text-2xl font-bold text-red-700 mb-2">Invitation Not Found</h1>
+            <p className="text-red-600 mb-4">We couldn't find the invitation you're looking for.</p>
+            <Link href="/">
+              <a className="inline-flex items-center text-pink-600 hover:text-pink-800">
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Return to home
+              </a>
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <main className="flex-grow container mx-auto px-4 py-6">
-        <Card className="shadow-sm">
-          <CardHeader className="bg-emerald-50 pb-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <CardTitle className="text-2xl text-emerald-700">
-                  Complete Invitation #{invitation.id}
-                </CardTitle>
-                <div className="flex items-center justify-between gap-4 mt-1">
-                  <CardDescription>From {invitation.sponsor || invitation.salonName || "Unknown Salon"}</CardDescription>
-                  
-                  {invitation.type === 'client_invitation' && (
-                    <Badge className="bg-blue-100 text-blue-700 border-blue-200">
-                      Client Referral
-                    </Badge>
-                  )}
-                  
-                  {salon && (
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className="border-emerald-300 text-emerald-700 hover:bg-emerald-50" 
-                      onClick={() => setLocation(`/salon/${salon.id}`)}
-                    >
-                      View Salon Page
-                    </Button>
-                  )}
-                </div>
-              </div>
-              <Badge className={`
-                ${invitation.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : ''}
-                ${invitation.status === 'accepted' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                ${invitation.status === 'completed' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}
-                ${invitation.status === 'complete' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : ''}
-              `}>
-                {invitation.status || 'pending'}
+      <div className="container max-w-4xl mx-auto py-8 px-4">
+        {/* Header with Invitation ID */}
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-2">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Complete Invitation
+              <Badge className="ml-2 bg-emerald-500" variant="secondary">
+                #{invitation.id}
               </Badge>
-            </div>
-          </CardHeader>
-
-          <CardContent className="pt-6">
-            <div className="bg-white p-6 rounded-md border border-emerald-100">
-              <h2 className="text-xl font-bold text-emerald-700 mb-4">
-                Ven Me, Baby! Final Invitation
+            </h1>
+            <p className="text-gray-500">This invitation has been finalized and cannot be modified</p>
+          </div>
+          
+          <Badge 
+            className={`${
+              invitation.status === 'complete' 
+                ? 'bg-emerald-100 text-emerald-800' 
+                : invitation.status === 'accepted' 
+                ? 'bg-blue-100 text-blue-800' 
+                : invitation.status === 'pending' 
+                ? 'bg-yellow-100 text-yellow-800' 
+                : 'bg-red-100 text-red-800'
+            } px-2 py-1 text-xs font-medium`}
+          >
+            {invitation.status.toUpperCase()} #{invitation.id}
+          </Badge>
+        </div>
+        
+        {/* Main Card */}
+        <Card className="overflow-hidden border-pink-100 shadow-sm">
+          <div className="bg-gradient-to-r from-pink-50 to-purple-50 px-6 py-4 border-b border-pink-100">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Invitation for {invitation.recipientName || 'Guest'}
               </h2>
-              
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-800">Recipient Information</h3>
-                <div className="mt-2 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <UserIcon className="h-4 w-4 text-emerald-500" />
-                    <span className="font-medium">{invitation.name}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <PhoneIcon className="h-4 w-4 text-emerald-500" />
-                    <span>{formatPhone(invitation.phone)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MailIcon className="h-4 w-4 text-emerald-500" />
-                    <span>{invitation.email}</span>
-                  </div>
-                </div>
+              <div className="text-sm text-gray-500 flex items-center mt-2 sm:mt-0">
+                <Clock className="h-4 w-4 mr-1" />
+                <span>Created {new Date(invitation.createdAt).toLocaleDateString()}</span>
               </div>
-              
-              <Separator className="my-4" />
-              
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-800">Invitation Details</h3>
-                <div className="mt-2 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <BuildingIcon className="h-4 w-4 text-emerald-500" />
-                    <span>Salon: {invitation.salonName || salon?.name || "Unknown Salon"}</span>
+            </div>
+          </div>
+          
+          <CardContent className="p-6">
+            {/* Gift Details */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                <h3 className="text-lg font-medium text-gray-800 mb-3">Gift Details</h3>
+                <div className="space-y-2">
+                  <div className="flex items-start">
+                    <Gift className="h-5 w-5 text-pink-500 mr-2 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-gray-700">
+                        {style?.name || 'Selected Service'}
+                      </p>
+                      <p className="text-gray-500 text-sm">
+                        {style ? `${style.price.toFixed(2)} • ${style.duration} min` : 'Loading details...'}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CalendarIcon className="h-4 w-4 text-emerald-500" />
-                    <span>Invited on: {formatDate(invitation.createdAt)}</span>
-                  </div>
-                  {invitation.firstServiceDate && (
-                    <div className="flex items-center gap-2">
-                      <ClockIcon className="h-4 w-4 text-emerald-500" />
-                      <span>First Service Date: {formatDate(invitation.firstServiceDate)}</span>
+                  
+                  {invitation.giftCode && (
+                    <div className="mt-4 p-2 bg-emerald-50 border border-emerald-100 rounded">
+                      <p className="text-sm font-medium text-emerald-800">Gift Code:</p>
+                      <p className="text-emerald-700 font-mono">{invitation.giftCode}</p>
                     </div>
                   )}
                 </div>
               </div>
               
-              {invitation.message && (
-                <>
-                  <Separator className="my-4" />
-                  <div className="mb-6">
-                    <h3 className="text-lg font-medium text-gray-800">Message</h3>
-                    <div className="mt-2 p-4 bg-gray-50 rounded-md italic text-gray-700">
-                      "{invitation.message}"
+              <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                <h3 className="text-lg font-medium text-gray-800 mb-3">Invitation Details</h3>
+                <div className="space-y-2">
+                  <div className="flex items-start">
+                    <User className="h-5 w-5 text-pink-500 mr-2 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-gray-700">
+                        From: {invitation.sender || 'A friend'}
+                      </p>
+                      <p className="text-gray-500 text-sm">
+                        To: {invitation.recipientName || 'Guest'}
+                      </p>
                     </div>
                   </div>
-                </>
-              )}
+                  
+                  {invitation.sponsor && (
+                    <div className="flex items-start mt-2">
+                      <Heart className="h-5 w-5 text-pink-500 mr-2 mt-0.5" />
+                      <div>
+                        <p className="font-medium text-gray-700">
+                          Sponsored by: {invitation.sponsor}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {/* Gift Message */}
+            <div className="bg-pink-50 p-5 rounded-lg border border-pink-100 mb-6">
+              <h3 className="text-lg font-medium text-pink-800 mb-2">Gift Message</h3>
+              <div className="italic text-gray-700 p-3 bg-white rounded border border-pink-100">
+                {invitation.message ? (
+                  <p>{invitation.message}</p>
+                ) : (
+                  <p>No personal message included.</p>
+                )}
+                
+                {invitation.signature && (
+                  <div className="mt-3 text-right font-medium text-pink-700">
+                    {invitation.signature}
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Final Invitation Display */}
+            <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-md">
+              <h3 className="text-center text-xl font-bold text-pink-600 mb-4">Your Gift Invitation</h3>
               
-              {invitation.favoriteServices && invitation.favoriteServices.length > 0 && (
-                <>
-                  <Separator className="my-4" />
+              <div className="border-2 border-pink-200 rounded-lg p-6 text-center">
+                <div className="mb-4">
+                  <img 
+                    src="/assets/VMB_LOGO.png" 
+                    alt="VMB Logo" 
+                    className="h-16 mx-auto"
+                  />
+                </div>
+                
+                <h4 className="text-lg font-semibold mb-1">
+                  You're gifting:
+                </h4>
+                <p className="text-xl font-bold text-pink-700 mb-2">
+                  {style?.name || 'Selected Service'}
+                </p>
+                
+                <div className="flex justify-center mb-4">
+                  {style?.imageUrl && (
+                    <img 
+                      src={style.imageUrl} 
+                      alt={style.name} 
+                      className="h-24 w-24 object-cover rounded-md border border-gray-200"
+                    />
+                  )}
+                </div>
+                
+                <div className="text-sm text-gray-700 mb-4">
+                  {invitation.message}
+                </div>
+                
+                <Separator className="my-4" />
+                
+                <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-gray-500">
                   <div>
-                    <h3 className="text-lg font-medium text-gray-800">Favorite Services</h3>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {invitation.favoriteServices.map((service, index) => (
-                        <Badge key={index} className="bg-pink-100 text-pink-800 border-pink-200">
-                          {service}
-                        </Badge>
-                      ))}
-                    </div>
+                    Service Value: ${style?.price.toFixed(2) || '--.--'}
                   </div>
-                </>
+                  <div>
+                    Duration: {style?.duration || '--'} min
+                  </div>
+                </div>
+                
+                {invitation.giftCode && (
+                  <div className="mt-4 bg-gray-50 p-2 rounded border border-gray-200">
+                    <p className="text-xs text-gray-600">Gift Code: {invitation.giftCode}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Navigation Buttons */}
+            <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-3">
+              <Link href="/">
+                <Button variant="outline" className="w-full sm:w-auto">
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  Return Home
+                </Button>
+              </Link>
+              
+              {invitation.hash && (
+                <Link href={`/invitation/${invitation.hash}`}>
+                  <Button className="w-full sm:w-auto bg-pink-500 hover:bg-pink-600">
+                    View Public Invitation
+                    <ExternalLink className="h-4 w-4 ml-1" />
+                  </Button>
+                </Link>
               )}
             </div>
           </CardContent>
-
-          <CardFooter className="border-t pt-4 flex justify-between">
-            <Button 
-              variant="outline"
-              onClick={() => window.history.back()}
-            >
-              Go Back
-            </Button>
-            {salon && (
-              <Button 
-                className="bg-emerald-600 hover:bg-emerald-700"
-                onClick={() => setLocation(`/salon/${salon.id}`)}
-              >
-                Visit Salon Page
-              </Button>
-            )}
-          </CardFooter>
         </Card>
-      </main>
-      <Footer />
+      </div>
     </div>
   );
 }
