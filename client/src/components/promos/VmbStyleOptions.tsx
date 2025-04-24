@@ -569,11 +569,11 @@ export function VmbStyleOptions({
                                 value={recipientContact}
                                 onChange={(e) => {
                                   // Format the phone number as user types if it looks like a phone number
-                                  const input = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                                  const input = e.target.value.replace(/\D/g, '').slice(0, 10); // Remove non-digits and limit to 10 digits
                                   let formattedInput = e.target.value;
                                   
-                                  // If input contains only digits and is 10 or fewer digits, assume it's a phone
-                                  if (/^\d+$/.test(input) && input.length <= 10) {
+                                  // If input contains only digits, assume it's a phone
+                                  if (/^\d+$/.test(input)) {
                                     // Format as phone: XXX-XXX-XXXX
                                     if (input.length <= 3) {
                                       formattedInput = input;
@@ -582,8 +582,10 @@ export function VmbStyleOptions({
                                     } else {
                                       formattedInput = `${input.slice(0, 3)}-${input.slice(3, 6)}-${input.slice(6, 10)}`;
                                     }
+                                  } else {
+                                    // If it contains non-digit characters, it's probably an email
+                                    formattedInput = e.target.value;
                                   }
-                                  // Otherwise treat as email (no special formatting)
                                   
                                   setRecipientContact(formattedInput);
                                 }}
