@@ -152,8 +152,8 @@ export default function InlineVmbInvitations({
                   <div 
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent card click
-                      // Go directly to the invitation with its ID - this is the complete/final invite in the DB
-                      setLocation(`/api/invitations/${invitation.id}`);
+                      // Go to the CompleteInvitationPage with the invitation ID
+                      setLocation(`/complete-invitation/${invitation.id}`);
                     }}
                     className="text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 flex items-center gap-1 cursor-pointer"
                   >
