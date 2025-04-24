@@ -86,8 +86,10 @@ export default function InlineVmbInvitations({
         return { bg: 'bg-green-100', text: 'text-green-700' };
       case 'pending':
         return { bg: 'bg-yellow-100', text: 'text-yellow-700' };
+      case 'complete':
+        return { bg: 'bg-emerald-100', text: 'text-emerald-700' };
       case 'completed':
-        return { bg: 'bg-blue-100', text: 'text-blue-700' };
+        return { bg: 'bg-emerald-100', text: 'text-emerald-700' };
       default:
         return { bg: 'bg-gray-100', text: 'text-gray-700' };
     }
@@ -132,7 +134,7 @@ export default function InlineVmbInvitations({
                   <span className="font-medium">{invitation.name}</span>
                 </div>
                 <Badge className={`${statusStyles.bg} ${statusStyles.text}`}>
-                  {invitation.status} #{invitation.id}
+                  {invitation.status.toUpperCase()} #{invitation.id}
                 </Badge>
               </div>
               

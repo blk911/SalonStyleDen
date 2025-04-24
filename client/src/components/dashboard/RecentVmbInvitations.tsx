@@ -99,8 +99,13 @@ export default function RecentVmbInvitations({
                     <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">{invitation.email}</td>
                     <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">{formatPhone(invitation.phone)}</td>
                     <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm">
-                      <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-yellow-50 text-yellow-700 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap">
-                        {invitation.status}
+                      <span className={`px-1 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap
+                        ${invitation.status.toLowerCase() === 'complete' ? 'bg-emerald-100 text-emerald-700' : 
+                          invitation.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
+                          invitation.status.toLowerCase() === 'pending' ? 'bg-yellow-50 text-yellow-700' : 
+                          'bg-gray-100 text-gray-700'}`
+                      }>
+                        {invitation.status.toUpperCase()}
                       </span>
                     </td>
                     <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm">
