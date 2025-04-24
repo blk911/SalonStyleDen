@@ -45,7 +45,7 @@ export default function CompleteInvitationPage() {
   const [style, setStyle] = useState<StyleOption | null>(null);
   
   // Fetch the invitation details
-  const { data: invitation, isLoading, error } = useQuery({
+  const { data: invitation, isLoading, error } = useQuery<Invitation>({
     queryKey: [`/api/invitations/${invitationId}`],
     enabled: !isNaN(invitationId)
   });
@@ -93,11 +93,9 @@ export default function CompleteInvitationPage() {
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <h1 className="text-2xl font-bold text-red-700 mb-2">Invitation Not Found</h1>
             <p className="text-red-600 mb-4">We couldn't find the invitation you're looking for.</p>
-            <Link href="/">
-              <a className="inline-flex items-center text-pink-600 hover:text-pink-800">
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Return to home
-              </a>
+            <Link href="/" className="inline-flex items-center text-pink-600 hover:text-pink-800">
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Return to home
             </Link>
           </div>
         </div>
