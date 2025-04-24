@@ -908,7 +908,7 @@ export default function SalonDashboard() {
                 className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
                 onClick={() => setInvitationSectionOpen(!invitationSectionOpen)}
               >
-                <h3 className="font-medium text-sm sm:text-base text-pink-700">Send Salon to Client Invitations</h3>
+                <h3 className="font-medium text-sm sm:text-base text-pink-700">Register Your Clients with Ven Me, Baby!</h3>
                 <ChevronDown 
                   className={`h-5 w-5 text-pink-600 transition-transform ${invitationSectionOpen ? 'transform rotate-180' : ''}`} 
                 />

@@ -359,7 +359,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
           onClick={() => setSendFormOpen(!sendFormOpen)}
         >
-          <h3 className="font-medium text-xs sm:text-sm text-pink-800">Send Invitations</h3>
+          <h3 className="font-medium text-xs sm:text-sm text-pink-800">Step 1: Send Client Invitation</h3>
           <ChevronDown 
             className={`h-4 w-4 text-pink-800 transition-transform ${sendFormOpen ? 'transform rotate-180' : ''}`} 
           />
@@ -505,7 +505,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         >
           <h3 className="font-medium text-xs sm:text-sm text-amber-800 flex items-center">
             <Clock3 className="h-3.5 w-3.5 mr-1.5 text-amber-700" /> 
-            Pending Invitations {pendingInvitations.length > 0 && (
+            Step 2: Pending Invitations {pendingInvitations.length > 0 && (
               <Badge className="ml-2 bg-amber-100 text-amber-800 border-amber-200 text-[10px]">
                 {pendingInvitations.length}
               </Badge>
@@ -526,10 +526,10 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Invite ID</TableHead>
-                      <TableHead>First Service</TableHead>
+                      <TableHead className="text-center"><Phone className="h-3 w-3 inline-block" /></TableHead>
+                      <TableHead className="text-center"><Mail className="h-3 w-3 inline-block" /></TableHead>
+                      <TableHead className="text-center"><LinkIcon className="h-3 w-3 inline-block" /></TableHead>
+                      <TableHead className="text-center"><Calendar className="h-3 w-3 inline-block" /></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -546,7 +546,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                                   </span>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p>{invite.name}</p>
+                                  <p className="font-medium">{invite.name}</p>
+                                  <p className="text-xs text-gray-500">Client Name</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
@@ -555,50 +556,64 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                           )}
                         </TableCell>
                         
-                        {/* Phone with truncation */}
-                        <TableCell className="py-1">
+                        {/* Phone with icon and tooltip */}
+                        <TableCell className="py-1 text-center">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="cursor-help">
-                                  {formatPhoneNumber(invite.phone).substring(0, 7)}•••
-                                </span>
+                                <Phone className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>{formatPhoneNumber(invite.phone)}</p>
+                                <p className="font-medium">{formatPhoneNumber(invite.phone)}</p>
+                                <p className="text-xs text-gray-500">Client Phone</p>
                               </TooltipContent>
                             </Tooltip>
                           </TooltipProvider>
                         </TableCell>
                         
-                        {/* Email with truncation */}
-                        <TableCell className="py-1">
-                          {invite.email && invite.email.length > 15 ? (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="cursor-help">
-                                    {invite.email.substring(0, 12)}...
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>{invite.email}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          ) : (
-                            invite.email
-                          )}
+                        {/* Email with icon and tooltip */}
+                        <TableCell className="py-1 text-center">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Mail className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="font-medium">{invite.email}</p>
+                                <p className="text-xs text-gray-500">Client Email</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </TableCell>
                         
-                        {/* Invitation Hash ID */}
-                        <TableCell className="py-1 text-[10px] text-gray-600">
-                          {invite.inviteHash || 'No ID'}
+                        {/* Invitation Hash ID with icon and tooltip */}
+                        <TableCell className="py-1 text-center">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <LinkIcon className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="font-medium">{invite.inviteHash || 'No ID'}</p>
+                                <p className="text-xs text-gray-500">Invitation ID</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </TableCell>
                         
-                        {/* Service date with truncation */}
-                        <TableCell className="py-1 text-xs">
-                          {invite.firstServiceDate || 'Not scheduled'}
+                        {/* Service date with icon and tooltip */}
+                        <TableCell className="py-1 text-center">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Calendar className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="font-medium">{formatDate(invite.firstServiceDate) || 'Not scheduled'}</p>
+                                <p className="text-xs text-gray-500">First Service Date</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -618,7 +633,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         >
           <h3 className="font-medium text-xs sm:text-sm text-indigo-800 flex items-center">
             <CalendarClock className="h-3.5 w-3.5 mr-1.5 text-indigo-700" /> 
-            Appointment Scheduled {scheduledInvitations.length > 0 && (
+            Step 2: Appointment Scheduled {scheduledInvitations.length > 0 && (
               <Badge className="ml-2 bg-indigo-100 text-indigo-800 border-indigo-200 text-[10px]">
                 {scheduledInvitations.length}
               </Badge>
@@ -692,7 +707,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         >
           <h3 className="font-medium text-xs sm:text-sm text-emerald-800 flex items-center">
             <GiftIcon className="h-3.5 w-3.5 mr-1.5 text-emerald-700" /> 
-            Completed VMB Promos {completedInvitations.length > 0 && (
+            Step 3: Completed VMB Promos {completedInvitations.length > 0 && (
               <Badge className="ml-2 bg-emerald-100 text-emerald-800 border-emerald-200 text-[10px]">
                 {completedInvitations.length}
               </Badge>
