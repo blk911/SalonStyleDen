@@ -215,6 +215,7 @@ export default function PendingSalonInvitations({
                 time={selectedInvitation.styleDuration ? `${selectedInvitation.styleDuration} min` : "30 min"}
                 senderName={selectedInvitation.sponsor || "Your Stylist"}
                 imageUrl={selectedInvitation.styleImageUrl || "/assets/french-tips.png"}
+                salonInitiated={!selectedInvitation.senderId} // salonInitiated = true when no senderId (salon sent it)
               />
             )}
           </div>

@@ -1033,16 +1033,18 @@ export function VmbStyleOptions({
         <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Confirm Gift Request</DialogTitle>
+              <DialogTitle>{salonInitiated ? "Confirm Salon Invitation" : "Confirm Gift Request"}</DialogTitle>
               <DialogDescription>
-                Are you sure you want to send this gift request? This action cannot be undone.
+                {salonInitiated 
+                 ? "Are you sure you want to send this salon invitation? This action cannot be undone."
+                 : "Are you sure you want to send this gift request? This action cannot be undone."}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-3 py-3">
-              <div className="bg-blue-50 p-3 rounded-md border border-blue-100 text-sm">
-                <p>The following gift will be sent:</p>
+              <div className={`${salonInitiated ? 'bg-amber-50 border-amber-100' : 'bg-blue-50 border-blue-100'} p-3 rounded-md border text-sm`}>
+                <p>{salonInitiated ? "The following salon invitation will be sent:" : "The following gift will be sent:"}</p>
                 <p className="font-medium mt-1">{confirmedStyle?.name || "Selected Style"}</p>
-                <p className="text-xs mt-2">Recipient: {recipientName || "Friend"}</p>
+                <p className="text-xs mt-2">{salonInitiated ? "Client:" : "Recipient:"} {recipientName || "Friend"}</p>
                 <p className="text-xs">{recipientContact || "No contact provided"}</p>
                 {invitationId && (
                   <div className="mt-2 bg-green-50 p-1.5 rounded border border-green-100 text-[10px]">
@@ -1092,8 +1094,10 @@ export function VmbStyleOptions({
                           
                           // Show more informative toast with dashboard posting details
                           toast({
-                            title: "Gift Request Ready!",
-                            description: `Request for ${finalName} prepared with unique ID`,
+                            title: salonInitiated ? "Salon Invitation Ready!" : "Gift Request Ready!",
+                            description: salonInitiated 
+                              ? `Invitation for client ${finalName} prepared with unique ID` 
+                              : `Request for ${finalName} prepared with unique ID`,
                             variant: "default"
                           });
                           
@@ -1110,7 +1114,9 @@ export function VmbStyleOptions({
                       .catch(error => {
                         console.error("Error completing invitation:", error);
                         toast({
-                          title: "Error Preparing Gift Request",
+                          title: salonInitiated 
+                            ? "Error Preparing Salon Invitation" 
+                            : "Error Preparing Gift Request",
                           description: `There was a problem processing the request: ${error.message}`,
                           variant: "destructive"
                         });
@@ -1121,8 +1127,10 @@ export function VmbStyleOptions({
                   } else {
                     // Regular gift sent without invitation completion
                     toast({
-                      title: "Gift Request Ready!",
-                      description: `Request for ${finalName} at ${recipientContact} prepared`,
+                      title: salonInitiated ? "Salon Invitation Ready!" : "Gift Request Ready!",
+                      description: salonInitiated 
+                        ? `Invitation for client ${finalName} at ${recipientContact} prepared`
+                        : `Request for ${finalName} at ${recipientContact} prepared`,
                       variant: "default"
                     });
                     
@@ -1137,9 +1145,9 @@ export function VmbStyleOptions({
                     <span className="mr-2">Processing...</span>
                     <Sparkles className="h-4 w-4 animate-spin" />
                   </> : (
-                    invitationId ? 
-                    'Complete Invitation & Send' : 
-                    'Confirm & Send'
+                    salonInitiated ? 
+                      (invitationId ? 'Complete Salon Invitation' : 'Send Salon Invitation') : 
+                      (invitationId ? 'Complete Invitation & Send' : 'Confirm & Send')
                   )
                 }
               </Button>
