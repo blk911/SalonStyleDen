@@ -267,10 +267,14 @@ export default function InvitationPage() {
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-0.5">
         <Card className="shadow-sm">
-          <CardHeader className="bg-pink-50 pb-0.5">
+          <CardHeader className={`${invitation.senderId ? 'bg-pink-50' : 'bg-amber-50'} pb-0.5`}>
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle className="text-2xl text-pink-700">Invitation for {invitation.name}</CardTitle>
+                <CardTitle className={`text-2xl ${invitation.senderId ? 'text-pink-700' : 'text-amber-700'}`}>
+                  {invitation.senderId ? 
+                    `Ven Me, Baby! Gift Request for ${invitation.name}` : 
+                    `Salon Invitation for ${invitation.name}`}
+                </CardTitle>
                 <div className="flex items-center justify-between gap-4 mt-0.5">
                   <CardDescription>From {invitation.sponsor || invitation.salonName || "Unknown Salon"}</CardDescription>
                   
@@ -293,12 +297,11 @@ export default function InvitationPage() {
                 </div>
               </div>
               <Badge className={`
-                ${invitation.status === 'pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' : ''}
-                ${invitation.status === 'accepted' ? 'bg-green-100 text-green-700 border-green-200' : ''}
-                ${invitation.status === 'complete' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : ''}
-                ${invitation.status === 'completed' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : ''}
+                ${invitation.senderId ? 'bg-pink-100 text-pink-700 border-pink-200' : 'bg-amber-100 text-amber-700 border-amber-200'}
               `}>
-                {(invitation.status || 'pending').toUpperCase()} #{invitation.id}
+                {invitation.senderId ? 
+                  `[${invitation.id}] Ven Me, Baby! Gift Request Form` : 
+                  `Salon Invite; ${invitation.name} [${invitation.id}]`}
               </Badge>
             </div>
           </CardHeader>
@@ -309,10 +312,12 @@ export default function InvitationPage() {
               <div className="mt-0.5">
                 <div className="rounded-md overflow-hidden mb-0.5">
                   <Collapsible open={styleSectionOpen} onOpenChange={setStyleSectionOpen}>
-                    <div className="bg-pink-50 px-4 py-0.5 rounded-t-md">
+                    <div className={`${invitation.senderId ? 'bg-pink-50' : 'bg-amber-50'} px-4 py-0.5 rounded-t-md`}>
                       <CollapsibleTrigger className="flex w-full items-center justify-between">
-                        <h3 className="text-lg font-medium text-pink-700">Ven Me, Baby! Style Options</h3>
-                        <div className="h-8 w-8 flex items-center justify-center text-pink-700">
+                        <h3 className={`text-lg font-medium ${invitation.senderId ? 'text-pink-700' : 'text-amber-700'}`}>
+                          {invitation.senderId ? 'Ven Me, Baby! Style Options' : 'Salon Style Selection'}
+                        </h3>
+                        <div className={`h-8 w-8 flex items-center justify-center ${invitation.senderId ? 'text-pink-700' : 'text-amber-700'}`}>
                           {styleSectionOpen ? (
                             <ChevronUpIcon className="h-5 w-5" />
                           ) : (
@@ -322,7 +327,7 @@ export default function InvitationPage() {
                       </CollapsibleTrigger>
                     </div>
                     
-                    <CollapsibleContent className="bg-white px-4 py-0.5 border border-pink-100 rounded-b-md">
+                    <CollapsibleContent className={`bg-white px-4 py-0.5 border ${invitation.senderId ? 'border-pink-100' : 'border-amber-100'} rounded-b-md`}>
                       <VmbStyleOptions 
                         services={salon.services} 
                         salonId={salon.id}

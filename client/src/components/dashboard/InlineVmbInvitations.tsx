@@ -134,7 +134,9 @@ export default function InlineVmbInvitations({
                   <span className="font-medium">{invitation.name}</span>
                 </div>
                 <Badge className={`${statusStyles.bg} ${statusStyles.text}`}>
-                  {invitation.status.toUpperCase()} #{invitation.id}
+                  {invitation.senderId ? 
+                    `[${invitation.id}] Ven Me, Baby! Gift Request Form` : 
+                    `Salon Invite; ${invitation.name} [${invitation.id}]`}
                 </Badge>
               </div>
               
