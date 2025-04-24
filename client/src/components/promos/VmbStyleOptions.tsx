@@ -87,9 +87,9 @@ export function VmbStyleOptions({
   const [showStep3, setShowStep3] = useState(true);  // Set to true for testing
   const [stateTracker, setStateTracker] = useState(0); // Debug counter
   const [showStep1, setShowStep1] = useState(true); // Always true now - we'll use isStep1Open to control collapse
-  const [isStep1Open, setIsStep1Open] = useState(true); // Control Step 1 collapsible state
-  const [isStep2Open, setIsStep2Open] = useState(true); // Control Step 2 collapsible state
-  const [isStep3Open, setIsStep3Open] = useState(true); // Control Step 3 collapsible state
+  const [isStep1Open, setIsStep1Open] = useState(false); // Closed by default
+  const [isStep2Open, setIsStep2Open] = useState(false); // Closed by default
+  const [isStep3Open, setIsStep3Open] = useState(false); // Closed by default
   // New state for the invitation form
   const [recipientName, setRecipientName] = useState("");
   const [recipientContact, setRecipientContact] = useState("");

@@ -97,25 +97,25 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [salonInfo, setSalonInfo] = useState<{name: string} | null>(null);
   const [recentInvites, setRecentInvites] = useState<ClientInvite[]>([]);
   
-  // State for collapsible sections
+  // State for collapsible sections - all closed by default
   const [sendFormOpen, setSendFormOpen] = useState(() => {
     const saved = localStorage.getItem('vmb-send-invitation-form-open');
-    return saved ? JSON.parse(saved) : true; // Open by default
+    return saved ? JSON.parse(saved) : false; // Closed by default
   });
   
   const [pendingInvitesOpen, setPendingInvitesOpen] = useState(() => {
     const saved = localStorage.getItem('vmb-pending-invitations-open');
-    return saved ? JSON.parse(saved) : true; // Open by default
+    return saved ? JSON.parse(saved) : false; // Closed by default
   });
   
   const [scheduledInvitesOpen, setScheduledInvitesOpen] = useState(() => {
     const saved = localStorage.getItem('vmb-scheduled-invitations-open');
-    return saved ? JSON.parse(saved) : true; // Open by default
+    return saved ? JSON.parse(saved) : false; // Closed by default
   });
   
   const [completedInvitesOpen, setCompletedInvitesOpen] = useState(() => {
     const saved = localStorage.getItem('vmb-completed-invitations-open');
-    return saved ? JSON.parse(saved) : true; // Open by default
+    return saved ? JSON.parse(saved) : false; // Closed by default
   });
   
   // Save collapsible states to localStorage
