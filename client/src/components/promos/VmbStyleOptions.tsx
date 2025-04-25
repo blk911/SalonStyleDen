@@ -1268,20 +1268,14 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
-                      // Redirect to the client page
-                      const clientId = recipientName;
-                      console.log('[VMB Debug] Redirecting after salon invitation - Client ID:', clientId);
+                      // After sending a salon invitation, redirect to clients page
+                      // This ensures we don't try to lookup a client by name (which would fail)
+                      console.log('[VMB Debug] Salon invitation sent successfully for client:', recipientName);
+                      console.log('[VMB Debug] Redirecting to clients listing page');
                       
-                      if (clientId) {
-                        // Navigate to /client/:id instead of /dashboard/client/:id
-                        // This matches the route defined in App.tsx
-                        console.log('[VMB Debug] Navigating to client page:', `/client/${clientId}`);
-                        navigate(`/client/${clientId}`);
-                      } else {
-                        // Fallback to salon list if no client name available
-                        console.log('[VMB Debug] No client ID found, navigating to salon list');
-                        navigate('/salons');
-                      }
+                      // Always redirect to the clients listing page after sending salon invitation
+                      // This avoids the "Invalid ID format" error when trying to look up a client by name
+                      navigate('/clients');
                     } else {
                       // Regular gift request flow - not salon-initiated
                       toast({
