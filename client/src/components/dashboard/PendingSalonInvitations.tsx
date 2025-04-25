@@ -138,19 +138,27 @@ export default function PendingSalonInvitations({
                     `SALON INVITE: [${invitation.id}]`}
                 </Badge>
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className={`h-8 px-2 ${
-                  invitation.senderId ? 
-                  'border-pink-200 text-pink-700 hover:bg-pink-50' : 
-                  'border-amber-200 text-amber-700 hover:bg-amber-50'
-                }`}
-                onClick={() => handleViewInvitation(invitation)}
-              >
-                <ExternalLinkIcon className="h-3.5 w-3.5 mr-1" />
-                View
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className={`h-8 w-8 p-0 flex items-center justify-center ${
+                        invitation.senderId ? 
+                        'border-pink-200 text-pink-700 hover:bg-pink-50' : 
+                        'border-amber-200 text-amber-700 hover:bg-amber-50'
+                      }`}
+                      onClick={() => handleViewInvitation(invitation)}
+                    >
+                      <ExternalLinkIcon className="h-3.5 w-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>View Invitation</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             
             <div className="text-xs text-gray-500 mt-2 space-y-1">
