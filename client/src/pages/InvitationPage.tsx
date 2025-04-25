@@ -142,7 +142,6 @@ export default function InvitationPage() {
 
     try {
       // First, try to find if client already exists with this phone number
-      console.log(`Checking if client with phone ${invitation.phone} already exists...`);
       const clientResponse = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
       
       // If we found a client, go directly to dashboard regardless of invitation status
@@ -174,7 +173,6 @@ export default function InvitationPage() {
           }
           
           // Go directly to client dashboard
-          console.log(`Client found with ID ${clientId}, redirecting to dashboard`);
           setLocation(`/client/${clientId}`);
           return;
         }
@@ -345,13 +343,7 @@ export default function InvitationPage() {
                           // Complex logic moved to an IIFE to avoid TSLint errors
                           if (!invitation || !salon || !salon.services) return undefined;
                           
-                          // Debug what's happening
-                          console.log("[InvitationPage] Determining initialStyleId:", {
-                            invitation,
-                            favoriteServices: invitation.favoriteServices,
-                            salonServices: salon.services,
-                            isPreviewView
-                          });
+                          // Check if we have matching services between invitation favorites and salon offerings
                           
                           // For preview mode, we ALWAYS want a style selected
                           if (isPreviewView) {
@@ -361,7 +353,6 @@ export default function InvitationPage() {
                               // Try to find the matching service first
                               const foundService = salon.services.find(s => s.name === favServices[0]);
                               if (foundService) {
-                                console.log("[InvitationPage] Found matching service for preview:", foundService);
                                 return foundService.id;
                               }
                             }
@@ -369,7 +360,6 @@ export default function InvitationPage() {
                             // If we get here, either no favorite services or no matching service found
                             // For preview mode, always fall back to the first service
                             if (salon.services.length > 0) {
-                              console.log("[InvitationPage] Using first service as fallback for preview:", salon.services[0]);
                               return salon.services[0].id;
                             }
                           } else {
@@ -377,7 +367,6 @@ export default function InvitationPage() {
                             const favServices = invitation.favoriteServices;
                             if (favServices && Array.isArray(favServices) && favServices.length > 0) {
                               const foundService = salon.services.find(s => s.name === favServices[0]);
-                              console.log("[InvitationPage] Found matching service for regular view:", foundService);
                               return foundService?.id;
                             }
                           }
