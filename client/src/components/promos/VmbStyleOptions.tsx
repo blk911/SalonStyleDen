@@ -1055,13 +1055,47 @@ export function VmbStyleOptions({
                         <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white shadow-sm">
                           {/* 1. Standardized Message Format */}
                           <div className={`rounded-lg ${isMobile ? 'p-1.5' : 'p-2'} bg-blue-50 border border-blue-100 mb-3 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
-                            Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], [price and time] will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]
+                            {(() => {
+                              // For preview mode, properly format the message with client data
+                              const urlHasPreview = window.location.href.includes('preview=true') || window.location.href.includes('view=preview');
+                              const isInPreviewMode = isPreviewMode || urlHasPreview;
+                              
+                              if (isInPreviewMode && confirmedStyle) {
+                                const name = recipientName || recipientData?.name || "Randy";
+                                const styleName = confirmedStyle.name;
+                                const priceTime = `$${confirmedStyle.price} (${confirmedStyle.duration} min)`;
+                                const signed = signature || recipientData?.sponsor || "Tiffany 5280 Nails Studio";
+                                
+                                return (
+                                  <>
+                                    Hi {name}, I would love a fresh set. My stylist has an opening for a {styleName}, {priceTime} will you Ven Me, Baby! ❤️❤️❤️ {signed}
+                                  </>
+                                );
+                              } else {
+                                return (
+                                  <>
+                                    Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], [price and time] will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]
+                                  </>
+                                );
+                              }
+                            })()}
                           </div>
                           
                           {/* 2. Unique Gift ID */}
                           <div className="mb-3 text-center text-xs font-medium">
                             <div className="text-gray-700">Your VMB gift has a unique ID:</div>
-                            <div className="text-pink-600 font-bold">VMB-[RANDOM ID]</div>
+                            {(() => {
+                              const urlHasPreview = window.location.href.includes('preview=true') || window.location.href.includes('view=preview');
+                              const isInPreviewMode = isPreviewMode || urlHasPreview;
+                              
+                              if (isInPreviewMode && invitationId) {
+                                // Use actual invitation hash if available, or generate a proper-looking ID
+                                const inviteHash = window.location.pathname.split('/').pop();
+                                return <div className="text-pink-600 font-bold">{inviteHash || `VMB-INV-${invitationId}`}</div>;
+                              } else {
+                                return <div className="text-pink-600 font-bold">VMB-[RANDOM ID]</div>;
+                              }
+                            })()}
                           </div>
                           
                           {/* 3. Payment Method Icons */}
