@@ -1185,87 +1185,85 @@ export function VmbStyleOptions({
               <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
                 Cancel
               </Button>
-              <Button 
-                type="button" 
-                onClick={() => {
-                  setShowConfirmDialog(false);
-                  
-                  // Apply default values
-                  const finalName = recipientName || "Love";
-                  
-                  // Generate a unique ID for this invitation using a timestamp + random string
-                  const timestamp = Date.now().toString(36);
-                  const randomStr = Math.random().toString(36).substring(2, 8);
-                  const uniqueInviteId = `${timestamp}-${randomStr}`;
-                  
-                  // Save the unique ID for the final invitation
-                  setFinalInvitationId(uniqueInviteId);
-                  
-                  // Check if we have an invitation ID to complete
-                  if (invitationId) {
-                    // Set loading state
-                    setIsSubmitting(true);
+              {salonInitiated ? (
+                <Button 
+                  type="button" 
+                  onClick={() => {
+                    // Just close the dialog without taking any action
+                    setShowConfirmDialog(false);
                     
-                    // Get the style ID from the confirmed style if available
-                    const styleId = confirmedStyle ? confirmedStyle.id : undefined;
+                    // Show temporary info toast
+                    toast({
+                      title: "Invitation Preview Only",
+                      description: "This is just a preview. No invitation was sent.",
+                      variant: "default"
+                    });
+                  }}
+                >
+                  Send Salon Invitation
+                </Button>
+              ) : (
+                <Button 
+                  type="button" 
+                  onClick={() => {
+                    setShowConfirmDialog(false);
                     
-                    // Call the complete endpoint
-                    apiRequest(`/api/invitations/${invitationId}/complete`, 'POST', { 
-                      styleId,
-                      finalInviteId: uniqueInviteId // Add the final invite ID to be saved with the completion
-                    })
-                      .then(async (response) => {
-                        if (response.ok) {
-                          const result = await response.json();
-                          
-                          // Show more informative toast with dashboard posting details
+                    // Apply default values
+                    const finalName = recipientName || "Love";
+                    
+                    // Generate a unique ID for this invitation using a timestamp + random string
+                    const timestamp = Date.now().toString(36);
+                    const randomStr = Math.random().toString(36).substring(2, 8);
+                    const uniqueInviteId = `${timestamp}-${randomStr}`;
+                    
+                    // Save the unique ID for the final invitation
+                    setFinalInvitationId(uniqueInviteId);
+                    
+                    // Check if we have an invitation ID to complete
+                    if (invitationId) {
+                      // Set loading state
+                      setIsSubmitting(true);
+                      
+                      // Get the style ID from the confirmed style if available
+                      const styleId = confirmedStyle ? confirmedStyle.id : undefined;
+                      
+                      // Call the complete endpoint
+                      apiRequest(`/api/invitations/${invitationId}/complete`, 'POST', { 
+                        styleId,
+                        finalInviteId: uniqueInviteId // Add the final invite ID to be saved with the completion
+                      })
+                        .then(async (response) => {
+                          if (response.ok) {
+                            const result = await response.json();
+                            
+                            // Show more informative toast with dashboard posting details
+                            toast({
+                              title: "Gift Request Ready!",
+                              description: `Request for ${finalName} prepared with unique ID`,
+                              variant: "default"
+                            });
+                            
+                            // Disable buttons to prevent double-sending
+                            setInvitationConfirmed(true);
+                            
+                            // Show the final rendered invitation
+                            setShowFinalInvitationModal(true);
+                          } else {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || "Failed to complete invitation");
+                          }
+                        })
+                        .catch(error => {
+                          console.error("Error completing invitation:", error);
                           toast({
-                            title: salonInitiated ? "Salon Invitation Ready!" : "Gift Request Ready!",
-                            description: salonInitiated 
-                              ? `Invitation for client ${finalName} prepared with unique ID` 
-                              : `Request for ${finalName} prepared with unique ID`,
-                            variant: "default"
+                            title: "Error Preparing Gift Request",
+                            description: `There was a problem processing the request: ${error.message}`,
+                            variant: "destructive"
                           });
-                          
-                          // Disable buttons to prevent double-sending
-                          setInvitationConfirmed(true);
-                          
-                          // Show the final rendered invitation
-                          setShowFinalInvitationModal(true);
-                        } else {
-                          const errorData = await response.json();
-                          throw new Error(errorData.error || "Failed to complete invitation");
-                        }
-                      })
-                      .catch(error => {
-                        console.error("Error completing invitation:", error);
-                        toast({
-                          title: salonInitiated 
-                            ? "Error Preparing Salon Invitation" 
-                            : "Error Preparing Gift Request",
-                          description: `There was a problem processing the request: ${error.message}`,
-                          variant: "destructive"
+                        })
+                        .finally(() => {
+                          setIsSubmitting(false);
                         });
-                      })
-                      .finally(() => {
-                        setIsSubmitting(false);
-                      });
-                  } else {
-                    // For salon-initiated invitations, we'll skip the modal completely
-                    if (salonInitiated) {
-                      toast({
-                        title: "Salon Invitation Sent!",
-                        description: `Invitation for client ${finalName} at ${recipientContact} has been sent`,
-                        variant: "default"
-                      });
-
-                      // Redirect to the specific client's dashboard using the clientId prop
-                      if (clientId) {
-                        navigate(`/clients/${clientId}`);
-                      } else {
-                        // Fallback to clients list if no clientId is available
-                        navigate('/clients');
-                      }
                     } else {
                       // Regular gift request flow - not salon-initiated
                       toast({
@@ -1277,21 +1275,19 @@ export function VmbStyleOptions({
                       // Show the final rendered invitation for client-initiated requests
                       setShowFinalInvitationModal(true);
                     }
+                  }}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 
+                    <>
+                      <span className="mr-2">Processing...</span>
+                      <Sparkles className="h-4 w-4 animate-spin" />
+                    </> : (
+                      invitationId ? 'Complete Invitation & Send' : 'Confirm & Send'
+                    )
                   }
-                }}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 
-                  <>
-                    <span className="mr-2">Processing...</span>
-                    <Sparkles className="h-4 w-4 animate-spin" />
-                  </> : (
-                    salonInitiated ? 
-                      (invitationId ? 'Complete Salon Invitation' : 'Send Salon Invitation') : 
-                      (invitationId ? 'Complete Invitation & Send' : 'Confirm & Send')
-                  )
-                }
-              </Button>
+                </Button>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>
