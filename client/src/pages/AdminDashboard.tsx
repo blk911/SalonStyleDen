@@ -510,7 +510,7 @@ export default function AdminDashboard() {
                           <th className="py-2 px-4">Phone</th>
                           <th className="py-2 px-4">Status</th>
                           <th className="py-2 px-4">Date</th>
-                          <th className="py-2 px-4 text-right">Action</th>
+                          <th className="py-2 px-4 text-right">Page</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
@@ -554,25 +554,17 @@ export default function AdminDashboard() {
                                 } else {
                                   // No matching client - link to invitation
                                   return (
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <Link 
-                                            to={`/invitation/${invitation.inviteHash}?view=preview&prefill=true`}
-                                            className="inline-flex items-center text-gray-500 font-medium gap-1 text-sm hover:text-gray-700 cursor-pointer"
-                                            onClick={() => {
-                                              // Navigate to invitation page with preview mode
-                                              setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
-                                            }}
-                                          >
-                                            <ExternalLinkIcon className="h-4 w-4" />
-                                          </Link>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                          <p>View Invitation</p>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
+                                    <Link 
+                                      to={`/invitation/${invitation.inviteHash}?view=preview&prefill=true`}
+                                      className="inline-flex items-center text-gray-500 font-medium gap-1 text-sm hover:text-gray-700 cursor-pointer"
+                                      onClick={() => {
+                                        // Navigate to invitation page with preview mode
+                                        setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
+                                      }}
+                                    >
+                                      <ExternalLinkIcon className="h-4 w-4" />
+                                      View Invite
+                                    </Link>
                                   );
                                 }
                               })()}

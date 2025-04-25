@@ -4,12 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { 
   UserIcon, 
   CalendarIcon, 
@@ -144,27 +138,19 @@ export default function PendingSalonInvitations({
                     `SALON INVITE: [${invitation.id}]`}
                 </Badge>
               </div>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className={`h-8 w-8 p-0 flex items-center justify-center ${
-                        invitation.senderId ? 
-                        'border-pink-200 text-pink-700 hover:bg-pink-50' : 
-                        'border-amber-200 text-amber-700 hover:bg-amber-50'
-                      }`}
-                      onClick={() => handleViewInvitation(invitation)}
-                    >
-                      <ExternalLinkIcon className="h-3.5 w-3.5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>View Invitation</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Button
+                size="sm"
+                variant="outline"
+                className={`h-8 px-2 ${
+                  invitation.senderId ? 
+                  'border-pink-200 text-pink-700 hover:bg-pink-50' : 
+                  'border-amber-200 text-amber-700 hover:bg-amber-50'
+                }`}
+                onClick={() => handleViewInvitation(invitation)}
+              >
+                <ExternalLinkIcon className="h-3.5 w-3.5 mr-1" />
+                View
+              </Button>
             </div>
             
             <div className="text-xs text-gray-500 mt-2 space-y-1">

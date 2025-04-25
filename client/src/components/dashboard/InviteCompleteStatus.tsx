@@ -61,43 +61,108 @@ export default function InviteCompleteStatus({
         <CardContent className="p-0 flex items-center justify-between">
           <div>
             {showTitle && (
-              <h3 className={`${compact ? "text-sm" : "text-base"} font-medium`}>
-                Invitation Summary
-              </h3>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <h3 className={`${compact ? "text-sm" : "text-base"} font-medium cursor-help`}>
+                      Invitation Summary
+                    </h3>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">Overview of invitation activity status</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
             <div className="flex items-center mt-1">
-              <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium whitespace-nowrap">
-                COMPLETE
-              </span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium whitespace-nowrap cursor-help">
+                      COMPLETE
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">These invitations have been sent and processed</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               {inviteCount > 0 && (
-                <span className="ml-2 text-sm text-gray-600">
-                  {inviteCount} {inviteCount === 1 ? 'invitation' : 'invitations'}
-                </span>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="ml-2 text-sm text-gray-600 cursor-help">
+                        {inviteCount} {inviteCount === 1 ? 'invitation' : 'invitations'}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">Total number of completed invitations in the system</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
             </div>
           </div>
-          <div className="flex items-center justify-center rounded-full bg-emerald-50 p-2">
-            <Sparkles className="h-5 w-5 text-emerald-500" />
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center justify-center rounded-full bg-emerald-50 p-2 cursor-help">
+                  <Sparkles className="h-5 w-5 text-emerald-500" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">Completed invitations are ready for client redemption</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </CardContent>
       </Card>
       
       {/* Detailed Invitation Cards */}
       {hasCompletedInvitations && (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-gray-700">Completed Invitations</h3>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <h3 className="text-sm font-medium text-gray-700 cursor-help">Completed Invitations</h3>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">These invitations have been fully processed and are active</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           {invitations
             .filter(inv => inv.status === 'complete' || inv.status === 'accepted')
             .map(invitation => (
               <Card key={invitation.id} className="overflow-hidden border-emerald-200">
                 <CardHeader className="py-2 px-3 bg-gradient-to-r from-emerald-50 to-emerald-100 flex flex-row items-center justify-between">
                   <CardTitle className="text-sm font-medium text-emerald-800 flex items-center">
-                    <CheckCircle className="h-4 w-4 mr-1.5 text-emerald-600" />
-                    {invitation.name}
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="flex items-center cursor-help">
+                            <CheckCircle className="h-4 w-4 mr-1.5 text-emerald-600" />
+                            {invitation.name}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-xs">Client with completed invitation</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </CardTitle>
-                  <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-[10px]">
-                    ID: {invitation.id}
-                  </Badge>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-[10px] cursor-help">
+                          ID: {invitation.id}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">Unique invitation identifier in database</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </CardHeader>
                 <CardContent className="p-3 text-xs grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="flex items-center">
