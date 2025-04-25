@@ -940,7 +940,7 @@ export function VmbStyleOptions({
                             
                             {/* Payment options */}
                             <div className="flex flex-col mt-3 items-center justify-center gap-1">
-                              <div className="text-[10px] font-medium text-gray-700">Payment methods available:</div>
+
                               <div className="flex gap-2 items-center justify-center">
                                 <div className="flex items-center gap-1.5">
                                   <div className="h-7 w-7 rounded-full bg-blue-500 text-white shadow-sm flex items-center justify-center hover:bg-blue-600 cursor-pointer">
@@ -1106,7 +1106,7 @@ export function VmbStyleOptions({
                           
                           {/* 3. Payment Method Icons */}
                           <div className="flex flex-col items-center justify-center gap-1">
-                            <div className="text-[10px] font-medium text-gray-700">Payment methods available:</div>
+
                             <div className="flex gap-2 items-center justify-center">
                               <div className="flex items-center gap-1.5">
                                 <div className="h-7 w-7 rounded-full bg-blue-500 text-white shadow-sm flex items-center justify-center hover:bg-blue-600 cursor-pointer">
