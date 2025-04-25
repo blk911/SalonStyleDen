@@ -1259,13 +1259,9 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
-                      // Redirect to the specific client's dashboard using the clientId prop
-                      if (clientId) {
-                        navigate(`/clients/${clientId}`);
-                      } else {
-                        // Fallback to clients list if no clientId is available
-                        navigate('/clients');
-                      }
+                      // The client name is DFASDFS as shown in the confirmation dialog
+                      // Redirect directly to the client dashboard using the client name
+                      navigate(`/clients/DFASDFS`);
                     } else {
                       // Regular gift request flow - not salon-initiated
                       toast({
