@@ -1268,10 +1268,10 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
-                      // Redirect to the dashboard for the client
+                      // Redirect to the client page
                       const clientId = finalName || recipientName;
                       if (clientId) {
-                        navigate(`/dashboard/client/${clientId}`);
+                        navigate(`/client/${clientId}`);
                       } else {
                         // Fallback to salon list if no client name available
                         navigate('/salons');
