@@ -191,14 +191,12 @@ export default function AdminDashboard() {
     queryKey: ['/api/clients'],
     queryFn: async () => {
       try {
-        console.log('Fetching clients from API...');
         const response = await fetch('/api/clients');
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch clients: ${response.status} ${response.statusText}. Details: ${errorText}`);
         }
         const data = await response.json();
-        console.log('Fetched clients:', data);
         return data;
       } catch (error) {
         console.error('Error fetching clients:', error);
@@ -211,14 +209,12 @@ export default function AdminDashboard() {
     queryKey: ['/api/salons'],
     queryFn: async () => {
       try {
-        console.log('Fetching salons from API...');
         const response = await fetch('/api/salons');
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch salons: ${response.status} ${response.statusText}. Details: ${errorText}`);
         }
         const data = await response.json();
-        console.log('Fetched salons:', data);
         return data;
       } catch (error) {
         console.error('Error fetching salons:', error);
@@ -231,14 +227,12 @@ export default function AdminDashboard() {
     queryKey: ['/api/invitations'],
     queryFn: async () => {
       try {
-        console.log('Fetching invitations from API...');
         const response = await fetch('/api/invitations?limit=50'); // Get more invitations for admin view
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch invitations: ${response.status} ${response.statusText}. Details: ${errorText}`);
         }
         const data = await response.json();
-        console.log('Fetched invitations:', data);
         return data;
       } catch (error) {
         console.error('Error fetching invitations:', error);
@@ -251,14 +245,12 @@ export default function AdminDashboard() {
     queryKey: ['/api/activity-logs'],
     queryFn: async () => {
       try {
-        console.log('Fetching activity logs from API...');
         const response = await fetch('/api/activity-logs?limit=50'); // Get more logs for admin view
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch activity logs: ${response.status} ${response.statusText}. Details: ${errorText}`);
         }
         const data = await response.json();
-        console.log('Fetched activity logs:', data);
         return data;
       } catch (error) {
         console.error('Error fetching activity logs:', error);
