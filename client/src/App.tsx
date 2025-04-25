@@ -23,6 +23,7 @@ import MadgeVisualizationPage from "@/pages/MadgeVisualizationPage";
 import InvitationPage from "@/pages/InvitationPage";
 import ClientRegistrationPage from "@/pages/ClientRegistrationPage";
 import CompleteInvitationPage from "@/pages/CompleteInvitationPage";
+import TestFinalStep3 from "@/pages/TestFinalStep3";
 
 function Router() {
   return (
@@ -44,6 +45,7 @@ function Router() {
       <Route path="/test-image/:id" component={TestImagePage} />
       <Route path="/network-visualization" component={NetworkVisualization} />
       <Route path="/madge-visualization" component={MadgeVisualizationPage} />
+      <Route path="/testfinalstep3" component={TestFinalStep3} />
       <Route component={NotFound} />
     </Switch>
   );
