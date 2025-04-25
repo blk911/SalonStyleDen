@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { CheckIcon, Sparkles, AlertTriangle, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
+import { FaMoneyBillWave } from 'react-icons/fa';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '../../lib/apiRequest';
 import { getImageUrl } from '../../lib/utils';
@@ -1056,8 +1057,32 @@ export function VmbStyleOptions({
                                 if (salonInitiated) {
                                   return (
                                     <>
-                                      Hi {name}, We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️<br/><br/>
-                                      PS: Clients register here: <a href="/index" className="inline-flex items-center bg-gray-100 text-gray-800 rounded-full p-1 text-xs hover:bg-gray-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></a>
+                                      Hi {name}, We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️
+                                      
+                                      <div className="flex justify-center space-x-4 mt-3 mb-3">
+                                        <Button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center space-x-2">
+                                          <FaMoneyBillWave className="h-5 w-5" />
+                                          <span>CashApp</span>
+                                        </Button>
+                                        <Button className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center space-x-2">
+                                          <FaMoneyBillWave className="h-5 w-5" />
+                                          <span>Zelle</span>
+                                        </Button>
+                                        <Button className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center space-x-2">
+                                          <FaMoneyBillWave className="h-5 w-5" />
+                                          <span>Venmo</span>
+                                        </Button>
+                                      </div>
+                                      
+                                      <div className="flex justify-center mt-2 mb-3">
+                                        <Button 
+                                          className="w-3/4 bg-green-500 hover:bg-green-600 text-white"
+                                        >
+                                          SEND GIFT
+                                        </Button>
+                                      </div>
+                                      
+                                      <div>PS: Clients register here: <a href="/index" className="inline-flex items-center bg-gray-100 text-gray-800 rounded-full p-1 text-xs hover:bg-gray-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></a></div>
                                     </>
                                   );
                                 } else {
@@ -1072,8 +1097,32 @@ export function VmbStyleOptions({
                                 if (salonInitiated) {
                                   return (
                                     <>
-                                      Hi [client name], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️<br/><br/>
-                                      PS: Clients register here: <a href="/index" className="inline-flex items-center bg-gray-100 text-gray-800 rounded-full p-1 text-xs hover:bg-gray-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></a>
+                                      Hi [client name], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️
+                                      
+                                      <div className="flex justify-center space-x-4 mt-3 mb-3">
+                                        <Button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center space-x-2">
+                                          <FaMoneyBillWave className="h-5 w-5" />
+                                          <span>CashApp</span>
+                                        </Button>
+                                        <Button className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center space-x-2">
+                                          <FaMoneyBillWave className="h-5 w-5" />
+                                          <span>Zelle</span>
+                                        </Button>
+                                        <Button className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center space-x-2">
+                                          <FaMoneyBillWave className="h-5 w-5" />
+                                          <span>Venmo</span>
+                                        </Button>
+                                      </div>
+                                      
+                                      <div className="flex justify-center mt-2 mb-3">
+                                        <Button 
+                                          className="w-3/4 bg-green-500 hover:bg-green-600 text-white"
+                                        >
+                                          SEND GIFT
+                                        </Button>
+                                      </div>
+                                      
+                                      <div>PS: Clients register here: <a href="/index" className="inline-flex items-center bg-gray-100 text-gray-800 rounded-full p-1 text-xs hover:bg-gray-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></a></div>
                                     </>
                                   );
                                 } else {
