@@ -1060,6 +1060,8 @@ export function VmbStyleOptions({
                                       Hi {name}, We are joining Ven Me, Baby! It's all about YOU! Create a request, enter your BF, admirer, or Mr. and send your gift request for {styleName}. VMB fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! 
                                       <div className="text-center mt-1">❤️❤️❤️</div>
                                       
+                                      <div className="text-center mt-1 text-xs text-gray-600">VMB:{invitationId || "[RANDOM ID]"}</div>
+                                      
                                       <div className="flex justify-center space-x-2 mt-2 mb-2">
                                         <Button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-1 py-0.5 h-auto text-xs">
                                           <FaMoneyBillWave className="h-3 w-3 mr-1" />
@@ -1105,6 +1107,8 @@ export function VmbStyleOptions({
                                       Hi [nm], We are joining Ven Me, Baby! It's all about YOU! Create a request, enter your BF, admirer, or Mr. and send your gift request for [insert sty opt NAME]. VMB fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! 
                                       <div className="text-center mt-1">❤️❤️❤️</div>
                                       
+                                      <div className="text-center mt-1 text-xs text-gray-600">VMB:[RANDOM ID]</div>
+                                      
                                       <div className="flex justify-center space-x-2 mt-2 mb-2">
                                         <Button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-1 py-0.5 h-auto text-xs">
                                           <FaMoneyBillWave className="h-3 w-3 mr-1" />
@@ -1146,22 +1150,7 @@ export function VmbStyleOptions({
                             })()}
                           </div>
                           
-                          {/* 2. Unique Gift ID */}
-                          <div className="mb-3 text-center text-xs font-medium">
-                            <div className="text-gray-700">Your VMB gift has a unique ID:</div>
-                            {(() => {
-                              const urlHasPreview = window.location.href.includes('preview=true') || window.location.href.includes('view=preview');
-                              const isInPreviewMode = isPreviewMode || urlHasPreview;
-                              
-                              if (isInPreviewMode && invitationId) {
-                                // Use actual invitation hash if available, or generate a proper-looking ID
-                                const inviteHash = window.location.pathname.split('/').pop();
-                                return <div className="text-pink-600 font-bold">{inviteHash || `VMB-INV-${invitationId}`}</div>;
-                              } else {
-                                return <div className="text-pink-600 font-bold">VMB-[RANDOM ID]</div>;
-                              }
-                            })()}
-                          </div>
+                          {/* Unique Gift ID is now displayed within the message above */}
                           
                           {/* Payment icons and SEND GIFT button are now in the message area above */}
                           {/* No additional elements needed here */}
