@@ -1189,7 +1189,7 @@ export function VmbStyleOptions({
                 <Button 
                   type="button" 
                   onClick={() => {
-                    // Close the dialog
+                    // Just close the dialog without taking any action
                     setShowConfirmDialog(false);
                     
                     // Show temporary info toast
@@ -1198,12 +1198,6 @@ export function VmbStyleOptions({
                       description: "This is just a preview. No invitation was sent.",
                       variant: "default"
                     });
-                    
-                    // Redirect to client ID dash format
-                    if (clientId) {
-                      // Navigate to client dashboard with client ID dash format
-                      navigate(`/client/${clientId}-dash`);
-                    }
                   }}
                 >
                   Send Salon Invitation
