@@ -10,6 +10,7 @@ import { Link } from 'wouter';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import InviteCompleteStatus from "@/components/dashboard/InviteCompleteStatus";
+import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitations";
 import { 
   Select, 
   SelectContent, 
