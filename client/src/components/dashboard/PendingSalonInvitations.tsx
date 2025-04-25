@@ -233,9 +233,13 @@ export default function PendingSalonInvitations({
               onClick={() => {
                 setShowInvitationDialog(false);
                 
-                // Navigate to the full invitation page with preview mode
+                // Navigate to the appropriate page based on invitation status
                 if (selectedInvitation) {
-                  setLocation(`/invitation/${selectedInvitation.inviteHash}?view=preview&prefill=true`);
+                  if (selectedInvitation.status?.toLowerCase() === 'complete') {
+                    setLocation(`/complete-invitation/${selectedInvitation.id}`);
+                  } else {
+                    setLocation(`/invitation/${selectedInvitation.inviteHash}?view=preview&prefill=true`);
+                  }
                 }
               }}
               className={selectedInvitation?.senderId ? 
