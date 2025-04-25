@@ -6,7 +6,7 @@ import { CheckIcon, Sparkles, AlertTriangle, ChevronUpIcon, ChevronDownIcon } fr
 import { FaMoneyBillWave } from 'react-icons/fa';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '../../lib/apiRequest';
-import { getImageUrl } from '../../lib/utils';
+import { getImageUrl, formatPhoneNumber, capitalizeName } from '../../lib/utils';
 import { useLocation } from 'wouter';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -1205,16 +1205,31 @@ export function VmbStyleOptions({
               <DialogTitle>{salonInitiated ? "Confirm Salon Invitation" : "Confirm Gift Request"}</DialogTitle>
               <DialogDescription>
                 {salonInitiated 
-                 ? "Are you sure you want to send this salon invitation? This action cannot be undone."
+                 ? "Your Ven Me, Baby! invite is ready to go! If everything looks correct, hit send!"
                  : "Are you sure you want to send this gift request? This action cannot be undone."}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-3 py-3">
               <div className={`${salonInitiated ? 'bg-amber-50 border-amber-100' : 'bg-blue-50 border-blue-100'} p-3 rounded-md border text-sm`}>
-                <p>{salonInitiated ? "The following salon invitation will be sent:" : "The following gift will be sent:"}</p>
-                <p className="font-medium mt-1">{confirmedStyle?.name || "Selected Style"}</p>
-                <p className="text-xs mt-2">{salonInitiated ? "Client:" : "Recipient:"} {recipientName || "Friend"}</p>
-                <p className="text-xs">{recipientContact || "No contact provided"}</p>
+                <p>{salonInitiated 
+                    ? `Your VMB invitation for ${confirmedStyle?.name || "selected style"} will be sent:` 
+                    : "The following gift will be sent:"}</p>
+                
+                {salonInitiated && (
+                  <p className="mt-2">
+                    <span className="font-medium">Client:</span> {capitalizeName(recipientName) || "Friend"}; 
+                    <span className="ml-2">cel:</span> {formatPhoneNumber(recipientContact) || "No contact provided"}
+                  </p>
+                )}
+                
+                {!salonInitiated && (
+                  <>
+                    <p className="font-medium mt-1">{confirmedStyle?.name || "Selected Style"}</p>
+                    <p className="text-xs mt-2">Recipient: {recipientName || "Friend"}</p>
+                    <p className="text-xs">{recipientContact || "No contact provided"}</p>
+                  </>
+                )}
+                
                 {invitationId && (
                   <div className="mt-2 bg-green-50 p-1.5 rounded border border-green-100 text-[10px]">
                     <p className="font-medium text-green-700">Completing Invitation ID: {invitationId}</p>
