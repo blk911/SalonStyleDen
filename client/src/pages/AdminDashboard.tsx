@@ -38,7 +38,9 @@ import {
   Calendar as CalendarIcon,
   Clock as ClockIcon,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Gift as GiftIcon,
+  Link as LinkIcon
 } from "lucide-react";
 import { CollapsibleCard } from "@/components/ui/card-section";
 import { useToast } from "@/hooks/use-toast";
@@ -740,7 +742,7 @@ export default function AdminDashboard() {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <Phone className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
+                                  <PhoneIcon className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p className="font-medium">{formatPhoneNumber(client.phone)}</p>
@@ -754,7 +756,7 @@ export default function AdminDashboard() {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <Mail className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
+                                  <MailIcon className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p className="font-medium">{client.email}</p>
@@ -782,7 +784,7 @@ export default function AdminDashboard() {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <Calendar className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
+                                  <CalendarIcon className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p className="font-medium">{client.salonName || 'No salon'}</p>
