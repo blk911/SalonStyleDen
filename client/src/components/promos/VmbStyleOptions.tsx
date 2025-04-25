@@ -1100,20 +1100,23 @@ export function VmbStyleOptions({
                                       Hi [client name], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️
                                       
                                       <div className="flex justify-center space-x-4 mt-3 mb-3">
-                                        <Button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center space-x-2 px-2 py-0.5 h-5 text-[10px]">
-                                          <span>$App</span>
+                                        <Button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center space-x-2">
+                                          <FaMoneyBillWave className="h-5 w-5" />
+                                          <span>CashApp</span>
                                         </Button>
-                                        <Button className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center space-x-2 px-2 py-0.5 h-5 text-[10px]">
-                                          <span>Zel</span>
+                                        <Button className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center space-x-2">
+                                          <FaMoneyBillWave className="h-5 w-5" />
+                                          <span>Zelle</span>
                                         </Button>
-                                        <Button className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center space-x-2 px-2 py-0.5 h-5 text-[10px]">
-                                          <span>Ven</span>
+                                        <Button className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center space-x-2">
+                                          <FaMoneyBillWave className="h-5 w-5" />
+                                          <span>Venmo</span>
                                         </Button>
                                       </div>
                                       
                                       <div className="flex justify-center mt-2 mb-3">
                                         <Button 
-                                          className="px-3 py-0.5 h-5 text-[10px] bg-green-500 hover:bg-green-600 text-white"
+                                          className="w-3/4 bg-green-500 hover:bg-green-600 text-white"
                                         >
                                           SEND GIFT
                                         </Button>
@@ -1169,10 +1172,10 @@ export function VmbStyleOptions({
                           </div>
                           
                           {/* SEND GIFT button - below payment icons */}
-                          <div className="flex justify-center mt-2">
+                          <div className="flex justify-center mt-4">
                             <button 
                               type="button"
-                              className="px-2 py-0.5 h-5 text-[10px] bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
+                              className="w-3/4 bg-green-500 hover:bg-green-600 text-white py-2 rounded-md transition-colors text-sm font-medium"
                               onClick={() => {
                                 // Show confirmation dialog
                                 setShowConfirmDialog(true);

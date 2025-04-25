@@ -83,7 +83,7 @@ export function RenderedInvitation({
                 {salonInitiated && (
                   <div className="flex justify-center mt-1 mb-2">
                     <Button 
-                      className="px-2 py-0.5 h-5 text-[10px] bg-green-500 hover:bg-green-600 text-white"
+                      className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white"
                     >
                       SEND GIFT
                     </Button>
