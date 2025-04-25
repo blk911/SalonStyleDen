@@ -200,6 +200,19 @@ export class DatabaseStorage implements IStorage {
     return results.length > 0 ? results[0] : undefined;
   }
 
+  async checkClientExists(phone: string): Promise<boolean> {
+    // Standardize phone format - get only digits for comparison
+    const cleanPhone = phone.replace(/\D/g, '');
+    
+    // Query the database for clients with this phone number
+    const matchingClients = await db.select()
+      .from(clients)
+      .where(eq(clients.phone, phone));
+    
+    // If we found any clients with this phone, the client exists
+    return matchingClients.length > 0;
+  }
+  
   async isDuplicateContact(phone: string, email: string, sponsor?: string, excludeId?: number): Promise<{isDuplicate: boolean, field: string}> {
     console.log(`DatabaseStorage.isDuplicateContact - Checking: phone='${phone}', email='${email}'`);
     
