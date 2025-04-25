@@ -1189,15 +1189,29 @@ export function VmbStyleOptions({
                 <Button 
                   type="button" 
                   onClick={() => {
-                    // Just close the dialog without taking any action
+                    // Close the dialog
                     setShowConfirmDialog(false);
                     
-                    // Show temporary info toast
-                    toast({
-                      title: "Invitation Preview Only",
-                      description: "This is just a preview. No invitation was sent.",
-                      variant: "default"
-                    });
+                    // First check if this client exists or needs registration
+                    if (recipientContact) {
+                      // Show temporary info toast (still showing the preview message)
+                      toast({
+                        title: "Invitation Preview Only",
+                        description: "This is just a preview. No invitation was sent.",
+                        variant: "default"
+                      });
+                      
+                      // In a real implementation, this would check if the client exists
+                      // and either redirect to their page or prompt for registration
+                      // For now we'll just show the toast to indicate preview mode
+                    } else {
+                      // Show missing contact info error
+                      toast({
+                        title: "Missing Contact Information",
+                        description: "Please provide a phone number or email for the recipient.",
+                        variant: "destructive"
+                      });
+                    }
                   }}
                 >
                   Send Salon Invitation
