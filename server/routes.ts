@@ -654,24 +654,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
-        console.error('Invalid client ID format:', req.params.id);
         return res.status(400).json({ error: "Invalid ID format" });
       }
 
-      console.log('Fetching client with ID:', id);
       const client = await storage.getClient(id);
 
       if (!client) {
-        console.error('Client not found with ID:', id);
         return res.status(404).json({ error: "Client not found" });
       }
-
-      // Log retrieved client data with favorite services
-      console.log('Retrieved client:', {
-        id: client.id,
-        name: client.name,
-        favoriteServices: client.favoriteServices
-      });
 
       res.json(client);
     } catch (error) {
@@ -685,17 +675,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
-        console.error('Invalid client ID format for update:', req.params.id);
         return res.status(400).json({ error: "Invalid ID format" });
       }
-
-      console.log('Updating client with ID:', id);
-      console.log('Update data:', req.body);
       
       // First, check if the client exists
       const client = await storage.getClient(id);
       if (!client) {
-        console.error('Client not found for update with ID:', id);
         return res.status(404).json({ error: "Client not found" });
       }
 
@@ -712,11 +697,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Update the client
-      console.log('Saving updated client data:', updatedData);
-      
-      // Assuming storage.updateClient is implemented
       const result = await storage.updateClient(id, updatedData);
-      console.log('Client updated successfully:', { id: result.id, name: result.name });
       
       res.json(result);
     } catch (error) {
@@ -728,14 +709,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Bulk import routes
   apiRouter.post("/import/salons", async (req: Request, res: Response) => {
     try {
-      console.log('Bulk import salons request received');
-
       if (!Array.isArray(req.body)) {
         return res.status(400).json({ error: "Request body must be an array of salon objects" });
       }
 
       const importedSalons = await importSalons(req.body);
-      console.log(`Successfully imported ${importedSalons.length} salons`);
 
       res.status(201).json({ 
         message: `Successfully imported ${importedSalons.length} salons`,
@@ -750,8 +728,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post("/api/migrate/service-images", async (req: Request, res: Response) => {
     try {
-      console.log('Starting migration of service images to local assets');
-
       // Get all salons
       const allSalons = await storage.getAllSalons();
       let totalUpdated = 0;
@@ -759,11 +735,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Process each salon
       for (const salon of allSalons) {
         if (!salon.services || !Array.isArray(salon.services) || salon.services.length === 0) {
-          console.log(`Salon ${salon.id} has no services, skipping`);
           continue;
         }
-
-        console.log(`Processing salon ${salon.id} (${salon.name}) with ${salon.services.length} services`);
 
         // Update each service to use a local asset
         const updatedServices = salon.services.map(service => {
@@ -794,7 +767,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             localUrl = '/assets/salon-card.png';
           }
 
-          console.log(`Migrating service ${service.id} (${service.name}) image from ${service.gifUrl} to ${localUrl}`);
           totalUpdated++;
 
           return {
@@ -805,7 +777,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Save the updated services
         await storage.updateSalonServices(salon.id, updatedServices);
-        console.log(`Updated ${updatedServices.length} services for salon ${salon.id}`);
       }
 
       res.json({ 
@@ -970,14 +941,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.post("/import/clients", async (req: Request, res: Response) => {
     try {
-      console.log('Bulk import clients request received');
-
       if (!Array.isArray(req.body)) {
         return res.status(400).json({ error: "Request body must be an array of client objects" });
       }
 
       const importedClients = await importClients(req.body);
-      console.log(`Successfully imported ${importedClients.length} clients`);
 
       res.status(201).json({ 
         message: `Successfully imported ${importedClients.length} clients`,
@@ -992,8 +960,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Invitation routes
   apiRouter.post("/invitations", async (req: Request, res: Response) => {
     try {
-      console.log('Creating new invitation with data:', req.body);
-      
       // Extract the validation flag if present
       const isValidationOnly = req.body._validateOnly === true;
       if (isValidationOnly) {
@@ -1002,11 +968,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const { phone, email, senderId } = req.body;
           
           if (!senderId) {
-            console.log('VALIDATION ERROR: Missing senderId for invitation validation');
             return res.status(400).json({ error: 'Missing sender ID for validation' });
           }
-          
-          console.log(`CONTEXT-AWARE VALIDATION: Validating invitation from sender ${senderId}`);
           
           // Use our new context-aware validation method for invitations
           const validation = await storage.validateInvitation(
@@ -1016,11 +979,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           );
           
           if (!validation.isValid) {
-            console.log('VALIDATION FAILED:', validation.message);
             return res.status(400).json({ error: validation.message });
           }
           
-          console.log('VALIDATION PASSED: Invitation is valid');
           return res.status(200).json({ valid: true });
         } catch (error) {
           console.error('Validation error:', error);
@@ -1030,19 +991,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // For regular requests, proceed as normal
       try {
-        console.log("DEBUG - Invitation request body:", req.body);
-        
         // Validate input data
         try {
           const validatedData = invitationInputSchema.parse(req.body);
-          console.log("DEBUG - Validation succeeded, proceeding with invitation");
           
           // Generate a unique hash for this invitation if not provided
           if (!validatedData.inviteHash) {
             // Import the generateInviteHash function from client utils
             const { generateInviteHash } = await import('../client/src/lib/utils');
             validatedData.inviteHash = generateInviteHash();
-            console.log(`Generated unique invitation hash: ${validatedData.inviteHash}`);
           }
           
           // For client-to-client invitations, we don't require salonId upfront
@@ -1051,11 +1008,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             throw new Error("Either Salon ID or Sender ID is required for invitations");
           }
           
-          console.log('Validated invitation data:', validatedData);
-          
           // Create the invitation in database
           const createdInvitation = await storage.createInvitation(validatedData);
-          console.log('Created invitation with ID:', createdInvitation.id, 'Hash:', createdInvitation.inviteHash);
         
           // Log activity with the invitation hash
           if (createdInvitation && createdInvitation.inviteHash) {
@@ -1075,7 +1029,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Return the invitation data
           res.status(201).json(createdInvitation);
         } catch (parseError) {
-          console.error("DEBUG - Validation error details:", parseError);
           throw parseError;
         }
       } catch (validationError) {
@@ -1119,15 +1072,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (salonId) {
         // Get invitations for a specific salon
         invitations = await storage.getSalonInvitations(salonId);
-        console.log(`Retrieved ${invitations.length} invitations for salon ID ${salonId}`);
       } else if (clientId) {
         // TODO: Implement if needed - get invitations for a specific client
         invitations = await storage.getRecentInvitations(limit);
-        console.log(`Retrieved ${invitations.length} invitations for client ID ${clientId}`);
       } else {
         // Default: get recent invitations with limit
         invitations = await storage.getRecentInvitations(limit);
-        console.log(`Retrieved ${invitations.length} recent invitations`);
       }
       
       res.json(invitations);
@@ -1160,7 +1110,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/invitations/by-hash/:hash", async (req: Request, res: Response) => {
     try {
       const { hash } = req.params;
-      console.log(`GET /invitations/by-hash/${hash} - Fetching invitation by hash`);
       
       if (!hash) {
         return res.status(400).json({ error: "Hash parameter is required" });
@@ -1172,7 +1121,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Invitation not found" });
       }
       
-      console.log(`GET /invitations/by-hash/${hash} - Found invitation ID: ${invitation.id}`);
       res.json(invitation);
     } catch (error) {
       console.error('Error fetching invitation by hash:', error);
@@ -1188,8 +1136,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid ID format" });
       }
       
-      console.log(`PATCH /invitations/${id} - Updating invitation status`);
-      
       // Get status from request body
       const { status, clientId } = req.body;
       
@@ -1204,7 +1150,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Update invitation status
-      console.log(`PATCH /invitations/${id} - Updating status to: ${status}`);
       const updatedInvitation = await storage.updateInvitationStatus(id, status);
       
       res.json(updatedInvitation);
@@ -1222,8 +1167,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid ID format" });
       }
       
-      console.log(`PUT /invitations/${id}/status - Updating invitation status`);
-      
       // Get status from request body
       const { status } = req.body;
       
@@ -1238,7 +1181,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Update invitation status
-      console.log(`PUT /invitations/${id}/status - Updating status to: ${status}`);
       const updatedInvitation = await storage.updateInvitationStatus(id, status);
       
       // Log the status change as an activity
@@ -1270,8 +1212,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get the selected style ID if provided in the request body
       const { styleId } = req.body;
-      
-      console.log(`POST /invitations/${id}/complete - Completing invitation flow with styleId: ${styleId || 'none'}`);
       
       // Get the invitation to make sure it exists
       const invitation = await storage.getInvitation(id);
