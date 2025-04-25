@@ -1217,7 +1217,8 @@ export function VmbStyleOptions({
                 
                 {salonInitiated && (
                   <p className="mt-2">
-                    Client: {capitalizeName(recipientName) || "Friend"}; cel: {formatPhoneNumber(recipientContact) || "No contact provided"}
+                    <span className="font-medium">Client:</span> {capitalizeName(recipientName) || "Friend"}; 
+                    <span className="ml-2">cel:</span> {formatPhoneNumber(recipientContact) || "No contact provided"}
                   </p>
                 )}
                 
