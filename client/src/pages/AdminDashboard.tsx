@@ -116,7 +116,6 @@ export default function AdminDashboard() {
   
   // Section visibility states (stored in localStorage for persistence)
   const [styleOptionsOpen, setStyleOptionsOpen] = useState(true);
-  const [loremIpsumOpen, setLoremIpsumOpen] = useState(true);
   const [networkVisualizationOpen, setNetworkVisualizationOpen] = useState(true);
   const [invitationsOpen, setInvitationsOpen] = useState(true);
   const [clientsOpen, setClientsOpen] = useState(true);
@@ -131,7 +130,6 @@ export default function AdminDashboard() {
     const loadSectionStates = () => {
       try {
         const styleOpt = localStorage.getItem('adminDashboard_styleOptionsOpen');
-        const loremIpsum = localStorage.getItem('adminDashboard_loremIpsumOpen');
         const networkVis = localStorage.getItem('adminDashboard_networkVisualizationOpen');
         const invites = localStorage.getItem('adminDashboard_invitationsOpen');
         const clients = localStorage.getItem('adminDashboard_clientsOpen');
@@ -140,7 +138,6 @@ export default function AdminDashboard() {
         const expanded = localStorage.getItem('adminDashboard_expandedSalon');
         
         if (styleOpt !== null) setStyleOptionsOpen(styleOpt === 'true');
-        if (loremIpsum !== null) setLoremIpsumOpen(loremIpsum === 'true');
         if (networkVis !== null) setNetworkVisualizationOpen(networkVis === 'true');
         if (invites !== null) setInvitationsOpen(invites === 'true');
         if (clients !== null) setClientsOpen(clients === 'true');
@@ -159,7 +156,6 @@ export default function AdminDashboard() {
   useEffect(() => {
     try {
       localStorage.setItem('adminDashboard_styleOptionsOpen', styleOptionsOpen.toString());
-      localStorage.setItem('adminDashboard_loremIpsumOpen', loremIpsumOpen.toString());
       localStorage.setItem('adminDashboard_networkVisualizationOpen', networkVisualizationOpen.toString());
       localStorage.setItem('adminDashboard_invitationsOpen', invitationsOpen.toString());
       localStorage.setItem('adminDashboard_clientsOpen', clientsOpen.toString());
@@ -168,7 +164,7 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error('Error saving section states to localStorage:', error);
     }
-  }, [styleOptionsOpen, loremIpsumOpen, networkVisualizationOpen, invitationsOpen, clientsOpen, activityLogsOpen, salonDirectoryOpen]);
+  }, [styleOptionsOpen, networkVisualizationOpen, invitationsOpen, clientsOpen, activityLogsOpen, salonDirectoryOpen]);
   
   // Save expanded salon state to localStorage when it changes
   useEffect(() => {
@@ -419,73 +415,6 @@ export default function AdminDashboard() {
             </div>
           </CollapsibleCard>
 
-          {/* New Column Preparation Format with Collapsible Sections */}
-          <CollapsibleCard 
-            title="Lorem Ipsum Preparation"
-            isOpen={loremIpsumOpen}
-            onToggle={() => setLoremIpsumOpen(!loremIpsumOpen)}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Left Column */}
-              <div className="space-y-4">
-                <Card className="border border-blue-200 shadow-sm hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-medium">Dolor Sit Amet</CardTitle>
-                    <CardDescription>Primary system configuration</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <CollapsibleCard
-                      title="Consectetur Adipiscing"
-                      isOpen={false}
-                      onToggle={() => {}}
-                      className="bg-blue-50 rounded-md"
-                    >
-                      <div className="p-3 space-y-2">
-                        <p className="text-sm text-gray-700">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget aliquam ultricies.</p>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="border rounded p-2 text-xs bg-white">
-                            <span className="font-medium block">Eleifend:</span>
-                            <span className="text-gray-600">Vestibulum ante</span>
-                          </div>
-                          <div className="border rounded p-2 text-xs bg-white">
-                            <span className="font-medium block">Primis:</span>
-                            <span className="text-gray-600">In faucibus orci</span>
-                          </div>
-                        </div>
-                      </div>
-                    </CollapsibleCard>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              {/* Right Column */}
-              <div className="space-y-4">
-                <Card className="border border-indigo-200 shadow-sm hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-medium">Luctus et Ultrices</CardTitle>
-                    <CardDescription>Secondary processing module</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <CollapsibleCard
-                      title="Posuere Cubilia Curae"
-                      isOpen={false}
-                      onToggle={() => {}}
-                      className="bg-indigo-50 rounded-md"
-                    >
-                      <div className="p-3 space-y-2">
-                        <p className="text-sm text-gray-700">Donec lacinia congue felis in faucibus. Pellentesque habitant morbi tristique senectus et netus.</p>
-                        <div className="flex justify-between items-center">
-                          <Badge className="bg-indigo-100 text-indigo-800">Malesuada</Badge>
-                          <span className="text-xs text-gray-500">Fames ac turpis</span>
-                        </div>
-                      </div>
-                    </CollapsibleCard>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </CollapsibleCard>
-          
           {/* Salon to Client Invitations section - completely removed as requested */}
 
           <div className="grid gap-6">
