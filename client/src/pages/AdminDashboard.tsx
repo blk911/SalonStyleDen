@@ -459,62 +459,12 @@ export default function AdminDashboard() {
               </div>
             )}
             
-            {/* Data grouping */}
+            {/* All invitations - Using PendingSalonInvitations component (same as Salon Dashboard) */}
             {!inviteIsLoading && !inviteError && invitations && invitations.length > 0 && (
-              <div className="space-y-6">
-                {Object.entries(
-                  invitations.reduce((groups, invite) => {
-                    const salonName = invite.sponsor || invite.salonName || 'Unknown Salon';
-                    if (!groups[salonName]) {
-                      groups[salonName] = [];
-                    }
-                    groups[salonName].push(invite);
-                    return groups;
-                  }, {} as Record<string, Invitation[]>)
-                ).map(([salonName, salonInvites]) => (
-                <div key={salonName} className="border rounded-lg overflow-hidden">
-                  {/* Salon Header */}
-                  <div 
-                    className="bg-gradient-to-r from-pink-100 to-pink-50 p-3 flex justify-between items-center cursor-pointer"
-                    onClick={() => {
-                      // Find the salon ID from the first invitation in group
-                      const firstInvite = salonInvites[0];
-                      if (firstInvite && firstInvite.salonId) {
-                        setLocation(`/salon/${firstInvite.salonId}`);
-                      }
-                    }}
-                  >
-                    <h3 className="font-bold text-pink-700">{salonName}</h3>
-                    <div className="flex items-center">
-                      <Badge className="mr-2 bg-pink-100 text-pink-700 border-pink-200">
-                        {salonInvites.length} Invitations
-                      </Badge>
-                      <Link 
-                        to={`/salon/${salonInvites[0]?.salonId}`}
-                        className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center"
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent triggering the salon header click
-                          if (salonInvites[0]?.salonId) {
-                            setLocation(`/salon/${salonInvites[0].salonId}`);
-                          }
-                        }}
-                      >
-                        <span className="hidden md:inline mr-1">View Salon</span>
-                        <ExternalLinkIcon className="h-3 w-3" />
-                      </Link>
-                    </div>
-                  </div>
-                  
-                  {/* Client Invitations - Using PendingSalonInvitations component (same as Salon Dashboard) */}
-                  <div className="p-3">
-                    <PendingSalonInvitations 
-                      limit={salonInvites.length} 
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+              <div className="p-4">
+                <PendingSalonInvitations />
+              </div>
+            )}
           </CollapsibleCard>
 
           <div className="grid gap-6">
