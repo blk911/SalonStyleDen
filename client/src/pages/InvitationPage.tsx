@@ -50,8 +50,16 @@ export default function InvitationPage() {
   
   // Parse query parameters to determine view mode and prefill status
   const isCompleteView = location.includes('complete=true');
-  const isPreviewView = location.includes('view=preview');
+  const isPreviewView = location.includes('preview=true') || location.includes('view=preview');
   const shouldPrefill = location.includes('prefill=true');
+  
+  // Debug query parameters
+  console.log("[InvitationPage] URL parameters:", {
+    location,
+    isPreviewView,
+    shouldPrefill,
+    isCompleteView
+  });
   
   // State for section visibility with localStorage persistence
   const [styleSectionOpen, setStyleSectionOpen] = useState(() => {
