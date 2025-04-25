@@ -304,13 +304,7 @@ export default function InvitationPage() {
                   {/* Removed "View Salon Page" button as requested */}
                 </div>
               </div>
-              <Badge className={`
-                ${invitation.senderId ? 'bg-pink-100 text-pink-700 border-pink-200' : 'bg-amber-100 text-amber-700 border-amber-200'}
-              `}>
-                {invitation.senderId ? 
-                  `[${invitation.id}] Ven Me, Baby! Gift Request Form` : 
-                  `Salon Invite; ${invitation.name} [${invitation.id}]`}
-              </Badge>
+              {/* Removed Invitation ID badge as requested */}
             </div>
           </CardHeader>
 
