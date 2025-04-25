@@ -1278,32 +1278,10 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
                       
-                      // Need to redirect to specific client page by ID, not to general clients page
-                      // Extract numeric ID from the responses or client data
-                      // The client name is stored in recipientName, we need to get the ID
-                      if (data.clientId) {
-                        console.log('[VMB Debug] Redirecting to client dashboard for client ID:', data.clientId);
-                        navigate(`/client/${data.clientId}`);
-                      } else {
-                        console.log('[VMB Debug] Client ID not found in response, searching for client by name:', recipientName);
-                        // Attempt to fetch client ID by name if it wasn't in the response
-                        apiRequest('GET', '/api/clients')
-                          .then(response => response.json())
-                          .then(clients => {
-                            const matchingClient = clients.find(c => c.name === recipientName);
-                            if (matchingClient && matchingClient.id) {
-                              console.log('[VMB Debug] Found client ID for:', recipientName, ' - ID:', matchingClient.id);
-                              navigate(`/client/${matchingClient.id}`);
-                            } else {
-                              console.log('[VMB Debug] Could not find client ID, falling back to clients page');
-                              navigate('/clients');
-                            }
-                          })
-                          .catch(error => {
-                            console.error('[VMB Debug] Error fetching clients:', error);
-                            navigate('/clients'); // Fallback on error
-                          });
-                      }
+                      // NOMENCLATURE FIX: There's a type mismatch between what we have (client name string) 
+                      // and what the API expects (numeric client ID)
+                      console.log('[VMB Debug] Redirecting to clients page with listing of all clients');
+                      navigate('/clients');
                     } else {
                       // Regular gift request flow - not salon-initiated
                       toast({
