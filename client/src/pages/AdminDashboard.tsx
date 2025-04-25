@@ -34,7 +34,12 @@ import {
   Code, 
   Eye,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Phone as PhoneIcon,
+  Mail as MailIcon,
+  Link as LinkIcon,
+  Calendar as CalendarIcon,
+  Gift as GiftIcon
 } from "lucide-react";
 import { CollapsibleCard } from "@/components/ui/card-section";
 import { useToast } from "@/hooks/use-toast";
