@@ -1258,7 +1258,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Invitation validation endpoint - Validates promo codes and phone numbers
   apiRouter.post("/invitations/validate", async (req: Request, res: Response) => {
     try {
-      console.log('Validating invitation with data:', req.body);
       const { code, phone, validationMode, salonId } = req.body;
       
       // SIMPLIFIED VALIDATION FLOW:
@@ -1272,14 +1271,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let salon = null;
       if (salonId) {
         salon = await storage.getSalon(Number(salonId));
-        console.log(`Validation for salon: ${salon ? salon.name : 'Unknown'}`);
       }
 
       // PHONE VALIDATION MODE (simplified flow)
       if (validationMode === 'phone' && phone) {
         // Clean and normalize the phone number
         const cleanPhone = phone.replace(/\D/g, '');
-        console.log(`PHONE VALIDATION MODE: Checking for client with phone: ${cleanPhone}`);
         
         // If we have less than 4 digits, we can't validate
         if (cleanPhone.length < 4) {
@@ -1302,7 +1299,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (exactMatches.length > 0) {
           matchingClient = exactMatches[0];
-          console.log(`Found client by exact phone match: ${matchingClient.id}`);
           
           // Return the matching client info
           return res.status(200).json({ 
@@ -1322,7 +1318,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (partialMatches.length > 0) {
           matchingClient = partialMatches[0];
-          console.log(`Found client by last 4 digits: ${matchingClient.id}`);
           
           // Return the matching client info
           return res.status(200).json({ 
@@ -1350,24 +1345,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      console.log(`PROMO CODE VALIDATION MODE: Checking for invitation/client with code: ${code}`);
-      
       // DYNAMIC DATABASE VALIDATION APPROACH
       try {
         // 1. Get all data from database for complete validation
-        console.log(`DYNAMIC VALIDATION: Fetching all database records to validate code ${code}`);
         const [allClients, allInvitations, allSalons] = await Promise.all([
           db.select().from(clients),
           db.select().from(invitations),
           db.select().from(storage.getSalonsTable())
         ]);
         
-        console.log(`Found ${allClients.length} clients, ${allInvitations.length} invitations, ${allSalons.length} salons`);
-        
         // 2. Check for direct hash match in invitations
         const invitationByHash = allInvitations.find(inv => inv.inviteHash === code);
         if (invitationByHash) {
-          console.log(`Found invitation with matching hash: ${code}`);
           
           // Check if a client already exists with this invitation's phone
           if (invitationByHash.phone) {
