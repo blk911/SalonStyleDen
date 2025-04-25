@@ -1076,7 +1076,11 @@ export function VmbStyleOptions({
                                       
                                       <div className="flex justify-center mt-1 mb-2">
                                         <Button 
-                                          className="w-3/4 bg-green-500 hover:bg-green-600 text-white"
+                                          className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white"
+                                          onClick={() => {
+                                            // Show confirmation dialog
+                                            setShowConfirmDialog(true);
+                                          }}
                                         >
                                           SEND GIFT
                                         </Button>
@@ -1153,37 +1157,8 @@ export function VmbStyleOptions({
                             })()}
                           </div>
                           
-                          {/* 3. Payment Method Icons */}
-                          <div className="flex flex-col items-center justify-center gap-1">
-
-                            <div className="flex gap-2 items-center justify-center">
-                              <div className="flex items-center gap-1.5">
-                                <div className="h-7 w-7 rounded-full bg-blue-500 text-white shadow-sm flex items-center justify-center hover:bg-blue-600 cursor-pointer">
-                                  <span className="text-[9px] font-bold">Z</span>
-                                </div>
-                                <div className="h-7 w-7 rounded-full bg-teal-500 text-white shadow-sm flex items-center justify-center hover:bg-teal-600 cursor-pointer">
-                                  <span className="text-[9px] font-bold">V</span>
-                                </div>
-                                <div className="h-7 w-7 rounded-full bg-green-500 text-white shadow-sm flex items-center justify-center hover:bg-green-600 cursor-pointer">
-                                  <span className="text-[9px] font-bold">CA</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* SEND GIFT button - below payment icons */}
-                          <div className="flex justify-center mt-4">
-                            <button 
-                              type="button"
-                              className="w-3/4 bg-green-500 hover:bg-green-600 text-white py-2 rounded-md transition-colors text-sm font-medium"
-                              onClick={() => {
-                                // Show confirmation dialog
-                                setShowConfirmDialog(true);
-                              }}
-                            >
-                              SEND GIFT
-                            </button>
-                          </div>
+                          {/* Payment icons and SEND GIFT button are now in the message area above */}
+                          {/* No additional elements needed here */}
                           
                           {/* No additional button needed since we added the SEND GIFT button above */}
                         </div>
