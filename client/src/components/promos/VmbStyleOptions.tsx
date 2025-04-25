@@ -1189,41 +1189,15 @@ export function VmbStyleOptions({
                 <Button 
                   type="button" 
                   onClick={() => {
-                    // Close the dialog
+                    // Just close the dialog without taking any action
                     setShowConfirmDialog(false);
                     
-                    // First check if this client exists or needs registration
-                    if (recipientContact) {
-                      // Show temporary info toast
-                      toast({
-                        title: "Checking client status...",
-                        description: "Verifying if client is registered",
-                        variant: "default"
-                      });
-                      
-                      // Simulate API check for existing client with this phone number
-                      // In a real implementation, this would be an actual API call
-                      setTimeout(() => {
-                        // Show preview message
-                        toast({
-                          title: "Invitation Preview Only",
-                          description: "This is just a preview. No invitation was sent.",
-                          variant: "default"
-                        });
-                        
-                        // Now redirect to client registration page
-                        // This is the listener that should check if client exists
-                        // and either redirect to their dashboard or registration page
-                        navigate('/client/register');
-                      }, 500);
-                    } else {
-                      // Show missing contact info error
-                      toast({
-                        title: "Missing Contact Information",
-                        description: "Please provide a phone number or email for the recipient.",
-                        variant: "destructive"
-                      });
-                    }
+                    // Show temporary info toast
+                    toast({
+                      title: "Invitation Preview Only",
+                      description: "This is just a preview. No invitation was sent.",
+                      variant: "default"
+                    });
                   }}
                 >
                   Send Salon Invitation
