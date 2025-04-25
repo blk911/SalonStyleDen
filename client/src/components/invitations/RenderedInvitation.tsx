@@ -102,6 +102,8 @@ export function RenderedInvitation({
                 Hi <span className="font-semibold">{recipientName}</span>, I would love a fresh set. 
                 My stylist has an opening for <span className="font-semibold">{styleOption}</span>, {price} ({time}) 
                 will you Ven Me, Baby! ❤️❤️❤️ <span className="font-semibold">{senderName}</span>
+                
+                <div className="text-center mt-2 text-xs text-gray-400">VMB:{inviteId}</div>
               </>
             )}
           </div>
