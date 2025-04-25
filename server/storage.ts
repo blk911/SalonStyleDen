@@ -1013,41 +1013,35 @@ export class DatabaseStorage implements IStorage {
       const results = await db.select().from(styleSelections).where(eq(styleSelections.id, id));
       return results.length > 0 ? results[0] : undefined;
     } catch (error) {
-      console.error(`DatabaseStorage.getStyleSelection - Error getting style selection ${id}:`, error);
+      console.error(`Error getting style selection ${id}:`, error);
       throw error;
     }
   }
 
   async getSalonStyleSelections(salonId: number): Promise<StyleSelection[]> {
     try {
-      console.log(`DatabaseStorage.getSalonStyleSelections - Fetching style selections for salon ${salonId}`);
-      
       const result = await db.select()
         .from(styleSelections)
         .where(eq(styleSelections.salonId, salonId))
         .orderBy(sql`${styleSelections.selectedAt} DESC`);
       
-      console.log(`DatabaseStorage.getSalonStyleSelections - Retrieved ${result.length} style selections`);
       return result;
     } catch (error) {
-      console.error(`DatabaseStorage.getSalonStyleSelections - Error fetching style selections for salon ${salonId}:`, error);
+      console.error(`Error fetching style selections for salon ${salonId}:`, error);
       throw error;
     }
   }
 
   async getClientStyleSelections(clientId: number): Promise<StyleSelection[]> {
     try {
-      console.log(`DatabaseStorage.getClientStyleSelections - Fetching style selections for client ${clientId}`);
-      
       const result = await db.select()
         .from(styleSelections)
         .where(eq(styleSelections.clientId, clientId))
         .orderBy(sql`${styleSelections.selectedAt} DESC`);
       
-      console.log(`DatabaseStorage.getClientStyleSelections - Retrieved ${result.length} style selections`);
       return result;
     } catch (error) {
-      console.error(`DatabaseStorage.getClientStyleSelections - Error fetching style selections for client ${clientId}:`, error);
+      console.error(`Error fetching style selections for client ${clientId}:`, error);
       throw error;
     }
   }
@@ -1055,8 +1049,6 @@ export class DatabaseStorage implements IStorage {
   // Activity Log methods
   async createActivityLog(insertActivityLog: InsertActivityLog): Promise<ActivityLog> {
     try {
-      console.log(`DatabaseStorage.createActivityLog - Creating activity log of type ${insertActivityLog.type}`);
-      
       // Set default timestamp if not provided
       const logData = {
         ...insertActivityLog,
@@ -1064,36 +1056,29 @@ export class DatabaseStorage implements IStorage {
       };
       
       const result = await db.insert(activityLogs).values(logData).returning();
-      console.log(`DatabaseStorage.createActivityLog - Created activity log with ID ${result[0].id}`);
-      
       return result[0];
     } catch (error) {
-      console.error('DatabaseStorage.createActivityLog - Error creating activity log:', error);
+      console.error('Error creating activity log:', error);
       throw error;
     }
   }
 
   async getRecentActivityLogs(limit: number = 10): Promise<ActivityLog[]> {
     try {
-      console.log(`DatabaseStorage.getRecentActivityLogs - Fetching ${limit} recent activity logs`);
-      
       const result = await db.select()
         .from(activityLogs)
         .orderBy(sql`${activityLogs.timestamp} DESC`)
         .limit(limit);
       
-      console.log(`DatabaseStorage.getRecentActivityLogs - Retrieved ${result.length} activity logs`);
       return result;
     } catch (error) {
-      console.error('DatabaseStorage.getRecentActivityLogs - Error fetching activity logs:', error);
+      console.error('Error fetching activity logs:', error);
       throw error;
     }
   }
 
   async logVmbInvitationSent(clientId: number, salonId: number, styleId: number): Promise<ActivityLog> {
     try {
-      console.log(`DatabaseStorage.logVmbInvitationSent - Logging VMB invitation from client ${clientId} for salon ${salonId} with style ${styleId}`);
-      
       // Get client and salon for better description
       const [client, salon] = await Promise.all([
         this.getClient(clientId),
@@ -1114,11 +1099,9 @@ export class DatabaseStorage implements IStorage {
       };
       
       const result = await this.createActivityLog(log);
-      console.log(`DatabaseStorage.logVmbInvitationSent - Activity log created with ID ${result.id}`);
-      
       return result;
     } catch (error) {
-      console.error('DatabaseStorage.logVmbInvitationSent - Error logging VMB invitation:', error);
+      console.error('Error logging VMB invitation:', error);
       throw error;
     }
   }
@@ -1168,8 +1151,6 @@ export class DatabaseStorage implements IStorage {
 
   async trackGiftRedemption(invitationId: number, clientId: number, salonId: number): Promise<ActivityLog> {
     try {
-      console.log(`DatabaseStorage.trackGiftRedemption - Tracking redemption for invitation ${invitationId}`);
-      
       // Get the invitation details
       const invitation = await this.getInvitation(invitationId);
       if (!invitation) {
@@ -1189,19 +1170,15 @@ export class DatabaseStorage implements IStorage {
       };
       
       const result = await this.createActivityLog(log);
-      console.log(`DatabaseStorage.trackGiftRedemption - Activity log created with ID ${result.id}`);
-      
       return result;
     } catch (error) {
-      console.error('DatabaseStorage.trackGiftRedemption - Error tracking gift redemption:', error);
+      console.error('Error tracking gift redemption:', error);
       throw error;
     }
   }
 
   async postToClientDashboard(invitationId: number): Promise<boolean> {
     try {
-      console.log(`DatabaseStorage.postToClientDashboard - Posting invitation ${invitationId} to client dashboard`);
-      
       // Get the invitation details
       const invitation = await this.getInvitation(invitationId);
       if (!invitation) {
@@ -1210,14 +1187,12 @@ export class DatabaseStorage implements IStorage {
       
       // Check if we have a sender (client) for this invitation
       if (!invitation.senderId) {
-        console.log(`DatabaseStorage.postToClientDashboard - No sender ID for invitation ${invitationId}, skipping client dashboard post`);
         return false;
       }
       
       // Get the sender client info
       const client = await this.getClient(invitation.senderId);
       if (!client) {
-        console.log(`DatabaseStorage.postToClientDashboard - Sender client ${invitation.senderId} not found, skipping client dashboard post`);
         return false;
       }
       
@@ -1230,19 +1205,15 @@ export class DatabaseStorage implements IStorage {
         timestamp: new Date()
       });
       
-      console.log(`DatabaseStorage.postToClientDashboard - Successfully posted invitation ${invitationId} to client ${invitation.senderId} dashboard`);
-      
       return true;
     } catch (error) {
-      console.error('DatabaseStorage.postToClientDashboard - Error posting to client dashboard:', error);
+      console.error('Error posting to client dashboard:', error);
       return false;
     }
   }
 
   async postToSalonDashboard(invitationId: number): Promise<boolean> {
     try {
-      console.log(`DatabaseStorage.postToSalonDashboard - Posting invitation ${invitationId} to salon dashboard`);
-      
       // Get the invitation details
       const invitation = await this.getInvitation(invitationId);
       if (!invitation) {
@@ -1251,14 +1222,12 @@ export class DatabaseStorage implements IStorage {
       
       // Check if we have a salon ID for this invitation
       if (!invitation.salonId) {
-        console.log(`DatabaseStorage.postToSalonDashboard - No salon ID for invitation ${invitationId}, skipping salon dashboard post`);
         return false;
       }
       
       // Get the salon info
       const salon = await this.getSalon(invitation.salonId);
       if (!salon) {
-        console.log(`DatabaseStorage.postToSalonDashboard - Salon ${invitation.salonId} not found, skipping salon dashboard post`);
         return false;
       }
       
@@ -1271,11 +1240,9 @@ export class DatabaseStorage implements IStorage {
         timestamp: new Date()
       });
       
-      console.log(`DatabaseStorage.postToSalonDashboard - Successfully posted invitation ${invitationId} to salon ${invitation.salonId} dashboard`);
-      
       return true;
     } catch (error) {
-      console.error('DatabaseStorage.postToSalonDashboard - Error posting to salon dashboard:', error);
+      console.error('Error posting to salon dashboard:', error);
       return false;
     }
   }
