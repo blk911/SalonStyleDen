@@ -1040,7 +1040,7 @@ export function VmbStyleOptions({
                         <h3 className="font-medium text-compact text-center">Your Ven Me, Baby! Promo</h3>
                         <div className="border border-pink-100 rounded-md p-3 mt-2 bg-white shadow-sm">
                           {/* 1. Standardized Message Format */}
-                          <div className={`rounded-lg ${isMobile ? 'p-1.5' : 'p-2'} bg-blue-50 border border-blue-100 mb-3 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
+                          <div className={`rounded-lg ${isMobile ? 'p-1.5' : 'p-2'} ${salonInitiated ? 'bg-amber-50 border-amber-100' : 'bg-blue-50 border-blue-100'} mb-3 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
                             {(() => {
                               // For preview mode, properly format the message with client data
                               const urlHasPreview = window.location.href.includes('preview=true') || window.location.href.includes('view=preview');
@@ -1052,17 +1052,37 @@ export function VmbStyleOptions({
                                 const priceTime = `$${confirmedStyle.price} (${confirmedStyle.duration} min)`;
                                 const signed = signature || recipientData?.sponsor || "Tiffany 5280 Nails Studio";
                                 
-                                return (
-                                  <>
-                                    Hi {name}, I would love a fresh set. My stylist has an opening for a {styleName}, {priceTime} will you Ven Me, Baby! ❤️❤️❤️ {signed}
-                                  </>
-                                );
+                                // Different message for salon-initiated vs client-initiated invitations
+                                if (salonInitiated) {
+                                  return (
+                                    <>
+                                      Hi {name}, We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️<br/><br/>
+                                      PS: Clients register here: click [index link] to see your invitation!
+                                    </>
+                                  );
+                                } else {
+                                  return (
+                                    <>
+                                      Hi {name}, I would love a fresh set. My stylist has an opening for a {styleName}, {priceTime} will you Ven Me, Baby! ❤️❤️❤️ {signed}
+                                    </>
+                                  );
+                                }
                               } else {
-                                return (
-                                  <>
-                                    Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], [price and time] will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]
-                                  </>
-                                );
+                                // Different default message based on invitation type
+                                if (salonInitiated) {
+                                  return (
+                                    <>
+                                      Hi [client name], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️<br/><br/>
+                                      PS: Clients register here: click [index link] to see your invitation!
+                                    </>
+                                  );
+                                } else {
+                                  return (
+                                    <>
+                                      Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], [price and time] will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]
+                                    </>
+                                  );
+                                }
                               }
                             })()}
                           </div>
