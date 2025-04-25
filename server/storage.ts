@@ -775,11 +775,8 @@ export class DatabaseStorage implements IStorage {
 
   async getInvitationsByPhone(phone: string | null | undefined, partialMatch: boolean = false): Promise<Invitation[]> {
     try {
-      console.log(`DatabaseStorage.getInvitationsByPhone - Fetching invitations with phone ${phone || 'null'} (partialMatch: ${partialMatch})`);
-      
       // Handle empty phone cases
       if (!phone) {
-        console.log(`DatabaseStorage.getInvitationsByPhone - No phone provided, returning empty array`);
         return [];
       }
       
@@ -812,10 +809,9 @@ export class DatabaseStorage implements IStorage {
         );
       }
       
-      console.log(`DatabaseStorage.getInvitationsByPhone - Found ${result.length} matching invitations`);
       return result;
     } catch (error) {
-      console.error(`DatabaseStorage.getInvitationsByPhone - Error fetching invitations by phone:`, error);
+      console.error(`Error fetching invitations by phone:`, error);
       throw error;
     }
   }
@@ -823,8 +819,6 @@ export class DatabaseStorage implements IStorage {
   // Context-aware validation methods
   
   async validateInvitation(phone: string, email: string, senderId: number): Promise<{isValid: boolean, message?: string}> {
-    console.log(`DatabaseStorage.validateInvitation - Validating invitation: phone='${phone}', email='${email}', senderId=${senderId}`);
-    
     // Clean the phone number for comparison
     const cleanPhone = phone ? phone.replace(/\D/g, '') : '';
     
@@ -832,8 +826,6 @@ export class DatabaseStorage implements IStorage {
       // 1. Determine the context (client sending or salon sending)
       const sender = await this.getClient(senderId);
       const isSenderClient = !!sender;
-      
-      console.log(`DatabaseStorage.validateInvitation - Sender is a ${isSenderClient ? 'client' : 'salon'}`);
       
       // Get all clients and salons for checking duplicates
       const allClients = await db.select().from(clients);
@@ -844,12 +836,10 @@ export class DatabaseStorage implements IStorage {
         
         // 2. Check if the client is trying to invite themselves
         if (sender.phone && sender.phone.replace(/\D/g, '') === cleanPhone) {
-          console.log(`DatabaseStorage.validateInvitation - Client trying to invite themselves`);
           return { isValid: false, message: "You cannot invite yourself" };
         }
         
         if (email && sender.email && sender.email.toLowerCase() === email.toLowerCase()) {
-          console.log(`DatabaseStorage.validateInvitation - Client trying to invite their own email`);
           return { isValid: false, message: "You cannot invite yourself" };
         }
         
@@ -861,18 +851,15 @@ export class DatabaseStorage implements IStorage {
         // If no sender client is found, try to get the salon
         const salon = await this.getSalon(senderId);
         if (!salon) {
-          console.log(`DatabaseStorage.validateInvitation - Invalid sender ID ${senderId}`);
           return { isValid: false, message: "Invalid sender" };
         }
         
         // Check if the salon is trying to invite themselves
         if (salon.phone && salon.phone.replace(/\D/g, '') === cleanPhone) {
-          console.log(`DatabaseStorage.validateInvitation - Salon trying to invite their own phone`);
           return { isValid: false, message: "You cannot invite yourself" };
         }
         
         if (email && salon.email && salon.email.toLowerCase() === email.toLowerCase()) {
-          console.log(`DatabaseStorage.validateInvitation - Salon trying to invite their own email`);
           return { isValid: false, message: "You cannot invite yourself" };
         }
         
@@ -887,7 +874,6 @@ export class DatabaseStorage implements IStorage {
           );
           
           if (existingClientOfThisSalon) {
-            console.log(`DatabaseStorage.validateInvitation - Phone belongs to a client of this salon: ${cleanPhone}, but allowing invitation`);
             // Allow salon to send invites to their own clients - no validation error
             return { isValid: true };
           }
@@ -901,7 +887,6 @@ export class DatabaseStorage implements IStorage {
           );
           
           if (existingClientWithDifferentSponsor) {
-            console.log(`DatabaseStorage.validateInvitation - Client exists with different sponsor salon: ${cleanPhone}`);
             return { 
               isValid: false, 
               message: "This client is already registered with another salon" 
@@ -915,11 +900,8 @@ export class DatabaseStorage implements IStorage {
             (client.sponsorSalonId === null || client.sponsorSalonId === undefined)
           );
           
-          if (existingClientWithNoSponsor) {
-            console.log(`DatabaseStorage.validateInvitation - Client exists with no sponsor: ${cleanPhone}`);
-            // This is valid - we allow salons to invite clients who don't have a sponsor yet
-            // Do nothing here, continue validation
-          }
+          // This is valid - we allow salons to invite clients who don't have a sponsor yet
+          // Do nothing here, continue validation
         }
         
         // Do the same checks for email if provided
@@ -933,7 +915,6 @@ export class DatabaseStorage implements IStorage {
           );
           
           if (existingClientEmailOfThisSalon) {
-            console.log(`DatabaseStorage.validateInvitation - Email belongs to a client of this salon: ${email}, but allowing invitation`);
             // Allow salon to send invites to their own clients - no validation error
             return { isValid: true };
           }
@@ -946,7 +927,6 @@ export class DatabaseStorage implements IStorage {
           );
           
           if (existingClientEmailWithDifferentSponsor) {
-            console.log(`DatabaseStorage.validateInvitation - Client email exists with different sponsor salon: ${email}`);
             return { 
               isValid: false, 
               message: "This client email is already registered with another salon" 
@@ -965,7 +945,6 @@ export class DatabaseStorage implements IStorage {
         );
         
         if (existingSalon) {
-          console.log(`DatabaseStorage.validateInvitation - Phone already registered as salon: ${cleanPhone}`);
           return { isValid: false, message: "This phone is already registered as a salon" };
         }
       }
@@ -979,29 +958,24 @@ export class DatabaseStorage implements IStorage {
         );
         
         if (existingSalonEmail) {
-          console.log(`DatabaseStorage.validateInvitation - Email already registered as salon: ${email}`);
           return { isValid: false, message: "This email is already registered as a salon" };
         }
       }
       
       // If we made it here, the invitation is valid
-      console.log(`DatabaseStorage.validateInvitation - Invitation is valid`);
       return { isValid: true };
     } catch (error) {
-      console.error('DatabaseStorage.validateInvitation - Error validating invitation:', error);
+      console.error('Error validating invitation:', error);
       return { isValid: false, message: "Error validating invitation" };
     }
   }
   
   async validateRegistration(phone: string, email: string, excludeId?: number): Promise<{isValid: boolean, message?: string}> {
-    console.log(`DatabaseStorage.validateRegistration - Validating registration: phone='${phone}', email='${email}'`);
-    
     try {
       // For registration, we want to be strict about duplicates
       const duplicateCheck = await this.isDuplicateContact(phone, email, undefined, excludeId);
       
       if (duplicateCheck.isDuplicate) {
-        console.log(`DatabaseStorage.validateRegistration - Duplicate ${duplicateCheck.field} detected`);
         return { 
           isValid: false, 
           message: `This ${duplicateCheck.field} is already registered` 
@@ -1009,10 +983,9 @@ export class DatabaseStorage implements IStorage {
       }
       
       // If we made it here, the registration is valid
-      console.log(`DatabaseStorage.validateRegistration - Registration is valid`);
       return { isValid: true };
     } catch (error) {
-      console.error('DatabaseStorage.validateRegistration - Error validating registration:', error);
+      console.error('Error validating registration:', error);
       return { isValid: false, message: "Error validating registration" };
     }
   }
@@ -1020,8 +993,6 @@ export class DatabaseStorage implements IStorage {
   // Style Selection methods
   async createStyleSelection(insertStyleSelection: InsertStyleSelection): Promise<StyleSelection> {
     try {
-      console.log(`DatabaseStorage.createStyleSelection - Creating style selection for client ${insertStyleSelection.clientId}`);
-      
       // Set default values if needed
       const styleSelectionData = {
         ...insertStyleSelection,
@@ -1030,11 +1001,9 @@ export class DatabaseStorage implements IStorage {
       };
       
       const result = await db.insert(styleSelections).values(styleSelectionData).returning();
-      console.log(`DatabaseStorage.createStyleSelection - Created style selection with ID ${result[0].id}`);
-      
       return result[0];
     } catch (error) {
-      console.error('DatabaseStorage.createStyleSelection - Error creating style selection:', error);
+      console.error('Error creating style selection:', error);
       throw error;
     }
   }
@@ -1159,8 +1128,6 @@ export class DatabaseStorage implements IStorage {
   // Gift tracking methods for invitation lifecycle
   async updateGiftStatus(invitationId: number, status: string, styleId?: number): Promise<Invitation> {
     try {
-      console.log(`DatabaseStorage.updateGiftStatus - Updating invitation ${invitationId} status to ${status}`);
-      
       // Get the current invitation
       const invitation = await this.getInvitation(invitationId);
       if (!invitation) {
@@ -1192,11 +1159,9 @@ export class DatabaseStorage implements IStorage {
         timestamp: new Date()
       });
       
-      console.log(`DatabaseStorage.updateGiftStatus - Updated invitation ${invitationId} status to ${status}`);
-      
       return result[0];
     } catch (error) {
-      console.error(`DatabaseStorage.updateGiftStatus - Error updating gift status:`, error);
+      console.error(`Error updating gift status:`, error);
       throw error;
     }
   }
