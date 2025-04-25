@@ -1259,8 +1259,13 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
-                      // Redirect to the clients listing page
-                      navigate('/clients');
+                      // Redirect to the specific client's dashboard using the clientId prop
+                      if (clientId) {
+                        navigate(`/clients/${clientId}`);
+                      } else {
+                        // Fallback to clients list if no clientId is available
+                        navigate('/clients');
+                      }
                     } else {
                       // Regular gift request flow - not salon-initiated
                       toast({
