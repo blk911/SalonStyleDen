@@ -127,15 +127,8 @@ export function VmbStyleOptions({
   const isTablet = useMediaQuery({ query: '(max-width: 768px)' });
   const isDesktop = useMediaQuery({ query: '(min-width: 1024px)' });
   
-  // Debug effect to track state changes
+  // Update state tracker when key states change
   useEffect(() => {
-    // Use a function to handle the debug logging to avoid React node errors
-    const logDebugInfo = () => {
-      console.log(`[STATE DEBUG] showStep2=${showStep2}, showStep3=${showStep3}, confirmedStyle=${confirmedStyle?.name || 'null'}`);
-      console.log(`[RESPONSIVE] isMobile=${isMobile}, isTablet=${isTablet}, isDesktop=${isDesktop}`);
-    };
-    
-    logDebugInfo();
     setStateTracker(prev => prev + 1);
   }, [showStep2, showStep3, confirmedStyle, isMobile, isTablet, isDesktop]);
   
@@ -154,15 +147,8 @@ export function VmbStyleOptions({
   
   // Handle initial style selection from props (for previewing existing invitations)
   useEffect(() => {
-    console.log("[VmbStyleOptions] Checking for initialStyleId:", {
-      initialStyleId,
-      isPreviewMode,
-      servicesCount: services?.length || 0
-    });
-    
     if (initialStyleId && services && services.length > 0) {
       const style = services.find(s => s.id === initialStyleId);
-      console.log("[VmbStyleOptions] Found matching style:", style);
       
       if (style) {
         // Set the selected style
@@ -174,7 +160,6 @@ export function VmbStyleOptions({
         
         // For preview mode, skip to step 3
         if (isPreviewMode) {
-          console.log("[VmbStyleOptions] Setting up preview mode with style:", style.name);
           setIsStep1Open(false);
           setIsStep2Open(false);
           setIsStep3Open(true);
@@ -182,7 +167,6 @@ export function VmbStyleOptions({
           
           // Make sure form is complete for Step 3
           if (recipientData) {
-            console.log("[VmbStyleOptions] Using recipient data for preview");
             setRecipientName(recipientData.name);
             setRecipientContact(recipientData.phone);
             setSignature(recipientData.sponsor);
@@ -191,7 +175,6 @@ export function VmbStyleOptions({
       }
     } else if (isPreviewMode && services && services.length > 0) {
       // Fallback for preview mode - use the first available style
-      console.log("[VmbStyleOptions] No initialStyleId provided, using first style as fallback for preview");
       const firstStyle = services[0];
       setSelectedStyle(firstStyle);
       setConfirmedStyle(firstStyle);
@@ -209,8 +192,6 @@ export function VmbStyleOptions({
   // Special handling for salon-initiated invitations
   useEffect(() => {
     if (salonInitiated) {
-      console.log("Salon-initiated invitation - setting up special flow");
-      
       // For salon-initiated invitations:
       // 1. Close Step 1 (style selection) after user selects
       // 2. Keep Step 2 closed (we already have client contact info)
@@ -228,8 +209,6 @@ export function VmbStyleOptions({
         
         // ALWAYS force a confirmed style in preview mode
         if (isInPreviewMode && services && services.length > 0) {
-          console.log("[VmbStyleOptions] FORCING style selection for preview mode");
-          
           // Find a style that matches favoriteServices if available, otherwise use first service
           let styleToSelect = services[0]; // Default fallback 
           
@@ -280,7 +259,6 @@ export function VmbStyleOptions({
         
         // If we still don't have a confirmed style, use the first available style
         if (!confirmedStyle && services && services.length > 0) {
-          console.log("[VmbStyleOptions] Forcing confirmed style for preview mode");
           setConfirmedStyle(services[0]);
         }
       }
@@ -344,8 +322,6 @@ export function VmbStyleOptions({
   
   // Handle style selection
   const handleSelectStyle = (style: StyleOption) => {
-    console.log(`Style selected: ${style.name} - Applying direct style insertion with no popups`);
-    
     // Always set the selected style
     setSelectedStyle(style);
     
@@ -383,7 +359,6 @@ export function VmbStyleOptions({
     
     // Special handling for salon-initiated invitations
     if (salonInitiated) {
-      console.log("Salon-initiated flow: Skip Step 2, go directly to Step 3");
       setShowStep2(true);
       setShowStep3(true);
       // Close Step 1 & 2, open Step 3
@@ -431,8 +406,6 @@ export function VmbStyleOptions({
     // Close any open dialogs to avoid conflicts
     setIsDetailsOpen(false);
     setIsConfirmationOpen(false);
-    
-    console.log("Style selected without popup, directly inserted in STEP 2 and STEP 3:", style.name);
     
     // Show success toast - customize message for salon-initiated
     toast({
@@ -482,8 +455,6 @@ export function VmbStyleOptions({
     
     // If we have a confirmed style already, show Step 3 and success message
     if (confirmedStyle) {
-      console.log("Already have confirmed style, skipping API call", confirmedStyle.name);
-      
       // Only now show Step 3 (after form submission from Step 2)
       setShowStep3(true);
       
@@ -531,7 +502,6 @@ export function VmbStyleOptions({
         }
       } else {
         // For anonymous users without clientId, just update UI without API call
-        console.log("No clientId available, skipping API call");
         toast({
           title: "Style Selected!",
           description: `You've selected ${selectedStyle.name} (Preview Mode)`,
@@ -543,7 +513,6 @@ export function VmbStyleOptions({
       setShowStep2(true);
       setShowStep3(true);
     } catch (error) {
-      console.error("Error saving style selection:", error);
       // Don't show error - instead just display the gift section
       setShowStep2(true);
       setShowStep3(true);
@@ -554,8 +523,6 @@ export function VmbStyleOptions({
   
   // Legacy handler for backward compatibility with additional error handling
   const handleSaveSelection = () => {
-    console.log("Style selection: handleSaveSelection triggered", selectedStyle?.name);
-    
     // Make sure we have valid form data before submitting
     if (selectedStyle) {
       // Ensure required form values are set
@@ -574,16 +541,12 @@ export function VmbStyleOptions({
     
     // For any context, just set the confirmed style without doing an API call
     if (selectedStyle) {
-      console.log("Direct style selection: Setting confirmed style without popup");
-        
       // Important: set the confirmed style and show Step 2 directly
       const confirmedStyleCopy = {...selectedStyle};
       setConfirmedStyle(confirmedStyleCopy);
       setShowStep2(true);
       setIsDetailsOpen(false);
       setIsConfirmationOpen(false);
-      
-      console.log("Set to Step 2 with style:", confirmedStyleCopy.name);
       
       toast({
         title: "Style Saved!",
@@ -595,7 +558,6 @@ export function VmbStyleOptions({
         
     // French Tips special case has been removed in favor of the direct style insertion approach
     
-    console.log("Proceeding with regular form submission");
     // Proceed with form submission
     form.handleSubmit(onSubmit)();
   };
@@ -603,11 +565,11 @@ export function VmbStyleOptions({
   // These functions are no longer needed since we're not using popups
   // Keeping empty implementations for backward compatibility
   const handleCloseAll = () => {
-    console.log("handleCloseAll called but not used in direct insertion mode");
+    // Empty implementation for backward compatibility
   };
   
   const handleConfirmSelection = () => {
-    console.log("handleConfirmSelection called but not used in direct insertion mode");
+    // Empty implementation for backward compatibility
   };
   
   // Get badge text based on service name
@@ -679,7 +641,7 @@ export function VmbStyleOptions({
                                   alt={service.name}
                                   className="h-20 w-20 object-cover rounded-md"
                                   onError={(e) => {
-                                    console.error(`Failed to load image for service: ${service.name}`);
+                                    // Fallback to default image
                                     e.currentTarget.src = '/assets/LOGO1.png';
                                   }}
                                 />
