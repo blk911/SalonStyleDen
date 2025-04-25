@@ -707,127 +707,96 @@ export default function AdminDashboard() {
                 </div>
               )}
               
-              {/* Data table */}
+              {/* Client list with icon rows */}
               {!clientIsLoading && !clientError && clients && clients.filter((client: Client) => client.isCurrentClient).length > 0 && (
-                <ScrollArea className="h-[300px]">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="max-h-[30px]">
-                        <TableHead className="max-h-[30px] py-1">Name</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Email</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Phone</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Salon</TableHead>
-                        <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {clients.filter((client: Client) => client.isCurrentClient).map((client: Client) => (
-                        <TableRow
-                          key={client.id}
-                          className="hover:bg-gray-50 h-[28px]"
-                        >
-                          {/* Name with truncation */}
-                          <TableCell className="py-0">
-                            {client.name.length > 12 ? (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="cursor-help">
-                                      {client.name.substring(0, 10)}...
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>{client.name}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
-                              client.name
-                            )}
-                          </TableCell>
+                <div className="px-2 py-4">
+                  <div className="grid gap-2">
+                    {clients.filter((client: Client) => client.isCurrentClient).map((client: Client) => (
+                      <div key={client.id} className="flex py-3 items-center justify-between border-b border-gray-100 hover:bg-gray-50">
+                        <div className="font-medium text-sm">{client.name}</div>
+                        <div className="flex items-center space-x-4">
+                          {/* Phone icon */}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Link 
+                                  to={`tel:${client.phone}`} 
+                                  className="text-amber-500 hover:text-amber-600"
+                                >
+                                  <PhoneIcon className="h-4 w-4" />
+                                </Link>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs">{formatPhoneNumber(client.phone)}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                           
-                          {/* Email with truncation */}
-                          <TableCell className="py-0">
-                            {client.email && client.email.length > 15 ? (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="cursor-help">
-                                      {client.email.substring(0, 12)}...
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>{client.email}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
-                              client.email
-                            )}
-                          </TableCell>
+                          {/* Email icon */}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Link 
+                                  to={`mailto:${client.email}`} 
+                                  className="text-amber-500 hover:text-amber-600"
+                                >
+                                  <MailIcon className="h-4 w-4" />
+                                </Link>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs">{client.email}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                           
-                          {/* Phone with truncation */}
-                          <TableCell className="py-0">
+                          {/* Client Dashboard icon */}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Link 
+                                  to={`/client/${client.id}`}
+                                  className="text-amber-500 hover:text-amber-600"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setLocation(`/client/${client.id}`);
+                                  }}
+                                >
+                                  <ExternalLinkIcon className="h-4 w-4" />
+                                </Link>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs">View client dashboard</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          
+                          {/* View Salon icon (if salonId exists) */}
+                          {client.salonId && (
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span className="cursor-help">
-                                    {client.phone.substring(0, 7)}•••
-                                  </span>
+                                  <Link 
+                                    to={`/salon/${client.salonId}`}
+                                    className="text-amber-500 hover:text-amber-600"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setLocation(`/salon/${client.salonId}`);
+                                    }}
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                  </Link>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p>{client.phone}</p>
+                                  <p className="text-xs">View salon page</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
-                          </TableCell>
-                          
-                          {/* Salon name with truncation */}
-                          <TableCell className="py-0">
-                            {client.salonName && client.salonName.length > 10 ? (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="cursor-help">
-                                      {client.salonName.substring(0, 8)}...
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>{client.salonName}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
-                              client.salonName || 'N/A'
-                            )}
-                          </TableCell>
-                          
-                          {/* Actions */}
-                          <TableCell className="py-0 text-right">
-                            <div className="flex justify-end gap-1">
-                              <Link 
-                                to={`/client/${client.id}`}
-                                onClick={() => setLocation(`/client/${client.id}`)}
-                                className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]"
-                              >
-                                Client
-                              </Link>
-                              {client.salonId && (
-                                <Link 
-                                  to={`/salon/${client.salonId}`}
-                                  onClick={() => setLocation(`/salon/${client.salonId}`)}
-                                  className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200"
-                                >
-                                  Salon
-                                </Link>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </ScrollArea>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </CollapsibleCard>
 
