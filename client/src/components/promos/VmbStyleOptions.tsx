@@ -1059,12 +1059,12 @@ export function VmbStyleOptions({
                                     <>
                                       Hi {name}, We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️
                                       
-                                      <div className="flex justify-center space-x-4 mt-3 mb-3">
-                                        <Button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center space-x-2">
-                                          <FaMoneyBillWave className="h-5 w-5" />
-                                          <span>CashApp</span>
+                                      <div className="flex justify-center space-x-2 mt-2 mb-2">
+                                        <Button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-1 py-0.5 h-auto text-xs">
+                                          <FaMoneyBillWave className="h-3 w-3 mr-1" />
+                                          $App
                                         </Button>
-                                        <Button className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center space-x-2">
+                                        <Button className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center px-1 py-0.5 h-auto text-xs">
                                           <FaMoneyBillWave className="h-5 w-5" />
                                           <span>Zelle</span>
                                         </Button>
