@@ -1308,6 +1308,8 @@ export function VmbStyleOptions({
                 type="button" 
                 onClick={() => {
                   setShowFinalInvitationModal(false);
+                  
+                  // Show toast notification
                   toast({
                     title: salonInitiated ? "Salon Invitation Sent!" : "Gift Request Sent!",
                     description: salonInitiated 
@@ -1315,6 +1317,30 @@ export function VmbStyleOptions({
                       : "Your gift request has been sent to the recipient",
                     variant: "default"
                   });
+                  
+                  // For salon-initiated invitations, redirect to client dashboard
+                  if (salonInitiated && recipientData) {
+                    // First try to find if client exists with this phone number
+                    const fetchClientAndRedirect = async () => {
+                      try {
+                        const response = await fetch(`/api/clients?phone=${encodeURIComponent(recipientData.phone)}`);
+                        
+                        if (response.ok) {
+                          const clients = await response.json();
+                          
+                          if (clients && clients.length > 0) {
+                            const clientId = clients[0].id;
+                            // Redirect to client dashboard
+                            navigate(`/client/${clientId}`);
+                          }
+                        }
+                      } catch (error) {
+                        console.error('Error finding client:', error);
+                      }
+                    };
+                    
+                    fetchClientAndRedirect();
+                  }
                 }}
               >
                 {salonInitiated ? "Send" : "Close"}
