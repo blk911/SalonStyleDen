@@ -1271,17 +1271,16 @@ export function VmbStyleOptions({
                       // After sending a salon invitation, show success message
                       console.log('[VMB Debug] Salon invitation sent successfully for client:', recipientName);
                       
-                      // We need to redirect to CLIENT DASH, not client ID page
+                      // Show success toast first
                       toast({
                         title: "Invitation Sent Successfully!",
-                        description: `Invitation for ${recipientName} has been sent.`,
+                        description: `Invitation for ${recipientName} has been sent. You can view it in the clients list.`,
                         variant: "default"
                       });
                       
-                      // Simple fix: Just go to the clients page
-                      // Trying to navigate directly to /client/CLIENTNAME creates a 400 error
-                      // because the API expects numeric IDs, not string names
-                      console.log('[VMB Debug] Redirecting to clients dashboard page');
+                      // NOMENCLATURE FIX: There's a type mismatch between what we have (client name string) 
+                      // and what the API expects (numeric client ID)
+                      console.log('[VMB Debug] Redirecting to clients page with listing of all clients');
                       navigate('/clients');
                     } else {
                       // Regular gift request flow - not salon-initiated
