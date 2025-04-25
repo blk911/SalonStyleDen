@@ -222,18 +222,12 @@ export function VmbStyleOptions({
         setSignature(recipientData.sponsor);
         
         // For preview mode, we need to make sure we have a confirmed style
-        if (isPreviewMode && services && services.length > 0) {
+        if (isPreviewMode && services && services.length > 0 && !confirmedStyle) {
           console.log("[VmbStyleOptions] Setting fallback style for preview with salon-initiated flow");
           const style = services[0]; // Use first style as fallback
           setSelectedStyle(style);
           setConfirmedStyle(style);
           form.setValue('styleOptions.styleId', style.id);
-          
-          // Force Step 3 to be visible in preview mode
-          setShowStep3(true);
-          setIsStep1Open(false);
-          setIsStep2Open(false);
-          setIsStep3Open(true);
           
           // Also set this as the initial confirmed style
           // Use salon-to-client message template for salon-initiated invitations
@@ -967,8 +961,7 @@ export function VmbStyleOptions({
               })()}
               
               {/* STEP 3 - With Collapsible behavior */}
-              {/* Always show Step 3 in preview mode, otherwise require confirmedStyle */}
-              {(showStep3 && (confirmedStyle || isPreviewMode)) && (
+              {showStep3 && confirmedStyle && (
                 <div className="rounded-md overflow-hidden mb-3">
                   <Collapsible open={isStep3Open} onOpenChange={setIsStep3Open}>
                     <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-t-md">
@@ -1002,34 +995,21 @@ export function VmbStyleOptions({
                 
                 <div className="grid grid-cols-1 gap-4">
                   <div className={`border rounded ${isMobile ? 'px-2 py-1' : 'px-2 py-2'} border-pink-200 bg-pink-50`}>
-                    {(confirmedStyle || isPreviewMode) ? (
+                    {confirmedStyle ? (
                     <div className="flex flex-col md:flex-row">
                       {/* Left side - Ven Me, Baby! Reminders */}
                       <div className={`${isMobile ? 'w-full' : 'w-full md:w-1/2'} text-left ${isMobile ? 'pr-0' : 'pr-2'} ${isMobile ? '' : 'md:border-r border-pink-100'} pb-2 md:pb-0 flex flex-col justify-between`}>
                         <div>
-                          <h3 className={`font-medium ${isMobile ? 'text-sm' : 'text-compact'} text-center`}>
-                            {isPreviewMode ? "Invitation Preview" : "Ven Me, Baby! Reminders!"}
-                          </h3>
+                          <h3 className={`font-medium ${isMobile ? 'text-sm' : 'text-compact'} text-center`}>Ven Me, Baby! Reminders!</h3>
                           <div className="flex flex-col space-y-3 mt-2">
-                            {isPreviewMode ? (
-                              <div className="p-2 bg-white border border-green-100 rounded text-xs">
-                                <p className="text-green-700 font-medium mb-2">This is a preview of your invitation.</p>
-                                <ul className="list-disc pl-4 pt-1 text-gray-700 space-y-2">
-                                  <li>This shows exactly how your invitation will appear.</li>
-                                  <li>All fields are pre-filled with your selected values.</li>
-                                  <li>You are currently viewing the completed invitation.</li>
-                                </ul>
-                              </div>
-                            ) : (
-                              <div className="p-2 bg-white border border-pink-100 rounded text-xs">
-                                <ul className="list-disc pl-4 pt-1 text-gray-700 space-y-2">
-                                  <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
-                                  <li>Praesent efficitur, odio at commodo tempus, nibh enim.</li>
-                                  <li>Nullam vitae eros in nisi varius vestibulum et vel urna.</li>
-                                  <li>Suspendisse nec dui eu nisi tincidunt finibus vel et libero.</li>
-                                </ul>
-                              </div>
-                            )}
+                            <div className="p-2 bg-white border border-pink-100 rounded text-xs">
+                              <ul className="list-disc pl-4 pt-1 text-gray-700 space-y-2">
+                                <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+                                <li>Praesent efficitur, odio at commodo tempus, nibh enim.</li>
+                                <li>Nullam vitae eros in nisi varius vestibulum et vel urna.</li>
+                                <li>Suspendisse nec dui eu nisi tincidunt finibus vel et libero.</li>
+                              </ul>
+                            </div>
                           </div>
                         </div>
                         
