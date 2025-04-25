@@ -104,7 +104,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [email, setEmail] = useState("");
   
   // Default message for salon-to-client invitations
-  const defaultSalonToClientMessage = "Hi [client name], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️\n\nPS: Clients register here: 🏠 upon select /index";
+  const defaultSalonToClientMessage = "Hi [client name], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️\n\nPS: Clients register here: 🏠";
   
   const [notes, setNotes] = useState(defaultSalonToClientMessage);
   const [firstServiceDate, setFirstServiceDate] = useState(new Date().toISOString().split('T')[0]);
