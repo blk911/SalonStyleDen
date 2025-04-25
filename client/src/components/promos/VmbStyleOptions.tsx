@@ -221,13 +221,17 @@ export function VmbStyleOptions({
         setRecipientContact(recipientData.phone);
         setSignature(recipientData.sponsor);
         
-        // For preview mode, we need to make sure we have a confirmed style
-        if (isPreviewMode && services && services.length > 0 && !confirmedStyle) {
-          console.log("[VmbStyleOptions] Setting fallback style for preview with salon-initiated flow");
+        // ALWAYS force a confirmed style in preview mode or if isPreviewMode flag is passed
+        if ((isPreviewMode || window.location.href.includes('preview=true')) && services && services.length > 0) {
+          console.log("[VmbStyleOptions] FORCING fallback style for preview with salon-initiated flow");
           const style = services[0]; // Use first style as fallback
           setSelectedStyle(style);
           setConfirmedStyle(style);
           form.setValue('styleOptions.styleId', style.id);
+          
+          // Explicitly set Step 3 to be visible and open
+          setShowStep3(true);
+          setIsStep3Open(true);
           
           // Also set this as the initial confirmed style
           // Use salon-to-client message template for salon-initiated invitations
