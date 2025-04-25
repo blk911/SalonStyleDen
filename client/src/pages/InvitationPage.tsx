@@ -301,16 +301,7 @@ export default function InvitationPage() {
                     </Badge>
                   )}
                   
-                  {salon && (
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className="border-pink-300 text-pink-700 hover:bg-pink-50" 
-                      onClick={() => setLocation(`/salon/${salon.id}`)}
-                    >
-                      View Salon Page
-                    </Button>
-                  )}
+                  {/* Removed "View Salon Page" button as requested */}
                 </div>
               </div>
               <Badge className={`
@@ -441,8 +432,8 @@ export default function InvitationPage() {
                 </Button>
               </div>
             ) : (
-              // Regular footer for non-preview mode
               <div className="w-full flex justify-end">
+                {/* "Accept Invitation" button removed for salon-initiated invitations */}
                 {/* Only show the Accept Invitation button for client-initiated invitations (has senderId) */}
                 {invitation.status === 'pending' && invitation.senderId && (
                   <Button
