@@ -1195,9 +1195,8 @@ export function VmbStyleOptions({
                 Cancel
               </Button>
               <Button 
-                type="button"
-                className="bg-green-500 hover:bg-green-600 text-white">
-                Ven Me, Baby!
+                type="button" 
+                onClick={() => {
                   setShowConfirmDialog(false);
                   
                   // Apply default values
@@ -1304,7 +1303,7 @@ export function VmbStyleOptions({
                     <Sparkles className="h-4 w-4 animate-spin" />
                   </> : (
                     salonInitiated ? 
-                      (invitationId ? 'Complete Invitation' : 'Ven Me, Baby!') : 
+                      (invitationId ? 'Complete Salon Invitation' : 'Send Salon Invitation') : 
                       (invitationId ? 'Complete Invitation & Send' : 'Confirm & Send')
                   )
                 }
