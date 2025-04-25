@@ -415,6 +415,127 @@ export default function AdminDashboard() {
             </div>
           </CollapsibleCard>
 
+          {/* VMB System Statistics Section */}
+          <CollapsibleCard
+            title="VMB System Statistics"
+            description="Overview of invitations, clients, and salon statistics"
+            isOpen={true}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+              {/* Invitations Stats */}
+              <Card className="bg-gradient-to-br from-pink-50 to-white border-pink-100 shadow-sm">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-medium text-pink-900">Invitations</h3>
+                    <Badge className="bg-pink-200 text-pink-800 hover:bg-pink-300">
+                      {invitations?.length || 0} Total
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Pending</span>
+                      <span className="font-medium">
+                        {invitations?.filter(i => i.status === 'pending').length || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Completed</span>
+                      <span className="font-medium">
+                        {invitations?.filter(i => i.status === 'complete' || i.status === 'accepted').length || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Conversion Rate</span>
+                      <span className="font-medium">
+                        {invitations && invitations.length > 0 
+                          ? `${Math.round((invitations.filter(i => i.status === 'complete' || i.status === 'accepted').length / invitations.length) * 100)}%`
+                          : '0%'
+                        }
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Client Stats */}
+              <Card className="bg-gradient-to-br from-amber-50 to-white border-amber-100 shadow-sm">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-medium text-amber-900">Clients</h3>
+                    <Badge className="bg-amber-200 text-amber-800 hover:bg-amber-300">
+                      {clients?.length || 0} Total
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Current Clients</span>
+                      <span className="font-medium">
+                        {clients?.filter(c => c.isCurrentClient).length || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">New This Month</span>
+                      <span className="font-medium">
+                        {clients?.filter(c => {
+                          const createdDate = new Date(c.createdAt || '');
+                          const currentDate = new Date();
+                          return createdDate.getMonth() === currentDate.getMonth() && 
+                                 createdDate.getFullYear() === currentDate.getFullYear();
+                        }).length || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">With Active Invites</span>
+                      <span className="font-medium">
+                        {clients?.filter(c => 
+                          invitations?.some(i => 
+                            i.phone === c.phone && 
+                            (i.status === 'pending' || i.status === 'scheduled')
+                          )
+                        ).length || 0}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              {/* Salon Stats */}
+              <Card className="bg-gradient-to-br from-indigo-50 to-white border-indigo-100 shadow-sm">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-medium text-indigo-900">Salons</h3>
+                    <Badge className="bg-indigo-200 text-indigo-800 hover:bg-indigo-300">
+                      {salons?.length || 0} Total
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Total Services</span>
+                      <span className="font-medium">
+                        {salons?.reduce((total, salon) => total + (salon.services?.length || 0), 0) || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Active Promotions</span>
+                      <span className="font-medium">
+                        {salons?.reduce((total, salon) => total + (salon.promos?.length || 0), 0) || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-gray-600">Avg Clients per Salon</span>
+                      <span className="font-medium">
+                        {clients && salons && salons.length > 0
+                          ? (clients.length / salons.length).toFixed(1)
+                          : '0.0'
+                        }
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </CollapsibleCard>
+          
           {/* Salon to Client Invitations section - completely removed as requested */}
 
           <div className="grid gap-6">
