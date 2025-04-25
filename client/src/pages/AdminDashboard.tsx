@@ -10,7 +10,7 @@ import { Link } from 'wouter';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import InviteCompleteStatus from "@/components/dashboard/InviteCompleteStatus";
-import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitations";
+import AdminSalonInvitations from "@/components/dashboard/AdminSalonInvitations";
 import { 
   Select, 
   SelectContent, 
@@ -459,10 +459,10 @@ export default function AdminDashboard() {
               </div>
             )}
             
-            {/* Invitations section - empty (cards removed) */}
+            {/* Salon to Client Invitations - Column Format */}
             {!inviteIsLoading && !inviteError && invitations && invitations.length > 0 && (
               <div className="p-4">
-                {/* Cards removed per request */}
+                <AdminSalonInvitations />
               </div>
             )}
           </CollapsibleCard>
