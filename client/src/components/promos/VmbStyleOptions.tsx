@@ -1194,16 +1194,28 @@ export function VmbStyleOptions({
                     
                     // First check if this client exists or needs registration
                     if (recipientContact) {
-                      // Show temporary info toast (still showing the preview message)
+                      // Show temporary info toast
                       toast({
-                        title: "Invitation Preview Only",
-                        description: "This is just a preview. No invitation was sent.",
+                        title: "Checking client status...",
+                        description: "Verifying if client is registered",
                         variant: "default"
                       });
                       
-                      // In a real implementation, this would check if the client exists
-                      // and either redirect to their page or prompt for registration
-                      // For now we'll just show the toast to indicate preview mode
+                      // Simulate API check for existing client with this phone number
+                      // In a real implementation, this would be an actual API call
+                      setTimeout(() => {
+                        // Show preview message
+                        toast({
+                          title: "Invitation Preview Only",
+                          description: "This is just a preview. No invitation was sent.",
+                          variant: "default"
+                        });
+                        
+                        // Now redirect to client registration page
+                        // This is the listener that should check if client exists
+                        // and either redirect to their dashboard or registration page
+                        navigate('/client/register');
+                      }, 500);
                     } else {
                       // Show missing contact info error
                       toast({
