@@ -1259,8 +1259,14 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
-                      // Redirect to the salons listing page
-                      navigate('/salons');
+                      // Redirect to the dashboard for the client
+                      const clientId = finalName || recipientName;
+                      if (clientId) {
+                        navigate(`/dashboard/client/${clientId}`);
+                      } else {
+                        // Fallback to salon list if no client name available
+                        navigate('/salons');
+                      }
                     } else {
                       // Regular gift request flow - not salon-initiated
                       toast({
