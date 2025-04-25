@@ -707,95 +707,53 @@ export default function AdminDashboard() {
                 </div>
               )}
               
-              {/* Client list with icon rows */}
+              {/* Client list with icons in a single row format */}
               {!clientIsLoading && !clientError && clients && clients.filter((client: Client) => client.isCurrentClient).length > 0 && (
-                <div className="px-2 py-4">
-                  <div className="grid gap-2">
-                    {clients.filter((client: Client) => client.isCurrentClient).map((client: Client) => (
-                      <div key={client.id} className="flex py-3 items-center justify-between border-b border-gray-100 hover:bg-gray-50">
-                        <div className="font-medium text-sm">{client.name}</div>
-                        <div className="flex items-center space-x-4">
-                          {/* Phone icon */}
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Link 
-                                  to={`tel:${client.phone}`} 
-                                  className="text-amber-500 hover:text-amber-600"
-                                >
-                                  <PhoneIcon className="h-4 w-4" />
-                                </Link>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="text-xs">{formatPhoneNumber(client.phone)}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                          
-                          {/* Email icon */}
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Link 
-                                  to={`mailto:${client.email}`} 
-                                  className="text-amber-500 hover:text-amber-600"
-                                >
-                                  <MailIcon className="h-4 w-4" />
-                                </Link>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="text-xs">{client.email}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                          
-                          {/* Client Dashboard icon */}
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Link 
-                                  to={`/client/${client.id}`}
-                                  className="text-amber-500 hover:text-amber-600"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    setLocation(`/client/${client.id}`);
-                                  }}
-                                >
-                                  <ExternalLinkIcon className="h-4 w-4" />
-                                </Link>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="text-xs">View client dashboard</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                          
-                          {/* View Salon icon (if salonId exists) */}
-                          {client.salonId && (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Link 
-                                    to={`/salon/${client.salonId}`}
-                                    className="text-amber-500 hover:text-amber-600"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      setLocation(`/salon/${client.salonId}`);
-                                    }}
-                                  >
-                                    <Eye className="h-4 w-4" />
-                                  </Link>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p className="text-xs">View salon page</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
-                        </div>
+                <div className="mt-2">
+                  {clients.filter((client: Client) => client.isCurrentClient).map((client: Client) => (
+                    <div key={client.id} className="py-2 pl-2 border-b flex items-center justify-between">
+                      <div className="font-medium text-sm">
+                        {client.name}
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex items-center gap-6 pr-2">
+                        {/* Phone icon */}
+                        <Link to={`tel:${client.phone}`} className="text-amber-500 hover:text-amber-600">
+                          <PhoneIcon className="h-4 w-4" />
+                        </Link>
+                        
+                        {/* Email icon */}
+                        <Link to={`mailto:${client.email}`} className="text-amber-500 hover:text-amber-600">
+                          <MailIcon className="h-4 w-4" />
+                        </Link>
+                        
+                        {/* Client profile link */}
+                        <Link 
+                          to={`/client/${client.id}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setLocation(`/client/${client.id}`);
+                          }}
+                          className="text-amber-500 hover:text-amber-600"
+                        >
+                          <ExternalLinkIcon className="h-4 w-4" />
+                        </Link>
+                        
+                        {/* View client's salon */}
+                        {client.salonId && (
+                          <Link 
+                            to={`/salon/${client.salonId}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setLocation(`/salon/${client.salonId}`);
+                            }}
+                            className="text-amber-500 hover:text-amber-600"
+                          >
+                            <CalendarIcon className="h-4 w-4" />
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </CollapsibleCard>
