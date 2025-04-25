@@ -10,7 +10,6 @@ import { Link } from 'wouter';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import InviteCompleteStatus from "@/components/dashboard/InviteCompleteStatus";
-import AdminSalonInvitations from "@/components/dashboard/AdminSalonInvitations";
 import { 
   Select, 
   SelectContent, 
@@ -416,143 +415,10 @@ export default function AdminDashboard() {
             </div>
           </CollapsibleCard>
 
-          {/* Salon to Client Invitations - Grouped by Salon */}
-          <CollapsibleCard
-            title="Salon to Client Invitations" 
-            isOpen={invitationsOpen}
-            onToggle={() => setInvitationsOpen(!invitationsOpen)}
-          >
-            {/* Invitations Count Summary */}
-            {invitations && invitations.length > 0 && (
-              <div className="mb-4">
-                <InviteCompleteStatus 
-                  inviteCount={invitations.filter(invite => 
-                    invite.status === 'complete' || invite.status === 'accepted'
-                  ).length} 
-                  showTitle={true}
-                />
-              </div>
-            )}
-            
-            {/* Loading state */}
-            {inviteIsLoading && (
-              <div className="py-8 text-center">
-                <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
-                <p className="text-gray-500 text-sm">Loading invitation data...</p>
-              </div>
-            )}
-            
-            {/* Error state */}
-            {inviteError && !inviteIsLoading && (
-              <div className="py-8 text-center border rounded-md bg-red-50">
-                <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
-                <p className="text-red-700 mb-1">Error loading invitations</p>
-                <p className="text-sm text-red-600">{inviteError.message}</p>
-              </div>
-            )}
-            
-            {/* Empty state */}
-            {!inviteIsLoading && !inviteError && (!invitations || invitations.length === 0) && (
-              <div className="py-8 text-center border rounded-md bg-gray-50">
-                <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-500">No invitations have been sent yet</p>
-              </div>
-            )}
-            
-            {/* Salon to Client Invitations - Column Format */}
-            {!inviteIsLoading && !inviteError && invitations && invitations.length > 0 && (
-              <div className="p-4">
-                <AdminSalonInvitations />
-              </div>
-            )}
-          </CollapsibleCard>
+          {/* Salon to Client Invitations section - completely removed as requested */}
 
           <div className="grid gap-6">
-            {/* Clients Table */}
-            <CollapsibleCard
-              title="Current Clients"
-              isOpen={clientsOpen}
-              onToggle={() => setClientsOpen(!clientsOpen)}
-            >
-              {/* Loading state */}
-              {clientIsLoading && (
-                <div className="py-8 text-center">
-                  <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
-                  <p className="text-gray-500 text-sm">Loading client data...</p>
-                </div>
-              )}
-              
-              {/* Error state */}
-              {clientError && !clientIsLoading && (
-                <div className="py-8 text-center border rounded-md bg-red-50">
-                  <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
-                  <p className="text-red-700 mb-1">Error loading clients</p>
-                  <p className="text-sm text-red-600">{clientError.message}</p>
-                </div>
-              )}
-              
-              {/* Empty state */}
-              {!clientIsLoading && !clientError && (!clients || clients.filter((client: Client) => client.isCurrentClient).length === 0) && (
-                <div className="py-8 text-center border rounded-md bg-gray-50">
-                  <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-500">No active clients found</p>
-                </div>
-              )}
-              
-              {/* Client list with icons in a single row format - exactly matching Salon Dashboard */}
-              {!clientIsLoading && !clientError && clients && clients.filter((client: Client) => client.isCurrentClient).length > 0 && (
-                <div className="px-2 py-4">
-                  {clients.filter((client: Client) => client.isCurrentClient).map((client: Client) => (
-                    <div key={client.id} className="py-2 flex items-center justify-between border-b">
-                      <div className="font-medium text-sm">{client.name}</div>
-                      <div className="flex items-center space-x-4">
-                        {/* Phone icon */}
-                        <Link 
-                          to={`tel:${client.phone}`} 
-                          className="text-amber-500 hover:text-amber-600"
-                        >
-                          <PhoneIcon className="h-4 w-4" />
-                        </Link>
-                        
-                        {/* Email icon */}
-                        <Link 
-                          to={`mailto:${client.email}`} 
-                          className="text-amber-500 hover:text-amber-600"
-                        >
-                          <MailIcon className="h-4 w-4" />
-                        </Link>
-                        
-                        {/* Client profile link */}
-                        <Link 
-                          to={`/client/${client.id}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setLocation(`/client/${client.id}`);
-                          }}
-                          className="text-amber-500 hover:text-amber-600"
-                        >
-                          <ExternalLinkIcon className="h-4 w-4" />
-                        </Link>
-                        
-                        {/* View client's salon */}
-                        {client.salonId && (
-                          <Link 
-                            to={`/salon/${client.salonId}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setLocation(`/salon/${client.salonId}`);
-                            }}
-                            className="text-amber-500 hover:text-amber-600"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CollapsibleCard>
+            {/* Current Clients section - completely removed as requested */}
 
             {/* Salons Directory */}
             <CollapsibleCard
