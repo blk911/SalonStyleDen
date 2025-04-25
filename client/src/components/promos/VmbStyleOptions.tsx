@@ -1196,8 +1196,8 @@ export function VmbStyleOptions({
               </Button>
               <Button 
                 type="button"
-                className="bg-green-500 hover:bg-green-600 text-white" 
-                onClick={() => {
+                className="bg-green-500 hover:bg-green-600 text-white">
+                Ven Me, Baby!
                   setShowConfirmDialog(false);
                   
                   // Apply default values
