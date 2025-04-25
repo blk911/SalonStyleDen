@@ -1556,8 +1556,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check sponsorship and update client if needed
       if (!client.sponsorSalonId) {
-        console.log(`Client ${clientId} has no sponsor salon - assigning default sponsor VMB LTD`);
-        
         // Get the Ven Me, Baby! LTD salon ID
         const vmbSalon = await storage.getSalonByName("Ven Me, Baby! LTD");
         const vmbSalonId = vmbSalon ? vmbSalon.id : 43; // Fallback to ID 43 if not found
@@ -1570,8 +1568,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
               sponsorSalonId: vmbSalonId
             })
             .where(eq(clients.id, Number(clientId)));
-            
-          console.log(`Updated client ${clientId} with default sponsor (VMB LTD, ID: ${vmbSalonId})`);
           
           // Log the sponsorship assignment
           await storage.createActivityLog({
@@ -1585,8 +1581,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error(`Failed to update client ${clientId} sponsorship:`, updateError);
           // Continue with style selection even if sponsorship update fails
         }
-      } else {
-        console.log(`Client ${clientId} already has sponsor salon ID: ${client.sponsorSalonId}`);
       }
       
       // Create style selection
@@ -1717,8 +1711,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log the VMB invitation
       const activityLog = await storage.logVmbInvitationSent(clientIdNum, salonIdNum, styleIdNum);
-      
-      console.log(`VMB invitation logged - Client: ${clientIdNum}, Salon: ${salonIdNum}, Style: ${styleIdNum}`);
       res.status(201).json({ 
         success: true, 
         message: "VMB invitation logged successfully", 
