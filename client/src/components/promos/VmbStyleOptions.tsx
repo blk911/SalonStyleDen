@@ -1196,6 +1196,18 @@ export function VmbStyleOptions({
               </Button>
               <Button 
                 type="button" 
+                className="bg-green-400 hover:bg-green-500 text-white font-medium"
+                onClick={() => {
+                  // This button intentionally does nothing when clicked
+                  console.log('Ven Me, Baby! button clicked - no action');
+                }}
+              >
+                Ven Me, Baby!
+              </Button>
+              {/* Original button hidden and preserved for reference */}
+              <Button 
+                type="button"
+                className="hidden" 
                 onClick={() => {
                   setShowConfirmDialog(false);
                   
