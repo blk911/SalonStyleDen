@@ -1245,17 +1245,55 @@ export function VmbStyleOptions({
                         setIsSubmitting(false);
                       });
                   } else {
-                    // Regular gift sent without invitation completion
-                    toast({
-                      title: salonInitiated ? "Salon Invitation Ready!" : "Gift Request Ready!",
-                      description: salonInitiated 
-                        ? `Invitation for client ${finalName} at ${recipientContact} prepared`
-                        : `Request for ${finalName} at ${recipientContact} prepared`,
-                      variant: "default"
-                    });
-                    
-                    // Show the final rendered invitation even for direct sends
-                    setShowFinalInvitationModal(true);
+                    // For salon-initiated invitations, we'll redirect directly to client dashboard
+                    if (salonInitiated && recipientData) {
+                      toast({
+                        title: "Salon Invitation Sent!",
+                        description: `Invitation for client ${finalName} at ${recipientContact} has been sent`,
+                        variant: "default"
+                      });
+                      
+                      // Try to find if client exists with this phone number
+                      const fetchClientAndRedirect = async () => {
+                        try {
+                          const response = await fetch(`/api/clients?phone=${encodeURIComponent(recipientData.phone)}`);
+                          
+                          if (response.ok) {
+                            const clients = await response.json();
+                            
+                            if (clients && clients.length > 0) {
+                              const clientId = clients[0].id;
+                              // Redirect to client dashboard
+                              navigate(`/client/${clientId}`);
+                            } else {
+                              console.error('Client not found for phone:', recipientData.phone);
+                              // Fall back to showing the modal if client not found
+                              setShowFinalInvitationModal(true);
+                            }
+                          } else {
+                            console.error('Error finding client:', response.statusText);
+                            // Fall back to showing the modal if there's an error
+                            setShowFinalInvitationModal(true);
+                          }
+                        } catch (error) {
+                          console.error('Error finding client:', error);
+                          // Fall back to showing the modal if there's an exception
+                          setShowFinalInvitationModal(true);
+                        }
+                      };
+                      
+                      fetchClientAndRedirect();
+                    } else {
+                      // Regular gift request flow - not salon-initiated
+                      toast({
+                        title: "Gift Request Ready!",
+                        description: `Request for ${finalName} at ${recipientContact} prepared`,
+                        variant: "default"
+                      });
+                      
+                      // Show the final rendered invitation for client-initiated requests
+                      setShowFinalInvitationModal(true);
+                    }
                   }
                 }}
                 disabled={isSubmitting}
