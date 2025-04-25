@@ -38,9 +38,7 @@ import {
   Calendar as CalendarIcon,
   Clock as ClockIcon,
   ChevronDown,
-  ChevronUp,
-  Gift as GiftIcon,
-  Link as LinkIcon
+  ChevronUp
 } from "lucide-react";
 import { CollapsibleCard } from "@/components/ui/card-section";
 import { useToast } from "@/hooks/use-toast";
@@ -709,120 +707,54 @@ export default function AdminDashboard() {
                 </div>
               )}
               
-              {/* Client list with icons - exactly matching Salon Dashboard format */}
+              {/* Client list with icons in a single row format */}
               {!clientIsLoading && !clientError && clients && clients.filter((client: Client) => client.isCurrentClient).length > 0 && (
-                <ScrollArea className="h-[200px]">
-                  <Table>
-                    {/* No headers/labels as per requirement */}
-                    <TableBody>
-                      {clients.filter((client: Client) => client.isCurrentClient).map((client: Client) => (
-                        <TableRow key={client.id} className="h-[28px]">
-                          {/* Name with truncation */}
-                          <TableCell className="font-medium py-1">
-                            {client.name.length > 12 ? (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="cursor-help">
-                                      {client.name.substring(0, 10)}...
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p className="font-medium">{client.name}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
-                              client.name
-                            )}
-                          </TableCell>
-                          
-                          {/* Phone with icon and tooltip */}
-                          <TableCell className="py-1 text-center">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <PhoneIcon className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p className="font-medium">{formatPhoneNumber(client.phone)}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </TableCell>
-                          
-                          {/* Email with icon and tooltip */}
-                          <TableCell className="py-1 text-center">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <MailIcon className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p className="font-medium">{client.email}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </TableCell>
-                          
-                          {/* Client profile link with icon */}
-                          <TableCell className="py-1 text-center">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <LinkIcon className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p className="font-medium">Client ID: {client.id}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </TableCell>
-                          
-                          {/* Salon with icon and tooltip */}
-                          <TableCell className="py-1 text-center">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <CalendarIcon className="h-3.5 w-3.5 cursor-help inline-block text-amber-700" />
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p className="font-medium">{client.salonName || 'No salon'}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </TableCell>
-
-                          {/* View client page button with icon */}
-                          <TableCell className="py-1 text-center">
-                            <Link to={`/client/${client.id}`} className="inline-block">
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="icon" 
-                                      className="h-6 w-6 p-0 text-amber-700 hover:text-amber-900 hover:bg-amber-50"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        setLocation(`/client/${client.id}`);
-                                      }}
-                                    >
-                                      <GiftIcon className="h-3.5 w-3.5" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p className="font-medium">View Client Page</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </Link>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </ScrollArea>
+                <div className="mt-2">
+                  {clients.filter((client: Client) => client.isCurrentClient).map((client: Client) => (
+                    <div key={client.id} className="py-2 pl-2 border-b flex items-center justify-between">
+                      <div className="font-medium text-sm">
+                        {client.name}
+                      </div>
+                      <div className="flex items-center gap-6 pr-2">
+                        {/* Phone icon */}
+                        <Link to={`tel:${client.phone}`} className="text-amber-500 hover:text-amber-600">
+                          <PhoneIcon className="h-4 w-4" />
+                        </Link>
+                        
+                        {/* Email icon */}
+                        <Link to={`mailto:${client.email}`} className="text-amber-500 hover:text-amber-600">
+                          <MailIcon className="h-4 w-4" />
+                        </Link>
+                        
+                        {/* Client profile link */}
+                        <Link 
+                          to={`/client/${client.id}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setLocation(`/client/${client.id}`);
+                          }}
+                          className="text-amber-500 hover:text-amber-600"
+                        >
+                          <ExternalLinkIcon className="h-4 w-4" />
+                        </Link>
+                        
+                        {/* View client's salon */}
+                        {client.salonId && (
+                          <Link 
+                            to={`/salon/${client.salonId}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setLocation(`/salon/${client.salonId}`);
+                            }}
+                            className="text-amber-500 hover:text-amber-600"
+                          >
+                            <CalendarIcon className="h-4 w-4" />
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </CollapsibleCard>
 
