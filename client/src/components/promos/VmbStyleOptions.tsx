@@ -1163,10 +1163,16 @@ export function VmbStyleOptions({
             </DialogHeader>
             <div className="space-y-3 py-3">
               <div className={`${salonInitiated ? 'bg-amber-50 border-amber-100' : 'bg-blue-50 border-blue-100'} p-3 rounded-md border text-sm`}>
-                <p>{salonInitiated ? "The following salon invitation will be sent:" : "The following gift will be sent:"}</p>
-                <p className="font-medium mt-1">{confirmedStyle?.name || "Selected Style"}</p>
-                <p className="text-xs mt-2">{salonInitiated ? "Client:" : "Recipient:"} {recipientName || "Friend"}</p>
-                <p className="text-xs">{recipientContact || "No contact provided"}</p>
+                {salonInitiated ? (
+                  <p className="font-medium">Your Ven Me, Baby! for {confirmedStyle?.name || "[sty opt]"} is ready to send to {recipientName || "[cl id]"} cell: {recipientContact || "[ph OR em]"}</p>
+                ) : (
+                  <>
+                    <p>The following gift will be sent:</p>
+                    <p className="font-medium mt-1">{confirmedStyle?.name || "Selected Style"}</p>
+                    <p className="text-xs mt-2">Recipient: {recipientName || "Friend"}</p>
+                    <p className="text-xs">{recipientContact || "No contact provided"}</p>
+                  </>
+                )}
                 {invitationId && (
                   <div className="mt-2 bg-green-50 p-1.5 rounded border border-green-100 text-[10px]">
                     <p className="font-medium text-green-700">Completing Invitation ID: {invitationId}</p>
