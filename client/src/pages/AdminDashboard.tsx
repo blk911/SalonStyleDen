@@ -28,6 +28,11 @@ import {
   Loader as LoaderIcon, 
   AlertTriangle as AlertTriangleIcon, 
   User as UserIcon, 
+  Phone as PhoneIcon,
+  Mail as MailIcon,
+  Calendar as CalendarIcon,
+  Clock as ClockIcon,
+  Gift as GiftIcon,
   Network as NetworkIcon,
   RefreshCw, 
   Download,
@@ -502,56 +507,41 @@ export default function AdminDashboard() {
                   
                   {/* Invitations Table */}
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                      <thead className="bg-gray-50 text-gray-600">
-                        <tr>
-                          <th className="py-2 px-4">Name</th>
-                          <th className="py-2 px-4">Email</th>
-                          <th className="py-2 px-4">Phone</th>
-                          <th className="py-2 px-4">Status</th>
-                          <th className="py-2 px-4">Date</th>
-                          <th className="py-2 px-4 text-right">Page</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y">
-                        {salonInvites.map((invitation) => (
-                          <tr key={invitation.id} className="hover:bg-gray-50">
-                            <td className="py-2 px-4">{invitation.name}</td>
-                            <td className="py-2 px-4">{invitation.email}</td>
-                            <td className="py-2 px-4">{formatPhoneNumber(invitation.phone)}</td>
-                            <td className="py-2 px-4">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium
-                                ${invitation.status === 'pending' ? 'bg-yellow-50 text-yellow-700' : ''}
+                    <div className="grid grid-cols-1 gap-2">
+                      {salonInvites.map((invitation) => (
+                        <div key={invitation.id} className={`border ${invitation.status === 'pending' ? 'border-amber-100' : 'border-green-100'} rounded-md p-3 hover:shadow-sm transition-all duration-200`}>
+                          <div className="flex justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <UserIcon className="h-4 w-4 text-amber-500" />
+                              <span className="font-medium">{invitation.name}</span>
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium
+                                ${invitation.status === 'pending' ? 'bg-amber-50 text-amber-700' : ''}
                                 ${invitation.status === 'style_selected' ? 'bg-green-50 text-green-700' : ''}
                                 ${invitation.status === 'completed' ? 'bg-blue-50 text-blue-700' : ''}
                                 ${!invitation.status ? 'bg-gray-50 text-gray-700' : ''}
                               `}>
                                 {invitation.status || 'pending'}
                               </span>
-                            </td>
-                            <td className="py-2 px-4">{new Date(invitation.createdAt).toLocaleDateString()}</td>
-                            <td className="py-2 px-4 text-right">
+                            </div>
+                            
+                            <div className="flex items-center gap-1">
                               {/* Check for matching client first */}
                               {(() => {
                                 // Try to find matching client
                                 const clientId = findClientIdForInvitation(invitation, clients);
                                 
                                 if (clientId) {
-                                  // Client exists - link to client dashboard
+                                  // Client exists - link to client dashboard with tooltip
                                   return (
                                     <TooltipProvider>
                                       <Tooltip>
                                         <TooltipTrigger asChild>
                                           <Link 
                                             to={`/client/${clientId}`}
-                                            className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
-                                            onClick={() => {
-                                              // Navigate to client dashboard page
-                                              setLocation(`/client/${clientId}`);
-                                            }}
+                                            className="p-1.5 bg-pink-50 text-pink-600 rounded-full hover:bg-pink-100"
+                                            onClick={() => setLocation(`/client/${clientId}`)}
                                           >
-                                            <ExternalLinkIcon className="h-4 w-4" />
-                                            <span className="sr-only">View Client</span>
+                                            <UserIcon className="h-3.5 w-3.5" />
                                           </Link>
                                         </TooltipTrigger>
                                         <TooltipContent>
@@ -561,36 +551,56 @@ export default function AdminDashboard() {
                                     </TooltipProvider>
                                   );
                                 } else {
-                                  // No matching client - link to invitation
-                                  return (
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <Link 
-                                            to={`/invitation/${invitation.inviteHash}?view=preview&prefill=true`}
-                                            className="inline-flex items-center text-gray-500 font-medium gap-1 text-sm hover:text-gray-700 cursor-pointer"
-                                            onClick={() => {
-                                              // Navigate to invitation page with preview mode
-                                              setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
-                                            }}
-                                          >
-                                            <ExternalLinkIcon className="h-4 w-4" />
-                                            <span className="sr-only">View Invite</span>
-                                          </Link>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                          <p className="text-xs">View complete invitation details</p>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  );
+                                  return null;
                                 }
                               })()}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+
+                              {/* View full invitation with tooltip */}
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Link 
+                                      to={`/invitation/${invitation.inviteHash}?view=preview&prefill=true`}
+                                      className="p-1.5 bg-amber-50 text-amber-600 rounded-full hover:bg-amber-100"
+                                      onClick={() => setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`)}
+                                    >
+                                      <ExternalLinkIcon className="h-3.5 w-3.5" />
+                                    </Link>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="text-xs">View complete invitation</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
+                            <div className="flex items-center gap-1.5">
+                              <PhoneIcon className="h-3 w-3 text-amber-500" />
+                              <span>{formatPhoneNumber(invitation.phone)}</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-1.5">
+                              <MailIcon className="h-3 w-3 text-amber-500" />
+                              <span className="truncate">{invitation.email}</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-1.5">
+                              <CalendarIcon className="h-3 w-3 text-amber-500" />
+                              <span>{new Date(invitation.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            
+                            {invitation.firstServiceDate && (
+                              <div className="flex items-center gap-1.5">
+                                <ClockIcon className="h-3 w-3 text-amber-500" />
+                                <span>First Service: {new Date(invitation.firstServiceDate).toLocaleDateString()}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}
