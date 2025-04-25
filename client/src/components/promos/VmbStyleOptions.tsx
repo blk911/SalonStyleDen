@@ -221,15 +221,32 @@ export function VmbStyleOptions({
         setRecipientContact(recipientData.phone);
         setSignature(recipientData.sponsor);
         
-        // ALWAYS force a confirmed style in preview mode or if isPreviewMode flag is passed
-        if ((isPreviewMode || window.location.href.includes('preview=true')) && services && services.length > 0) {
-          console.log("[VmbStyleOptions] FORCING fallback style for preview with salon-initiated flow");
-          const style = services[0]; // Use first style as fallback
-          setSelectedStyle(style);
-          setConfirmedStyle(style);
-          form.setValue('styleOptions.styleId', style.id);
+        // Handle preview mode (check both URL and explicit flag)
+        const urlHasPreview = window.location.href.includes('preview=true') || window.location.href.includes('view=preview');
+        const isInPreviewMode = isPreviewMode || urlHasPreview;
+        
+        // ALWAYS force a confirmed style in preview mode
+        if (isInPreviewMode && services && services.length > 0) {
+          console.log("[VmbStyleOptions] FORCING style selection for preview mode");
           
-          // Explicitly set Step 3 to be visible and open
+          // Find a style that matches favoriteServices if available, otherwise use first service
+          let styleToSelect = services[0]; // Default fallback 
+          
+          // Try to find a matching style based on prefilled services
+          if (prefilledServices && prefilledServices.length > 0) {
+            const matchingStyle = services.find(s => s.name.includes(prefilledServices[0]) || 
+                                              prefilledServices[0].includes(s.name));
+            if (matchingStyle) {
+              styleToSelect = matchingStyle;
+            }
+          }
+          
+          // Set the confirmed style
+          setSelectedStyle(styleToSelect);
+          setConfirmedStyle(styleToSelect);
+          form.setValue('styleOptions.styleId', styleToSelect.id);
+          
+          // Explicitly set Step 3 to be visible and open for preview mode
           setShowStep3(true);
           setIsStep3Open(true);
           
@@ -964,8 +981,8 @@ export function VmbStyleOptions({
                 return null;
               })()}
               
-              {/* STEP 3 - With Collapsible behavior */}
-              {showStep3 && confirmedStyle && (
+              {/* STEP 3 - With Collapsible behavior - Always show in preview mode */}
+              {(showStep3 && confirmedStyle) && (
                 <div className="rounded-md overflow-hidden mb-3">
                   <Collapsible open={isStep3Open} onOpenChange={setIsStep3Open}>
                     <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-t-md">
