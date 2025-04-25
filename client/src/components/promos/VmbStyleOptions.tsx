@@ -1057,7 +1057,8 @@ export function VmbStyleOptions({
                                 if (salonInitiated) {
                                   return (
                                     <>
-                                      Hi {name}, We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️
+                                      Hi {name}, We are joining Ven Me, Baby! It's all about YOU! Create a request, enter your BF, admirer, or Mr. and send your gift request for {styleName}. VMB fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! 
+                                      <div className="text-center mt-1">❤️❤️❤️</div>
                                       
                                       <div className="flex justify-center space-x-2 mt-2 mb-2">
                                         <Button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-1 py-0.5 h-auto text-xs">
