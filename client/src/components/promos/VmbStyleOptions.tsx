@@ -916,8 +916,17 @@ export function VmbStyleOptions({
               {/* Add 6px spacing */}
               <div className="h-[6px]"></div>
               
+              {/* Debug info to help understand why Step 3 might not show */}
+              {console.log("[VmbStyleOptions] Step 3 render conditions:", {
+                showStep3,
+                hasConfirmedStyle: !!confirmedStyle,
+                isPreviewMode,
+                isStep3Open,
+                confirmedStyleValue: confirmedStyle
+              })}
+              
               {/* STEP 3 - With Collapsible behavior */}
-              {showStep3 && (
+              {showStep3 && confirmedStyle && (
                 <div className="rounded-md overflow-hidden mb-3">
                   <Collapsible open={isStep3Open} onOpenChange={setIsStep3Open}>
                     <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-t-md">
