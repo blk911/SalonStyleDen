@@ -148,8 +148,16 @@ export function VmbStyleOptions({
   
   // Handle initial style selection from props (for previewing existing invitations)
   useEffect(() => {
+    console.log("[VmbStyleOptions] Checking for initialStyleId:", {
+      initialStyleId,
+      isPreviewMode,
+      servicesCount: services?.length || 0
+    });
+    
     if (initialStyleId && services && services.length > 0) {
       const style = services.find(s => s.id === initialStyleId);
+      console.log("[VmbStyleOptions] Found matching style:", style);
+      
       if (style) {
         // Set the selected style
         setSelectedStyle(style);
@@ -160,16 +168,37 @@ export function VmbStyleOptions({
         
         // For preview mode, skip to step 3
         if (isPreviewMode) {
+          console.log("[VmbStyleOptions] Setting up preview mode with style:", style.name);
           setIsStep1Open(false);
           setIsStep2Open(false);
           setIsStep3Open(true);
           setShowStep3(true);
+          
+          // Make sure form is complete for Step 3
+          if (recipientData) {
+            console.log("[VmbStyleOptions] Using recipient data for preview");
+            setRecipientName(recipientData.name);
+            setRecipientContact(recipientData.phone);
+            setSignature(recipientData.sponsor);
+          }
         }
-        
-        console.log(`Pre-selected style from initialStyleId: ${style.name}`);
       }
+    } else if (isPreviewMode && services && services.length > 0) {
+      // Fallback for preview mode - use the first available style
+      console.log("[VmbStyleOptions] No initialStyleId provided, using first style as fallback for preview");
+      const firstStyle = services[0];
+      setSelectedStyle(firstStyle);
+      setConfirmedStyle(firstStyle);
+      
+      // Update form values
+      form.setValue('styleOptions.styleId', firstStyle.id);
+      
+      setIsStep1Open(false);
+      setIsStep2Open(false);
+      setIsStep3Open(true);
+      setShowStep3(true);
     }
-  }, [initialStyleId, services, form, isPreviewMode]);
+  }, [initialStyleId, services, form, isPreviewMode, recipientData]);
   
   // Special handling for salon-initiated invitations
   useEffect(() => {

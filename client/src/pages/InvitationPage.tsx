@@ -358,11 +358,29 @@ export default function InvitationPage() {
                         initialStyleId={(() => {
                           // Complex logic moved to an IIFE to avoid TSLint errors
                           if (!invitation || !salon || !salon.services) return undefined;
+                          
+                          // Debug what's happening
+                          console.log("[InvitationPage] Determining initialStyleId:", {
+                            invitation,
+                            favoriteServices: invitation.favoriteServices,
+                            salonServices: salon.services
+                          });
+                          
                           // Safely check favoriteServices
                           const favServices = invitation.favoriteServices;
-                          if (!favServices || !Array.isArray(favServices) || favServices.length === 0) return undefined;
+                          if (!favServices || !Array.isArray(favServices) || favServices.length === 0) {
+                            console.log("[InvitationPage] No favorite services found, trying to use first available salon service");
+                            // If no favorite service, use the first service as fallback in preview mode
+                            if (isPreviewView && salon.services.length > 0) {
+                              console.log("[InvitationPage] Using first service as fallback:", salon.services[0]);
+                              return salon.services[0].id;
+                            }
+                            return undefined;
+                          }
+                          
                           // Find the matching service
                           const foundService = salon.services.find(s => s.name === favServices[0]);
+                          console.log("[InvitationPage] Found matching service:", foundService);
                           return foundService?.id;
                         })()}
                         isPreviewMode={isPreviewView}
