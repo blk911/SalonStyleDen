@@ -5,6 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { UserIcon, CalendarIcon, CheckIcon, ClockIcon, ExternalLinkIcon } from "lucide-react";
 import { useLocation } from "wouter";
 import InviteCompleteStatus from "./InviteCompleteStatus";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Invitation {
   id: number;
@@ -156,22 +162,30 @@ export default function InlineVmbInvitations({
                 {/* Removed the Accepted indicator since it's shown in the badge */}
               </div>
               
-              {/* Display "Complete Invite" button for completed/accepted invitations */}
+              {/* Display icon button for completed/accepted invitations */}
               {(invitation.status === 'complete' || invitation.status === 'accepted') && (
                 <div className="mt-2 flex justify-end">
-                  <div 
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent card click
-                      // Go to the CompleteInvitationPage with the invitation ID
-                      setLocation(invitation.status.toLowerCase() === 'complete' 
-                        ? `/complete-invitation/${invitation.id}` 
-                        : `/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
-                    }}
-                    className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center gap-1 cursor-pointer"
-                  >
-                    <ExternalLinkIcon className="h-3 w-3" />
-                    <span>View Invite</span>
-                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div 
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent card click
+                            // Go to the CompleteInvitationPage with the invitation ID
+                            setLocation(invitation.status.toLowerCase() === 'complete' 
+                              ? `/complete-invitation/${invitation.id}` 
+                              : `/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
+                          }}
+                          className="h-8 w-8 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center justify-center cursor-pointer"
+                        >
+                          <ExternalLinkIcon className="h-4 w-4" />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>View Invitation</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               )}
               
