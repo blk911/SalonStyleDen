@@ -1065,16 +1065,16 @@ export function VmbStyleOptions({
                                           $App
                                         </Button>
                                         <Button className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center px-1 py-0.5 h-auto text-xs">
-                                          <FaMoneyBillWave className="h-5 w-5" />
-                                          <span>Zelle</span>
+                                          <FaMoneyBillWave className="h-3 w-3 mr-1" />
+                                          Zel
                                         </Button>
-                                        <Button className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center space-x-2">
-                                          <FaMoneyBillWave className="h-5 w-5" />
-                                          <span>Venmo</span>
+                                        <Button className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center px-1 py-0.5 h-auto text-xs">
+                                          <FaMoneyBillWave className="h-3 w-3 mr-1" />
+                                          Ven
                                         </Button>
                                       </div>
                                       
-                                      <div className="flex justify-center mt-2 mb-3">
+                                      <div className="flex justify-center mt-1 mb-2">
                                         <Button 
                                           className="w-3/4 bg-green-500 hover:bg-green-600 text-white"
                                         >
