@@ -516,9 +516,9 @@ export default function AdminDashboard() {
                       <tbody className="divide-y">
                         {salonInvites.map((invitation) => (
                           <tr key={invitation.id} className="hover:bg-gray-50">
-                            <td className="py-2 px-4">{invitation.name}</td>
-                            <td className="py-2 px-4">{invitation.email}</td>
-                            <td className="py-2 px-4">{formatPhoneNumber(invitation.phone)}</td>
+                            <td className="py-2 px-4 cursor-pointer hover:text-pink-600">{invitation.name}</td>
+                            <td className="py-2 px-4 cursor-pointer hover:text-pink-600">{invitation.email}</td>
+                            <td className="py-2 px-4 cursor-pointer hover:text-pink-600">{formatPhoneNumber(invitation.phone)}</td>
                             <td className="py-2 px-4">
                               <span className={`px-2 py-1 rounded-full text-xs font-medium
                                 ${invitation.status === 'pending' ? 'bg-yellow-50 text-yellow-700' : ''}
