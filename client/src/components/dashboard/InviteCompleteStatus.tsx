@@ -61,14 +61,32 @@ export default function InviteCompleteStatus({
         <CardContent className="p-0 flex items-center justify-between">
           <div>
             {showTitle && (
-              <h3 className={`${compact ? "text-sm" : "text-base"} font-medium`}>
-                Invitation Summary
-              </h3>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <h3 className={`${compact ? "text-sm" : "text-base"} font-medium cursor-help`}>
+                      Invitation Summary
+                    </h3>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs max-w-xs">Shows a count of all completed invitations across the platform. These are invitations that have reached Step 3 (Completed).</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
             <div className="flex items-center mt-1">
-              <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium whitespace-nowrap">
-                COMPLETE
-              </span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium whitespace-nowrap cursor-help">
+                      COMPLETE
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p className="text-xs">Shows Step 3 completed invitations</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               {inviteCount > 0 && (
                 <span className="ml-2 text-sm text-gray-600">
                   {inviteCount} {inviteCount === 1 ? 'invitation' : 'invitations'}
@@ -76,9 +94,18 @@ export default function InviteCompleteStatus({
               )}
             </div>
           </div>
-          <div className="flex items-center justify-center rounded-full bg-emerald-50 p-2">
-            <Sparkles className="h-5 w-5 text-emerald-500" />
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center justify-center rounded-full bg-emerald-50 p-2 cursor-help">
+                  <Sparkles className="h-5 w-5 text-emerald-500" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">Completion status indicator</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </CardContent>
       </Card>
       
