@@ -1152,7 +1152,7 @@ export function VmbStyleOptions({
                           <div className="flex justify-center mt-2">
                             <button 
                               type="button"
-                              className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
+                              className="px-2 py-0.5 h-5 text-[10px] bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
                               onClick={() => {
                                 // Show confirmation dialog
                                 setShowConfirmDialog(true);
