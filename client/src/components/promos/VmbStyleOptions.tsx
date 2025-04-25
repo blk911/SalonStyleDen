@@ -1268,14 +1268,15 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
-                      // Redirect to the dashboard for the client
+                      // Redirect to the client page
                       const clientId = recipientName;
                       console.log('[VMB Debug] Redirecting after salon invitation - Client ID:', clientId);
                       
                       if (clientId) {
-                        // Always use the client name exactly as entered, without any transformations
-                        console.log('[VMB Debug] Navigating to client dashboard:', `/dashboard/client/${clientId}`);
-                        navigate(`/dashboard/client/${clientId}`);
+                        // Navigate to /client/:id instead of /dashboard/client/:id
+                        // This matches the route defined in App.tsx
+                        console.log('[VMB Debug] Navigating to client page:', `/client/${clientId}`);
+                        navigate(`/client/${clientId}`);
                       } else {
                         // Fallback to salon list if no client name available
                         console.log('[VMB Debug] No client ID found, navigating to salon list');
