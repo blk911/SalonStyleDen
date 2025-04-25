@@ -1095,6 +1095,7 @@ export function VmbStyleOptions({
                                   return (
                                     <>
                                       Hi {name}, I would love a fresh set. My stylist has an opening for a {styleName}, {priceTime} will you Ven Me, Baby! ❤️❤️❤️ {signed}
+                                      <div className="text-center mt-2 text-xs text-gray-400">VMB:{invitationId || "5"}</div>
                                     </>
                                   );
                                 }
@@ -1140,6 +1141,7 @@ export function VmbStyleOptions({
                                   return (
                                     <>
                                       Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], [price and time] will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]
+                                      <div className="text-center mt-2 text-xs text-gray-400">VMB:{invitationId || "5"}</div>
                                     </>
                                   );
                                 }
