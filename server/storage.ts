@@ -204,10 +204,13 @@ export class DatabaseStorage implements IStorage {
     // Standardize phone format - get only digits for comparison
     const cleanPhone = phone.replace(/\D/g, '');
     
-    // Query the database for clients with this phone number
-    const matchingClients = await db.select()
-      .from(clients)
-      .where(eq(clients.phone, phone));
+    // Query all clients then filter
+    const allClients = await db.select().from(clients);
+    
+    // Find clients with matching phone (after cleaning)
+    const matchingClients = allClients.filter(client => 
+      client.phone && client.phone.replace(/\D/g, '') === cleanPhone
+    );
     
     // If we found any clients with this phone, the client exists
     return matchingClients.length > 0;
