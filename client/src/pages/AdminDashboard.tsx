@@ -510,7 +510,7 @@ export default function AdminDashboard() {
                           <th className="py-2 px-4">Phone</th>
                           <th className="py-2 px-4">Status</th>
                           <th className="py-2 px-4">Date</th>
-                          <th className="py-2 px-4 text-right">Page</th>
+                          <th className="py-2 px-4 text-center">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
@@ -530,62 +530,82 @@ export default function AdminDashboard() {
                               </span>
                             </td>
                             <td className="py-2 px-4">{new Date(invitation.createdAt).toLocaleDateString()}</td>
-                            <td className="py-2 px-4 text-right">
-                              {/* Check for matching client first */}
-                              {(() => {
-                                // Try to find matching client
-                                const clientId = findClientIdForInvitation(invitation, clients);
+                            <td className="py-1 px-2 text-center">
+                              <div className="flex justify-center space-x-4">
+                                {/* Phone icon */}
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="cursor-pointer text-amber-500 hover:text-amber-700">
+                                        <PhoneIcon className="h-4 w-4" />
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">Call client</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                                 
-                                if (clientId) {
-                                  // Client exists - link to client dashboard
-                                  return (
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <Link 
-                                            to={`/client/${clientId}`}
-                                            className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
-                                            onClick={() => {
-                                              // Navigate to client dashboard page
-                                              setLocation(`/client/${clientId}`);
-                                            }}
-                                          >
-                                            <ExternalLinkIcon className="h-4 w-4" />
-                                            <span className="sr-only">View Client</span>
-                                          </Link>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                          <p className="text-xs">View client dashboard</p>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  );
-                                } else {
-                                  // No matching client - link to invitation
-                                  return (
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <Link 
-                                            to={`/invitation/${invitation.inviteHash}?view=preview&prefill=true`}
-                                            className="inline-flex items-center text-gray-500 font-medium gap-1 text-sm hover:text-gray-700 cursor-pointer"
-                                            onClick={() => {
-                                              // Navigate to invitation page with preview mode
-                                              setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
-                                            }}
-                                          >
-                                            <ExternalLinkIcon className="h-4 w-4" />
-                                            <span className="sr-only">View Invite</span>
-                                          </Link>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                          <p className="text-xs">View complete invitation details</p>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  );
-                                }
-                              })()}
+                                {/* Email icon */}
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="cursor-pointer text-amber-500 hover:text-amber-700">
+                                        <MailIcon className="h-4 w-4" />
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">Email client</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                {/* Link icon */}
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Link 
+                                        to={`/invitation/${invitation.inviteHash}?view=preview&prefill=true`}
+                                        className="text-amber-500 hover:text-amber-700"
+                                        onClick={() => setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`)}
+                                      >
+                                        <LinkIcon className="h-4 w-4" />
+                                      </Link>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">View invitation</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                {/* Calendar icon */}
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="cursor-pointer text-amber-500 hover:text-amber-700">
+                                        <CalendarIcon className="h-4 w-4" />
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">Schedule appointment</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                {/* Gift icon */}
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="cursor-pointer text-amber-500 hover:text-amber-700">
+                                        <GiftIcon className="h-4 w-4" />
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">View gift preferences</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
                             </td>
                           </tr>
                         ))}
