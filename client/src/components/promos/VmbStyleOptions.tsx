@@ -1212,15 +1212,9 @@ export function VmbStyleOptions({
             <div className="space-y-3 py-3">
               <div className={`${salonInitiated ? 'bg-amber-50 border-amber-100' : 'bg-blue-50 border-blue-100'} p-3 rounded-md border text-sm`}>
                 <p>{salonInitiated 
-                    ? `Your Ven Me, Baby! invitation for ${confirmedStyle?.name || "selected style"} will be sent:` 
+                    ? `Your Ven Me, Baby! invitation for ${confirmedStyle?.name || "selected style"} will be sent to ${capitalizeName(recipientName) || "Friend"} cell: ${formatPhoneNumber(recipientContact) || "No contact provided"}` 
                     : "The following gift will be sent:"}</p>
                 
-                {salonInitiated && (
-                  <p className="mt-2">
-                    <span className="font-medium">Client:</span> {capitalizeName(recipientName) || "Friend"}; 
-                    <span className="ml-2">cel:</span> {formatPhoneNumber(recipientContact) || "No contact provided"}
-                  </p>
-                )}
                 
                 {!salonInitiated && (
                   <>
