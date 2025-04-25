@@ -1190,9 +1190,6 @@ export function VmbStyleOptions({
                 onClick={() => {
                   setShowConfirmDialog(false);
                   
-                  // Debug log when a user confirms sending
-                  console.log(`[VMB Debug] Salon invitation confirmed for client: ${recipientName || "unknown"}`);
-                  
                   // Apply default values
                   const finalName = recipientName || "Love";
                   
@@ -1256,9 +1253,6 @@ export function VmbStyleOptions({
                   } else {
                     // For salon-initiated invitations, we'll skip the modal completely
                     if (salonInitiated) {
-                      // Add success log
-                      console.log(`[VMB Debug] Salon invitation sent successfully for client: ${finalName}`);
-                      
                       toast({
                         title: "Salon Invitation Sent!",
                         description: `Invitation for client ${finalName} at ${recipientContact} has been sent`,
@@ -1266,9 +1260,9 @@ export function VmbStyleOptions({
                       });
 
                       // Debug log the redirection
-                      console.log("[VMB Style Options Debug] Redirecting to clients page with listing of all clients");
-                      // Redirect to the clients listing page
-                      navigate('/clients');
+                      console.log("[VMB Style Options Debug] Redirecting to salons page");
+                      // Redirect to the salons listing page
+                      navigate('/salons');
                     } else {
                       // Regular gift request flow - not salon-initiated
                       toast({
