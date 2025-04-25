@@ -1057,7 +1057,7 @@ export function VmbStyleOptions({
                                   return (
                                     <>
                                       Hi {name}, We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️<br/><br/>
-                                      PS: Clients register here: 🏠 upon select /index
+                                      PS: Clients register here: <a href="/index" className="inline-flex items-center bg-gray-100 text-gray-800 rounded px-1 py-0.5 text-[10px] hover:bg-gray-200">🏠 upon select /index</a>
                                     </>
                                   );
                                 } else {
@@ -1073,7 +1073,7 @@ export function VmbStyleOptions({
                                   return (
                                     <>
                                       Hi [client name], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️<br/><br/>
-                                      PS: Clients register here: 🏠 upon select /index
+                                      PS: Clients register here: <a href="/index" className="inline-flex items-center bg-gray-100 text-gray-800 rounded px-1 py-0.5 text-[10px] hover:bg-gray-200">🏠 upon select /index</a>
                                     </>
                                   );
                                 } else {
