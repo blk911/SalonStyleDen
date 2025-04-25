@@ -539,32 +539,50 @@ export default function AdminDashboard() {
                                 if (clientId) {
                                   // Client exists - link to client dashboard
                                   return (
-                                    <Link 
-                                      to={`/client/${clientId}`}
-                                      className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
-                                      onClick={() => {
-                                        // Navigate to client dashboard page
-                                        setLocation(`/client/${clientId}`);
-                                      }}
-                                    >
-                                      <ExternalLinkIcon className="h-4 w-4" />
-                                      View Client Page
-                                    </Link>
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Link 
+                                            to={`/client/${clientId}`}
+                                            className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
+                                            onClick={() => {
+                                              // Navigate to client dashboard page
+                                              setLocation(`/client/${clientId}`);
+                                            }}
+                                          >
+                                            <ExternalLinkIcon className="h-4 w-4" />
+                                            <span className="sr-only">View Client</span>
+                                          </Link>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p className="text-xs">View client dashboard</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
                                   );
                                 } else {
                                   // No matching client - link to invitation
                                   return (
-                                    <Link 
-                                      to={`/invitation/${invitation.inviteHash}?view=preview&prefill=true`}
-                                      className="inline-flex items-center text-gray-500 font-medium gap-1 text-sm hover:text-gray-700 cursor-pointer"
-                                      onClick={() => {
-                                        // Navigate to invitation page with preview mode
-                                        setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
-                                      }}
-                                    >
-                                      <ExternalLinkIcon className="h-4 w-4" />
-                                      View Invite
-                                    </Link>
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Link 
+                                            to={`/invitation/${invitation.inviteHash}?view=preview&prefill=true`}
+                                            className="inline-flex items-center text-gray-500 font-medium gap-1 text-sm hover:text-gray-700 cursor-pointer"
+                                            onClick={() => {
+                                              // Navigate to invitation page with preview mode
+                                              setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
+                                            }}
+                                          >
+                                            <ExternalLinkIcon className="h-4 w-4" />
+                                            <span className="sr-only">View Invite</span>
+                                          </Link>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p className="text-xs">View complete invitation details</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
                                   );
                                 }
                               })()}

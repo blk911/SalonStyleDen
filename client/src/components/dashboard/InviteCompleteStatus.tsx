@@ -56,67 +56,7 @@ export default function InviteCompleteStatus({
 
   return (
     <div className="space-y-4">
-      {/* Summary Card */}
-      <Card className={`${compact ? "p-3" : "p-4"} border-2 ${inviteCount > 0 ? "border-emerald-300" : "border-gray-200"}`}>
-        <CardContent className="p-0 flex items-center justify-between">
-          <div>
-            {showTitle && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <h3 className={`${compact ? "text-sm" : "text-base"} font-medium cursor-help`}>
-                      Invitation Summary
-                    </h3>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs">Overview of invitation activity status</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-            <div className="flex items-center mt-1">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium whitespace-nowrap cursor-help">
-                      COMPLETE
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs">These invitations have been sent and processed</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              {inviteCount > 0 && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="ml-2 text-sm text-gray-600 cursor-help">
-                        {inviteCount} {inviteCount === 1 ? 'invitation' : 'invitations'}
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="text-xs">Total number of completed invitations in the system</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-            </div>
-          </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center justify-center rounded-full bg-emerald-50 p-2 cursor-help">
-                  <Sparkles className="h-5 w-5 text-emerald-500" />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-xs">Completed invitations are ready for client redemption</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </CardContent>
-      </Card>
+      {/* Invitation Summary card has been removed as requested */}
       
       {/* Detailed Invitation Cards */}
       {hasCompletedInvitations && (
