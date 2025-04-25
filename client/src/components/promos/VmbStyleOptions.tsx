@@ -1255,7 +1255,7 @@ export function VmbStyleOptions({
                     if (salonInitiated) {
                       toast({
                         title: "Salon Invitation Sent!",
-                        description: `Invitation for client ${finalName} at ${recipientContact} has been sent`,
+                        description: `Your Ven Me, Baby! for ${selectedStyle?.name} is ready to send to ${finalName} cell: ${recipientContact}`,
                         variant: "default"
                       });
 
