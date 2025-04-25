@@ -1212,7 +1212,7 @@ export function VmbStyleOptions({
             <div className="space-y-3 py-3">
               <div className={`${salonInitiated ? 'bg-amber-50 border-amber-100' : 'bg-blue-50 border-blue-100'} p-3 rounded-md border text-sm`}>
                 <p>{salonInitiated 
-                    ? `Your VMB invitation for ${confirmedStyle?.name || "selected style"} will be sent:` 
+                    ? `Your Ven Me, Baby! invitation for ${confirmedStyle?.name || "selected style"} will be sent:` 
                     : "The following gift will be sent:"}</p>
                 
                 {salonInitiated && (
