@@ -1006,10 +1006,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           throw parseError;
         }
       } catch (validationError) {
-        console.error('Error processing invitation data:', validationError);
-        
         if (validationError instanceof z.ZodError) {
-          console.error('Validation error details:', validationError.errors);
           res.status(400).json({ error: validationError.errors });
         } else {
           const errorMessage = validationError instanceof Error 
@@ -1022,7 +1019,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Unexpected error creating invitation:', error);
       
       if (error instanceof z.ZodError) {
-        console.error('Validation error:', error.errors);
         res.status(400).json({ error: error.errors });
       } else {
         const errorMessage = error instanceof Error 
