@@ -222,12 +222,18 @@ export function VmbStyleOptions({
         setSignature(recipientData.sponsor);
         
         // For preview mode, we need to make sure we have a confirmed style
-        if (isPreviewMode && services && services.length > 0 && !confirmedStyle) {
+        if (isPreviewMode && services && services.length > 0) {
           console.log("[VmbStyleOptions] Setting fallback style for preview with salon-initiated flow");
           const style = services[0]; // Use first style as fallback
           setSelectedStyle(style);
           setConfirmedStyle(style);
           form.setValue('styleOptions.styleId', style.id);
+          
+          // Force Step 3 to be visible in preview mode
+          setShowStep3(true);
+          setIsStep1Open(false);
+          setIsStep2Open(false);
+          setIsStep3Open(true);
           
           // Also set this as the initial confirmed style
           // Use salon-to-client message template for salon-initiated invitations

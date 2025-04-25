@@ -48,17 +48,25 @@ export default function InvitationPage() {
   const { toast } = useToast();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   
-  // Parse query parameters to determine view mode and prefill status
-  const isCompleteView = location.includes('complete=true');
-  const isPreviewView = location.includes('preview=true') || location.includes('view=preview');
-  const shouldPrefill = location.includes('prefill=true');
+  // Parse URL and query parameters more accurately
+  const urlParams = new URLSearchParams(location.split('?')[1] || '');
+  const isCompleteView = urlParams.get('complete') === 'true';
+  const isPreviewView = urlParams.get('preview') === 'true' || urlParams.get('view') === 'preview';
+  const shouldPrefill = urlParams.get('prefill') === 'true';
+  
+  // For debugging purposes, if ?force-preview=true is present, force preview mode
+  const forcePreview = urlParams.get('force-preview') === 'true';
+  const effectivePreviewMode = isPreviewView || forcePreview;
   
   // Debug query parameters
   console.log("[InvitationPage] URL parameters:", {
     location,
+    urlParams: Object.fromEntries(urlParams.entries()),
     isPreviewView,
     shouldPrefill,
-    isCompleteView
+    isCompleteView,
+    forcePreview,
+    effectivePreviewMode
   });
   
   // State for section visibility with localStorage persistence
