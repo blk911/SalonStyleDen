@@ -1201,8 +1201,8 @@ export function VmbStyleOptions({
                     
                     // Redirect to client ID dash format
                     if (clientId) {
-                      // Navigate to client dashboard with client ID
-                      navigate(`/client-${clientId}`);
+                      // Navigate to client dashboard with client ID dash format
+                      navigate(`/client/${clientId}-dash`);
                     }
                   }}
                 >
