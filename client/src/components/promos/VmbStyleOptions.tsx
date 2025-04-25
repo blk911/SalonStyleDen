@@ -1259,6 +1259,8 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
+                      // Debug log the redirection
+                      console.log("[VMB Style Options Debug] Redirecting to salons page");
                       // Redirect to the salons listing page
                       navigate('/salons');
                     } else {
