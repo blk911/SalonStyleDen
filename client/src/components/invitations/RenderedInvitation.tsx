@@ -60,10 +60,19 @@ export function RenderedInvitation({
         </div>
         
         <div className="space-y-4">
-          <div className="text-center italic text-gray-700 px-4">
-            Hi <span className="font-semibold">{recipientName}</span>, I would love a fresh set. 
-            My stylist has an opening for <span className="font-semibold">{styleOption}</span>, {price} ({time}) 
-            will you Ven Me, Baby! ❤️❤️❤️ <span className="font-semibold">{senderName}</span>
+          <div className={`text-center italic text-gray-700 px-4 ${salonInitiated ? 'text-sm' : ''}`}>
+            {salonInitiated ? (
+              <>
+                Hi <span className="font-semibold">{recipientName}</span>, We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️<br/><br/>
+                PS: Clients register here: click [index link] to see your invitation!
+              </>
+            ) : (
+              <>
+                Hi <span className="font-semibold">{recipientName}</span>, I would love a fresh set. 
+                My stylist has an opening for <span className="font-semibold">{styleOption}</span>, {price} ({time}) 
+                will you Ven Me, Baby! ❤️❤️❤️ <span className="font-semibold">{senderName}</span>
+              </>
+            )}
           </div>
           
           <div className="flex justify-center space-x-4 mt-4">
@@ -80,6 +89,17 @@ export function RenderedInvitation({
               <span>Venmo</span>
             </Button>
           </div>
+          
+          {/* SEND GIFT button for salon-initiated invitations */}
+          {salonInitiated && (
+            <div className="flex justify-center mt-4">
+              <Button 
+                className="w-3/4 bg-green-500 hover:bg-green-600 text-white"
+              >
+                SEND GIFT
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
       
