@@ -158,12 +158,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   apiRouter.get("/salons", async (req: Request, res: Response) => {
     try {
-      console.log('GET /salons - Attempting to fetch all salons');
       const salons = await storage.getAllSalons();
-      console.log(`GET /salons - Successfully retrieved ${salons.length} salons`);
       res.json(salons);
     } catch (error) {
-      console.error('GET /salons - Error:', error);
+      console.error('Error fetching salons:', error);
       res.status(500).json({ error: 'Failed to fetch salons' });
     }
   });
@@ -178,19 +176,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const salon = await storage.getSalon(id);
       if (!salon) {
         return res.status(404).json({ error: "Salon not found" });
-      }
-
-      // Debug data in salon
-      console.log(`DEBUG - GET salon/${id} - Retrieved salon:`, salon.name);
-
-      // Debug services data in salon
-      if (salon.services && Array.isArray(salon.services)) {
-        console.log(`DEBUG - GET salon/${id} - Salon has ${salon.services.length} services`);
-        salon.services.forEach((service: any, idx: number) => {
-          console.log(`DEBUG - Service ${idx} (${service.name}) has gifUrl:`, service.gifUrl);
-        });
-      } else {
-        console.log(`DEBUG - GET salon/${id} - Salon has no services array`);
       }
 
       // Only use standard promos if salon doesn't have any custom promos
@@ -216,18 +201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         ];
 
-        console.log(`DEBUG - GET salon/${id} - Using standard promotions (salon had none)`);
         salon.promos = standardPromos;
-      } else {
-        console.log(`DEBUG - GET salon/${id} - Using salon's custom promotions`);
-      }
-
-      console.log(`DEBUG - GET salon/${id} - Current promos:`, JSON.stringify(salon.promos));
-      // Ensure we have an array before accessing length property
-      if (Array.isArray(salon.promos)) {
-        console.log(`DEBUG - GET salon/${id} - Salon has ${salon.promos.length} promotions:`, JSON.stringify(salon.promos));
-      } else {
-        console.log(`DEBUG - GET salon/${id} - Salon has 0 promotions (promos property is not an array)`);
       }
 
       res.json(salon);
@@ -250,12 +224,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!salon) {
         return res.status(404).json({ error: "Salon not found" });
       }
-
-      console.log(`DEBUG - PUT salon/${id} - Updating salon`, req.body);
       
       // Update the salon with the provided data
       const updatedSalon = await storage.updateSalon(id, req.body);
-      console.log(`DEBUG - PUT salon/${id} - Salon updated successfully`);
       
       res.json(updatedSalon);
     } catch (error) {
@@ -277,12 +248,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!salon) {
         return res.status(404).json({ error: "Salon not found" });
       }
-
-      console.log(`DEBUG - PATCH salon/${id} - Updating salon`, req.body);
       
       // Update the salon with the provided data
       const updatedSalon = await storage.updateSalon(id, req.body);
-      console.log(`DEBUG - PATCH salon/${id} - Salon updated successfully`);
       
       res.json(updatedSalon);
     } catch (error) {
@@ -305,20 +273,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Services must be an array" });
       }
 
-      // Debug logs for Windows paths in services
-      console.log('DEBUG - Processing services before save:');
-      services.forEach((service, index) => {
-        if (service.gifUrl && (service.gifUrl.includes(':\\') || service.gifUrl.includes('C:'))) {
-          console.log(`DEBUG - Service ${index} has Windows path:`, service.gifUrl);
-
-          // Extract the filename from the Windows path for logging
-          const filename = service.gifUrl.split('\\').pop() || '';
-          console.log(`DEBUG - Extracted filename: "${filename}"`);
-
-          // Don't modify the path - we'll handle it in the frontend
-        }
-      });
-
       // Get the salon first
       const salon = await storage.getSalon(id);
       if (!salon) {
@@ -327,9 +281,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update the salon with the new services
       const updatedSalon = await storage.updateSalonServices(id, services);
-
-      // Log what's being sent back to client
-      console.log('DEBUG - Updated salon services - sending back to client');
 
       res.json(updatedSalon);
     } catch (error) {
@@ -342,20 +293,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.post("/salons/:id/promos", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      console.log(`DEBUG - POST /salons/${id}/promos - Starting update request`);
-
       if (isNaN(id)) {
-        console.log(`DEBUG - POST /salons/${id}/promos - Invalid ID format`);
         return res.status(400).json({ error: "Invalid ID format" });
       }
 
       // Get the promos array from request body
       const { promos } = req.body;
-      console.log(`DEBUG - POST /salons/${id}/promos - Received promos:`, JSON.stringify(promos));
 
       // Validate promos array
       if (!Array.isArray(promos)) {
-        console.log(`DEBUG - POST /salons/${id}/promos - Error: Promos is not an array`, typeof promos);
         return res.status(400).json({ error: "Promos must be an array" });
       }
 
@@ -368,31 +314,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }));
 
       // Get the salon first
-      console.log(`DEBUG - POST /salons/${id}/promos - Retrieving salon`);
       const salon = await storage.getSalon(id);
-
       if (!salon) {
-        console.log(`DEBUG - POST /salons/${id}/promos - Salon not found`);
         return res.status(404).json({ error: "Salon not found" });
       }
 
-      console.log(`DEBUG - POST /salons/${id}/promos - Found salon:`, salon.name);
-      if (salon.promos) {
-        console.log(`DEBUG - POST /salons/${id}/promos - Current promos:`, JSON.stringify(salon.promos));
-      } else {
-        console.log(`DEBUG - POST /salons/${id}/promos - No existing promos`);
-      }
-
       // Update the salon with the new promos
-      console.log(`DEBUG - POST /salons/${id}/promos - Updating promos in database`);
-      const updatedSalon = await storage.updateSalonPromos(id, validatedPromos); // Use validatedPromos here
-
-      console.log(`DEBUG - POST /salons/${id}/promos - Update successful, returning updated salon`);
-      if (updatedSalon.promos) {
-        console.log(`DEBUG - POST /salons/${id}/promos - New promos:`, JSON.stringify(updatedSalon.promos));
-      } else {
-        console.log(`DEBUG - POST /salons/${id}/promos - Warning: Updated salon has no promos`);
-      }
+      const updatedSalon = await storage.updateSalonPromos(id, validatedPromos);
 
       res.json(updatedSalon);
     } catch (error) {
@@ -405,37 +333,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.post("/salons/:id/schedule", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      console.log(`DEBUG - POST /salons/${id}/schedule - Starting update request`);
-
       if (isNaN(id)) {
-        console.log(`DEBUG - POST /salons/${id}/schedule - Invalid ID format`);
         return res.status(400).json({ error: "Invalid ID format" });
       }
 
       // Get the schedule array from request body
       const { schedule } = req.body;
-      console.log(`DEBUG - POST /salons/${id}/schedule - Received schedule:`, JSON.stringify(schedule));
 
       // Validate schedule array
       if (!Array.isArray(schedule)) {
-        console.log(`DEBUG - POST /salons/${id}/schedule - Error: Schedule is not an array`, typeof schedule);
         return res.status(400).json({ error: "Schedule must be an array" });
       }
 
       // Get the salon first
       const salon = await storage.getSalon(id);
       if (!salon) {
-        console.log(`DEBUG - POST /salons/${id}/schedule - Salon not found with ID ${id}`);
         return res.status(404).json({ error: "Salon not found" });
       }
 
-      // Update the salon with the schedule
-      console.log(`DEBUG - POST /salons/${id}/schedule - Updating schedule in database`);
-      
       // Use updateSalon to add/update the schedule field
       const updatedSalon = await storage.updateSalon(id, { schedule });
-
-      console.log(`DEBUG - POST /salons/${id}/schedule - Update successful, returning updated salon`);
       
       res.json(updatedSalon);
     } catch (error) {
@@ -449,8 +366,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { phone, email, type, senderId, context } = req.body;
       
-      console.log(`Validating contact: phone=${phone}, email=${email}, type=${type}, senderId=${senderId}, context=${context}`);
-      
       if (!phone && !email) {
         return res.status(400).json({
           exists: false,
@@ -460,8 +375,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // If senderId is provided and context is 'invitation', use the context-aware validation
       if (senderId && context === 'invitation') {
-        console.log(`Using context-aware invitation validation for sender ${senderId}`);
-        
         // Use the enhanced context-aware validation for invitations
         const validation = await storage.validateInvitation(
           phone || '',
@@ -470,7 +383,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
         
         if (!validation.isValid) {
-          console.log(`Context-aware validation failed: ${validation.message}`);
           return res.json({
             exists: true,
             field: phone ? 'phone' : 'email',
@@ -478,7 +390,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
         
-        console.log('Context-aware validation passed');
         return res.json({
           exists: false,
           field: ''
@@ -486,7 +397,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // For all other cases, use the standard duplicate check
-      console.log('Using standard duplicate check for validation');
       const result = await storage.isDuplicateContact(
         phone || "", 
         email || ""
@@ -713,8 +623,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Apply phone filter if provided
       if (phoneFilter) {
-        console.log(`GET /clients - Filtering by phone: ${phoneFilter}`);
-        
         // Clean the phone number for comparison
         const cleanPhoneFilter = phoneFilter.replace(/\D/g, '');
         const isPartialPhone = cleanPhoneFilter.length <= 4;
@@ -733,8 +641,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // For longer numbers, require exact match
           return clientPhone === cleanPhoneFilter;
         });
-        
-        console.log(`GET /clients - Found ${clients.length} clients matching phone filter`);
       }
       
       res.json(clients);
