@@ -1033,20 +1033,6 @@ export function VmbStyleOptions({
                             </div>
                           </div>
                         </div>
-                        
-                        {/* SEND GIFT button at the bottom of left panel */}
-                        <div className="flex justify-center mt-4">
-                          <button 
-                            type="button"
-                            className="w-3/4 bg-green-500 hover:bg-green-600 text-white py-2 rounded-md transition-colors text-sm font-medium"
-                            onClick={() => {
-                              // Show confirmation dialog
-                              setShowConfirmDialog(true);
-                            }}
-                          >
-                            SEND GIFT
-                          </button>
-                        </div>
                       </div>
                       
                       {/* Right side - Gift Preview */}
@@ -1116,50 +1102,21 @@ export function VmbStyleOptions({
                             </div>
                           </div>
                           
-                          {/* SEND GIFT REQUEST button - only shows when gift is approved */}
-                          {giftApproved && (
+                          {/* SEND GIFT button - below payment icons */}
+                          <div className="flex justify-center mt-4">
                             <button 
                               type="button"
-                              className="w-full bg-green-500 hover:bg-green-600 text-white py-1.5 rounded transition-colors text-xs mt-3"
+                              className="w-3/4 bg-green-500 hover:bg-green-600 text-white py-2 rounded-md transition-colors text-sm font-medium"
                               onClick={() => {
-                                // Validate required fields
-                                if (!recipientContact) {
-                                  toast({
-                                    title: "Missing Information",
-                                    description: "Phone or Email is required",
-                                    variant: "destructive"
-                                  });
-                                  return;
-                                }
-                                
-                                // Apply default values if needed
-                                const finalName = recipientName || "Love";
-                                const finalSignature = signature || "Your fav! ME!";
-                                
-                                // Update message with default values if needed
-                                if (!recipientName || !signature) {
-                                  const baseMessage = `Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`;
-                                  const styleName = confirmedStyle ? confirmedStyle.name : "[STY OPT]";
-                                  
-                                  let updatedMessage = baseMessage;
-                                  updatedMessage = updatedMessage.replace("[NAME]", finalName);
-                                  updatedMessage = updatedMessage.replace("[STY OPT]", styleName);
-                                  updatedMessage = updatedMessage.replace("[SIGNED]", finalSignature);
-                                  
-                                  setInvitationMessage(updatedMessage);
-                                  
-                                  // Also update the state values
-                                  if (!recipientName) setRecipientName(finalName);
-                                  if (!signature) setSignature(finalSignature);
-                                }
-                                
-                                // Show custom confirmation dialog
+                                // Show confirmation dialog
                                 setShowConfirmDialog(true);
                               }}
                             >
-                              SEND GIFT REQUEST
+                              SEND GIFT
                             </button>
-                          )}
+                          </div>
+                          
+                          {/* No additional button needed since we added the SEND GIFT button above */}
                         </div>
                       </div>
                     </div>
