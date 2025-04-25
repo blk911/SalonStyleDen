@@ -1367,13 +1367,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (matchingClients.length > 0) {
               // Found an existing client, return their ID
               matchingClient = matchingClients[0];
-              console.log(`SUCCESS: Found client by invitation phone: ${matchingClient.id}`);
               
               // Get sponsor information from the invitation
               const sponsorName = invitationByHash.sponsor || "Ven Me, Baby! LTD";
               const sponsorSalonId = invitationByHash.salonId || 12;
-              
-              console.log(`Using sponsor from invitation: ${sponsorName} (ID: ${sponsorSalonId})`);
               
               return res.status(200).json({ 
                 success: true,
@@ -1398,13 +1395,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (clientsWithMatchingPhone.length > 0) {
           matchingClient = clientsWithMatchingPhone[0];
-          console.log(`SUCCESS: Found client with phone ending in ${code}: ${matchingClient.id}`);
           
           // Get sponsor information for client
           const sponsorName = matchingClient.sponsor || "Ven Me, Baby! LTD";
           const sponsorSalonId = matchingClient.sponsorSalonId || 12;
-          
-          console.log(`Using sponsor from client record: ${sponsorName} (ID: ${sponsorSalonId})`);
           
           return res.status(200).json({ 
             success: true,
@@ -1427,7 +1421,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         if (invitationsWithMatchingPhone.length > 0) {
           const invitation = invitationsWithMatchingPhone[0];
-          console.log(`Found invitation with phone ending in ${code}: ${invitation.id}`);
           
           // Check if there's already a client with this phone
           const clientsWithInvitationPhone = allClients.filter(client => {
@@ -1437,13 +1430,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           if (clientsWithInvitationPhone.length > 0) {
             matchingClient = clientsWithInvitationPhone[0];
-            console.log(`SUCCESS: Found client for invitation: ${matchingClient.id}`);
             
             // Get sponsor information from the client
             const sponsorName = matchingClient.sponsor || "Ven Me, Baby! LTD";
             const sponsorSalonId = matchingClient.sponsorSalonId || 12;
-            
-            console.log(`Using sponsor from client record: ${sponsorName} (ID: ${sponsorSalonId})`);
             
             return res.status(200).json({ 
               success: true,
@@ -1457,13 +1447,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
           } else {
             // No client found, but invitation is valid - return invitation details for registration
-            console.log(`VALID INVITATION: No client yet for invitation ${invitation.id}, returning for registration`);
             
             // Get sponsor information from the invitation
             const sponsorName = invitation.sponsor || "Ven Me, Baby! LTD";
             const sponsorSalonId = invitation.salonId || 12;
-            
-            console.log(`Using sponsor from invitation: ${sponsorName} (ID: ${sponsorSalonId})`);
             
             return res.status(200).json({ 
               success: true,
@@ -1486,8 +1473,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
         
         if (salonsWithMatchingPhone.length > 0) {
-          console.log(`Found salon with phone ending in ${code}`);
-          
           // Check if any clients have this salon as sponsor
           const clientsWithSponsor = allClients.filter(client => 
             client.sponsorSalonId === salonsWithMatchingPhone[0].id
@@ -1495,14 +1480,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           if (clientsWithSponsor.length > 0) {
             matchingClient = clientsWithSponsor[0];
-            console.log(`SUCCESS: Found client with salon sponsor: ${matchingClient.id}`);
             
             // Get sponsor information from the client (should match the salon we found)
             const sponsorSalon = salonsWithMatchingPhone[0];
             const sponsorName = sponsorSalon.name || "Ven Me, Baby! LTD";
             const sponsorSalonId = sponsorSalon.id || 12;
-            
-            console.log(`Using sponsor salon: ${sponsorName} (ID: ${sponsorSalonId})`);
             
             return res.status(200).json({
               success: true,
@@ -1548,8 +1530,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const invitations = await storage.getSalonInvitations(salonId);
-      console.log(`Retrieved ${invitations.length} invitations for salon ${salonId}`);
-      
       res.json(invitations);
     } catch (error) {
       console.error('Error retrieving salon invitations:', error);
@@ -1562,8 +1542,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { clientId } = req.params;
       const { styleId, salonId, invitationId } = req.body;
-      
-      console.log(`Recording style selection: client=${clientId}, style=${styleId}, salon=${salonId}, invitation=${invitationId || 'none'}`);
       
       // Validate required fields
       if (!styleId || !salonId) {
@@ -1637,7 +1615,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (invitation) {
           // Update the invitation status
           await storage.updateInvitationStatus(Number(invitationId), "style_selected");
-          console.log(`Updated invitation ${invitationId} status to style_selected`);
           
           // Log activity with the hash if available
           const hashPrefix = invitation.inviteHash ? `#${invitation.inviteHash} - ` : '';
