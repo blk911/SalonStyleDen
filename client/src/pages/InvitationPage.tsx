@@ -72,7 +72,7 @@ export default function InvitationPage() {
   // State for section visibility with localStorage persistence
   const [styleSectionOpen, setStyleSectionOpen] = useState(() => {
     // If this is a preview view, we want steps 1 and 2 to be closed
-    if (isPreviewView) {
+    if (effectivePreviewMode) {
       return false;
     }
     const saved = localStorage.getItem('vmb-invite-style-section-open');
@@ -80,7 +80,7 @@ export default function InvitationPage() {
   });
   
   // For preview mode, we want to skip to step 3
-  const [showStep3, setShowStep3] = useState(isPreviewView);
+  const [showStep3, setShowStep3] = useState(effectivePreviewMode);
   
   // Save section state to localStorage when it changes
   useEffect(() => {
@@ -380,11 +380,12 @@ export default function InvitationPage() {
                             invitation,
                             favoriteServices: invitation.favoriteServices,
                             salonServices: salon.services,
-                            isPreviewView
+                            isPreviewView,
+                            effectivePreviewMode
                           });
                           
                           // For preview mode, we ALWAYS want a style selected
-                          if (isPreviewView) {
+                          if (effectivePreviewMode) {
                             // Safely check favoriteServices first
                             const favServices = invitation.favoriteServices;
                             if (favServices && Array.isArray(favServices) && favServices.length > 0) {
@@ -414,8 +415,8 @@ export default function InvitationPage() {
                           
                           return undefined;
                         })()}
-                        isPreviewMode={isPreviewView}
-                        shouldPrefill={shouldPrefill}
+                        isPreviewMode={effectivePreviewMode}
+                        shouldPrefill={shouldPrefill || effectivePreviewMode}
                         prefilledServices={(() => {
                           if (!invitation) return [];
                           const favServices = invitation.favoriteServices;
@@ -430,7 +431,7 @@ export default function InvitationPage() {
           </CardContent>
 
           <CardFooter className="border-t pt-0.5">
-            {isPreviewView ? (
+            {effectivePreviewMode ? (
               <div className="w-full flex justify-between items-center">
                 <div className="text-sm text-gray-500">
                   {invitation.senderId ? 
