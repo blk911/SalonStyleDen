@@ -1196,61 +1196,6 @@ export function VmbStyleOptions({
               </Button>
               <Button 
                 type="button" 
-                className="bg-green-400 hover:bg-green-500 text-white font-medium"
-                onClick={async () => {
-                  console.log('Ven Me, Baby! button clicked - checking client registration');
-                  setShowConfirmDialog(false);
-                  
-                  // Check if client is registered
-                  const clientName = recipientName || '';
-                  const clientPhone = recipientContact || '';
-                  
-                  if (!clientName || !clientPhone) {
-                    // Show error popup if client info is missing
-                    toast({
-                      title: "Missing Client Information",
-                      description: "Client name and phone number are required",
-                      variant: "destructive"
-                    });
-                    return;
-                  }
-                  
-                  try {
-                    // Check if client exists in database
-                    const response = await fetch(`/api/clients/check?phone=${encodeURIComponent(clientPhone)}`);
-                    const data = await response.json();
-                    
-                    if (data.exists) {
-                      // Client is registered - show confirmation
-                      toast({
-                        title: "Client Already Registered",
-                        description: `${clientName} is already in the database`,
-                        variant: "default"
-                      });
-                    } else {
-                      // Client not registered - show popup for registration
-                      toast({
-                        title: "Client Not Registered",
-                        description: `${clientName} is not registered. Please register the client first.`,
-                        variant: "destructive"
-                      });
-                    }
-                  } catch (error) {
-                    console.error("Error checking client registration:", error);
-                    toast({
-                      title: "Error Checking Registration",
-                      description: "Could not verify client registration status",
-                      variant: "destructive"
-                    });
-                  }
-                }}
-              >
-                Ven Me, Baby!
-              </Button>
-              {/* Original button hidden and preserved for reference */}
-              <Button 
-                type="button"
-                className="hidden" 
                 onClick={() => {
                   setShowConfirmDialog(false);
                   

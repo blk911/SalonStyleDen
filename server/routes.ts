@@ -589,25 +589,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Endpoint to check if a client exists by phone number
-  apiRouter.get("/client-exists", async (req: Request, res: Response) => {
-    try {
-      const phone = req.query.phone as string;
-      
-      if (!phone) {
-        return res.status(400).json({ error: "Phone number is required" });
-      }
-      
-      console.log(`Checking if client exists with phone: ${phone}`);
-      const exists = await storage.checkClientExists(phone);
-      
-      return res.json({ exists });
-    } catch (error) {
-      console.error('Error checking client existence:', error);
-      return res.status(500).json({ error: "Failed to check client existence" });
-    }
-  });
-
   apiRouter.get("/clients", async (req: Request, res: Response) => {
     try {
       // Check if we're filtering by phone
