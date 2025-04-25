@@ -1105,8 +1105,6 @@ export function VmbStyleOptions({
                                       Hi [nm], We are joining Ven Me, Baby! It's all about YOU! Create a request, enter your BF, admirer, or Mr. and send your gift request for [insert sty opt NAME]. VMB fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! 
                                       <div className="text-center mt-1">❤️❤️❤️</div>
                                       
-                                      <div className="text-center mt-1 text-xs text-gray-600">VMB:[RANDOM ID]</div>
-                                      
                                       <div className="flex justify-center space-x-2 mt-2 mb-2">
                                         <Button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-1 py-0.5 h-auto text-xs">
                                           <FaMoneyBillWave className="h-3 w-3 mr-1" />
