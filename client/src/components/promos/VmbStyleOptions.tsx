@@ -1259,8 +1259,13 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
-                      // Just navigate to the clients page
-                      navigate('/clients');
+                      // Create a unique path using the client name and invitation ID (if available)
+                      const clientPath = finalName ? finalName.replace(/\s+/g, '-').toLowerCase() : '';
+                      const invitePath = invitationId ? `/${invitationId}` : '';
+                      const uniquePath = clientPath + invitePath;
+                      
+                      // Navigate to the clients page with the unique identifier
+                      navigate(`/clients/${uniquePath}`);
                     } else {
                       // Regular gift request flow - not salon-initiated
                       toast({
