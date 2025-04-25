@@ -1253,8 +1253,8 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
-                      // Directly go to the salon dashboard - no need to show the confirmation modal
-                      navigate(`/salon`);
+                      // Redirect to the salons listing page
+                      navigate('/salons');
                     } else {
                       // Regular gift request flow - not salon-initiated
                       toast({
