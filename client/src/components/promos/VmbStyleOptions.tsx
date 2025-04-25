@@ -883,7 +883,6 @@ export function VmbStyleOptions({
                                 alt={confirmedStyle.name}
                                 className="h-14 w-14 object-cover rounded-md"
                                 onError={(e) => {
-                                  console.error(`Failed to load image for service: ${confirmedStyle.name}`);
                                   e.currentTarget.src = '/assets/LOGO1.png';
                                 }}
                               />
@@ -932,17 +931,7 @@ export function VmbStyleOptions({
               {/* Add 6px spacing */}
               <div className="h-[6px]"></div>
               
-              {/* Debug info to help understand why Step 3 might not show */}
-              {(() => {
-                console.log("[VmbStyleOptions] Step 3 render conditions:", {
-                  showStep3,
-                  hasConfirmedStyle: !!confirmedStyle,
-                  isPreviewMode,
-                  isStep3Open,
-                  confirmedStyleValue: confirmedStyle
-                });
-                return null;
-              })()}
+              {/* Step 3 rendering logic is based on showStep3 and confirmedStyle */}
               
               {/* STEP 3 - With Collapsible behavior - Always show in preview mode */}
               {(showStep3 && confirmedStyle) && (
@@ -1222,7 +1211,6 @@ export function VmbStyleOptions({
                       .then(async (response) => {
                         if (response.ok) {
                           const result = await response.json();
-                          console.log("Invitation completed successfully:", result);
                           
                           // Show more informative toast with dashboard posting details
                           toast({

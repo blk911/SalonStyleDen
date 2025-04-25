@@ -53,13 +53,7 @@ export default function InvitationPage() {
   const isPreviewView = location.includes('preview=true') || location.includes('view=preview');
   const shouldPrefill = location.includes('prefill=true');
   
-  // Debug query parameters
-  console.log("[InvitationPage] URL parameters:", {
-    location,
-    isPreviewView,
-    shouldPrefill,
-    isCompleteView
-  });
+  // Parse query parameters to control view mode
   
   // State for section visibility with localStorage persistence
   const [styleSectionOpen, setStyleSectionOpen] = useState(() => {
@@ -340,7 +334,6 @@ export default function InvitationPage() {
                           sponsor: invitation.sponsor || salon.name
                         }}
                         onSelectionComplete={(selection) => {
-                          console.log("Style selected:", selection);
                           toast({
                             title: "Style Selected",
                             description: `You selected this style!`,
