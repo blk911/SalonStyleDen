@@ -101,67 +101,69 @@ export default function AdminSalonInvitations() {
   };
 
   return (
-    <ScrollArea className="h-[400px]">
-      <div className="grid grid-cols-1 gap-3 pr-4">
-        {invitations.map(invitation => (
-        <Card 
-          key={invitation.id} 
-          className="border border-amber-100 hover:border-amber-300 hover:shadow-md transition-all duration-200"
-        >
-          <CardContent className="p-3 relative">
-            <div className="flex flex-row justify-between items-center mb-1">
-              <div className="flex items-center gap-2">
-                <UserIcon className="h-4 w-4 text-amber-500" />
-                <span className="font-medium">{invitation.name}</span>
-                <Badge className="bg-amber-100 text-amber-700">
-                  {`SALON INVITE: [${invitation.id}]`}
-                </Badge>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 px-2 border-amber-200 text-amber-700 hover:bg-amber-50"
-                onClick={() => handleViewInvitation(invitation)}
-              >
-                <ExternalLinkIcon className="h-3.5 w-3.5 mr-1" />
-                View
-              </Button>
-            </div>
-            
-            <div className="text-xs text-gray-500 mt-2 space-y-1">
-              <div className="flex items-center gap-1">
-                <CalendarIcon className="h-3 w-3 text-amber-400" />
-                <span>Sent: {formatDate(invitation.createdAt)}</span>
-              </div>
-              
-              {invitation.firstServiceDate && (
-                <div className="flex items-center gap-1">
-                  <ClockIcon className="h-3 w-3 text-amber-400" />
-                  <span>Appointment: {formatDate(invitation.firstServiceDate)}</span>
+    <>
+      <ScrollArea className="h-[400px]">
+        <div className="grid grid-cols-1 gap-3 pr-4">
+          {invitations.map(invitation => (
+            <Card 
+              key={invitation.id} 
+              className="border border-amber-100 hover:border-amber-300 hover:shadow-md transition-all duration-200"
+            >
+              <CardContent className="p-3 relative">
+                <div className="flex flex-row justify-between items-center mb-1">
+                  <div className="flex items-center gap-2">
+                    <UserIcon className="h-4 w-4 text-amber-500" />
+                    <span className="font-medium">{invitation.name}</span>
+                    <Badge className="bg-amber-100 text-amber-700">
+                      {`SALON INVITE: [${invitation.id}]`}
+                    </Badge>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 px-2 border-amber-200 text-amber-700 hover:bg-amber-50"
+                    onClick={() => handleViewInvitation(invitation)}
+                  >
+                    <ExternalLinkIcon className="h-3.5 w-3.5 mr-1" />
+                    View
+                  </Button>
                 </div>
-              )}
-              
-              <div className="flex items-center gap-1">
-                <PhoneIcon className="h-3 w-3 text-amber-400" />
-                <span>{formatPhonePartial(invitation.phone)}</span>
-              </div>
-            </div>
-            
-            {invitation.sponsor && (
-              <div className="text-xs text-gray-500 mt-1">
-                <span>From: {invitation.sponsor}</span>
-              </div>
-            )}
-            
-            {invitation.notes && (
-              <div className="text-xs italic text-gray-600 mt-2 border-t border-gray-100 pt-1">
-                "{invitation.notes.substring(0, 100)}..."
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ))}
-      </div>
+                
+                <div className="text-xs text-gray-500 mt-2 space-y-1">
+                  <div className="flex items-center gap-1">
+                    <CalendarIcon className="h-3 w-3 text-amber-400" />
+                    <span>Sent: {formatDate(invitation.createdAt)}</span>
+                  </div>
+                  
+                  {invitation.firstServiceDate && (
+                    <div className="flex items-center gap-1">
+                      <ClockIcon className="h-3 w-3 text-amber-400" />
+                      <span>Appointment: {formatDate(invitation.firstServiceDate)}</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-1">
+                    <PhoneIcon className="h-3 w-3 text-amber-400" />
+                    <span>{formatPhonePartial(invitation.phone)}</span>
+                  </div>
+                </div>
+                
+                {invitation.sponsor && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    <span>From: {invitation.sponsor}</span>
+                  </div>
+                )}
+                
+                {invitation.notes && (
+                  <div className="text-xs italic text-gray-600 mt-2 border-t border-gray-100 pt-1">
+                    "{invitation.notes.substring(0, 100)}..."
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </ScrollArea>
 
       {/* Rendered Invitation Dialog */}
       <Dialog open={showInvitationDialog} onOpenChange={setShowInvitationDialog}>
@@ -208,6 +210,6 @@ export default function AdminSalonInvitations() {
           </div>
         </DialogContent>
       </Dialog>
-    </ScrollArea>
+    </>
   );
 }
