@@ -1268,13 +1268,21 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
-                      // After sending a salon invitation, redirect to clients page
-                      // This ensures we don't try to lookup a client by name (which would fail)
+                      // After sending a salon invitation, redirect to clients listing page
                       console.log('[VMB Debug] Salon invitation sent successfully for client:', recipientName);
+                      
+                      // We'll attempt to look up the client's numeric ID by name, but this requires
+                      // a new API endpoint. For now, redirect to the clients listing page
                       console.log('[VMB Debug] Redirecting to clients listing page');
                       
-                      // Always redirect to the clients listing page after sending salon invitation
-                      // This avoids the "Invalid ID format" error when trying to look up a client by name
+                      // First, show successful toast
+                      toast({
+                        title: "Invitation Sent Successfully!",
+                        description: `Invitation for ${recipientName} has been sent. You can view it in the clients list.`,
+                        variant: "default"
+                      });
+                      
+                      // Then navigate to the clients listing page
                       navigate('/clients');
                     } else {
                       // Regular gift request flow - not salon-initiated
