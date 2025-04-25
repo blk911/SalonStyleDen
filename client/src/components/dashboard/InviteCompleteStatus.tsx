@@ -56,52 +56,48 @@ export default function InviteCompleteStatus({
 
   return (
     <div className="space-y-4">
+      {/* Summary Card */}
+      <Card className={`${compact ? "p-3" : "p-4"} border-2 ${inviteCount > 0 ? "border-emerald-300" : "border-gray-200"}`}>
+        <CardContent className="p-0 flex items-center justify-between">
+          <div>
+            {showTitle && (
+              <h3 className={`${compact ? "text-sm" : "text-base"} font-medium`}>
+                Invitation Summary
+              </h3>
+            )}
+            <div className="flex items-center mt-1">
+              <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium whitespace-nowrap">
+                COMPLETE
+              </span>
+              {inviteCount > 0 && (
+                <span className="ml-2 text-sm text-gray-600">
+                  {inviteCount} {inviteCount === 1 ? 'invitation' : 'invitations'}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center justify-center rounded-full bg-emerald-50 p-2">
+            <Sparkles className="h-5 w-5 text-emerald-500" />
+          </div>
+        </CardContent>
+      </Card>
       
       {/* Detailed Invitation Cards */}
       {hasCompletedInvitations && (
         <div className="space-y-3">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <h3 className="text-sm font-medium text-gray-700 cursor-help">Completed Invitations</h3>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-xs">These invitations have been fully processed and are active</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <h3 className="text-sm font-medium text-gray-700">Completed Invitations</h3>
           {invitations
             .filter(inv => inv.status === 'complete' || inv.status === 'accepted')
             .map(invitation => (
               <Card key={invitation.id} className="overflow-hidden border-emerald-200">
                 <CardHeader className="py-2 px-3 bg-gradient-to-r from-emerald-50 to-emerald-100 flex flex-row items-center justify-between">
                   <CardTitle className="text-sm font-medium text-emerald-800 flex items-center">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="flex items-center cursor-help">
-                            <CheckCircle className="h-4 w-4 mr-1.5 text-emerald-600" />
-                            {invitation.name}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-xs">Client with completed invitation</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <CheckCircle className="h-4 w-4 mr-1.5 text-emerald-600" />
+                    {invitation.name}
                   </CardTitle>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-[10px] cursor-help">
-                          ID: {invitation.id}
-                        </Badge>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="text-xs">Unique invitation identifier in database</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-[10px]">
+                    ID: {invitation.id}
+                  </Badge>
                 </CardHeader>
                 <CardContent className="p-3 text-xs grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="flex items-center">
