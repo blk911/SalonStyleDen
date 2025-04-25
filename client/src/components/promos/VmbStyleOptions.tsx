@@ -1259,9 +1259,8 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
-                      // The client name is DFASDFS as shown in the confirmation dialog
-                      // Redirect directly to the client dashboard using the client name
-                      navigate(`/clients/DFASDFS`);
+                      // Just navigate to the clients page
+                      navigate('/clients');
                     } else {
                       // Regular gift request flow - not salon-initiated
                       toast({
