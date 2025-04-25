@@ -34,7 +34,12 @@ import {
   Code, 
   Eye,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Phone,
+  Mail,
+  Calendar,
+  Link2,
+  Gift
 } from "lucide-react";
 import { CollapsibleCard } from "@/components/ui/card-section";
 import { useToast } from "@/hooks/use-toast";
@@ -510,7 +515,7 @@ export default function AdminDashboard() {
                           <th className="py-2 px-4">Phone</th>
                           <th className="py-2 px-4">Status</th>
                           <th className="py-2 px-4">Date</th>
-                          <th className="py-2 px-4 text-right">Page</th>
+                          <th className="py-2 px-4 text-center">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y">
@@ -530,62 +535,114 @@ export default function AdminDashboard() {
                               </span>
                             </td>
                             <td className="py-2 px-4">{new Date(invitation.createdAt).toLocaleDateString()}</td>
-                            <td className="py-2 px-4 text-right">
-                              {/* Check for matching client first */}
-                              {(() => {
-                                // Try to find matching client
-                                const clientId = findClientIdForInvitation(invitation, clients);
+                            <td className="py-2 px-4 text-center">
+                              <div className="flex justify-center space-x-4">
+                                {/* Phone Icon */}
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <a 
+                                        href={`tel:${invitation.phone}`}
+                                        className="text-amber-500 hover:text-amber-700 cursor-pointer"
+                                      >
+                                        <Phone className="h-4 w-4" />
+                                      </a>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">Call client</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                                 
-                                if (clientId) {
-                                  // Client exists - link to client dashboard
-                                  return (
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <Link 
-                                            to={`/client/${clientId}`}
-                                            className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
-                                            onClick={() => {
-                                              // Navigate to client dashboard page
-                                              setLocation(`/client/${clientId}`);
-                                            }}
-                                          >
-                                            <ExternalLinkIcon className="h-4 w-4" />
-                                            <span className="sr-only">View Client</span>
-                                          </Link>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                          <p className="text-xs">View client dashboard</p>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  );
-                                } else {
-                                  // No matching client - link to invitation
-                                  return (
-                                    <TooltipProvider>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <Link 
-                                            to={`/invitation/${invitation.inviteHash}?view=preview&prefill=true`}
-                                            className="inline-flex items-center text-gray-500 font-medium gap-1 text-sm hover:text-gray-700 cursor-pointer"
-                                            onClick={() => {
-                                              // Navigate to invitation page with preview mode
-                                              setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
-                                            }}
-                                          >
-                                            <ExternalLinkIcon className="h-4 w-4" />
-                                            <span className="sr-only">View Invite</span>
-                                          </Link>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                          <p className="text-xs">View complete invitation details</p>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  );
-                                }
-                              })()}
+                                {/* Email Icon */}
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <a 
+                                        href={`mailto:${invitation.email}`}
+                                        className="text-amber-500 hover:text-amber-700 cursor-pointer"
+                                      >
+                                        <Mail className="h-4 w-4" />
+                                      </a>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">Email client</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                {/* Link Icon */}
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Link 
+                                        to={`/invitation/${invitation.inviteHash}?view=preview&prefill=true`}
+                                        className="text-amber-500 hover:text-amber-700 cursor-pointer"
+                                        onClick={() => setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`)}
+                                      >
+                                        <Link2 className="h-4 w-4" />
+                                      </Link>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">View invitation link</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                {/* Calendar Icon */}
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="text-amber-500 hover:text-amber-700 cursor-pointer">
+                                        <Calendar className="h-4 w-4" />
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">Schedule appointment</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                {/* Gift Icon */}
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="text-amber-500 hover:text-amber-700 cursor-pointer">
+                                        <Gift className="h-4 w-4" />
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">View gift details</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                
+                                {/* Still keep client dashboard link when client exists */}
+                                {(() => {
+                                  const clientId = findClientIdForInvitation(invitation, clients);
+                                  if (clientId) {
+                                    return (
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <Link 
+                                              to={`/client/${clientId}`}
+                                              className="text-pink-600 hover:text-pink-800 cursor-pointer"
+                                              onClick={() => setLocation(`/client/${clientId}`)}
+                                            >
+                                              <ExternalLinkIcon className="h-4 w-4" />
+                                            </Link>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p className="text-xs">View client dashboard</p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    );
+                                  }
+                                  return null;
+                                })()}
+                              </div>
                             </td>
                           </tr>
                         ))}
