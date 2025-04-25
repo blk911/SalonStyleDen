@@ -63,7 +63,11 @@ export function RenderedInvitation({
           <div className={`text-center italic text-gray-700 px-4 ${salonInitiated ? 'text-sm' : ''}`}>
             {salonInitiated ? (
               <>
-                Hi <span className="font-semibold">{recipientName}</span>, We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️
+                Hi <span className="font-semibold">{recipientName}</span>, We are joining Ven Me, Baby! It's all about YOU! Create a request, enter your BF, admirer, or Mr. and send your gift request for <span className="font-semibold">{styleOption}</span>. VMB fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby!
+                
+                <div className="text-center mt-1">❤️❤️❤️</div>
+                
+                <div className="text-center mt-1 text-xs text-gray-600">VMB:{inviteId}</div>
                 
                 <div className="flex justify-center space-x-2 mt-2 mb-2">
                   <Button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-1 py-0.5 h-auto text-xs">
