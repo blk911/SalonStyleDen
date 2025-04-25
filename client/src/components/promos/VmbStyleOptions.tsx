@@ -1268,21 +1268,19 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
-                      // After sending a salon invitation, redirect to clients listing page
+                      // After sending a salon invitation, redirect to the clients listing page
                       console.log('[VMB Debug] Salon invitation sent successfully for client:', recipientName);
                       
-                      // We'll attempt to look up the client's numeric ID by name, but this requires
-                      // a new API endpoint. For now, redirect to the clients listing page
-                      console.log('[VMB Debug] Redirecting to clients listing page');
-                      
-                      // First, show successful toast
+                      // Prepare and show a success toast
                       toast({
                         title: "Invitation Sent Successfully!",
                         description: `Invitation for ${recipientName} has been sent. You can view it in the clients list.`,
                         variant: "default"
                       });
                       
-                      // Then navigate to the clients listing page
+                      // Navigate to the "/clients" page 
+                      // This matches the <Route path="/clients" component={ClientsPage} /> in App.tsx
+                      console.log('[VMB Debug] Redirecting to clients page');
                       navigate('/clients');
                     } else {
                       // Regular gift request flow - not salon-initiated
