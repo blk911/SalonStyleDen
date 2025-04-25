@@ -459,10 +459,10 @@ export default function AdminDashboard() {
               </div>
             )}
             
-            {/* All invitations - Using PendingSalonInvitations component (same as Salon Dashboard) */}
+            {/* Invitations section - empty (cards removed) */}
             {!inviteIsLoading && !inviteError && invitations && invitations.length > 0 && (
               <div className="p-4">
-                <PendingSalonInvitations />
+                {/* Cards removed per request */}
               </div>
             )}
           </CollapsibleCard>
