@@ -363,25 +363,40 @@ export default function InvitationPage() {
                           console.log("[InvitationPage] Determining initialStyleId:", {
                             invitation,
                             favoriteServices: invitation.favoriteServices,
-                            salonServices: salon.services
+                            salonServices: salon.services,
+                            isPreviewView
                           });
                           
-                          // Safely check favoriteServices
-                          const favServices = invitation.favoriteServices;
-                          if (!favServices || !Array.isArray(favServices) || favServices.length === 0) {
-                            console.log("[InvitationPage] No favorite services found, trying to use first available salon service");
-                            // If no favorite service, use the first service as fallback in preview mode
-                            if (isPreviewView && salon.services.length > 0) {
-                              console.log("[InvitationPage] Using first service as fallback:", salon.services[0]);
+                          // For preview mode, we ALWAYS want a style selected
+                          if (isPreviewView) {
+                            // Safely check favoriteServices first
+                            const favServices = invitation.favoriteServices;
+                            if (favServices && Array.isArray(favServices) && favServices.length > 0) {
+                              // Try to find the matching service first
+                              const foundService = salon.services.find(s => s.name === favServices[0]);
+                              if (foundService) {
+                                console.log("[InvitationPage] Found matching service for preview:", foundService);
+                                return foundService.id;
+                              }
+                            }
+                            
+                            // If we get here, either no favorite services or no matching service found
+                            // For preview mode, always fall back to the first service
+                            if (salon.services.length > 0) {
+                              console.log("[InvitationPage] Using first service as fallback for preview:", salon.services[0]);
                               return salon.services[0].id;
                             }
-                            return undefined;
+                          } else {
+                            // For non-preview mode, only set if we find a matching service
+                            const favServices = invitation.favoriteServices;
+                            if (favServices && Array.isArray(favServices) && favServices.length > 0) {
+                              const foundService = salon.services.find(s => s.name === favServices[0]);
+                              console.log("[InvitationPage] Found matching service for regular view:", foundService);
+                              return foundService?.id;
+                            }
                           }
                           
-                          // Find the matching service
-                          const foundService = salon.services.find(s => s.name === favServices[0]);
-                          console.log("[InvitationPage] Found matching service:", foundService);
-                          return foundService?.id;
+                          return undefined;
                         })()}
                         isPreviewMode={isPreviewView}
                         shouldPrefill={shouldPrefill}

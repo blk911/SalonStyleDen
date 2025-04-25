@@ -128,8 +128,13 @@ export function VmbStyleOptions({
   
   // Debug effect to track state changes
   useEffect(() => {
-    console.log(`[STATE DEBUG] showStep2=${showStep2}, showStep3=${showStep3}, confirmedStyle=${confirmedStyle?.name || 'null'}`);
-    console.log(`[RESPONSIVE] isMobile=${isMobile}, isTablet=${isTablet}, isDesktop=${isDesktop}`);
+    // Use a function to handle the debug logging to avoid React node errors
+    const logDebugInfo = () => {
+      console.log(`[STATE DEBUG] showStep2=${showStep2}, showStep3=${showStep3}, confirmedStyle=${confirmedStyle?.name || 'null'}`);
+      console.log(`[RESPONSIVE] isMobile=${isMobile}, isTablet=${isTablet}, isDesktop=${isDesktop}`);
+    };
+    
+    logDebugInfo();
     setStateTracker(prev => prev + 1);
   }, [showStep2, showStep3, confirmedStyle, isMobile, isTablet, isDesktop]);
   
@@ -216,8 +221,24 @@ export function VmbStyleOptions({
         setRecipientContact(recipientData.phone);
         setSignature(recipientData.sponsor);
         
+        // For preview mode, we need to make sure we have a confirmed style
+        if (isPreviewMode && services && services.length > 0 && !confirmedStyle) {
+          console.log("[VmbStyleOptions] Setting fallback style for preview with salon-initiated flow");
+          const style = services[0]; // Use first style as fallback
+          setSelectedStyle(style);
+          setConfirmedStyle(style);
+          form.setValue('styleOptions.styleId', style.id);
+          
+          // Also set this as the initial confirmed style
+          // Use salon-to-client message template for salon-initiated invitations
+          const salonToClientMessage = `Hi [NAME], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️\n\nPS: Clients register here: click [index link] to see your invitation!`;
+          
+          let updatedMessage = salonToClientMessage;
+          updatedMessage = updatedMessage.replace("[NAME]", recipientData.name);
+          setInvitationMessage(updatedMessage);
+        }
         // Pre-format the message with available data
-        if (confirmedStyle) {
+        else if (confirmedStyle) {
           // Use salon-to-client message template for salon-initiated invitations
           const salonToClientMessage = `Hi [NAME], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️\n\nPS: Clients register here: click [index link] to see your invitation!`;
           
@@ -230,8 +251,19 @@ export function VmbStyleOptions({
       // For salon-initiated, we want to skip Step 2
       setIsStep2Open(false);
       
+      // Set up preview mode with a confirmed style if we're in preview mode
+      if (isPreviewMode) {
+        setIsStep3Open(true);
+        setShowStep3(true);
+        
+        // If we still don't have a confirmed style, use the first available style
+        if (!confirmedStyle && services && services.length > 0) {
+          console.log("[VmbStyleOptions] Forcing confirmed style for preview mode");
+          setConfirmedStyle(services[0]);
+        }
+      }
       // If we have a style selected, automatically open Step 3
-      if (confirmedStyle) {
+      else if (confirmedStyle) {
         setIsStep3Open(true);
         setShowStep3(true);
       }
@@ -917,13 +949,16 @@ export function VmbStyleOptions({
               <div className="h-[6px]"></div>
               
               {/* Debug info to help understand why Step 3 might not show */}
-              {console.log("[VmbStyleOptions] Step 3 render conditions:", {
-                showStep3,
-                hasConfirmedStyle: !!confirmedStyle,
-                isPreviewMode,
-                isStep3Open,
-                confirmedStyleValue: confirmedStyle
-              })}
+              {(() => {
+                console.log("[VmbStyleOptions] Step 3 render conditions:", {
+                  showStep3,
+                  hasConfirmedStyle: !!confirmedStyle,
+                  isPreviewMode,
+                  isStep3Open,
+                  confirmedStyleValue: confirmedStyle
+                });
+                return null;
+              })()}
               
               {/* STEP 3 - With Collapsible behavior */}
               {showStep3 && confirmedStyle && (
