@@ -707,22 +707,26 @@ export default function AdminDashboard() {
                 </div>
               )}
               
-              {/* Client list with icons in a single row format */}
+              {/* Client list with icons in a single row format - exactly matching Salon Dashboard */}
               {!clientIsLoading && !clientError && clients && clients.filter((client: Client) => client.isCurrentClient).length > 0 && (
-                <div className="mt-2">
+                <div className="px-2 py-4">
                   {clients.filter((client: Client) => client.isCurrentClient).map((client: Client) => (
-                    <div key={client.id} className="py-2 pl-2 border-b flex items-center justify-between">
-                      <div className="font-medium text-sm">
-                        {client.name}
-                      </div>
-                      <div className="flex items-center gap-6 pr-2">
+                    <div key={client.id} className="py-2 flex items-center justify-between border-b">
+                      <div className="font-medium text-sm">{client.name}</div>
+                      <div className="flex items-center space-x-4">
                         {/* Phone icon */}
-                        <Link to={`tel:${client.phone}`} className="text-amber-500 hover:text-amber-600">
+                        <Link 
+                          to={`tel:${client.phone}`} 
+                          className="text-amber-500 hover:text-amber-600"
+                        >
                           <PhoneIcon className="h-4 w-4" />
                         </Link>
                         
                         {/* Email icon */}
-                        <Link to={`mailto:${client.email}`} className="text-amber-500 hover:text-amber-600">
+                        <Link 
+                          to={`mailto:${client.email}`} 
+                          className="text-amber-500 hover:text-amber-600"
+                        >
                           <MailIcon className="h-4 w-4" />
                         </Link>
                         
@@ -748,7 +752,7 @@ export default function AdminDashboard() {
                             }}
                             className="text-amber-500 hover:text-amber-600"
                           >
-                            <CalendarIcon className="h-4 w-4" />
+                            <Eye className="h-4 w-4" />
                           </Link>
                         )}
                       </div>
