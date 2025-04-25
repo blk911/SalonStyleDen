@@ -443,12 +443,11 @@ export default function InvitationPage() {
             ) : (
               // Regular footer for non-preview mode
               <div className="w-full flex justify-end">
-                {invitation.status === 'pending' && (
+                {/* Only show the Accept Invitation button for client-initiated invitations (has senderId) */}
+                {invitation.status === 'pending' && invitation.senderId && (
                   <Button
                     onClick={promptAcceptInvitation}
-                    className={invitation.senderId ? 
-                      "bg-pink-600 hover:bg-pink-700 text-white" : 
-                      "bg-amber-600 hover:bg-amber-700 text-white"}
+                    className="bg-pink-600 hover:bg-pink-700 text-white"
                   >
                     Accept Invitation
                   </Button>
