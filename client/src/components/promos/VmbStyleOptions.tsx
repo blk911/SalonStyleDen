@@ -1255,13 +1255,17 @@ export function VmbStyleOptions({
                     if (salonInitiated) {
                       toast({
                         title: "Salon Invitation Sent!",
-                        description: `Your Ven Me, Baby! for ${selectedStyle?.name} is ready to send to ${finalName} cell: ${recipientContact}`,
+                        description: `Invitation for client ${finalName} at ${recipientContact} has been sent`,
                         variant: "default"
                       });
 
-                      // Simply navigate to the clients page - this is the standard destination
-                      // after sending a salon invitation
-                      navigate('/clients');
+                      // Redirect to the specific client's dashboard using the clientId prop
+                      if (clientId) {
+                        navigate(`/clients/${clientId}`);
+                      } else {
+                        // Fallback to clients list if no clientId is available
+                        navigate('/clients');
+                      }
                     } else {
                       // Regular gift request flow - not salon-initiated
                       toast({
