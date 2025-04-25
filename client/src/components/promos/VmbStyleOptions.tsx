@@ -252,7 +252,7 @@ export function VmbStyleOptions({
           
           // Also set this as the initial confirmed style
           // Use salon-to-client message template for salon-initiated invitations
-          const salonToClientMessage = `Hi [NAME], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️\n\nPS: Clients register here: click [index link] to see your invitation!`;
+          const salonToClientMessage = `Hi [NAME], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️\n\nPS: Clients register here: 🏠 upon select /index`;
           
           let updatedMessage = salonToClientMessage;
           updatedMessage = updatedMessage.replace("[NAME]", recipientData.name);
@@ -261,7 +261,7 @@ export function VmbStyleOptions({
         // Pre-format the message with available data
         else if (confirmedStyle) {
           // Use salon-to-client message template for salon-initiated invitations
-          const salonToClientMessage = `Hi [NAME], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️\n\nPS: Clients register here: click [index link] to see your invitation!`;
+          const salonToClientMessage = `Hi [NAME], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️\n\nPS: Clients register here: 🏠 upon select /index`;
           
           let updatedMessage = salonToClientMessage;
           updatedMessage = updatedMessage.replace("[NAME]", recipientData.name);
@@ -393,7 +393,7 @@ export function VmbStyleOptions({
       // If we have recipient data, update the message
       if (recipientData) {
         // Use salon-to-client message template for salon-initiated invitations
-        const salonToClientMessage = `Hi [NAME], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️\n\nPS: Clients register here: click [index link] to see your invitation!`;
+        const salonToClientMessage = `Hi [NAME], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️\n\nPS: Clients register here: 🏠 upon select /index`;
         
         let updatedMessage = salonToClientMessage;
         updatedMessage = updatedMessage.replace("[NAME]", recipientData.name);
@@ -1057,7 +1057,7 @@ export function VmbStyleOptions({
                                   return (
                                     <>
                                       Hi {name}, We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️<br/><br/>
-                                      PS: Clients register here: click [index link] to see your invitation!
+                                      PS: Clients register here: 🏠 upon select /index
                                     </>
                                   );
                                 } else {
@@ -1073,7 +1073,7 @@ export function VmbStyleOptions({
                                   return (
                                     <>
                                       Hi [client name], We are joining Ven Me, Baby! It's all about YOU! Create a gift request, enter your BF, admirer, Mr. and send! Pre-paid styling appointments. It fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby! ❤️❤️❤️<br/><br/>
-                                      PS: Clients register here: click [index link] to see your invitation!
+                                      PS: Clients register here: 🏠 upon select /index
                                     </>
                                   );
                                 } else {
