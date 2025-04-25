@@ -1164,16 +1164,7 @@ export function VmbStyleOptions({
             <div className="space-y-3 py-3">
               <div className={`${salonInitiated ? 'bg-amber-50 border-amber-100' : 'bg-blue-50 border-blue-100'} p-3 rounded-md border text-sm`}>
                 {salonInitiated ? (
-                  <p className="font-medium">
-                    Your Ven Me, Baby! for {confirmedStyle?.name || "[sty opt]"} is ready to send to {recipientName || "[cl id]"} cell: {
-                      recipientContact ? (
-                        // Format phone number if it's numeric and 10 digits
-                        recipientContact.replace(/\D/g, '').length === 10 ? 
-                          `(${recipientContact.replace(/\D/g, '').slice(0,3)}) ${recipientContact.replace(/\D/g, '').slice(3,6)}-${recipientContact.replace(/\D/g, '').slice(6,10)}` : 
-                          recipientContact
-                      ) : "[ph OR em]"
-                    }
-                  </p>
+                  <p className="font-medium">Your Ven Me, Baby! for {confirmedStyle?.name || "[sty opt]"} is ready to send to {recipientName || "[cl id]"} cell: {recipientContact || "[ph OR em]"}</p>
                 ) : (
                   <>
                     <p>The following gift will be sent:</p>
@@ -1268,20 +1259,8 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
-                      // Redirect to the client page
-                      const clientId = recipientName;
-                      console.log('[VMB Debug] Redirecting after salon invitation - Client ID:', clientId);
-                      
-                      if (clientId) {
-                        // Navigate to /client/:id instead of /dashboard/client/:id
-                        // This matches the route defined in App.tsx
-                        console.log('[VMB Debug] Navigating to client page:', `/client/${clientId}`);
-                        navigate(`/client/${clientId}`);
-                      } else {
-                        // Fallback to salon list if no client name available
-                        console.log('[VMB Debug] No client ID found, navigating to salon list');
-                        navigate('/salons');
-                      }
+                      // Redirect to the salons listing page
+                      navigate('/salons');
                     } else {
                       // Regular gift request flow - not salon-initiated
                       toast({
