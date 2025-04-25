@@ -138,32 +138,6 @@ export function VmbStyleOptions({
     setStateTracker(prev => prev + 1);
   }, [showStep2, showStep3, confirmedStyle, isMobile, isTablet, isDesktop]);
   
-  // Special effect for preview mode to force confirmedStyle
-  useEffect(() => {
-    if (isPreviewMode && !confirmedStyle && services && services.length > 0) {
-      console.log("[VmbStyleOptions] Force confirming style for preview mode");
-      
-      // Try to use initialStyleId first if provided
-      if (initialStyleId) {
-        const style = services.find(s => s.id === initialStyleId);
-        if (style) {
-          console.log("[VmbStyleOptions] Setting confirmed style from initialStyleId:", style.name);
-          setSelectedStyle(style);
-          setConfirmedStyle(style);
-          setIsStep3Open(true);
-          return;
-        }
-      }
-      
-      // Fallback to first service if initialStyleId not found
-      const firstStyle = services[0];
-      console.log("[VmbStyleOptions] Setting confirmed style to first service for preview:", firstStyle.name);
-      setSelectedStyle(firstStyle);
-      setConfirmedStyle(firstStyle);
-      setIsStep3Open(true);
-    }
-  }, [isPreviewMode, services, initialStyleId, confirmedStyle]);
-  
   // Initialize React Hook Form
   const form = useForm<StyleSelectionFormValues>({
     resolver: zodResolver(styleSelectionSchema),
