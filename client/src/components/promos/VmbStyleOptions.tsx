@@ -1268,19 +1268,20 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
 
-                      // After sending a salon invitation, redirect to the clients listing page
+                      // After sending a salon invitation, show success message
                       console.log('[VMB Debug] Salon invitation sent successfully for client:', recipientName);
                       
-                      // Prepare and show a success toast
+                      // We need to redirect to CLIENT DASH, not client ID page
                       toast({
                         title: "Invitation Sent Successfully!",
-                        description: `Invitation for ${recipientName} has been sent. You can view it in the clients list.`,
+                        description: `Invitation for ${recipientName} has been sent.`,
                         variant: "default"
                       });
                       
-                      // Navigate to the "/clients" page 
-                      // This matches the <Route path="/clients" component={ClientsPage} /> in App.tsx
-                      console.log('[VMB Debug] Redirecting to clients page');
+                      // Simple fix: Just go to the clients page
+                      // Trying to navigate directly to /client/CLIENTNAME creates a 400 error
+                      // because the API expects numeric IDs, not string names
+                      console.log('[VMB Debug] Redirecting to clients dashboard page');
                       navigate('/clients');
                     } else {
                       // Regular gift request flow - not salon-initiated
