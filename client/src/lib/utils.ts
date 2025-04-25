@@ -36,19 +36,6 @@ export function formatPhoneNumber(value: string): string {
 }
 
 /**
- * Capitalizes the first letter of each word in a name
- * For example: "john doe" becomes "John Doe"
- */
-export function capitalizeName(name: string): string {
-  if (!name) return '';
-  
-  return name
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
-}
-
-/**
  * Generates a unique invitation hash in the format: VMB-INV-{random}-{timestamp}
  * This hash is used for tracking invitations across the system
  */
