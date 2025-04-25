@@ -83,7 +83,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const uploadDir = path.join(process.cwd(), 'client/public/uploads');
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
-    console.log('Created uploads directory:', uploadDir);
   }
 
   // API endpoints prefix
@@ -128,7 +127,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // File was uploaded successfully, return the path that can be accessed publicly
       const relativePath = `/uploads/${req.file.filename}`;
-      console.log(`Uploaded file saved to ${req.file.path} (public URL: ${relativePath})`);
 
       return res.json({ 
         url: relativePath,
@@ -418,19 +416,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Client routes
   apiRouter.post("/clients", async (req: Request, res: Response) => {
     try {
-      console.log('Received client registration data:', req.body);
-
       // Validate and parse client input data
       const validatedData = clientInputSchema.parse(req.body);
-      console.log('Validated client data:', validatedData);
 
       try {
         // Check for existing client first
         if (validatedData.phone || validatedData.email) {
-          console.log('Checking for existing client with contact info:', 
-            validatedData.phone ? `phone=${validatedData.phone}` : '', 
-            validatedData.email ? `email=${validatedData.email}` : '');
-          
           try {
             // First directly check if a client already exists with this phone
             let existingClient = null;
@@ -451,8 +442,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
 
             if (existingClient) {
-              console.log('Found existing client with matching contact info:', existingClient.id);
-              
               // Return the existing client data with a 200 status (not an error)
               return res.status(200).json({
                 ...existingClient,
@@ -462,15 +451,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
             
             // Use our context-aware validation specifically for registration
-            console.log('Using context-aware registration validation');
             const validationResult = await storage.validateRegistration(
               validatedData.phone || "", 
               validatedData.email || ""
             );
             
             if (!validationResult.isValid) {
-              console.log(`Registration validation failed: ${validationResult.message}`);
-              
               // Return a more user-friendly response with form pre-fill data
               return res.status(409).json({ 
                 status: 'duplicate',
@@ -482,8 +468,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 salonId: validatedData.salonId
               });
             }
-            
-            console.log('Registration validation passed - proceeding with client creation');
           } catch (error) {
             console.error('Error checking for duplicates:', error);
             // Continue to client creation if error in duplicate check
@@ -502,13 +486,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (sponsorSalon) {
             sponsorName = sponsorSalon.name;
             sponsorSalonId = sponsorSalon.id;
-            console.log(`Using selected salon as sponsor: ${sponsorName} (ID: ${sponsorSalonId})`);
           }
         } 
         // 2. Default is Ven Me, Baby! LTD (ID: 12) if no salon selected
         else if (sponsorName === "Ven Me, Baby! LTD") {
           sponsorSalonId = 12; // VMB Ltd ID
-          console.log(`Using default sponsor: ${sponsorName} (ID: ${sponsorSalonId})`);
         }
 
         // Add sponsor info to validatedData
@@ -520,18 +502,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Create client with sponsor information
         const client = await storage.createClient(clientData);
-        console.log('Created client with ID:', client.id, 'Sponsor:', sponsorName, 'SponsorID:', sponsorSalonId);
         
         // Check if this client was created from an invitation by checking invitationId in the request
         if (req.body.invitationId) {
           const invitationId = parseInt(req.body.invitationId);
           if (!isNaN(invitationId)) {
-            console.log(`Client was created from invitation ID: ${invitationId}, marking as completed`);
-            
             try {
               // Update invitation status to completed
               await storage.updateInvitationStatus(invitationId, 'completed');
-              console.log(`Updated invitation ${invitationId} status to 'completed'`);
             } catch (invitationError) {
               // Log error but don't fail the client creation
               console.error(`Failed to update invitation ${invitationId} status:`, invitationError);
@@ -545,12 +523,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const matchingInvitations = await storage.getInvitationsByPhone(validatedData.phone);
             
             if (matchingInvitations.length > 0) {
-              console.log(`Found ${matchingInvitations.length} invitations with matching phone number`);
-              
               // Update all matching invitations to completed
               for (const invitation of matchingInvitations) {
                 if (invitation.status !== 'completed') {
-                  console.log(`Updating invitation ${invitation.id} status to 'completed'`);
                   await storage.updateInvitationStatus(invitation.id, 'completed');
                 }
               }
@@ -607,7 +582,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Error creating client:', error);
 
       if (error instanceof z.ZodError) {
-        console.error('Validation error:', error.errors);
         res.status(400).json({ error: error.errors });
       } else {
         res.status(500).json({ error: "Failed to create client" });
