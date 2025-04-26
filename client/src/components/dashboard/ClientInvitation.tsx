@@ -1028,10 +1028,13 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       {/* Preview Modal */}
       <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
         <DialogContent className="max-w-md mx-auto">
-          <DialogHeader>
-            <DialogTitle className="text-center text-amber-800">Preview Invitation</DialogTitle>
+          <DialogHeader className="pb-2 border-b border-amber-200">
+            <DialogTitle className="text-center text-amber-800 text-xl flex items-center justify-center">
+              <Mail className="h-5 w-5 mr-2 text-amber-600" />
+              Salon Invitation Preview
+            </DialogTitle>
             <DialogDescription className="text-center">
-              Review your invitation before sending
+              Please review your invitation carefully before sending
             </DialogDescription>
           </DialogHeader>
           
@@ -1066,11 +1069,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   salonInitiated={true}
                 />
                 
-                {/* Show the processed message for preview */}
-                <div className="p-3 bg-gray-50 text-sm text-gray-700 border-t border-gray-200">
-                  <p className="font-medium mb-1">Message Preview:</p>
-                  <p className="whitespace-pre-wrap">{previewData.notes}</p>
-                </div>
+                {/* We've removed the duplicate plain text message preview since it's already included
+                    in the RenderedInvitation component above */}
               </div>
             </div>
           )}
@@ -1087,7 +1087,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
             </Button>
             <Button 
               type="button" 
-              className="w-full bg-amber-500 hover:bg-amber-600 text-white"
+              className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium"
               onClick={(e) => {
                 setShowPreviewModal(false);
                 // Trigger the form submission after confirmation
@@ -1096,8 +1096,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
               disabled={isSubmitting}
             >
               {isSubmitting ? 
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : 
-                <Send className="h-4 w-4 mr-2" />
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : 
+                <Send className="h-5 w-5 mr-2" />
               }
               Confirm & Send
             </Button>

@@ -50,11 +50,12 @@ export function RenderedInvitation({
       
       <CardContent className="p-4">
         <div className="mb-4">
-          <AspectRatio ratio={4/3} className="bg-muted rounded-md overflow-hidden">
+          <AspectRatio ratio={4/3} className="bg-muted rounded-md overflow-hidden shadow-md">
             <img 
               src={imageUrl} 
               alt={styleOption}
               className="object-cover w-full h-full"
+              style={{ maxHeight: '300px' }} // Ensure image is displayed larger
             />
           </AspectRatio>
         </div>
