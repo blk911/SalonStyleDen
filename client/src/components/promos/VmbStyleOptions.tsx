@@ -135,8 +135,7 @@ export function VmbStyleOptions({
   const [signature, setSignature] = useState("");
   const [invitationConfirmed, setInvitationConfirmed] = useState(false);
   const [giftApproved, setGiftApproved] = useState(false);
-  // We've removed the confirmation dialog in favor of direct submission
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false); // Added back for compatibility during migration
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showFinalInvitationModal, setShowFinalInvitationModal] = useState(false);
   const [finalInvitationId, setFinalInvitationId] = useState("");
   const personalMessageRef = useRef<HTMLInputElement>(null); // Reference for personal message input
@@ -1086,18 +1085,8 @@ export function VmbStyleOptions({
                                         <Button 
                                           className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white"
                                           onClick={() => {
-                                            // Skip confirmation dialog and show final invitation directly
-                                            const uniqueId = `${Date.now().toString(36)}${Math.random().toString(36).substring(2, 5)}`.toUpperCase();
-                                            setFinalInvitationId(uniqueId);
-                                            setShowFinalInvitationModal(true);
-                                            
-                                            // Log the send action for tracking
-                                            console.log("[FLOW][VmbStyleOptions] Sending invitation directly", {
-                                              recipientName,
-                                              recipientContact,
-                                              styleId: confirmedStyle?.id,
-                                              styleName: confirmedStyle?.name
-                                            });
+                                            // Show confirmation dialog
+                                            setShowConfirmDialog(true);
                                           }}
                                         >
                                           SEND GIFT
@@ -1169,42 +1158,14 @@ export function VmbStyleOptions({
                           
                           {/* Payment icons are in the message area above */}
                           
-                          {/* Add button group at the bottom of Step 3 */}
-                          <div className="mt-4 flex justify-center gap-4">
+                          {/* Add primary Submit button at the bottom of Step 3 */}
+                          <div className="mt-4 text-center">
                             <Button 
                               type="button"
-                              variant="outline"
-                              className="px-6 py-2 text-gray-600 font-medium"
+                              className={`w-full sm:w-auto px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white font-medium`}
                               onClick={() => {
-                                // Go back to step 1 and reset form
-                                setIsStep1Open(true);  // Open step 1
-                                setIsStep2Open(false); // Close step 2 
-                                setIsStep3Open(false); // Close step 3
-                                form.reset();
-                              }}
-                            >
-                              Back to Step 1
-                            </Button>
-                            
-                            <Button 
-                              type="button"
-                              className="px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white font-medium"
-                              onClick={() => {
-                                // Generate a unique ID for the invitation
-                                const uniqueId = `${Date.now().toString(36)}${Math.random().toString(36).substring(2, 5)}`.toUpperCase();
-                                setFinalInvitationId(uniqueId);
-                                
-                                // Skip confirmation dialog and show final invitation directly
-                                setShowFinalInvitationModal(true);
-                                
-                                // Log the send action
-                                console.log("[FLOW][VmbStyleOptions] Sending invitation", {
-                                  recipientName,
-                                  recipientContact,
-                                  styleId: confirmedStyle?.id,
-                                  styleName: confirmedStyle?.name,
-                                  salonInitiated
-                                });
+                                // Show confirmation dialog
+                                setShowConfirmDialog(true);
                               }}
                             >
                               Send Gift Request
@@ -1255,7 +1216,74 @@ export function VmbStyleOptions({
           }}
         />
 
-        {/* Removed confirmation dialog - we now go directly from Step 3 to final invitation */}
+        {/* Custom Confirmation Dialog */}
+        <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Confirm Gift Request</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to send this gift request? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-3 py-3">
+              <div>
+                <p className="text-sm mb-2">The following gift will be sent:</p>
+                <div className="border rounded-md p-3 bg-gray-50">
+                  <div className="font-medium text-base">{confirmedStyle?.name || "French Tips / Touch-Up"}</div>
+                  <div className="mt-2 text-sm">
+                    <div>Recipient: {recipientName || "Friend"}</div>
+                    <div>{recipientContact ? 
+                      (recipientContact.replace(/\D/g, '').length === 10 ? 
+                        `(${recipientContact.replace(/\D/g, '').slice(0,3)}) ${recipientContact.replace(/\D/g, '').slice(3,6)}-${recipientContact.replace(/\D/g, '').slice(6,10)}` : 
+                        recipientContact) : 
+                      "No contact provided"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <DialogFooter className="sm:justify-between">
+              <Button 
+                type="button" 
+                variant="outline"
+                className="text-gray-600"
+                onClick={() => setShowConfirmDialog(false)}
+              >
+                Cancel
+              </Button>
+              
+              {/* Send Invitation Button - exactly matching the screenshot */}
+              <Button 
+                type="button"
+                className="bg-pink-500 hover:bg-pink-600 text-white font-medium"
+                onClick={() => {
+                  // Close confirmation dialog
+                  setShowConfirmDialog(false);
+                  
+                  // Generate a unique ID for the invitation
+                  const uniqueId = `${Date.now().toString(36)}${Math.random().toString(36).substring(2, 5)}`.toUpperCase();
+                  setFinalInvitationId(uniqueId);
+                  
+                  // Show the final rendered invitation
+                  setShowFinalInvitationModal(true);
+                  
+                  // Log the send action
+                  console.log("[FLOW][VmbStyleOptions] Sending invitation", {
+                    recipientName,
+                    recipientContact,
+                    styleId: confirmedStyle?.id,
+                    styleName: confirmedStyle?.name,
+                    salonInitiated
+                  });
+                }}
+              >
+                Send Gift Request
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Final Rendered Invitation Modal */}
         <Dialog open={showFinalInvitationModal} onOpenChange={setShowFinalInvitationModal}>
