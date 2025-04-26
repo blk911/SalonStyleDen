@@ -36,6 +36,34 @@ export function formatPhoneNumber(value: string): string {
 }
 
 /**
+ * Returns the cursor position after formatting a phone number
+ * @param previousValue Previous value of the input
+ * @param currentValue Current value of the input
+ * @param currentPosition Current cursor position
+ */
+export function getPhoneNumberCursorPosition(
+  previousValue: string,
+  currentValue: string,
+  currentPosition: number
+): number {
+  // When adding characters
+  if (currentValue.length > previousValue.length) {
+    // Adjustments for formatting characters being added
+    if (currentValue.charAt(currentPosition - 1) === ')' && previousValue.length < 4) {
+      return currentPosition + 2; // Skip over the ") " that was added
+    }
+    if (currentValue.charAt(currentPosition - 1) === '-' && previousValue.length < 7) {
+      return currentPosition + 1; // Skip over the "-" that was added
+    }
+    if (currentValue.charAt(currentPosition - 1) === ' ' && previousValue.length < 4) {
+      return currentPosition + 1; // Skip over the " " that was added
+    }
+  }
+  
+  return currentPosition;
+}
+
+/**
  * Clean phone number by removing all non-digit characters
  * @param phoneNumber The phone number to clean
  * @returns Only the digits of the phone number
