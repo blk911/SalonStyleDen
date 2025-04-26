@@ -11,10 +11,11 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeftIcon, CalendarIcon, CheckCircleIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
@@ -54,6 +55,8 @@ export default function InvitationPreview() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [acceptingInvitation, setAcceptingInvitation] = useState(false);
   
   // Fetch invitation by hash
   const { 
@@ -150,6 +153,78 @@ export default function InvitationPreview() {
 
   // Determine if this is a salon or client invitation
   const isSalonInvitation = !invitation.senderId;
+  
+  // Show confirmation dialog for pending invitations
+  const promptAcceptInvitation = () => {
+    if (invitation?.status === 'pending') {
+      setShowConfirmDialog(true);
+    } else {
+      handleAcceptInvitation();
+    }
+  };
+
+  // Handle accept invitation or view dashboard
+  const handleAcceptInvitation = async () => {
+    setShowConfirmDialog(false);
+    setAcceptingInvitation(true);
+    
+    if (!invitation || !invitation.id) {
+      toast({
+        title: "Error",
+        description: "There was a problem with this invitation.",
+        variant: "destructive"
+      });
+      setAcceptingInvitation(false);
+      return;
+    }
+    
+    try {
+      // If the invitation is still pending, update its status to accepted
+      if (invitation.status === 'pending') {
+        const updateResponse = await fetch(`/api/invitations/${invitation.id}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: 'accepted' })
+        });
+        
+        if (!updateResponse.ok) {
+          throw new Error('Failed to update invitation status');
+        }
+        
+        // Show toast notification
+        toast({
+          title: "Invitation Accepted",
+          description: "Your invitation has been accepted. Please complete your registration.",
+          variant: "default"
+        });
+      }
+      
+      // Direct to registration page with the invitation data
+      // For salon invitations, pass basic client info
+      if (!invitation.senderId) {
+        setLocation(
+          `/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&email=${encodeURIComponent(invitation.email)}&phone=${encodeURIComponent(invitation.phone)}`
+        );
+      } else {
+        setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+      }
+      
+    } catch (error) {
+      console.error('Error in invitation acceptance flow:', error);
+      toast({
+        title: "Error",
+        description: "There was a problem processing your invitation. Please try again.",
+        variant: "destructive"
+      });
+      
+      // Go to registration as fallback
+      setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+    } finally {
+      setAcceptingInvitation(false);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -245,6 +320,7 @@ export default function InvitationPreview() {
                   salonName={salon?.name}
                   imageUrl={"/assets/french-tips.png"} // Default image
                   salonInitiated={isSalonInvitation}
+                  onSendGift={promptAcceptInvitation}
                 />
               </div>
             </div>
@@ -272,6 +348,67 @@ export default function InvitationPreview() {
         </Card>
       </main>
       <Footer />
+      
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className={`sm:max-w-md ${!invitation.senderId ? 'p-0 overflow-hidden' : ''}`}>
+          {!invitation.senderId ? (
+            /* Special dialog header for salon invitations */
+            <>
+              <div className="bg-gradient-to-r from-amber-100 to-amber-50 p-4 border-b border-amber-200">
+                <DialogTitle className="text-center text-amber-800 text-xl flex justify-center items-center gap-2">
+                  <img src="/assets/VMB_LOGO.png" alt="VMB Logo" className="h-6" />
+                  Accept Salon Offer
+                </DialogTitle>
+                <DialogDescription className="text-center">
+                  Complete the registration to create your account with {invitation.salonName || salon?.name}.
+                </DialogDescription>
+              </div>
+              <div className="p-4">
+                <p className="text-sm text-gray-600 mb-2">By accepting this salon offer, you'll create an account with {invitation.sponsor || salon?.name || "the salon"}.</p>
+              </div>
+            </>
+          ) : (
+            /* Standard dialog for client invitations */
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-center text-pink-700">Accept Gift Request?</DialogTitle>
+                <DialogDescription className="text-center">
+                  You're about to accept the gift request from {invitation.name}.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="p-4">
+                <p className="text-sm text-gray-600 mb-2">Accepting this invitation will create a new client account with {invitation.salonName || salon?.name}.</p>
+              </div>
+            </>
+          )}
+          
+          <DialogFooter className="flex justify-between sm:justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              className={`${invitation.senderId ? 'bg-pink-600 hover:bg-pink-700' : 'bg-amber-500 hover:bg-amber-600'} text-white`}
+              onClick={handleAcceptInvitation}
+              disabled={acceptingInvitation}
+            >
+              {acceptingInvitation ? (
+                <>
+                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                  Processing...
+                </>
+              ) : (
+                'Accept & Continue'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

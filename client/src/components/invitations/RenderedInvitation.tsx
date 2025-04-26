@@ -16,6 +16,7 @@ interface RenderedInvitationProps {
   imageUrl?: string;
   className?: string;
   salonInitiated?: boolean; // To identify salon-initiated invitations
+  onSendGift?: () => void; // Handler for the SEND GIFT button click
 }
 
 export function RenderedInvitation({
@@ -28,7 +29,8 @@ export function RenderedInvitation({
   salonName = "Tiffany 5280 Nails Studio",
   imageUrl = "/assets/french-tips.png",
   className = "",
-  salonInitiated = false
+  salonInitiated = false,
+  onSendGift
 }: RenderedInvitationProps) {
   const formattedInviteId = inviteId.startsWith('INV-FINAL-') ? inviteId : `INV-FINAL-${inviteId}`;
   
@@ -87,13 +89,12 @@ export function RenderedInvitation({
                   <div className="flex justify-center mt-1 mb-2">
                     <Button 
                       className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white"
+                      onClick={onSendGift}
                     >
                       SEND GIFT
                     </Button>
                   </div>
                 )}
-                
-                <div>PS: Clients register here: <a href="/index" className="inline-flex items-center bg-gray-100 text-gray-800 rounded-full p-1 text-xs hover:bg-gray-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></a></div>
                 
                 <div className="text-center mt-2 text-xs text-gray-400">VMB:{inviteId}</div>
 
