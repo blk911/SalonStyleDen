@@ -113,6 +113,7 @@ export default function AdminDashboard() {
   // Section visibility states (stored in localStorage for persistence)
   const [styleOptionsOpen, setStyleOptionsOpen] = useState(true);
   const [networkVisualizationOpen, setNetworkVisualizationOpen] = useState(true);
+  const [codeGraphOpen, setCodeGraphOpen] = useState(true);
   const [invitationsOpen, setInvitationsOpen] = useState(true);
   const [clientsOpen, setClientsOpen] = useState(true);
   const [activityLogsOpen, setActivityLogsOpen] = useState(true);
@@ -127,6 +128,7 @@ export default function AdminDashboard() {
       try {
         const styleOpt = localStorage.getItem('adminDashboard_styleOptionsOpen');
         const networkVis = localStorage.getItem('adminDashboard_networkVisualizationOpen');
+        const codeGraph = localStorage.getItem('adminDashboard_codeGraphOpen');
         const invites = localStorage.getItem('adminDashboard_invitationsOpen');
         const clients = localStorage.getItem('adminDashboard_clientsOpen');
         const logs = localStorage.getItem('adminDashboard_activityLogsOpen');
@@ -135,6 +137,7 @@ export default function AdminDashboard() {
         
         if (styleOpt !== null) setStyleOptionsOpen(styleOpt === 'true');
         if (networkVis !== null) setNetworkVisualizationOpen(networkVis === 'true');
+        if (codeGraph !== null) setCodeGraphOpen(codeGraph === 'true');
         if (invites !== null) setInvitationsOpen(invites === 'true');
         if (clients !== null) setClientsOpen(clients === 'true');
         if (logs !== null) setActivityLogsOpen(logs === 'true');
@@ -153,6 +156,7 @@ export default function AdminDashboard() {
     try {
       localStorage.setItem('adminDashboard_styleOptionsOpen', styleOptionsOpen.toString());
       localStorage.setItem('adminDashboard_networkVisualizationOpen', networkVisualizationOpen.toString());
+      localStorage.setItem('adminDashboard_codeGraphOpen', codeGraphOpen.toString());
       localStorage.setItem('adminDashboard_invitationsOpen', invitationsOpen.toString());
       localStorage.setItem('adminDashboard_clientsOpen', clientsOpen.toString());
       localStorage.setItem('adminDashboard_activityLogsOpen', activityLogsOpen.toString());
@@ -160,7 +164,7 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error('Error saving section states to localStorage:', error);
     }
-  }, [styleOptionsOpen, networkVisualizationOpen, invitationsOpen, clientsOpen, activityLogsOpen, salonDirectoryOpen]);
+  }, [styleOptionsOpen, networkVisualizationOpen, codeGraphOpen, invitationsOpen, clientsOpen, activityLogsOpen, salonDirectoryOpen]);
   
   // Save expanded salon state to localStorage when it changes
   useEffect(() => {
