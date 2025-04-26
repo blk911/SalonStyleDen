@@ -121,6 +121,15 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     favoriteServices: string[];
   } | null>(null);
   
+  // Process message placeholder replacements
+  const processMessage = (message: string, clientName: string, styleOption: string) => {
+    // Replace placeholders with actual values
+    return message
+      .replace(/\[nm\]/g, clientName)
+      .replace(/\[insert sty opt NAME\]/g, styleOption || "Salon Service")
+      .replace(/\[RANDOM ID\]/g, `VMB-${Math.floor(100000 + Math.random() * 900000)}`);
+  };
+  
   // State for collapsible sections - all closed by default
   const [sendFormOpen, setSendFormOpen] = useState(() => {
     const saved = localStorage.getItem('vmb-send-invitation-form-open');
@@ -335,6 +344,13 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       // Import generate invite hash function
       const { generateInviteHash } = await import('@/lib/utils');
       
+      // Process message with placeholders before saving
+      const processedNotes = processMessage(
+        notes,
+        name,
+        selectedServices.length > 0 ? selectedServices[0] : ''
+      );
+      
       const response = await fetch('/api/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -342,7 +358,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           name,
           phone: cleanPhone,
           email,
-          notes,
+          notes: processedNotes, // Use the processed message with placeholders replaced
           favoriteServices: selectedServices,
           salonId,
           firstServiceDate,
@@ -458,9 +474,24 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                 <Input
                   placeholder="Client Name"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    
+                    // Update notes with the new name if it contains the placeholder
+                    if (notes.includes('[nm]')) {
+                      setNotes(processMessage(notes, e.target.value, selectedServices[0] || ''));
+                    }
+                  }}
                   required
                   className="flex-1"
+                  onKeyDown={(e) => {
+                    // Move to next field on Enter
+                    if (e.key === 'Enter' && name.trim().length > 0) {
+                      e.preventDefault();
+                      const phoneInput = document.querySelector('input[placeholder="Phone Number"]') as HTMLInputElement;
+                      if (phoneInput) phoneInput.focus();
+                    }
+                  }}
                 />
                 <div className="flex-1 relative">
                   <Input
@@ -476,6 +507,15 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                     }}
                     required
                     className={`w-full ${phoneExists ? 'border-red-500 focus:ring-red-500' : ''}`}
+                    onKeyDown={(e) => {
+                      // Move to next field on Enter when phone is complete
+                      const cleanPhone = phone.replace(/\D/g, '');
+                      if (e.key === 'Enter' && cleanPhone.length === 10) {
+                        e.preventDefault();
+                        const emailInput = document.querySelector('input[placeholder="Email Address"]') as HTMLInputElement;
+                        if (emailInput) emailInput.focus();
+                      }
+                    }}
                   />
                   {phoneExists && (
                     <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500">
@@ -500,6 +540,14 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                     }}
                     required
                     className={`w-full ${emailExists ? 'border-red-500 focus:ring-red-500' : ''}`}
+                    onKeyDown={(e) => {
+                      // Move to next field on Enter
+                      if (e.key === 'Enter' && email.includes('@')) {
+                        e.preventDefault();
+                        const dateInput = document.querySelector('input[type="date"]') as HTMLInputElement;
+                        if (dateInput) dateInput.focus();
+                      }
+                    }}
                   />
                   {emailExists && (
                     <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500">
@@ -512,6 +560,14 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   value={firstServiceDate}
                   onChange={(e) => setFirstServiceDate(e.target.value)}
                   className="flex-1"
+                  onKeyDown={(e) => {
+                    // Move to notes field on Enter
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const notesInput = document.querySelector('textarea') as HTMLTextAreaElement;
+                      if (notesInput) notesInput.focus();
+                    }
+                  }}
                 />
               </div>
 
@@ -528,6 +584,18 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={4}
+                onKeyDown={(e) => {
+                  // Tab to service selection
+                  if (e.key === 'Tab' && !e.shiftKey) {
+                    // Let default tab behavior work
+                  } else if (e.key === 'Enter' && !e.shiftKey) {
+                    // Move to services on Enter (except when shift is pressed for new line)
+                    e.preventDefault();
+                    // Focus on the first service button
+                    const serviceButton = document.querySelector('div.flex.flex-wrap.gap-2 button') as HTMLButtonElement;
+                    if (serviceButton) serviceButton.focus();
+                  }
+                }}
               />
 
               {/* Line 5: Favorite Services */}
@@ -538,11 +606,18 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                     type="button"
                     variant={selectedServices.includes(service) ? "default" : "outline"}
                     onClick={() => {
-                      setSelectedServices(prev => 
-                        prev.includes(service) 
-                          ? prev.filter(s => s !== service)
-                          : [...prev, service]
-                      );
+                      const newSelectedServices = selectedServices.includes(service)
+                        ? selectedServices.filter(s => s !== service)
+                        : [...selectedServices, service];
+                      
+                      setSelectedServices(newSelectedServices);
+                      
+                      // Update the notes with the selected service if it contains placeholder
+                      if (notes.includes('[insert sty opt NAME]')) {
+                        // Use the first selected service for the message
+                        const serviceToUse = newSelectedServices.length > 0 ? newSelectedServices[0] : '';
+                        setNotes(processMessage(notes, name, serviceToUse));
+                      }
                     }}
                     className={selectedServices.includes(service) ? 'bg-pink-500 hover:bg-pink-600' : ''}
                   >
@@ -577,12 +652,19 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                     return;
                   }
                   
+                  // Process message for preview to replace placeholders
+                  const processedNotes = processMessage(
+                    notes, 
+                    name, 
+                    selectedServices.length > 0 ? selectedServices[0] : ''
+                  );
+                  
                   // Set preview data and show modal
                   setPreviewData({
                     name,
                     phone,
                     email,
-                    notes,
+                    notes: processedNotes,
                     firstServiceDate,
                     favoriteServices: selectedServices,
                   });
@@ -980,6 +1062,12 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   salonName={salonInfo?.name || ''}
                   salonInitiated={true}
                 />
+                
+                {/* Show the processed message for preview */}
+                <div className="p-3 bg-gray-50 text-sm text-gray-700 border-t border-gray-200">
+                  <p className="font-medium mb-1">Message Preview:</p>
+                  <p className="whitespace-pre-wrap">{previewData.notes}</p>
+                </div>
               </div>
             </div>
           )}
