@@ -705,7 +705,6 @@ export default function AdminDashboard() {
                               {client.salonId && (
                                 <Link 
                                   to={`/salon/${client.salonId}`}
-                                  onClick={() => setLocation(`/salon/${client.salonId}`)}
                                   className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200"
                                 >
                                   Salon
@@ -780,8 +779,7 @@ export default function AdminDashboard() {
                             <Link 
                               to={`/salon/${salon.id}`}
                               onClick={(e) => {
-                                e.stopPropagation();
-                                setLocation(`/salon/${salon.id}`);
+                                e.stopPropagation(); // Only stop click propagation to prevent collapsing
                               }}
                               className="mr-3 px-2 py-1 text-[10px] bg-pink-200 text-pink-700 rounded hover:bg-pink-300"
                             >

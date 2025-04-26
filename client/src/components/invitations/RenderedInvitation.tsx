@@ -49,13 +49,16 @@ export function RenderedInvitation({
         : 'from-pink-300 via-purple-300 to-indigo-300'}`}></div>
       
       <CardContent className="p-4">
-        <div className="mb-4">
-          <AspectRatio ratio={4/3} className="bg-muted rounded-md overflow-hidden shadow-md">
+        <div className="mb-4" style={{ maxHeight: '120px' }}>
+          <AspectRatio ratio={4/3} className="bg-muted rounded-md overflow-hidden shadow-md" style={{ maxHeight: '120px' }}>
             <img 
               src={imageUrl} 
               alt={styleOption}
               className="object-cover w-full h-full"
-              style={{ maxHeight: '120px' }} // Set max height to 120px as specified
+              style={{ maxHeight: '120px' }}
+              onError={(e) => {
+                e.currentTarget.src = '/assets/VMB_LOGO.png'; // Fallback if image fails to load
+              }}
             />
           </AspectRatio>
         </div>
