@@ -130,10 +130,10 @@ export default function RecentVmbInvitations({
                       <Link 
                         to={invitation.status.toLowerCase() === 'complete' 
                             ? `/complete-invitation/${invitation.id}` 
-                            : `/invitation/${invitation.inviteHash}?view=preview&prefill=true`}
+                            : `/invitation-preview/${invitation.inviteHash}`}
                         onClick={() => setLocation(invitation.status.toLowerCase() === 'complete' 
                             ? `/complete-invitation/${invitation.id}` 
-                            : `/invitation/${invitation.inviteHash}?view=preview&prefill=true`)}
+                            : `/invitation-preview/${invitation.inviteHash}`)}
                         className="inline-flex items-center text-pink-600 font-medium gap-1 text-xs sm:text-sm hover:text-pink-800 cursor-pointer whitespace-nowrap"
                       >
                         <ExternalLinkIcon className="h-3 w-3 sm:h-4 sm:w-4" />

@@ -235,7 +235,7 @@ export default function PendingSalonInvitations({
                 
                 // Navigate to the full invitation page with preview mode
                 if (selectedInvitation) {
-                  setLocation(`/invitation/${selectedInvitation.inviteHash}?view=preview&prefill=true`);
+                  setLocation(`/invitation-preview/${selectedInvitation.inviteHash}`);
                 }
               }}
               className={selectedInvitation?.senderId ? 

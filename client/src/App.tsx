@@ -40,6 +40,7 @@ function Router() {
       <Route path="/clients" component={ClientsPage} />
       <Route path="/salons" component={SalonsPage} />
       <Route path="/invitation/:hash" component={InvitationPage} />
+      <Route path="/invitation-preview/:hash" component={InvitationPreview} />
       <Route path="/invitations/by-hash/:hash" component={InvitationPage} />
       <Route path="/complete-invitation/:id" component={CompleteInvitationPage} />
       {/* Temporarily hiding the Promos page */}
