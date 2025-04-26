@@ -137,6 +137,42 @@ export default function ClientRegistrationPage() {
       invitationId: invitationId,
     },
   });
+  
+  // Listen for form reset event from PhoneInputField
+  useEffect(() => {
+    const handleFormReset = () => {
+      // Reset the form to default values
+      form.reset({
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        notes: '',
+        favoriteServices: [],
+        acceptTerms: false,
+        sponsorSalonId: salonId,
+        invitationId: invitationId,
+      });
+      
+      // Show toast notification
+      toast({
+        title: "Form Reset",
+        description: "The form has been reset due to registered phone number",
+        variant: "default",
+      });
+    };
+    
+    // Add event listener for custom reset event
+    document.addEventListener('vmb-form-reset', handleFormReset);
+    
+    // Clean up event listener on component unmount
+    return () => {
+      document.removeEventListener('vmb-form-reset', handleFormReset);
+    };
+  }, [form, toast, salonId, invitationId]);
 
   // When invitation data is loaded, populate the form
   // Auto-redirect effect for already processed invitations
@@ -562,25 +598,36 @@ export default function ClientRegistrationPage() {
                     <FormField
                       control={form.control}
                       name="acceptTerms"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>
-                              I accept the terms and conditions
-                            </FormLabel>
-                            <FormDescription>
-                              By registering, you agree to our privacy policy and terms of service.
-                            </FormDescription>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      render={({ field }) => {
+                        // Use component state for tracking focus
+                        const [isFocused, setIsFocused] = useState(false);
+                        
+                        return (
+                          <FormItem 
+                            className={`flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 transition-colors duration-200 hover:bg-pink-50/50 ${
+                              isFocused ? 'bg-pink-50 border-pink-200 shadow-sm' : ''
+                            }`}
+                          >
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                onFocus={() => setIsFocused(true)}
+                                onBlur={() => setIsFocused(false)}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel>
+                                I accept the terms and conditions
+                              </FormLabel>
+                              <FormDescription>
+                                By registering, you agree to our privacy policy and terms of service.
+                              </FormDescription>
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
                     />
                     
                     <Button 
