@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, AlertTriangle, Loader2 } from "lucide-react";
-import { ValidationResult } from "@/hooks/use-contact-validation";
+// Define validation result types inline instead of importing
+type ValidationResult = 'registered' | 'not_registered' | 'invalid' | 'loading' | null;
 
 interface ContactValidationDialogProps {
   open: boolean;
