@@ -76,16 +76,16 @@ export default function Navbar() {
           </div>
           <div className="hidden sm:flex sm:items-center justify-center w-full">
             <div className="flex items-center space-x-8">
-              <Link href="/">
+              <Link to="/">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home</div>
               </Link>
-              <Link href="/salons">
+              <Link to="/salons">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
               </Link>
-              <Link href="/clients">
+              <Link to="/clients">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
               </Link>
-              <Link href="/admin">
+              <Link to="/admin">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
               </Link>
               <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
@@ -108,16 +108,16 @@ export default function Navbar() {
       {/* Mobile menu */}
       <div className={`sm:hidden ${mobileMenuOpen ? "block" : "hidden"}`}>
         <div className="flex flex-wrap justify-center gap-4 py-3">
-          <Link href="/">
+          <Link to="/">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home</div>
           </Link>
-          <Link href="/salons">
+          <Link to="/salons">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
           </Link>
-          <Link href="/clients">
+          <Link to="/clients">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
           </Link>
-          <Link href="/admin">
+          <Link to="/admin">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
           </Link>
           <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
