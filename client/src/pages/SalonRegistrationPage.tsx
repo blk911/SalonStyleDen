@@ -265,7 +265,7 @@ export default function SalonRegistrationPage() {
                           <FormItem>
                             <FormLabel>Address</FormLabel>
                             <FormControl>
-                              <Input placeholder="Street address" {...field} />
+                              <Input placeholder="Street address" id="address-field" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
