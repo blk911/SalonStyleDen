@@ -337,43 +337,16 @@ export default function InvitationPreview() {
                   "This is a preview of a salon invitation" : 
                   "This is a preview of a client gift request form"}
               </div>
-              
-              {/* Show either Accept Invitation button or Back to Dashboard based on invitation status */}
-              {invitation.status === 'pending' ? (
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => window.history.back()}
-                    className={isSalonInvitation ? 
-                      "border-amber-200 text-amber-700 hover:bg-amber-50" : 
-                      "border-pink-200 text-pink-700 hover:bg-pink-50"}
-                  >
-                    <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                    Back
-                  </Button>
-                  
-                  <Button
-                    onClick={promptAcceptInvitation}
-                    className={`${isSalonInvitation 
-                      ? 'bg-amber-500 hover:bg-amber-600' 
-                      : 'bg-pink-600 hover:bg-pink-700'} text-white font-medium shadow-sm flex items-center`}
-                  >
-                    <CheckCircleIcon className="h-4 w-4 mr-2" />
-                    Accept This Invitation
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  variant="outline"
-                  onClick={() => window.history.back()}
-                  className={isSalonInvitation ? 
-                    "border-amber-200 text-amber-700 hover:bg-amber-50" : 
-                    "border-pink-200 text-pink-700 hover:bg-pink-50"}
-                >
-                  <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                  Back to Dashboard
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                onClick={() => window.history.back()}
+                className={isSalonInvitation ? 
+                  "border-amber-200 text-amber-700 hover:bg-amber-50" : 
+                  "border-pink-200 text-pink-700 hover:bg-pink-50"}
+              >
+                <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Button>
             </div>
           </CardFooter>
         </Card>
