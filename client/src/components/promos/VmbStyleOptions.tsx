@@ -23,7 +23,7 @@ import { Button } from '@/components/ui/button';
 import { CheckIcon, Sparkles, AlertTriangle, ChevronUpIcon, ChevronDownIcon, Send, Loader2 } from 'lucide-react';
 import { FaMoneyBillWave } from 'react-icons/fa';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
+import { apiRequest } from '../../lib/apiRequest';
 import { getImageUrl } from '../../lib/utils';
 import { useLocation } from 'wouter';
 import { useForm } from 'react-hook-form';
@@ -191,7 +191,7 @@ export function VmbStyleOptions({
       console.log("[FLOW][VmbStyleOptions] Saving invitation to database", invitationData);
       
       // POST to API
-      const response = await apiRequest("POST", "/api/invitations", invitationData);
+      const response = await apiRequest("/api/invitations", "POST", invitationData);
       const savedInvitation = await response.json();
       
       console.log("[FLOW][VmbStyleOptions] Invitation saved successfully", savedInvitation);
@@ -584,11 +584,15 @@ export function VmbStyleOptions({
       // If clientId is available, proceed with the API call
       if (values.styleOptions.clientId) {
         // Save selection to database using form values
-        const response = await apiRequest(`/api/clients/${values.styleOptions.clientId}/style-selections`, 'POST', {
-          styleId: values.styleOptions.styleId,
-          salonId: values.styleOptions.salonId,
-          invitationId: values.styleOptions.invitationId
-        });
+        const response = await apiRequest(
+          `/api/clients/${values.styleOptions.clientId}/style-selections`, 
+          'POST',
+          {
+            styleId: values.styleOptions.styleId,
+            salonId: values.styleOptions.salonId,
+            invitationId: values.styleOptions.invitationId
+          }
+        );
         
         if (response.ok) {
           const newSelection = await response.json();
