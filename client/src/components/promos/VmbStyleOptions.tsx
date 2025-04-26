@@ -1258,50 +1258,42 @@ export function VmbStyleOptions({
               </div>
             </div>
             <DialogFooter className="sm:justify-between">
-              {/* New "Ven Me, Baby!" button with contact validation */}
+              <Button 
+                type="button" 
+                variant="outline"
+                className="text-gray-600"
+                onClick={() => setShowConfirmDialog(false)}
+              >
+                Cancel
+              </Button>
+              
+              {/* Send Invitation Button */}
               <Button 
                 type="button"
-                className="bg-green-400 hover:bg-green-500 text-white font-medium"
-                onClick={async () => {
-                  // Check if we have contact information to validate
-                  const contactToValidate = recipientContact || '';
+                className={`${salonInitiated ? 'bg-amber-500 hover:bg-amber-600' : 'bg-pink-500 hover:bg-pink-600'} text-white font-medium`}
+                onClick={() => {
+                  // Close confirmation dialog
+                  setShowConfirmDialog(false);
                   
-                  if (!contactToValidate) {
-                    toast({
-                      title: "Missing contact information",
-                      description: "Please enter a phone number or email to validate",
-                      variant: "destructive"
-                    });
-                    return;
-                  }
+                  // Generate a unique ID for the invitation
+                  const uniqueId = `${Date.now().toString(36)}${Math.random().toString(36).substring(2, 5)}`.toUpperCase();
+                  setFinalInvitationId(uniqueId);
                   
-                  // Store the contact we're validating
-                  setValidatedContact(contactToValidate);
+                  // Show the final rendered invitation
+                  setShowFinalInvitationModal(true);
                   
-                  // Use our contact validation hook
-                  try {
-                    // Reset any previous validation
-                    resetValidation();
-                    
-                    // Perform validation
-                    const result = await validateContact(contactToValidate);
-                    
-                    // Show dialog with result
-                    setShowValidationDialog(true);
-                    
-                    // Log validation result
-                    console.log("Contact validation result:", result);
-                  } catch (error) {
-                    console.error("Error validating client:", error);
-                    toast({
-                      title: "Validation Error",
-                      description: "Unable to validate client information",
-                      variant: "destructive"
-                    });
-                  }
+                  // Log the send action
+                  console.log("[FLOW][VmbStyleOptions] Sending invitation", {
+                    recipientName,
+                    recipientContact,
+                    styleId: confirmedStyle?.id,
+                    styleName: confirmedStyle?.name,
+                    salonInitiated
+                  });
                 }}
               >
-                Ven Me, Baby!
+                <Send className="h-4 w-4 mr-2" />
+                {salonInitiated ? "Send Salon Invitation" : "Send Gift Request"}
               </Button>
             </DialogFooter>
           </DialogContent>
