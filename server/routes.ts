@@ -982,6 +982,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             throw new Error("Either Salon ID or Sender ID is required for invitations");
           }
           
+          // Validate that the senderId (clientId) exists in the database
+          if (validatedData.senderId) {
+            const senderClient = await storage.getClient(validatedData.senderId);
+            if (!senderClient) {
+              console.log(`[API] POST /invitations - Invalid senderId: ${validatedData.senderId} - Client does not exist`);
+              throw new Error("Invalid sender ID. Client does not exist in the database.");
+            }
+            console.log(`[API] POST /invitations - Valid senderId: ${validatedData.senderId} - Client exists: ${senderClient.name}`);
+          }
+          
           // Create the invitation in database
           const createdInvitation = await storage.createInvitation(validatedData);
         
