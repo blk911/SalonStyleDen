@@ -47,6 +47,26 @@ export default function InvitationPage() {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [acceptingInvitation, setAcceptingInvitation] = useState(false);
+  
+  // Form state for client information
+  const [clientForm, setClientForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: ''
+  });
+  
+  // Handle form input changes
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setClientForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+  
+
   
   // Parse query parameters to determine view mode and prefill status
   const isCompleteView = location.includes('complete=true');
@@ -130,6 +150,7 @@ export default function InvitationPage() {
   // Handle accept invitation or view dashboard
   const handleAcceptInvitation = async () => {
     setShowConfirmDialog(false);
+    setAcceptingInvitation(true);
     
     if (!invitation || !invitation.id) {
       toast({
@@ -137,7 +158,42 @@ export default function InvitationPage() {
         description: "There was a problem with this invitation.",
         variant: "destructive"
       });
+      setAcceptingInvitation(false);
       return;
+    }
+    
+    // For salon invitations, validate form data
+    if (!invitation.senderId && invitation.status === 'pending') {
+      // Basic validation
+      if (!clientForm.firstName.trim()) {
+        toast({
+          title: "Missing Information",
+          description: "Please enter your first name.",
+          variant: "destructive"
+        });
+        setAcceptingInvitation(false);
+        return;
+      }
+      
+      if (!clientForm.email.trim() || !clientForm.email.includes('@')) {
+        toast({
+          title: "Invalid Email",
+          description: "Please enter a valid email address.",
+          variant: "destructive"
+        });
+        setAcceptingInvitation(false);
+        return;
+      }
+      
+      if (!clientForm.phone.trim() || clientForm.phone.replace(/\D/g, '').length < 10) {
+        toast({
+          title: "Invalid Phone Number",
+          description: "Please enter a valid phone number.",
+          variant: "destructive"
+        });
+        setAcceptingInvitation(false);
+        return;
+      }
     }
 
     try {
@@ -211,7 +267,15 @@ export default function InvitationPage() {
       }
       
       // Direct to registration page with the invitation data
-      setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+      // For salon invitations, pass updated client info from the form
+      if (!invitation.senderId) {
+        const fullName = `${clientForm.firstName} ${clientForm.lastName}`.trim();
+        setLocation(
+          `/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}&name=${encodeURIComponent(fullName)}&email=${encodeURIComponent(clientForm.email)}&phone=${encodeURIComponent(clientForm.phone)}`
+        );
+      } else {
+        setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+      }
       
     } catch (error) {
       console.error('Error in invitation acceptance flow:', error);
@@ -270,6 +334,19 @@ export default function InvitationPage() {
       </div>
     );
   }
+  
+  // Initialize form data when invitation loads
+  useEffect(() => {
+    if (invitation) {
+      const nameParts = invitation.name ? invitation.name.split(' ') : ['', ''];
+      setClientForm({
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: invitation.email || '',
+        phone: invitation.phone || ''
+      });
+    }
+  }, [invitation]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -452,8 +529,16 @@ export default function InvitationPage() {
                       onClick={promptAcceptInvitation}
                       className="w-full bg-amber-500 hover:bg-amber-600 text-white"
                       size="lg"
+                      disabled={acceptingInvitation}
                     >
-                      Accept Salon Offer & Create Account
+                      {acceptingInvitation ? (
+                        <>
+                          <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                          Processing...
+                        </>
+                      ) : (
+                        'Accept Salon Offer & Create Account'
+                      )}
                     </Button>
                     
                     <p className="text-center text-sm text-gray-500">
@@ -533,16 +618,20 @@ export default function InvitationPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                       <input 
                         type="text" 
+                        name="firstName"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
-                        defaultValue={invitation.name?.split(' ')[0] || ''}
+                        value={clientForm.firstName}
+                        onChange={handleFormChange}
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
                       <input 
                         type="text" 
+                        name="lastName"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
-                        defaultValue={invitation.name?.split(' ')[1] || ''}
+                        value={clientForm.lastName}
+                        onChange={handleFormChange}
                       />
                     </div>
                   </div>
@@ -551,8 +640,10 @@ export default function InvitationPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                     <input 
                       type="email" 
+                      name="email"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
-                      defaultValue={invitation.email || ''}
+                      value={clientForm.email}
+                      onChange={handleFormChange}
                     />
                   </div>
                   
@@ -560,8 +651,10 @@ export default function InvitationPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
                     <input 
                       type="tel" 
+                      name="phone"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
-                      defaultValue={invitation.phone || ''}
+                      value={clientForm.phone}
+                      onChange={handleFormChange}
                     />
                   </div>
                   
@@ -585,8 +678,16 @@ export default function InvitationPage() {
               type="button"
               className={`${invitation.senderId ? 'bg-pink-600 hover:bg-pink-700' : 'bg-amber-500 hover:bg-amber-600'} text-white`}
               onClick={handleAcceptInvitation}
+              disabled={acceptingInvitation}
             >
-              Accept & Continue
+              {acceptingInvitation ? (
+                <>
+                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                  Processing...
+                </>
+              ) : (
+                'Accept & Continue'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
