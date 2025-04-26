@@ -1158,18 +1158,32 @@ export function VmbStyleOptions({
                           
                           {/* Payment icons are in the message area above */}
                           
-                          {/* Add primary Submit button at the bottom of Step 3 */}
+                          {/* Direct Send Gift Request button without confirmation dialog */}
                           <div className="mt-4 text-center">
                             <Button 
                               type="button"
                               className={`w-full sm:w-auto px-6 py-2 ${salonInitiated ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600' : 'bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600'} text-white font-medium shadow-md`}
                               onClick={() => {
-                                // Show confirmation dialog
-                                setShowConfirmDialog(true);
+                                // Skip confirmation dialog and go directly to the final preview
+                                // Generate a unique ID for the invitation
+                                const uniqueId = `${Date.now().toString(36)}${Math.random().toString(36).substring(2, 5)}`.toUpperCase();
+                                setFinalInvitationId(uniqueId);
+                                
+                                // Show the final rendered invitation
+                                setShowFinalInvitationModal(true);
+                                
+                                // Log the direct preview action
+                                console.log("[FLOW][VmbStyleOptions] Opening final invitation preview", {
+                                  recipientName,
+                                  recipientContact,
+                                  styleId: confirmedStyle?.id,
+                                  styleName: confirmedStyle?.name,
+                                  salonInitiated
+                                });
                               }}
                             >
                               <Send className="h-4 w-4 mr-2" />
-                              {salonInitiated ? "Send Salon Invitation" : "Send Gift Request"}
+                              Send Gift Request
                             </Button>
                           </div>
                         </div>
@@ -1324,29 +1338,56 @@ export function VmbStyleOptions({
               />
             </div>
             
-            <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-3">
-              <div className="text-sm text-gray-500">
+            <div className="flex flex-col space-y-2">
+              <div className="text-sm text-gray-500 text-center">
                 Unique ID: <span className="font-mono">INV-FINAL-{finalInvitationId}</span>
               </div>
-              <Button 
-                type="button" 
-                onClick={() => {
-                  setShowFinalInvitationModal(false);
-                  
-                  // Show toast notification
-                  toast({
-                    title: "Gift Request Sent!",
-                    description: "Your gift request has been sent to the recipient",
-                    variant: "default"
-                  });
-                  
-                  // Note: For salon-initiated invitations, we'll never reach here
-                  // because we now redirect directly from the confirmation dialog
-                }}
-              >
-                {salonInitiated ? "Send" : "Close"}
-              </Button>
-            </DialogFooter>
+              
+              <DialogFooter className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                  onClick={() => {
+                    // Close the modal and go back to the salon page
+                    setShowFinalInvitationModal(false);
+                    
+                    // Log the back action
+                    console.log("[FLOW][VmbStyleOptions] User clicked BACK from final invitation");
+                    
+                    // Redirect to salon public page
+                    if (salonId) {
+                      navigate(`/salon/${salonId}`);
+                    }
+                  }}
+                >
+                  Back to Salon
+                </Button>
+                
+                <Button 
+                  type="button"
+                  className={`w-full sm:w-auto ${salonInitiated ? 'bg-amber-500 hover:bg-amber-600' : 'bg-pink-500 hover:bg-pink-600'} text-white font-medium`}
+                  onClick={() => {
+                    // Close the modal
+                    setShowFinalInvitationModal(false);
+                    
+                    // Show success toast
+                    toast({
+                      title: "Gift Request Sent!",
+                      description: "Your gift request has been sent to the recipient",
+                      variant: "default"
+                    });
+                    
+                    // Log the confirm send action
+                    console.log("[FLOW][VmbStyleOptions] User CONFIRMED gift request send", {
+                      invitationId: finalInvitationId
+                    });
+                  }}
+                >
+                  CONFIRM TO SEND
+                </Button>
+              </DialogFooter>
+            </div>
           </DialogContent>
         </Dialog>
 
