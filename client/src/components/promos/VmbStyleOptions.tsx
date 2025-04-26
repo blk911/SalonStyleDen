@@ -26,6 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '../../lib/apiRequest';
 import { getImageUrl } from '../../lib/utils';
 import { useLocation } from 'wouter';
+import { queryClient } from '../../lib/queryClient';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -1368,28 +1369,39 @@ export function VmbStyleOptions({
                   type="button"
                   className={`w-full sm:w-auto ${salonInitiated ? 'bg-amber-500 hover:bg-amber-600' : 'bg-pink-500 hover:bg-pink-600'} text-white font-medium`}
                   onClick={async () => {
+                    // Basic validation before sending
+                    if (!recipientContact || recipientContact.length < 10) {
+                      toast({
+                        title: "Invalid Phone Number",
+                        description: "Please enter a valid phone number with at least 10 digits",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    
+                    // Clean phone number to ensure it's properly formatted
+                    const cleanedPhone = recipientContact.replace(/\D/g, '');
+                    
                     // Prepare invitation data - this must follow the server-side schema
                     const invitationData = {
                       // These are the required fields for the invitation table
                       name: recipientName || "Friend",
-                      phone: recipientContact || "",
+                      phone: cleanedPhone || "",
                       email: "",  // We may not have this in the flow
+                      notes: `Hi ${recipientName || "Friend"}, I would love a fresh set. My stylist has an opening for ${confirmedStyle?.name || "Selected Style"}, $${confirmedStyle?.price || 45} (${confirmedStyle?.duration || 30} min) will you Ven Me, Baby! ❤️ ❤️ ❤️ ${signature || "Your friend"}`,
                       message: signature ? `From: ${signature}` : "From your friend",
+                      type: "client_to_friend",
                       salonId: salonId || 42, // Default to Tiffany's salon if not provided
                       inviteHash: finalInvitationId,
                       status: "pending", // Must be lowercase 'pending' to match salon dashboard filter
                       sponsor: signature || "Your Friend",
-                      
-                      // For style selection
-                      styleOption: confirmedStyle?.name || "Selected Style",
-                      stylePrice: confirmedStyle?.price || 45,
-                      styleDuration: confirmedStyle?.duration || 30,
-                      styleImageUrl: confirmedStyle?.gifUrl || "/assets/french-tips.png",
+                      favoriteServices: [confirmedStyle?.name || "Selected Style"],
+                      firstServiceDate: new Date().toISOString().split('T')[0],
                       
                       // Track the sender (client ID) if available
                       senderId: clientId || null,
                       
-                      // If completing an existing invitation
+                      // If completing an existing invitation (not used in the schema but used in frontend)
                       originalInvitationId: invitationId || null
                     };
                     
@@ -1406,7 +1418,12 @@ export function VmbStyleOptions({
                       });
                       
                       if (!response.ok) {
-                        throw new Error(`Failed to send invitation: ${response.statusText}`);
+                        // Get detailed error information
+                        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                        console.error("[FLOW][ERROR] Server response error:", errorData);
+                        
+                        // Show more detailed error message
+                        throw new Error(`Failed to send invitation: ${errorData.error || response.statusText}`);
                       }
                       
                       const result = await response.json();
@@ -1429,8 +1446,8 @@ export function VmbStyleOptions({
                           // Force reload to refresh the dashboard with the new invitation
                           navigate(`/dashboard/salon/${salonId}`);
                           
-                          // Invalidate the invitations cache to make sure the list is fresh
-                          queryClient.invalidateQueries({ queryKey: [`/api/salons/${salonId}/invitations`] });
+                          // Refresh the page to make sure the dashboard shows the latest invitations
+                          setTimeout(() => window.location.reload(), 500); // Delayed reload to allow API time to complete
                         } else {
                           // For client-initiated invitations, go back to the salon public page
                           navigate(`/salon/${salonId}`);
@@ -1440,9 +1457,13 @@ export function VmbStyleOptions({
                       console.error("[FLOW][ERROR] Failed to send invitation:", error);
                       
                       // Show error toast
+                      const errorMessage = error instanceof Error 
+                        ? error.message 
+                        : "There was a problem sending your gift request.";
+                        
                       toast({
                         title: "Error Sending Gift Request",
-                        description: "There was a problem sending your gift request. Please try again.",
+                        description: errorMessage,
                         variant: "destructive"
                       });
                     }
