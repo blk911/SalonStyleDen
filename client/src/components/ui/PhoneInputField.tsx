@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Input, InputProps } from '@/components/ui/input';
-import { cleanPhoneNumber, isValidPhone } from '@/lib/utils';
+import { cleanPhoneNumber, isValidPhone, formatPhoneNumber, formatPhoneNumberDashed } from '@/lib/utils';
 import { useContactValidation } from '@/hooks/use-contact-validation';
 import { ContactValidationDialog } from '@/components/ui/ContactValidationDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';

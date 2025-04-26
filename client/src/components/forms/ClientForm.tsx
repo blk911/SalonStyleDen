@@ -81,7 +81,7 @@ export default function ClientForm({
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  // Initialize contact validation hook
+  // Initialize enhanced contact validation hook
   const [showValidationDialog, setShowValidationDialog] = useState(false);
   const [validatedContact, setValidatedContact] = useState("");
   const {
@@ -89,8 +89,15 @@ export default function ClientForm({
     validateContact,
     isValidating,
     validatedContactType,
+    phoneExists,
+    emailExists,
+    getPhoneProps,
+    getEmailProps,
     resetValidation
-  } = useContactValidation();
+  } = useContactValidation({
+    validateOnChange: false, // We'll validate manually during form submission
+    validateOnBlur: false    // We'll validate manually during form submission
+  });
 
   // Fetch available salons
   const { data: salons, isLoading: isLoadingSalons, error: salonsError } = useQuery<SalonOption[]>({
@@ -484,9 +491,11 @@ export default function ClientForm({
                         <Input 
                           {...field} 
                           placeholder="Cell Phone (XXX-XXX-XXXX)" 
-                          className={validationResult === 'registered' && validatedContactType === 'phone' ? "border-red-500" : ""}
+                          className={`${phoneExists ? "border-red-500" : ""} ${field.value && validationResult === 'registered' && validatedContactType === 'phone' ? "border-red-500" : ""}`}
                           onChange={(e) => {
-                            const formatted = formatPhoneNumber(e.target.value);
+                            // Use the enhanced phone formatter from our hook
+                            const phoneProps = getPhoneProps(field.value);
+                            const formatted = phoneProps.onChange(e);
                             field.onChange(formatted);
                           }}
                           onBlur={async (e) => {
