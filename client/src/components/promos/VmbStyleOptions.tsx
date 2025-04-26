@@ -128,6 +128,8 @@ export function VmbStyleOptions({
   const [isStep1Open, setIsStep1Open] = useState(false); // Closed by default
   const [isStep2Open, setIsStep2Open] = useState(false); // Closed by default
   const [isStep3Open, setIsStep3Open] = useState(false); // Closed by default
+  // Track current step for navigation
+  const [currentStep, setCurrentStep] = useState(1);
   // New state for the invitation form
   const [recipientName, setRecipientName] = useState("");
   const [recipientContact, setRecipientContact] = useState("");
@@ -1158,17 +1160,30 @@ export function VmbStyleOptions({
                           
                           {/* Payment icons are in the message area above */}
                           
-                          {/* Add primary Submit button at the bottom of Step 3 */}
-                          <div className="mt-4 text-center">
+                          {/* Add primary Submit button for Step 3 - this starts the confirmation flow */}
+                          <div className="mt-4 flex justify-center space-x-3">
                             <Button 
                               type="button"
-                              className={`w-full sm:w-auto px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white font-medium`}
+                              variant="outline"
+                              className="text-gray-600 border-gray-300"
+                              onClick={() => {
+                                // Go back to step 1 by closing step 3 and opening step 1
+                                setIsStep3Open(false);
+                                setIsStep1Open(true);
+                              }}
+                            >
+                              Back to Style Selection
+                            </Button>
+                            
+                            <Button 
+                              type="button"
+                              className="px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white font-medium"
                               onClick={() => {
                                 // Show confirmation dialog
                                 setShowConfirmDialog(true);
                               }}
                             >
-                              Send Gift Request
+                              Confirm
                             </Button>
                           </div>
                         </div>
@@ -1244,39 +1259,96 @@ export function VmbStyleOptions({
               </div>
             </div>
             
-            <DialogFooter className="sm:justify-between">
-              <Button 
-                type="button" 
-                variant="outline"
-                className="text-gray-600"
-                onClick={() => setShowConfirmDialog(false)}
-              >
-                Cancel
-              </Button>
+            <DialogFooter className="sm:justify-between flex flex-wrap gap-2">
+              <div className="flex space-x-2">
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  className="text-gray-600 border-gray-300"
+                  onClick={() => {
+                    // Close confirmation dialog
+                    setShowConfirmDialog(false);
+                    
+                    // Clear form data
+                    form.reset({
+                      recipientName: '',
+                      recipientContact: '',
+                      signature: ''
+                    });
+                  }}
+                >
+                  Clear Form
+                </Button>
+                
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  className="bg-gray-100 text-gray-600 border-gray-300"
+                  onClick={() => {
+                    // Just close dialog and go back
+                    setShowConfirmDialog(false);
+                  }}
+                >
+                  Back
+                </Button>
+              </div>
               
-              {/* Send Invitation Button - exactly matching the screenshot */}
+              {/* Send Invitation Button with actual form submission */}
               <Button 
                 type="button"
                 className="bg-pink-500 hover:bg-pink-600 text-white font-medium"
-                onClick={() => {
-                  // Close confirmation dialog
-                  setShowConfirmDialog(false);
-                  
-                  // Generate a unique ID for the invitation
-                  const uniqueId = `${Date.now().toString(36)}${Math.random().toString(36).substring(2, 5)}`.toUpperCase();
-                  setFinalInvitationId(uniqueId);
-                  
-                  // Show the final rendered invitation
-                  setShowFinalInvitationModal(true);
-                  
-                  // Log the send action
-                  console.log("[FLOW][VmbStyleOptions] Sending invitation", {
-                    recipientName,
-                    recipientContact,
-                    styleId: confirmedStyle?.id,
-                    styleName: confirmedStyle?.name,
-                    salonInitiated
-                  });
+                onClick={async () => {
+                  try {
+                    // Close confirmation dialog
+                    setShowConfirmDialog(false);
+                    
+                    // Generate a unique ID for the invitation
+                    const uniqueId = `${Date.now().toString(36)}${Math.random().toString(36).substring(2, 5)}`.toUpperCase();
+                    setFinalInvitationId(uniqueId);
+                    
+                    // Prepare invitation data
+                    const invitationData = {
+                      styleId: confirmedStyle?.id,
+                      salonId: salonId,
+                      recipientName: recipientName || 'Friend',
+                      recipientContact: recipientContact || '',
+                      senderName: signature || 'Your Friend',
+                      invitationId: uniqueId,
+                      status: 'SENT',
+                      styleDetails: {
+                        name: confirmedStyle?.name,
+                        price: confirmedStyle?.price,
+                        duration: confirmedStyle?.duration
+                      }
+                    };
+                    
+                    // Post to the invitation endpoint
+                    console.log("[FLOW][VmbStyleOptions] Posting invitation data:", invitationData);
+                    
+                    // Call the API to save the invitation
+                    const response = await fetch('/api/invitations', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(invitationData)
+                    });
+                    
+                    if (!response.ok) {
+                      throw new Error(`Error sending invitation: ${response.statusText}`);
+                    }
+                    
+                    const result = await response.json();
+                    console.log("[FLOW][VmbStyleOptions] Invitation created successfully:", result);
+                    
+                    // Show the final rendered invitation
+                    setShowFinalInvitationModal(true);
+                  } catch (error) {
+                    console.error("[FLOW][ERROR] Failed to send invitation:", error);
+                    toast({
+                      title: "Error sending invitation",
+                      description: error instanceof Error ? error.message : "Unknown error occurred",
+                      variant: "destructive"
+                    });
+                  }
                 }}
               >
                 Send Gift Request
