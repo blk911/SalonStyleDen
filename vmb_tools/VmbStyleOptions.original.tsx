@@ -136,7 +136,6 @@ export function VmbStyleOptions({
   const [invitationConfirmed, setInvitationConfirmed] = useState(false);
   const [giftApproved, setGiftApproved] = useState(false);
   // We've removed the confirmation dialog in favor of direct submission
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false); // Added back for compatibility during migration
   const [showFinalInvitationModal, setShowFinalInvitationModal] = useState(false);
   const [finalInvitationId, setFinalInvitationId] = useState("");
   const personalMessageRef = useRef<HTMLInputElement>(null); // Reference for personal message input
