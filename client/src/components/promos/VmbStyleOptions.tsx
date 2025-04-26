@@ -121,8 +121,8 @@ export function VmbStyleOptions({
   const [showPromoCodeDialog, setShowPromoCodeDialog] = useState(false);
   const [tempSelectedPhone, setTempSelectedPhone] = useState<string>('');
   const [confirmedStyle, setConfirmedStyle] = useState<StyleOption | null>(null);
-  const [showStep2, setShowStep2] = useState(true);  // Set to true for testing
-  const [showStep3, setShowStep3] = useState(true);  // Set to true for testing
+  const [showStep2, setShowStep2] = useState(false);  // Hidden until Step 1 selection
+  const [showStep3, setShowStep3] = useState(false);  // Hidden until Step 2 is completed
   const [stateTracker, setStateTracker] = useState(0); // Debug counter
   const [showStep1, setShowStep1] = useState(true); // Always true now - we'll use isStep1Open to control collapse
   const [isStep1Open, setIsStep1Open] = useState(false); // Closed by default
@@ -493,11 +493,20 @@ export function VmbStyleOptions({
       
       // Close Step 2 when Step 3 appears, but keep it visible as a collapsible
       setIsStep2Open(false);
+      // Open Step 3
+      setIsStep3Open(true);
+      
+      // Replace placeholders in message with actual values
+      let updatedMessage = invitationMessage;
+      updatedMessage = updatedMessage.replace("[NAME]", recipientName || "[NAME]");
+      updatedMessage = updatedMessage.replace("[STY OPT]", confirmedStyle.name);
+      updatedMessage = updatedMessage.replace("[SIGNED]", signature || "[SIGNED]");
+      setInvitationMessage(updatedMessage);
       
       // Show a more helpful message to guide the user to the next step
       toast({
         title: "Gift Options Ready!",
-        description: "Now you can pick your gift options!",
+        description: "Now you can preview and send your invitation!",
         variant: "default"
       });
       return;
@@ -545,10 +554,23 @@ export function VmbStyleOptions({
       // Ensure all steps are showing
       setShowStep2(true);
       setShowStep3(true);
+      // Open Step 3 and close Step 2
+      setIsStep2Open(false);
+      setIsStep3Open(true);
+      
+      // Update invitation message with proper values
+      let updatedMessage = invitationMessage;
+      updatedMessage = updatedMessage.replace("[NAME]", recipientName || "[NAME]");
+      updatedMessage = updatedMessage.replace("[STY OPT]", selectedStyle.name);
+      updatedMessage = updatedMessage.replace("[SIGNED]", signature || "[SIGNED]");
+      setInvitationMessage(updatedMessage);
     } catch (error) {
       // Don't show error - instead just display the gift section
       setShowStep2(true);
       setShowStep3(true);
+      // Open Step 3 and close Step 2
+      setIsStep2Open(false);
+      setIsStep3Open(true);
     } finally {
       setIsSubmitting(false);
     }
