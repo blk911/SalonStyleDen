@@ -1425,10 +1425,16 @@ export function VmbStyleOptions({
                         // Process error information more clearly
                         let errorMessage = 'Unknown error';
                         
+                        // Define the validation error type
+                        interface ValidationError {
+                          path: Array<string>;
+                          message: string;
+                        }
+                        
                         // Handle array of validation errors
                         if (Array.isArray(errorData.error)) {
                           // Format validation errors into a readable message
-                          errorMessage = errorData.error.map(err => 
+                          errorMessage = errorData.error.map((err: ValidationError) => 
                             `${err.path.join('.')}: ${err.message}`
                           ).join(', ');
                         } 
