@@ -1,3 +1,7 @@
+// ✅ WORKS EXACTLY AS INTENDED
+// 🚫 DO NOT MODIFY WITHOUT FULL RETEST
+// Component: ClientInviteForm - Handles client-to-friend invitations
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AtSignIcon, ChevronDownIcon, ChevronUpIcon, PhoneIcon, SendIcon, UserIcon } from "lucide-react";
+import FlowLogger from "@/lib/flow-logger";
 
 interface ClientInviteFormProps {
   clientId: number;
@@ -25,16 +30,24 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     message: "Hey! I love my salon's Ven Me, Baby! style options. You should check them out!",
   });
 
+  // Log form initialization
+  useEffect(() => {
+    FlowLogger.log('ClientInviteForm', 'Form Initialized', { clientId });
+  }, [clientId]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    FlowLogger.log('ClientInviteForm', 'Form Field Updated', { field: name, value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    FlowLogger.log('ClientInviteForm', 'Form Submit Initiated');
     
     // Simple validation
     if (!form.name.trim()) {
+      FlowLogger.warn('ClientInviteForm', 'Validation Failed - Name Required');
       toast({
         title: "Name required",
         description: "Please enter your friend's name",
@@ -44,6 +57,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     }
     
     if (!form.phone.trim() && !form.email.trim()) {
+      FlowLogger.warn('ClientInviteForm', 'Validation Failed - Contact Info Required');
       toast({
         title: "Contact info required",
         description: "Please enter either phone or email",
@@ -54,9 +68,10 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     
     try {
       setLoading(true);
+      FlowLogger.log('ClientInviteForm', 'Form Validation Passed, Processing Submission');
       
       // Context-aware validation first
-      console.log("Performing context-aware validation...");
+      FlowLogger.log('ClientInviteForm', 'Performing Server-Side Validation');
       const validationResponse = await fetch("/api/invitations", {
         method: "POST",
         headers: {
@@ -74,6 +89,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
       // Handle validation errors
       if (!validationResponse.ok) {
         const errorData = await validationResponse.json();
+        FlowLogger.error('ClientInviteForm', 'Server Validation Failed', errorData);
         toast({
           title: "Validation failed",
           description: errorData.error || "Unable to validate contact information",
@@ -83,7 +99,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
         return;
       }
       
-      console.log("Validation passed, sending invitation...");
+      FlowLogger.log('ClientInviteForm', 'Server Validation Passed, Sending Invitation');
       
       // Send invitation
       const response = await fetch("/api/invitations", {
@@ -108,6 +124,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
       
       // Get response data
       const data = await response.json();
+      FlowLogger.success('ClientInviteForm', 'Invitation Sent Successfully', { invitationId: data.id });
       
       // Success!
       toast({
@@ -125,10 +142,12 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
       
       // Call success callback if provided
       if (onSuccess) {
+        FlowLogger.log('ClientInviteForm', 'Executing Success Callback');
         onSuccess();
       }
       
     } catch (error) {
+      FlowLogger.error('ClientInviteForm', 'Error Sending Invitation', error);
       console.error("Error sending invitation:", error);
       toast({
         title: "Error",
@@ -143,6 +162,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
   // Always show the form when hideToggle is true
   useEffect(() => {
     if (hideToggle) {
+      FlowLogger.log('ClientInviteForm', 'Form Always Visible (hideToggle=true)');
       setIsFormOpen(true);
     }
   }, [hideToggle]);
