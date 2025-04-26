@@ -452,7 +452,32 @@ export default function ClientRegistrationPage() {
                           <FormItem>
                             <FormLabel>Phone Number</FormLabel>
                             <FormControl>
-                              <Input placeholder="Your phone number" {...field} />
+                              <PhoneInputField 
+                                placeholder="Your phone number" 
+                                value={field.value}
+                                onChange={field.onChange}
+                                onValidationComplete={(isValid, isRegistered) => {
+                                  if (isRegistered) {
+                                    toast({
+                                      title: "Phone Already Registered",
+                                      description: "This phone number is already registered in our system.",
+                                      variant: "destructive"
+                                    });
+                                  }
+                                }}
+                                onEnterPress={() => {
+                                  // Focus the address field when Enter is pressed
+                                  const addressField = document.querySelector('input[name="address"]');
+                                  if (addressField instanceof HTMLElement) {
+                                    toast({
+                                      title: "Address Option",
+                                      description: "Moving to address field. This is optional.",
+                                      variant: "default"
+                                    });
+                                    addressField.focus();
+                                  }
+                                }}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
