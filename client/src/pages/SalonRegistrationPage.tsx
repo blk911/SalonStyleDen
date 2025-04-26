@@ -233,13 +233,8 @@ export default function SalonRegistrationPage() {
                                 value={field.value}
                                 onChange={field.onChange}
                                 onValidationComplete={(isValid, isRegistered) => {
-                                  if (isRegistered) {
-                                    toast({
-                                      title: "Phone Already Registered",
-                                      description: "This phone number is already registered in our system.",
-                                      variant: "destructive"
-                                    });
-                                  }
+                                  // We are now displaying this information in the dialog
+                                  console.log(`Phone validation: isValid=${isValid}, isRegistered=${isRegistered}`);
                                 }}
                                 onEnterPress={() => {
                                   // Focus the address field when Enter is pressed
@@ -247,6 +242,10 @@ export default function SalonRegistrationPage() {
                                   if (addressField instanceof HTMLElement) {
                                     addressField.focus();
                                   }
+                                }}
+                                clearField={() => {
+                                  // Clear the phone field when a registered number is found
+                                  field.onChange('');
                                 }}
                               />
                             </FormControl>

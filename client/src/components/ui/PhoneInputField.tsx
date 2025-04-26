@@ -1,17 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Input, InputProps } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
 import { formatPhoneNumber, cleanPhoneNumber, isValidPhone } from '@/lib/utils';
 import { useContactValidation } from '@/hooks/use-contact-validation';
 import { ContactValidationDialog } from '@/components/ui/ContactValidationDialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle } from 'lucide-react';
 
 interface PhoneInputFieldProps extends Omit<InputProps, 'onChange'> {
   value: string;
   onChange: (value: string) => void;
   onValidationComplete?: (isValid: boolean, isRegistered: boolean) => void;
   onEnterPress?: () => void;
-  showAddressPopup?: boolean;
-  autoValidate?: boolean;
+  clearField?: () => void;
 }
 
 export function PhoneInputField({
@@ -19,15 +20,14 @@ export function PhoneInputField({
   onChange,
   onValidationComplete,
   onEnterPress,
-  showAddressPopup = true,
-  autoValidate = true,
+  clearField,
   ...props
 }: PhoneInputFieldProps) {
-  const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const [focused, setFocused] = useState(false);
   const [touched, setTouched] = useState(false);
   const [showValidationDialog, setShowValidationDialog] = useState(false);
+  const [showRegisteredDialog, setShowRegisteredDialog] = useState(false);
   
   const {
     validationResult,
@@ -50,7 +50,7 @@ export function PhoneInputField({
 
     // Only validate if we have a value and 10 digits
     const digits = cleanPhoneNumber(value);
-    if (digits.length === 10 && autoValidate) {
+    if (digits.length === 10) {
       await validatePhoneNumber();
     }
   };
@@ -66,7 +66,14 @@ export function PhoneInputField({
 
     try {
       const result = await validateContact(value);
-      setShowValidationDialog(true);
+      
+      if (result === 'registered') {
+        // Phone is already registered - show registered dialog
+        setShowRegisteredDialog(true);
+      } else if (result === 'not_registered') {
+        // Valid phone number - show validation dialog
+        setShowValidationDialog(true);
+      }
       
       if (onValidationComplete) {
         onValidationComplete(
@@ -88,27 +95,32 @@ export function PhoneInputField({
       const isValid = isValidPhone(value);
       
       if (!isValid) {
-        toast({
-          title: "Invalid Phone Number",
-          description: "Please enter a valid 10-digit phone number",
-          variant: "destructive"
-        });
+        setTouched(true);
         return;
       }
       
-      // Show address popup if enabled
-      if (showAddressPopup && isValid) {
-        toast({
-          title: "Address Option",
-          description: "Moving to address field. This is optional.",
-          variant: "default"
-        });
-      }
-      
-      // Call the onEnterPress callback
-      if (onEnterPress) {
-        onEnterPress();
-      }
+      // Start validation process
+      validatePhoneNumber();
+    }
+  };
+
+  // Handle the registered dialog close
+  const handleRegisteredDialogClose = () => {
+    setShowRegisteredDialog(false);
+    
+    // Clear the field if requested
+    if (clearField) {
+      clearField();
+    }
+  };
+
+  // Handle the validation dialog close
+  const handleValidationDialogClose = () => {
+    setShowValidationDialog(false);
+    
+    // Move to the address field
+    if (onEnterPress) {
+      onEnterPress();
     }
   };
 
@@ -146,12 +158,46 @@ export function PhoneInputField({
         </p>
       )}
       
+      {/* Phone Already Registered Dialog */}
+      <Dialog open={showRegisteredDialog} onOpenChange={setShowRegisteredDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Phone Already Registered</DialogTitle>
+            <DialogDescription>
+              This phone number is already registered in our system.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-6">
+            <div className="text-center p-4 bg-amber-50 border border-amber-200 rounded-md">
+              <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
+              <h3 className="text-lg font-semibold text-amber-700 mb-1">Phone Number In Use</h3>
+              <p className="text-amber-600 mb-2">
+                {value} is already registered.
+              </p>
+              <p className="font-bold mt-2 text-amber-800">IN DB</p>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              type="button" 
+              onClick={handleRegisteredDialogClose}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Valid Phone Dialog */}
       <ContactValidationDialog
         open={showValidationDialog}
         onOpenChange={setShowValidationDialog}
         validationResult={validationResult}
         contactType="phone"
         contactValue={value}
+        onClose={handleValidationDialogClose}
       />
     </>
   );

@@ -16,6 +16,7 @@ interface ContactValidationDialogProps {
   validationResult: ValidationResult;
   contactType: 'phone' | 'email' | 'unknown';
   contactValue: string;
+  onClose?: () => void;
 }
 
 /**
@@ -27,7 +28,8 @@ export function ContactValidationDialog({
   onOpenChange,
   validationResult,
   contactType,
-  contactValue
+  contactValue,
+  onClose
 }: ContactValidationDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -83,7 +85,10 @@ export function ContactValidationDialog({
         <DialogFooter>
           <Button 
             type="button" 
-            onClick={() => onOpenChange(false)}
+            onClick={() => {
+              onOpenChange(false);
+              if (onClose) onClose();
+            }}
           >
             Close
           </Button>
