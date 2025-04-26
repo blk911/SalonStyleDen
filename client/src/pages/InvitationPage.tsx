@@ -335,23 +335,48 @@ export default function InvitationPage() {
     );
   }
   
+  // 🔄 FIXED VERSION - HOOKS ERROR
   // ✅ WORKS EXACTLY AS INTENDED
   // 🚫 DO NOT MODIFY WITHOUT FULL RETEST
   // Function: Initialize form data when invitation loads
   useEffect(() => {
-    // The hook itself always runs consistently
-    // Only the logic inside depends on invitation
+    // Initialize with empty values by default, ensuring this runs consistently
+    let firstName = '';
+    let lastName = '';
+    let email = '';
+    let phone = '';
+    
+    // Only update values if invitation exists
     if (invitation) {
-      // Process name parts from invitation
+      // Process name parts from invitation safely
       const nameParts = invitation.name ? invitation.name.split(' ') : ['', ''];
-      
-      // Update client form with invitation data
-      setClientForm({
-        firstName: nameParts[0] || '',
-        lastName: nameParts.slice(1).join(' ') || '',
-        email: invitation.email || '',
-        phone: invitation.phone || ''
-      });
+      firstName = nameParts[0] || '';
+      lastName = nameParts.slice(1).join(' ') || '';
+      email = invitation.email || '';
+      phone = invitation.phone || '';
+    }
+    
+    // Always update the form regardless of invitation state
+    setClientForm({
+      firstName,
+      lastName,
+      email,
+      phone
+    });
+    
+    // Log form initialization via flow logger
+    if (window.vmb && window.vmb.devTools) {
+      try {
+        const flowLogger = (window.vmb.devTools as any).logFlow;
+        if (typeof flowLogger === 'function') {
+          flowLogger('InvitationPage', 'Form data initialized', {
+            hasInvitation: !!invitation,
+            formState: { firstName, lastName, email, phone }
+          });
+        }
+      } catch (error) {
+        // Silently handle any logging errors
+      }
     }
   }, [invitation]);
 
