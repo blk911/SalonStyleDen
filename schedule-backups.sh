@@ -1,139 +1,185 @@
 #!/bin/bash
-# VMB Backup Scheduler
-# Sets up automatic scheduled backups using cron
+# VMB Backup Scheduling Script
+# This script helps configure and run scheduled backups for the VMB project
 
-echo "=== VMB Backup Scheduler Setup ==="
-echo "This script will set up automatic scheduled backups for your VMB application."
+# Function to display usage information
+show_usage() {
+  echo "VMB Backup Scheduler - Usage:"
+  echo "  ./schedule-backups.sh [options]"
+  echo ""
+  echo "Options:"
+  echo "  --daily     Schedule daily backups"
+  echo "  --hourly    Schedule hourly backups (for active development)"
+  echo "  --weekly    Schedule weekly backups (recommended for production)"
+  echo "  --cleanup   Clean up old backups (keeps last 5)"
+  echo "  --status    Show current backup schedule"
+  echo "  --help      Show this help message"
+  echo ""
+  echo "Examples:"
+  echo "  ./schedule-backups.sh --daily   # Schedule daily backups"
+  echo "  ./schedule-backups.sh --cleanup # Clean up old backups"
+}
 
-# Check for prerequisites
-if ! command -v crontab &> /dev/null; then
-  echo "ERROR: crontab command not found. Please install cron."
-  exit 1
+# Function to schedule backups using cron
+schedule_backup() {
+  local frequency=$1
+  local schedule=""
+  
+  case $frequency in
+    hourly)
+      schedule="0 * * * *"
+      echo "Scheduling hourly backups (at minute 0 of every hour)"
+      ;;
+    daily)
+      schedule="0 0 * * *"
+      echo "Scheduling daily backups (at midnight every day)"
+      ;;
+    weekly)
+      schedule="0 0 * * 0"
+      echo "Scheduling weekly backups (at midnight every Sunday)"
+      ;;
+    *)
+      echo "Unknown frequency. Use hourly, daily, or weekly."
+      exit 1
+      ;;
+  esac
+  
+  # In Replit, we can't directly modify crontab, so we'll create a script
+  # that demonstrates how to set it up and provide instructions
+  
+  echo "To set up $frequency backups on your system:"
+  echo ""
+  echo "1. Open your crontab:"
+  echo "   crontab -e"
+  echo ""
+  echo "2. Add the following line:"
+  echo "   $schedule cd $(pwd) && ./quick-backup.sh > backup.log 2>&1"
+  echo ""
+  echo "3. Save and exit the editor"
+  echo ""
+  echo "Since we're in Replit, we can't directly modify the crontab."
+  echo "As an alternative, you can run backups manually with ./quick-backup.sh"
+  echo "or set up a simple scheduler using a loop with sleep."
+  
+  # Create a simple background scheduler script as an alternative to cron
+  echo "#!/bin/bash" > vmb_backup_scheduler.sh
+  echo "# VMB Backup Scheduler - $frequency backups" >> vmb_backup_scheduler.sh
+  echo "" >> vmb_backup_scheduler.sh
+  
+  case $frequency in
+    hourly)
+      echo "# Run hourly backups" >> vmb_backup_scheduler.sh
+      echo "while true; do" >> vmb_backup_scheduler.sh
+      echo "  ./quick-backup.sh" >> vmb_backup_scheduler.sh
+      echo "  sleep 3600  # Sleep for 1 hour" >> vmb_backup_scheduler.sh
+      echo "done" >> vmb_backup_scheduler.sh
+      ;;
+    daily)
+      echo "# Run daily backups" >> vmb_backup_scheduler.sh
+      echo "while true; do" >> vmb_backup_scheduler.sh
+      echo "  ./quick-backup.sh" >> vmb_backup_scheduler.sh
+      echo "  sleep 86400  # Sleep for 24 hours" >> vmb_backup_scheduler.sh
+      echo "done" >> vmb_backup_scheduler.sh
+      ;;
+    weekly)
+      echo "# Run weekly backups" >> vmb_backup_scheduler.sh
+      echo "while true; do" >> vmb_backup_scheduler.sh
+      echo "  ./quick-backup.sh" >> vmb_backup_scheduler.sh
+      echo "  sleep 604800  # Sleep for 7 days" >> vmb_backup_scheduler.sh
+      echo "done" >> vmb_backup_scheduler.sh
+      ;;
+  esac
+  
+  chmod +x vmb_backup_scheduler.sh
+  echo ""
+  echo "Created vmb_backup_scheduler.sh that can be run in the background:"
+  echo "  nohup ./vmb_backup_scheduler.sh &"
+  echo "This will run backups at $frequency intervals"
+}
+
+# Function to clean up old backups
+cleanup_backups() {
+  echo "=== Cleaning up old backups ==="
+  
+  # Count the number of backup directories
+  backup_count=$(ls -d vmb_backup_* 2>/dev/null | wc -l)
+  
+  if [[ $backup_count -gt 5 ]]; then
+    # Keep the 5 most recent backups, delete the rest
+    echo "Found $backup_count backups, keeping the 5 most recent"
+    ls -dt vmb_backup_* | tail -n +6 | xargs rm -rf
+    echo "Cleanup complete"
+  else
+    echo "Found $backup_count backups (5 or fewer), no cleanup needed"
+  fi
+}
+
+# Function to show current backup status
+show_status() {
+  echo "=== VMB Backup Status ==="
+  
+  # Count the number of backup directories
+  backup_count=$(ls -d vmb_backup_* 2>/dev/null | wc -l)
+  echo "Total backups: $backup_count"
+  
+  if [[ $backup_count -gt 0 ]]; then
+    echo ""
+    echo "Most recent backups:"
+    ls -dt vmb_backup_* | head -n 3 | while read backup_dir; do
+      echo "- $backup_dir ($(du -sh $backup_dir | cut -f1))"
+    done
+  fi
+  
+  echo ""
+  echo "Scheduler status:"
+  if [[ -f vmb_backup_scheduler.sh ]]; then
+    echo "- Scheduler script found: vmb_backup_scheduler.sh"
+    if pgrep -f vmb_backup_scheduler.sh > /dev/null; then
+      echo "- Scheduler is running"
+    else
+      echo "- Scheduler is not running"
+    fi
+  else
+    echo "- No scheduler script found"
+  fi
+}
+
+# Process command line arguments
+if [[ $# -eq 0 ]]; then
+  show_usage
+  exit 0
 fi
 
-# Get absolute paths
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
-BACKUP_SCRIPT="${SCRIPT_DIR}/backup.sh"
-DB_BACKUP_SCRIPT="${SCRIPT_DIR}/backup-db.sh"
-
-# Make scripts executable
-chmod +x "${BACKUP_SCRIPT}" "${DB_BACKUP_SCRIPT}"
-
-# Prompt for backup schedule
-echo "=== Backup Schedule Configuration ==="
-echo "Please specify when to run each type of backup."
-echo ""
-
-# Database backup schedule
-echo "== Database Backup Schedule =="
-echo "Recommended: Daily"
-read -p "How often should database backups run? [daily/weekly]: " db_frequency
-db_frequency=${db_frequency:-daily}
-
-read -p "At what hour (0-23)? [3]: " db_hour
-db_hour=${db_hour:-3}
-
-read -p "At what minute (0-59)? [0]: " db_minute
-db_minute=${db_minute:-0}
-
-if [[ "${db_frequency}" == "daily" ]]; then
-  db_schedule="${db_minute} ${db_hour} * * *"
-  echo "Database backup scheduled daily at ${db_hour}:${db_minute}"
-else
-  read -p "On which day of the week (0-6, 0=Sunday)? [0]: " db_day
-  db_day=${db_day:-0}
-  db_schedule="${db_minute} ${db_hour} * * ${db_day}"
-  echo "Database backup scheduled weekly on day ${db_day} at ${db_hour}:${db_minute}"
-fi
-
-# Full backup schedule
-echo ""
-echo "== Full System Backup Schedule =="
-echo "Recommended: Weekly"
-read -p "How often should full system backups run? [weekly/monthly]: " full_frequency
-full_frequency=${full_frequency:-weekly}
-
-read -p "At what hour (0-23)? [2]: " full_hour
-full_hour=${full_hour:-2}
-
-read -p "At what minute (0-59)? [0]: " full_minute
-full_minute=${full_minute:-0}
-
-if [[ "${full_frequency}" == "weekly" ]]; then
-  read -p "On which day of the week (0-6, 0=Sunday)? [6]: " full_day
-  full_day=${full_day:-6}
-  full_schedule="${full_minute} ${full_hour} * * ${full_day}"
-  echo "Full backup scheduled weekly on day ${full_day} at ${full_hour}:${full_minute}"
-else
-  read -p "On which day of the month (1-28)? [1]: " full_dom
-  full_dom=${full_dom:-1}
-  full_schedule="${full_minute} ${full_hour} ${full_dom} * *"
-  echo "Full backup scheduled monthly on day ${full_dom} at ${full_hour}:${full_minute}"
-fi
-
-# Backup rotation (cleanup)
-echo ""
-echo "== Backup Retention Configuration =="
-read -p "How many days should we keep database backups? [30]: " db_retention
-db_retention=${db_retention:-30}
-
-read -p "How many days should we keep full system backups? [90]: " full_retention
-full_retention=${full_retention:-90}
-
-# Create cleanup script
-CLEANUP_SCRIPT="${SCRIPT_DIR}/cleanup-backups.sh"
-cat > "${CLEANUP_SCRIPT}" << EOF
-#!/bin/bash
-# VMB Backup Cleanup Script
-# Removes old backups based on retention policy
-
-# Remove old database backups
-find "${SCRIPT_DIR}/vmb_db_backup" -name "vmb-db-*.sql" -type f -mtime +${db_retention} -delete
-find "${SCRIPT_DIR}/vmb_db_backup" -name "vmb-db-*.sql.gz" -type f -mtime +${db_retention} -delete
-find "${SCRIPT_DIR}/vmb_db_backup" -name "backup-info-*.txt" -type f -mtime +${db_retention} -delete
-find "${SCRIPT_DIR}/vmb_db_backup" -name "restore-db-*.sh" -type f -mtime +${db_retention} -delete
-
-# Remove old full backups
-find "${SCRIPT_DIR}" -name "vmb_backup_*" -type d -mtime +${full_retention} -exec rm -rf {} \;
-
-echo "Cleanup completed at \$(date)"
-EOF
-
-chmod +x "${CLEANUP_SCRIPT}"
-
-# Schedule cleanup to run daily
-cleanup_schedule="30 ${full_hour} * * *"
-
-# Create cron entries
-(crontab -l 2>/dev/null || echo "# VMB Automatic Backup Schedule") | \
-grep -v "${BACKUP_SCRIPT}" | \
-grep -v "${DB_BACKUP_SCRIPT}" | \
-grep -v "${CLEANUP_SCRIPT}" > temp_cron
-
-# Add new entries
-cat >> temp_cron << EOF
-# VMB Database Backup - ${db_frequency}
-${db_schedule} ${DB_BACKUP_SCRIPT} >> ${SCRIPT_DIR}/vmb_db_backup/backup.log 2>&1
-
-# VMB Full System Backup - ${full_frequency}
-${full_schedule} ${BACKUP_SCRIPT} >> ${SCRIPT_DIR}/vmb_backup_\$(date +\%Y-\%m-\%d-\%H-\%M-\%S)/backup.log 2>&1
-
-# VMB Backup Cleanup - daily
-${cleanup_schedule} ${CLEANUP_SCRIPT} >> ${SCRIPT_DIR}/cleanup.log 2>&1
-EOF
-
-# Install new crontab
-crontab temp_cron
-rm temp_cron
-
-echo ""
-echo "=== Scheduled Backups Configured Successfully ==="
-echo "Database backups: ${db_schedule} (${db_frequency})"
-echo "Full system backups: ${full_schedule} (${full_frequency})"
-echo "Backup cleanup: ${cleanup_schedule} (daily)"
-echo ""
-echo "Retention periods:"
-echo "- Database backups: ${db_retention} days"
-echo "- Full system backups: ${full_retention} days"
-echo ""
-echo "You can verify your cron jobs with: crontab -l"
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --hourly)
+      schedule_backup "hourly"
+      shift
+      ;;
+    --daily)
+      schedule_backup "daily"
+      shift
+      ;;
+    --weekly)
+      schedule_backup "weekly"
+      shift
+      ;;
+    --cleanup)
+      cleanup_backups
+      shift
+      ;;
+    --status)
+      show_status
+      shift
+      ;;
+    --help)
+      show_usage
+      shift
+      ;;
+    *)
+      echo "Unknown option: $1"
+      show_usage
+      exit 1
+      ;;
+  esac
+done

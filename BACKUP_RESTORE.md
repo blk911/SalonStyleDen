@@ -1,52 +1,113 @@
-# VMB Backup and Restore Guide
+# VMB Backup and Restore System
 
-This document provides detailed instructions for backing up and restoring the VMB (Ven Me, Baby!) application.
+This documentation provides comprehensive information about the backup and restoration system for the Ven Me, Baby! application.
 
-## Backup Overview
+## Overview
 
-The backup system includes:
+The VMB Backup System is designed to provide robust backup and restore capabilities for both development and production environments. It can capture:
 
-1. **Complete Code Snapshot** - All application source code, configurations, and assets
-2. **Database Backup** - A complete PostgreSQL database dump
-3. **Environment Configuration** - Template for recreating environment variables
-4. **Restore Documentation** - Step-by-step restoration instructions
-5. **Dependency Information** - Record of all installed packages
+- **Application code**
+- **Database schema and data**
+- **Environment configuration templates**
+- **Restoration instructions**
 
-## Backup Procedures
+## Backup Tools
 
-### Option 1: Full System Backup (Recommended)
+The system includes several tools for different backup scenarios:
 
-The full backup script creates a comprehensive backup of the entire application:
+### 1. Quick Backup (`quick-backup.sh`)
 
+A lightweight, fast backup script optimized for Replit that:
+- Creates a compressed archive of essential code files
+- Captures database schema information using psql (bypassing pg_dump version limitations)
+- Generates restoration instructions
+- Suitable for daily use during development
+
+**Usage:**
 ```bash
-# Make the script executable
-chmod +x backup.sh
-
-# Run the backup
-./backup.sh
+chmod +x quick-backup.sh
+./quick-backup.sh
 ```
 
-This will create a timestamped directory `vmb_backup_YYYY-MM-DD-HH-MM-SS` containing all necessary files.
+### 2. Backup Scheduler (`schedule-backups.sh`)
 
-### Option 2: Database-Only Backup
+A tool to help set up regular backup schedules:
+- Offers hourly, daily, and weekly backup options
+- Provides cleaning functionality for old backups
+- In Replit, creates a loop-based scheduler as an alternative to cron
 
-If you only need to backup the database:
-
+**Usage:**
 ```bash
-# Make the script executable
-chmod +x backup-db.sh
-
-# Run the database backup
-./backup-db.sh
+chmod +x schedule-backups.sh
+./schedule-backups.sh --daily     # Set up daily backups
+./schedule-backups.sh --weekly    # Set up weekly backups
+./schedule-backups.sh --cleanup   # Clean up old backups (keep last 5)
+./schedule-backups.sh --status    # Show backup status
 ```
 
-This creates a timestamped SQL dump in the `vmb_db_backup` directory.
+### 3. Backup Manager (`backup-manager.sh`)
 
-## Restore Procedures
+An interactive, menu-driven management interface for all backup operations:
+- Create and manage backups
+- View existing backups with detailed information
+- Restore from backups
+- Configure backup schedules
+- Clean up old backups
+- Create database-only backups
 
-### Full System Restore
+**Usage:**
+```bash
+chmod +x backup-manager.sh
+./backup-manager.sh
+```
 
-To restore from a full backup:
+## Backup Content Details
+
+Each backup includes:
+
+1. **Code Archive** (`vmb-code-*.tar.gz`)
+   - Contains all source code files
+   - Excludes node_modules, .git, and other large directories
+
+2. **Database Schema** (`vmb-db-*.sql`)
+   - Table definitions and relationships
+   - Column information
+   - Foreign key constraints
+   - Sample data (limited rows)
+
+3. **Environment Template** (`env-template.txt`)
+   - Template for recreating environment variables
+
+4. **Restoration Script** (`restore.sh`)
+   - Executable script to assist with restoration process
+
+## Backup Directory Structure
+
+Backups are organized with the timestamp in the directory name:
+```
+vmb_backup_YYYY-MM-DD-HH-MM-SS/
+├── vmb-code-YYYY-MM-DD-HH-MM-SS.tar.gz
+├── vmb-db-YYYY-MM-DD-HH-MM-SS.sql
+├── env-template.txt
+├── package.json.ref
+├── db-recreation-guide.txt
+└── restore.sh
+```
+
+## Database Backup Notes
+
+Due to version compatibility issues in Replit (PostgreSQL v16 server with pg_dump v15), the system uses a custom approach:
+
+1. Uses `psql` commands rather than `pg_dump` to extract schema
+2. Captures table structure, relations, and constraints
+3. Limits data export to 1000 rows per table to avoid memory issues
+4. Provides migration-based restoration guidance
+
+## Restoration Process
+
+To restore from a backup:
+
+### Automated Restoration
 
 1. Navigate to the backup directory:
    ```bash
@@ -55,79 +116,97 @@ To restore from a full backup:
 
 2. Run the restore script:
    ```bash
+   chmod +x restore.sh
    ./restore.sh
    ```
 
-3. Follow the prompts to complete the restoration.
+3. Follow the interactive prompts
 
-### Database-Only Restore
+### Manual Restoration
 
-To restore just the database:
-
-1. Navigate to the database backup directory:
+1. Extract the code archive:
    ```bash
-   cd vmb_db_backup
+   tar -xzf vmb-code-*.tar.gz -C /path/to/destination
    ```
 
-2. Run the specific restore script:
+2. Install dependencies:
    ```bash
-   ./restore-db-YYYY-MM-DD-HH-MM-SS.sh
+   npm install
    ```
 
-3. Follow the prompts to enter database credentials.
+3. Set up environment variables:
+   ```bash
+   cp env-template.txt .env
+   # Edit .env with actual values
+   ```
 
-## Manual Restore Process
-
-If the scripts don't work for any reason, here's the manual process:
-
-### 1. Code Restoration
-
-```bash
-# Extract the code archive
-tar -xzf vmb-code-YYYY-MM-DD-HH-MM-SS.tar.gz -C /target/directory
-cd /target/directory
-
-# Install dependencies
-npm install
-```
-
-### 2. Database Restoration
-
-```bash
-# Option 1: Use psql directly
-psql -d your_database_name < vmb-db-YYYY-MM-DD-HH-MM-SS.sql
-
-# Option 2: Use the DATABASE_URL
-psql "postgresql://username:password@hostname:port/database" < vmb-db-YYYY-MM-DD-HH-MM-SS.sql
-```
-
-### 3. Environment Setup
-
-```bash
-# Create environment file from template
-cp vmb-env-template.txt .env
-
-# Edit the file with proper values
-nano .env
-```
-
-## Backup Schedule Recommendations
-
-- **Code Backup**: After significant feature additions or changes
-- **Database Backup**: Daily, preferably during low-usage hours
-- **Full System Backup**: Weekly
+4. Restore database schema:
+   ```bash
+   # Option 1: Use Drizzle migrations
+   npm run db:push
+   
+   # Option 2: Import from SQL (if full dump is available)
+   psql -d your_database_name < vmb-db-*.sql
+   ```
 
 ## Best Practices
 
-1. **Multiple Locations**: Store backups in multiple physical locations
-2. **Verification**: Periodically verify backups by performing a test restore
-3. **Rotation**: Implement a backup rotation schedule to manage storage
-4. **Security**: Ensure backup files are securely stored (they contain sensitive data)
+1. **Regular Backups**: Schedule daily backups during active development
+2. **Pre-Change Backups**: Always backup before major changes
+3. **Retention Policy**: Keep at least 5 recent backups
+4. **Test Restores**: Periodically test restoration to verify backup integrity
 
 ## Troubleshooting
 
-- **Database Restore Fails**: Check PostgreSQL version compatibility
-- **Code Restore Issues**: Verify Node.js version compatibility
-- **Dependency Problems**: Compare package.json with the backup reference version
+### Common Issues
 
-For additional help, refer to the complete project documentation or contact the development team.
+1. **Permission Denied**
+   ```
+   bash: ./script.sh: Permission denied
+   ```
+   **Solution**: Make scripts executable with `chmod +x script.sh`
+
+2. **Database Connection Failed**
+   ```
+   Error: DATABASE_URL not found
+   ```
+   **Solution**: Ensure DATABASE_URL environment variable is set
+
+3. **pg_dump Version Mismatch**
+   ```
+   pg_dump: server version: 16.x; pg_dump version: 15.x
+   ```
+   **Solution**: Use the schema-only backup approach with psql commands
+
+4. **Restoration Path Issues**
+   ```
+   No such file or directory
+   ```
+   **Solution**: Verify paths and ensure target directories exist
+
+## Advanced Usage
+
+### Database-Only Backup
+
+To back up just the database (useful after significant data changes):
+
+```bash
+./backup-manager.sh
+# Select option 6: Backup database only
+```
+
+This creates database backups in the `vmb_db_backup` directory.
+
+### Cleanup Old Backups
+
+To remove older backups (keeps the 5 most recent):
+
+```bash
+./schedule-backups.sh --cleanup
+```
+
+## Security Considerations
+
+1. **Environment Variables**: Backup templates include placeholders, not actual secrets
+2. **Access Control**: Restrict access to backup directories in production
+3. **Encryption**: Consider encrypting backups that contain sensitive information
