@@ -111,15 +111,34 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllSalons(): Promise<Salon[]> {
-    try {
-      console.log('DatabaseStorage.getAllSalons - Attempting to fetch all salons');
-      const result = await db.select().from(salons);
-      console.log(`DatabaseStorage.getAllSalons - Successfully retrieved ${result.length} salons`);
-      return result;
-    } catch (error) {
-      console.error('DatabaseStorage.getAllSalons - Error fetching salons:', error);
-      throw error; // Re-throw to let the route handler catch it
-    }
+    let retries = 3; // Maximum number of retry attempts
+    let delayMs = 500; // Starting delay in milliseconds (will increase exponentially)
+    
+    const performQuery = async (): Promise<Salon[]> => {
+      try {
+        console.log('DatabaseStorage.getAllSalons - Attempting to fetch all salons');
+        const result = await db.select().from(salons);
+        console.log(`DatabaseStorage.getAllSalons - Successfully retrieved ${result.length} salons`);
+        return result;
+      } catch (error) {
+        console.error('DatabaseStorage.getAllSalons - Error fetching salons:', error);
+        
+        if (retries > 0) {
+          retries--;
+          console.log(`DatabaseStorage.getAllSalons - Retrying... (${retries} attempts left)`);
+          
+          // Wait using exponential backoff before retrying
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          delayMs *= 2; // Double the delay for the next retry (exponential backoff)
+          
+          return performQuery(); // Recursively retry
+        }
+        
+        throw error; // If no more retries, re-throw to let the route handler catch it
+      }
+    };
+    
+    return performQuery();
   }
   
   async updateSalonServices(id: number, services: any[]): Promise<Salon> {

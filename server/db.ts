@@ -14,8 +14,19 @@ if (!connectionString) {
   log('DATABASE_URL environment variable is not set', 'db');
 }
 
-// Create a connection pool
-export const pool = new Pool({ connectionString });
+// Create a connection pool with more resilient settings
+export const pool = new Pool({ 
+  connectionString,
+  max: 20, // maximum number of clients the pool should contain
+  connectionTimeoutMillis: 10000, // throw error if client has not connected after 10 seconds
+  idleTimeoutMillis: 30000 // close & remove clients which have been idle > 30 seconds
+});
+
+// Add error handling to pool connections
+pool.on('error', (err) => {
+  log(`Unexpected error on idle client: ${err}`, 'db');
+  // Don't crash the server on connection errors
+});
 
 // Create drizzle db instance
 export const db = drizzle({ client: pool, schema });

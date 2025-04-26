@@ -40,8 +40,7 @@ import {
   DialogTitle 
 } from "@/components/ui/dialog";
 import { RenderedInvitation } from '@/components/invitations/RenderedInvitation';
-import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
-import { useContactValidation } from "@/hooks/useContactValidation";
+import { AlertTriangle } from "lucide-react";
 import { 
   Tooltip,
   TooltipContent,
@@ -851,13 +850,36 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       </Card>
       
       {/* Use our shared validation dialog component */}
-      <ContactValidationDialog
-        open={showErrorDialog}
-        onOpenChange={setShowErrorDialog}
-        errorField={errorField}
-        errorMessage={errorMessage}
-        onClose={handleCustomDialogClose}
-      />
+      <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Contact Validation Error</DialogTitle>
+            <DialogDescription>
+              There was an issue with the information you provided.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-6">
+            <div className="text-center p-4 bg-red-50 border border-red-200 rounded-md">
+              <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-2" />
+              <h3 className="text-lg font-semibold text-red-700 mb-1">
+                {errorField === 'phone' ? 'Phone Number Issue' : 
+                 errorField === 'email' ? 'Email Address Issue' : 'Validation Error'}
+              </h3>
+              <p className="text-red-600">{errorMessage}</p>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              type="button" 
+              onClick={handleCustomDialogClose}
+            >
+              Try Again
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       
       {/* Preview Modal */}
       <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
