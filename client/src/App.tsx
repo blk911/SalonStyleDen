@@ -21,6 +21,7 @@ import TestImagePage from "@/pages/TestImagePage";
 import NetworkVisualization from "@/pages/NetworkVisualization";
 import MadgeVisualizationPage from "@/pages/MadgeVisualizationPage";
 import InvitationPage from "@/pages/InvitationPage";
+import InvitationPreview from "@/pages/InvitationPreview";
 import ClientRegistrationPage from "@/pages/ClientRegistrationPage";
 import SalonRegistrationPage from "@/pages/SalonRegistrationPage";
 import CompleteInvitationPage from "@/pages/CompleteInvitationPage";
