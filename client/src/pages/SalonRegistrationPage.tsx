@@ -265,7 +265,20 @@ export default function SalonRegistrationPage() {
                           <FormItem>
                             <FormLabel>Address</FormLabel>
                             <FormControl>
-                              <Input placeholder="Street address" id="address-field" {...field} />
+                              <Input 
+                                placeholder="Street address" 
+                                id="address-field" 
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const cityField = document.getElementById('city-field');
+                                    if (cityField instanceof HTMLElement) {
+                                      cityField.focus();
+                                    }
+                                  }
+                                }}
+                                {...field} 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -279,7 +292,20 @@ export default function SalonRegistrationPage() {
                           <FormItem>
                             <FormLabel>City</FormLabel>
                             <FormControl>
-                              <Input placeholder="City" {...field} />
+                              <Input 
+                                placeholder="City" 
+                                id="city-field"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const stateField = document.getElementById('state-field');
+                                    if (stateField instanceof HTMLElement) {
+                                      stateField.focus();
+                                    }
+                                  }
+                                }}
+                                {...field} 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -293,7 +319,20 @@ export default function SalonRegistrationPage() {
                           <FormItem>
                             <FormLabel>State</FormLabel>
                             <FormControl>
-                              <Input placeholder="State" {...field} />
+                              <Input 
+                                placeholder="State" 
+                                id="state-field"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const zipField = document.getElementById('zip-field');
+                                    if (zipField instanceof HTMLElement) {
+                                      zipField.focus();
+                                    }
+                                  }
+                                }}
+                                {...field} 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -307,7 +346,20 @@ export default function SalonRegistrationPage() {
                           <FormItem>
                             <FormLabel>Zip Code</FormLabel>
                             <FormControl>
-                              <Input placeholder="Zip code" {...field} />
+                              <Input 
+                                placeholder="Zip code" 
+                                id="zip-field"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
+                                    if (termsCheckbox instanceof HTMLElement) {
+                                      termsCheckbox.focus();
+                                    }
+                                  }
+                                }}
+                                {...field} 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -320,11 +372,21 @@ export default function SalonRegistrationPage() {
                       name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Salon Description</FormLabel>
+                          <FormLabel>Salon Description <span className="text-xs text-gray-500">(Press Ctrl+Enter to move to Terms)</span></FormLabel>
                           <FormControl>
                             <Textarea 
                               placeholder="Tell us about your salon" 
-                              className="min-h-[100px]" 
+                              className="min-h-[100px]"
+                              id="description-field"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' && e.ctrlKey) {
+                                  e.preventDefault();
+                                  const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
+                                  if (termsCheckbox instanceof HTMLElement) {
+                                    termsCheckbox.focus();
+                                  }
+                                }
+                              }}
                               {...field} 
                             />
                           </FormControl>
@@ -342,9 +404,20 @@ export default function SalonRegistrationPage() {
                             <div className="flex items-center space-x-2">
                               <input
                                 type="checkbox"
+                                id="terms-checkbox"
+                                name="acceptTerms"
                                 checked={field.value}
                                 onChange={field.onChange}
                                 className="h-4 w-4 rounded border-gray-300 text-pink-600 focus:ring-pink-500"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const submitButton = document.querySelector('button[type="submit"]');
+                                    if (submitButton instanceof HTMLElement) {
+                                      submitButton.focus();
+                                    }
+                                  }
+                                }}
                               />
                               <label>
                                 I accept the terms and conditions
