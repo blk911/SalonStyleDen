@@ -482,30 +482,51 @@ export default function ClientForm({
                     <FormItem>
                       <FormControl>
                         <Input 
-                          {...field} 
+                          value={field.value}
                           placeholder="Cell Phone (XXX-XXX-XXXX)" 
                           className={validationResult === 'registered' && validatedContactType === 'phone' ? "border-red-500" : ""}
                           onChange={(e) => {
-                            // Store current position and current value before formatting
+                            // Get raw input and cursor position
                             const input = e.target;
                             const cursorPos = input.selectionStart || 0;
-                            const previousValue = field.value;
                             
-                            // Format the phone number
-                            const formatted = formatPhoneNumber(e.target.value);
+                            // Get only digits from input
+                            const digits = e.target.value.replace(/\D/g, '');
+                            
+                            // Create formatted string
+                            let formatted = '';
+                            if (digits.length === 0) {
+                              formatted = '';
+                            } else if (digits.length <= 3) {
+                              formatted = `(${digits}`;
+                            } else if (digits.length <= 6) {
+                              formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                            } else {
+                              formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+                            }
+                            
+                            // Update form field
                             field.onChange(formatted);
                             
-                            // Calculate new cursor position after React re-renders
+                            // Calculate cursor position after formatting
+                            let newCursorPos = cursorPos;
+                            
+                            // Adjust cursor position based on formatting changes
+                            if (digits.length <= 3 && cursorPos > digits.length) {
+                              // When in the first group (###)
+                              newCursorPos = digits.length + 1;
+                            } else if (digits.length <= 6 && cursorPos > digits.length + 1) {
+                              // When in the second group (###) ###
+                              newCursorPos = digits.length + 3;
+                            } else if (digits.length > 6 && cursorPos > digits.length + 4) {
+                              // When in the third group (###) ###-####
+                              newCursorPos = digits.length + 5;
+                            }
+                            
+                            // Set new cursor position after React updates the DOM
                             setTimeout(() => {
-                              // Get updated cursor position considering formatting changes
-                              const newPosition = getPhoneNumberCursorPosition(
-                                previousValue, 
-                                formatted, 
-                                cursorPos
-                              );
-                              
-                              // Set cursor position at the calculated position
-                              input.setSelectionRange(newPosition, newPosition);
+                              input.focus();
+                              input.setSelectionRange(newCursorPos, newCursorPos);
                             }, 0);
                           }}
                           onBlur={async (e) => {
