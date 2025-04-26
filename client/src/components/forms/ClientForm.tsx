@@ -486,27 +486,8 @@ export default function ClientForm({
                           placeholder="Cell Phone (XXX-XXX-XXXX)" 
                           className={validationResult === 'registered' && validatedContactType === 'phone' ? "border-red-500" : ""}
                           onChange={(e) => {
-                            // Store current position and current value before formatting
-                            const input = e.target;
-                            const cursorPos = input.selectionStart || 0;
-                            const previousValue = field.value;
-                            
-                            // Format the phone number
                             const formatted = formatPhoneNumber(e.target.value);
                             field.onChange(formatted);
-                            
-                            // Calculate new cursor position after React re-renders
-                            setTimeout(() => {
-                              // Get updated cursor position considering formatting changes
-                              const newPosition = getPhoneNumberCursorPosition(
-                                previousValue, 
-                                formatted, 
-                                cursorPos
-                              );
-                              
-                              // Set cursor position at the calculated position
-                              input.setSelectionRange(newPosition, newPosition);
-                            }, 0);
                           }}
                           onBlur={async (e) => {
                             field.onBlur();
