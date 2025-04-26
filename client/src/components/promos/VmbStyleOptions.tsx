@@ -20,7 +20,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckIcon, Sparkles, AlertTriangle, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
+import { CheckIcon, Sparkles, AlertTriangle, ChevronUpIcon, ChevronDownIcon, Send, Loader2 } from 'lucide-react';
 import { FaMoneyBillWave } from 'react-icons/fa';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '../../lib/apiRequest';
@@ -1156,10 +1156,22 @@ export function VmbStyleOptions({
                           
                           {/* Unique Gift ID is now displayed within the message above */}
                           
-                          {/* Payment icons and SEND GIFT button are now in the message area above */}
-                          {/* No additional elements needed here */}
+                          {/* Payment icons are in the message area above */}
                           
-                          {/* No additional button needed since we added the SEND GIFT button above */}
+                          {/* Add primary Submit button at the bottom of Step 3 */}
+                          <div className="mt-4 text-center">
+                            <Button 
+                              type="button"
+                              className={`w-full sm:w-auto px-6 py-2 ${salonInitiated ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600' : 'bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600'} text-white font-medium shadow-md`}
+                              onClick={() => {
+                                // Show confirmation dialog
+                                setShowConfirmDialog(true);
+                              }}
+                            >
+                              <Send className="h-4 w-4 mr-2" />
+                              {salonInitiated ? "Send Salon Invitation" : "Send Gift Request"}
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
