@@ -344,6 +344,7 @@ export default function SalonRegistrationPage() {
                                 type="checkbox"
                                 checked={field.value}
                                 onChange={field.onChange}
+                                id="terms-checkbox"
                                 className="h-4 w-4 rounded border-gray-300 text-pink-600 focus:ring-pink-500"
                               />
                               <label>

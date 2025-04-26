@@ -91,13 +91,15 @@ export function ContactValidationDialog({
               // Close dialog first
               onOpenChange(false);
               
-              // Move focus to accept terms checkbox
+              // Move focus to accept terms checkbox using ID
               setTimeout(() => {
-                const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
+                const termsCheckbox = document.getElementById('terms-checkbox');
                 if (termsCheckbox instanceof HTMLElement) {
                   termsCheckbox.focus();
+                  termsCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  console.log('Setting focus to terms checkbox');
                 }
-              }, 10);
+              }, 50);
             }}
           >
             Later

@@ -206,13 +206,15 @@ export function PhoneInputField({
               onClick={() => {
                 setShowRegisteredDialog(false);
                 
-                // Move focus to accept terms checkbox
+                // Move focus to accept terms checkbox using ID
                 setTimeout(() => {
-                  const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
+                  const termsCheckbox = document.getElementById('terms-checkbox');
                   if (termsCheckbox instanceof HTMLElement) {
                     termsCheckbox.focus();
+                    termsCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    console.log('Setting focus to terms checkbox from Phone dialog');
                   }
-                }, 10);
+                }, 50);
               }}
             >
               Later
@@ -222,7 +224,7 @@ export function PhoneInputField({
               type="button" 
               onClick={handleRegisteredDialogClose}
             >
-              Try Again
+              Enter New Phone
             </Button>
           </DialogFooter>
         </DialogContent>
