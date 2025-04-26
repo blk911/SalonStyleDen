@@ -486,48 +486,15 @@ export default function ClientForm({
                           onChange={(e) => {
                             const formatted = formatPhoneNumber(e.target.value);
                             field.onChange(formatted);
-                            
-                            // Clean the phone number for validation
-                            let cleanedPhone = formatted.replace(/\D/g, '');
-                            
-                            // Handle US numbers with leading 1
-                            if (cleanedPhone.length === 11 && cleanedPhone.startsWith('1')) {
-                              cleanedPhone = cleanedPhone.substring(1);
-                            }
-                            
-                            // Special case for test phone numbers
-                            if (cleanedPhone === '4645645646' || cleanedPhone === '4964649849') {
-                              console.log(`Special test case detected for phone: ${cleanedPhone}`);
-                              validateContact('phone', cleanedPhone);
-                              return;
-                            }
-                            
-                            // Normal validation for 10-digit numbers
-                            if (cleanedPhone.length === 10) {
-                              validateContact('phone', cleanedPhone);
+                            if (formatted.replace(/\D/g, '').length === 10) {
+                              validateContact('phone', formatted);
                             }
                           }}
                           onBlur={(e) => {
                             field.onBlur();
-                            
-                            // Clean the phone number for validation
-                            let cleanedPhone = field.value.replace(/\D/g, '');
-                            
-                            // Handle US numbers with leading 1
-                            if (cleanedPhone.length === 11 && cleanedPhone.startsWith('1')) {
-                              cleanedPhone = cleanedPhone.substring(1);
-                            }
-                            
-                            // Special case for test phone numbers
-                            if (cleanedPhone === '4645645646' || cleanedPhone === '4964649849') {
-                              console.log(`Special test case detected on blur for phone: ${cleanedPhone}`);
-                              validateContact('phone', cleanedPhone);
-                              return;
-                            }
-                            
-                            // Normal validation for 10-digit numbers
-                            if (cleanedPhone.length === 10) {
-                              validateContact('phone', cleanedPhone);
+                            const cleaned = field.value.replace(/\D/g, '');
+                            if (cleaned.length === 10) {
+                              validateContact('phone', field.value);
                             }
                           }}
                         />
