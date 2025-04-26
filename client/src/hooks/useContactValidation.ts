@@ -33,6 +33,8 @@ export function useContactValidation(options: ValidationOptions = {}) {
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const [duplicateData, setDuplicateData] = useState<any>(null);
+  const [validationResult, setValidationResult] = useState<'registered' | 'available' | ''>('');
+  const [validatedContactType, setValidatedContactType] = useState<'phone' | 'email' | ''>('');
 
   // Format phone number consistently site-wide (XXX-XXX-XXXX)
   const formatPhoneNumber = (input: string) => {
@@ -161,10 +163,14 @@ export function useContactValidation(options: ValidationOptions = {}) {
           setPhoneExists(true);
           setErrorField('phone');
           setErrorMessage('Check your messages. DO YOU HAVE A PROMO CODE?');
+          setValidationResult('registered');
+          setValidatedContactType('phone');
         } else {
           setEmailExists(true);
           setErrorField('email');
           setErrorMessage('This email address is already registered in our system.');
+          setValidationResult('registered');
+          setValidatedContactType('email');
         }
 
         setShowErrorDialog(true);
@@ -275,6 +281,17 @@ export function useContactValidation(options: ValidationOptions = {}) {
   const handleDialogClose = useCallback(() => {
     setShowErrorDialog(false);
   }, []);
+  
+  // Function to reset all validation states
+  const resetValidation = useCallback(() => {
+    setPhoneExists(false);
+    setEmailExists(false);
+    setValidationResult('');
+    setValidatedContactType('');
+    setErrorField('');
+    setErrorMessage('');
+    setShowErrorDialog(false);
+  }, []);
 
   return {
     phoneExists,
@@ -292,6 +309,9 @@ export function useContactValidation(options: ValidationOptions = {}) {
     validateContact,
     getPhoneProps,
     getEmailProps,
-    handleDialogClose
+    handleDialogClose,
+    validationResult,
+    validatedContactType,
+    resetValidation
   };
 }

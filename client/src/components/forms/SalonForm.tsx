@@ -264,12 +264,18 @@ export default function SalonForm() {
                         {...field} 
                         type="email" 
                         placeholder="Email"
+                        onChange={(e) => {
+                          // Use enhanced email props from our hook
+                          const emailProps = getEmailProps(field.value);
+                          const value = emailProps.onChange(e);
+                          field.onChange(value);
+                        }}
                         onBlur={() => {
                           if (field.value && field.value.includes('@') && field.value.includes('.')) {
                             validateContact('email', field.value);
                           }
                         }}
-                        className={emailExists ? "border-red-400 focus:ring-red-400" : ""}
+                        className={`${emailExists ? "border-red-400 focus:ring-red-400" : ""} ${validationResult === 'registered' && validatedContactType === 'email' ? "border-red-500" : ""}`}
                       />
                     </FormControl>
                     <FormMessage />

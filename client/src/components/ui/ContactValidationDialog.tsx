@@ -13,9 +13,8 @@ import { ValidationResult } from "@/hooks/use-contact-validation";
 interface ContactValidationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  validationResult: ValidationResult;
-  contactType: 'phone' | 'email' | 'unknown';
-  contactValue: string;
+  errorField?: 'phone' | 'email' | '';
+  errorMessage?: string;
   onClose?: () => void;
 }
 
