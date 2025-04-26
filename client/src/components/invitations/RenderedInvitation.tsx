@@ -50,14 +50,14 @@ export function RenderedInvitation({
       
       <CardContent className="p-4">
         <div className="mb-4">
-          <AspectRatio ratio={4/3} className="bg-muted rounded-md overflow-hidden shadow-md">
+          {/* Set fixed height of 120px while maintaining proper aspect ratio */}
+          <div className="rounded-md overflow-hidden shadow-md bg-muted h-[120px] flex items-center justify-center">
             <img 
               src={imageUrl} 
               alt={styleOption}
-              className="object-cover w-full h-full"
-              style={{ maxHeight: '120px' }} // Set max height to 120px as specified
+              className="object-contain h-full max-w-full"
             />
-          </AspectRatio>
+          </div>
         </div>
         
         <div className="space-y-4">
