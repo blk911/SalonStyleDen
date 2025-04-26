@@ -1,26 +1,18 @@
-import { useState } from "react";
+import { useLocation } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Hero from "@/components/layout/Hero";
 import Footer from "@/components/layout/Footer";
 import BrandCarousel from "@/components/layout/BrandCarousel";
-import SalonForm from "@/components/forms/SalonForm";
-import ClientForm from "@/components/forms/ClientForm";
 
 export default function Home() {
-  const [activeForm, setActiveForm] = useState<"salon" | "client" | null>(null);
+  const [, navigate] = useLocation();
 
-  const showSalonForm = () => {
-    setActiveForm("salon");
-    setTimeout(() => {
-      document.getElementById("salon-form-container")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+  const handleSalonClick = () => {
+    navigate("/salon-registration");
   };
 
-  const showClientForm = () => {
-    setActiveForm("client");
-    setTimeout(() => {
-      document.getElementById("client-form-container")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
+  const handleClientClick = () => {
+    navigate("/client-registration");
   };
 
   return (
@@ -28,28 +20,13 @@ export default function Home() {
       <Navbar />
       <main className="flex-grow">
         <Hero 
-          onSalonClick={showSalonForm} 
-          onClientClick={showClientForm}
+          onSalonClick={handleSalonClick} 
+          onClientClick={handleClientClick}
           salonName="Ven Me, Baby!"
           salonOwnerName="Tiffany"
           ownerPhotoUrl="" // Empty string to ensure VMB logo is used
         />
         <BrandCarousel />
-        <section className="py-4 lg:py-8">
-          <div className="max-w-3xl mx-auto px-2 sm:px-4 lg:px-6">
-            {activeForm === "salon" && (
-              <div id="salon-form-container">
-                <SalonForm />
-              </div>
-            )}
-            
-            {activeForm === "client" && (
-              <div id="client-form-container">
-                <ClientForm />
-              </div>
-            )}
-          </div>
-        </section>
       </main>
       <Footer />
     </div>

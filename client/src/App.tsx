@@ -22,6 +22,7 @@ import NetworkVisualization from "@/pages/NetworkVisualization";
 import MadgeVisualizationPage from "@/pages/MadgeVisualizationPage";
 import InvitationPage from "@/pages/InvitationPage";
 import ClientRegistrationPage from "@/pages/ClientRegistrationPage";
+import SalonRegistrationPage from "@/pages/SalonRegistrationPage";
 import CompleteInvitationPage from "@/pages/CompleteInvitationPage";
 import TestFinalStep3 from "@/pages/TestFinalStep3";
 
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/dashboard/salon/:id" component={SalonDashboard} />
       <Route path="/client/register" component={ClientRegistrationPage} />
       <Route path="/client-registration" component={ClientRegistrationPage} />
+      <Route path="/salon-registration" component={SalonRegistrationPage} />
       <Route path="/client/:id" component={ClientDashboard} />
       <Route path="/clients" component={ClientsPage} />
       <Route path="/salons" component={SalonsPage} />
