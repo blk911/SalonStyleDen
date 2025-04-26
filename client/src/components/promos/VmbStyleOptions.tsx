@@ -122,6 +122,10 @@ export function VmbStyleOptions({
   const { toast } = useToast();
   const [, navigate] = useLocation();
   
+  // New states for validation popup
+  const [showValidationDialog, setShowValidationDialog] = useState(false);
+  const [validationResult, setValidationResult] = useState<'registered' | 'not_registered' | 'loading' | null>(null);
+  
   // Responsive media queries
   const isMobile = useMediaQuery({ query: '(max-width: 640px)' });
   const isTablet = useMediaQuery({ query: '(max-width: 768px)' });
@@ -1191,8 +1195,56 @@ export function VmbStyleOptions({
               </div>
             </div>
             <DialogFooter className="sm:justify-between">
-              {/* Cancel button removed as requested */}
-              {/* Send Salon Invitation button removed as requested */}
+              {/* New "Ven Me, Baby!" button with contact validation */}
+              <Button 
+                type="button"
+                className="bg-green-400 hover:bg-green-500 text-white font-medium"
+                onClick={() => {
+                  // Check if we have contact information to validate
+                  const contactToValidate = recipientContact || '';
+                  
+                  if (!contactToValidate) {
+                    toast({
+                      title: "Missing contact information",
+                      description: "Please enter a phone number or email to validate",
+                      variant: "destructive"
+                    });
+                    return;
+                  }
+                  
+                  // Set loading state
+                  setValidationResult('loading');
+                  setShowValidationDialog(true);
+                  
+                  // Determine if it's likely an email or phone
+                  const isEmail = contactToValidate.includes('@');
+                  const fieldType = isEmail ? 'email' : 'phone';
+                  
+                  // Call API to validate if client is registered
+                  fetch(`/api/clients/validate?${fieldType}=${encodeURIComponent(contactToValidate)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                      if (data.exists) {
+                        // Client is registered in DB
+                        setValidationResult('registered');
+                      } else {
+                        // Client is not registered in DB
+                        setValidationResult('not_registered');
+                      }
+                    })
+                    .catch(error => {
+                      console.error("Error validating client:", error);
+                      toast({
+                        title: "Validation Error",
+                        description: "Unable to validate client information",
+                        variant: "destructive"
+                      });
+                      setShowValidationDialog(false);
+                    });
+                }}
+              >
+                Ven Me, Baby!
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -1243,6 +1295,51 @@ export function VmbStyleOptions({
                 }}
               >
                 {salonInitiated ? "Send" : "Close"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Client Validation Popup Dialog */}
+        <Dialog open={showValidationDialog} onOpenChange={setShowValidationDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Client Validation Result</DialogTitle>
+              <DialogDescription>
+                {validationResult === 'loading' ? 
+                  "Checking client registration status..." : 
+                  "The contact information has been validated."}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="py-6">
+              {validationResult === 'loading' ? (
+                <div className="flex items-center justify-center">
+                  <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                </div>
+              ) : validationResult === 'registered' ? (
+                <div className="text-center p-4 bg-green-50 border border-green-200 rounded-md">
+                  <CheckIcon className="h-12 w-12 text-green-500 mx-auto mb-2" />
+                  <h3 className="text-lg font-semibold text-green-700 mb-1">Registered</h3>
+                  <p className="text-green-600">Client is registered in the database.</p>
+                  <p className="font-bold mt-2 text-green-800">IN DB</p>
+                </div>
+              ) : validationResult === 'not_registered' ? (
+                <div className="text-center p-4 bg-amber-50 border border-amber-200 rounded-md">
+                  <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
+                  <h3 className="text-lg font-semibold text-amber-700 mb-1">Not Registered</h3>
+                  <p className="text-amber-600">Client is not registered in the database.</p>
+                  <p className="mt-2 text-sm text-amber-700">The client needs to register before proceeding.</p>
+                </div>
+              ) : null}
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                type="button" 
+                onClick={() => setShowValidationDialog(false)}
+              >
+                Close
               </Button>
             </DialogFooter>
           </DialogContent>
