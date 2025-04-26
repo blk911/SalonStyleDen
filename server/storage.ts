@@ -35,6 +35,7 @@ export interface IStorage {
   getInvitation(id: number): Promise<Invitation | undefined>;
   getRecentInvitations(limit?: number): Promise<Invitation[]>;
   getSalonInvitations(salonId: number): Promise<Invitation[]>;
+  getClientInvitations(clientId: number, status?: string, limit?: number): Promise<Invitation[]>;
   updateInvitationStatus(id: number, status: string): Promise<Invitation>;
   getInvitationsByPhone(phone: string, partialMatch?: boolean): Promise<Invitation[]>;
   getInvitationByHash(hash: string): Promise<Invitation | undefined>;
@@ -755,6 +756,79 @@ export class DatabaseStorage implements IStorage {
       }
     } catch (error) {
       console.error(`DatabaseStorage.getSalonInvitations - Error fetching invitations for salon ${salonId}:`, error);
+      throw error;
+    }
+  }
+  
+  async getClientInvitations(clientId: number, status?: string, limit?: number): Promise<Invitation[]> {
+    try {
+      console.log(`DatabaseStorage.getClientInvitations - Fetching invitations for client ${clientId}${status ? ` with status ${status}` : ''}`);
+      
+      // Build the query parameters list and values array
+      const queryParams: string[] = [];
+      const values: any[] = [];
+      
+      // Always filter by sender_id (which is the clientId)
+      queryParams.push(`sender_id = $${values.length + 1}`);
+      values.push(clientId);
+      
+      // Add status filter if provided
+      if (status) {
+        queryParams.push(`status = $${values.length + 1}`);
+        values.push(status);
+      }
+      
+      // Build the WHERE clause
+      const whereClause = queryParams.length > 0 ? `WHERE ${queryParams.join(' AND ')}` : '';
+      
+      // Build the LIMIT clause
+      const limitClause = limit ? `LIMIT $${values.length + 1}` : '';
+      if (limit) values.push(limit);
+      
+      // Use a raw SQL query that only selects columns we know exist
+      const sqlQuery = `
+        SELECT 
+            id, name, phone, email, notes, message, type,
+            salon_id, sponsor, invite_hash, status, 
+            first_service_date, created_at, 
+            favorite_services, sender_id
+        FROM invitations 
+        ${whereClause}
+        ORDER BY created_at DESC
+        ${limitClause}
+      `;
+      
+      const client = await pool.connect();
+      try {
+        const result = await client.query(sqlQuery, values);
+        const rows = result.rows;
+        console.log(`DatabaseStorage.getClientInvitations - Retrieved ${rows.length} invitations for client ${clientId}`);
+        
+        // Map the result to our expected format with all fields
+        const invitationList: Invitation[] = rows.map(row => ({
+          id: row.id,
+          name: row.name,
+          phone: row.phone,
+          email: row.email,
+          notes: row.notes,
+          message: row.message || null,
+          type: row.type || null,
+          salonId: row.salon_id,
+          sponsor: row.sponsor,
+          inviteHash: row.invite_hash,
+          status: row.status,
+          firstServiceDate: row.first_service_date,
+          createdAt: row.created_at,
+          favoriteServices: row.favorite_services,
+          senderId: row.sender_id || null
+        }));
+        
+        return invitationList;
+      } finally {
+        client.release();
+      }
+    } catch (error) {
+      console.error(`DatabaseStorage.getClientInvitations - Error fetching invitations for client ${clientId}:`, error);
       throw error;
     }
   }

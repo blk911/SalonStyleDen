@@ -1035,19 +1035,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
       const salonId = req.query.salonId ? parseInt(req.query.salonId as string) : undefined;
       const clientId = req.query.clientId ? parseInt(req.query.clientId as string) : undefined;
+      const status = req.query.status as string | undefined;
       
       let invitations;
+      
+      console.log(`[API] GET /invitations - Params: salonId=${salonId}, clientId=${clientId}, status=${status}, limit=${limit}`);
       
       // Check if salonId is provided
       if (salonId) {
         // Get invitations for a specific salon
         invitations = await storage.getSalonInvitations(salonId);
+        console.log(`[API] GET /invitations - Got ${invitations.length} invitations for salon ${salonId}`);
       } else if (clientId) {
-        // TODO: Implement if needed - get invitations for a specific client
-        invitations = await storage.getRecentInvitations(limit);
+        // Get invitations specific to this client
+        invitations = await storage.getClientInvitations(clientId, status, limit);
+        console.log(`[API] GET /invitations - Got ${invitations.length} invitations for client ${clientId}`);
       } else {
         // Default: get recent invitations with limit
         invitations = await storage.getRecentInvitations(limit);
+        console.log(`[API] GET /invitations - Got ${invitations.length} recent invitations (default)`);
       }
       
       res.json(invitations);
