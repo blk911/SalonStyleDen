@@ -408,25 +408,70 @@ export default function InvitationPage() {
                 </Button>
               </div>
             ) : (
-              <div className="w-full flex justify-end">
-                {/* Show "Accept Salon Offer" button for salon-initiated invitations */}
+              <div className="w-full">
+                {/* For salon-initiated invitations - more detailed flow */}
                 {invitation.status === 'pending' && !invitation.senderId && (
-                  <Button
-                    onClick={promptAcceptInvitation}
-                    className="bg-amber-500 hover:bg-amber-600 text-white"
-                  >
-                    Accept Salon Offer
-                  </Button>
+                  <div className="space-y-4">
+                    <div className="p-4 bg-amber-50 rounded-md border border-amber-200">
+                      <h3 className="text-lg font-medium text-amber-800 mb-2">Salon Invitation Details</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-gray-600">From Salon:</p>
+                          <p className="font-medium">{invitation.sponsor || invitation.salonName || salon?.name || "Unknown Salon"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Recipient:</p>
+                          <p className="font-medium">{invitation.name}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Contact:</p>
+                          <p className="font-medium">{formatPhone(invitation.phone)}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Email:</p>
+                          <p className="font-medium">{invitation.email}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Show service details if available */}
+                      {invitation.favoriteServices && invitation.favoriteServices.length > 0 && (
+                        <div className="mt-3 pt-3 border-t border-amber-200">
+                          <p className="text-sm text-gray-600 mb-1">Services:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {invitation.favoriteServices.map((service, index) => (
+                              <Badge key={index} variant="outline" className="bg-amber-100 text-amber-800 border-amber-300">
+                                {service}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <Button
+                      onClick={promptAcceptInvitation}
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-white"
+                      size="lg"
+                    >
+                      Accept Salon Offer & Create Account
+                    </Button>
+                    
+                    <p className="text-center text-sm text-gray-500">
+                      By accepting this invitation, you'll create an account with {invitation.sponsor || invitation.salonName || salon?.name || "the salon"}.
+                    </p>
+                  </div>
                 )}
                 
                 {/* Show "Accept Invitation" button for client-initiated invitations (has senderId) */}
                 {invitation.status === 'pending' && invitation.senderId && (
-                  <Button
-                    onClick={promptAcceptInvitation}
-                    className="bg-pink-600 hover:bg-pink-700 text-white"
-                  >
-                    Accept Invitation
-                  </Button>
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={promptAcceptInvitation}
+                      className="bg-pink-600 hover:bg-pink-700 text-white"
+                    >
+                      Accept Invitation
+                    </Button>
+                  </div>
                 )}
               </div>
             )}
@@ -437,15 +482,31 @@ export default function InvitationPage() {
       
       {/* Confirmation Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className={`text-center ${invitation.senderId ? 'text-pink-700' : 'text-amber-700'}`}>
-              {invitation.senderId ? 'Accept Invitation' : 'Accept Salon Offer'}
-            </DialogTitle>
-            <DialogDescription className="text-center">
-              You're about to accept an invitation from {invitation.sponsor || invitation.salonName || "a salon"}.
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className={`sm:max-w-md ${!invitation.senderId ? 'p-0 overflow-hidden' : ''}`}>
+          {!invitation.senderId ? (
+            /* Special dialog header for salon invitations */
+            <>
+              <div className="bg-gradient-to-r from-amber-100 to-amber-50 p-4 border-b border-amber-200">
+                <DialogTitle className="text-center text-amber-800 text-xl flex justify-center items-center gap-2">
+                  <img src="/assets/VMB_LOGO.png" alt="VMB Logo" className="h-6" />
+                  Accept Salon Offer
+                </DialogTitle>
+                <DialogDescription className="text-center">
+                  You're accepting an invitation from {invitation.sponsor || invitation.salonName || salon?.name || "a salon"}.
+                </DialogDescription>
+              </div>
+            </>
+          ) : (
+            /* Regular dialog header for client invitations */
+            <DialogHeader>
+              <DialogTitle className="text-center text-pink-700">
+                Accept Invitation
+              </DialogTitle>
+              <DialogDescription className="text-center">
+                You're about to accept an invitation from {invitation.sponsor || invitation.salonName || "a salon"}.
+              </DialogDescription>
+            </DialogHeader>
+          )}
           
           <div className="flex flex-col items-center py-0.5">
             <CheckCircleIcon className={`h-16 w-16 ${invitation.senderId ? 'text-pink-500' : 'text-amber-500'} mb-0.5`} />
@@ -458,6 +519,56 @@ export default function InvitationPage() {
                 <p className={`font-bold ${invitation.senderId ? 'text-pink-700' : 'text-amber-700'}`}>
                   {new Date(invitation.firstServiceDate).toLocaleDateString()}
                 </p>
+              </div>
+            )}
+            
+            {/* Display client info form for salon-initiated invitations */}
+            {!invitation.senderId && invitation.status === 'pending' && (
+              <div className="mt-4 p-4 border rounded-md border-amber-200 bg-amber-50">
+                <h3 className="font-medium text-amber-800 mb-2">Complete your information to accept this salon offer</h3>
+                
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                      <input 
+                        type="text" 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        defaultValue={invitation.name?.split(' ')[0] || ''}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                      <input 
+                        type="text" 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        defaultValue={invitation.name?.split(' ')[1] || ''}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <input 
+                      type="email" 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      defaultValue={invitation.email || ''}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input 
+                      type="tel" 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      defaultValue={invitation.phone || ''}
+                    />
+                  </div>
+                  
+                  <div className="pt-2">
+                    <p className="text-sm text-gray-600 mb-2">By accepting this salon offer, you'll create an account with {invitation.sponsor || salon?.name || "the salon"}.</p>
+                  </div>
+                </div>
               </div>
             )}
           </div>
