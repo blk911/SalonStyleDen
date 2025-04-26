@@ -1,158 +1,94 @@
-import {
+import { 
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogDescription,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useLocation } from "wouter";
-import { useState, useEffect } from "react";
-import { PromoCodeDialog } from "./PromoCodeDialog";
-import BrandName from "@/components/ui/BrandName";
+import { CheckIcon, AlertTriangle, Loader2 } from "lucide-react";
+import { ValidationResult } from "@/hooks/use-contact-validation";
 
 interface ContactValidationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  errorField: 'phone' | 'email' | '';
-  errorMessage: string;
-  onClose: () => void;
+  validationResult: ValidationResult;
+  contactType: 'phone' | 'email' | 'unknown';
+  contactValue: string;
 }
 
+/**
+ * A standardized dialog for showing contact validation results
+ * Used to display whether a phone/email is already registered in the system
+ */
 export function ContactValidationDialog({
   open,
   onOpenChange,
-  errorField,
-  errorMessage,
-  onClose
+  validationResult,
+  contactType,
+  contactValue
 }: ContactValidationDialogProps) {
-  const [, setLocation] = useLocation();
-  const [showPromoCodeDialog, setShowPromoCodeDialog] = useState(false);
-  // Store the phone number from the error message for use in promo validation
-  const [validationPhone, setValidationPhone] = useState("");
-  
-  // Extract the phone number from the error message when it changes
-  useEffect(() => {
-    if (errorField === 'phone') {
-      // Extract phone number from the error message if present
-      
-      // Try to extract the phone from the error message (assuming format: "This phone: (555) 123-4567 is already registered")
-      const phoneMatch = errorMessage.match(/phone:\s*([^,\s]+)/i);
-      if (phoneMatch && phoneMatch[1]) {
-        const extractedPhone = phoneMatch[1].replace(/\D/g, '');
-        setValidationPhone(extractedPhone);
-      } else {
-        // No fallback needed - if we can't extract phone, leave it empty
-        setValidationPhone("");
-      }
-    }
-  }, [errorField, errorMessage]);
-  
-  const handleGoBack = () => {
-    onClose();
-  };
-  
-  // State to track which validation mode to use for the PromoCodeDialog
-  const [usePhoneValidation, setUsePhoneValidation] = useState(false);
-  
-  // Handler for the "Yes, I have a promo code" button
-  const handleEnterPromoCode = () => {
-    // Close the current dialog
-    onClose();
-    // Set phoneValidation to false for the "Yes" path (promo code)
-    setUsePhoneValidation(false);
-    // Show the promo code dialog with promo code validation mode
-    setShowPromoCodeDialog(true);
-  };
-  
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent 
-          className="sm:max-w-md max-h-[90vh] overflow-y-auto"
-        >
-          <DialogHeader>
-            <DialogTitle>Phone Verification Options</DialogTitle>
-            <DialogDescription>
-              {errorField === 'phone' 
-                ? 'This phone number is already in our system. Choose how to proceed.' 
-                : 'Contact information verification'}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="p-4">
-            {errorField === 'phone' ? (
-              <div className="flex flex-col gap-5 w-full">
-                <Button 
-                  onClick={handleEnterPromoCode}
-                  className="bg-pink-500 hover:bg-pink-600 w-full h-14 px-2 py-3"
-                >
-                  ENTER YOUR PROMO CODE
-                </Button>
-                
-                <Button 
-                  onClick={() => {
-                    // Close the dialog and open PromoCodeDialog in phone validation mode
-                    onClose();
-                    
-                    // Extract the phone number cleanly
-                    let cleanPhone = "";
-                    if (validationPhone) {
-                      cleanPhone = validationPhone.replace(/\D/g, '');
-                    }
-                    
-                    // Open the PromoCodeDialog with phone number for "No" path
-                    // Here we ensure the validationPhone is set before showing the dialog
-                    setValidationPhone(cleanPhone);
-                    // Set usePhoneValidation to true for the "No" path (phone validation)
-                    setUsePhoneValidation(true);
-                    setShowPromoCodeDialog(true);
-                  }}
-                  className="bg-gray-500 hover:bg-gray-600 w-full h-14 px-2 py-3"
-                >
-                  ENTER YOUR PHONE NUMBER
-                </Button>
-                
-                <Button 
-                  onClick={handleGoBack} 
-                  variant="outline"
-                  className="border-pink-300 w-full h-14 px-2 py-3"
-                >
-                  BACK
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-5 w-full">
-                <p className="text-gray-800 text-center">
-                  {errorField === 'email'
-                    ? 'Please use a different email address or check if this client has already been registered.'
-                    : 'This contact information is already in our system. Please check existing clients.'}
-                </p>
-                <Button 
-                  onClick={onClose} 
-                  className="bg-pink-500 hover:bg-pink-600 w-full h-14 px-2 py-3"
-                >
-                  OK
-                </Button>
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Promo Code Dialog (shows when Enter Promo Code is clicked) */}
-      <PromoCodeDialog 
-        open={showPromoCodeDialog} 
-        onOpenChange={(open) => {
-          setShowPromoCodeDialog(open);
-          // Close the parent dialog if promo dialog is closed
-          if (!open) {
-            onOpenChange(false);
-          }
-        }}
-        phone={validationPhone} // Pass the phone number to the promo code dialog
-        phoneValidation={usePhoneValidation} // Use the correct mode based on which button was clicked
-      />
-    </>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Contact Validation Result</DialogTitle>
+          <DialogDescription>
+            {validationResult === 'loading' ? 
+              "Checking registration status..." : 
+              `The ${contactType} information has been validated.`}
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="py-6">
+          {validationResult === 'loading' ? (
+            <div className="flex items-center justify-center">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+          ) : validationResult === 'registered' ? (
+            <div className="text-center p-4 bg-green-50 border border-green-200 rounded-md">
+              <CheckIcon className="h-12 w-12 text-green-500 mx-auto mb-2" />
+              <h3 className="text-lg font-semibold text-green-700 mb-1">Registered</h3>
+              <p className="text-green-600">
+                {contactType === 'phone' ? 'Phone number' : 'Email address'} is registered in the database.
+              </p>
+              <p className="font-bold mt-2 text-green-800">IN DB</p>
+            </div>
+          ) : validationResult === 'not_registered' ? (
+            <div className="text-center p-4 bg-amber-50 border border-amber-200 rounded-md">
+              <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
+              <h3 className="text-lg font-semibold text-amber-700 mb-1">Not Registered</h3>
+              <p className="text-amber-600">
+                {contactType === 'phone' ? 'Phone number' : 'Email address'} is not registered in the database.
+              </p>
+              <p className="mt-2 text-sm text-amber-700">
+                The client needs to register before proceeding.
+              </p>
+            </div>
+          ) : validationResult === 'invalid' ? (
+            <div className="text-center p-4 bg-red-50 border border-red-200 rounded-md">
+              <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-2" />
+              <h3 className="text-lg font-semibold text-red-700 mb-1">Invalid Format</h3>
+              <p className="text-red-600">
+                The {contactType} format is invalid: {contactValue}
+              </p>
+              <p className="mt-2 text-sm text-red-700">
+                Please check the format and try again.
+              </p>
+            </div>
+          ) : null}
+        </div>
+        
+        <DialogFooter>
+          <Button 
+            type="button" 
+            onClick={() => onOpenChange(false)}
+          >
+            Close
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

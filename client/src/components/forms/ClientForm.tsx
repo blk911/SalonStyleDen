@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatPhoneNumber } from "@/lib/utils";
-import { useContactValidation } from "@/hooks/useContactValidation";
+import { useContactValidation } from "@/hooks/use-contact-validation";
 import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
 import VerificationModal from "@/components/shared/VerificationModal";
 import SuccessModal from "@/components/shared/SuccessModal";
@@ -82,22 +82,15 @@ export default function ClientForm({
   const { toast } = useToast();
 
   // Initialize contact validation hook
+  const [showValidationDialog, setShowValidationDialog] = useState(false);
+  const [validatedContact, setValidatedContact] = useState("");
   const {
-    phoneExists,
-    emailExists,
-    errorField,
-    errorMessage,
-    showErrorDialog,
-    setShowErrorDialog,
-    getPhoneProps,
-    getEmailProps,
-    handleDialogClose,
-    formatPhoneNumber: formatPhoneFromHook,
-    validateContact
-  } = useContactValidation({
-    validateOnChange: true,
-    validateOnBlur: true
-  });
+    validationResult,
+    validateContact,
+    isValidating,
+    validatedContactType,
+    resetValidation
+  } = useContactValidation();
 
   // Fetch available salons
   const { data: salons, isLoading: isLoadingSalons, error: salonsError } = useQuery<SalonOption[]>({
@@ -304,14 +297,26 @@ export default function ClientForm({
     }
     
     // Default internal flow when no external handler is provided
-    // First check if the phone or email already exists
-    const phoneCheckResult = await validateContact('phone', data.phone);
-    const emailCheckResult = await validateContact('email', data.email);
-
-    // If either phone or email exists, the validation dialog will show automatically
-    if (phoneExists || emailExists) {
-      console.log("Contact validation failed: Contact already exists");
+    // Check if phone exists in database
+    setValidatedContact(data.phone);
+    const phoneResult = await validateContact(data.phone);
+    
+    if (phoneResult === 'registered') {
+      setShowValidationDialog(true);
+      console.log("Contact validation failed: Phone already exists");
       return; // Stop form submission
+    }
+    
+    // If email is provided, check if it exists
+    if (data.email) {
+      setValidatedContact(data.email);
+      const emailResult = await validateContact(data.email);
+      
+      if (emailResult === 'registered') {
+        setShowValidationDialog(true);
+        console.log("Contact validation failed: Email already exists");
+        return; // Stop form submission
+      }
     }
 
     // Find selected salon to include salon name in verification
