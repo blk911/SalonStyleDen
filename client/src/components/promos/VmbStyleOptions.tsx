@@ -1367,21 +1367,75 @@ export function VmbStyleOptions({
                 <Button 
                   type="button"
                   className={`w-full sm:w-auto ${salonInitiated ? 'bg-amber-500 hover:bg-amber-600' : 'bg-pink-500 hover:bg-pink-600'} text-white font-medium`}
-                  onClick={() => {
-                    // Close the modal
-                    setShowFinalInvitationModal(false);
+                  onClick={async () => {
+                    // Prepare invitation data - this must follow the server-side schema
+                    const invitationData = {
+                      // These are the required fields for the invitation table
+                      name: recipientName || "Friend",
+                      phone: recipientContact || "",
+                      email: "",  // We may not have this in the flow
+                      message: signature ? `From: ${signature}` : "From your friend",
+                      salonId: salonId || 42, // Default to Tiffany's salon if not provided
+                      inviteHash: finalInvitationId,
+                      status: "PENDING", // Start as PENDING, will be ACCEPTED when redeemed
+                      sponsor: signature || "Your Friend",
+                      
+                      // For style selection
+                      styleOption: confirmedStyle?.name || "Selected Style",
+                      stylePrice: confirmedStyle?.price || 45,
+                      styleDuration: confirmedStyle?.duration || 30,
+                      styleImageUrl: confirmedStyle?.gifUrl || "/assets/french-tips.png",
+                      
+                      // Track the sender (client ID) if available
+                      senderId: clientId || null,
+                      
+                      // If completing an existing invitation
+                      originalInvitationId: invitationId || null
+                    };
                     
-                    // Show success toast
-                    toast({
-                      title: "Gift Request Sent!",
-                      description: "Your gift request has been sent to the recipient",
-                      variant: "default"
-                    });
-                    
-                    // Log the confirm send action
-                    console.log("[FLOW][VmbStyleOptions] User CONFIRMED gift request send", {
-                      invitationId: finalInvitationId
-                    });
+                    try {
+                      // Send invitation to the API
+                      console.log("[FLOW][VmbStyleOptions] Sending invitation to API", invitationData);
+                      
+                      const response = await fetch('/api/invitations', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(invitationData),
+                      });
+                      
+                      if (!response.ok) {
+                        throw new Error(`Failed to send invitation: ${response.statusText}`);
+                      }
+                      
+                      const result = await response.json();
+                      console.log("[FLOW][VmbStyleOptions] Invitation sent successfully:", result);
+                      
+                      // Close the modal
+                      setShowFinalInvitationModal(false);
+                      
+                      // Show success toast
+                      toast({
+                        title: "Gift Request Sent!",
+                        description: "Your gift request has been sent to the recipient",
+                        variant: "default"
+                      });
+                      
+                      // Navigate back to salon public page
+                      if (salonId) {
+                        navigate(`/salon/${salonId}`);
+                      }
+                    } catch (error) {
+                      console.error("[FLOW][ERROR] Failed to send invitation:", error);
+                      
+                      // Show error toast
+                      toast({
+                        title: "Error Sending Gift Request",
+                        description: "There was a problem sending your gift request. Please try again.",
+                        variant: "destructive"
+                      });
+                    }
                   }}
                 >
                   CONFIRM TO SEND
