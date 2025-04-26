@@ -45,26 +45,18 @@ export default function SalonForm() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
-  // Initialize enhanced contact validation hook
+  // Use contact validation hook
   const {
     validateContact,
     phoneExists,
     emailExists,
-    isValidating, 
+    isValidating,
     errorField,
     errorMessage,
     showErrorDialog,
     setShowErrorDialog,
-    handleDialogClose,
-    getPhoneProps,
-    getEmailProps,
-    validationResult,
-    validatedContactType,
-    resetValidation
-  } = useContactValidation({
-    validateOnChange: false,
-    validateOnBlur: true
-  });
+    handleDialogClose
+  } = useContactValidation();
 
   const form = useForm<SalonFormValues>({
     resolver: zodResolver(salonFormSchema),
@@ -225,11 +217,9 @@ export default function SalonForm() {
                     <FormControl>
                       <Input 
                         {...field} 
-                        placeholder="Cell Phone (XXX-XXX-XXXX)" 
+                        placeholder="Cell Phone" 
                         onChange={(e) => {
-                          // Use the enhanced phone formatter from our hook
-                          const phoneProps = getPhoneProps(field.value);
-                          const formatted = phoneProps.onChange(e);
+                          const formatted = formatPhoneNumber(e.target.value);
                           field.onChange(formatted);
                         }}
                         onBlur={() => {
@@ -237,7 +227,7 @@ export default function SalonForm() {
                             validateContact('phone', field.value);
                           }
                         }}
-                        className={`${phoneExists ? "border-red-400 focus:ring-red-400" : ""} ${validationResult === 'registered' && validatedContactType === 'phone' ? "border-red-500" : ""}`}
+                        className={phoneExists ? "border-red-400 focus:ring-red-400" : ""}
                       />
                     </FormControl>
                     <FormMessage />
@@ -264,18 +254,12 @@ export default function SalonForm() {
                         {...field} 
                         type="email" 
                         placeholder="Email"
-                        onChange={(e) => {
-                          // Use enhanced email props from our hook
-                          const emailProps = getEmailProps(field.value);
-                          const value = emailProps.onChange(e);
-                          field.onChange(value);
-                        }}
                         onBlur={() => {
                           if (field.value && field.value.includes('@') && field.value.includes('.')) {
                             validateContact('email', field.value);
                           }
                         }}
-                        className={`${emailExists ? "border-red-400 focus:ring-red-400" : ""} ${validationResult === 'registered' && validatedContactType === 'email' ? "border-red-500" : ""}`}
+                        className={emailExists ? "border-red-400 focus:ring-red-400" : ""}
                       />
                     </FormControl>
                     <FormMessage />

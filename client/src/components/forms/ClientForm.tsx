@@ -81,7 +81,7 @@ export default function ClientForm({
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  // Initialize enhanced contact validation hook
+  // Initialize contact validation hook
   const [showValidationDialog, setShowValidationDialog] = useState(false);
   const [validatedContact, setValidatedContact] = useState("");
   const {
@@ -89,15 +89,8 @@ export default function ClientForm({
     validateContact,
     isValidating,
     validatedContactType,
-    phoneExists,
-    emailExists,
-    getPhoneProps,
-    getEmailProps,
     resetValidation
-  } = useContactValidation({
-    validateOnChange: false, // We'll validate manually during form submission
-    validateOnBlur: false    // We'll validate manually during form submission
-  });
+  } = useContactValidation();
 
   // Fetch available salons
   const { data: salons, isLoading: isLoadingSalons, error: salonsError } = useQuery<SalonOption[]>({
@@ -491,11 +484,9 @@ export default function ClientForm({
                         <Input 
                           {...field} 
                           placeholder="Cell Phone (XXX-XXX-XXXX)" 
-                          className={`${phoneExists ? "border-red-500" : ""} ${field.value && validationResult === 'registered' && validatedContactType === 'phone' ? "border-red-500" : ""}`}
+                          className={validationResult === 'registered' && validatedContactType === 'phone' ? "border-red-500" : ""}
                           onChange={(e) => {
-                            // Use the enhanced phone formatter from our hook
-                            const phoneProps = getPhoneProps(field.value);
-                            const formatted = phoneProps.onChange(e);
+                            const formatted = formatPhoneNumber(e.target.value);
                             field.onChange(formatted);
                           }}
                           onBlur={async (e) => {
@@ -537,12 +528,10 @@ export default function ClientForm({
                         {...field} 
                         type="email" 
                         placeholder="Email" 
-                        className={`${emailExists ? "border-red-500" : ""} ${field.value && validationResult === 'registered' && validatedContactType === 'email' ? "border-red-500" : ""}`}
+                        className={validationResult === 'registered' && validatedContactType === 'email' ? "border-red-500" : ""}
                         onChange={(e) => {
-                          // Use enhanced email props from our hook
-                          const emailProps = getEmailProps(field.value);
-                          const value = emailProps.onChange(e);
-                          field.onChange(value);
+                          // Just update the field value
+                          field.onChange(e.target.value);
                         }}
                         onBlur={async (e) => {
                           field.onBlur();
@@ -818,11 +807,9 @@ export default function ClientForm({
       <ContactValidationDialog
         open={showValidationDialog}
         onOpenChange={setShowValidationDialog}
-        errorField={validatedContactType === 'phone' ? 'phone' : validatedContactType === 'email' ? 'email' : ''}
-        errorMessage={validatedContactType === 'phone' 
-          ? "This phone number is already registered. Please try a different one." 
-          : "This email is already registered. Please use a different one."}
-        onClose={resetValidation}
+        validationResult={validationResult}
+        contactType={validatedContactType}
+        contactValue={validatedContact}
       />
     </>
   );
