@@ -1367,21 +1367,68 @@ export function VmbStyleOptions({
                 <Button 
                   type="button"
                   className={`w-full sm:w-auto ${salonInitiated ? 'bg-amber-500 hover:bg-amber-600' : 'bg-pink-500 hover:bg-pink-600'} text-white font-medium`}
-                  onClick={() => {
-                    // Close the modal
-                    setShowFinalInvitationModal(false);
-                    
-                    // Show success toast
-                    toast({
-                      title: "Gift Request Sent!",
-                      description: "Your gift request has been sent to the recipient",
-                      variant: "default"
-                    });
-                    
-                    // Log the confirm send action
-                    console.log("[FLOW][VmbStyleOptions] User CONFIRMED gift request send", {
-                      invitationId: finalInvitationId
-                    });
+                  onClick={async () => {
+                    try {
+                      // Prepare invitation data
+                      const invitationData = {
+                        styleId: confirmedStyle?.id,
+                        salonId: salonId,
+                        recipientName: recipientName,
+                        recipientContact: recipientContact,
+                        senderName: signature,
+                        invitationId: finalInvitationId,
+                        status: "SENT",
+                        styleDetails: {
+                          name: confirmedStyle?.name,
+                          price: confirmedStyle?.price,
+                          duration: confirmedStyle?.duration
+                        }
+                      };
+                      
+                      // Post the invitation to the API
+                      const response = await fetch('/api/invitations', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(invitationData),
+                      });
+                      
+                      if (!response.ok) {
+                        throw new Error(`Failed to save invitation: ${response.status} ${response.statusText}`);
+                      }
+                      
+                      // Successfully saved
+                      console.log("[FLOW][VmbStyleOptions] Successfully saved invitation:", {
+                        invitationId: finalInvitationId,
+                        response: await response.json()
+                      });
+                      
+                      // Close the modal
+                      setShowFinalInvitationModal(false);
+                      
+                      // Show success toast
+                      toast({
+                        title: "Gift Request Sent!",
+                        description: "Your gift request has been sent to the recipient",
+                        variant: "default"
+                      });
+                      
+                      // If we're in salon dashboard, refresh the page to show new invitation
+                      if (salonInitiated && salonId) {
+                        setTimeout(() => {
+                          navigate(`/dashboard/salon/${salonId}`);
+                        }, 1500);
+                      }
+                    } catch (error) {
+                      console.error("[FLOW][ERROR] Failed to send invitation:", error);
+                      
+                      toast({
+                        title: "Failed to Send",
+                        description: "There was a problem sending the invitation. Please try again.",
+                        variant: "destructive"
+                      });
+                    }
                   }}
                 >
                   CONFIRM TO SEND
