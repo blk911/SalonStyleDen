@@ -122,6 +122,13 @@ export default function AdminDashboard() {
   // State to track which salon details are expanded (initially all closed)
   const [expandedSalon, setExpandedSalon] = useState<number | null>(null);
   
+  // Set default visualization when code graph section is opened
+  useEffect(() => {
+    if (codeGraphOpen && !selectedVisualization) {
+      setSelectedVisualization('/vmb_tools/dependency_graph/output/client_dashboard_dependencies.svg');
+    }
+  }, [codeGraphOpen, selectedVisualization]);
+  
   // Load section states from localStorage
   useEffect(() => {
     const loadSectionStates = () => {
