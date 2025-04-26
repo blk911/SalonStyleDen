@@ -68,11 +68,11 @@ const carouselItems: CarouselCard[] = [
         <div className="flex-1 flex flex-col items-center text-center">
           <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
             <img 
-              src="/assets/french_tips.jpg" 
+              src="/assets/french-tips.png" 
               alt="French Tips" 
               className="object-cover w-full h-full"
               onError={(e) => {
-                e.currentTarget.src = "https://via.placeholder.com/150?text=French+Tips";
+                e.currentTarget.src = "/assets/Sculpted_Acrylics.png";
                 e.currentTarget.onerror = null;
               }} 
             />
@@ -83,9 +83,13 @@ const carouselItems: CarouselCard[] = [
         <div className="flex-1 flex flex-col items-center text-center">
           <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
             <img 
-              src="https://via.placeholder.com/150?text=Gift+Request" 
+              src="/assets/cashapp.png" 
               alt="Gift Request" 
-              className="object-cover w-full h-full" 
+              className="object-contain w-full h-full max-h-32 px-2" 
+              onError={(e) => {
+                e.currentTarget.src = "/assets/zelle.png";
+                e.currentTarget.onerror = null;
+              }}
             />
           </div>
           <span className="text-base font-semibold text-gray-700">2. Create your gift request</span>
@@ -94,11 +98,11 @@ const carouselItems: CarouselCard[] = [
         <div className="flex-1 flex flex-col items-center text-center">
           <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
             <img 
-              src="/assets/new_set.jpg" 
+              src="/assets/Luxe_Gel_Manicure.png" 
               alt="New Set" 
               className="object-cover w-full h-full"
               onError={(e) => {
-                e.currentTarget.src = "https://via.placeholder.com/150?text=New+Set";
+                e.currentTarget.src = "/assets/Glam_Me_Custom_Design.png";
                 e.currentTarget.onerror = null;
               }} 
             />
