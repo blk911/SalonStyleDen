@@ -96,16 +96,14 @@ export function RenderedInvitation({
                   </Button>
                 </div>
                 
-                {salonInitiated && (
-                  <div className="flex justify-center mt-1 mb-2">
-                    <Button 
-                      className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white"
-                      onClick={onSendGift}
-                    >
-                      SEND GIFT
-                    </Button>
-                  </div>
-                )}
+                <div className="flex justify-center mt-1 mb-2">
+                  <Button 
+                    className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white"
+                    onClick={onSendGift}
+                  >
+                    {salonInitiated ? "ACCEPT INVITATION" : "SEND GIFT"}
+                  </Button>
+                </div>
                 
                 <div className="text-center mt-2 text-xs text-gray-400">VMB:{inviteId}</div>
 
