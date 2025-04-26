@@ -262,56 +262,129 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    console.log('Starting invitation submission process');
 
     try {
+      // Validate fields first
       const cleanPhone = phone.replace(/\D/g, '');
       if (cleanPhone.length !== 10) {
-        throw new Error('Phone number must be 10 digits');
+        toast({
+          title: "Invalid Phone Number",
+          description: "Phone number must be 10 digits",
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!name.trim()) {
+        toast({
+          title: "Missing Information",
+          description: "Please provide the client's name",
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!email.trim() || !email.includes('@')) {
+        toast({
+          title: "Invalid Email",
+          description: "Please provide a valid email address",
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
       }
 
       // Ensure we have salon info for the sponsor field
       if (!salonInfo?.name) {
-        throw new Error('Salon information not available. Please try again.');
+        toast({
+          title: "Salon Information Missing",
+          description: "Salon information not available. Please try again.",
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
       }
 
-      // Import generate invite hash function
-      const { generateInviteHash } = await import('@/lib/utils');
+      if (selectedServices.length === 0) {
+        toast({
+          title: "Missing Service Selection",
+          description: "Please select at least one service",
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Log the data being submitted
+      console.log('Submitting invitation with data:', {
+        name,
+        phone: cleanPhone,
+        email,
+        salonId,
+        favoriteServices: selectedServices,
+        firstServiceDate,
+        sponsor: salonInfo.name
+      });
       
+      // Create the invitation data
+      const invitationData = {
+        name,
+        phone: cleanPhone,
+        email,
+        notes,
+        favoriteServices: selectedServices,
+        salonId,
+        firstServiceDate,
+        status: 'pending',
+        sponsor: salonInfo.name
+        // Removed client-side inviteHash - let server generate it
+      };
+      
+      console.log('Sending POST request to /api/invitations');
       const response = await fetch('/api/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          phone: cleanPhone,
-          email,
-          notes,
-          favoriteServices: selectedServices,
-          salonId,
-          firstServiceDate,
-          status: 'pending',
-          sponsor: salonInfo.name, // Add the salon name as the sponsor
-          inviteHash: generateInviteHash() // Generate a unique hash on the client side
-        })
+        body: JSON.stringify(invitationData)
       });
 
+      console.log('Server response status:', response.status);
+      const responseData = await response.json();
+      console.log('Server response data:', responseData);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        const errorMsg = errorData.error || 'Failed to send invitation';
+        const errorMsg = responseData.error || 'Failed to send invitation';
+        console.error('Error response:', errorMsg);
         
         // Handle specific validation errors
-        if (errorMsg.includes('phone is already registered')) {
+        if (typeof errorMsg === 'string' && errorMsg.includes('phone is already registered')) {
+          console.log('Phone already registered, triggering validation');
           await validateContact('phone', cleanPhone);
+          setIsSubmitting(false);
           return; // Exit early to keep form data
-        } else if (errorMsg.includes('email is already registered')) {
+        } else if (typeof errorMsg === 'string' && errorMsg.includes('email is already registered')) {
+          console.log('Email already registered, triggering validation');
           await validateContact('email', email);
+          setIsSubmitting(false);
           return; // Exit early to keep form data
         }
         
-        throw new Error(errorMsg);
+        toast({
+          title: "Invitation Error",
+          description: typeof errorMsg === 'string' ? errorMsg : 'Failed to send invitation',
+          variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
       }
 
+      // Success path
+      console.log('Invitation created successfully:', responseData);
+
       // Get the new invitation and add it to the list
-      const newInvite = await response.json();
+      const newInvite = responseData;
       setRecentInvites(prev => [newInvite, ...prev]);
 
       toast({
@@ -859,8 +932,9 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       <ContactValidationDialog
         open={showErrorDialog}
         onOpenChange={setShowErrorDialog}
-        errorField={errorField}
-        errorMessage={errorMessage}
+        validationResult={errorField === "phone" || errorField === "email" ? "registered" : "invalid"}
+        contactType={errorField === "phone" ? "phone" : "email"}
+        contactValue={errorField === "phone" ? phone : email}
         onClose={handleCustomDialogClose}
       />
       
