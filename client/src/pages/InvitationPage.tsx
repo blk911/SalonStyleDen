@@ -68,6 +68,9 @@ export default function InvitationPage() {
   // For preview mode, we want to skip to step 3
   const [showStep3, setShowStep3] = useState(isPreviewView);
   
+  // Track if this is a salon originated invitation
+  const [isSalonInvitation, setIsSalonInvitation] = useState(false);
+  
   // Save section state to localStorage when it changes
   useEffect(() => {
     localStorage.setItem('vmb-invite-style-section-open', JSON.stringify(styleSectionOpen));
@@ -97,7 +100,12 @@ export default function InvitationPage() {
       if (!response.ok) {
         throw new Error(`Failed to fetch invitation: ${response.status}`);
       }
-      return response.json();
+      const data = await response.json();
+      
+      // Check if this is a salon-initiated invitation (no senderId means it came from salon)
+      setIsSalonInvitation(!data.senderId && !!data.salonId);
+      
+      return data;
     },
     enabled: !!hash,
   });
