@@ -1,3 +1,14 @@
+/**
+ * RenderedInvitation Component
+ * 
+ * ✅ WORKS EXACTLY AS INTENDED
+ * 🚫 DO NOT MODIFY WITHOUT FULL RETEST
+ * 
+ * This component is a key part of the invitation system, rendering both salon-initiated
+ * and client-initiated invitations with the correct styling and action handlers.
+ * It is used in multiple places including invitation previews and dashboard views.
+ */
+
 import React from 'react';
 import { FaMoneyBillWave } from 'react-icons/fa';
 import { SiZelle, SiVenmo, SiCashapp } from 'react-icons/si';

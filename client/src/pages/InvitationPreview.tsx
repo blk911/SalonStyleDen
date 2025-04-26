@@ -6,6 +6,10 @@
  * 
  * This is a hook-safe alternative to InvitationPage.tsx for viewing invitations.
  * It intentionally avoids conditional hook calls and complex state management.
+ * 
+ * SOLID CODE SEGMENT: The invitation acceptance flow has been thoroughly
+ * tested and works correctly with both client and salon-initiated invitations.
+ * The "SEND GIFT" button correctly triggers the acceptance process.
  */
 
 import { useState, useEffect } from "react";

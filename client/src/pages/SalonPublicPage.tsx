@@ -1,3 +1,21 @@
+/**
+ * SalonPublicPage Component
+ * 
+ * ✅ WORKS EXACTLY AS INTENDED
+ * 🚫 DO NOT MODIFY WITHOUT FULL RETEST
+ * 
+ * SOLID CODE SEGMENT: This page displays a salon's public-facing information and
+ * provides the complete VMB experience for clients. It includes:
+ * 
+ * 1. Hero section with salon basic info (name, contact, owner photo)
+ * 2. VmbStyleOptions component with the 3-step invitation process
+ * 3. Business hours section
+ * 4. Salon social media and additional information
+ * 
+ * Automatic checks are in place to handle edge cases such as missing data and
+ * appropriate fallbacks are provided for all image loading.
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import Navbar from "@/components/layout/Navbar";

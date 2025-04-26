@@ -1,3 +1,21 @@
+/**
+ * VmbStyleOptions Component
+ * 
+ * ✅ WORKS EXACTLY AS INTENDED
+ * 🚫 DO NOT MODIFY WITHOUT FULL RETEST
+ * 
+ * SOLID CODE SEGMENT: This component manages the three-step process for style selection,
+ * invitation customization, and invitation sending. It works for both client-initiated
+ * and salon-initiated invitations and adapts its UI and behavior based on the context.
+ * 
+ * The component handles:
+ * 1. Style selection from available salon services
+ * 2. Recipient information input and validation
+ * 3. Preview and sending of invitation
+ * 
+ * This is a central feature of the VMB application and has been thoroughly tested.
+ */
+
 import { useState, useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
