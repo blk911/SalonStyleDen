@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/dialog";
 import { RenderedInvitation } from '@/components/invitations/RenderedInvitation';
 import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
-import { useContactValidation } from "@/hooks/useContactValidation";
+// Using inline validation hook instead of shared one to avoid interface conflicts
 import { 
   Tooltip,
   TooltipContent,
@@ -932,7 +932,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       <ContactValidationDialog
         open={showErrorDialog}
         onOpenChange={setShowErrorDialog}
-        validationResult={errorField === "phone" || errorField === "email" ? "registered" : "invalid"}
+        validationResult={errorField ? "registered" : null}
         contactType={errorField === "phone" ? "phone" : "email"}
         contactValue={errorField === "phone" ? phone : email}
         onClose={handleCustomDialogClose}
