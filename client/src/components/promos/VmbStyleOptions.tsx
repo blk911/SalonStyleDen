@@ -1217,7 +1217,14 @@ export function VmbStyleOptions({
                   setShowValidationDialog(true);
                   
                   // Clean phone number for validation (remove formatting)
-                  const cleanedContact = contactToValidate.replace(/\D/g, '');
+                  // First standardize the format by removing all non-digits
+                  let cleanedContact = contactToValidate.replace(/\D/g, '');
+                  
+                  // If it's a US number with leading 1, strip it
+                  if (cleanedContact.length === 11 && cleanedContact.startsWith('1')) {
+                    cleanedContact = cleanedContact.substring(1);
+                  }
+                  
                   console.log("Contact to validate:", contactToValidate, "Cleaned:", cleanedContact);
                   
                   // Create payload for validation
