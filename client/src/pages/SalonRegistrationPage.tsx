@@ -57,6 +57,40 @@ export default function SalonRegistrationPage() {
       acceptTerms: false,
     },
   });
+  
+  // Listen for form reset event from PhoneInputField
+  useEffect(() => {
+    const handleFormReset = () => {
+      // Reset the form to default values
+      form.reset({
+        name: '',
+        ownerName: '',
+        email: '',
+        phone: '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        description: '',
+        acceptTerms: false,
+      });
+      
+      // Show toast notification
+      toast({
+        title: "Form Reset",
+        description: "The form has been reset due to registered phone number",
+        variant: "default",
+      });
+    };
+    
+    // Add event listener for custom reset event
+    document.addEventListener('vmb-form-reset', handleFormReset);
+    
+    // Clean up event listener on component unmount
+    return () => {
+      document.removeEventListener('vmb-form-reset', handleFormReset);
+    };
+  }, [form, toast]);
 
   // Handle form submission
   const onSubmit = async (data: SalonFormValues) => {

@@ -204,18 +204,26 @@ export function PhoneInputField({
               type="button"
               variant="outline"
               onClick={() => {
+                // Close dialog
                 setShowRegisteredDialog(false);
                 
-                // Move focus to accept terms checkbox
+                // Dispatch a custom event to reset the form in parent components
+                document.dispatchEvent(new CustomEvent('vmb-form-reset'));
+                
+                // Reset the current phone field value
+                if (onChange) {
+                  onChange('');
+                }
+                
+                // Return focus to phone field
                 setTimeout(() => {
-                  const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
-                  if (termsCheckbox instanceof HTMLElement) {
-                    termsCheckbox.focus();
+                  if (inputRef.current) {
+                    inputRef.current.focus();
                   }
                 }, 10);
               }}
             >
-              Later
+              Back
             </Button>
             
             <Button 
