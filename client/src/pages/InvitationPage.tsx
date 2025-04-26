@@ -409,8 +409,17 @@ export default function InvitationPage() {
               </div>
             ) : (
               <div className="w-full flex justify-end">
-                {/* "Accept Invitation" button removed for salon-initiated invitations */}
-                {/* Only show the Accept Invitation button for client-initiated invitations (has senderId) */}
+                {/* Show "Accept Salon Offer" button for salon-initiated invitations */}
+                {invitation.status === 'pending' && !invitation.senderId && (
+                  <Button
+                    onClick={promptAcceptInvitation}
+                    className="bg-amber-500 hover:bg-amber-600 text-white"
+                  >
+                    Accept Salon Offer
+                  </Button>
+                )}
+                
+                {/* Show "Accept Invitation" button for client-initiated invitations (has senderId) */}
                 {invitation.status === 'pending' && invitation.senderId && (
                   <Button
                     onClick={promptAcceptInvitation}
@@ -430,21 +439,25 @@ export default function InvitationPage() {
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-center text-pink-700">Accept Invitation</DialogTitle>
+            <DialogTitle className={`text-center ${invitation.senderId ? 'text-pink-700' : 'text-amber-700'}`}>
+              {invitation.senderId ? 'Accept Invitation' : 'Accept Salon Offer'}
+            </DialogTitle>
             <DialogDescription className="text-center">
               You're about to accept an invitation from {invitation.sponsor || invitation.salonName || "a salon"}.
             </DialogDescription>
           </DialogHeader>
           
           <div className="flex flex-col items-center py-0.5">
-            <CheckCircleIcon className="h-16 w-16 text-pink-500 mb-0.5" />
+            <CheckCircleIcon className={`h-16 w-16 ${invitation.senderId ? 'text-pink-500' : 'text-amber-500'} mb-0.5`} />
             <p className="text-center mb-0.5">
               This invitation can only be accepted once. After acceptance, you'll be directed to complete your registration.
             </p>
             {invitation.firstServiceDate && (
-              <div className="mt-2 p-3 bg-pink-50 rounded-md w-full text-center">
+              <div className={`mt-2 p-3 ${invitation.senderId ? 'bg-pink-50' : 'bg-amber-50'} rounded-md w-full text-center`}>
                 <p className="text-sm font-medium">Your first service date is scheduled for:</p>
-                <p className="text-pink-700 font-bold">{new Date(invitation.firstServiceDate).toLocaleDateString()}</p>
+                <p className={`font-bold ${invitation.senderId ? 'text-pink-700' : 'text-amber-700'}`}>
+                  {new Date(invitation.firstServiceDate).toLocaleDateString()}
+                </p>
               </div>
             )}
           </div>
@@ -459,7 +472,7 @@ export default function InvitationPage() {
             </Button>
             <Button
               type="button"
-              className="bg-pink-600 hover:bg-pink-700"
+              className={`${invitation.senderId ? 'bg-pink-600 hover:bg-pink-700' : 'bg-amber-500 hover:bg-amber-600'} text-white`}
               onClick={handleAcceptInvitation}
             >
               Accept & Continue
