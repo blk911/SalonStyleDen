@@ -818,7 +818,7 @@ export default function ClientForm({
       <ContactValidationDialog
         open={showValidationDialog}
         onOpenChange={setShowValidationDialog}
-        errorField={validatedContactType === 'unknown' ? '' : validatedContactType}
+        errorField={validatedContactType === 'phone' ? 'phone' : validatedContactType === 'email' ? 'email' : ''}
         errorMessage={validatedContactType === 'phone' 
           ? "This phone number is already registered. Please try a different one." 
           : "This email is already registered. Please use a different one."}
