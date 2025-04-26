@@ -158,72 +158,6 @@ export function VmbStyleOptions({
   const isTablet = useMediaQuery({ query: '(max-width: 768px)' });
   const isDesktop = useMediaQuery({ query: '(min-width: 1024px)' });
   
-  // Handle sending the invitation
-  const handleSendInvitation = async () => {
-    try {
-      // Close confirmation dialog
-      setShowConfirmDialog(false);
-      
-      // Generate a unique ID for the invitation
-      const uniqueId = `${Date.now().toString(36)}${Math.random().toString(36).substring(2, 5)}`.toUpperCase();
-      setFinalInvitationId(uniqueId);
-      
-      // Create invitation data
-      const invitationData = {
-        name: recipientName || "Friend",
-        phone: recipientContact || "",
-        email: recipientContact?.includes('@') ? recipientContact : "",
-        message: invitationMessage,
-        styleId: confirmedStyle?.id,
-        styleName: confirmedStyle?.name,
-        stylePrice: confirmedStyle?.price,
-        styleDuration: confirmedStyle?.duration,
-        styleImageUrl: confirmedStyle?.gifUrl,
-        salonId: salonId,
-        clientId: clientId,
-        inviteHash: uniqueId,
-        status: "SENT",
-        sponsor: signature || "Friend",
-        salonInitiated: salonInitiated
-      };
-      
-      // Save invitation to database
-      console.log("[FLOW][VmbStyleOptions] Saving invitation to database", invitationData);
-      
-      // POST to API
-      const response = await apiRequest("/api/invitations", "POST", invitationData);
-      const savedInvitation = await response.json();
-      
-      console.log("[FLOW][VmbStyleOptions] Invitation saved successfully", savedInvitation);
-      
-      // Show the final rendered invitation
-      setShowFinalInvitationModal(true);
-      
-      // Call onSelectionComplete if provided to notify parent component
-      if (onSelectionComplete && confirmedStyle) {
-        const selection: StyleSelection = {
-          id: savedInvitation.id || 0,
-          clientId: clientId || 0,
-          styleId: confirmedStyle.id,
-          salonId: salonId || 0,
-          selectedAt: new Date().toISOString(),
-          status: "COMPLETE",
-          invitationId: savedInvitation.id,
-          createdAt: new Date().toISOString()
-        };
-        
-        onSelectionComplete(selection);
-      }
-    } catch (error) {
-      console.error("[FLOW:ERROR][VmbStyleOptions] Error saving invitation", error);
-      toast({
-        title: "Error",
-        description: "There was a problem sending your invitation. Please try again.",
-        variant: "destructive"
-      });
-    }
-  };
-  
   // Update state tracker when key states change
   useEffect(() => {
     setStateTracker(prev => prev + 1);
@@ -584,15 +518,11 @@ export function VmbStyleOptions({
       // If clientId is available, proceed with the API call
       if (values.styleOptions.clientId) {
         // Save selection to database using form values
-        const response = await apiRequest(
-          `/api/clients/${values.styleOptions.clientId}/style-selections`, 
-          'POST',
-          {
-            styleId: values.styleOptions.styleId,
-            salonId: values.styleOptions.salonId,
-            invitationId: values.styleOptions.invitationId
-          }
-        );
+        const response = await apiRequest(`/api/clients/${values.styleOptions.clientId}/style-selections`, 'POST', {
+          styleId: values.styleOptions.styleId,
+          salonId: values.styleOptions.salonId,
+          invitationId: values.styleOptions.invitationId
+        });
         
         if (response.ok) {
           const newSelection = await response.json();
@@ -1342,8 +1272,24 @@ export function VmbStyleOptions({
                 type="button"
                 className={`${salonInitiated ? 'bg-amber-500 hover:bg-amber-600' : 'bg-pink-500 hover:bg-pink-600'} text-white font-medium`}
                 onClick={() => {
-                  // Handle send logic
-                  handleSendInvitation();
+                  // Close confirmation dialog
+                  setShowConfirmDialog(false);
+                  
+                  // Generate a unique ID for the invitation
+                  const uniqueId = `${Date.now().toString(36)}${Math.random().toString(36).substring(2, 5)}`.toUpperCase();
+                  setFinalInvitationId(uniqueId);
+                  
+                  // Show the final rendered invitation
+                  setShowFinalInvitationModal(true);
+                  
+                  // Log the send action
+                  console.log("[FLOW][VmbStyleOptions] Sending invitation", {
+                    recipientName,
+                    recipientContact,
+                    styleId: confirmedStyle?.id,
+                    styleName: confirmedStyle?.name,
+                    salonInitiated
+                  });
                 }}
               >
                 <Send className="h-4 w-4 mr-2" />
