@@ -31,7 +31,7 @@ export function ContactValidationDialog({
   contactValue,
   onClose
 }: ContactValidationDialogProps) {
-  // The dialog close handler in the button component will handle focus management
+  // The dialog close handler in the button component will handle focus management directly
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
