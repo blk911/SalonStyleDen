@@ -277,7 +277,7 @@ export default function CompleteInvitationPage() {
             
             {/* Navigation Buttons */}
             <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-3">
-              <Link href="/">
+              <Link to="/">
                 <Button variant="outline" className="w-full sm:w-auto">
                   <ArrowLeft className="h-4 w-4 mr-1" />
                   Return Home
@@ -285,7 +285,7 @@ export default function CompleteInvitationPage() {
               </Link>
               
               {invitation.hash && (
-                <Link href={`/invitation/${invitation.hash}`}>
+                <Link to={`/invitation/${invitation.hash}`}>
                   <Button className="w-full sm:w-auto bg-pink-500 hover:bg-pink-600">
                     View Public Invitation
                     <ExternalLink className="h-4 w-4 ml-1" />
