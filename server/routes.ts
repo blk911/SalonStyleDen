@@ -971,9 +971,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Generate a unique hash for this invitation if not provided
           if (!validatedData.inviteHash) {
-            // Import the generateInviteHash function from client utils
-            const { generateInviteHash } = await import('../client/src/lib/utils');
-            validatedData.inviteHash = generateInviteHash();
+            // Generate a unique hash for this invitation without relying on client-side imports
+            const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const timestamp = Date.now().toString(36);
+            validatedData.inviteHash = `VMB-INV-${randomPart}-${timestamp}`;
+            console.log('Generated server-side invite hash:', validatedData.inviteHash);
           }
           
           // For client-to-client invitations, we don't require salonId upfront

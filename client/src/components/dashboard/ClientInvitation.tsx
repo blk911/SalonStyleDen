@@ -485,8 +485,13 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                           ? prev.filter(s => s !== service)
                           : [...prev, service]
                       );
+                      console.log(`Service ${service} ${selectedServices.includes(service) ? 'deselected' : 'selected'}. Current selections:`, 
+                        selectedServices.includes(service) 
+                          ? selectedServices.filter(s => s !== service)
+                          : [...selectedServices, service]
+                      );
                     }}
-                    className={selectedServices.includes(service) ? 'bg-pink-500 hover:bg-pink-600' : ''}
+                    className={selectedServices.includes(service) ? 'bg-pink-100 text-pink-800 border-pink-500 hover:bg-pink-200' : ''}
                   >
                     {service}
                   </Button>
