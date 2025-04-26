@@ -1377,7 +1377,7 @@ export function VmbStyleOptions({
                       message: signature ? `From: ${signature}` : "From your friend",
                       salonId: salonId || 42, // Default to Tiffany's salon if not provided
                       inviteHash: finalInvitationId,
-                      status: "PENDING", // Start as PENDING, will be ACCEPTED when redeemed
+                      status: "pending", // Must be lowercase 'pending' to match salon dashboard filter
                       sponsor: signature || "Your Friend",
                       
                       // For style selection
@@ -1422,9 +1422,19 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
                       
-                      // Navigate back to salon public page
+                      // For a salon-initiated invitation, navigate to the salon dashboard
+                      // to see the pending invitation immediately
                       if (salonId) {
-                        navigate(`/salon/${salonId}`);
+                        if (salonInitiated) {
+                          // Force reload to refresh the dashboard with the new invitation
+                          navigate(`/dashboard/salon/${salonId}`);
+                          
+                          // Invalidate the invitations cache to make sure the list is fresh
+                          queryClient.invalidateQueries({ queryKey: [`/api/salons/${salonId}/invitations`] });
+                        } else {
+                          // For client-initiated invitations, go back to the salon public page
+                          navigate(`/salon/${salonId}`);
+                        }
                       }
                     } catch (error) {
                       console.error("[FLOW][ERROR] Failed to send invitation:", error);
