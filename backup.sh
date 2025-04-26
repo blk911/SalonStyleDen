@@ -15,36 +15,9 @@ echo "=== Starting VMB Backup Process: ${TIMESTAMP} ==="
 echo "Creating backup directory: ${BACKUP_DIR}"
 mkdir -p "${BACKUP_DIR}"
 
-# 1. Git Status Check
-echo "=== Checking Git Status ==="
-if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
-  echo "Git repository detected"
-  
-  # Check for uncommitted changes
-  if [[ -n $(git status --porcelain) ]]; then
-    echo "WARNING: You have uncommitted changes. Committing all changes before backup."
-    git add .
-    git commit -m "Auto-commit before backup ${TIMESTAMP}"
-  else
-    echo "Git repository is clean. No uncommitted changes."
-  fi
-  
-  # Create a backup tag
-  echo "Creating git tag: backup-${TIMESTAMP}"
-  git tag "backup-${TIMESTAMP}"
-  
-  # Optional: Create a stable-backup branch
-  echo "Creating/updating stable-backup branch"
-  git branch -f stable-backup
-  git show-ref --verify --quiet refs/heads/stable-backup && git checkout stable-backup
-else
-  echo "WARNING: Not in a git repository. Initializing one for backup purposes."
-  git init
-  git add .
-  git commit -m "Initial commit for backup ${TIMESTAMP}"
-  git tag "backup-${TIMESTAMP}"
-  git branch -f stable-backup
-fi
+# Skip Git operations in Replit environment
+echo "=== Replit Environment Detected ==="
+echo "Skipping Git operations for compatibility with Replit"
 
 # 2. Create Code Archive
 echo "=== Creating Code Archive ==="

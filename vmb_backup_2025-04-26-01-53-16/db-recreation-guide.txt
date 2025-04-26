@@ -1,0 +1,7 @@
+-- How to recreate the database
+1. Create a new database
+2. Run npm migrations:
+   npm run db:push
+
+Note: Since a full pg_dump wasn't possible due to version constraints in Replit,
+you'll need to manually recreate the data or use the migrations to rebuild the schema.
