@@ -131,12 +131,12 @@ export default function BrandCarousel() {
                   {item.titleComponent}
                   {item.titleSuffix}
                 </h3>
-                <div className="space-y-6 flex-grow">
+                <div className="space-y-4 flex-grow">
                   {item.content.map((line, i) => {
                     // Handle string arrays with 3 elements (special format)
                     if (Array.isArray(line) && line.length === 3 && typeof line[0] === 'string') {
                       return (
-                        <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
+                        <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-4">
                           {line[0]}
                           <span className="font-bold">{line[1]}</span>
                           {line[2]}
@@ -153,7 +153,7 @@ export default function BrandCarousel() {
                           <p className="text-lg font-bold text-gray-700 leading-relaxed tracking-wide mb-1">
                             {line[0].text}
                           </p>
-                          <p className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
+                          <p className="text-lg text-gray-700 leading-relaxed tracking-wide mb-2">
                             {line[1].text}
                           </p>
                         </div>
@@ -163,7 +163,7 @@ export default function BrandCarousel() {
                     // Handle CardContentItem objects
                     if (!Array.isArray(line) && typeof line === 'object' && 'text' in line) {
                       return (
-                        <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">
+                        <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-4">
                           {line.isBold ? (
                             <span className="font-bold">
                               {line.text}
@@ -179,13 +179,13 @@ export default function BrandCarousel() {
                     if (typeof line === 'string') {
                       if (line.startsWith('✔️')) {
                         return (
-                          <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide flex items-center gap-2 mb-8">
+                          <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide flex items-center gap-2 mb-4">
                             <Check className="h-5 w-5 text-green-500" strokeWidth={3} />
                             {line.replace('✔️', '')}
                           </p>
                         );
                       }
-                      return <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-8">{line}</p>;
+                      return <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-4">{line}</p>;
                     }
                     
                     return null;
