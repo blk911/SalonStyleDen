@@ -388,6 +388,64 @@ export default function ClientDashboard() {
               </DialogContent>
             </Dialog>
             
+            {/* Client Profile Card */}
+            <Card className="rounded-xl shadow-sm overflow-hidden">
+              <CardHeader className="bg-pink-50 pb-2 pt-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-base flex items-center gap-2 text-pink-700">
+                    <UserIcon className="h-4 w-4" />
+                    Your Profile
+                  </CardTitle>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-8 border-pink-300 text-pink-700 hover:bg-pink-50"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    <PencilIcon className="h-3.5 w-3.5 mr-1" />
+                    Edit Profile
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <div className="flex flex-col space-y-2">
+                      <div className="flex items-center text-sm">
+                        <UserIcon className="h-4 w-4 mr-2 text-gray-400" />
+                        <span className="font-medium text-gray-600">Name:</span>
+                        <span className="ml-2">{client.name}</span>
+                      </div>
+                      <div className="flex items-center text-sm">
+                        <PhoneIcon className="h-4 w-4 mr-2 text-gray-400" />
+                        <span className="font-medium text-gray-600">Phone:</span>
+                        <span className="ml-2">{client.phone}</span>
+                      </div>
+                      <div className="flex items-center text-sm">
+                        <AtSignIcon className="h-4 w-4 mr-2 text-gray-400" />
+                        <span className="font-medium text-gray-600">Email:</span>
+                        <span className="ml-2">{client.email}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    {client.address && (
+                      <div className="flex items-start text-sm">
+                        <MapPinIcon className="h-4 w-4 mr-2 mt-0.5 text-gray-400" />
+                        <div>
+                          <span className="font-medium text-gray-600">Address:</span>
+                          <div className="ml-2">
+                            <p>{client.address}</p>
+                            <p>{client.city}, {client.state} {client.zipCode}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
             {/* Full-width Salon Card */}
             {client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
@@ -1026,18 +1084,47 @@ export default function ClientDashboard() {
                   </button>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-4 hidden">
-                {/* This content is hidden by default - will be used when personal invitations feature is implemented */}
+              <CardContent className="p-4">
                 <div className="py-4 text-center">
                   <p className="text-gray-500">You haven't sent any personal invitations yet.</p>
                   <p className="text-xs text-gray-400 mt-1">
                     Create a personal invitation to share your favorite salon experience with friends.
                   </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-4 border-pink-300 text-pink-700 hover:bg-pink-50"
+                    onClick={() => {
+                      toast({
+                        title: "Feature Coming Soon",
+                        description: "The ability to send personal invitations will be available soon.",
+                        variant: "default"
+                      });
+                    }}
+                  >
+                    Create New Invitation
+                  </Button>
                 </div>
               </CardContent>
             </Card>
             
-            {/* Standalone section removed */}
+            {/* Pending Invitations */}
+            <Card className="rounded-xl shadow-sm overflow-hidden mt-6">
+              <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100 pb-2 pt-2">
+                <CardTitle className="text-base flex items-center justify-between gap-2 text-amber-700">
+                  <div className="flex items-center gap-2">
+                    <StarIcon className="h-4 w-4" />
+                    <span>Pending Invitations</span>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <PendingSalonInvitations 
+                  clientId={client.id} 
+                  limit={5} 
+                />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
