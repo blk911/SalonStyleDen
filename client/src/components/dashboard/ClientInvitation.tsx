@@ -889,7 +889,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                       </div>
                       <div className="flex items-center">
                         <LinkIcon className="h-3.5 w-3.5 mr-1.5 text-indigo-500" />
-                        <Link to={`/appointments/${invite.id}`} className="text-indigo-600 hover:underline">
+                        <Link to={`/invitation/${invite.inviteHash}?view=preview&prefill=true`} className="text-indigo-600 hover:underline">
                           View Appointment
                         </Link>
                       </div>
@@ -968,7 +968,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                       </div>
                       <div className="col-span-1 sm:col-span-2 flex items-center mt-1">
                         <LinkIcon className="h-3.5 w-3.5 mr-1.5 text-emerald-500" />
-                        <Link to={`/invitations/${invite.inviteHash}`} className="text-emerald-600 hover:underline">
+                        <Link to={`/invitation/${invite.inviteHash}?view=preview&prefill=true`} className="text-emerald-600 hover:underline">
                           View Completed Invitation
                         </Link>
                       </div>
