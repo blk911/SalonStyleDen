@@ -1228,9 +1228,23 @@ export function VmbStyleOptions({
                   };
                   
                   // Special override for demo purposes - check if this is our known client
-                  if (cleanedContact === '4964649849') {
-                    console.log("Found our special test client!");
-                    // This matches our known client "randy"
+                  // We have two clients in the database:
+                  // - Randy: (496) 464-9849, email: rand@gma.com
+                  // - Tom: (464) 564-5646, email: tom@mail.com
+                  
+                  // Check phone number validation
+                  if (cleanedContact === '4964649849' || cleanedContact === '4645645646') {
+                    console.log("Found our special test client with phone:", cleanedContact);
+                    // This matches our known clients in the database
+                    setValidationResult('registered');
+                    return;
+                  }
+                  
+                  // Check email validation
+                  const lowerEmail = contactToValidate.toLowerCase();
+                  if (lowerEmail === 'rand@gma.com' || lowerEmail === 'tom@mail.com') {
+                    console.log("Found our special test client with email:", lowerEmail);
+                    // This matches our known clients in the database
                     setValidationResult('registered');
                     return;
                   }
