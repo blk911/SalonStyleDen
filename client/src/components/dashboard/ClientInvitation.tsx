@@ -19,7 +19,8 @@ import {
   GiftIcon,
   X,
   Send,
-  Loader2
+  Loader2,
+  AlertTriangle
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
@@ -40,7 +41,6 @@ import {
   DialogTitle 
 } from "@/components/ui/dialog";
 import { RenderedInvitation } from '@/components/invitations/RenderedInvitation';
-import { AlertTriangle } from "lucide-react";
 import { 
   Tooltip,
   TooltipContent,
@@ -159,18 +159,77 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     localStorage.setItem('vmb-completed-invitations-open', JSON.stringify(completedInvitesOpen));
   }, [completedInvitesOpen]);
   
-  // Use our contact validation hook
-  const {
-    phoneExists, 
-    emailExists,
-    errorField,
-    errorMessage,
-    showErrorDialog,
-    setShowErrorDialog,
-    formatPhoneNumber: formatContactPhone,
-    validateContact,
-    handleDialogClose
-  } = useContactValidation();
+  // Simplified validation pattern since we're not using the shared hook
+  const [errorField, setErrorField] = useState<'' | 'phone' | 'email'>('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showErrorDialog, setShowErrorDialog] = useState(false);
+  const [phoneExists, setPhoneExists] = useState(false);
+  const [emailExists, setEmailExists] = useState(false);
+  
+  // Format a phone number with common US format
+  const formatContactPhone = (input: string) => {
+    // Keep only digits
+    const cleaned = input.replace(/\D/g, '');
+    
+    // Format as (XXX) XXX-XXXX
+    if (cleaned.length <= 3) {
+      return cleaned;
+    } else if (cleaned.length <= 6) {
+      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
+    } else {
+      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
+    }
+  };
+  
+  // Validate contact info against API
+  const validateContact = async (type: 'phone' | 'email', value: string) => {
+    try {
+      // Basic validation
+      if (type === 'phone' && value.replace(/\D/g, '').length !== 10) {
+        setErrorField('phone');
+        setErrorMessage('Phone number must be 10 digits');
+        setShowErrorDialog(true);
+        return;
+      }
+      
+      if (type === 'email' && !value.includes('@')) {
+        setErrorField('email');
+        setErrorMessage('Invalid email format');
+        setShowErrorDialog(true);
+        return;
+      }
+      
+      // Check if contact exists in database
+      const response = await fetch(`/api/validate-contact?type=${type}&value=${encodeURIComponent(value)}`);
+      const data = await response.json();
+      
+      if (data.exists) {
+        if (type === 'phone') {
+          setPhoneExists(true);
+        } else {
+          setEmailExists(true);
+        }
+        
+        setErrorField(type);
+        setErrorMessage(`This ${type} is already registered in our system.`);
+        setShowErrorDialog(true);
+      } else {
+        // Clear errors for this field
+        if (type === 'phone') {
+          setPhoneExists(false);
+        } else {
+          setEmailExists(false);
+        }
+      }
+    } catch (error) {
+      console.error(`Error validating ${type}:`, error);
+    }
+  };
+  
+  // Handle dialog close
+  const handleDialogClose = () => {
+    setShowErrorDialog(false);
+  };
 
   useEffect(() => {
     if (salonId) {
