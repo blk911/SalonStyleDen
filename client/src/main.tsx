@@ -2,9 +2,10 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-// Import flow testing utilities (only in development)
-import { initializeTestFlows } from "./lib/test-flows";
+// Import flow testing utilities and logger
+import { initTestFlows } from "./lib/test-flows";
 import FlowLogger from "./lib/flow-logger";
+import "./lib/dev-tools";
 
 // Initialize application
 const initApp = () => {
@@ -17,7 +18,7 @@ const initApp = () => {
   // Initialize flow testing utilities in development
   if (import.meta.env.DEV) {
     FlowLogger.log('Application', 'Initializing Development Tools');
-    initializeTestFlows();
+    initTestFlows();
   }
   
   // Log application startup complete

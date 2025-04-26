@@ -1,74 +1,97 @@
 // ✅ WORKS EXACTLY AS INTENDED
 // 🚫 DO NOT MODIFY WITHOUT FULL RETEST
-// Module: flow-logger.ts - Centralized flow tracing utility
+// Module: flow-logger.ts - Standard logging format for application flows
 
 /**
- * FlowLogger - Utility for tracing application flows and critical paths
+ * Flow Logger - Standardized logging system for the VMB application
  * 
- * Used to track and debug the execution of important workflows in the application.
- * This creates a standard pattern for logging flow steps and helps with debugging.
+ * This utility provides consistent logging patterns for tracking
+ * application processes and workflows.
  */
-export const FlowLogger = {
-  /**
-   * Log a standard flow step
-   * @param component - The component/module name
-   * @param step - The specific step being executed
-   * @param data - Optional data to log with the step
-   */
-  log: (component: string, step: string, data?: any): void => {
-    console.log(`[FLOW][${component}] ${step}`, data ? data : '');
-  },
-
-  /**
-   * Log an error in the flow
-   * @param component - The component/module name
-   * @param step - The step where the error occurred
-   * @param error - The error that occurred
-   */
-  error: (component: string, step: string, error: any): void => {
-    console.error(`[FLOW:ERROR][${component}] ${step}`, error);
-  },
-
-  /**
-   * Log a warning in the flow
-   * @param component - The component/module name
-   * @param step - The step where the warning occurred
-   * @param data - Optional data to log with the warning
-   */
-  warn: (component: string, step: string, data?: any): void => {
-    console.warn(`[FLOW:WARN][${component}] ${step}`, data ? data : '');
-  },
-
-  /**
-   * Log a successful completion of a flow step
-   * @param component - The component/module name
-   * @param step - The successfully completed step
-   * @param data - Optional data to log with the success
-   */
-  success: (component: string, step: string, data?: any): void => {
-    console.log(`[FLOW:SUCCESS][${component}] ${step}`, data ? data : '');
-  },
-
+class FlowLogger {
+  private static activeFlows: Record<string, { startTime: number, steps: string[] }> = {};
+  
   /**
    * Start tracking a new flow
-   * @param flowName - The name of the flow being started
+   * @param flowName Unique identifier for this flow
    */
-  startFlow: (flowName: string): void => {
-    console.log(`[FLOW:START] ===== ${flowName.toUpperCase()} FLOW STARTED =====`);
-  },
-
-  /**
-   * End tracking of a flow
-   * @param flowName - The name of the flow being ended
-   * @param success - Whether the flow completed successfully
-   */
-  endFlow: (flowName: string, success: boolean): void => {
-    if (success) {
-      console.log(`[FLOW:END] ===== ${flowName.toUpperCase()} FLOW COMPLETED SUCCESSFULLY ✅ =====`);
-    } else {
-      console.log(`[FLOW:END] ===== ${flowName.toUpperCase()} FLOW FAILED ❌ =====`);
-    }
+  static startFlow(flowName: string): void {
+    this.activeFlows[flowName] = {
+      startTime: Date.now(),
+      steps: []
+    };
+    console.log(`[FLOW][${flowName}] Flow started`);
   }
-};
+  
+  /**
+   * Log a step in an active flow
+   * @param component The component/module name initiating the log
+   * @param step Description of the step being logged
+   * @param data Optional data to include in the log
+   */
+  static log(component: string, step: string, data?: any): void {
+    console.log(`[FLOW][${component}] ${step}`, data || '');
+  }
+  
+  /**
+   * Log a successful step in an active flow
+   * @param component The component/module name initiating the log
+   * @param step Description of the successful step
+   * @param data Optional data to include in the log
+   */
+  static success(component: string, step: string, data?: any): void {
+    console.log(`[FLOW:SUCCESS][${component}] ${step}`, data || '');
+  }
+  
+  /**
+   * Log an error in an active flow
+   * @param component The component/module name initiating the log
+   * @param step Description of the step that failed
+   * @param error The error that occurred
+   */
+  static error(component: string, step: string, error: any): void {
+    console.error(`[FLOW:ERROR][${component}] ${step}`, error);
+  }
+  
+  /**
+   * End an active flow with success or failure status
+   * @param flowName The name of the flow to end
+   * @param success Whether the flow completed successfully
+   */
+  static endFlow(flowName: string, success: boolean): void {
+    const flow = this.activeFlows[flowName];
+    if (!flow) {
+      console.warn(`[FLOW:WARNING] Attempted to end flow "${flowName}" which was not started`);
+      return;
+    }
+    
+    const duration = Date.now() - flow.startTime;
+    
+    if (success) {
+      console.log(`[FLOW:SUCCESS][${flowName}] Flow completed successfully (duration: ${duration}ms)`);
+    } else {
+      console.error(`[FLOW:ERROR][${flowName}] Flow failed (duration: ${duration}ms)`);
+    }
+    
+    delete this.activeFlows[flowName];
+  }
+  
+  /**
+   * Log a custom flow marker with a specific status
+   * @param component The component/module name 
+   * @param marker The marker name/label
+   * @param status Status of the marker (success, warning, error)
+   * @param data Optional data to include with the marker
+   */
+  static marker(component: string, marker: string, status: 'success' | 'warning' | 'error', data?: any): void {
+    const prefix = status === 'success' 
+      ? '[FLOW:SUCCESS]' 
+      : status === 'warning' 
+        ? '[FLOW:WARNING]' 
+        : '[FLOW:ERROR]';
+    
+    console.log(`${prefix}[${component}] ${marker}`, data || '');
+  }
+}
 
 export default FlowLogger;

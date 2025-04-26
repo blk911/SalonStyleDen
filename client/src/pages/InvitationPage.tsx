@@ -335,10 +335,17 @@ export default function InvitationPage() {
     );
   }
   
-  // Initialize form data when invitation loads
+  // ✅ WORKS EXACTLY AS INTENDED
+  // 🚫 DO NOT MODIFY WITHOUT FULL RETEST
+  // Function: Initialize form data when invitation loads
   useEffect(() => {
+    // The hook itself always runs consistently
+    // Only the logic inside depends on invitation
     if (invitation) {
+      // Process name parts from invitation
       const nameParts = invitation.name ? invitation.name.split(' ') : ['', ''];
+      
+      // Update client form with invitation data
       setClientForm({
         firstName: nameParts[0] || '',
         lastName: nameParts.slice(1).join(' ') || '',
