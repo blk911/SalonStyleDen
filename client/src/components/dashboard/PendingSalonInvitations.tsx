@@ -134,7 +134,7 @@ export default function PendingSalonInvitations({
                   "bg-amber-100 text-amber-700"
                 }>
                   {invitation.senderId ? 
-                    `[${invitation.id}] Ven Me, Baby! Gift Request Form` : 
+                    `CLIENT INVITE: [${invitation.id}]` : 
                     `SALON INVITE: [${invitation.id}]`}
                 </Badge>
               </div>
