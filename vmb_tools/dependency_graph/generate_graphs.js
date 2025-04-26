@@ -27,6 +27,11 @@ const componentsToAnalyze = [
     title: 'Invitation Flow Dependencies'
   },
   {
+    name: 'vmb_style_options',
+    entry: '../client/src/components/promos/VmbStyleOptions.tsx',
+    title: 'VMB Style Options Engine Dependencies'
+  },
+  {
     name: 'app_routes',
     entry: '../client/src/App.tsx',
     title: 'Application Routes'
