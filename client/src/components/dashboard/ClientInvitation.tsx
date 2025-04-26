@@ -476,17 +476,20 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   value={name}
                   onChange={(e) => {
                     setName(e.target.value);
-                    
-                    // Always update notes with the new name for real-time sync
-                    const serviceToUse = selectedServices.length > 0 ? selectedServices[0] : 'Salon Service';
-                    setNotes(processMessage(notes, e.target.value, serviceToUse));
+                    // Name will be updated in message when Enter is pressed (handled in onKeyDown)
                   }}
                   required
                   className="flex-1"
                   onKeyDown={(e) => {
-                    // Move to next field on Enter
+                    // Update message with name when Enter is pressed
                     if (e.key === 'Enter' && name.trim().length > 0) {
                       e.preventDefault();
+                      
+                      // Update notes with name when Enter is pressed
+                      const serviceToUse = selectedServices.length > 0 ? selectedServices[0] : 'Salon Service';
+                      setNotes(processMessage(notes, name, serviceToUse));
+                      
+                      // Move to next field
                       const phoneInput = document.querySelector('input[placeholder="Phone Number"]') as HTMLInputElement;
                       if (phoneInput) phoneInput.focus();
                     }
