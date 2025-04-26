@@ -68,9 +68,6 @@ export default function InvitationPage() {
   // For preview mode, we want to skip to step 3
   const [showStep3, setShowStep3] = useState(isPreviewView);
   
-  // Track if this is a salon originated invitation
-  const [isSalonInvitation, setIsSalonInvitation] = useState(false);
-  
   // Save section state to localStorage when it changes
   useEffect(() => {
     localStorage.setItem('vmb-invite-style-section-open', JSON.stringify(styleSectionOpen));
@@ -100,12 +97,7 @@ export default function InvitationPage() {
       if (!response.ok) {
         throw new Error(`Failed to fetch invitation: ${response.status}`);
       }
-      const data = await response.json();
-      
-      // Check if this is a salon-initiated invitation (no senderId means it came from salon)
-      setIsSalonInvitation(!data.senderId && !!data.salonId);
-      
-      return data;
+      return response.json();
     },
     enabled: !!hash,
   });
@@ -417,23 +409,14 @@ export default function InvitationPage() {
               </div>
             ) : (
               <div className="w-full flex justify-end">
-                {/* Show Accept Invitation button for client-initiated invitations (has senderId) */}
+                {/* "Accept Invitation" button removed for salon-initiated invitations */}
+                {/* Only show the Accept Invitation button for client-initiated invitations (has senderId) */}
                 {invitation.status === 'pending' && invitation.senderId && (
                   <Button
                     onClick={promptAcceptInvitation}
                     className="bg-pink-600 hover:bg-pink-700 text-white"
                   >
                     Accept Invitation
-                  </Button>
-                )}
-                
-                {/* Show Accept Salon Offer button for salon-initiated invitations (no senderId, has salonId) */}
-                {invitation.status === 'pending' && !invitation.senderId && invitation.salonId && (
-                  <Button
-                    onClick={promptAcceptInvitation}
-                    className="bg-amber-600 hover:bg-amber-700 text-white"
-                  >
-                    Accept Salon Offer
                   </Button>
                 )}
               </div>
@@ -447,25 +430,21 @@ export default function InvitationPage() {
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className={`text-center ${isSalonInvitation ? 'text-amber-700' : 'text-pink-700'}`}>
-              {isSalonInvitation ? 'Accept Salon Offer' : 'Accept Invitation'}
-            </DialogTitle>
+            <DialogTitle className="text-center text-pink-700">Accept Invitation</DialogTitle>
             <DialogDescription className="text-center">
-              You're about to accept {isSalonInvitation ? 'an offer' : 'an invitation'} from {invitation.sponsor || invitation.salonName || "a salon"}.
+              You're about to accept an invitation from {invitation.sponsor || invitation.salonName || "a salon"}.
             </DialogDescription>
           </DialogHeader>
           
           <div className="flex flex-col items-center py-0.5">
-            <CheckCircleIcon className={`h-16 w-16 ${isSalonInvitation ? 'text-amber-500' : 'text-pink-500'} mb-0.5`} />
+            <CheckCircleIcon className="h-16 w-16 text-pink-500 mb-0.5" />
             <p className="text-center mb-0.5">
-              This {isSalonInvitation ? 'offer' : 'invitation'} can only be accepted once. After acceptance, you'll be directed to complete your registration.
+              This invitation can only be accepted once. After acceptance, you'll be directed to complete your registration.
             </p>
             {invitation.firstServiceDate && (
-              <div className={`mt-2 p-3 ${isSalonInvitation ? 'bg-amber-50' : 'bg-pink-50'} rounded-md w-full text-center`}>
+              <div className="mt-2 p-3 bg-pink-50 rounded-md w-full text-center">
                 <p className="text-sm font-medium">Your first service date is scheduled for:</p>
-                <p className={`font-bold ${isSalonInvitation ? 'text-amber-700' : 'text-pink-700'}`}>
-                  {new Date(invitation.firstServiceDate).toLocaleDateString()}
-                </p>
+                <p className="text-pink-700 font-bold">{new Date(invitation.firstServiceDate).toLocaleDateString()}</p>
               </div>
             )}
           </div>
@@ -480,7 +459,7 @@ export default function InvitationPage() {
             </Button>
             <Button
               type="button"
-              className={isSalonInvitation ? 'bg-amber-600 hover:bg-amber-700' : 'bg-pink-600 hover:bg-pink-700'}
+              className="bg-pink-600 hover:bg-pink-700"
               onClick={handleAcceptInvitation}
             >
               Accept & Continue
