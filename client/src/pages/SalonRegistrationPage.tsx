@@ -17,6 +17,8 @@ import Footer from '@/components/layout/Footer';
 import { Loader2Icon, CheckCircleIcon } from 'lucide-react';
 import { PhoneInputField } from '@/components/ui/PhoneInputField';
 
+// Import necessary modules
+
 // Create a salon registration schema
 const salonSchema = z.object({
   name: z.string().min(2, { message: 'Salon name must be at least 2 characters' }),
@@ -429,38 +431,48 @@ export default function SalonRegistrationPage() {
                       )}
                     />
                     
+                    {/* Terms Checkbox with Focus Effect */}
                     <FormField
                       control={form.control}
                       name="acceptTerms"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                          <FormControl>
-                            <div className="flex items-center space-x-2">
-                              <input
-                                type="checkbox"
-                                id="terms-checkbox"
-                                name="acceptTerms"
-                                checked={field.value}
-                                onChange={field.onChange}
-                                className="h-4 w-4 rounded border-gray-300 text-pink-600 focus:ring-pink-500"
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    const submitButton = document.querySelector('button[type="submit"]');
-                                    if (submitButton instanceof HTMLElement) {
-                                      submitButton.focus();
+                      render={({ field }) => {
+                        // Use component state for tracking focus
+                        const [isFocused, setIsFocused] = useState(false);
+                        
+                        return (
+                          <FormItem className={`flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 transition-colors duration-200 hover:bg-pink-50/50 ${
+                            isFocused ? 'bg-pink-50 border-pink-200 shadow-sm' : ''
+                          }`}>
+                            <FormControl>
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="checkbox"
+                                  id="terms-checkbox"
+                                  name="acceptTerms"
+                                  checked={field.value}
+                                  onChange={field.onChange}
+                                  onFocus={() => setIsFocused(true)}
+                                  onBlur={() => setIsFocused(false)}
+                                  className="h-4 w-4 rounded border-gray-300 text-pink-600 focus:ring-pink-500"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      const submitButton = document.querySelector('button[type="submit"]');
+                                      if (submitButton instanceof HTMLElement) {
+                                        submitButton.focus();
+                                      }
                                     }
-                                  }
-                                }}
-                              />
-                              <label>
-                                I accept the terms and conditions
-                              </label>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                                  }}
+                                />
+                                <label htmlFor="terms-checkbox" className="cursor-pointer select-none">
+                                  I accept the terms and conditions
+                                </label>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
                     />
                     
                     <Button
