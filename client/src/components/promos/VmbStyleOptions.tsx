@@ -16,6 +16,8 @@ import { PromoCodeDialog, ClientData } from '@/components/ui/PromoCodeDialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useMediaQuery } from 'react-responsive';
 import { RenderedInvitation } from '@/components/invitations/RenderedInvitation';
+import { useContactValidation } from '@/hooks/use-contact-validation';
+import { ContactValidationDialog } from '@/components/ui/ContactValidationDialog';
 
 interface StyleOption {
   id: number;
@@ -122,9 +124,16 @@ export function VmbStyleOptions({
   const { toast } = useToast();
   const [, navigate] = useLocation();
   
-  // New states for validation popup
+  // Use our contact validation hook
+  const { 
+    validationResult,
+    validateContact,
+    isValidating,
+    validatedContactType,
+    resetValidation
+  } = useContactValidation();
   const [showValidationDialog, setShowValidationDialog] = useState(false);
-  const [validationResult, setValidationResult] = useState<'registered' | 'not_registered' | 'loading' | null>(null);
+  const [validatedContact, setValidatedContact] = useState("");
   
   // Responsive media queries
   const isMobile = useMediaQuery({ query: '(max-width: 640px)' });
@@ -1199,7 +1208,7 @@ export function VmbStyleOptions({
               <Button 
                 type="button"
                 className="bg-green-400 hover:bg-green-500 text-white font-medium"
-                onClick={() => {
+                onClick={async () => {
                   // Check if we have contact information to validate
                   const contactToValidate = recipientContact || '';
                   
@@ -1212,70 +1221,30 @@ export function VmbStyleOptions({
                     return;
                   }
                   
-                  // Set loading state
-                  setValidationResult('loading');
-                  setShowValidationDialog(true);
+                  // Store the contact we're validating
+                  setValidatedContact(contactToValidate);
                   
-                  // Clean phone number for validation (remove formatting)
-                  const cleanedContact = contactToValidate.replace(/\D/g, '');
-                  console.log("Contact to validate:", contactToValidate, "Cleaned:", cleanedContact);
-                  
-                  // Create payload for validation
-                  const payload = {
-                    phone: contactToValidate.includes('@') ? '' : cleanedContact,
-                    email: contactToValidate.includes('@') ? contactToValidate : '',
-                    type: 'client'
-                  };
-                  
-                  // Special override for demo purposes - check if this is our known client
-                  // We have two clients in the database:
-                  // - Randy: (496) 464-9849, email: rand@gma.com
-                  // - Tom: (464) 564-5646, email: tom@mail.com
-                  
-                  // Check phone number validation
-                  if (cleanedContact === '4964649849' || cleanedContact === '4645645646') {
-                    console.log("Found our special test client with phone:", cleanedContact);
-                    // This matches our known clients in the database
-                    setValidationResult('registered');
-                    return;
-                  }
-                  
-                  // Check email validation
-                  const lowerEmail = contactToValidate.toLowerCase();
-                  if (lowerEmail === 'rand@gma.com' || lowerEmail === 'tom@mail.com') {
-                    console.log("Found our special test client with email:", lowerEmail);
-                    // This matches our known clients in the database
-                    setValidationResult('registered');
-                    return;
-                  }
-                  
-                  // Call API to validate if client is registered
-                  fetch('/api/validate-contact', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                  })
-                    .then(response => response.json())
-                    .then(data => {
-                      if (data.exists) {
-                        // Client is registered in DB
-                        setValidationResult('registered');
-                      } else {
-                        // Client is not registered in DB
-                        setValidationResult('not_registered');
-                      }
-                    })
-                    .catch(error => {
-                      console.error("Error validating client:", error);
-                      toast({
-                        title: "Validation Error",
-                        description: "Unable to validate client information",
-                        variant: "destructive"
-                      });
-                      setShowValidationDialog(false);
+                  // Use our contact validation hook
+                  try {
+                    // Reset any previous validation
+                    resetValidation();
+                    
+                    // Perform validation
+                    const result = await validateContact(contactToValidate);
+                    
+                    // Show dialog with result
+                    setShowValidationDialog(true);
+                    
+                    // Log validation result
+                    console.log("Contact validation result:", result);
+                  } catch (error) {
+                    console.error("Error validating client:", error);
+                    toast({
+                      title: "Validation Error",
+                      description: "Unable to validate client information",
+                      variant: "destructive"
                     });
+                  }
                 }}
               >
                 Ven Me, Baby!
