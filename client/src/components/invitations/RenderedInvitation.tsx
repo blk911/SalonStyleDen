@@ -49,18 +49,15 @@ export function RenderedInvitation({
         : 'from-pink-300 via-purple-300 to-indigo-300'}`}></div>
       
       <CardContent className="p-4">
-        <div className="mb-4" style={{ maxHeight: '120px' }}>
-          <AspectRatio ratio={4/3} className="bg-muted rounded-md overflow-hidden shadow-md" style={{ maxHeight: '120px' }}>
+        <div className="mb-4">
+          {/* Set fixed height of 120px while maintaining proper aspect ratio */}
+          <div className="rounded-md overflow-hidden shadow-md bg-muted h-[120px] flex items-center justify-center">
             <img 
               src={imageUrl} 
               alt={styleOption}
-              className="object-cover w-full h-full"
-              style={{ maxHeight: '120px' }}
-              onError={(e) => {
-                e.currentTarget.src = '/assets/VMB_LOGO.png'; // Fallback if image fails to load
-              }}
+              className="object-contain h-full max-w-full"
             />
-          </AspectRatio>
+          </div>
         </div>
         
         <div className="space-y-4">
@@ -96,7 +93,7 @@ export function RenderedInvitation({
                   </div>
                 )}
                 
-                <div>PS: Clients register here: <span className="inline-flex items-center bg-gray-100 text-gray-800 rounded-full p-1 text-xs hover:bg-gray-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></span></div>
+                <div>PS: Clients register here: <a href="/index" className="inline-flex items-center bg-gray-100 text-gray-800 rounded-full p-1 text-xs hover:bg-gray-200"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></a></div>
                 
                 <div className="text-center mt-2 text-xs text-gray-400">VMB:{inviteId}</div>
 

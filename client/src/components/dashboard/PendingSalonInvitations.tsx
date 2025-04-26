@@ -105,12 +105,13 @@ export default function PendingSalonInvitations({
 
   // Handle viewing an invitation
   const handleViewInvitation = (invitation: Invitation) => {
-    // Option 1: Show in modal dialog
+    // Option 1: Show in a dialog (current implementation)
     setSelectedInvitation(invitation);
     setShowInvitationDialog(true);
     
-    // NOTE: We're keeping with the dialog approach rather than direct navigation
-    // to maintain consistent UI across the application per user requirements
+    // Option 2: Direct to invitation page with preview mode
+    // This would navigate directly to the invitation page with the preview mode
+    // setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
   };
 
   return (

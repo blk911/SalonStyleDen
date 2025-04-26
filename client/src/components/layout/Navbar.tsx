@@ -42,7 +42,7 @@ export default function Navbar() {
         <div className="flex justify-between h-[96px]">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link to="/">
+              <Link href="/">
                 <div className="flex items-center justify-center h-[90px] cursor-pointer relative">
                   <div className="absolute top-2 right-2 flex items-center">
                     <span className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
@@ -76,16 +76,16 @@ export default function Navbar() {
           </div>
           <div className="hidden sm:flex sm:items-center justify-center w-full">
             <div className="flex items-center space-x-8">
-              <Link to="/">
+              <Link href="/">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home</div>
               </Link>
-              <Link to="/salons">
+              <Link href="/salons">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
               </Link>
-              <Link to="/clients">
+              <Link href="/clients">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
               </Link>
-              <Link to="/admin">
+              <Link href="/admin">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
               </Link>
               <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
@@ -108,16 +108,16 @@ export default function Navbar() {
       {/* Mobile menu */}
       <div className={`sm:hidden ${mobileMenuOpen ? "block" : "hidden"}`}>
         <div className="flex flex-wrap justify-center gap-4 py-3">
-          <Link to="/">
+          <Link href="/">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home</div>
           </Link>
-          <Link to="/salons">
+          <Link href="/salons">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
           </Link>
-          <Link to="/clients">
+          <Link href="/clients">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
           </Link>
-          <Link to="/admin">
+          <Link href="/admin">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
           </Link>
           <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
