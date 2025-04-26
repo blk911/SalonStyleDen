@@ -418,6 +418,8 @@ export function VmbStyleOptions({
       setShowStep3(false);
       // Close the Step 1 collapsible without hiding it completely
       setIsStep1Open(false);
+      // Open Step 2 after selecting a style in Step 1
+      setIsStep2Open(true);
       
       // Update the invitation message to include the selected style name
       const baseMessage = `Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]`;
