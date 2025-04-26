@@ -251,9 +251,8 @@ export function PhoneInputField({
       <ContactValidationDialog
         open={showValidationDialog}
         onOpenChange={setShowValidationDialog}
-        validationResult={validationResult}
-        contactType="phone"
-        contactValue={value}
+        errorField="phone"
+        errorMessage="This phone number is already registered in our system."
         onClose={handleValidationDialogClose}
       />
     </>

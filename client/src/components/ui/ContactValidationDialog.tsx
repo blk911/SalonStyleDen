@@ -25,9 +25,8 @@ interface ContactValidationDialogProps {
 export function ContactValidationDialog({
   open,
   onOpenChange,
-  validationResult,
-  contactType,
-  contactValue,
+  errorField = '',
+  errorMessage = '',
   onClose
 }: ContactValidationDialogProps) {
   // The dialog close handler in the button component will handle focus management directly
@@ -37,46 +36,37 @@ export function ContactValidationDialog({
         <DialogHeader>
           <DialogTitle>Contact Validation Result</DialogTitle>
           <DialogDescription>
-            {validationResult === 'loading' ? 
+            {!errorField ? 
               "Checking registration status..." : 
-              `The ${contactType} information has been validated.`}
+              `The ${errorField} information has been validated.`}
           </DialogDescription>
         </DialogHeader>
         
         <div className="py-6">
-          {validationResult === 'loading' ? (
+          {!errorField ? (
             <div className="flex items-center justify-center">
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
             </div>
-          ) : validationResult === 'registered' ? (
-            <div className="text-center p-4 bg-green-50 border border-green-200 rounded-md">
-              <CheckIcon className="h-12 w-12 text-green-500 mx-auto mb-2" />
-              <h3 className="text-lg font-semibold text-green-700 mb-1">Registered</h3>
-              <p className="text-green-600">
-                {contactType === 'phone' ? 'Phone number' : 'Email address'} is registered in the database.
-              </p>
-              <p className="font-bold mt-2 text-green-800">IN DB</p>
-            </div>
-          ) : validationResult === 'not_registered' ? (
-            <div className="text-center p-4 bg-amber-50 border border-amber-200 rounded-md">
-              <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
-              <h3 className="text-lg font-semibold text-amber-700 mb-1">Not Registered</h3>
-              <p className="text-amber-600">
-                {contactType === 'phone' ? 'Phone number' : 'Email address'} is not registered in the database.
-              </p>
-              <p className="mt-2 text-sm text-amber-700">
-                The client needs to register before proceeding.
-              </p>
-            </div>
-          ) : validationResult === 'invalid' ? (
+          ) : errorField === 'phone' ? (
             <div className="text-center p-4 bg-red-50 border border-red-200 rounded-md">
               <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-2" />
-              <h3 className="text-lg font-semibold text-red-700 mb-1">Invalid Format</h3>
+              <h3 className="text-lg font-semibold text-red-700 mb-1">Phone Number Exists</h3>
               <p className="text-red-600">
-                The {contactType} format is invalid: {contactValue}
+                {errorMessage || "This phone number is already registered."}
               </p>
               <p className="mt-2 text-sm text-red-700">
-                Please check the format and try again.
+                Please try with a different phone number or check if you have an existing account.
+              </p>
+            </div>
+          ) : errorField === 'email' ? (
+            <div className="text-center p-4 bg-red-50 border border-red-200 rounded-md">
+              <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-2" />
+              <h3 className="text-lg font-semibold text-red-700 mb-1">Email Address Exists</h3>
+              <p className="text-red-600">
+                {errorMessage || "This email address is already registered."}
+              </p>
+              <p className="mt-2 text-sm text-red-700">
+                Please try with a different email or log in to your existing account.
               </p>
             </div>
           ) : null}
@@ -89,17 +79,9 @@ export function ContactValidationDialog({
             onClick={() => {
               // Close dialog first
               onOpenChange(false);
-              
-              // Move focus to accept terms checkbox
-              setTimeout(() => {
-                const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
-                if (termsCheckbox instanceof HTMLElement) {
-                  termsCheckbox.focus();
-                }
-              }, 10);
             }}
           >
-            Later
+            Go Back
           </Button>
           
           <Button 
@@ -114,7 +96,7 @@ export function ContactValidationDialog({
               onOpenChange(false);
             }}
           >
-            Enter Address
+            Try Again
           </Button>
         </DialogFooter>
       </DialogContent>

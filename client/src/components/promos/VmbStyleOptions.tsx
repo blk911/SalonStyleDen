@@ -1308,9 +1308,15 @@ export function VmbStyleOptions({
         <ContactValidationDialog
           open={showValidationDialog}
           onOpenChange={setShowValidationDialog}
-          validationResult={validationResult}
-          contactType={validatedContactType}
-          contactValue={validatedContact}
+          errorField={validatedContactType}
+          errorMessage={validatedContactType === 'phone' 
+            ? "This phone number is already registered. Please try a different one." 
+            : "This email is already registered. Please use a different one."}
+          onClose={() => {
+            setValidationResult('');
+            setValidatedContactType('');
+            setValidatedContact('');
+          }}
         />
       </div>
     </div>
