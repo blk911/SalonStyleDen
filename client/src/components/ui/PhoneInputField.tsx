@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Input, InputProps } from '@/components/ui/input';
-import { formatPhoneNumber, cleanPhoneNumber, isValidPhone } from '@/lib/utils';
+import { cleanPhoneNumber, isValidPhone } from '@/lib/utils';
 import { useContactValidation } from '@/hooks/use-contact-validation';
 import { ContactValidationDialog } from '@/components/ui/ContactValidationDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -13,6 +13,7 @@ interface PhoneInputFieldProps extends Omit<InputProps, 'onChange'> {
   onValidationComplete?: (isValid: boolean, isRegistered: boolean) => void;
   onEnterPress?: () => void;
   clearField?: () => void;
+  usePhoneFormat?: 'parentheses' | 'dashed';
 }
 
 export function PhoneInputField({
@@ -21,6 +22,7 @@ export function PhoneInputField({
   onValidationComplete,
   onEnterPress,
   clearField,
+  usePhoneFormat = 'parentheses',
   ...props
 }: PhoneInputFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -29,17 +31,26 @@ export function PhoneInputField({
   const [showValidationDialog, setShowValidationDialog] = useState(false);
   const [showRegisteredDialog, setShowRegisteredDialog] = useState(false);
   
+  // Use the enhanced validation hook with formatting option
   const {
     validationResult,
     validateContact,
     isValidating,
     validatedContactType,
-    resetValidation
-  } = useContactValidation();
+    resetValidation,
+    getPhoneProps
+  } = useContactValidation({
+    validateOnChange: false, // We'll handle validation timing manually
+    validateOnBlur: false,   // We'll handle blur validation manually
+    usePhoneFormat           // Apply the selected phone format style
+  });
+  
+  // Get phone field props from the enhanced hook
+  const phoneProps = getPhoneProps(value);
 
-  // Format the phone number as user types
+  // Enhanced phone formatting using the unified hook
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedValue = formatPhoneNumber(e.target.value);
+    const formattedValue = phoneProps.onChange(e);
     onChange(formattedValue);
   };
 

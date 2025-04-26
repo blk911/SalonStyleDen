@@ -23,7 +23,7 @@ export function formatPhoneNumber(value: string): string {
   // Remove non-digit characters
   const digits = value.replace(/\D/g, '');
 
-  // Format as (XXX) XXX-XXXX
+  // Format as (XXX) XXX-XXXX - this is the preferred format across the application
   if (digits.length === 0) {
     return '';
   } else if (digits.length <= 3) {
@@ -32,6 +32,25 @@ export function formatPhoneNumber(value: string): string {
     return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
   } else {
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  }
+}
+
+/**
+ * Alternative phone formatter for components requiring XXX-XXX-XXXX format
+ * @param value The phone number to format
+ * @returns Formatted phone number in XXX-XXX-XXXX format
+ */
+export function formatPhoneNumberDashed(value: string): string {
+  const digits = value.replace(/\D/g, '');
+  
+  if (digits.length === 0) {
+    return '';
+  } else if (digits.length <= 3) {
+    return digits;
+  } else if (digits.length <= 6) {
+    return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  } else {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
   }
 }
 
