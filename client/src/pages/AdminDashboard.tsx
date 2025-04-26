@@ -536,10 +536,6 @@ export default function AdminDashboard() {
                                     <Link 
                                       to={`/client/${clientId}`}
                                       className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
-                                      onClick={() => {
-                                        // Navigate to client dashboard page
-                                        setLocation(`/client/${clientId}`);
-                                      }}
                                     >
                                       <ExternalLinkIcon className="h-4 w-4" />
                                       View Client Page
@@ -551,10 +547,6 @@ export default function AdminDashboard() {
                                     <Link 
                                       to={`/invitation/${invitation.inviteHash}?view=preview&prefill=true`}
                                       className="inline-flex items-center text-gray-500 font-medium gap-1 text-sm hover:text-gray-700 cursor-pointer"
-                                      onClick={() => {
-                                        // Navigate to invitation page with preview mode
-                                        setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
-                                      }}
                                     >
                                       <ExternalLinkIcon className="h-4 w-4" />
                                       View Invite
@@ -706,7 +698,6 @@ export default function AdminDashboard() {
                             <div className="flex justify-end gap-1">
                               <Link 
                                 to={`/client/${client.id}`}
-                                onClick={() => setLocation(`/client/${client.id}`)}
                                 className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]"
                               >
                                 Client
