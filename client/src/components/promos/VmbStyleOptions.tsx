@@ -1146,7 +1146,7 @@ export function VmbStyleOptions({
                                 } else {
                                   return (
                                     <>
-                                      Hi [NAME], I would love a fresh set. My stylist has an opening for a [STY OPT], [price and time] will you Ven Me, Baby! ❤️❤️❤️ [SIGNED]
+                                      Hi {recipientName || "Friend"}, I would love a fresh set. My stylist has an opening for a {confirmedStyle?.name || "Style"}, ${confirmedStyle?.price || "45"} ({confirmedStyle?.duration || "30"} min) will you Ven Me, Baby! ❤️❤️❤️ {signature || "Me"}
                                     </>
                                   );
                                 }
@@ -1220,13 +1220,13 @@ export function VmbStyleOptions({
               <div className={`${salonInitiated ? 'bg-amber-50 border-amber-100' : 'bg-blue-50 border-blue-100'} p-3 rounded-md border text-sm`}>
                 {salonInitiated ? (
                   <p className="font-medium">
-                    Your Ven Me, Baby! for {confirmedStyle?.name || "[sty opt]"} is ready to send to {recipientName || "[cl id]"} cell: {
+                    Your Ven Me, Baby! for {confirmedStyle?.name || "Selected Style"} is ready to send to {recipientName || "Friend"} cell: {
                       recipientContact ? (
                         // Format phone number if it's numeric and 10 digits
                         recipientContact.replace(/\D/g, '').length === 10 ? 
                           `(${recipientContact.replace(/\D/g, '').slice(0,3)}) ${recipientContact.replace(/\D/g, '').slice(3,6)}-${recipientContact.replace(/\D/g, '').slice(6,10)}` : 
                           recipientContact
-                      ) : "[ph OR em]"
+                      ) : "No phone provided"
                     }
                   </p>
                 ) : (
