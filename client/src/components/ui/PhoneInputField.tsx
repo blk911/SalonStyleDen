@@ -74,9 +74,6 @@ export function PhoneInputField({
           result === 'registered'
         );
       }
-      
-      // If registered, we'll let the dialog handle it
-      // The dialog close handler will clear fields if needed
     } catch (error) {
       console.error('Error validating phone:', error);
     }
@@ -130,19 +127,6 @@ export function PhoneInputField({
     };
   }, [resetValidation]);
 
-  // Handle dialog open/close
-  const handleDialogOpenChange = (isOpen: boolean) => {
-    // If dialog is closing and phone is registered, clear the field
-    if (!isOpen && validationResult === 'registered') {
-      // Clear the field
-      onChange('');
-      // Reset validation state
-      resetValidation();
-    }
-    
-    setShowValidationDialog(isOpen);
-  };
-
   return (
     <>
       <Input
@@ -164,7 +148,7 @@ export function PhoneInputField({
       
       <ContactValidationDialog
         open={showValidationDialog}
-        onOpenChange={handleDialogOpenChange}
+        onOpenChange={setShowValidationDialog}
         validationResult={validationResult}
         contactType="phone"
         contactValue={value}
