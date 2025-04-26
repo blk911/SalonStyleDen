@@ -205,7 +205,7 @@ export default function AdminDashboard() {
     },
   });
 
-  const { data: salons, error: salonError, isLoading: salonIsLoading } = useQuery<Salon[]>({
+  const { data: salons, error: salonError, isLoading: salonIsLoading, refetch: refetchSalons } = useQuery<Salon[]>({
     queryKey: ['/api/salons'],
     queryFn: async () => {
       try {
@@ -218,9 +218,11 @@ export default function AdminDashboard() {
         return data;
       } catch (error) {
         console.error('Error fetching salons:', error);
-        return [];
+        throw error; // We'll handle this in the UI
       }
     },
+    retry: 2, // Retry failed requests up to 2 times
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
   });
   
   const { data: invitations, error: inviteError, isLoading: inviteIsLoading } = useQuery<Invitation[]>({
@@ -747,7 +749,16 @@ export default function AdminDashboard() {
                 <div className="py-8 text-center border rounded-md bg-red-50">
                   <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
                   <p className="text-red-700 mb-1">Error loading salons</p>
-                  <p className="text-sm text-red-600">{salonError.message}</p>
+                  <p className="text-sm text-red-600 mb-4">{salonError.message}</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => refetchSalons()}
+                    className="mx-auto flex items-center gap-1"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Retry
+                  </Button>
                 </div>
               )}
               
