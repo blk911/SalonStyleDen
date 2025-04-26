@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -134,6 +134,12 @@ export function VmbStyleOptions({
   } = useContactValidation();
   const [showValidationDialog, setShowValidationDialog] = useState(false);
   const [validatedContact, setValidatedContact] = useState("");
+  
+  // Custom reset function for this component's specific needs
+  const resetContactValidation = useCallback(() => {
+    resetValidation();
+    setValidatedContact("");
+  }, [resetValidation]);
   
   // Responsive media queries
   const isMobile = useMediaQuery({ query: '(max-width: 640px)' });
@@ -1312,7 +1318,7 @@ export function VmbStyleOptions({
           errorMessage={validatedContactType === 'phone' 
             ? "This phone number is already registered. Please try a different one." 
             : "This email is already registered. Please use a different one."}
-          onClose={resetValidation}
+          onClose={resetContactValidation}
         />
       </div>
     </div>
