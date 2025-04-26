@@ -55,7 +55,7 @@ export function RenderedInvitation({
               src={imageUrl} 
               alt={styleOption}
               className="object-cover w-full h-full"
-              style={{ maxHeight: '300px' }} // Ensure image is displayed larger
+              style={{ maxHeight: '120px' }} // Set max height to 120px as specified
             />
           </AspectRatio>
         </div>
