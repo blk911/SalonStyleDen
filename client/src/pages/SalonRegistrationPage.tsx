@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Loader2Icon, CheckCircleIcon } from 'lucide-react';
+import { PhoneInputField } from '@/components/ui/PhoneInputField';
 
 // Create a salon registration schema
 const salonSchema = z.object({
@@ -227,7 +228,27 @@ export default function SalonRegistrationPage() {
                           <FormItem>
                             <FormLabel>Phone</FormLabel>
                             <FormControl>
-                              <Input placeholder="Contact phone" {...field} />
+                              <PhoneInputField 
+                                placeholder="Contact phone" 
+                                value={field.value}
+                                onChange={field.onChange}
+                                onValidationComplete={(isValid, isRegistered) => {
+                                  if (isRegistered) {
+                                    toast({
+                                      title: "Phone Already Registered",
+                                      description: "This phone number is already registered in our system.",
+                                      variant: "destructive"
+                                    });
+                                  }
+                                }}
+                                onEnterPress={() => {
+                                  // Focus the address field when Enter is pressed
+                                  const addressField = document.querySelector('input[name="address"]');
+                                  if (addressField instanceof HTMLElement) {
+                                    addressField.focus();
+                                  }
+                                }}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
