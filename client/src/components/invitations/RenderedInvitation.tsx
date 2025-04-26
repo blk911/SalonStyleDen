@@ -45,6 +45,9 @@ export function RenderedInvitation({
 }: RenderedInvitationProps) {
   const formattedInviteId = inviteId.startsWith('INV-FINAL-') ? inviteId : `INV-FINAL-${inviteId}`;
   
+  // Log to trace if onSendGift is defined for debugging
+  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Send gift button will ${onSendGift ? 'SHOW' : 'HIDE'}`);
+  
   return (
     <Card className={`w-full max-w-md mx-auto shadow-lg overflow-hidden ${className}`}>
       <CardHeader className={`${salonInitiated ? 'bg-amber-100' : 'bg-pink-100'} pb-2`}>

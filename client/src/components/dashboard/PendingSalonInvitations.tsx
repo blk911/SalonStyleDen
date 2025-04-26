@@ -103,10 +103,40 @@ export default function PendingSalonInvitations({
     return phone;
   };
 
+  // State to track client registration status
+  const [isClientRegistered, setIsClientRegistered] = useState<boolean>(false);
+  
+  // Function to check if a client is registered based on invitation data
+  const checkClientRegistration = async (invitation: Invitation): Promise<boolean> => {
+    try {
+      console.log('[FLOW] Checking if client is registered for invitation:', invitation.id);
+      // Make a request to check if a client exists with this phone number
+      const response = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
+      
+      if (response.ok) {
+        const clients = await response.json();
+        const isRegistered = clients && clients.length > 0;
+        console.log(`[FLOW] Client registration check result for invitation ${invitation.id}:`, isRegistered);
+        return isRegistered;
+      }
+      
+      console.log(`[FLOW] Failed to check client registration for invitation ${invitation.id}:`, response.status);
+      return false;
+    } catch (error) {
+      console.error('[FLOW] Error checking client registration:', error);
+      return false;
+    }
+  };
+  
   // Handle viewing an invitation
-  const handleViewInvitation = (invitation: Invitation) => {
-    // Option 1: Show in a dialog (current implementation)
+  const handleViewInvitation = async (invitation: Invitation) => {
     setSelectedInvitation(invitation);
+    
+    // Check if the client is registered
+    const registered = await checkClientRegistration(invitation);
+    setIsClientRegistered(registered);
+    
+    // Show the dialog after registration check
     setShowInvitationDialog(true);
     
     // Option 2: Direct to invitation page with preview mode
@@ -221,7 +251,36 @@ export default function PendingSalonInvitations({
                 senderName={selectedInvitation.sponsor || "Your Stylist"}
                 imageUrl={selectedInvitation.styleImageUrl || "/assets/french-tips.png"}
                 salonInitiated={!selectedInvitation.senderId} // salonInitiated = true when no senderId (salon sent it)
+                onSendGift={isClientRegistered ? () => {
+                  // If client is registered, allow sending gift
+                  setShowInvitationDialog(false);
+                  if (selectedInvitation) {
+                    setLocation(`/invitation-preview/${selectedInvitation.inviteHash}`);
+                  }
+                } : undefined} // Will show the button only if client is registered
               />
+            )}
+            
+            {/* Not registered message and register button */}
+            {selectedInvitation && !isClientRegistered && (
+              <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                <h4 className="text-amber-800 font-medium mb-2">Registration Required</h4>
+                <p className="text-sm text-gray-700 mb-3">
+                  This client needs to be registered before completing this invitation process.
+                </p>
+                <Button 
+                  onClick={() => {
+                    setShowInvitationDialog(false);
+                    // Navigate to client registration with the invite hash as a parameter
+                    if (selectedInvitation) {
+                      setLocation(`/register?invitation=${selectedInvitation.inviteHash}`);
+                    }
+                  }}
+                  className="bg-green-600 hover:bg-green-700 text-white w-full"
+                >
+                  Register Client
+                </Button>
+              </div>
             )}
           </div>
           
@@ -229,23 +288,37 @@ export default function PendingSalonInvitations({
             <div className="text-sm text-gray-500">
               Invitation #{selectedInvitation?.id}
             </div>
-            <Button 
-              onClick={() => {
-                setShowInvitationDialog(false);
-                
-                // Navigate to the full invitation page with preview mode
-                if (selectedInvitation) {
-                  setLocation(`/invitation-preview/${selectedInvitation.inviteHash}`);
-                }
-              }}
-              className={selectedInvitation?.senderId ? 
-                "bg-pink-600 hover:bg-pink-700 text-white" : 
-                "bg-amber-600 hover:bg-amber-700 text-white"}
-            >
-              {selectedInvitation?.senderId ? 
-                "View Complete Gift Request" : 
-                "View Complete Invitation"}
-            </Button>
+            
+            {isClientRegistered ? (
+              // Show this button only if client is registered
+              <Button 
+                onClick={() => {
+                  setShowInvitationDialog(false);
+                  
+                  // Navigate to the full invitation page with preview mode
+                  if (selectedInvitation) {
+                    setLocation(`/invitation-preview/${selectedInvitation.inviteHash}`);
+                  }
+                }}
+                className={selectedInvitation?.senderId ? 
+                  "bg-pink-600 hover:bg-pink-700 text-white" : 
+                  "bg-amber-600 hover:bg-amber-700 text-white"}
+              >
+                {selectedInvitation?.senderId ? 
+                  "View Complete Gift Request" : 
+                  "View Complete Invitation"}
+              </Button>
+            ) : (
+              // Close button if client is not registered
+              <Button 
+                onClick={() => {
+                  setShowInvitationDialog(false);
+                }}
+                variant="outline"
+              >
+                Close
+              </Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
