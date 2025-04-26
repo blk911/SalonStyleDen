@@ -549,11 +549,11 @@ export default function AdminDashboard() {
                                   // No matching client - link to invitation
                                   return (
                                     <Link 
-                                      to={`/invitation/${invitation.inviteHash}?view=preview&prefill=true`}
+                                      to={`/invitation-preview/${invitation.inviteHash}`}
                                       className="inline-flex items-center text-gray-500 font-medium gap-1 text-sm hover:text-gray-700 cursor-pointer"
                                       onClick={() => {
                                         // Navigate to invitation page with preview mode
-                                        setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
+                                        setLocation(`/invitation-preview/${invitation.inviteHash}`);
                                       }}
                                     >
                                       <ExternalLinkIcon className="h-4 w-4" />

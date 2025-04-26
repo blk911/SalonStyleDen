@@ -102,7 +102,7 @@ export default function InlineVmbInvitations({
     if (invitation.status.toLowerCase() === 'complete') {
       setLocation(`/complete-invitation/${invitation.id}`);
     } else {
-      setLocation(`/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
+      setLocation(`/invitation-preview/${invitation.inviteHash}`);
     }
   };
 
@@ -165,7 +165,7 @@ export default function InlineVmbInvitations({
                       // Go to the CompleteInvitationPage with the invitation ID
                       setLocation(invitation.status.toLowerCase() === 'complete' 
                         ? `/complete-invitation/${invitation.id}` 
-                        : `/invitation/${invitation.inviteHash}?view=preview&prefill=true`);
+                        : `/invitation-preview/${invitation.inviteHash}`);
                     }}
                     className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center gap-1 cursor-pointer"
                   >
