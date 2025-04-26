@@ -21,7 +21,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, getPhoneNumberCursorPosition } from "@/lib/utils";
 import { useContactValidation } from "@/hooks/use-contact-validation";
 import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
 import VerificationModal from "@/components/shared/VerificationModal";
@@ -508,6 +508,20 @@ export default function ClientForm({
                               input.setSelectionRange(newPosition, newPosition);
                             }, 0);
                           }}
+                          onKeyDown={(e) => {
+                            // Move to next field on enter or arrow down
+                            if (e.key === 'Enter' || e.key === 'Tab' || e.key === 'ArrowDown') {
+                              e.preventDefault();
+                              const cleaned = field.value.replace(/\D/g, '');
+                              if (cleaned.length === 10) {
+                                // Focus next input field (email)
+                                const emailField = document.querySelector('input[name="email"]');
+                                if (emailField) {
+                                  (emailField as HTMLInputElement).focus();
+                                }
+                              }
+                            }
+                          }}
                           onBlur={async (e) => {
                             field.onBlur();
                             const cleaned = field.value.replace(/\D/g, '');
@@ -518,6 +532,12 @@ export default function ClientForm({
                               const result = await validateContact(field.value);
                               if (result === 'registered') {
                                 setShowValidationDialog(true);
+                              } else {
+                                // Focus next input field (email) when phone is valid and complete
+                                const emailField = document.querySelector('input[name="email"]');
+                                if (emailField) {
+                                  (emailField as HTMLInputElement).focus();
+                                }
                               }
                             }
                           }}
@@ -552,6 +572,22 @@ export default function ClientForm({
                           // Just update the field value
                           field.onChange(e.target.value);
                         }}
+                        onKeyDown={(e) => {
+                          // Move to next field on enter or arrow down
+                          if (e.key === 'Enter' || e.key === 'Tab' || e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            const value = field.value;
+                            // Check if email looks valid enough for navigation
+                            if (value && value.includes('@') && value.includes('.') && 
+                                value.indexOf('@') < value.lastIndexOf('.')) {
+                              // Focus the "Are you a current client?" radio group
+                              const radioGroup = document.querySelector('input[name="isCurrentClient"][value="no"]');
+                              if (radioGroup) {
+                                (radioGroup as HTMLInputElement).focus();
+                              }
+                            }
+                          }
+                        }}
                         onBlur={async (e) => {
                           field.onBlur();
                           
@@ -565,6 +601,12 @@ export default function ClientForm({
                             const result = await validateContact(value);
                             if (result === 'registered') {
                               setShowValidationDialog(true);
+                            } else {
+                              // Focus the "Are you a current client?" radio group
+                              const radioGroup = document.querySelector('input[name="isCurrentClient"][value="no"]');
+                              if (radioGroup) {
+                                (radioGroup as HTMLInputElement).focus();
+                              }
                             }
                           }
                         }}
