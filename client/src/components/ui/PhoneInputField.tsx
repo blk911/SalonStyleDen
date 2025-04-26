@@ -199,12 +199,30 @@ export function PhoneInputField({
             </div>
           </div>
           
-          <DialogFooter>
+          <DialogFooter className="flex justify-between">
+            <Button 
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowRegisteredDialog(false);
+                
+                // Move focus to accept terms checkbox
+                setTimeout(() => {
+                  const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
+                  if (termsCheckbox instanceof HTMLElement) {
+                    termsCheckbox.focus();
+                  }
+                }, 10);
+              }}
+            >
+              Later
+            </Button>
+            
             <Button 
               type="button" 
               onClick={handleRegisteredDialogClose}
             >
-              Close
+              Try Again
             </Button>
           </DialogFooter>
         </DialogContent>

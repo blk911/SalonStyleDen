@@ -83,11 +83,30 @@ export function ContactValidationDialog({
           ) : null}
         </div>
         
-        <DialogFooter>
+        <DialogFooter className="flex justify-between">
+          <Button 
+            type="button"
+            variant="outline"
+            onClick={() => {
+              // Close dialog first
+              onOpenChange(false);
+              
+              // Move focus to accept terms checkbox
+              setTimeout(() => {
+                const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
+                if (termsCheckbox instanceof HTMLElement) {
+                  termsCheckbox.focus();
+                }
+              }, 10);
+            }}
+          >
+            Later
+          </Button>
+          
           <Button 
             type="button" 
             onClick={() => {
-              // First call onClose if provided (which should contain the focus logic)
+              // First call onClose if provided (which should move focus to address field)
               if (onClose) {
                 onClose();
               }
@@ -96,7 +115,7 @@ export function ContactValidationDialog({
               onOpenChange(false);
             }}
           >
-            Close
+            Enter Address
           </Button>
         </DialogFooter>
       </DialogContent>
