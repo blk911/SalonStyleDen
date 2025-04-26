@@ -86,8 +86,13 @@ export function ContactValidationDialog({
           <Button 
             type="button" 
             onClick={() => {
+              // First call onClose if provided (which should contain the focus logic)
+              if (onClose) {
+                onClose();
+              }
+              
+              // Then close the dialog
               onOpenChange(false);
-              if (onClose) onClose();
             }}
           >
             Close

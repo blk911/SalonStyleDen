@@ -121,13 +121,17 @@ export function PhoneInputField({
 
   // Handle the validation dialog close
   const handleValidationDialogClose = () => {
-    setShowValidationDialog(false);
-    
-    // Always move to the address field when validation dialog is closed
-    const addressField = document.querySelector('input[name="address"]');
-    if (addressField instanceof HTMLElement) {
-      addressField.focus();
-    }
+    // Focus the address field with a tiny delay to ensure the dialog is closed first
+    // This helps with focus management
+    setTimeout(() => {
+      const addressField = document.querySelector('input[name="address"]');
+      if (addressField instanceof HTMLElement) {
+        addressField.focus();
+        console.log('Setting focus to address field');
+      } else {
+        console.warn('Address field not found');
+      }
+    }, 50);
   };
 
   // Set focus to the input on mount if autofocus is true
