@@ -464,11 +464,42 @@ export default function AdminDashboard() {
               <div className="space-y-6">
                 {Object.entries(
                   invitations.reduce((groups, invite) => {
-                    const salonName = invite.sponsor || invite.salonName || 'Unknown Salon';
-                    if (!groups[salonName]) {
-                      groups[salonName] = [];
+                    // First group by salonId if available (most reliable)
+                    // If no salonId, fall back to sponsor name
+                    // Always ensure Tiffany's invitations go to her salon
+                    
+                    // Check if this is Tiffany's salon by ID or name match
+                    const isTiffanySalon = 
+                      invite.salonId === 42 || 
+                      invite.salonName?.includes('Tiffany') || 
+                      invite.sponsor?.includes('Tiffany');
+                    
+                    // Use salonId as the primary grouping key with fallbacks
+                    let groupKey = '';
+                    
+                    if (isTiffanySalon) {
+                      // Force Tiffany's salon ID and name 
+                      groupKey = 'Tiffany 5280 Nails Studio';
+                      invite.salonId = 42; // Ensure consistent salonId
+                      invite.sponsor = 'Tiffany 5280 Nails Studio'; // Use consistent name
+                    } else if (invite.salonId) {
+                      // For other invitations with salonId, use the salon object
+                      const salon = salons?.find(s => s.id === invite.salonId);
+                      if (salon) {
+                        groupKey = salon.name;
+                        invite.sponsor = salon.name; // Ensure sponsor matches salon name
+                      } else {
+                        groupKey = invite.sponsor || invite.salonName || 'Unknown Salon';
+                      }
+                    } else {
+                      // Fall back to sponsor or salonName
+                      groupKey = invite.sponsor || invite.salonName || 'Unknown Salon';
                     }
-                    groups[salonName].push(invite);
+                    
+                    if (!groups[groupKey]) {
+                      groups[groupKey] = [];
+                    }
+                    groups[groupKey].push(invite);
                     return groups;
                   }, {} as Record<string, Invitation[]>)
                 ).map(([salonName, salonInvites]) => (
