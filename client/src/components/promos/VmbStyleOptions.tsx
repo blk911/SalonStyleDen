@@ -1183,7 +1183,7 @@ export function VmbStyleOptions({
                               }}
                             >
                               <Send className="h-4 w-4 mr-2" />
-                              Send Gift Request
+                              Preview and Send
                             </Button>
                           </div>
                         </div>
