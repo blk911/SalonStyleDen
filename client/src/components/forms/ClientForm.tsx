@@ -478,33 +478,33 @@ export default function ClientForm({
                 control={form.control}
                 name="phone"
                 render={({ field }) => {
-                  // Generate phone validation props
-                  const phoneProps = getPhoneProps(field.value);
-
                   return (
                     <FormItem>
                       <FormControl>
                         <Input 
                           {...field} 
                           placeholder="Cell Phone (XXX-XXX-XXXX)" 
-                          className={phoneExists ? "border-red-500" : ""}
+                          className={validationResult === 'registered' && validatedContactType === 'phone' ? "border-red-500" : ""}
                           onChange={(e) => {
                             const formatted = formatPhoneNumber(e.target.value);
                             field.onChange(formatted);
-                            if (formatted.replace(/\D/g, '').length === 10) {
-                              validateContact('phone', formatted);
-                            }
                           }}
-                          onBlur={(e) => {
+                          onBlur={async (e) => {
                             field.onBlur();
                             const cleaned = field.value.replace(/\D/g, '');
                             if (cleaned.length === 10) {
-                              validateContact('phone', field.value);
+                              console.log("Special test case detected on blur for phone:", cleaned);
+                              setValidatedContact(field.value);
+                              // Validate on blur only when we have a complete phone number
+                              const result = await validateContact(field.value);
+                              if (result === 'registered') {
+                                setShowValidationDialog(true);
+                              }
                             }
                           }}
                         />
                       </FormControl>
-                      {phoneExists && (
+                      {validationResult === 'registered' && validatedContactType === 'phone' && !showValidationDialog && (
                         <p className="text-xs text-red-500 mt-1">
                           This phone number is already registered
                         </p>
@@ -521,9 +521,6 @@ export default function ClientForm({
               control={form.control}
               name="email"
               render={({ field }) => {
-                // Generate email validation props
-                const emailProps = getEmailProps(field.value);
-
                 return (
                   <FormItem>
                     <FormControl>
@@ -531,32 +528,30 @@ export default function ClientForm({
                         {...field} 
                         type="email" 
                         placeholder="Email" 
-                        className={emailExists ? "border-red-500" : ""}
+                        className={validationResult === 'registered' && validatedContactType === 'email' ? "border-red-500" : ""}
                         onChange={(e) => {
-                          // Check for email format before triggering validation
-                          const value = e.target.value;
-                          field.onChange(value);
-                          
-                          // Only trigger validation when there's a reasonably formatted email
-                          // to avoid premature validation errors during typing
-                          // Always use the onChange handler from validation hook
-                          // It will handle both valid format validation and resetting error states
-                          emailProps.onChange(e);
+                          // Just update the field value
+                          field.onChange(e.target.value);
                         }}
-                        onBlur={(e) => {
+                        onBlur={async (e) => {
                           field.onBlur();
                           
                           // Only validate on blur if the field has a valid-looking email
                           const value = e.target.value;
                           if (value && value.includes('@') && value.includes('.') && 
                               value.indexOf('@') < value.lastIndexOf('.')) {
-                            // Validate email on blur
-                            validateContact('email', value);
+                            console.log("Special test case detected on blur for email:", value);
+                            setValidatedContact(value);
+                            // Validate on blur when email format looks valid
+                            const result = await validateContact(value);
+                            if (result === 'registered') {
+                              setShowValidationDialog(true);
+                            }
                           }
                         }}
                       />
                     </FormControl>
-                    {emailExists && (
+                    {validationResult === 'registered' && validatedContactType === 'email' && !showValidationDialog && (
                       <p className="text-xs text-red-500 mt-1">
                         This email is already registered
                       </p>
@@ -810,11 +805,11 @@ export default function ClientForm({
 
       {/* Contact Validation Dialog */}
       <ContactValidationDialog
-        open={showErrorDialog}
-        onOpenChange={setShowErrorDialog}
-        errorField={errorField}
-        errorMessage={errorMessage}
-        onClose={handleDialogClose}
+        open={showValidationDialog}
+        onOpenChange={setShowValidationDialog}
+        validationResult={validationResult}
+        contactType={validatedContactType}
+        contactValue={validatedContact}
       />
     </>
   );
