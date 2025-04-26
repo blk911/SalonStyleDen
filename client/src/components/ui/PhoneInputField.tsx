@@ -111,6 +111,11 @@ export function PhoneInputField({
     // Clear the field if requested
     if (clearField) {
       clearField();
+      
+      // After clearing, set focus back to the phone field
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
     }
   };
 
@@ -118,9 +123,10 @@ export function PhoneInputField({
   const handleValidationDialogClose = () => {
     setShowValidationDialog(false);
     
-    // Move to the address field
-    if (onEnterPress) {
-      onEnterPress();
+    // Always move to the address field when validation dialog is closed
+    const addressField = document.querySelector('input[name="address"]');
+    if (addressField instanceof HTMLElement) {
+      addressField.focus();
     }
   };
 
