@@ -1162,14 +1162,13 @@ export function VmbStyleOptions({
                           <div className="mt-4 text-center">
                             <Button 
                               type="button"
-                              className={`w-full sm:w-auto px-6 py-2 ${salonInitiated ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600' : 'bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600'} text-white font-medium shadow-md`}
+                              className={`w-full sm:w-auto px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white font-medium`}
                               onClick={() => {
                                 // Show confirmation dialog
                                 setShowConfirmDialog(true);
                               }}
                             >
-                              <Send className="h-4 w-4 mr-2" />
-                              {salonInitiated ? "Send Salon Invitation" : "Send Gift Request"}
+                              Send Gift Request
                             </Button>
                           </div>
                         </div>
@@ -1221,42 +1220,30 @@ export function VmbStyleOptions({
         <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>{salonInitiated ? "Confirm Salon Invitation" : "Confirm Gift Request"}</DialogTitle>
+              <DialogTitle>Confirm Gift Request</DialogTitle>
               <DialogDescription>
-                {salonInitiated 
-                 ? "Are you sure you want to send this salon invitation? This action cannot be undone."
-                 : "Are you sure you want to send this gift request? This action cannot be undone."}
+                Are you sure you want to send this gift request? This action cannot be undone.
               </DialogDescription>
             </DialogHeader>
+            
             <div className="space-y-3 py-3">
-              <div className={`${salonInitiated ? 'bg-amber-50 border-amber-100' : 'bg-blue-50 border-blue-100'} p-3 rounded-md border text-sm`}>
-                {salonInitiated ? (
-                  <p className="font-medium">
-                    Your Ven Me, Baby! for {confirmedStyle?.name || "Selected Style"} is ready to send to {recipientName || "Friend"} cell: {
-                      recipientContact ? (
-                        // Format phone number if it's numeric and 10 digits
-                        recipientContact.replace(/\D/g, '').length === 10 ? 
-                          `(${recipientContact.replace(/\D/g, '').slice(0,3)}) ${recipientContact.replace(/\D/g, '').slice(3,6)}-${recipientContact.replace(/\D/g, '').slice(6,10)}` : 
-                          recipientContact
-                      ) : "No phone provided"
-                    }
-                  </p>
-                ) : (
-                  <>
-                    <p>The following gift will be sent:</p>
-                    <p className="font-medium mt-1">{confirmedStyle?.name || "Selected Style"}</p>
-                    <p className="text-xs mt-2">Recipient: {recipientName || "Friend"}</p>
-                    <p className="text-xs">{recipientContact || "No contact provided"}</p>
-                  </>
-                )}
-                {invitationId && (
-                  <div className="mt-2 bg-green-50 p-1.5 rounded border border-green-100 text-[10px]">
-                    <p className="font-medium text-green-700">Completing Invitation ID: {invitationId}</p>
-                    <p className="text-green-600">Status will change to COMPLETE</p>
+              <div>
+                <p className="text-sm mb-2">The following gift will be sent:</p>
+                <div className="border rounded-md p-3 bg-gray-50">
+                  <div className="font-medium text-base">{confirmedStyle?.name || "French Tips / Touch-Up"}</div>
+                  <div className="mt-2 text-sm">
+                    <div>Recipient: {recipientName || "Friend"}</div>
+                    <div>{recipientContact ? 
+                      (recipientContact.replace(/\D/g, '').length === 10 ? 
+                        `(${recipientContact.replace(/\D/g, '').slice(0,3)}) ${recipientContact.replace(/\D/g, '').slice(3,6)}-${recipientContact.replace(/\D/g, '').slice(6,10)}` : 
+                        recipientContact) : 
+                      "No contact provided"}
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
+            
             <DialogFooter className="sm:justify-between">
               <Button 
                 type="button" 
@@ -1267,10 +1254,10 @@ export function VmbStyleOptions({
                 Cancel
               </Button>
               
-              {/* Send Invitation Button */}
+              {/* Send Invitation Button - exactly matching the screenshot */}
               <Button 
                 type="button"
-                className={`${salonInitiated ? 'bg-amber-500 hover:bg-amber-600' : 'bg-pink-500 hover:bg-pink-600'} text-white font-medium`}
+                className="bg-pink-500 hover:bg-pink-600 text-white font-medium"
                 onClick={() => {
                   // Close confirmation dialog
                   setShowConfirmDialog(false);
@@ -1292,8 +1279,7 @@ export function VmbStyleOptions({
                   });
                 }}
               >
-                <Send className="h-4 w-4 mr-2" />
-                {salonInitiated ? "Send Salon Invitation" : "Send Gift Request"}
+                Send Gift Request
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1329,7 +1315,8 @@ export function VmbStyleOptions({
                 Unique ID: <span className="font-mono">INV-FINAL-{finalInvitationId}</span>
               </div>
               <Button 
-                type="button" 
+                type="button"
+                className="bg-gray-500 hover:bg-gray-600 text-white" 
                 onClick={() => {
                   setShowFinalInvitationModal(false);
                   
@@ -1339,12 +1326,9 @@ export function VmbStyleOptions({
                     description: "Your gift request has been sent to the recipient",
                     variant: "default"
                   });
-                  
-                  // Note: For salon-initiated invitations, we'll never reach here
-                  // because we now redirect directly from the confirmation dialog
                 }}
               >
-                {salonInitiated ? "Send" : "Close"}
+                Close
               </Button>
             </DialogFooter>
           </DialogContent>
