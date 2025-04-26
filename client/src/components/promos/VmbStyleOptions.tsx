@@ -1191,10 +1191,8 @@ export function VmbStyleOptions({
               </div>
             </div>
             <DialogFooter className="sm:justify-between">
-              <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
-                Cancel
-              </Button>
-              {/* Button removed as requested */}
+              {/* Cancel button removed as requested */}
+              {/* Send Salon Invitation button removed as requested */}
             </DialogFooter>
           </DialogContent>
         </Dialog>
