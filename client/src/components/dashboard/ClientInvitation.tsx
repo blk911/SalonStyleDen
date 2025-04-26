@@ -477,10 +477,9 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   onChange={(e) => {
                     setName(e.target.value);
                     
-                    // Update notes with the new name if it contains the placeholder
-                    if (notes.includes('[nm]')) {
-                      setNotes(processMessage(notes, e.target.value, selectedServices[0] || ''));
-                    }
+                    // Always update notes with the new name for real-time sync
+                    const serviceToUse = selectedServices.length > 0 ? selectedServices[0] : 'Salon Service';
+                    setNotes(processMessage(notes, e.target.value, serviceToUse));
                   }}
                   required
                   className="flex-1"
@@ -578,28 +577,9 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                 className="bg-gray-50"
               />
 
-              {/* Line 4: Notes */}
-              <Textarea
-                placeholder="Notes (Optional)"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={4}
-                onKeyDown={(e) => {
-                  // Tab to service selection
-                  if (e.key === 'Tab' && !e.shiftKey) {
-                    // Let default tab behavior work
-                  } else if (e.key === 'Enter' && !e.shiftKey) {
-                    // Move to services on Enter (except when shift is pressed for new line)
-                    e.preventDefault();
-                    // Focus on the first service button
-                    const serviceButton = document.querySelector('div.flex.flex-wrap.gap-2 button') as HTMLButtonElement;
-                    if (serviceButton) serviceButton.focus();
-                  }
-                }}
-              />
-
-              {/* Line 5: Favorite Services */}
-              <div className="flex flex-wrap gap-2">
+              {/* Line 4: Favorite Services */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                <p className="w-full text-xs text-gray-600 mb-1">Select service options:</p>
                 {DEFAULT_SERVICES.map(service => (
                   <Button
                     key={service}
@@ -612,12 +592,12 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                       
                       setSelectedServices(newSelectedServices);
                       
-                      // Update the notes with the selected service if it contains placeholder
-                      if (notes.includes('[insert sty opt NAME]')) {
-                        // Use the first selected service for the message
-                        const serviceToUse = newSelectedServices.length > 0 ? newSelectedServices[0] : '';
-                        setNotes(processMessage(notes, name, serviceToUse));
-                      }
+                      // Always update the notes when service selection changes
+                      const serviceToUse = newSelectedServices.length > 0 ? newSelectedServices[0] : 'Salon Service';
+                      
+                      // Create a new message with the updated service
+                      const updatedMessage = notes.replace(/Salon Service|French Tips|Gel Manicure|Acrylics|Custom Design/g, serviceToUse);
+                      setNotes(processMessage(updatedMessage, name, serviceToUse));
                     }}
                     className={selectedServices.includes(service) ? 'bg-pink-500 hover:bg-pink-600' : ''}
                   >
@@ -625,6 +605,26 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   </Button>
                 ))}
               </div>
+
+              {/* Line 5: Notes */}
+              <Textarea
+                placeholder="Notes (Optional)"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={4}
+                onKeyDown={(e) => {
+                  // Tab to preview button
+                  if (e.key === 'Tab' && !e.shiftKey) {
+                    // Let default tab behavior work
+                  } else if (e.key === 'Enter' && !e.shiftKey) {
+                    // Move to preview button on Enter (except when shift is pressed for new line)
+                    e.preventDefault();
+                    // Focus on the preview button
+                    const previewButton = document.querySelector('button.w-full.bg-pink-500') as HTMLButtonElement;
+                    if (previewButton) previewButton.focus();
+                  }
+                }}
+              />
 
               {/* Preview Button */}
               <Button 
