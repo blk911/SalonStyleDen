@@ -1398,11 +1398,11 @@ export function VmbStyleOptions({
                       favoriteServices: [confirmedStyle?.name || "Selected Style"],
                       firstServiceDate: new Date().toISOString().split('T')[0],
                       
-                      // Track the sender (client ID) if available
-                      senderId: clientId || null,
+                      // Track the sender (client ID) - must be a number for the server validation
+                      senderId: clientId || 0, // Using 0 as a fallback since senderId requires a number
                       
                       // If completing an existing invitation (not used in the schema but used in frontend)
-                      originalInvitationId: invitationId || null
+                      originalInvitationId: invitationId || 0 // Using 0 as a fallback if this also needs to be a number
                     };
                     
                     try {
@@ -1422,8 +1422,26 @@ export function VmbStyleOptions({
                         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
                         console.error("[FLOW][ERROR] Server response error:", errorData);
                         
-                        // Show more detailed error message
-                        throw new Error(`Failed to send invitation: ${errorData.error || response.statusText}`);
+                        // Process error information more clearly
+                        let errorMessage = 'Unknown error';
+                        
+                        // Handle array of validation errors
+                        if (Array.isArray(errorData.error)) {
+                          // Format validation errors into a readable message
+                          errorMessage = errorData.error.map(err => 
+                            `${err.path.join('.')}: ${err.message}`
+                          ).join(', ');
+                        } 
+                        // Handle string error
+                        else if (typeof errorData.error === 'string') {
+                          errorMessage = errorData.error;
+                        }
+                        // Handle object error
+                        else if (errorData.error && typeof errorData.error === 'object') {
+                          errorMessage = JSON.stringify(errorData.error);
+                        }
+                        
+                        throw new Error(`Failed to send invitation: ${errorMessage}`);
                       }
                       
                       const result = await response.json();
