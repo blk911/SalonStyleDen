@@ -16,7 +16,7 @@ import { PromoCodeDialog, ClientData } from '@/components/ui/PromoCodeDialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useMediaQuery } from 'react-responsive';
 import { RenderedInvitation } from '@/components/invitations/RenderedInvitation';
-import { useContactValidation } from '@/hooks/useContactValidation';
+import { useContactValidation } from '@/hooks/use-contact-validation';
 import { ContactValidationDialog } from '@/components/ui/ContactValidationDialog';
 
 interface StyleOption {

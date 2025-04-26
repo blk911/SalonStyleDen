@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/dialog";
 import { RenderedInvitation } from '@/components/invitations/RenderedInvitation';
 import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
-// Using inline validation hook instead of shared one to avoid interface conflicts
+import { useContactValidation } from "@/hooks/useContactValidation";
 import { 
   Tooltip,
   TooltipContent,
@@ -160,86 +160,18 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     localStorage.setItem('vmb-completed-invitations-open', JSON.stringify(completedInvitesOpen));
   }, [completedInvitesOpen]);
   
-  // Inline contact validation state and functions
-  const [phoneExists, setPhoneExists] = useState(false);
-  const [emailExists, setEmailExists] = useState(false);
-  const [errorField, setErrorField] = useState<"" | "phone" | "email">("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [showErrorDialog, setShowErrorDialog] = useState(false);
-  
-  // Format phone number as user types
-  const formatContactPhone = (value: string): string => {
-    // Remove non-digit characters
-    const digits = value.replace(/\D/g, '');
-    
-    // Format as (XXX) XXX-XXXX
-    if (digits.length === 0) {
-      return '';
-    } else if (digits.length <= 3) {
-      return `(${digits}`;
-    } else if (digits.length <= 6) {
-      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-    } else {
-      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
-    }
-  };
-  
-  // Validate contact information
-  const validateContact = async (type: 'phone' | 'email', value: string) => {
-    console.log(`Validating ${type}: ${value}`);
-    
-    // Reset validation state
-    if (type === 'phone') {
-      setPhoneExists(false);
-    } else {
-      setEmailExists(false);
-    }
-    
-    try {
-      // For testing we'll use known test data
-      const cleanedContact = type === 'phone' ? value.replace(/\D/g, '') : value.toLowerCase();
-      
-      // These are known test contacts we can recognize
-      const knownContacts = [
-        '4964649849', 'rand@gma.com',
-        '4645645646', 'tom@mail.com'
-      ];
-      
-      const exists = knownContacts.includes(cleanedContact);
-      console.log(`Validation result for ${type}:`, { exists, value: cleanedContact });
-      
-      if (exists) {
-        // Set the appropriate flag based on which field was validated
-        if (type === 'phone') {
-          setPhoneExists(true);
-          setErrorField("phone");
-          setErrorMessage(`This phone number is already registered`);
-        } else {
-          setEmailExists(true);
-          setErrorField("email");
-          setErrorMessage(`This email is already registered`);
-        }
-        
-        // Show the error dialog
-        setShowErrorDialog(true);
-      }
-      
-      return exists;
-    } catch (error) {
-      console.error(`Error validating ${type}:`, error);
-      return false;
-    }
-  };
-  
-  // Handle closing the dialog
-  const handleDialogClose = () => {
-    setShowErrorDialog(false);
-    // Reset after a brief delay
-    setTimeout(() => {
-      setErrorField("");
-      setErrorMessage("");
-    }, 300);
-  };
+  // Use our contact validation hook
+  const {
+    phoneExists, 
+    emailExists,
+    errorField,
+    errorMessage,
+    showErrorDialog,
+    setShowErrorDialog,
+    formatPhoneNumber: formatContactPhone,
+    validateContact,
+    handleDialogClose
+  } = useContactValidation();
 
   useEffect(() => {
     if (salonId) {
@@ -247,7 +179,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       fetchSalonInvites();
       
       // Set global variables for context-aware validation
-      // These will be used by our inline validation functions
+      // These will be used by the useContactValidation hook
       if (typeof window !== 'undefined') {
         window['_currentSenderId'] = salonId;
         window['_validationContext'] = 'invitation';
@@ -330,129 +262,56 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    console.log('Starting invitation submission process');
 
     try {
-      // Validate fields first
       const cleanPhone = phone.replace(/\D/g, '');
       if (cleanPhone.length !== 10) {
-        toast({
-          title: "Invalid Phone Number",
-          description: "Phone number must be 10 digits",
-          variant: "destructive"
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (!name.trim()) {
-        toast({
-          title: "Missing Information",
-          description: "Please provide the client's name",
-          variant: "destructive"
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (!email.trim() || !email.includes('@')) {
-        toast({
-          title: "Invalid Email",
-          description: "Please provide a valid email address",
-          variant: "destructive"
-        });
-        setIsSubmitting(false);
-        return;
+        throw new Error('Phone number must be 10 digits');
       }
 
       // Ensure we have salon info for the sponsor field
       if (!salonInfo?.name) {
-        toast({
-          title: "Salon Information Missing",
-          description: "Salon information not available. Please try again.",
-          variant: "destructive"
-        });
-        setIsSubmitting(false);
-        return;
+        throw new Error('Salon information not available. Please try again.');
       }
 
-      if (selectedServices.length === 0) {
-        toast({
-          title: "Missing Service Selection",
-          description: "Please select at least one service",
-          variant: "destructive"
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Log the data being submitted
-      console.log('Submitting invitation with data:', {
-        name,
-        phone: cleanPhone,
-        email,
-        salonId,
-        favoriteServices: selectedServices,
-        firstServiceDate,
-        sponsor: salonInfo.name
-      });
+      // Import generate invite hash function
+      const { generateInviteHash } = await import('@/lib/utils');
       
-      // Create the invitation data
-      const invitationData = {
-        name,
-        phone: cleanPhone,
-        email,
-        notes,
-        favoriteServices: selectedServices,
-        salonId,
-        firstServiceDate,
-        status: 'pending',
-        sponsor: salonInfo.name
-        // Removed client-side inviteHash - let server generate it
-      };
-      
-      console.log('Sending POST request to /api/invitations');
       const response = await fetch('/api/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(invitationData)
+        body: JSON.stringify({
+          name,
+          phone: cleanPhone,
+          email,
+          notes,
+          favoriteServices: selectedServices,
+          salonId,
+          firstServiceDate,
+          status: 'pending',
+          sponsor: salonInfo.name, // Add the salon name as the sponsor
+          inviteHash: generateInviteHash() // Generate a unique hash on the client side
+        })
       });
 
-      console.log('Server response status:', response.status);
-      const responseData = await response.json();
-      console.log('Server response data:', responseData);
-
       if (!response.ok) {
-        const errorMsg = responseData.error || 'Failed to send invitation';
-        console.error('Error response:', errorMsg);
+        const errorData = await response.json();
+        const errorMsg = errorData.error || 'Failed to send invitation';
         
         // Handle specific validation errors
-        if (typeof errorMsg === 'string' && errorMsg.includes('phone is already registered')) {
-          console.log('Phone already registered, triggering validation');
+        if (errorMsg.includes('phone is already registered')) {
           await validateContact('phone', cleanPhone);
-          setIsSubmitting(false);
           return; // Exit early to keep form data
-        } else if (typeof errorMsg === 'string' && errorMsg.includes('email is already registered')) {
-          console.log('Email already registered, triggering validation');
+        } else if (errorMsg.includes('email is already registered')) {
           await validateContact('email', email);
-          setIsSubmitting(false);
           return; // Exit early to keep form data
         }
         
-        toast({
-          title: "Invitation Error",
-          description: typeof errorMsg === 'string' ? errorMsg : 'Failed to send invitation',
-          variant: "destructive"
-        });
-        setIsSubmitting(false);
-        return;
+        throw new Error(errorMsg);
       }
 
-      // Success path
-      console.log('Invitation created successfully:', responseData);
-
       // Get the new invitation and add it to the list
-      const newInvite = responseData;
+      const newInvite = await response.json();
       setRecentInvites(prev => [newInvite, ...prev]);
 
       toast({
@@ -626,13 +485,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                           ? prev.filter(s => s !== service)
                           : [...prev, service]
                       );
-                      console.log(`Service ${service} ${selectedServices.includes(service) ? 'deselected' : 'selected'}. Current selections:`, 
-                        selectedServices.includes(service) 
-                          ? selectedServices.filter(s => s !== service)
-                          : [...selectedServices, service]
-                      );
                     }}
-                    className={selectedServices.includes(service) ? 'bg-pink-100 text-pink-800 border-pink-500 hover:bg-pink-200' : ''}
+                    className={selectedServices.includes(service) ? 'bg-pink-500 hover:bg-pink-600' : ''}
                   >
                     {service}
                   </Button>
@@ -1000,9 +854,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       <ContactValidationDialog
         open={showErrorDialog}
         onOpenChange={setShowErrorDialog}
-        validationResult={errorField ? "registered" : null}
-        contactType={errorField === "phone" ? "phone" : "email"}
-        contactValue={errorField === "phone" ? phone : email}
+        errorField={errorField}
+        errorMessage={errorMessage}
         onClose={handleCustomDialogClose}
       />
       
