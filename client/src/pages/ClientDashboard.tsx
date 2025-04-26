@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import EditableClientInfo from "@/components/dashboard/EditableClientInfo";
@@ -345,9 +345,15 @@ export default function ClientDashboard() {
           <div className="space-y-6">
             {/* Add dialog for editing client profile */}
             <Dialog open={isEditing} onOpenChange={setIsEditing}>
-              <DialogContent className="max-w-4xl">
+              <DialogContent className="max-w-4xl" aria-describedby="edit-profile-description">
+                <div id="edit-profile-description" className="sr-only">
+                  Edit your profile information to keep it current.
+                </div>
                 <DialogHeader>
                   <DialogTitle>Edit Your Profile</DialogTitle>
+                  <DialogDescription>
+                    Update your personal information and preferences.
+                  </DialogDescription>
                 </DialogHeader>
                 {client && (
                   <EditableClientInfo 
@@ -491,9 +497,15 @@ export default function ClientDashboard() {
                       
                       {/* Style Selection Confirmation Dialog */}
                       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-                        <DialogContent className="max-w-md">
+                        <DialogContent className="max-w-md" aria-describedby="confirm-style-description">
+                          <div id="confirm-style-description" className="sr-only">
+                            Confirm your style selection to add to your profile.
+                          </div>
                           <DialogHeader>
                             <DialogTitle>Confirm Style Selection</DialogTitle>
+                            <DialogDescription>
+                              Review and confirm your selected nail style.
+                            </DialogDescription>
                           </DialogHeader>
                           {selectedStyle && (
                             <div className="space-y-4">
@@ -808,9 +820,15 @@ export default function ClientDashboard() {
                             
                             {/* Invitation Preview Dialog */}
                             <Dialog open={showInvitePreview} onOpenChange={setShowInvitePreview}>
-                              <DialogContent className="max-w-md">
+                              <DialogContent className="max-w-md" aria-describedby="invitation-preview-description">
+                                <div id="invitation-preview-description" className="sr-only">
+                                  Preview of your nail style invitation before sending it to your friend.
+                                </div>
                                 <DialogHeader>
                                   <DialogTitle>Invitation Preview</DialogTitle>
+                                  <DialogDescription>
+                                    This is how your invitation will appear to the recipient.
+                                  </DialogDescription>
                                 </DialogHeader>
                                 
                                 <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-5 rounded-lg border border-blue-200 max-w-sm mx-auto">
