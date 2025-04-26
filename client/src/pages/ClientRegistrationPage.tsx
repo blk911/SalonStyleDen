@@ -67,7 +67,8 @@ type ClientFormValues = z.infer<typeof clientSchema>;
 
 export default function ClientRegistrationPage() {
   const [, navigate] = useLocation();
-  const [, params] = useRoute('/client/register');
+  const [isClientRegister] = useRoute('/client/register');
+  const [isClientRegistration] = useRoute('/client-registration');
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
