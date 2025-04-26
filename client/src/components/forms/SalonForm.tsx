@@ -45,18 +45,26 @@ export default function SalonForm() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
-  // Use contact validation hook
+  // Initialize enhanced contact validation hook
   const {
     validateContact,
     phoneExists,
     emailExists,
-    isValidating,
+    isValidating, 
     errorField,
     errorMessage,
     showErrorDialog,
     setShowErrorDialog,
-    handleDialogClose
-  } = useContactValidation();
+    handleDialogClose,
+    getPhoneProps,
+    getEmailProps,
+    validationResult,
+    validatedContactType,
+    resetValidation
+  } = useContactValidation({
+    validateOnChange: false,
+    validateOnBlur: true
+  });
 
   const form = useForm<SalonFormValues>({
     resolver: zodResolver(salonFormSchema),
@@ -217,9 +225,11 @@ export default function SalonForm() {
                     <FormControl>
                       <Input 
                         {...field} 
-                        placeholder="Cell Phone" 
+                        placeholder="Cell Phone (XXX-XXX-XXXX)" 
                         onChange={(e) => {
-                          const formatted = formatPhoneNumber(e.target.value);
+                          // Use the enhanced phone formatter from our hook
+                          const phoneProps = getPhoneProps(field.value);
+                          const formatted = phoneProps.onChange(e);
                           field.onChange(formatted);
                         }}
                         onBlur={() => {
@@ -227,7 +237,7 @@ export default function SalonForm() {
                             validateContact('phone', field.value);
                           }
                         }}
-                        className={phoneExists ? "border-red-400 focus:ring-red-400" : ""}
+                        className={`${phoneExists ? "border-red-400 focus:ring-red-400" : ""} ${validationResult === 'registered' && validatedContactType === 'phone' ? "border-red-500" : ""}`}
                       />
                     </FormControl>
                     <FormMessage />

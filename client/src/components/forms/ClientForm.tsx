@@ -537,10 +537,12 @@ export default function ClientForm({
                         {...field} 
                         type="email" 
                         placeholder="Email" 
-                        className={validationResult === 'registered' && validatedContactType === 'email' ? "border-red-500" : ""}
+                        className={`${emailExists ? "border-red-500" : ""} ${field.value && validationResult === 'registered' && validatedContactType === 'email' ? "border-red-500" : ""}`}
                         onChange={(e) => {
-                          // Just update the field value
-                          field.onChange(e.target.value);
+                          // Use enhanced email props from our hook
+                          const emailProps = getEmailProps(field.value);
+                          const value = emailProps.onChange(e);
+                          field.onChange(value);
                         }}
                         onBlur={async (e) => {
                           field.onBlur();
