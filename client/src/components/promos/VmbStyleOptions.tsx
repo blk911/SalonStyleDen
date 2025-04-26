@@ -1086,8 +1086,18 @@ export function VmbStyleOptions({
                                         <Button 
                                           className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white"
                                           onClick={() => {
-                                            // Show confirmation dialog
-                                            setShowConfirmDialog(true);
+                                            // Skip confirmation dialog and show final invitation directly
+                                            const uniqueId = `${Date.now().toString(36)}${Math.random().toString(36).substring(2, 5)}`.toUpperCase();
+                                            setFinalInvitationId(uniqueId);
+                                            setShowFinalInvitationModal(true);
+                                            
+                                            // Log the send action for tracking
+                                            console.log("[FLOW][VmbStyleOptions] Sending invitation directly", {
+                                              recipientName,
+                                              recipientContact,
+                                              styleId: confirmedStyle?.id,
+                                              styleName: confirmedStyle?.name
+                                            });
                                           }}
                                         >
                                           SEND GIFT
