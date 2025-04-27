@@ -49,11 +49,7 @@ export function registerMadgeRoutes(app: Express) {
       res.json(files);
     } catch (error) {
       console.error('Error getting visualization files:', error);
-      res.setHeader('Content-Type', 'application/json');
-      res.status(500).json({ 
-        success: false, 
-        error: 'Failed to get visualization files' 
-      });
+      res.status(500).json({ error: 'Failed to get visualization files' });
     }
   });
   
@@ -65,21 +61,13 @@ export function registerMadgeRoutes(app: Express) {
       // Validate layout option
       const validLayouts = ['dot', 'fdp', 'twopi', 'circo'];
       if (!validLayouts.includes(layout)) {
-        res.setHeader('Content-Type', 'application/json');
-        return res.status(400).json({ 
-          success: false,
-          error: 'Invalid layout option' 
-        });
+        return res.status(400).json({ error: 'Invalid layout option' });
       }
       
       // Validate format option
       const validFormats = ['svg', 'png'];
       if (!validFormats.includes(format)) {
-        res.setHeader('Content-Type', 'application/json');
-        return res.status(400).json({ 
-          success: false,
-          error: 'Invalid format option' 
-        });
+        return res.status(400).json({ error: 'Invalid format option' });
       }
       
       // Generate a unique filename
@@ -107,12 +95,7 @@ export function registerMadgeRoutes(app: Express) {
       
       if (stderr && !stderr.includes('Warning')) {
         console.error('Error generating visualization:', stderr);
-        res.setHeader('Content-Type', 'application/json');
-        return res.status(500).json({ 
-          success: false,
-          error: 'Failed to generate visualization', 
-          details: stderr 
-        });
+        return res.status(500).json({ error: 'Failed to generate visualization', details: stderr });
       }
       
       // Check if the file was created
@@ -120,7 +103,6 @@ export function registerMadgeRoutes(app: Express) {
         const stats = fs.statSync(outputPath);
         const fileSizeInKB = Math.round(stats.size / 1024);
         
-        res.setHeader('Content-Type', 'application/json');
         res.json({
           success: true,
           filename,
@@ -131,9 +113,7 @@ export function registerMadgeRoutes(app: Express) {
           output: stdout
         });
       } else {
-        res.setHeader('Content-Type', 'application/json');
         res.status(500).json({ 
-          success: false,
           error: 'Visualization file was not created',
           command,
           output: stdout
@@ -141,11 +121,9 @@ export function registerMadgeRoutes(app: Express) {
       }
     } catch (error) {
       console.error('Error generating visualization:', error);
-      res.setHeader('Content-Type', 'application/json');
       res.status(500).json({ 
-        success: false,
         error: 'Failed to generate visualization',
-        message: error instanceof Error ? error.message : String(error)
+        message: error.message
       });
     }
   });

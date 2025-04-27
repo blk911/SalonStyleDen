@@ -1110,24 +1110,9 @@ export default function AdminDashboard() {
                           }),
                         });
                         
-                        // Handle non-OK response
                         if (!response.ok) {
-                          const contentType = response.headers.get("content-type");
-                          if (contentType && contentType.includes("application/json")) {
-                            const errorData = await response.json();
-                            throw new Error(errorData.error || 'Failed to generate visualization');
-                          } else {
-                            // Not JSON, probably HTML error page
-                            const text = await response.text();
-                            throw new Error(`Server returned non-JSON response: HTTP ${response.status}`);
-                          }
-                        }
-                        
-                        // Check for valid JSON response
-                        const contentType = response.headers.get("content-type");
-                        if (!contentType || !contentType.includes("application/json")) {
-                          const text = await response.text();
-                          throw new Error("Server returned non-JSON response");
+                          const errorData = await response.json();
+                          throw new Error(errorData.error || 'Failed to generate visualization');
                         }
                         
                         const data = await response.json();
