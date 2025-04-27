@@ -148,12 +148,12 @@ export function registerMadgeRoutes(app: Express) {
           format,
           output: "Visualization generated successfully (placeholder mode)"
         });
-      } catch (writeError) {
+      } catch (writeError: any) {
         console.error('[MADGE-API] Error writing visualization file:', writeError);
         return res.status(200).json({ 
           success: false,
           error: 'Failed to write visualization file',
-          details: writeError.message
+          details: writeError?.message || 'Unknown error'
         });
       }
     } catch (error: any) {
