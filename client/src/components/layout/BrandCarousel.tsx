@@ -25,7 +25,7 @@ interface CarouselCard {
 const carouselItems: CarouselCard[] = [
   {
     title: 'Why ', 
-    titleComponent: <span className="logo">Ven Me, <span className="text-[#FF92A5]">Baby!</span></span>, 
+    titleComponent: <span className="text-4xl"><span className="logo">Ven Me, <span className="text-[#FF92A5]">Baby!</span></span></span>, 
     titleSuffix: '...?',
     content: [
       { text: "He's been fishing for attention", isBold: true, suffix: " — you're inviting connection." },
@@ -37,7 +37,7 @@ const carouselItems: CarouselCard[] = [
   },
   {
     title: "",
-    titleComponent: <span className="logo">Ven Me, <span className="text-[#FF92A5]">Baby!</span></span>,
+    titleComponent: <span className="text-4xl"><span className="logo">Ven Me, <span className="text-[#FF92A5]">Baby!</span></span></span>,
     titleSuffix: " Says \"I value you\"",
     content: [
       { text: "He's not guessing", isBold: true, suffix: " — you've made it clear." },
@@ -51,7 +51,7 @@ const carouselItems: CarouselCard[] = [
 
   {
     title: "",
-    titleComponent: <span className="logo">Ven Me, <span className="text-[#FF92A5]">Baby!</span></span>,
+    titleComponent: <span className="text-4xl"><span className="logo">Ven Me, <span className="text-[#FF92A5]">Baby!</span></span></span>,
     titleSuffix: " The Art of Gifting: Redefined!",
     content: [
       { text: "Forget the gift card trap", isBold: true, suffix: " — VMB is personal, instant, and emotionally clear." },
@@ -67,7 +67,7 @@ const carouselItems: CarouselCard[] = [
     content: [],
     titleComponent: (
       <>
-        <span className="logo">Ven Me, <span className="text-[#FF92A5]">Baby!</span></span>
+        <span className="text-4xl"><span className="logo">Ven Me, <span className="text-[#FF92A5]">Baby!</span></span></span>
         <div className="flex justify-between items-start gap-8 mt-8">
           <div className="flex-1 flex flex-col items-center text-center">
             <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
