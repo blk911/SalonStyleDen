@@ -5,15 +5,33 @@
 @tailwind utilities;
 
 /* LOGO STYLES */
+/* Logo styles with size variants */
 .logo {
   display: inline-block;
   font-family: 'Georgia', serif;
   font-weight: 300; /* extra light */
-  font-size: clamp(20px, 5vw, 48px);
   letter-spacing: 0.25px;
   word-spacing: 2px;
   text-align: center;
   color: black;
+}
+
+/* Size variants */
+.logo-sm {
+  font-size: clamp(16px, 3vw, 24px);
+}
+
+.logo-md {
+  font-size: clamp(20px, 4vw, 36px);
+}
+
+.logo-lg {
+  font-size: clamp(24px, 5vw, 48px);
+}
+
+/* Default to medium if no size specified */
+.logo:not(.logo-sm):not(.logo-md):not(.logo-lg) {
+  font-size: clamp(20px, 4vw, 36px);
 }
 
 .logo .ven-me {

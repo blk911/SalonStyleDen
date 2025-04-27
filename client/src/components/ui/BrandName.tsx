@@ -19,23 +19,24 @@ export default function BrandName({
   inline = false,
   textAlign = 'center'
 }: BrandNameProps) {
-  const fontSizes = {
-    xs: 'text-xs',
-    sm: 'text-sm',
-    md: 'text-base',
-    lg: 'text-lg',
-    xl: 'text-xl',
-    '2xl': 'text-2xl',
-    '3xl': 'text-3xl',
-    '4xl': 'text-4xl',
+  // Map our text size props to the logo size classes
+  const logoSizes = {
+    xs: 'logo-sm',
+    sm: 'logo-sm',
+    md: 'logo-md',
+    lg: 'logo-md',
+    xl: 'logo-lg',
+    '2xl': 'logo-lg',
+    '3xl': 'logo-lg',
+    '4xl': 'logo-lg',
   };
   
-  const fontSize = fontSizes[size] || 'text-lg';
+  const logoSizeClass = logoSizes[size] || 'logo-md';
   const containerClass = inline ? 'inline' : 'block';
   const alignment = `text-${textAlign}`;
   
   return (
-    <span className={`${containerClass} ${alignment} ${className} logo`}>
+    <span className={`${containerClass} ${alignment} ${className} logo ${logoSizeClass}`}>
       <span className="ven-me">Ven Me, </span>
       <span className="baby">
         Baby{withExclamation ? '!' : ''}
