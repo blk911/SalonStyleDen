@@ -119,11 +119,14 @@ export function registerMadgeRoutes(app: Express) {
           output: stdout
         });
       }
-    } catch (error) {
-      console.error('Error generating visualization:', error);
+    } catch (error: unknown) {
+      console.error('[Madge API] Error generating visualization:', error);
+      // Ensure we're sending a proper JSON response with error details
+      res.setHeader('Content-Type', 'application/json');
       res.status(500).json({ 
+        success: false,
         error: 'Failed to generate visualization',
-        message: error.message
+        message: error instanceof Error ? error.message : String(error)
       });
     }
   });
@@ -131,6 +134,7 @@ export function registerMadgeRoutes(app: Express) {
   // Serve visualization files
   app.use('/visualizations', (req, res, next) => {
     const filePath = path.join(visualizationsDir, req.path);
+    console.log(`[Madge API] Visualization request for: ${req.path}`);
     
     // Check if the file exists
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
@@ -139,12 +143,24 @@ export function registerMadgeRoutes(app: Express) {
       // Set proper content type for SVG and PNG files
       if (fileExtension === '.svg') {
         res.setHeader('Content-Type', 'image/svg+xml');
+        console.log(`[Madge API] Serving SVG file: ${filePath}`);
       } else if (fileExtension === '.png') {
         res.setHeader('Content-Type', 'image/png');
+        console.log(`[Madge API] Serving PNG file: ${filePath}`);
+      } else {
+        console.log(`[Madge API] Serving file with unknown extension: ${filePath}`);
       }
       
-      res.sendFile(filePath);
+      res.sendFile(filePath, (err) => {
+        if (err) {
+          console.error(`[Madge API] Error sending file: ${filePath}`, err);
+          res.status(500).send('Error serving visualization file');
+        } else {
+          console.log(`[Madge API] Successfully served file: ${filePath}`);
+        }
+      });
     } else {
+      console.log(`[Madge API] File not found: ${filePath}`);
       next();
     }
   });
