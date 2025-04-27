@@ -187,12 +187,12 @@ export default function AdminDashboard() {
   
   // Set default visualization when code graph section is opened
   useEffect(() => {
-    if (codeGraphOpen && !selectedVisualization) {
+    if ((codeGraphOpen || networkVisualizationOpen) && !selectedVisualization) {
       // Use local path with cache buster
       const cacheBuster = `?cb=${Date.now()}`;
       setSelectedVisualization(`/vmb_tools/dependency_graph/output/client_dashboard_dependencies.svg${cacheBuster}`);
     }
-  }, [codeGraphOpen, selectedVisualization]);
+  }, [codeGraphOpen, networkVisualizationOpen, selectedVisualization]);
   
   // Load section states from localStorage
   useEffect(() => {
