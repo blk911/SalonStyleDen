@@ -47,13 +47,9 @@ export function registerMadgeRoutes(app: Express) {
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       
       res.json(files);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error getting visualization files:', error);
-      res.status(500).json({ 
-        success: false,
-        error: 'Failed to get visualization files',
-        message: error.message || 'Unknown error occurred'
-      });
+      res.status(500).json({ error: 'Failed to get visualization files' });
     }
   });
   
@@ -65,19 +61,13 @@ export function registerMadgeRoutes(app: Express) {
       // Validate layout option
       const validLayouts = ['dot', 'fdp', 'twopi', 'circo'];
       if (!validLayouts.includes(layout)) {
-        return res.status(400).json({ 
-          success: false,
-          error: 'Invalid layout option'
-        });
+        return res.status(400).json({ error: 'Invalid layout option' });
       }
       
       // Validate format option
       const validFormats = ['svg', 'png'];
       if (!validFormats.includes(format)) {
-        return res.status(400).json({ 
-          success: false,
-          error: 'Invalid format option'
-        });
+        return res.status(400).json({ error: 'Invalid format option' });
       }
       
       // Generate a unique filename
@@ -105,11 +95,7 @@ export function registerMadgeRoutes(app: Express) {
       
       if (stderr && !stderr.includes('Warning')) {
         console.error('Error generating visualization:', stderr);
-        return res.status(500).json({ 
-          success: false,
-          error: 'Failed to generate visualization', 
-          details: stderr 
-        });
+        return res.status(500).json({ error: 'Failed to generate visualization', details: stderr });
       }
       
       // Check if the file was created
@@ -128,18 +114,16 @@ export function registerMadgeRoutes(app: Express) {
         });
       } else {
         res.status(500).json({ 
-          success: false,
           error: 'Visualization file was not created',
           command,
           output: stdout
         });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error generating visualization:', error);
       res.status(500).json({ 
-        success: false,
         error: 'Failed to generate visualization',
-        message: error.message || 'Unknown error occurred'
+        message: error.message
       });
     }
   });
