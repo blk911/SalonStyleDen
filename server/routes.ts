@@ -1725,6 +1725,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register visualization routes
   registerVisualizationRoutes(app);
+  
+  // Register Madge network visualization routes
+  registerMadgeRoutes(app);
+  
+  // Serve the visualizations directory directly for SVG/PNG files
+  app.get('/visualizations/:filename', (req, res) => {
+    const visualizationsDir = path.join(process.cwd(), 'visualizations');
+    const filePath = path.join(visualizationsDir, req.params.filename);
+    
+    console.log(`[DEBUG] Serving visualization: ${filePath}`);
+    
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      // Set proper content type based on file extension
+      const ext = path.extname(filePath).toLowerCase();
+      if (ext === '.svg') {
+        res.setHeader('Content-Type', 'image/svg+xml');
+      } else if (ext === '.png') {
+        res.setHeader('Content-Type', 'image/png');
+      }
+      
+      // Stream the file
+      fs.createReadStream(filePath).pipe(res);
+    } else {
+      console.log(`[DEBUG] Visualization file not found: ${filePath}`);
+      res.status(404).send('Visualization file not found');
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
