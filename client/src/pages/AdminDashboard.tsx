@@ -188,7 +188,9 @@ export default function AdminDashboard() {
   // Set default visualization when code graph section is opened
   useEffect(() => {
     if (codeGraphOpen && !selectedVisualization) {
-      setSelectedVisualization('/vmb_tools/dependency_graph/output/client_dashboard_dependencies.svg');
+      // Use local path with cache buster
+      const cacheBuster = `?cb=${Date.now()}`;
+      setSelectedVisualization(`/vmb_tools/dependency_graph/output/client_dashboard_dependencies.svg${cacheBuster}`);
     }
   }, [codeGraphOpen, selectedVisualization]);
   
@@ -1115,42 +1117,82 @@ export default function AdminDashboard() {
                 {/* Left Side - Controls */}
                 <div className="lg:col-span-1 space-y-4 border-r pr-4">
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Layout Algorithm</label>
+                    <label className="text-sm font-medium mb-1 block">View Saved Visualizations</label>
                     <Select
-                      value={selectedLayout}
-                      onValueChange={setSelectedLayout}
+                      value={selectedVisualization?.split('?')[0] || ''}
+                      onValueChange={(value) => {
+                        if (value) {
+                          // Add cache buster to prevent caching
+                          const cacheBuster = `?cb=${Date.now()}`;
+                          setSelectedVisualization(`${value}${cacheBuster}`);
+                        }
+                      }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select layout" />
+                        <SelectValue placeholder="Select a visualization" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="dot">Hierarchical (dot)</SelectItem>
-                        <SelectItem value="fdp">Force-Directed (fdp)</SelectItem>
-                        <SelectItem value="twopi">Radial (twopi)</SelectItem>
-                        <SelectItem value="circo">Circular (circo)</SelectItem>
+                        <SelectItem value="/vmb_tools/dependency_graph/output/client_dashboard_dependencies.svg">
+                          Client Dashboard Dependencies
+                        </SelectItem>
+                        <SelectItem value="/vmb_tools/dependency_graph/output/salon_dashboard_dependencies.svg">
+                          Salon Dashboard Dependencies
+                        </SelectItem>
+                        <SelectItem value="/vmb_tools/dependency_graph/output/invitation_flow_dependencies.svg">
+                          Invitation Flow Dependencies
+                        </SelectItem>
+                        <SelectItem value="/vmb_tools/dependency_graph/output/vmb_style_options_dependencies.svg">
+                          VMB Style Options Dependencies
+                        </SelectItem>
+                        <SelectItem value="/visualizations/test-visualization.svg">
+                          Test Visualization
+                        </SelectItem>
                       </SelectContent>
                     </Select>
+                    <p className="text-xs text-gray-500 mt-1">Choose from existing visualizations</p>
                   </div>
                   
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Focus Path (optional)</label>
-                    <Select
-                      value={focusPath}
-                      onValueChange={setFocusPath}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select focus area" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="fullapp">Full Application</SelectItem>
-                        <SelectItem value="client/src/components">Components</SelectItem>
-                        <SelectItem value="client/src/pages">Pages</SelectItem>
-                        <SelectItem value="client/src/hooks">Hooks</SelectItem>
-                        <SelectItem value="client/src/contexts">Contexts</SelectItem>
-                        <SelectItem value="server">Server</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-gray-500 mt-1">Focus the visualization on a specific area of the codebase</p>
+                  <div className="pt-4 border-t border-gray-200 mt-4">
+                    <h3 className="text-sm font-medium mb-2">Generate New Visualization</h3>
+                  
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Layout Algorithm</label>
+                      <Select
+                        value={selectedLayout}
+                        onValueChange={setSelectedLayout}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select layout" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="dot">Hierarchical (dot)</SelectItem>
+                          <SelectItem value="fdp">Force-Directed (fdp)</SelectItem>
+                          <SelectItem value="twopi">Radial (twopi)</SelectItem>
+                          <SelectItem value="circo">Circular (circo)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="mt-3">
+                      <label className="text-sm font-medium mb-1 block">Focus Path (optional)</label>
+                      <Select
+                        value={focusPath}
+                        onValueChange={setFocusPath}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select focus area" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="fullapp">Full Application</SelectItem>
+                          <SelectItem value="client/src/components">Components</SelectItem>
+                          <SelectItem value="client/src/pages">Pages</SelectItem>
+                          <SelectItem value="client/src/hooks">Hooks</SelectItem>
+                          <SelectItem value="client/src/contexts">Contexts</SelectItem>
+                          <SelectItem value="server">Server</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-gray-500 mt-1">Focus on a specific area of the codebase</p>
+                    </div>
                   </div>
                   
                   <Button 
@@ -1278,21 +1320,33 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="w-full h-full overflow-auto flex items-center justify-center p-4 relative">
-                      {/* Direct iframe embedding */}
-                      <div className="relative w-full h-full flex items-center justify-center">
-                        <iframe 
-                          src={selectedVisualization}
-                          className="w-full h-full border-0 bg-white rounded-md"
+                      {/* Direct object tag embedding for SVG */}
+                      <div className="relative w-full h-full flex items-center justify-center bg-white rounded-md border border-gray-200 shadow-sm overflow-auto">
+                        <object 
+                          data={selectedVisualization}
+                          type="image/svg+xml"
+                          className="w-full h-full"
                           style={{ minHeight: '500px' }}
-                          onError={() => {
-                            console.error('[VMB-DEBUG] Failed to load iframe:', selectedVisualization);
-                          }}
-                        />
+                        >
+                          <div className="flex flex-col items-center gap-4 p-8 text-gray-500">
+                            <NetworkIcon className="h-12 w-12 text-gray-300" />
+                            <p>Visualization failed to load</p>
+                            <a 
+                              href={selectedVisualization} 
+                              target="_blank"
+                              rel="noopener noreferrer" 
+                              className="text-blue-500 underline text-sm"
+                            >
+                              Open directly in new tab
+                            </a>
+                          </div>
+                        </object>
                       </div>
-                      <div className="absolute bottom-4 left-4 text-xs text-gray-500">
+                      <div className="absolute bottom-4 left-4 z-10">
                         <Button
                           variant="outline"
                           size="sm"
+                          className="bg-white shadow-sm"
                           onClick={() => {
                             // Force reload with new cache buster
                             const cacheBuster = `?cb=${Date.now()}`;
@@ -1301,7 +1355,7 @@ export default function AdminDashboard() {
                           }}
                         >
                           <RefreshCw className="h-3 w-3 mr-1" />
-                          Reload Visualization
+                          Reload
                         </Button>
                       </div>
                     </div>
