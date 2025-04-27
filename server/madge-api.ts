@@ -130,12 +130,12 @@ export function registerMadgeRoutes(app: Express) {
           format,
           output: "Visualization generated successfully (placeholder mode)"
         });
-      } catch (writeError: any) {
+      } catch (writeError) {
         console.error('[MADGE-API] Error writing visualization file:', writeError);
         return res.status(200).json({ 
           success: false,
           error: 'Failed to write visualization file',
-          details: writeError?.message || 'Unknown file write error'
+          details: writeError.message
         });
       }
     } catch (error: any) {
@@ -143,7 +143,7 @@ export function registerMadgeRoutes(app: Express) {
       return res.status(200).json({ 
         success: false,
         error: 'Failed to generate visualization',
-        message: error?.message || 'Unknown error'
+        message: error.message || 'Unknown error'
       });
     }
   });

@@ -1725,9 +1725,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register visualization routes
   registerVisualizationRoutes(app);
-  
-  // Register Madge network visualization routes
-  registerMadgeRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;
