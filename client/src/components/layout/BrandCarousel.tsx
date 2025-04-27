@@ -52,7 +52,7 @@ const carouselItems: CarouselCard[] = [
 
   {
     title: "",
-    titleComponent: <><span className="logo"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span><span className="text-[#FF92A5]"> The Art of Gifting: Redefined!</span></>,
+    titleComponent: <><span className="logo logo-sm"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span><span className="text-[#FF92A5] text-3xl"> The Art of Gifting: Redefined!</span></>,
     content: [
       { text: "Forget the gift card trap", isBold: true, suffix: " — VMB is personal, instant, and emotionally clear." },
       { text: "She chooses. He responds.", isBold: true, suffix: " No awkward guessing. No missed signals." },
