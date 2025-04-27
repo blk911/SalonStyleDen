@@ -1098,10 +1098,24 @@ export default function AdminDashboard() {
                       try {
                         setGenerating(true);
                         
+                        // First, test if the /visualizations endpoint is working
+                        try {
+                          const testResponse = await fetch('/visualizations/test-visualization.svg');
+                          if (!testResponse.ok) {
+                            console.log('[VMB-DEBUG] Test visualization not accessible:', testResponse.status);
+                          } else {
+                            console.log('[VMB-DEBUG] Test visualization accessible');
+                          }
+                        } catch (testError) {
+                          console.log('[VMB-DEBUG] Error testing visualization access:', testError);
+                        }
+                        
+                        // Now try to generate a new visualization
                         const response = await fetch('/api/madge/generate', {
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json',
                           },
                           body: JSON.stringify({
                             layout: selectedLayout,
@@ -1110,27 +1124,43 @@ export default function AdminDashboard() {
                           }),
                         });
                         
-                        if (!response.ok) {
-                          const errorData = await response.json();
-                          throw new Error(errorData.error || 'Failed to generate visualization');
+                        let data;
+                        let responseText;
+                        
+                        try {
+                          // Try to get response as text first
+                          responseText = await response.text();
+                          
+                          // Then try to parse as JSON
+                          try {
+                            data = JSON.parse(responseText);
+                          } catch (jsonError) {
+                            console.error('[VMB-DEBUG] JSON parse error:', jsonError);
+                            console.error('[VMB-DEBUG] Response was:', responseText.substring(0, 150) + '...');
+                            throw new Error('Server returned invalid JSON. See console for details.');
+                          }
+                        } catch (responseError) {
+                          console.error('[VMB-DEBUG] Error getting response:', responseError);
+                          throw new Error('Failed to get response from server.');
                         }
                         
-                        const data = await response.json();
-                        
-                        if (data.success) {
+                        // Successfully got JSON data, check for success flag
+                        if (data && data.success) {
                           setSelectedVisualization(data.path);
                           toast({
                             title: "Visualization generated",
                             description: `Created ${data.filename} (${data.size}KB)`,
                           });
                         } else {
-                          throw new Error('Failed to generate visualization');
+                          // Extract error message from data if possible
+                          const errorMsg = data?.error || 'Unknown error';
+                          throw new Error(`Generation failed: ${errorMsg}`);
                         }
                       } catch (error: any) {
-                        console.error('Error generating visualization:', error);
+                        console.error('[VMB-DEBUG] Error generating visualization:', error);
                         toast({
                           title: "Generation failed",
-                          description: error.message,
+                          description: error.message || 'Unknown error occurred',
                           variant: "destructive",
                         });
                       } finally {
