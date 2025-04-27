@@ -35,17 +35,17 @@ export default function Hero({
         )}
       </div>
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
-        <div className="flex flex-col items-center justify-center mb-6">
+        <div className="flex justify-center mb-6">
           <h1 className="text-5xl md:text-[42px]">
             <span className="font-serif">Ven Me, </span>
             <span className="font-serif text-[#FF92A5]">Baby!</span>
           </h1>
-          <h2 className="text-3xl font-light mt-3 text-[#FF92A5]">
-            The Art of Gifting
-          </h2>
         </div>
         <p className="text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            <i>The perfect gift is perfectly timed!</i>
+            Beauty doesn't wait! "Thinking" not required.
+            <br />No missing gift card, No 'maybe later'.
+            <br />The perfect gift is perfectly timed!
+            <br />Ven Me, Baby! is gifting that works!
           </p>
         <div className="flex justify-center gap-4 flex-wrap">
           <button
