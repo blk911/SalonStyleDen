@@ -63,8 +63,8 @@ const carouselItems: CarouselCard[] = [
     ]
   },
   {
-    title: "",
-    titleComponent: <div><div className="text-xl mb-2">One, Two, Three! <span className="logo"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span></div></div>,
+    title: "One, Two, Three! ",
+    titleComponent: <span className="logo"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span>,
     content: [],
     imagesComponent: (
       <div className="flex justify-between items-start gap-8 mt-8">
@@ -80,7 +80,7 @@ const carouselItems: CarouselCard[] = [
               }} 
             />
           </div>
-          <span className="text-base font-semibold text-gray-700">1. Pick your style</span>
+          <span className="text-lg font-semibold text-gray-700">1. Pick your style</span>
         </div>
         
         <div className="flex-1 flex flex-col items-center text-center">
@@ -95,7 +95,7 @@ const carouselItems: CarouselCard[] = [
               }} 
             />
           </div>
-          <span className="text-base font-semibold text-gray-700">2. Create your gift request</span>
+          <span className="text-lg font-semibold text-gray-700">2. Create your gift request</span>
         </div>
         
         <div className="flex-1 flex flex-col items-center text-center">
@@ -110,7 +110,7 @@ const carouselItems: CarouselCard[] = [
               }} 
             />
           </div>
-          <span className="text-base font-semibold text-gray-700">3. Enjoy your new set!</span>
+          <span className="text-lg font-semibold text-gray-700">3. Enjoy your new set!</span>
         </div>
       </div>
     )
