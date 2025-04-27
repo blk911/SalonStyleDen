@@ -20,6 +20,7 @@ interface CarouselCard {
   titleComponent?: ReactNode;
   titleSuffix?: string;
   content: CardContent;
+  imagesComponent?: ReactNode;
 }
 
 const carouselItems: CarouselCard[] = [
@@ -62,10 +63,10 @@ const carouselItems: CarouselCard[] = [
     ]
   },
   {
-    title: "One, Two, Three! ",
-    titlePrefix: <span className="logo"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span>,
+    title: "",
+    titleComponent: <div><div className="text-xl mb-2">One, Two, Three! <span className="logo"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span></div></div>,
     content: [],
-    titleComponent: (
+    imagesComponent: (
       <div className="flex justify-between items-start gap-8 mt-8">
         <div className="flex-1 flex flex-col items-center text-center">
           <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
@@ -137,8 +138,9 @@ export default function BrandCarousel() {
                   {item.titleComponent}
                   {item.titleSuffix}
                 </h3>
+                {item.imagesComponent}
                 <div className="space-y-4 flex-grow text-center">
-                  {item.content.map((line, i) => {
+                  {item.content && item.content.map((line, i) => {
                     // Handle string arrays with 3 elements (special format)
                     if (Array.isArray(line) && line.length === 3 && typeof line[0] === 'string') {
                       return (
