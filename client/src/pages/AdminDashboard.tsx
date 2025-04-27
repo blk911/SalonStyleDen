@@ -1080,11 +1080,19 @@ export default function AdminDashboard() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="fullapp">Full Application</SelectItem>
-                        <SelectItem value="client/src/components">Components</SelectItem>
-                        <SelectItem value="client/src/pages">Pages</SelectItem>
-                        <SelectItem value="client/src/hooks">Hooks</SelectItem>
-                        <SelectItem value="client/src/contexts">Contexts</SelectItem>
-                        <SelectItem value="server">Server</SelectItem>
+                        <SelectGroup>
+                          <SelectLabel>Component Areas</SelectLabel>
+                          <SelectItem value="client/src/components">All Components</SelectItem>
+                          <SelectItem value="client/src/components/promos/style-options">Style Options Engine</SelectItem>
+                          <SelectItem value="client/src/components/invitations">Invitation System</SelectItem>
+                        </SelectGroup>
+                        <SelectGroup>
+                          <SelectLabel>Application Structure</SelectLabel>
+                          <SelectItem value="client/src/pages">Pages</SelectItem>
+                          <SelectItem value="client/src/hooks">Hooks</SelectItem>
+                          <SelectItem value="client/src/contexts">Contexts</SelectItem>
+                          <SelectItem value="server">Server</SelectItem>
+                        </SelectGroup>
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-gray-500 mt-1">Focus the visualization on a specific area of the codebase</p>
@@ -1190,13 +1198,30 @@ export default function AdminDashboard() {
                       <p>Generate a network visualization to see component relationships</p>
                     </div>
                   ) : (
-                    <div className="w-full h-full overflow-auto flex items-center justify-center">
-                      <img 
-                        src={selectedVisualization} 
-                        alt="Network Visualization" 
-                        className="max-w-full"
-                        style={{ maxHeight: '600px' }}
-                      />
+                    <div className="w-full h-full overflow-auto flex items-center justify-center bg-white">
+                      {selectedVisualization.endsWith('.svg') ? (
+                        <object
+                          data={selectedVisualization}
+                          type="image/svg+xml"
+                          className="max-w-full"
+                          style={{ maxHeight: '600px', width: '100%' }}
+                          aria-label="Network Visualization"
+                        >
+                          <img 
+                            src={selectedVisualization} 
+                            alt="Network Visualization" 
+                            className="max-w-full"
+                            style={{ maxHeight: '600px' }}
+                          />
+                        </object>
+                      ) : (
+                        <img 
+                          src={selectedVisualization} 
+                          alt="Network Visualization" 
+                          className="max-w-full"
+                          style={{ maxHeight: '600px' }}
+                        />
+                      )}
                     </div>
                   )}
                   
