@@ -22,12 +22,9 @@ async function cleanupDatabase() {
     console.log("Deleting all style selections...");
     await db.delete(styleSelections);
     
-    // Delete all clients not associated with Tiffany's salon
-    console.log("Deleting all clients not associated with Tiffany's salon...");
-    await db.delete(clients)
-      .where(
-        sql`${clients.sponsorSalonId} IS DISTINCT FROM ${tiffanySalonId}`
-      );
+    // Delete ALL clients (as per user request)
+    console.log("Deleting ALL clients...");
+    await db.delete(clients);
     
     // Delete all salons except Tiffany's
     console.log("Deleting all salons except Tiffany's...");
