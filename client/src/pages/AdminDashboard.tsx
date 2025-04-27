@@ -1110,35 +1110,12 @@ export default function AdminDashboard() {
                           }),
                         });
                         
-                        // First, check if the response is OK
                         if (!response.ok) {
-                          let errorMessage = 'Failed to generate visualization';
-                          try {
-                            // Attempt to parse the error as JSON
-                            const errorData = await response.json();
-                            errorMessage = errorData.error || errorMessage;
-                          } catch (parseError) {
-                            // If it's not JSON, try to get the text
-                            try {
-                              const errorText = await response.text();
-                              errorMessage = errorText || errorMessage;
-                            } catch (textError) {
-                              // If that fails too, use the status text
-                              errorMessage = response.statusText || errorMessage;
-                            }
-                          }
-                          throw new Error(errorMessage);
+                          const errorData = await response.json();
+                          throw new Error(errorData.error || 'Failed to generate visualization');
                         }
                         
-                        // When response is OK, try to parse the JSON
-                        let data;
-                        try {
-                          data = await response.json();
-                        } catch (parseError) {
-                          // If parsing fails, it's not a valid JSON response
-                          console.error('Invalid JSON response:', parseError);
-                          throw new Error('Server returned non-JSON response. Check server logs for details.');
-                        }
+                        const data = await response.json();
                         
                         if (data.success) {
                           setSelectedVisualization(data.path);
@@ -1147,7 +1124,7 @@ export default function AdminDashboard() {
                             description: `Created ${data.filename} (${data.size}KB)`,
                           });
                         } else {
-                          throw new Error(data.error || 'Failed to generate visualization');
+                          throw new Error('Failed to generate visualization');
                         }
                       } catch (error: any) {
                         console.error('Error generating visualization:', error);
