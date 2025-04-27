@@ -51,8 +51,8 @@ const carouselItems: CarouselCard[] = [
   },
 
   {
-    title: "Ven Me, Baby! ",
-    titleComponent: <span className="font-serif">Gifting: Redefined!</span>,
+    title: "",
+    titleComponent: <div className="font-serif">Gifting Redefined <span className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span></div>,
     content: [
       { text: "Forget the gift card trap", isBold: true, suffix: " — VMB is personal, instant, and emotionally clear." },
       { text: "She chooses. He responds.", isBold: true, suffix: " No awkward guessing. No missed signals." },
