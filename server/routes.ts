@@ -1723,6 +1723,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register API routes
   app.use("/api", apiRouter);
   
+  // Register Madge network visualization API routes
+  registerMadgeRoutes(app);
+  
   // Register visualization routes
   registerVisualizationRoutes(app);
 

@@ -13,6 +13,18 @@ app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 // Serve files from attached_assets directory
 app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
 
+// Serve files from visualizations directory
+app.use('/visualizations', express.static(path.join(process.cwd(), 'visualizations'), {
+  setHeaders: (res, filePath) => {
+    // Set the correct content type for SVG and PNG files
+    if (filePath.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml');
+    } else if (filePath.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    }
+  }
+}));
+
 import { errorMonitor } from './error-monitor';
 
 // Error monitoring middleware
