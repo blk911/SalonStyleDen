@@ -1110,8 +1110,13 @@ export default function AdminDashboard() {
                           console.log('[VMB-DEBUG] Error testing visualization access:', testError);
                         }
                         
-                        // Now try to generate a new visualization
-                        const response = await fetch('/api/madge/generate', {
+                        // IMPORTANT: Use an absolute URL to avoid client-side routing
+                        const baseUrl = window.location.origin;
+                        const apiUrl = `${baseUrl}/api/madge/generate`;
+                        
+                        console.log('[VMB-DEBUG] Using API URL:', apiUrl);
+                        
+                        const response = await fetch(apiUrl, {
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
@@ -1122,31 +1127,49 @@ export default function AdminDashboard() {
                             format: 'svg',
                             focus: focusPath === 'fullapp' ? '' : focusPath,
                           }),
+                          // Prevent client-side routing from intercepting
+                          cache: 'no-cache',
+                          credentials: 'same-origin',
                         });
                         
                         let data;
                         let responseText;
                         
-                        try {
-                          // Try to get response as text first
+                        // Check if response is ok first
+                        if (!response.ok) {
+                          console.error('[VMB-DEBUG] API response not OK:', response.status, response.statusText);
+                          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                        }
+                        
+                        // Check content type
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
                           responseText = await response.text();
-                          
-                          // Then try to parse as JSON
-                          try {
-                            data = JSON.parse(responseText);
-                          } catch (jsonError) {
-                            console.error('[VMB-DEBUG] JSON parse error:', jsonError);
-                            console.error('[VMB-DEBUG] Response was:', responseText.substring(0, 150) + '...');
-                            throw new Error('Server returned invalid JSON. See console for details.');
-                          }
-                        } catch (responseError) {
-                          console.error('[VMB-DEBUG] Error getting response:', responseError);
-                          throw new Error('Failed to get response from server.');
+                          console.error('[VMB-DEBUG] Non-JSON response received:', contentType);
+                          console.error('[VMB-DEBUG] Response body:', responseText.substring(0, 150) + '...');
+                          throw new Error('Server returned non-JSON response. Check console for details.');
+                        }
+                        
+                        try {
+                          data = await response.json();
+                        } catch (jsonError) {
+                          console.error('[VMB-DEBUG] JSON parse error:', jsonError);
+                          throw new Error('Failed to parse server response as JSON.');
                         }
                         
                         // Successfully got JSON data, check for success flag
                         if (data && data.success) {
-                          setSelectedVisualization(data.path);
+                          // Make sure we use an absolute URL for the visualization
+                          const baseUrl = window.location.origin;
+                          const fullVisualizationPath = data.path.startsWith('/') 
+                            ? `${baseUrl}${data.path}`
+                            : `${baseUrl}/${data.path}`;
+                            
+                          console.log('[VMB-DEBUG] Visualization path:', fullVisualizationPath);
+                          
+                          // Use the full URL including protocol, hostname, etc.
+                          setSelectedVisualization(fullVisualizationPath);
+                          
                           toast({
                             title: "Visualization generated",
                             description: `Created ${data.filename} (${data.size}KB)`,
@@ -1191,12 +1214,29 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="w-full h-full overflow-auto flex items-center justify-center">
-                      <img 
-                        src={selectedVisualization} 
-                        alt="Network Visualization" 
-                        className="max-w-full"
-                        style={{ maxHeight: '600px' }}
-                      />
+                      {/* Use embedded SVG for better compatibility */}
+                      {selectedVisualization.endsWith('.svg') ? (
+                        <object 
+                          data={selectedVisualization}
+                          type="image/svg+xml"
+                          className="max-w-full object-contain"
+                          style={{ maxHeight: '600px' }}
+                        >
+                          <img 
+                            src={selectedVisualization} 
+                            alt="Network Visualization" 
+                            className="max-w-full"
+                            style={{ maxHeight: '600px' }}
+                          />
+                        </object>
+                      ) : (
+                        <img 
+                          src={selectedVisualization} 
+                          alt="Network Visualization" 
+                          className="max-w-full"
+                          style={{ maxHeight: '600px' }}
+                        />
+                      )}
                     </div>
                   )}
                   
