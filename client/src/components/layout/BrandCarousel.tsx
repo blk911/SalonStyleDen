@@ -37,7 +37,7 @@ const carouselItems: CarouselCard[] = [
   },
   {
     title: "",
-    titleComponent: <div className="logo"><span className="font-serif">Ven Me, </span><span className="font-serif text-[#FF92A5]">Baby!</span> Says "I value you"</div>,
+    titleComponent: <div className="logo"><span className="font-serif text-black">Ven Me, </span><span className="font-serif text-[#FF92A5]">Baby!</span> Says "I value you"</div>,
     titleSuffix: '',
     content: [
       { text: "He's not guessing", isBold: true, suffix: " — you've made it clear." },
