@@ -133,7 +133,7 @@ export default function BrandCarousel() {
           {carouselItems.map((item, index) => (
             <CarouselItem key={index}>
               <div className="min-h-[500px] w-[90%] mx-auto p-6 rounded-2xl bg-gradient-to-br from-white via-white/95 to-pink-50/90 backdrop-blur-sm border border-pink-100 shadow-2xl hover:shadow-pink-100/20 transition-all flex flex-col justify-center">
-                <h3 className="text-4xl mb-8 text-[#FF92A5] leading-tight text-center" style={{fontFamily: 'Georgia, serif'}}>
+                <h3 className="text-4xl mb-8 text-[#FF92A5] leading-tight text-center font-serif">
                   {item.title}
                   {item.titleComponent}
                   {item.titleSuffix}
@@ -146,7 +146,7 @@ export default function BrandCarousel() {
                       return (
                         <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-4 text-center">
                           {line[0]}
-                          <span className="font-bold font-sans">{line[1]}</span>
+                          <span className="font-bold">{line[1]}</span>
                           {line[2]}
                         </p>
                       );
@@ -158,10 +158,10 @@ export default function BrandCarousel() {
                         typeof line[1] === 'object' && 'text' in line[1]) {
                       return (
                         <div key={i} className="mb-4 text-center">
-                          <p className="text-lg font-bold text-gray-700 leading-relaxed tracking-wide mb-1 text-center font-sans">
+                          <p className="text-lg font-bold text-gray-700 leading-relaxed tracking-wide mb-1 text-center">
                             {line[0].text}
                           </p>
-                          <p className="text-lg text-gray-700 leading-relaxed tracking-wide mb-2 text-center font-sans">
+                          <p className="text-lg text-gray-700 leading-relaxed tracking-wide mb-2 text-center">
                             {line[1].text}
                           </p>
                         </div>
