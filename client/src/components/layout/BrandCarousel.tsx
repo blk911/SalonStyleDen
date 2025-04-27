@@ -63,8 +63,8 @@ const carouselItems: CarouselCard[] = [
     ]
   },
   {
-    title: "",
-    titleComponent: <div><div className="text-xl mb-2">One, Two, Three! <span className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span></div></div>,
+    title: "One, Two, Three! ",
+    titleComponent: <div className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></div>,
     content: [],
     imagesComponent: (
       <div className="flex justify-between items-start gap-8 mt-8">
