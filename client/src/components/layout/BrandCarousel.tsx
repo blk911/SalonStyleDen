@@ -54,12 +54,12 @@ const carouselItems: CarouselCard[] = [
     title: "",
     titleComponent: <div className="font-serif"><span className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span> Gifting Redefined!</div>,
     content: [
-      { text: "Forget the gift card trap", isBold: true, suffix: " — VMB is personal, instant, and emotionally clear." },
-      { text: "She chooses. He responds.", isBold: true, suffix: " No awkward guessing. No missed signals." },
-      { text: "Perfectly timed, personally curated care", isBold: true, suffix: " — right when she needs it." },
-      { text: "He gets to show up.", isBold: true, suffix: " She gets to feel seen." },
+      { text: "The gift card trap", isBold: true, suffix: " — impersonal, untimely, and UNUSED." },
+      { text: "You choose. They respond.", isBold: true, suffix: " No guessing. No missed signals." },
+      { text: "Personally curated care", isBold: true, suffix: " — when it fits your schedule." },
+      { text: "He shows up. You feel seen.", isBold: true, suffix: " The perfect \"twin-win\"!" },
       { text: "Prepaid = revenue locked in.", isBold: true, suffix: " No no-shows. No ghosting." },
-      { text: "And yes", isBold: true, suffix: " — clients love sharing what works with their circle." }
+      { text: "Yes,", isBold: true, suffix: " clients love promoting you in their BFF circles." }
     ]
   },
   {
