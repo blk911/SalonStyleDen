@@ -157,4 +157,15 @@
   .grid-cols-responsive {
     @apply grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-2;
   }
+  
+  /* Logo styling */
+  .logo {
+    display: inline-block;
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    font-size: clamp(20px, 5vw, 48px);
+    letter-spacing: 0.25px; /* slightly tighter kerning */
+    word-spacing: 2px;
+    text-align: center;
+  }
 }
