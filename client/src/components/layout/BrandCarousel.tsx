@@ -133,7 +133,7 @@ export default function BrandCarousel() {
           {carouselItems.map((item, index) => (
             <CarouselItem key={index}>
               <div className="min-h-[500px] w-[90%] mx-auto p-6 rounded-2xl bg-gradient-to-br from-white via-white/95 to-pink-50/90 backdrop-blur-sm border border-pink-100 shadow-2xl hover:shadow-pink-100/20 transition-all flex flex-col justify-center">
-                <h3 className="text-4xl mb-8 text-[#FF92A5] leading-tight text-center">
+                <h3 className="text-4xl mb-8 text-[#FF92A5] leading-tight text-center font-serif">
                   {item.title}
                   {item.titleComponent}
                   {item.titleSuffix}
