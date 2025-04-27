@@ -1213,30 +1213,34 @@ export default function AdminDashboard() {
                       <p>Generate a network visualization to see component relationships</p>
                     </div>
                   ) : (
-                    <div className="w-full h-full overflow-auto flex items-center justify-center">
-                      {/* Use embedded SVG for better compatibility */}
-                      {selectedVisualization.endsWith('.svg') ? (
-                        <object 
-                          data={selectedVisualization}
-                          type="image/svg+xml"
-                          className="max-w-full object-contain"
-                          style={{ maxHeight: '600px' }}
-                        >
-                          <img 
-                            src={selectedVisualization} 
-                            alt="Network Visualization" 
-                            className="max-w-full"
-                            style={{ maxHeight: '600px' }}
-                          />
-                        </object>
-                      ) : (
-                        <img 
-                          src={selectedVisualization} 
-                          alt="Network Visualization" 
-                          className="max-w-full"
-                          style={{ maxHeight: '600px' }}
+                    <div className="w-full h-full overflow-auto flex items-center justify-center p-4 relative">
+                      {/* Direct image rendering with fallback */}
+                      <div className="relative w-full h-full flex items-center justify-center">
+                        <img
+                          src={selectedVisualization}
+                          alt="Network Visualization"
+                          className="max-w-full object-contain border border-gray-200 rounded-md shadow-sm bg-white"
+                          style={{ maxHeight: '550px' }}
+                          onError={(e) => {
+                            console.error('[VMB-DEBUG] Failed to load image:', selectedVisualization);
+                            e.currentTarget.style.display = 'none';
+                            // Show error message
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'text-red-500 text-center p-4';
+                            errorDiv.innerHTML = `
+                              <div class="flex flex-col items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                <span>Failed to load visualization</span>
+                                <a href="${selectedVisualization}" target="_blank" class="text-blue-500 underline">Open directly</a>
+                              </div>
+                            `;
+                            e.currentTarget.parentNode?.appendChild(errorDiv);
+                          }}
                         />
-                      )}
+                        <div className="absolute bottom-2 right-2 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded">
+                          Click the refresh button if visualization doesn't appear
+                        </div>
+                      </div>
                     </div>
                   )}
                   
@@ -1245,14 +1249,18 @@ export default function AdminDashboard() {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <a 
-                              href={selectedVisualization} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
+                            <Button 
+                              variant="outline" 
+                              size="icon"
+                              className="bg-white"
+                              onClick={() => {
+                                // Open in new tab with correct URL
+                                const newWindow = window.open(selectedVisualization, '_blank');
+                                if (newWindow) newWindow.opener = null;
+                              }}
                             >
                               <Eye className="h-4 w-4 text-gray-600" />
-                            </a>
+                            </Button>
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>Open in new tab</p>
@@ -1263,16 +1271,48 @@ export default function AdminDashboard() {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <a 
-                              href={selectedVisualization} 
-                              download
-                              className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
+                            <Button 
+                              variant="outline" 
+                              size="icon"
+                              className="bg-white"
+                              onClick={() => {
+                                // Download SVG manually
+                                const link = document.createElement('a');
+                                link.href = selectedVisualization;
+                                link.download = selectedVisualization.split('/').pop() || 'visualization.svg';
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                              }}
                             >
                               <Download className="h-4 w-4 text-gray-600" />
-                            </a>
+                            </Button>
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>Download visualization</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="icon"
+                              className="bg-white"
+                              onClick={() => {
+                                // Reload the visualization with a cache buster
+                                const cacheBuster = `?cb=${Date.now()}`;
+                                const svgUrl = selectedVisualization.split('?')[0] + cacheBuster;
+                                setSelectedVisualization(svgUrl);
+                              }}
+                            >
+                              <RefreshCw className="h-4 w-4 text-gray-600" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Reload visualization</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
