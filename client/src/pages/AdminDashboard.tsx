@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import Navbar from "@/components/layout/Navbar";
@@ -100,6 +100,69 @@ interface ActivityLog {
   salonId?: number;
   clientId?: number;
   timestamp: string;
+}
+
+// SVG Visualizer Component
+interface SvgVisualizerProps {
+  url: string;
+  fallback: ReactNode;
+}
+
+function SvgVisualizer({ url, fallback }: SvgVisualizerProps) {
+  const [svgContent, setSvgContent] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<boolean>(false);
+  
+  useEffect(() => {
+    async function fetchSvg() {
+      try {
+        setLoading(true);
+        setError(false);
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Failed to load SVG: ${response.status} ${response.statusText}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('image/svg+xml')) {
+          console.warn(`Expected SVG content type but got: ${contentType}`);
+          // Continue anyway, might still be SVG
+        }
+        
+        const text = await response.text();
+        setSvgContent(text);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error loading SVG:', err);
+        setError(true);
+        setLoading(false);
+      }
+    }
+    
+    fetchSvg();
+  }, [url]);
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center w-full h-full min-h-[300px]">
+        <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
+        <span className="ml-2 text-gray-500">Loading visualization...</span>
+      </div>
+    );
+  }
+  
+  if (error || !svgContent) {
+    return <>{fallback}</>;
+  }
+  
+  return (
+    <div 
+      className="w-full h-full border border-gray-200 rounded-md shadow-sm bg-white p-4 overflow-auto"
+      style={{ maxHeight: '550px' }}
+      dangerouslySetInnerHTML={{ __html: svgContent }}
+    />
+  );
 }
 
 export default function AdminDashboard() {
@@ -1159,11 +1222,12 @@ export default function AdminDashboard() {
                         
                         // Successfully got JSON data, check for success flag
                         if (data && data.success) {
-                          // Make sure we use an absolute URL for the visualization
+                          // Add a cache buster to prevent browser caching
+                          const cacheBuster = `?cb=${Date.now()}`;
                           const baseUrl = window.location.origin;
                           const fullVisualizationPath = data.path.startsWith('/') 
-                            ? `${baseUrl}${data.path}`
-                            : `${baseUrl}/${data.path}`;
+                            ? `${baseUrl}${data.path}${cacheBuster}`
+                            : `${baseUrl}/${data.path}${cacheBuster}`;
                             
                           console.log('[VMB-DEBUG] Visualization path:', fullVisualizationPath);
                           
@@ -1214,32 +1278,31 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="w-full h-full overflow-auto flex items-center justify-center p-4 relative">
-                      {/* Direct image rendering with fallback */}
+                      {/* Direct iframe embedding */}
                       <div className="relative w-full h-full flex items-center justify-center">
-                        <img
+                        <iframe 
                           src={selectedVisualization}
-                          alt="Network Visualization"
-                          className="max-w-full object-contain border border-gray-200 rounded-md shadow-sm bg-white"
-                          style={{ maxHeight: '550px' }}
-                          onError={(e) => {
-                            console.error('[VMB-DEBUG] Failed to load image:', selectedVisualization);
-                            e.currentTarget.style.display = 'none';
-                            // Show error message
-                            const errorDiv = document.createElement('div');
-                            errorDiv.className = 'text-red-500 text-center p-4';
-                            errorDiv.innerHTML = `
-                              <div class="flex flex-col items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                                <span>Failed to load visualization</span>
-                                <a href="${selectedVisualization}" target="_blank" class="text-blue-500 underline">Open directly</a>
-                              </div>
-                            `;
-                            e.currentTarget.parentNode?.appendChild(errorDiv);
+                          className="w-full h-full border-0 bg-white rounded-md"
+                          style={{ minHeight: '500px' }}
+                          onError={() => {
+                            console.error('[VMB-DEBUG] Failed to load iframe:', selectedVisualization);
                           }}
                         />
-                        <div className="absolute bottom-2 right-2 text-xs text-gray-500 bg-white/80 px-2 py-1 rounded">
-                          Click the refresh button if visualization doesn't appear
-                        </div>
+                      </div>
+                      <div className="absolute bottom-4 left-4 text-xs text-gray-500">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            // Force reload with new cache buster
+                            const cacheBuster = `?cb=${Date.now()}`;
+                            const svgUrl = selectedVisualization.split('?')[0] + cacheBuster;
+                            setSelectedVisualization(svgUrl);
+                          }}
+                        >
+                          <RefreshCw className="h-3 w-3 mr-1" />
+                          Reload Visualization
+                        </Button>
                       </div>
                     </div>
                   )}
