@@ -1214,18 +1214,29 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="w-full h-full overflow-auto flex items-center justify-center">
-                      {/* Create an iframe to isolate the SVG rendering */}
-                      <iframe 
-                        src={selectedVisualization}
-                        className="w-full"
-                        style={{ 
-                          height: '600px', 
-                          border: 'none',
-                          background: 'transparent'
-                        }}
-                        title="VMB Network Visualization"
-                        sandbox="allow-same-origin allow-scripts"
-                      />
+                      {/* Use embedded SVG for better compatibility */}
+                      {selectedVisualization.endsWith('.svg') ? (
+                        <object 
+                          data={selectedVisualization}
+                          type="image/svg+xml"
+                          className="max-w-full object-contain"
+                          style={{ maxHeight: '600px' }}
+                        >
+                          <img 
+                            src={selectedVisualization} 
+                            alt="Network Visualization" 
+                            className="max-w-full"
+                            style={{ maxHeight: '600px' }}
+                          />
+                        </object>
+                      ) : (
+                        <img 
+                          src={selectedVisualization} 
+                          alt="Network Visualization" 
+                          className="max-w-full"
+                          style={{ maxHeight: '600px' }}
+                        />
+                      )}
                     </div>
                   )}
                   
