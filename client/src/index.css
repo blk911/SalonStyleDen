@@ -13,11 +13,17 @@
   letter-spacing: 0.25px;
   word-spacing: 2px;
   text-align: center;
+  color: black;
 }
 
-.logo span {
-  font-style: italic; /* italicizes "Baby!" */
-  font-weight: normal; /* lighter to create contrast */
+.logo .ven-me {
+  font-style: normal;
+  color: black;
+}
+
+.logo .baby {
+  font-style: italic;
+  color: #FF92A5;
 }
 
 /* CLIENT VMB PROMO ENGINE STYLES */

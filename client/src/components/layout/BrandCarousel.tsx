@@ -37,7 +37,7 @@ const carouselItems: CarouselCard[] = [
   },
   {
     title: "",
-    titleComponent: <div className="logo"><span className="font-serif">Ven Me, </span><span className="font-serif text-[#FF92A5]">Baby!</span> Says "I value you"</div>,
+    titleComponent: <div className="logo"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span> Says "I value you"</div>,
     titleSuffix: '',
     content: [
       { text: "He's not guessing", isBold: true, suffix: " — you've made it clear." },
@@ -50,7 +50,8 @@ const carouselItems: CarouselCard[] = [
   },
 
   {
-    title: "Ven Me, Baby! The Art of Gifting: Redefined!",
+    title: "",
+    titleComponent: <div className="logo"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span> The Art of Gifting: Redefined!</div>,
     content: [
       { text: "Forget the gift card trap", isBold: true, suffix: " — VMB is personal, instant, and emotionally clear." },
       { text: "She chooses. He responds.", isBold: true, suffix: " No awkward guessing. No missed signals." },
@@ -61,7 +62,8 @@ const carouselItems: CarouselCard[] = [
     ]
   },
   {
-    title: "One, Two, Three! Ven Me, Baby!",
+    title: "One, Two, Three! ",
+    titlePrefix: <span className="logo"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span>,
     content: [],
     titleComponent: (
       <div className="flex justify-between items-start gap-8 mt-8">

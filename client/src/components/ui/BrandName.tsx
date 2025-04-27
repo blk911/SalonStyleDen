@@ -35,9 +35,9 @@ export default function BrandName({
   const alignment = `text-${textAlign}`;
   
   return (
-    <span className={`${containerClass} ${alignment} ${className}`}>
-      <span className={`font-serif ${fontSize}`}>Ven Me, </span>
-      <span className={`font-serif ${fontSize} text-[#FF92A5] italic`}>
+    <span className={`${containerClass} ${alignment} ${className} logo`}>
+      <span className="ven-me">Ven Me, </span>
+      <span className="baby">
         Baby{withExclamation ? '!' : ''}
       </span>
     </span>
