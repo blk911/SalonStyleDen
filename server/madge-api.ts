@@ -81,50 +81,32 @@ export function registerMadgeRoutes(app: Express) {
         });
       }
       
-      // For development/testing - use pre-created template SVGs based on focus path
-      let templateFile = 'network-graph-template.svg';
+      // For development/testing - use pre-created SVG
+      const testFile = 'test-visualization.svg';
+      const testPath = path.join(visualizationsDir, testFile);
       
-      // Select appropriate template based on focus path
-      if (focus && focus.includes('style-options')) {
-        templateFile = 'style-options-graph.svg';
-      } else if (focus && focus.includes('components')) {
-        templateFile = 'network-graph-template.svg';
-      } else if (focus && focus.includes('pages')) {
-        templateFile = 'network-graph-template.svg';
+      if (fs.existsSync(testPath)) {
+        const stats = fs.statSync(testPath);
+        const fileSizeInKB = Math.round(stats.size / 1024);
+        
+        return res.status(200).json({
+          success: true,
+          filename: testFile,
+          path: `/visualizations/${testFile}`,
+          size: fileSizeInKB,
+          layout,
+          format: 'svg',
+          output: "Using test visualization (development mode)"
+        });
       }
       
-      const templatePath = path.join(visualizationsDir, templateFile);
-      
-      // Generate a unique filename for this visualization
+      // Generate a unique filename
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const focusPath = focus ? focus.replace(/^\.\//, '').replace(/\//g, '-') : 'full';
       const filename = `vmb-network-${layout}-${focusPath}-${timestamp}.${format}`;
       const outputPath = path.join(visualizationsDir, filename);
       
-      // Try to use a template file if it exists
-      if (fs.existsSync(templatePath)) {
-        try {
-          // Copy the template to the new file
-          fs.copyFileSync(templatePath, outputPath);
-          
-          const stats = fs.statSync(outputPath);
-          const fileSizeInKB = Math.round(stats.size / 1024);
-          
-          return res.status(200).json({
-            success: true,
-            filename,
-            path: `/visualizations/${filename}`,
-            size: fileSizeInKB,
-            layout,
-            format: 'svg',
-            output: `Visualization generated from template: ${templateFile}`
-          });
-        } catch (copyError) {
-          console.error('[MADGE-API] Error copying template file:', copyError);
-        }
-      }
-      
-      // Fallback - create a simple placeholder SVG if template not found
+      // Create a simple placeholder SVG
       const placeholderSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
         <rect width="100%" height="100%" fill="#f0f0f0"/>
         <text x="400" y="300" font-family="Arial" font-size="24" text-anchor="middle">
@@ -148,12 +130,12 @@ export function registerMadgeRoutes(app: Express) {
           format,
           output: "Visualization generated successfully (placeholder mode)"
         });
-      } catch (writeError: any) {
+      } catch (writeError) {
         console.error('[MADGE-API] Error writing visualization file:', writeError);
         return res.status(200).json({ 
           success: false,
           error: 'Failed to write visualization file',
-          details: writeError?.message || 'Unknown error'
+          details: writeError.message
         });
       }
     } catch (error: any) {
