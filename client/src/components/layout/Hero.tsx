@@ -42,10 +42,7 @@ export default function Hero({
           </h1>
         </div>
         <p className="text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            Beauty doesn't wait! "Thinking" not required.
-            <br />No missing gift card, No 'maybe later'.
-            <br />The perfect gift is perfectly timed!
-            <br />Ven Me, Baby! is gifting that works!
+            <i>The perfect gift is perfectly timed!</i>
           </p>
         <div className="flex justify-center gap-4 flex-wrap">
           <button
