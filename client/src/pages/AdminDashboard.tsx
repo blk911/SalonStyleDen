@@ -10,6 +10,7 @@ import { Link } from 'wouter';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import InviteCompleteStatus from "@/components/dashboard/InviteCompleteStatus";
+import { SvgVisualizer } from "@/components/visualization/SvgVisualizer";
 import { 
   Select, 
   SelectContent, 
@@ -102,68 +103,7 @@ interface ActivityLog {
   timestamp: string;
 }
 
-// SVG Visualizer Component
-interface SvgVisualizerProps {
-  url: string;
-  fallback: ReactNode;
-}
-
-function SvgVisualizer({ url, fallback }: SvgVisualizerProps) {
-  const [svgContent, setSvgContent] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
-  
-  useEffect(() => {
-    async function fetchSvg() {
-      try {
-        setLoading(true);
-        setError(false);
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`Failed to load SVG: ${response.status} ${response.statusText}`);
-        }
-        
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('image/svg+xml')) {
-          console.warn(`Expected SVG content type but got: ${contentType}`);
-          // Continue anyway, might still be SVG
-        }
-        
-        const text = await response.text();
-        setSvgContent(text);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error loading SVG:', err);
-        setError(true);
-        setLoading(false);
-      }
-    }
-    
-    fetchSvg();
-  }, [url]);
-  
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center w-full h-full min-h-[300px]">
-        <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
-        <span className="ml-2 text-gray-500">Loading visualization...</span>
-      </div>
-    );
-  }
-  
-  if (error || !svgContent) {
-    return <>{fallback}</>;
-  }
-  
-  return (
-    <div 
-      className="w-full h-full border border-gray-200 rounded-md shadow-sm bg-white p-4 overflow-auto"
-      style={{ maxHeight: '550px' }}
-      dangerouslySetInnerHTML={{ __html: svgContent }}
-    />
-  );
-}
+// We're now using the imported SvgVisualizer component from @/components/visualization/SvgVisualizer
 
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
@@ -1116,6 +1056,7 @@ export default function AdminDashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 {/* Left Side - Controls */}
                 <div className="lg:col-span-1 space-y-4 border-r pr-4">
+                  {/* Existing Visualizations Section */}
                   <div>
                     <label className="text-sm font-medium mb-1 block">View Saved Visualizations</label>
                     <Select
@@ -1152,46 +1093,46 @@ export default function AdminDashboard() {
                     <p className="text-xs text-gray-500 mt-1">Choose from existing visualizations</p>
                   </div>
                   
+                  {/* Generate New Visualization Section */}
                   <div className="pt-4 border-t border-gray-200 mt-4">
                     <h3 className="text-sm font-medium mb-2">Generate New Visualization</h3>
-                  
-                    <div>
-                      <label className="text-sm font-medium mb-1 block">Layout Algorithm</label>
-                      <Select
-                        value={selectedLayout}
-                        onValueChange={setSelectedLayout}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select layout" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="dot">Hierarchical (dot)</SelectItem>
-                          <SelectItem value="fdp">Force-Directed (fdp)</SelectItem>
-                          <SelectItem value="twopi">Radial (twopi)</SelectItem>
-                          <SelectItem value="circo">Circular (circo)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
                     
-                    <div className="mt-3">
-                      <label className="text-sm font-medium mb-1 block">Focus Path (optional)</label>
-                      <Select
-                        value={focusPath}
-                        onValueChange={setFocusPath}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select focus area" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="fullapp">Full Application</SelectItem>
-                          <SelectItem value="client/src/components">Components</SelectItem>
-                          <SelectItem value="client/src/pages">Pages</SelectItem>
-                          <SelectItem value="client/src/hooks">Hooks</SelectItem>
-                          <SelectItem value="client/src/contexts">Contexts</SelectItem>
-                          <SelectItem value="server">Server</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-xs text-gray-500 mt-1">Focus on a specific area of the codebase</p>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm font-medium mb-1 block">Component to Analyze</label>
+                        <Select
+                          value={focusPath}
+                          onValueChange={setFocusPath}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select component" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="client_dashboard">Client Dashboard</SelectItem>
+                            <SelectItem value="salon_dashboard">Salon Dashboard</SelectItem>
+                            <SelectItem value="invitation_flow">Invitation Flow</SelectItem>
+                            <SelectItem value="vmb_style_options">Style Options Engine</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm font-medium mb-1 block">Layout Algorithm</label>
+                        <Select
+                          value={selectedLayout}
+                          onValueChange={setSelectedLayout}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select layout" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="dot">Hierarchical (dot)</SelectItem>
+                            <SelectItem value="fdp">Force-Directed (fdp)</SelectItem>
+                            <SelectItem value="twopi">Radial (twopi)</SelectItem>
+                            <SelectItem value="circo">Circular (circo)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </div>
                   
@@ -1312,68 +1253,26 @@ export default function AdminDashboard() {
                 </div>
                 
                 {/* Right Side - Visualization Display */}
-                <div className="lg:col-span-3 min-h-[400px] border rounded-md p-2 flex items-center justify-center relative">
-                  {!selectedVisualization ? (
-                    <div className="text-center text-gray-500 space-y-3">
-                      <NetworkIcon className="h-16 w-16 mx-auto text-gray-300" />
-                      <p>Generate a network visualization to see component relationships</p>
-                    </div>
-                  ) : (
-                    <div className="w-full h-full overflow-auto flex items-center justify-center p-4 relative">
-                      {/* Direct object tag embedding for SVG */}
-                      <div className="relative w-full h-full flex items-center justify-center bg-white rounded-md border border-gray-200 shadow-sm overflow-auto">
-                        <object 
-                          data={selectedVisualization}
-                          type="image/svg+xml"
-                          className="w-full h-full"
-                          style={{ minHeight: '500px' }}
-                        >
-                          <div className="flex flex-col items-center gap-4 p-8 text-gray-500">
-                            <NetworkIcon className="h-12 w-12 text-gray-300" />
-                            <p>Visualization failed to load</p>
-                            <a 
-                              href={selectedVisualization} 
-                              target="_blank"
-                              rel="noopener noreferrer" 
-                              className="text-blue-500 underline text-sm"
-                            >
-                              Open directly in new tab
-                            </a>
-                          </div>
-                        </object>
-                      </div>
-                      <div className="absolute bottom-4 left-4 z-10">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="bg-white shadow-sm"
-                          onClick={() => {
-                            // Force reload with new cache buster
-                            const cacheBuster = `?cb=${Date.now()}`;
-                            const svgUrl = selectedVisualization.split('?')[0] + cacheBuster;
-                            setSelectedVisualization(svgUrl);
-                          }}
-                        >
-                          <RefreshCw className="h-3 w-3 mr-1" />
-                          Reload
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+                <div className="lg:col-span-3 min-h-[500px] border rounded-md p-4 relative">
+                  {/* Use our improved SvgVisualizer component */}
+                  <SvgVisualizer 
+                    url={selectedVisualization} 
+                    fallbackText="Select or generate a visualization to view component relationships"
+                  />
                   
+                  {/* Action buttons */}
                   {selectedVisualization && (
-                    <div className="absolute top-2 right-2 flex gap-2">
+                    <div className="absolute top-4 right-4 flex gap-2">
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button 
                               variant="outline" 
                               size="icon"
-                              className="bg-white"
+                              className="bg-white shadow-sm"
                               onClick={() => {
-                                // Open in new tab with correct URL
-                                const newWindow = window.open(selectedVisualization, '_blank');
-                                if (newWindow) newWindow.opener = null;
+                                // Open in new tab
+                                window.open(selectedVisualization, '_blank');
                               }}
                             >
                               <Eye className="h-4 w-4 text-gray-600" />
@@ -1391,35 +1290,9 @@ export default function AdminDashboard() {
                             <Button 
                               variant="outline" 
                               size="icon"
-                              className="bg-white"
+                              className="bg-white shadow-sm"
                               onClick={() => {
-                                // Download SVG manually
-                                const link = document.createElement('a');
-                                link.href = selectedVisualization;
-                                link.download = selectedVisualization.split('/').pop() || 'visualization.svg';
-                                document.body.appendChild(link);
-                                link.click();
-                                document.body.removeChild(link);
-                              }}
-                            >
-                              <Download className="h-4 w-4 text-gray-600" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Download visualization</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              size="icon"
-                              className="bg-white"
-                              onClick={() => {
-                                // Reload the visualization with a cache buster
+                                // Refresh with new cache buster
                                 const cacheBuster = `?cb=${Date.now()}`;
                                 const svgUrl = selectedVisualization.split('?')[0] + cacheBuster;
                                 setSelectedVisualization(svgUrl);
@@ -1429,7 +1302,7 @@ export default function AdminDashboard() {
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Reload visualization</p>
+                            <p>Refresh visualization</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
