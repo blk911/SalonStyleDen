@@ -26,6 +26,13 @@ export function registerMadgeRoutes(app: Express) {
   // Get available visualization files
   app.get('/api/madge/visualizations', async (req: Request, res: Response) => {
     try {
+      // First check if the directory exists
+      if (!fs.existsSync(visualizationsDir)) {
+        console.log(`Creating visualizations directory: ${visualizationsDir}`);
+        fs.mkdirSync(visualizationsDir, { recursive: true });
+        return res.json([]);
+      }
+      
       const files = fs.readdirSync(visualizationsDir)
         .filter(file => file.endsWith('.svg') || file.endsWith('.png'))
         .map(file => {
@@ -47,9 +54,13 @@ export function registerMadgeRoutes(app: Express) {
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       
       res.json(files);
-    } catch (error) {
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
       console.error('Error getting visualization files:', error);
-      res.status(500).json({ error: 'Failed to get visualization files' });
+      res.status(500).json({ 
+        error: 'Failed to get visualization files',
+        message: error.message 
+      });
     }
   });
   
@@ -119,7 +130,8 @@ export function registerMadgeRoutes(app: Express) {
           output: stdout
         });
       }
-    } catch (error) {
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
       console.error('Error generating visualization:', error);
       res.status(500).json({ 
         error: 'Failed to generate visualization',

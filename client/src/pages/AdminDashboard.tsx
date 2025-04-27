@@ -1111,20 +1111,47 @@ export default function AdminDashboard() {
                         });
                         
                         if (!response.ok) {
-                          const errorData = await response.json();
-                          throw new Error(errorData.error || 'Failed to generate visualization');
+                          let errorMessage = 'Failed to generate visualization';
+                          try {
+                            const errorData = await response.json();
+                            errorMessage = errorData.error || errorMessage;
+                          } catch (jsonError) {
+                            // If response is not JSON, try to get text
+                            try {
+                              const errorText = await response.text();
+                              errorMessage = errorText || errorMessage;
+                            } catch (textError) {
+                              console.error('Error reading error response:', textError);
+                            }
+                          }
+                          throw new Error(errorMessage);
                         }
                         
-                        const data = await response.json();
+                        // Safe parsing of JSON response
+                        let data;
+                        try {
+                          const contentType = response.headers.get('Content-Type');
+                          if (contentType && contentType.includes('application/json')) {
+                            data = await response.json();
+                          } else {
+                            // Not JSON - likely received HTML or other content
+                            const responseText = await response.text();
+                            console.error('Received non-JSON response:', responseText.substring(0, 200) + '...');
+                            throw new Error('Server returned an invalid response format');
+                          }
+                        } catch (parseError) {
+                          console.error('JSON parsing error:', parseError);
+                          throw new Error('Failed to parse server response');
+                        }
                         
-                        if (data.success) {
+                        if (data && data.success) {
                           setSelectedVisualization(data.path);
                           toast({
                             title: "Visualization generated",
                             description: `Created ${data.filename} (${data.size}KB)`,
                           });
                         } else {
-                          throw new Error('Failed to generate visualization');
+                          throw new Error('Failed to generate visualization - invalid response data');
                         }
                       } catch (error: any) {
                         console.error('Error generating visualization:', error);
