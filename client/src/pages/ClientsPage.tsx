@@ -110,25 +110,136 @@ export default function ClientsPage() {
         {/* Hero Section */}
         <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-8 border-b border-pink-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-3xl font-bold text-pink-800">Client Central Hub</h1>
-            <p className="mt-2 text-gray-600">Find New Salons, Premium Offers, and More</p>
+            <h1 className="text-3xl font-bold text-pink-800 flex items-center justify-center">
+              <span className="logo logo-md mr-2"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span> 
+              Client Info Hub
+            </h1>
+            <p className="mt-2 text-gray-600">New Salons, Premium Offers, and More</p>
           </div>
         </section>
         
         {/* Main Content */}
         <section className="py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Content container - placeholder for future content */}
-            <Card className="p-6">
-              <CardContent>
-                <div className="space-y-6">
-                  {/* We'll add elements here as specified */}
-                  <div className="text-center py-4">
-                    <p className="text-gray-500">Client content will be added here.</p>
+            {/* 3x3 Grid Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Grid Item 1 */}
+              <Card className="bg-gradient-to-br from-pink-50 to-white shadow-md hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-serif font-semibold text-pink-800 mb-4">Your Salons</h3>
+                  <div className="text-gray-600">
+                    <p>View your preferred salons and recent appointments</p>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="mt-4">
+                    <Button className="w-full bg-pink-600 hover:bg-pink-700">Browse Salons</Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Grid Item 2 */}
+              <Card className="bg-gradient-to-br from-purple-50 to-white shadow-md hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-serif font-semibold text-purple-800 mb-4">Special Offers</h3>
+                  <div className="text-gray-600">
+                    <p>Exclusive promotions and special pricing available to you</p>
+                  </div>
+                  <div className="mt-4">
+                    <Button className="w-full bg-purple-600 hover:bg-purple-700">View Offers</Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Grid Item 3 */}
+              <Card className="bg-gradient-to-br from-blue-50 to-white shadow-md hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-serif font-semibold text-blue-800 mb-4">Upcoming Appointments</h3>
+                  <div className="text-gray-600">
+                    <p>Check and manage your scheduled services</p>
+                  </div>
+                  <div className="mt-4">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700">View Calendar</Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Grid Item 4 */}
+              <Card className="bg-gradient-to-br from-green-50 to-white shadow-md hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-serif font-semibold text-green-800 mb-4">Style Preferences</h3>
+                  <div className="text-gray-600">
+                    <p>Update your beauty and style preferences</p>
+                  </div>
+                  <div className="mt-4">
+                    <Button className="w-full bg-green-600 hover:bg-green-700">Update Preferences</Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Grid Item 5 */}
+              <Card className="bg-gradient-to-br from-amber-50 to-white shadow-md hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-serif font-semibold text-amber-800 mb-4">Invite Friends</h3>
+                  <div className="text-gray-600">
+                    <p>Share VMB with friends and earn rewards</p>
+                  </div>
+                  <div className="mt-4">
+                    <Button className="w-full bg-amber-600 hover:bg-amber-700">Send Invites</Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Grid Item 6 */}
+              <Card className="bg-gradient-to-br from-red-50 to-white shadow-md hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-serif font-semibold text-red-800 mb-4">Gift Requests</h3>
+                  <div className="text-gray-600">
+                    <p>Create and manage your service gift requests</p>
+                  </div>
+                  <div className="mt-4">
+                    <Button className="w-full bg-red-600 hover:bg-red-700">Create Request</Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Grid Item 7 */}
+              <Card className="bg-gradient-to-br from-teal-50 to-white shadow-md hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-serif font-semibold text-teal-800 mb-4">Style Inspiration</h3>
+                  <div className="text-gray-600">
+                    <p>Browse the latest styles and trends</p>
+                  </div>
+                  <div className="mt-4">
+                    <Button className="w-full bg-teal-600 hover:bg-teal-700">Explore Styles</Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Grid Item 8 */}
+              <Card className="bg-gradient-to-br from-cyan-50 to-white shadow-md hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-serif font-semibold text-cyan-800 mb-4">Your Profile</h3>
+                  <div className="text-gray-600">
+                    <p>View and update your account information</p>
+                  </div>
+                  <div className="mt-4">
+                    <Button className="w-full bg-cyan-600 hover:bg-cyan-700">Edit Profile</Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Grid Item 9 */}
+              <Card className="bg-gradient-to-br from-indigo-50 to-white shadow-md hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-serif font-semibold text-indigo-800 mb-4">Help & Support</h3>
+                  <div className="text-gray-600">
+                    <p>Get assistance with your VMB experience</p>
+                  </div>
+                  <div className="mt-4">
+                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700">Contact Support</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </section>
       </main>
