@@ -1117,39 +1117,110 @@ export default function AdminDashboard() {
                 {/* Left Side - Controls */}
                 <div className="lg:col-span-1 space-y-4 border-r pr-4">
                   <div>
-                    <label className="text-sm font-medium mb-1 block">View Saved Visualizations</label>
+                    <label className="text-sm font-medium mb-1 block">Select Component to Visualize</label>
                     <Select
-                      value={selectedVisualization?.split('?')[0] || ''}
+                      value={focusPath}
                       onValueChange={(value) => {
-                        if (value) {
-                          // Add cache buster to prevent caching
-                          const cacheBuster = `?cb=${Date.now()}`;
-                          setSelectedVisualization(`${value}${cacheBuster}`);
+                        setFocusPath(value);
+                        
+                        // Automatically generate a new visualization when focus path changes
+                        try {
+                          setGenerating(true);
+                          
+                          // Execute the API call to generate visualization based on this focus path
+                          const generateVisualization = async () => {
+                            // First, test if the /visualizations endpoint is working
+                            try {
+                              const testResponse = await fetch('/visualizations/test-visualization.svg');
+                              if (!testResponse.ok) {
+                                console.log('[VMB-DEBUG] Test visualization not accessible:', testResponse.status);
+                              } else {
+                                console.log('[VMB-DEBUG] Test visualization accessible');
+                              }
+                            } catch (testError) {
+                              console.log('[VMB-DEBUG] Error testing visualization access:', testError);
+                            }
+                            
+                            // IMPORTANT: Use an absolute URL to avoid client-side routing
+                            const baseUrl = window.location.origin;
+                            const apiUrl = `${baseUrl}/api/madge/generate`;
+                            
+                            console.log('[VMB-DEBUG] Using API URL:', apiUrl);
+                            console.log('[VMB-DEBUG] Generating for focus path:', value);
+                            
+                            try {
+                              const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                  'Accept': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                  layout: selectedLayout,
+                                  format: 'svg',
+                                  focus: value === 'fullapp' ? '' : value,
+                                }),
+                                cache: 'no-cache',
+                                credentials: 'same-origin',
+                              });
+                              
+                              if (!response.ok) {
+                                throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                              }
+                              
+                              const data = await response.json();
+                              
+                              if (data && data.success) {
+                                // Add a cache buster to prevent browser caching
+                                const cacheBuster = `?cb=${Date.now()}`;
+                                const baseUrl = window.location.origin;
+                                const fullVisualizationPath = data.path.startsWith('/') 
+                                  ? `${baseUrl}${data.path}${cacheBuster}`
+                                  : `${baseUrl}/${data.path}${cacheBuster}`;
+                                  
+                                console.log('[VMB-DEBUG] Visualization path:', fullVisualizationPath);
+                                
+                                // Set the visualization path
+                                setSelectedVisualization(fullVisualizationPath);
+                                
+                                toast({
+                                  title: "Visualization Generated",
+                                  description: `Generated for ${value.split('/').pop() || value}`,
+                                });
+                              } else {
+                                throw new Error(data?.error || 'Unknown error');
+                              }
+                            } catch (error: any) {
+                              console.error('[VMB-DEBUG] Error generating visualization:', error);
+                              toast({
+                                title: "Generation failed",
+                                description: error.message || 'Unknown error occurred',
+                                variant: "destructive",
+                              });
+                            } finally {
+                              setGenerating(false);
+                            }
+                          };
+                          
+                          generateVisualization();
+                        } catch (error: any) {
+                          console.error('[VMB-DEBUG] Error in focus path change handler:', error);
+                          setGenerating(false);
                         }
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a visualization" />
+                        <SelectValue placeholder="Select component to visualize" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="/vmb_tools/dependency_graph/output/client_dashboard_dependencies.svg">
-                          Client Dashboard Dependencies
-                        </SelectItem>
-                        <SelectItem value="/vmb_tools/dependency_graph/output/salon_dashboard_dependencies.svg">
-                          Salon Dashboard Dependencies
-                        </SelectItem>
-                        <SelectItem value="/vmb_tools/dependency_graph/output/invitation_flow_dependencies.svg">
-                          Invitation Flow Dependencies
-                        </SelectItem>
-                        <SelectItem value="/vmb_tools/dependency_graph/output/vmb_style_options_dependencies.svg">
-                          VMB Style Options Dependencies
-                        </SelectItem>
-                        <SelectItem value="/visualizations/test-visualization.svg">
-                          Test Visualization
-                        </SelectItem>
+                        <SelectItem value="client/src/pages/ClientDashboard">Client Dashboard</SelectItem>
+                        <SelectItem value="client/src/pages/SalonDashboard">Salon Dashboard</SelectItem>
+                        <SelectItem value="client/src/components/invitations">Invitation Flow</SelectItem>
+                        <SelectItem value="client/src/components/promos/VmbStyleOptions">VMB Style Options</SelectItem>
+                        <SelectItem value="fullapp">Full Application</SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="text-xs text-gray-500 mt-1">Choose from existing visualizations</p>
+                    <p className="text-xs text-gray-500 mt-1">Select a component to generate its dependency graph</p>
                   </div>
                   
                   <div className="pt-4 border-t border-gray-200 mt-4">
@@ -1320,26 +1391,54 @@ export default function AdminDashboard() {
                     </div>
                   ) : (
                     <div className="w-full h-full overflow-auto flex items-center justify-center p-4 relative">
-                      {/* Direct object tag embedding for SVG */}
+                      {/* Multiple rendering approaches to ensure cross-browser compatibility */}
                       <div className="relative w-full h-full flex items-center justify-center bg-white rounded-md border border-gray-200 shadow-sm overflow-auto">
+                        {/* Primary approach: object tag for SVG */}
                         <object 
                           data={selectedVisualization}
                           type="image/svg+xml"
                           className="w-full h-full"
                           style={{ minHeight: '500px' }}
+                          onLoad={() => {
+                            console.log('[VMB-DEBUG] SVG loaded successfully via object tag:', selectedVisualization);
+                          }}
+                          onError={() => {
+                            console.error('[VMB-DEBUG] Failed to load SVG via object tag:', selectedVisualization);
+                          }}
                         >
-                          <div className="flex flex-col items-center gap-4 p-8 text-gray-500">
-                            <NetworkIcon className="h-12 w-12 text-gray-300" />
-                            <p>Visualization failed to load</p>
-                            <a 
-                              href={selectedVisualization} 
-                              target="_blank"
-                              rel="noopener noreferrer" 
-                              className="text-blue-500 underline text-sm"
-                            >
-                              Open directly in new tab
-                            </a>
-                          </div>
+                          {/* Fallback: Direct iframe embed as an alternative approach */}
+                          <iframe 
+                            src={selectedVisualization}
+                            className="w-full h-full"
+                            style={{ minHeight: '500px', border: 'none' }}
+                            onLoad={() => {
+                              console.log('[VMB-DEBUG] SVG loaded via iframe fallback:', selectedVisualization);
+                            }}
+                            title="Network Visualization"
+                            sandbox="allow-same-origin allow-scripts"
+                          >
+                            {/* Final fallback: Direct img tag if iframe fails */}
+                            <div className="flex flex-col items-center gap-4 p-8 text-gray-500">
+                              <img 
+                                src={selectedVisualization} 
+                                alt="Network Visualization"
+                                className="max-w-full max-h-[500px] object-contain"
+                                onError={() => {
+                                  console.error('[VMB-DEBUG] All SVG rendering approaches failed:', selectedVisualization);
+                                }}
+                              />
+                              
+                              <p>Visualization might not display properly in your browser</p>
+                              <a 
+                                href={selectedVisualization} 
+                                target="_blank"
+                                rel="noopener noreferrer" 
+                                className="text-blue-500 underline text-sm px-4 py-2 bg-gray-100 rounded-md"
+                              >
+                                Open directly in new tab
+                              </a>
+                            </div>
+                          </iframe>
                         </object>
                       </div>
                       <div className="absolute bottom-4 left-4 z-10">
