@@ -47,9 +47,12 @@ export function registerMadgeRoutes(app: Express) {
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       
       res.json(files);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error getting visualization files:', error);
-      res.status(500).json({ error: 'Failed to get visualization files' });
+      res.status(500).json({ 
+        error: 'Failed to get visualization files',
+        message: error.message || 'Unknown error occurred'
+      });
     }
   });
   
@@ -119,11 +122,11 @@ export function registerMadgeRoutes(app: Express) {
           output: stdout
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating visualization:', error);
       res.status(500).json({ 
         error: 'Failed to generate visualization',
-        message: error.message
+        message: error.message || 'Unknown error occurred'
       });
     }
   });

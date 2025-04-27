@@ -1102,6 +1102,7 @@ export default function AdminDashboard() {
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
+                            'Accept': 'application/json'
                           },
                           body: JSON.stringify({
                             layout: selectedLayout,
@@ -1110,12 +1111,23 @@ export default function AdminDashboard() {
                           }),
                         });
                         
-                        if (!response.ok) {
-                          const errorData = await response.json();
-                          throw new Error(errorData.error || 'Failed to generate visualization');
+                        // Check if response has the correct content type
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                          throw new Error('Server returned non-JSON response');
                         }
                         
-                        const data = await response.json();
+                        // Parse JSON data
+                        let data;
+                        try {
+                          data = await response.json();
+                        } catch (jsonError) {
+                          throw new Error('Failed to parse server response as JSON');
+                        }
+                        
+                        if (!response.ok) {
+                          throw new Error(data?.error || 'Failed to generate visualization');
+                        }
                         
                         if (data.success) {
                           setSelectedVisualization(data.path);
@@ -1124,13 +1136,13 @@ export default function AdminDashboard() {
                             description: `Created ${data.filename} (${data.size}KB)`,
                           });
                         } else {
-                          throw new Error('Failed to generate visualization');
+                          throw new Error(data.error || 'Failed to generate visualization');
                         }
                       } catch (error: any) {
                         console.error('Error generating visualization:', error);
                         toast({
                           title: "Generation failed",
-                          description: error.message,
+                          description: error.message || 'Server returned non-JSON response',
                           variant: "destructive",
                         });
                       } finally {
