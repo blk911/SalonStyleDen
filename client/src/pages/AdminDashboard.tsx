@@ -1159,7 +1159,12 @@ export default function AdminDashboard() {
                       <label className="text-sm font-medium mb-1 block">Layout Algorithm</label>
                       <Select
                         value={selectedLayout}
-                        onValueChange={setSelectedLayout}
+                        onValueChange={(value) => {
+                          setSelectedLayout(value);
+                          // Clear the selected visualization when the layout changes
+                          // This will prompt the user to generate a new visualization
+                          setSelectedVisualization(null);
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select layout" />
@@ -1177,7 +1182,12 @@ export default function AdminDashboard() {
                       <label className="text-sm font-medium mb-1 block">Focus Path (optional)</label>
                       <Select
                         value={focusPath}
-                        onValueChange={setFocusPath}
+                        onValueChange={(value) => {
+                          setFocusPath(value);
+                          // Clear the selected visualization when the focus path changes
+                          // This will force a new visualization to be generated
+                          setSelectedVisualization(null);
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select focus area" />
