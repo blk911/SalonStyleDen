@@ -1725,20 +1725,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register visualization routes
   registerVisualizationRoutes(app);
-  
-  // Register Madge visualization routes
-  registerMadgeRoutes(app);
-  
-  // Provide test endpoint that directly serves an SVG for testing
-  app.get('/test-svg', (req, res) => {
-    res.setHeader('Content-Type', 'image/svg+xml');
-    const testSvg = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
-  <rect style="fill:#f5f5f5;stroke:none" width="800" height="600" x="0" y="0" />
-  <text xml:space="preserve" style="font-style:normal;font-weight:normal;font-size:24px;font-family:Arial;text-align:center;text-anchor:middle;fill:#000000" x="400" y="300">VMB Test SVG</text>
-</svg>`;
-    res.send(testSvg);
-  });
 
   const httpServer = createServer(app);
   return httpServer;

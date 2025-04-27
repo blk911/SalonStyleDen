@@ -1098,82 +1098,71 @@ export default function AdminDashboard() {
                       try {
                         setGenerating(true);
                         
-                        // First, directly test the fallback SVG endpoint
+                        // First, test if the /visualizations endpoint is working
                         try {
-                          const testSvgResponse = await fetch('/test-svg');
-                          if (testSvgResponse.ok) {
-                            console.log('[VMB-DEBUG] Test SVG endpoint working correctly');
+                          const testResponse = await fetch('/visualizations/test-visualization.svg');
+                          if (!testResponse.ok) {
+                            console.log('[VMB-DEBUG] Test visualization not accessible:', testResponse.status);
                           } else {
-                            console.log('[VMB-DEBUG] Test SVG endpoint not working:', testSvgResponse.status);
+                            console.log('[VMB-DEBUG] Test visualization accessible');
                           }
-                        } catch (testSvgError) {
-                          console.log('[VMB-DEBUG] Error accessing test SVG endpoint:', testSvgError);
+                        } catch (testError) {
+                          console.log('[VMB-DEBUG] Error testing visualization access:', testError);
                         }
                         
-                        // Try the actual visualization endpoint first
-                        try {
-                          console.log('[VMB-DEBUG] Attempting to generate visualization via API');
-                          const response = await fetch('/api/madge/generate', {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                              'Accept': 'application/json',
-                            },
-                            body: JSON.stringify({
-                              layout: selectedLayout,
-                              format: 'svg',
-                              focus: focusPath === 'fullapp' ? '' : focusPath,
-                            }),
-                          });
-                          
-                          if (!response.ok) {
-                            throw new Error(`Server returned status ${response.status}`);
-                          }
-                          
-                          const contentType = response.headers.get('content-type');
-                          if (!contentType || !contentType.includes('application/json')) {
-                            throw new Error('Server did not return JSON');
-                          }
-                          
-                          // Try to parse the response as JSON
-                          let data;
-                          try {
-                            data = await response.json();
-                          } catch (jsonError) {
-                            console.error('[VMB-DEBUG] JSON parsing error:', jsonError);
-                            throw new Error('Failed to parse server response');
-                          }
-                          
-                          if (data && data.success) {
-                            setSelectedVisualization(data.path);
-                            toast({
-                              title: "Visualization generated",
-                              description: `Created ${data.filename} (${data.size}KB)`,
-                            });
-                            return; // Success path - exit here
-                          } else {
-                            throw new Error(data?.error || 'Unknown API error');
-                          }
-                        } catch (apiError) {
-                          console.error('[VMB-DEBUG] API error:', apiError);
-                          
-                          // FALLBACK: If API fails, use the test-svg endpoint directly
-                          setSelectedVisualization('/test-svg');
-                          toast({
-                            title: "Using fallback visualization",
-                            description: "Generated simplified visualization due to API limitations",
-                          });
-                        }
-                      } catch (error: any) {
-                        console.error('[VMB-DEBUG] Error in visualization process:', error);
-                        toast({
-                          title: "Generation failed",
-                          description: "Using test visualization as fallback",
-                          variant: "default",
+                        // Now try to generate a new visualization
+                        const response = await fetch('/api/madge/generate', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            layout: selectedLayout,
+                            format: 'svg',
+                            focus: focusPath === 'fullapp' ? '' : focusPath,
+                          }),
                         });
                         
-                        // Final fallback - always show something
-                        setSelectedVisualization('/test-svg');
+                        let data;
+                        let responseText;
+                        
+                        try {
+                          // Try to get response as text first
+                          responseText = await response.text();
+                          
+                          // Then try to parse as JSON
+                          try {
+                            data = JSON.parse(responseText);
+                          } catch (jsonError) {
+                            console.error('[VMB-DEBUG] JSON parse error:', jsonError);
+                            console.error('[VMB-DEBUG] Response was:', responseText.substring(0, 150) + '...');
+                            throw new Error('Server returned invalid JSON. See console for details.');
+                          }
+                        } catch (responseError) {
+                          console.error('[VMB-DEBUG] Error getting response:', responseError);
+                          throw new Error('Failed to get response from server.');
+                        }
+                        
+                        // Successfully got JSON data, check for success flag
+                        if (data && data.success) {
+                          setSelectedVisualization(data.path);
+                          toast({
+                            title: "Visualization generated",
+                            description: `Created ${data.filename} (${data.size}KB)`,
+                          });
+                        } else {
+                          // Extract error message from data if possible
+                          const errorMsg = data?.error || 'Unknown error';
+                          throw new Error(`Generation failed: ${errorMsg}`);
+                        }
+                      } catch (error: any) {
+                        console.error('[VMB-DEBUG] Error generating visualization:', error);
+                        toast({
+                          title: "Generation failed",
+                          description: error.message || 'Unknown error occurred',
+                          variant: "destructive",
+                        });
                       } finally {
                         setGenerating(false);
                       }

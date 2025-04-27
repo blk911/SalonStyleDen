@@ -17,24 +17,6 @@ const execAsync = promisify(exec);
 const visualizationsDir = path.join(process.cwd(), 'visualizations');
 if (!fs.existsSync(visualizationsDir)) {
   fs.mkdirSync(visualizationsDir, { recursive: true });
-  console.log(`Created visualizations directory at ${visualizationsDir}`);
-}
-
-// Create a test visualization SVG if it doesn't exist
-const testVisualizationPath = path.join(visualizationsDir, 'test-visualization.svg');
-if (!fs.existsSync(testVisualizationPath)) {
-  const placeholderSvg = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
-  <rect style="fill:#f0f0f0;stroke:none" width="800" height="600" x="0" y="0" />
-  <text xml:space="preserve" style="font-style:normal;font-weight:normal;font-size:24px;font-family:Arial;text-align:center;text-anchor:middle;fill:#000000" x="400" y="300">VMB Network Visualization (Test)</text>
-</svg>`;
-  
-  try {
-    fs.writeFileSync(testVisualizationPath, placeholderSvg);
-    console.log(`Created test visualization at ${testVisualizationPath}`);
-  } catch (error) {
-    console.error(`Failed to create test visualization: ${error}`);
-  }
 }
 
 /**
