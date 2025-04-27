@@ -16,18 +16,18 @@ type CardContent =
   | Array<[string, string, string]>;
 
 interface CarouselCard {
-  title: string;
+  title: ReactNode;
   titleComponent?: ReactNode;
-  titleSuffix?: string;
+  titleSuffix?: ReactNode;
   content: CardContent;
   imagesComponent?: ReactNode;
 }
 
 const carouselItems: CarouselCard[] = [
   {
-    title: 'Why ', 
-    titleComponent: <div className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></div>, 
-    titleSuffix: '...?',
+    title: <span className="text-[#FF92A5]">Why</span>, 
+    titleComponent: <><span className="logo"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span></>, 
+    titleSuffix: <span className="text-[#FF92A5]">...?</span>,
     content: [
       { text: "He's fishing for attention", isBold: true, suffix: " — you're inviting connection." },
       { text: "Seeing your message,", isBold: true, suffix: " you're top of mind." },
@@ -38,7 +38,7 @@ const carouselItems: CarouselCard[] = [
   },
   {
     title: "",
-    titleComponent: <div className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span> Says "I value you"</div>,
+    titleComponent: <><span className="logo"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span><span className="text-[#FF92A5]"> Says "I value you"</span></>,
     titleSuffix: '',
     content: [
       { text: "He's not guessing", isBold: true, suffix: " — you've made it clear." },
@@ -52,7 +52,7 @@ const carouselItems: CarouselCard[] = [
 
   {
     title: "",
-    titleComponent: <div className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span> The Art of Gifting: Redefined!</div>,
+    titleComponent: <><span className="logo"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span><span className="text-[#FF92A5]"> The Art of Gifting: Redefined!</span></>,
     content: [
       { text: "Forget the gift card trap", isBold: true, suffix: " — VMB is personal, instant, and emotionally clear." },
       { text: "She chooses. He responds.", isBold: true, suffix: " No awkward guessing. No missed signals." },
@@ -64,7 +64,7 @@ const carouselItems: CarouselCard[] = [
   },
   {
     title: "",
-    titleComponent: <div><div className="text-xl mb-2">One, Two, Three! <span className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span></div></div>,
+    titleComponent: <div><div className="text-xl mb-2"><span className="text-[#FF92A5]">One, Two, Three!</span> <span className="logo"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span></div></div>,
     content: [],
     imagesComponent: (
       <div className="flex justify-between items-start gap-8 mt-8">
