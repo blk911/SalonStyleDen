@@ -134,9 +134,23 @@ export function registerMadgeRoutes(app: Express) {
     
     // Check if the file exists
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      const fileExtension = path.extname(filePath).toLowerCase();
+      
+      // Set proper content type for SVG and PNG files
+      if (fileExtension === '.svg') {
+        res.setHeader('Content-Type', 'image/svg+xml');
+      } else if (fileExtension === '.png') {
+        res.setHeader('Content-Type', 'image/png');
+      }
+      
       res.sendFile(filePath);
     } else {
       next();
     }
+  });
+  
+  // Add a test endpoint to check if file serving is working
+  app.get('/api/madge/test', (req, res) => {
+    res.json({ status: 'ok', message: 'Madge API is working correctly' });
   });
 }
