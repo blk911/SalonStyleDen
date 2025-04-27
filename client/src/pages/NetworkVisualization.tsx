@@ -1,601 +1,266 @@
-import React, { useEffect, useState, useRef } from 'react';
-import * as d3Force from 'd3-force';
-import { select as d3Select, type Selection, type BaseType } from 'd3-selection';
-import {
-  ResponsiveContainer,
+import { useState } from "react";
+import { NetworkIcon, RefreshCw, Eye, Download } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import { SvgVisualizer } from "@/components/visualization/SvgVisualizer";
+import { VisualizationSelector } from "@/components/visualization/VisualizationSelector";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { 
   Tooltip,
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Legend
-} from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// Define interfaces for network data
-interface Node {
-  name: string;
-  id: string;
-  group?: string;
-  size?: number;
-  type?: string;
-  value?: number;
-}
-
-interface Link {
-  source: string;
-  target: string;
-  value: number;
-  type?: string;
-}
-
-interface NetworkData {
-  nodes: Node[];
-  links: Link[];
-}
-
-// Interface for Component Map data
-interface ComponentNode {
-  id: string;
-  name: string;
-  group: string;
-  size: number;
-  type: string;
-}
-
-interface ComponentLink {
-  source: string;
-  target: string;
-  value: number;
-  type: string;
-}
-
-interface ComponentData {
-  nodes: ComponentNode[];
-  links: ComponentLink[];
-}
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 
 export default function NetworkVisualization() {
-  // Define schema data interface to match expected API response
-  interface SchemaData {
-    tables: Record<string, {
-      name: string;
-      columns: Record<string, { name: string; type: string }>;
-      relations?: Record<string, { references: string }>;
-    }>;
-  }
+  const { toast } = useToast();
+  const [selectedVisualization, setSelectedVisualization] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
   
-  const [schemaData, setSchemaData] = useState<SchemaData>({ tables: {} });
-  const [networkData, setNetworkData] = useState<NetworkData>({ nodes: [], links: [] });
-  const [componentData, setComponentData] = useState<ComponentData>({ nodes: [], links: [] });
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('database');
-  
-  // Create a reference for the component map visualization 
-  const svgRef = useRef<SVGSVGElement | null>(null);
-
-  // Fetch data from the API
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // Fetch schema data
-        const schemaResponse = await fetch('/api/schema');
-        if (!schemaResponse.ok) {
-          throw new Error(`Failed to fetch schema data: ${schemaResponse.statusText}`);
-        }
-        const schemaJson = await schemaResponse.json();
-        setSchemaData(schemaJson);
-
-        // Fetch network data
-        const networkResponse = await fetch('/api/endpoints');
-        if (!networkResponse.ok) {
-          throw new Error(`Failed to fetch network data: ${networkResponse.statusText}`);
-        }
-        const networkJson = await networkResponse.json();
-        setNetworkData(networkJson);
+  const handleGenerate = async (target: string, layout: string) => {
+    try {
+      setGenerating(true);
+      
+      // IMPORTANT: Use an absolute URL to avoid client-side routing
+      const baseUrl = window.location.origin;
+      const apiUrl = `${baseUrl}/api/madge/generate`;
+      
+      console.log('[VMB-DEBUG] Using API URL:', apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          layout: layout,
+          format: 'svg',
+          focus: target,
+        }),
+        cache: 'no-cache',
+        credentials: 'same-origin',
+      });
+      
+      // Check if response is ok first
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Successfully got JSON data, check for success flag
+      if (data && data.success) {
+        // Add a cache buster to prevent browser caching
+        const cacheBuster = `?cb=${Date.now()}`;
+        const fullVisualizationPath = data.path.startsWith('/') 
+          ? `${baseUrl}${data.path}${cacheBuster}`
+          : `${baseUrl}/${data.path}${cacheBuster}`;
+          
+        console.log('[VMB-DEBUG] Visualization path:', fullVisualizationPath);
         
-        // Fetch component data
-        const componentResponse = await fetch('/api/components');
-        if (!componentResponse.ok) {
-          throw new Error(`Failed to fetch component data: ${componentResponse.statusText}`);
-        }
-        const componentJson = await componentResponse.json();
-        setComponentData(componentJson);
-
-        setLoading(false);
-      } catch (err) {
-        setError((err as Error).message);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-  
-  // Create a D3 force-directed graph simulation for the component map
-  useEffect(() => {
-    if (!componentData.nodes.length || !svgRef.current) return;
-    
-    // Clear previous visualization
-    const svg = d3Select(svgRef.current);
-    if (svg.selectAll) {
-      svg.selectAll("*").remove();
-    }
-    
-    // Define color mapping
-    const groupColors: { [key: string]: string } = {
-      page: '#0047AB', // Cobalt blue - Professional LinkedIn-style blue
-      component: '#2E5984', // Steel blue - More corporate
-      form: '#5B7553', // Muted green - For input forms
-      dialog: '#8C6057', // Muted terracotta - For dialogs
-      card: '#4A5459', // Slate gray - For cards
-      engine: '#5D4037', // Deep brown - For engines
-      widget: '#37474F', // Dark blue gray - For widgets
-    };
-    
-    // Define SimulationNode type that extends ComponentNode with d3 properties
-    type SimulationNode = ComponentNode & d3Force.SimulationNodeDatum;
-    type SimulationLink = d3Force.SimulationLinkDatum<SimulationNode> & {
-      type?: string;
-      value: number;
-    };
-    
-    // Prepare the nodes and links for D3
-    const nodes: SimulationNode[] = componentData.nodes.map(node => ({
-      ...node,
-    }));
-    
-    // Create a mapping from node ID to array index for source/target references
-    const nodeMap = new Map<string, number>();
-    nodes.forEach((node, index) => {
-      nodeMap.set(node.id, index);
-    });
-    
-    // Map the links from string references to node indices
-    const links: SimulationLink[] = componentData.links.map(link => ({
-      ...link,
-      source: nodeMap.get(link.source) ?? 0,
-      target: nodeMap.get(link.target) ?? 0,
-    }));
-    
-    // Create the SVG container for the force directed graph
-    const width = svgRef.current.clientWidth;
-    const height = svgRef.current.clientHeight;
-    
-    // Set up the simulation
-    const simulation = d3Force.forceSimulation<SimulationNode>(nodes)
-      .force("link", d3Force.forceLink<SimulationNode, SimulationLink>(links)
-        .distance((d) => 150 / (d.value || 1))
-        .id((d) => d.id))
-      .force("charge", d3Force.forceManyBody<SimulationNode>().strength(-200))
-      .force("center", d3Force.forceCenter<SimulationNode>(width / 2, height / 2))
-      .force("x", d3Force.forceX<SimulationNode>(width / 2).strength(0.05))
-      .force("y", d3Force.forceY<SimulationNode>(height / 2).strength(0.05));
-    
-    // Create the link elements
-    const link = svg.append("g")
-      .selectAll("line")
-      .data(links)
-      .enter()
-      .append("line")
-      .attr("stroke", "#999")
-      .attr("stroke-opacity", 0.6)
-      .attr("stroke-width", (d) => Math.sqrt(d.value));
-    
-    // Create the node elements
-    const node = svg.append("g")
-      .selectAll("g")
-      .data(nodes)
-      .enter()
-      .append("g")
-      .attr("cursor", "pointer")
-      .call(drag(simulation) as any);
-    
-    // Add circles to each node group
-    node.append("circle")
-      .attr("r", (d) => Math.max(8, d.size / 10))
-      .attr("fill", (d) => groupColors[d.group] || "#666")
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 1.5);
-    
-    // Add labels to each node
-    node.append("text")
-      .attr("dx", (d) => Math.max(12, d.size / 8))
-      .attr("dy", ".35em")
-      .attr("font-family", "Arial, sans-serif")
-      .attr("font-size", "11px")
-      .attr("fill", "#333")
-      .text((d) => d.name);
-    
-    // Set up the tick function to update positions
-    simulation.on("tick", () => {
-      link
-        .attr("x1", (d) => (d.source as SimulationNode).x || 0)
-        .attr("y1", (d) => (d.source as SimulationNode).y || 0)
-        .attr("x2", (d) => (d.target as SimulationNode).x || 0)
-        .attr("y2", (d) => (d.target as SimulationNode).y || 0);
+        setSelectedVisualization(fullVisualizationPath);
         
-      node.attr("transform", (d) => `translate(${d.x || 0},${d.y || 0})`);
-    });
-    
-    // Helper function to enable dragging nodes
-    function drag(simulation: d3Force.Simulation<SimulationNode>) {
-      function dragstarted(event: any) {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        event.subject.fx = event.subject.x;
-        event.subject.fy = event.subject.y;
+        toast({
+          title: "Visualization generated",
+          description: `Created ${data.filename} (${data.size}KB)`,
+        });
+      } else {
+        // Extract error message from data if possible
+        const errorMsg = data?.error || 'Unknown error';
+        throw new Error(`Generation failed: ${errorMsg}`);
       }
-      
-      function dragged(event: any) {
-        event.subject.fx = event.x;
-        event.subject.fy = event.y;
-      }
-      
-      function dragended(event: any) {
-        if (!event.active) simulation.alphaTarget(0);
-        event.subject.fx = null;
-        event.subject.fy = null;
-      }
-      
-      return d3Force.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended);
+    } catch (error: any) {
+      console.error('[VMB-DEBUG] Error generating visualization:', error);
+      toast({
+        title: "Generation failed",
+        description: error.message || 'Unknown error occurred',
+        variant: "destructive",
+      });
+    } finally {
+      setGenerating(false);
     }
-    
-    // Clean up when the component unmounts
-    return () => {
-      simulation.stop();
-    };
-  }, [componentData, activeTab]);
-
-  // Function to render the database schema visualization
-  const renderDatabaseSchema = () => {
-    if (!schemaData.tables || Object.keys(schemaData.tables).length === 0) {
-      return <div className="text-center p-8">No schema data available</div>;
-    }
-
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Object.entries(schemaData.tables).map(([tableName, tableInfo]: [string, any]) => (
-          <Card key={tableName} className="shadow-sm">
-            <CardHeader className="bg-gray-50 border-b">
-              <CardTitle className="text-lg text-blue-700">{tableInfo.name}</CardTitle>
-              <CardDescription>Database Table</CardDescription>
-            </CardHeader>
-            <CardContent className="p-4">
-              <div className="overflow-auto max-h-64">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Column</th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {tableInfo.columns && Object.entries(tableInfo.columns).map(([columnName, columnInfo]: [string, any]) => (
-                      <tr key={columnName} className="text-sm">
-                        <td className="px-3 py-2 whitespace-nowrap font-medium">{columnInfo.name}</td>
-                        <td className="px-3 py-2 whitespace-nowrap text-gray-500">{columnInfo.type}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+  };
+  
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-grow p-4">
+        <div className="container mx-auto py-6">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Network Visualization</h1>
+              <p className="text-gray-500">
+                Explore component dependencies and relationships using Madge + Graphviz
+              </p>
+            </div>
+            <div>
+              <Link href="/admin-dashboard">
+                <Button variant="outline">Back to Dashboard</Button>
+              </Link>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Left Side - Controls */}
+            <div className="lg:col-span-1 space-y-6">
+              <div className="border rounded-lg p-4 shadow-sm">
+                <h3 className="font-medium text-lg mb-4">Saved Visualizations</h3>
+                <Select
+                  value={selectedVisualization?.split('?')[0] || ''}
+                  onValueChange={(value) => {
+                    if (value) {
+                      // Add cache buster to prevent caching
+                      const cacheBuster = `?cb=${Date.now()}`;
+                      setSelectedVisualization(`${value}${cacheBuster}`);
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a visualization" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="/vmb_tools/dependency_graph/output/client_dashboard_dependencies.svg">
+                      Client Dashboard
+                    </SelectItem>
+                    <SelectItem value="/vmb_tools/dependency_graph/output/salon_dashboard_dependencies.svg">
+                      Salon Dashboard
+                    </SelectItem>
+                    <SelectItem value="/vmb_tools/dependency_graph/output/invitation_flow_dependencies.svg">
+                      Invitation Flow
+                    </SelectItem>
+                    <SelectItem value="/vmb_tools/dependency_graph/output/vmb_style_options_dependencies.svg">
+                      VMB Style Options
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              {tableInfo.relations && (
-                <div className="mt-4 p-2 bg-blue-50 rounded">
-                  <h4 className="text-sm font-medium text-blue-700 mb-1">Relations:</h4>
-                  <ul className="text-sm">
-                    {Object.entries(tableInfo.relations).map(([field, relation]: [string, any]) => (
-                      <li key={field} className="text-blue-600">
-                        <span className="font-medium">{field}</span> → {relation.references}
-                      </li>
-                    ))}
-                  </ul>
+              
+              <div className="border rounded-lg p-4 shadow-sm">
+                <h3 className="font-medium text-lg mb-4">Generate New</h3>
+                <VisualizationSelector 
+                  isGenerating={generating}
+                  onGenerate={handleGenerate}
+                />
+              </div>
+            </div>
+            
+            {/* Right Side - Visualization Display */}
+            <div className="lg:col-span-3 border rounded-lg p-4 shadow-sm min-h-[600px] relative">
+              <SvgVisualizer 
+                url={selectedVisualization} 
+                fallbackText="Select or generate a visualization to see component relationships"
+              />
+              
+              {/* Action buttons */}
+              {selectedVisualization && (
+                <div className="absolute top-4 right-4 flex gap-2">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="icon"
+                          className="bg-white shadow-sm"
+                          onClick={() => {
+                            // Open in new tab
+                            window.open(selectedVisualization, '_blank');
+                          }}
+                        >
+                          <Eye className="h-4 w-4 text-gray-600" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Open in new tab</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="icon"
+                          className="bg-white shadow-sm"
+                          onClick={() => {
+                            // Download SVG
+                            const link = document.createElement('a');
+                            link.href = selectedVisualization;
+                            link.download = selectedVisualization.split('/').pop()?.split('?')[0] || 'visualization.svg';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }}
+                        >
+                          <Download className="h-4 w-4 text-gray-600" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Download SVG</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="icon"
+                          className="bg-white shadow-sm"
+                          onClick={() => {
+                            // Refresh with new cache buster
+                            const cacheBuster = `?cb=${Date.now()}`;
+                            const svgUrl = selectedVisualization.split('?')[0] + cacheBuster;
+                            setSelectedVisualization(svgUrl);
+                          }}
+                        >
+                          <RefreshCw className="h-4 w-4 text-gray-600" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Refresh visualization</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  };
-
-  // Function to render the component map
-  const renderComponentMap = (data: ComponentData) => {
-    if (!data.nodes || !data.links || data.nodes.length === 0) {
-      return <div className="text-center p-8">No component data available</div>;
-    }
-
-    // Color map for different component groups
-    const groupColors: { [key: string]: string } = {
-      page: '#0047AB', // Cobalt blue - Professional LinkedIn-style blue
-      component: '#2E5984', // Steel blue - More corporate
-      form: '#5B7553', // Muted green - For input forms
-      dialog: '#8C6057', // Muted terracotta - For dialogs
-      card: '#4A5459', // Slate gray - For cards
-      engine: '#5D4037', // Deep brown - For engines
-      widget: '#37474F', // Dark blue gray - For widgets
-    };
-
-    // Group nodes by type for statistics
-    const groupCounts: { [key: string]: number } = {};
-    data.nodes.forEach((node) => {
-      const group = node.group || 'unknown';
-      groupCounts[group] = (groupCounts[group] || 0) + 1;
-    });
-
-    // Create data for the connection types
-    const connectionTypes = data.links.reduce((acc: {[key: string]: number}, link) => {
-      const type = link.type || 'unknown';
-      acc[type] = (acc[type] || 0) + 1;
-      return acc;
-    }, {});
-
-    return (
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="col-span-1 lg:col-span-2 shadow-sm">
-          <CardHeader className="bg-gray-50 border-b">
-            <CardTitle>Component Map</CardTitle>
-            <CardDescription>
-              Interactive visualization of application components and their relationships
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="h-[600px] w-full bg-white border border-gray-200 rounded-md overflow-hidden">
-              <svg 
-                ref={svgRef} 
-                width="100%" 
-                height="100%" 
-                className="component-map"
-              />
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm">
-          <CardHeader className="bg-gray-50 border-b">
-            <CardTitle>Component Types</CardTitle>
-            <CardDescription>
-              Distribution by component type
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="h-[400px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={Object.entries(groupCounts).map(([name, value]) => ({
-                    name,
-                    count: value
-                  }))}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="name" 
-                    angle={-45} 
-                    textAnchor="end"
-                    height={60}
-                  />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar 
-                    dataKey="count" 
-                    name="Count" 
-                    fill="#0047AB" 
-                    background={{ fill: '#f5f5f5' }}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-1 lg:col-span-3 shadow-sm">
-          <CardHeader className="bg-gray-50 border-b">
-            <CardTitle>Component Relationships</CardTitle>
-            <CardDescription>
-              Types of connections between components
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              {Object.entries(connectionTypes).map(([type, count]) => (
-                <div key={type} className="bg-gray-50 border border-gray-200 p-4 rounded-lg text-center">
-                  <div className="text-3xl font-bold text-gray-700">{count}</div>
-                  <div className="text-sm text-gray-600 capitalize">{type}</div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  };
-
-  // Function to render the network diagram
-  const renderNetworkGraph = (data: NetworkData) => {
-    if (!data.nodes || !data.links || data.nodes.length === 0) {
-      return <div className="text-center p-8">No network data available</div>;
-    }
-
-    // Prepare connection data for visualization
-    // We'll focus on displaying the component distributions instead of the complex network diagram
-
-    // Group nodes by type for radar chart
-    const groupCounts: { [key: string]: number } = {};
-    data.nodes.forEach((node) => {
-      const group = node.group || 'unknown';
-      groupCounts[group] = (groupCounts[group] || 0) + 1;
-    });
-
-    const radarData = Object.entries(groupCounts).map(([name, value]) => ({
-      subject: name,
-      A: value,
-      fullMark: Math.max(...Object.values(groupCounts))
-    }));
-
-    // Color map for different node types
-    const nodeColors: { [key: string]: string } = {
-      table: '#8884d8',
-      endpoint: '#82ca9d',
-      page: '#ffc658',
-      unknown: '#ff7300'
-    };
-
-    return (
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="col-span-1 lg:col-span-2 shadow-sm">
-          <CardHeader className="bg-gray-50 border-b">
-            <CardTitle>Component Frequency Analysis</CardTitle>
-            <CardDescription>
-              Distribution of component types in the application
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="h-[600px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={Object.entries(groupCounts).map(([name, value]) => ({
-                    name,
-                    count: value
-                  }))}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="name" 
-                    angle={-45} 
-                    textAnchor="end"
-                    height={60}
-                  />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar 
-                    dataKey="count" 
-                    name="Component Count" 
-                    fill="#8884d8" 
-                    background={{ fill: '#eee' }}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm">
-          <CardHeader className="bg-gray-50 border-b">
-            <CardTitle>Component Distribution</CardTitle>
-            <CardDescription>
-              Distribution of different component types
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="h-[400px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart outerRadius={150} width={500} height={500} data={radarData}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="subject" />
-                  <PolarRadiusAxis />
-                  <Radar
-                    name="Components"
-                    dataKey="A"
-                    stroke="#8884d8"
-                    fill="#8884d8"
-                    fillOpacity={0.6}
-                  />
-                  <Tooltip />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-1 lg:col-span-3 shadow-sm">
-          <CardHeader className="bg-gray-50 border-b">
-            <CardTitle>Network Statistics</CardTitle>
-            <CardDescription>
-              Summary of system components and connections
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-blue-50 p-4 rounded-lg text-center">
-                <div className="text-3xl font-bold text-blue-700">{data.nodes.filter(n => n.group === 'table').length}</div>
-                <div className="text-sm text-blue-600">Database Tables</div>
+          </div>
+          
+          <div className="mt-8 p-4 border rounded-lg shadow-sm bg-gray-50">
+            <h3 className="font-medium text-lg mb-2">About Network Visualization</h3>
+            <p className="text-gray-600 mb-4">
+              This tool uses Madge and Graphviz to analyze and visualize the dependencies between components in the VMB application.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-3 bg-white rounded border">
+                <h4 className="font-medium">Client Dependencies</h4>
+                <p className="text-sm text-gray-500">Shows how client-facing components are connected</p>
               </div>
-              <div className="bg-green-50 p-4 rounded-lg text-center">
-                <div className="text-3xl font-bold text-green-700">{data.nodes.filter(n => n.group === 'endpoint').length}</div>
-                <div className="text-sm text-green-600">API Endpoints</div>
+              <div className="p-3 bg-white rounded border">
+                <h4 className="font-medium">Salon Dependencies</h4>
+                <p className="text-sm text-gray-500">Visualizes salon dashboard component relationships</p>
               </div>
-              <div className="bg-yellow-50 p-4 rounded-lg text-center">
-                <div className="text-3xl font-bold text-yellow-700">{data.nodes.filter(n => n.group === 'page').length}</div>
-                <div className="text-sm text-yellow-600">Frontend Pages</div>
-              </div>
-              <div className="bg-purple-50 p-4 rounded-lg text-center">
-                <div className="text-3xl font-bold text-purple-700">{data.links.length}</div>
-                <div className="text-sm text-purple-600">Connections</div>
+              <div className="p-3 bg-white rounded border">
+                <h4 className="font-medium">Invitation Flow</h4>
+                <p className="text-sm text-gray-500">Maps the components involved in the invitation process</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="text-center p-12">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-          <p className="mt-4 text-gray-600">Loading network visualization...</p>
+          </div>
         </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
-          <strong className="font-bold">Error: </strong>
-          <span className="block sm:inline">{error}</span>
-        </div>
-      </div>
-    );
-  }
-
-
-
-  return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">
-        Ven Me, Baby! Network Visualization
-      </h1>
-      
-      <Tabs defaultValue="database" value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="database">Database Schema</TabsTrigger>
-          <TabsTrigger value="components">Component Map</TabsTrigger>
-        </TabsList>
-        <TabsContent value="database" className="mt-6">
-          {renderDatabaseSchema()}
-        </TabsContent>
-        <TabsContent value="components" className="mt-6">
-          {renderComponentMap(componentData)}
-        </TabsContent>
-      </Tabs>
+      </main>
+      <Footer />
     </div>
   );
 }
