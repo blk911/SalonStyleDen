@@ -157,4 +157,19 @@
   .grid-cols-responsive {
     @apply grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-2;
   }
+
+  .logo {
+    display: inline-block;
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    font-size: clamp(20px, 5vw, 48px);
+    letter-spacing: 0.25px;
+    word-spacing: 2px;
+    text-align: center;
+  }
+
+  .logo span {
+    font-style: italic; /* italicizes "Baby!" */
+    font-weight: normal; /* lighter to create contrast */
+  }
 }

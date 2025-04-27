@@ -25,7 +25,7 @@ interface CarouselCard {
 const carouselItems: CarouselCard[] = [
   {
     title: 'Why ', 
-    titleComponent: <LogoText size="inherit">Ven Me, Baby!</LogoText>, 
+    titleComponent: <span className="logo">Ven Me, <span className="text-[#FF92A5]">Baby!</span></span>, 
     titleSuffix: '...?',
     content: [
       { text: "He's been fishing for attention", isBold: true, suffix: " — you're inviting connection." },
@@ -36,9 +36,9 @@ const carouselItems: CarouselCard[] = [
     ]
   },
   {
-    title: "Ven Me, Baby! Says \"I value you\"",
-    titleComponent: null,
-    titleSuffix: '',
+    title: "",
+    titleComponent: <span className="logo">Ven Me, <span className="text-[#FF92A5]">Baby!</span></span>,
+    titleSuffix: " Says \"I value you\"",
     content: [
       { text: "He's not guessing", isBold: true, suffix: " — you've made it clear." },
       { text: "Your stylist has a spot today", isBold: true, suffix: " — and he's the one you thought of." },
@@ -50,7 +50,9 @@ const carouselItems: CarouselCard[] = [
   },
 
   {
-    title: "Ven Me, Baby! The Art of Gifting: Redefined!",
+    title: "",
+    titleComponent: <span className="logo">Ven Me, <span className="text-[#FF92A5]">Baby!</span></span>,
+    titleSuffix: " The Art of Gifting: Redefined!",
     content: [
       { text: "Forget the gift card trap", isBold: true, suffix: " — VMB is personal, instant, and emotionally clear." },
       { text: "She chooses. He responds.", isBold: true, suffix: " No awkward guessing. No missed signals." },
@@ -61,55 +63,58 @@ const carouselItems: CarouselCard[] = [
     ]
   },
   {
-    title: "One, Two, Three! Ven Me, Baby!",
+    title: "One, Two, Three! ",
     content: [],
     titleComponent: (
-      <div className="flex justify-between items-start gap-8 mt-8">
-        <div className="flex-1 flex flex-col items-center text-center">
-          <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
-            <img 
-              src="/assets/french_tips.jpg" 
-              alt="French Tips" 
-              className="object-cover w-full h-full"
-              onError={(e) => {
-                e.currentTarget.src = "https://via.placeholder.com/150?text=French+Tips";
-                e.currentTarget.onerror = null;
-              }} 
-            />
+      <>
+        <span className="logo">Ven Me, <span className="text-[#FF92A5]">Baby!</span></span>
+        <div className="flex justify-between items-start gap-8 mt-8">
+          <div className="flex-1 flex flex-col items-center text-center">
+            <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
+              <img 
+                src="/assets/french_tips.jpg" 
+                alt="French Tips" 
+                className="object-cover w-full h-full"
+                onError={(e) => {
+                  e.currentTarget.src = "https://via.placeholder.com/150?text=French+Tips";
+                  e.currentTarget.onerror = null;
+                }} 
+              />
+            </div>
+            <span className="text-base font-semibold text-gray-700">1. Pick your style</span>
           </div>
-          <span className="text-base font-semibold text-gray-700">1. Pick your style</span>
-        </div>
-        
-        <div className="flex-1 flex flex-col items-center text-center">
-          <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
-            <img 
-              src="/assets/gift-request.png" 
-              alt="Gift Request" 
-              className="object-cover w-full h-full"
-              onError={(e) => {
-                e.currentTarget.src = "/assets/glam-design.png";
-                e.currentTarget.onerror = null;
-              }} 
-            />
+          
+          <div className="flex-1 flex flex-col items-center text-center">
+            <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
+              <img 
+                src="/assets/gift-request.png" 
+                alt="Gift Request" 
+                className="object-cover w-full h-full"
+                onError={(e) => {
+                  e.currentTarget.src = "/assets/glam-design.png";
+                  e.currentTarget.onerror = null;
+                }} 
+              />
+            </div>
+            <span className="text-base font-semibold text-gray-700">2. Create your gift request</span>
           </div>
-          <span className="text-base font-semibold text-gray-700">2. Create your gift request</span>
-        </div>
-        
-        <div className="flex-1 flex flex-col items-center text-center">
-          <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
-            <img 
-              src="/assets/sculpted-acrylics.png" 
-              alt="New Set" 
-              className="object-cover w-full h-full"
-              onError={(e) => {
-                e.currentTarget.src = "/assets/Sculpted_Acrylics.png";
-                e.currentTarget.onerror = null;
-              }} 
-            />
+          
+          <div className="flex-1 flex flex-col items-center text-center">
+            <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
+              <img 
+                src="/assets/sculpted-acrylics.png" 
+                alt="New Set" 
+                className="object-cover w-full h-full"
+                onError={(e) => {
+                  e.currentTarget.src = "/assets/Sculpted_Acrylics.png";
+                  e.currentTarget.onerror = null;
+                }} 
+              />
+            </div>
+            <span className="text-base font-semibold text-gray-700">3. Enjoy your new set!</span>
           </div>
-          <span className="text-base font-semibold text-gray-700">3. Enjoy your new set!</span>
         </div>
-      </div>
+      </>
     )
   },
 ];
