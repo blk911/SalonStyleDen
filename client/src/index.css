@@ -4,6 +4,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* LOGO STYLES */
+.logo {
+  display: inline-block;
+  font-family: 'Georgia', serif;
+  font-weight: 300; /* extra light */
+  font-size: clamp(20px, 5vw, 48px);
+  letter-spacing: 0.25px;
+  word-spacing: 2px;
+  text-align: center;
+}
+
+.logo span {
+  font-style: italic; /* italicizes "Baby!" */
+  font-weight: normal; /* lighter to create contrast */
+}
+
 /* CLIENT VMB PROMO ENGINE STYLES */
 .vmb-style-card {
   @apply border border-pink-100 rounded-md overflow-hidden shadow-sm transition-all duration-300;
