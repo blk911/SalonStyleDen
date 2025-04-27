@@ -15,4 +15,46 @@
      style="font-style:normal;font-weight:normal;font-size:24px;font-family:Arial;text-align:center;text-anchor:middle;fill:#000000"
      x="400"
      y="300">VMB Network Visualization (Test)</text>
+  <circle
+     style="fill:#ff6b6b;stroke:#333333;stroke-width:2"
+     cx="400"
+     cy="200"
+     r="50" />
+  <circle
+     style="fill:#4ecdc4;stroke:#333333;stroke-width:2"
+     cx="300"
+     cy="350"
+     r="40" />
+  <circle
+     style="fill:#ffbe0b;stroke:#333333;stroke-width:2"
+     cx="500"
+     cy="350"
+     r="40" />
+  <line
+     style="stroke:#333333;stroke-width:2"
+     x1="400"
+     y1="250"
+     x2="300"
+     y2="310" />
+  <line
+     style="stroke:#333333;stroke-width:2"
+     x1="400"
+     y1="250"
+     x2="500"
+     y2="310" />
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:16px;font-family:Arial;text-align:center;text-anchor:middle;fill:#000000"
+     x="400"
+     y="200">VMB App</text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:14px;font-family:Arial;text-align:center;text-anchor:middle;fill:#000000"
+     x="300"
+     y="350">Client</text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:14px;font-family:Arial;text-align:center;text-anchor:middle;fill:#000000"
+     x="500"
+     y="350">Salon</text>
 </svg>
