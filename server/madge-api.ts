@@ -50,6 +50,7 @@ export function registerMadgeRoutes(app: Express) {
     } catch (error: any) {
       console.error('Error getting visualization files:', error);
       res.status(500).json({ 
+        success: false,
         error: 'Failed to get visualization files',
         message: error.message || 'Unknown error occurred'
       });
@@ -64,13 +65,19 @@ export function registerMadgeRoutes(app: Express) {
       // Validate layout option
       const validLayouts = ['dot', 'fdp', 'twopi', 'circo'];
       if (!validLayouts.includes(layout)) {
-        return res.status(400).json({ error: 'Invalid layout option' });
+        return res.status(400).json({ 
+          success: false,
+          error: 'Invalid layout option'
+        });
       }
       
       // Validate format option
       const validFormats = ['svg', 'png'];
       if (!validFormats.includes(format)) {
-        return res.status(400).json({ error: 'Invalid format option' });
+        return res.status(400).json({ 
+          success: false,
+          error: 'Invalid format option'
+        });
       }
       
       // Generate a unique filename
@@ -98,7 +105,11 @@ export function registerMadgeRoutes(app: Express) {
       
       if (stderr && !stderr.includes('Warning')) {
         console.error('Error generating visualization:', stderr);
-        return res.status(500).json({ error: 'Failed to generate visualization', details: stderr });
+        return res.status(500).json({ 
+          success: false,
+          error: 'Failed to generate visualization', 
+          details: stderr 
+        });
       }
       
       // Check if the file was created
@@ -117,6 +128,7 @@ export function registerMadgeRoutes(app: Express) {
         });
       } else {
         res.status(500).json({ 
+          success: false,
           error: 'Visualization file was not created',
           command,
           output: stdout
@@ -125,6 +137,7 @@ export function registerMadgeRoutes(app: Express) {
     } catch (error: any) {
       console.error('Error generating visualization:', error);
       res.status(500).json({ 
+        success: false,
         error: 'Failed to generate visualization',
         message: error.message || 'Unknown error occurred'
       });
