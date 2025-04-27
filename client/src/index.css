@@ -157,22 +157,4 @@
   .grid-cols-responsive {
     @apply grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-2;
   }
-
-  .logo {
-    display: inline-block;
-    font-family: 'Georgia', serif; /* force font */
-    font-weight: bold; /* force weight */
-    font-style: normal; /* reset if parent has italics */
-    letter-spacing: 0.25px;
-    word-spacing: 2px;
-    color: black; /* force color */
-    font-size: inherit; /* IMPORTANT: inherit font size from parent */
-    text-align: center;
-  }
-
-  .logo span {
-    font-style: italic; /* "Baby!" only */
-    font-weight: normal; /* lighter */
-    color: inherit; /* keep same color */
-  }
 }
