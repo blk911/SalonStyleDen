@@ -117,6 +117,9 @@ export default function ClientDashboard() {
   // Show/hide state for pending invitations section - default to HIDE
   const [showPendingInvitations, setShowPendingInvitations] = useState(false);
   
+  // Show/hide state for share form section - default to SHOW
+  const [showShareForm, setShowShareForm] = useState(true);
+  
   // Show "Complete Your Profile" dialog for newly validated clients
   const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(false);
   
