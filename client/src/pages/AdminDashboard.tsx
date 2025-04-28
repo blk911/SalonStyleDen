@@ -754,183 +754,6 @@ export default function AdminDashboard() {
               )}
             </CollapsibleCard>
 
-            {/* Code Dependency Graph */}
-            <CollapsibleCard
-              title="Code Dependency Graph"
-              description="Analyze and visualize code dependencies to safely isolate changes"
-              isOpen={codeGraphOpen}
-              onToggle={() => setCodeGraphOpen(!codeGraphOpen)}
-            >
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                {/* Left Side - Controls */}
-                <div className="lg:col-span-1 space-y-4 border-r pr-4">
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Component to Analyze</label>
-                    <Select
-                      defaultValue="client_dashboard"
-                      onValueChange={(value) => {
-                        // Set focus path for graph generation
-                        setFocusPath(value);
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select component" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="client_dashboard">Client Dashboard</SelectItem>
-                        <SelectItem value="salon_dashboard">Salon Dashboard</SelectItem>
-                        <SelectItem value="invitation_flow">Invitation Flow</SelectItem>
-                        <SelectItem value="vmb_style_options">Style Options Engine</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="border-t pt-4">
-                    <h3 className="text-md font-medium mb-2">Graph Actions</h3>
-                    <div className="space-y-2">
-                      <Button 
-                        className="w-full bg-pink-600 hover:bg-pink-700"
-                        onClick={() => {
-                          // Run the dependency graph generator script
-                          setGenerating(true);
-                          // Simulate API call to generate dependency graph
-                          setTimeout(() => {
-                            const outputPath = `/vmb_tools/dependency_graph/output/${focusPath}_dependencies.svg`;
-                            setSelectedVisualization(outputPath);
-                            setGenerating(false);
-                            
-                            // Show toast notification
-                            toast({
-                              title: "Dependency Graph Generated",
-                              description: `Graph for ${focusPath} has been created.`,
-                              variant: "default",
-                            });
-                          }, 1500);
-                        }}
-                        disabled={generating}
-                      >
-                        {generating ? (
-                          <>
-                            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                            Generating...
-                          </>
-                        ) : (
-                          <>
-                            <RefreshCw className="mr-2 h-4 w-4" />
-                            Generate Graph
-                          </>
-                        )}
-                      </Button>
-                      
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              className="w-full"
-                              onClick={() => {
-                                // Mark the current component as SOLID CODE
-                                toast({
-                                  title: "Component Marked as SOLID",
-                                  description: `${focusPath} has been marked as stable code. Changes to this component should be isolated.`,
-                                  variant: "default",
-                                });
-                              }}
-                            >
-                              <Code className="mr-2 h-4 w-4" />
-                              Mark as SOLID CODE
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Marks the component as stable and tested code.</p>
-                            <p>Adds special comments to the component file.</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Right Side - Visualization */}
-                <div className="lg:col-span-3 flex justify-center items-center relative min-h-[300px] border rounded-md p-4">
-                  {generating ? (
-                    <div className="flex flex-col items-center justify-center h-full">
-                      <RefreshCw className="h-10 w-10 animate-spin text-pink-500 mb-4" />
-                      <p className="text-gray-600">Generating dependency graph...</p>
-                    </div>
-                  ) : !selectedVisualization ? (
-                    <div className="text-center p-4">
-                      <NetworkIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium mb-1">Generate a Dependency Graph</h3>
-                      <p className="text-gray-500 text-sm mb-4">Select a component and click "Generate Graph" to visualize its dependencies.</p>
-                      <div className="text-sm text-left border p-3 rounded-md bg-gray-50">
-                        <p className="font-medium mb-1">Benefits of Code Dependency Analysis:</p>
-                        <ul className="list-disc pl-5 space-y-1">
-                          <li>Identify which files are affected by changes</li>
-                          <li>Understand component relationships</li>
-                          <li>Isolate changes to specific modules</li>
-                          <li>Prevent unexpected side effects</li>
-                        </ul>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="max-w-full">
-                      <img 
-                        src={selectedVisualization} 
-                        alt="Code Dependency Graph" 
-                        className="max-w-full"
-                        style={{ maxHeight: '600px' }}
-                      />
-                    </div>
-                  )}
-                  
-                  {selectedVisualization && (
-                    <div className="absolute top-2 right-2 flex gap-2">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <a 
-                              href={selectedVisualization} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
-                            >
-                              <Eye className="h-4 w-4 text-gray-600" />
-                            </a>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>View full size</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                      
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button 
-                              onClick={() => {
-                                // Download functionality would go here
-                                toast({
-                                  title: "Graph Downloaded",
-                                  description: "The dependency graph has been saved to your downloads folder.",
-                                });
-                              }}
-                              className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
-                            >
-                              <Download className="h-4 w-4 text-gray-600" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Download graph</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CollapsibleCard>
-
             {/* Salons Directory */}
             <CollapsibleCard
               title="Salon Directory"
@@ -1248,6 +1071,183 @@ export default function AdminDashboard() {
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>Refresh visualization</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CollapsibleCard>
+
+            {/* Code Dependency Graph */}
+            <CollapsibleCard
+              title="Code Dependency Graph"
+              description="Analyze and visualize code dependencies to safely isolate changes"
+              isOpen={codeGraphOpen}
+              onToggle={() => setCodeGraphOpen(!codeGraphOpen)}
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                {/* Left Side - Controls */}
+                <div className="lg:col-span-1 space-y-4 border-r pr-4">
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">Component to Analyze</label>
+                    <Select
+                      defaultValue="client_dashboard"
+                      onValueChange={(value) => {
+                        // Set focus path for graph generation
+                        setFocusPath(value);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select component" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="client_dashboard">Client Dashboard</SelectItem>
+                        <SelectItem value="salon_dashboard">Salon Dashboard</SelectItem>
+                        <SelectItem value="invitation_flow">Invitation Flow</SelectItem>
+                        <SelectItem value="vmb_style_options">Style Options Engine</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="border-t pt-4">
+                    <h3 className="text-md font-medium mb-2">Graph Actions</h3>
+                    <div className="space-y-2">
+                      <Button 
+                        className="w-full bg-pink-600 hover:bg-pink-700"
+                        onClick={() => {
+                          // Run the dependency graph generator script
+                          setGenerating(true);
+                          // Simulate API call to generate dependency graph
+                          setTimeout(() => {
+                            const outputPath = `/vmb_tools/dependency_graph/output/${focusPath}_dependencies.svg`;
+                            setSelectedVisualization(outputPath);
+                            setGenerating(false);
+                            
+                            // Show toast notification
+                            toast({
+                              title: "Dependency Graph Generated",
+                              description: `Graph for ${focusPath} has been created.`,
+                              variant: "default",
+                            });
+                          }, 1500);
+                        }}
+                        disabled={generating}
+                      >
+                        {generating ? (
+                          <>
+                            <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                            Generating...
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Generate Graph
+                          </>
+                        )}
+                      </Button>
+                      
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              className="w-full"
+                              onClick={() => {
+                                // Mark the current component as SOLID CODE
+                                toast({
+                                  title: "Component Marked as SOLID",
+                                  description: `${focusPath} has been marked as stable code. Changes to this component should be isolated.`,
+                                  variant: "default",
+                                });
+                              }}
+                            >
+                              <Code className="mr-2 h-4 w-4" />
+                              Mark as SOLID CODE
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Marks the component as stable and tested code.</p>
+                            <p>Adds special comments to the component file.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Right Side - Visualization */}
+                <div className="lg:col-span-3 flex justify-center items-center relative min-h-[300px] border rounded-md p-4">
+                  {generating ? (
+                    <div className="flex flex-col items-center justify-center h-full">
+                      <RefreshCw className="h-10 w-10 animate-spin text-pink-500 mb-4" />
+                      <p className="text-gray-600">Generating dependency graph...</p>
+                    </div>
+                  ) : !selectedVisualization ? (
+                    <div className="text-center p-4">
+                      <NetworkIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium mb-1">Generate a Dependency Graph</h3>
+                      <p className="text-gray-500 text-sm mb-4">Select a component and click "Generate Graph" to visualize its dependencies.</p>
+                      <div className="text-sm text-left border p-3 rounded-md bg-gray-50">
+                        <p className="font-medium mb-1">Benefits of Code Dependency Analysis:</p>
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>Identify which files are affected by changes</li>
+                          <li>Understand component relationships</li>
+                          <li>Isolate changes to specific modules</li>
+                          <li>Prevent unexpected side effects</li>
+                        </ul>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="max-w-full">
+                      <img 
+                        src={selectedVisualization} 
+                        alt="Code Dependency Graph" 
+                        className="max-w-full"
+                        style={{ maxHeight: '600px' }}
+                      />
+                    </div>
+                  )}
+                  
+                  {selectedVisualization && (
+                    <div className="absolute top-2 right-2 flex gap-2">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <a 
+                              href={selectedVisualization} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
+                            >
+                              <Eye className="h-4 w-4 text-gray-600" />
+                            </a>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View full size</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button 
+                              onClick={() => {
+                                // Download functionality would go here
+                                toast({
+                                  title: "Graph Downloaded",
+                                  description: "The dependency graph has been saved to your downloads folder.",
+                                });
+                              }}
+                              className="p-1 bg-white rounded-md border shadow hover:bg-gray-50"
+                            >
+                              <Download className="h-4 w-4 text-gray-600" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Download graph</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
