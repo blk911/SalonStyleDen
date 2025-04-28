@@ -822,6 +822,29 @@ export default function SalonDashboard() {
           </div>
         </section>
 
+        {/* Salon to Client Invitations Section */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
+              <div 
+                className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
+                onClick={() => setInvitationSectionOpen(!invitationSectionOpen)}
+              >
+                <h3 className="font-medium text-sm sm:text-base text-pink-700">Register Your Clients with Ven Me, Baby!</h3>
+                <ChevronDown 
+                  className={`h-5 w-5 text-pink-600 transition-transform ${invitationSectionOpen ? 'transform rotate-180' : ''}`} 
+                />
+              </div>
+              
+              {invitationSectionOpen && (
+                <CardContent className="p-3 bg-white">
+                  <ClientInvitation salonId={salon?.id} />
+                </CardContent>
+              )}
+            </Card>
+          </div>
+        </section>
+
         {/* Weekly Schedule Section */}
         <section className="py-2">
           <div className="container mx-auto px-2">
@@ -899,29 +922,6 @@ export default function SalonDashboard() {
             </div>
           </section>
         )}
-
-        {/* Salon to Client Invitations Section */}
-        <section className="py-2">
-          <div className="container mx-auto px-2">
-            <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
-              <div 
-                className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
-                onClick={() => setInvitationSectionOpen(!invitationSectionOpen)}
-              >
-                <h3 className="font-medium text-sm sm:text-base text-pink-700">Register Your Clients with Ven Me, Baby!</h3>
-                <ChevronDown 
-                  className={`h-5 w-5 text-pink-600 transition-transform ${invitationSectionOpen ? 'transform rotate-180' : ''}`} 
-                />
-              </div>
-              
-              {invitationSectionOpen && (
-                <CardContent className="p-3 bg-white">
-                  <ClientInvitation salonId={salon?.id} />
-                </CardContent>
-              )}
-            </Card>
-          </div>
-        </section>
 
 
       </main>
