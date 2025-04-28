@@ -14,13 +14,14 @@ import {
   Mail, 
   Clock3, 
   CheckCircle, 
-  LinkIcon,
+  Link as LinkIcon,
   CalendarClock,
-  GiftIcon,
+  Gift as GiftIcon,
   X,
   Send,
   Loader2,
-  AlertTriangle
+  AlertTriangle,
+  FileText
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { 
@@ -529,8 +530,16 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                     : `Unverified salons can send a maximum of ${licenseInfo.invitationLimit} client invitations. You have used ${licenseInfo.currentInvitationCount} so far.`}
                 </div>
                 {hasReachedLimit && !licenseInfo.licenseVerified && (
-                  <div className="mt-2 text-red-600 font-medium">
-                    You have reached your invitation limit. Once your license is verified, you'll have unlimited invitations.
+                  <div className="mt-2">
+                    <div className="text-red-600 font-medium mb-2">
+                      You have reached your invitation limit. Once your license is verified, you'll have unlimited invitations.
+                    </div>
+                    <Link to="/salon-license">
+                      <Button type="button" variant="outline" size="sm" className="border-amber-300 text-amber-700 hover:bg-amber-50">
+                        <FileText className="mr-2 h-4 w-4" />
+                        Update License Information
+                      </Button>
+                    </Link>
                   </div>
                 )}
               </div>
@@ -540,8 +549,14 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                 <Alert variant="destructive" className="mb-4">
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Invitation Limit Reached</AlertTitle>
-                  <AlertDescription>
-                    You cannot send more invitations until your license is verified. Please contact support if you need assistance.
+                  <AlertDescription className="mt-2">
+                    <div className="mb-2">You must provide your current licensing information to send more invitations.</div>
+                    <Link to="/salon-license">
+                      <Button variant="secondary" size="sm" className="mt-1">
+                        <FileText className="mr-2 h-4 w-4" />
+                        Update License Information
+                      </Button>
+                    </Link>
                   </AlertDescription>
                 </Alert>
               )}
