@@ -353,7 +353,14 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     try {
       // Check if invitation limit has been reached for unverified salons
       if (hasReachedLimit && licenseInfo && !licenseInfo.licenseVerified) {
-        throw new Error(`You have reached your invitation limit (${licenseInfo.invitationLimit}). Please wait for your license to be verified.`);
+        toast({
+          title: "Maximum Invitation Limit Reached",
+          description: "You must provide your current licensing information to send more invitations. Please update your salon license details.",
+          variant: "destructive",
+          duration: 5000,
+        });
+        setIsSubmitting(false);
+        return;
       }
       
       const cleanPhone = phone.replace(/\D/g, '');
@@ -704,6 +711,18 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                 onClick={(e) => {
                   e.preventDefault();
                   
+                  // Check if invitation limit is reached
+                  if (hasReachedLimit && !licenseInfo?.licenseVerified) {
+                    // Show license verification requirement warning
+                    toast({
+                      title: "Maximum Invitation Limit Reached",
+                      description: "You must provide your current licensing information to send more invitations. Please update your salon license details.",
+                      variant: "destructive",
+                      duration: 5000,
+                    });
+                    return;
+                  }
+
                   // Validate fields first
                   const cleanPhone = phone.replace(/\D/g, '');
                   if (!name || cleanPhone.length !== 10 || !email) {
@@ -742,7 +761,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   });
                   setShowPreviewModal(true);
                 }}
-                disabled={isSubmitting || (hasReachedLimit && !licenseInfo?.licenseVerified)}
+                disabled={isSubmitting}
                 className="w-full bg-pink-500 hover:bg-pink-600"
               >
                 <Send className="h-4 w-4 mr-2" />
