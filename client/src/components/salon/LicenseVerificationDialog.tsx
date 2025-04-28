@@ -92,7 +92,12 @@ export default function LicenseVerificationDialog({
 
   if (showConfirmation) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          setShowConfirmation(false);
+        }
+        onOpenChange(isOpen);
+      }}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Confirm License Information</DialogTitle>
@@ -126,7 +131,7 @@ export default function LicenseVerificationDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[475px]">
         <DialogHeader>
           <DialogTitle className="text-lg text-center">VMB! Salon License Requirement</DialogTitle>

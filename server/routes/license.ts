@@ -1,91 +1,99 @@
-import { Request, Response, Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { storage } from '../storage';
-import { z } from 'zod';
 
 const router = Router();
 
-// Schema for license data
-const licenseDataSchema = z.object({
-  salonId: z.number(),
-  licenseName: z.string().min(2),
-  licenseNumber: z.string().min(1),
-  licenseState: z.string().min(1),
-});
-
-// Submit salon license information
+// Route to submit salon license information
 router.post('/submit', async (req: Request, res: Response) => {
   try {
-    const validationResult = licenseDataSchema.safeParse(req.body);
+    const { salonId, licenseName, licenseNumber, licenseState } = req.body;
     
-    if (!validationResult.success) {
-      return res.status(400).json({
-        message: 'Invalid license data',
-        errors: validationResult.error.flatten().fieldErrors,
+    if (!salonId || !licenseName || !licenseNumber || !licenseState) {
+      return res.status(400).json({ 
+        error: 'Missing required license information', 
+        message: 'Please provide all required license information.'
       });
     }
     
-    const licenseData = validationResult.data;
-    const salonId = licenseData.salonId;
-    
-    // Check if salon exists
-    const salon = await storage.getSalon(salonId);
+    // Get the salon to ensure it exists
+    const salon = await storage.getSalon(Number(salonId));
     if (!salon) {
-      return res.status(404).json({ message: 'Salon not found' });
+      return res.status(404).json({ 
+        error: 'Salon not found', 
+        message: 'The salon could not be found.'
+      });
     }
     
     // Update salon with license information
-    const updatedSalon = await storage.updateSalonLicense(
-      salonId,
-      {
-        licenseName: licenseData.licenseName,
-        licenseNumber: licenseData.licenseNumber,
-        licenseState: licenseData.licenseState,
-        licenseStatus: 'pending',  // Always starts as pending
-        licenseVerified: false,    // Not verified initially
-      }
-    );
+    const updatedSalon = await storage.updateSalonLicense(Number(salonId), {
+      licenseName,
+      licenseNumber,
+      licenseState,
+      licenseStatus: 'pending',
+      licenseVerified: false
+    });
     
-    // Return the updated salon
-    res.status(200).json(updatedSalon);
+    // Log the license submission for admin review
+    console.log(`[LICENSE] Salon ${salonId} (${salon.name}) license submitted: ${licenseNumber} (${licenseState})`);
+    
+    return res.status(200).json({
+      success: true,
+      message: 'License information submitted successfully.',
+      data: {
+        salonId,
+        licenseName,
+        licenseNumber,
+        licenseState,
+        licenseStatus: 'pending'
+      }
+    });
   } catch (error) {
     console.error('Error submitting license:', error);
-    res.status(500).json({ 
-      message: 'Failed to submit license information',
-      error: error instanceof Error ? error.message : 'Unknown error'
+    return res.status(500).json({ 
+      error: 'Internal server error', 
+      message: 'An error occurred while submitting license information.'
     });
   }
 });
 
-// Get license status for a salon
+// Route to get salon license information
 router.get('/:salonId', async (req: Request, res: Response) => {
   try {
-    const salonId = parseInt(req.params.salonId);
+    const { salonId } = req.params;
     
-    if (isNaN(salonId)) {
-      return res.status(400).json({ message: 'Invalid salon ID' });
+    if (!salonId) {
+      return res.status(400).json({ 
+        error: 'Missing salon ID', 
+        message: 'Please provide a salon ID.'
+      });
     }
     
-    // Get salon with license information
-    const salon = await storage.getSalon(salonId);
-    
+    // Get the salon
+    const salon = await storage.getSalon(Number(salonId));
     if (!salon) {
-      return res.status(404).json({ message: 'Salon not found' });
+      return res.status(404).json({ 
+        error: 'Salon not found', 
+        message: 'The salon could not be found.'
+      });
     }
     
     // Return license information
-    res.status(200).json({
-      salonId: salon.id,
-      licenseName: salon.licenseName || null,
-      licenseNumber: salon.licenseNumber || null,
-      licenseState: salon.licenseState || null,
-      licenseStatus: salon.licenseStatus || 'not_submitted',
-      licenseVerified: salon.licenseVerified || false,
+    return res.status(200).json({
+      success: true,
+      data: {
+        salonId: salon.id,
+        licenseName: salon.licenseName,
+        licenseNumber: salon.licenseNumber,
+        licenseState: salon.licenseState,
+        licenseStatus: salon.licenseStatus || 'not_submitted',
+        licenseVerified: salon.licenseVerified || false
+      }
     });
   } catch (error) {
-    console.error('Error getting license status:', error);
-    res.status(500).json({ 
-      message: 'Failed to get license information',
-      error: error instanceof Error ? error.message : 'Unknown error'
+    console.error('Error getting license information:', error);
+    return res.status(500).json({ 
+      error: 'Internal server error', 
+      message: 'An error occurred while retrieving license information.'
     });
   }
 });
