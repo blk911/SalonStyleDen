@@ -93,7 +93,9 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
       FlowLogger.error('ClientInviteForm', 'Validation Failed - Name Required', new Error('Name is required'));
       toast({
         title: "Name required",
-        description: "Please enter your friend's name",
+        description: form.inviteeType === "friend" 
+          ? "Please enter your friend's name" 
+          : "Please enter the salon owner's name",
         variant: "destructive",
       });
       return;
@@ -156,7 +158,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
           email: form.email,
           message: form.message,
           senderId: clientId,
-          type: "client_invitation",
+          type: form.inviteeType === "friend" ? "client_invitation" : "salon_owner_invitation",
         }),
       });
       
@@ -172,7 +174,9 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
       // Success!
       toast({
         title: "Invitation sent!",
-        description: "Your friend will receive an invitation soon",
+        description: form.inviteeType === "friend" 
+          ? "Your friend will receive an invitation soon" 
+          : "The salon owner will receive an invitation soon",
       });
       
       // Reset form
@@ -219,7 +223,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
           className="flex items-center justify-between py-2 px-1 cursor-pointer"
           onClick={() => setIsFormOpen(!isFormOpen)}
         >
-          <h3 className="text-sm font-medium">Invite Your Friends</h3>
+          <h3 className="text-sm font-medium">Invite Friends & Salon Owners</h3>
           <Button variant="ghost" size="sm" className="p-1 h-7 w-7" type="button">
             {isFormOpen ? (
               <ChevronUpIcon className="h-5 w-5" />
@@ -234,11 +238,36 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
       {(hideToggle || isFormOpen) && (
         <form onSubmit={handleSubmit} className={hideLabels ? "space-y-2 mt-2" : "space-y-3 mt-2"}>
           {/* Name and Phone on one line */}
+          {/* Invitee Type Selection */}
+          <div className="mb-3">
+            <Label className="text-xs font-medium mb-2 block">Who are you inviting?</Label>
+            <RadioGroup 
+              value={form.inviteeType} 
+              onValueChange={handleTypeChange}
+              className="flex space-x-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="friend" id="friend" className="text-pink-500" />
+                <Label htmlFor="friend" className="flex items-center cursor-pointer">
+                  <UsersIcon className="h-4 w-4 mr-1" />
+                  Friend
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="salonOwner" id="salonOwner" className="text-pink-500" />
+                <Label htmlFor="salonOwner" className="flex items-center cursor-pointer">
+                  <BuildingIcon className="h-4 w-4 mr-1" />
+                  Salon Owner
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+          
           <div className="grid grid-cols-2 gap-2">
             <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
               {!hideLabels && (
                 <Label htmlFor="name" className="text-xs font-medium">
-                  Friend's Name
+                  {form.inviteeType === "friend" ? "Friend's Name" : "Salon Owner's Name"}
                 </Label>
               )}
               <div className="relative">
@@ -246,7 +275,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
                 <Input
                   id="name"
                   name="name"
-                  placeholder="Enter friend's name"
+                  placeholder={form.inviteeType === "friend" ? "Enter friend's name" : "Enter salon owner's name"}
                   value={form.name}
                   onChange={handleChange}
                   className="pl-8"
@@ -257,7 +286,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
             <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
               {!hideLabels && (
                 <Label htmlFor="phone" className="text-xs font-medium">
-                  Friend's Phone
+                  {form.inviteeType === "friend" ? "Friend's Phone" : "Salon Owner's Phone"}
                 </Label>
               )}
               <div className="relative">
@@ -265,7 +294,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
                 <Input
                   id="phone"
                   name="phone"
-                  placeholder="Enter phone number"
+                  placeholder={form.inviteeType === "friend" ? "Enter friend's phone" : "Enter salon owner's phone"}
                   value={form.phone}
                   onChange={handleChange}
                   onKeyDown={(e) => {
@@ -285,7 +314,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
           <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
             {!hideLabels && (
               <Label htmlFor="email" className="text-xs font-medium">
-                Friend's Email <span className="ml-1 text-gray-500">EMAIL IS OPTIONAL</span>
+                {form.inviteeType === "friend" ? "Friend's Email" : "Salon Owner's Email"} <span className="ml-1 text-gray-500">EMAIL IS OPTIONAL</span>
               </Label>
             )}
             <div className="relative">
@@ -293,7 +322,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
               <Input
                 id="email"
                 name="email"
-                placeholder="Enter your friend's email (optional)"
+                placeholder={form.inviteeType === "friend" ? "Enter friend's email (optional)" : "Enter salon owner's email (optional)"}
                 value={form.email}
                 onChange={handleChange}
                 onKeyDown={(e) => {
