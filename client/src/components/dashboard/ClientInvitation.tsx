@@ -160,8 +160,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     return saved ? JSON.parse(saved) : false; // Closed by default
   });
   
-  // State for license warning dialog
-  const [showLicenseWarningDialog, setShowLicenseWarningDialog] = useState(false);
+  // We're using inline license warning instead of a dialog
   
   // Save collapsible states to localStorage
   useEffect(() => {
@@ -357,7 +356,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     try {
       // Check if invitation limit has been reached for unverified salons
       if (hasReachedLimit && licenseInfo && !licenseInfo.licenseVerified) {
-        setShowLicenseWarningDialog(true);
+        // Make sure the license warning is visible
+        setSendFormOpen(true);
         setIsSubmitting(false);
         return;
       }
@@ -548,6 +548,23 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                         <div className="text-red-600 font-medium mb-2">
                           You have reached your invitation limit. Once your license is verified, you'll have unlimited invitations.
                         </div>
+                        <div className="flex space-x-2 mt-4">
+                          <Button 
+                            variant="outline" 
+                            className="flex-1"
+                            onClick={() => setSendFormOpen(false)}
+                          >
+                            Close
+                          </Button>
+                          <Link to="/salon-license" className="flex-1">
+                            <Button 
+                              className="w-full bg-pink-500 hover:bg-pink-600"
+                            >
+                              <FileText className="mr-2 h-4 w-4" />
+                              Update License Information
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -724,8 +741,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   
                   // Check if invitation limit is reached
                   if (hasReachedLimit && !licenseInfo?.licenseVerified) {
-                    // Show license warning dialog instead of toast
-                    setShowLicenseWarningDialog(true);
+                    // Make sure the warning section is visible
+                    setSendFormOpen(true);
                     return;
                   }
 
@@ -1199,41 +1216,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         </DialogContent>
       </Dialog>
       
-      {/* License Limit Warning Dialog */}
-      <Dialog open={showLicenseWarningDialog} onOpenChange={setShowLicenseWarningDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-center text-red-600">Invitation Limit Reached</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <p className="text-center font-medium mb-4">
-              You must provide your current licensing information to send more invitations.
-            </p>
-            <p className="text-center text-gray-600 text-sm">
-              Once your license is verified, you'll have unlimited invitations.
-            </p>
-          </div>
-          <DialogFooter className="flex flex-col sm:flex-row gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => setShowLicenseWarningDialog(false)}
-              className="sm:flex-1"
-            >
-              Close
-            </Button>
-            <Link to="/salon-license" className="sm:flex-1">
-              <Button 
-                className="w-full bg-pink-500 hover:bg-pink-600"
-                onClick={() => setShowLicenseWarningDialog(false)}
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                Update License Information
-              </Button>
-            </Link>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* We're using inline license warning instead of a dialog */}
     </div>
   );
 }
