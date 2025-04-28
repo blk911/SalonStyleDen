@@ -237,6 +237,15 @@ export default function ClientDashboard() {
       console.log('[FLOW] ClientDashboard - Regular client view mode');
       setIsAdminView(false);
     }
+    
+    // Cleanup function to remove adminView from localStorage when leaving the page
+    return () => {
+      // Only remove if this was set by the admin dashboard navigation
+      if (adminViewParam === 'true') {
+        console.log('[FLOW] ClientDashboard - Cleaning up adminView flag from localStorage');
+        localStorage.removeItem('adminView');
+      }
+    };
   }, []);
   
   // Check client's registration status when data is loaded

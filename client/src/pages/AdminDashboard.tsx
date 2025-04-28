@@ -1061,7 +1061,10 @@ export default function AdminDashboard() {
               isOpen={networkVisualizationOpen}
               onToggle={() => setNetworkVisualizationOpen(!networkVisualizationOpen)}
               action={
-                <Link href="/network-visualization">
+                <Link 
+                  to="/network-visualization"
+                  onClick={() => setLocation('/network-visualization')}
+                >
                   <Button size="sm" variant="outline">
                     <ExternalLinkIcon className="h-4 w-4 mr-1" />
                     Open Full View
