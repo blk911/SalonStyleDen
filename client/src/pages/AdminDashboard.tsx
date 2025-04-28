@@ -551,11 +551,13 @@ export default function AdminDashboard() {
                                   // Client exists - link to client dashboard
                                   return (
                                     <Link 
-                                      to={`/client/${clientId}`}
+                                      to={`/client/${clientId}?adminView=true`}
                                       className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
                                       onClick={() => {
-                                        // Navigate to client dashboard page
-                                        setLocation(`/client/${clientId}`);
+                                        // Set admin view flag in localStorage to persist through navigation
+                                        localStorage.setItem('adminView', 'true');
+                                        // Navigate to client dashboard page with admin view query parameter
+                                        setLocation(`/client/${clientId}?adminView=true`);
                                       }}
                                     >
                                       <ExternalLinkIcon className="h-4 w-4" />
@@ -722,8 +724,13 @@ export default function AdminDashboard() {
                           <TableCell className="py-0 text-right">
                             <div className="flex justify-end gap-1">
                               <Link 
-                                to={`/client/${client.id}`}
-                                onClick={() => setLocation(`/client/${client.id}`)}
+                                to={`/client/${client.id}?adminView=true`}
+                                onClick={() => {
+                                  // Set admin view flag in localStorage to persist through navigation
+                                  localStorage.setItem('adminView', 'true');
+                                  // Navigate to client dashboard with admin view query parameter
+                                  setLocation(`/client/${client.id}?adminView=true`);
+                                }}
                                 className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]"
                               >
                                 Client
