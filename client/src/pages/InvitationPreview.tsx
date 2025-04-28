@@ -340,7 +340,20 @@ export default function InvitationPreview() {
               </div>
               <Button
                 variant="outline"
-                onClick={() => window.history.back()}
+                onClick={() => {
+                  // Check if we're in a salon or client context and redirect accordingly
+                  if (window.location.pathname.includes('/client/')) {
+                    setLocation("/client/dashboard");
+                  } else if (window.location.pathname.includes('/salon/')) {
+                    setLocation("/salon/dashboard");
+                  } else if (invitation?.salonId) {
+                    // Fallback to salon dashboard if we have a salonId
+                    setLocation("/salon/dashboard");
+                  } else {
+                    // Default to client dashboard
+                    setLocation("/client/dashboard");
+                  }
+                }}
                 className={isSalonInvitation ? 
                   "border-amber-200 text-amber-700 hover:bg-amber-50" : 
                   "border-pink-200 text-pink-700 hover:bg-pink-50"}
