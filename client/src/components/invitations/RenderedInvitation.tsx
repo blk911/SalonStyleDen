@@ -65,28 +65,31 @@ export function RenderedInvitation({
     console.log(`[FLOW] RenderedInvitation - Current client ID context: ${clientId || 'Not set'}`);
   }, []);
   
-  // Check if this is a client context or salon context
-  // In salon context, we should show the button regardless of client name
-  const isSalonContext = salonInitiated;
+  // The SEND GIFT button should ONLY be active in ONE specific context:
+  // When a client (specifically Tom) is viewing their own invitation
   
-  // In client context, we only show the button for specific clients
+  // Check if this is client-to-client context (not salon-initiated)
+  const isClientContext = !salonInitiated;
+  
+  // Check if the recipient is Tom
   const recipientIsTom = recipientName === 'Tom';
+  
+  // Check if the current client is also Tom
   const currentClientIsTom = currentClientId === 'Tom';
   
-  // The SEND GIFT button logic:
-  // 1. For salon-initiated invitations: always show if status is pending (salon dashboard)
-  // 2. For client-initiated invitations: only show if recipient is Tom and current client is Tom
-  let showButton = false;
+  // The SEND GIFT button should ONLY appear when:
+  // 1. This is a client-to-client invitation (not salon-initiated)
+  // 2. The status is pending (not already sent/accepted)
+  // 3. The recipient is Tom
+  // 4. The current client ID is "Tom" (Tom viewing Tom's invitation)
+  // 5. There is a valid onSendGift handler
+  const showButton = !!onSendGift && 
+                     status === 'pending' && 
+                     isClientContext && 
+                     recipientIsTom && 
+                     currentClientIsTom;
   
-  if (salonInitiated) {
-    // In salon context, we always show the button for pending invitations
-    showButton = !!onSendGift && status === 'pending';
-  } else {
-    // In client context, we need to enforce the Tom-specific rule
-    showButton = !!onSendGift && status === 'pending' && recipientIsTom && currentClientIsTom;
-  }
-  
-  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Context: ${salonInitiated ? 'SALON' : 'CLIENT'} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
+  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Context: ${salonInitiated ? 'SALON' : 'CLIENT'} - Recipient is Tom: ${recipientIsTom} - Current client is Tom: ${currentClientIsTom} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
   
   return (
     <Card className={`w-full max-w-md mx-auto shadow-lg overflow-hidden ${className}`}>
