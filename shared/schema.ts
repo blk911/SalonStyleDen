@@ -28,6 +28,13 @@ export const salons = pgTable("salons", {
   promos: jsonb("promos"), // Stores array of promo objects
   schedule: jsonb("schedule"), // Stores weekly schedule data
   ownerPhotoUrl: text("owner_photo_url"), // URL to the salon owner's photo
+  licenseName: text("license_name"), // Name as it appears on license
+  licenseNumber: text("license_number"), // License number
+  licenseState: text("license_state"), // State that issued the license
+  licenseVerified: boolean("license_verified").default(false), // Whether license has been verified
+  licenseStatus: text("license_status").default("pending"), // Status: pending, verified, rejected
+  sponsor: text("sponsor").default("VMB, LTD"), // Default sponsor name
+  sponsorId: integer("sponsor_id"), // ID of the sponsoring salon
   createdAt: timestamp("created_at").defaultNow(),
 });
 
