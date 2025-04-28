@@ -169,6 +169,9 @@ export default function LicenseVerificationDialog({
                   <FormControl>
                     <Input placeholder="License number" {...field} />
                   </FormControl>
+                  <p className="text-xs text-muted-foreground">
+                    Enter exactly as it appears on your license (letters and numbers if shown)
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
