@@ -260,8 +260,8 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
           {/* Email on separate line */}
           <div className={hideLabels ? "grid gap-1" : "grid gap-2"}>
             {!hideLabels && (
-              <Label htmlFor="email" className="text-xs font-medium flex items-center">
-                Friend's Email <span className="ml-1 text-gray-500 italic text-[10px]">(optional)</span>
+              <Label htmlFor="email" className="text-xs font-medium">
+                Friend's Email <span className="ml-1 text-gray-500">EMAIL IS OPTIONAL</span>
               </Label>
             )}
             <div className="relative">
@@ -269,7 +269,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
               <Input
                 id="email"
                 name="email"
-                placeholder="Enter your friend's email"
+                placeholder="Enter your friend's email (optional)"
                 value={form.email}
                 onChange={handleChange}
                 onKeyDown={(e) => {
@@ -281,48 +281,6 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
                 }}
                 className="pl-8"
               />
-            </div>
-          </div>
-          
-          {/* Now or Later prompt */}
-          <div className="flex justify-between items-center p-2 bg-gray-50 rounded-md">
-            <div className="text-xs text-gray-600">
-              <span>Complete now or add a message?</span>
-            </div>
-            <div className="flex space-x-2">
-              <Button 
-                size="sm" 
-                type="button" 
-                variant="outline"
-                className="h-7 text-xs"
-                onClick={() => {
-                  document.getElementById('message')?.focus();
-                  FlowLogger.log('ClientInviteForm', 'Later button clicked, moved to message field');
-                }}
-              >
-                Add message
-              </Button>
-              <Button 
-                size="sm" 
-                type="button" 
-                variant="secondary"
-                className="h-7 text-xs bg-pink-100 hover:bg-pink-200 text-pink-800 border-pink-200"
-                onClick={() => {
-                  if (form.name.trim() && (form.phone.trim() || form.email.trim())) {
-                    FlowLogger.log('ClientInviteForm', 'Now button clicked, submitting form');
-                    handleSubmit(new Event('submit') as any);
-                  } else {
-                    FlowLogger.error('ClientInviteForm', 'Validation Failed - Required fields missing', new Error('Name and contact info required'));
-                    toast({
-                      title: "Required fields missing",
-                      description: "Please enter your friend's name and either phone or email",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-              >
-                Send now
-              </Button>
             </div>
           </div>
           
