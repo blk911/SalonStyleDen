@@ -250,28 +250,37 @@ export default function ClientDashboard() {
   
   // Check client's registration status when data is loaded
   useEffect(() => {
-    if (client && !isAdminView) {
-      console.log(`ClientDashboard - Client data loaded. Checking acceptedTerms status: ${client.acceptedTerms}`);
-      console.log(`ClientDashboard - Profile prompt shown status: ${client.profilePromptShown}`);
-      
-      // Only show popup when client has NOT accepted terms AND the prompt hasn't been shown before
-      // AND we're not in admin view mode
-      if (client.acceptedTerms !== true && client.profilePromptShown !== true) {
-        console.log('[FLOW] ClientDashboard - Client has not accepted terms and prompt not shown before, displaying dialog');
-        setShowCompleteProfileDialog(true);
-        
-        // Mark that we've shown the popup to this client
-        updateProfilePromptShown(client.id);
-      } else {
-        if (client.profilePromptShown === true) {
-          console.log('[FLOW] ClientDashboard - Profile prompt already shown to this client, not showing again');
-        } else if (client.acceptedTerms === true) {
-          console.log('[FLOW] ClientDashboard - Client has already accepted terms, not showing dialog');
-        }
-        setShowCompleteProfileDialog(false);
-      }
-    } else if (isAdminView) {
+    if (!client) return;
+
+    console.log(`ClientDashboard - Client data loaded. Checking acceptedTerms status: ${client.acceptedTerms}`);
+    console.log(`ClientDashboard - Profile prompt shown status: ${client.profilePromptShown}`);
+    console.log(`ClientDashboard - adminView status: ${isAdminView}`);
+    
+    // If this is an admin view, never show the dialog regardless of client status
+    if (isAdminView) {
       console.log('[FLOW] ClientDashboard - Admin view mode: profile prompt disabled');
+      setShowCompleteProfileDialog(false);
+      return; // Exit early
+    }
+    
+    // TESTING: For demo purposes, if Client ID is 12 (Oleta), always show the dialog in regular view
+    if (client.id === 12) {
+      console.log('[TEST] ClientDashboard - This is Oleta\'s profile with regular view, SHOWING dialog');
+      setShowCompleteProfileDialog(true);
+    }
+    // Normal logic for other clients
+    else if (client.acceptedTerms !== true && client.profilePromptShown !== true) {
+      console.log('[FLOW] ClientDashboard - Client has not accepted terms and prompt not shown before, displaying dialog');
+      setShowCompleteProfileDialog(true);
+      
+      // Mark that we've shown the popup to this client
+      updateProfilePromptShown(client.id);
+    } else {
+      if (client.profilePromptShown === true) {
+        console.log('[FLOW] ClientDashboard - Profile prompt already shown to this client, not showing again');
+      } else if (client.acceptedTerms === true) {
+        console.log('[FLOW] ClientDashboard - Client has already accepted terms, not showing dialog');
+      }
       setShowCompleteProfileDialog(false);
     }
   }, [client, isAdminView]);
