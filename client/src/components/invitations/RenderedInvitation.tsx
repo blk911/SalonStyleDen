@@ -65,31 +65,18 @@ export function RenderedInvitation({
     console.log(`[FLOW] RenderedInvitation - Current client ID context: ${clientId || 'Not set'}`);
   }, []);
   
-  // The SEND GIFT button should ONLY be active in ONE specific context:
-  // When a client (specifically Tom) is viewing their own invitation
-  
-  // Check if this is client-to-client context (not salon-initiated)
-  const isClientContext = !salonInitiated;
-  
-  // Check if the recipient is Tom
+  // Check if the current client's ID matches "Tom" and if recipient is also Tom
   const recipientIsTom = recipientName === 'Tom';
-  
-  // Check if the current client is also Tom
   const currentClientIsTom = currentClientId === 'Tom';
   
-  // The SEND GIFT button should ONLY appear when:
-  // 1. This is a client-to-client invitation (not salon-initiated)
-  // 2. The status is pending (not already sent/accepted)
-  // 3. The recipient is Tom
-  // 4. The current client ID is "Tom" (Tom viewing Tom's invitation)
-  // 5. There is a valid onSendGift handler
-  const showButton = !!onSendGift && 
-                     status === 'pending' && 
-                     isClientContext && 
-                     recipientIsTom && 
-                     currentClientIsTom;
+  // The SEND GIFT button should only appear when:
+  // 1. The status is pending
+  // 2. The recipient is Tom
+  // 3. The current client ID is "Tom" (meaning Tom is viewing Tom's own invitation)
+  // 4. There is a valid onSendGift handler
+  const showButton = onSendGift && status === 'pending' && recipientIsTom && currentClientIsTom;
   
-  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Context: ${salonInitiated ? 'SALON' : 'CLIENT'} - Recipient is Tom: ${recipientIsTom} - Current client is Tom: ${currentClientIsTom} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
+  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Recipient is Tom: ${recipientIsTom} - Current client is Tom: ${currentClientIsTom} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
   
   return (
     <Card className={`w-full max-w-md mx-auto shadow-lg overflow-hidden ${className}`}>

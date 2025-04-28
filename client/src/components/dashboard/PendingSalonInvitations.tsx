@@ -247,24 +247,19 @@ export default function PendingSalonInvitations({
                 imageUrl={selectedInvitation.styleImageUrl || "/assets/french-tips.png"}
                 salonInitiated={!selectedInvitation.senderId} // salonInitiated = true when no senderId (salon sent it)
                 status={selectedInvitation.status} // Pass the invitation status
-                onSendGift={
-                  // For salon-initiated invitations, we should always enable the button, regardless of client registration
-                  // For client-initiated invitations, we need to check if the client is registered
-                  ((!selectedInvitation.senderId) || isClientRegistered) && 
+                onSendGift={isClientRegistered && 
                   selectedInvitation.status === 'pending' ? () => {
-                    // If this is salon-initiated or client is registered, allow sending gift
-                    console.log(`[FLOW] PendingSalonInvitations - Sending gift for invitation ${selectedInvitation.id} - Salon initiated: ${!selectedInvitation.senderId}`);
-                    setShowInvitationDialog(false);
-                    if (selectedInvitation) {
-                      setLocation(`/invitation-preview/${selectedInvitation.inviteHash}`);
-                    }
-                  } : undefined
-                } // Button will appear based on invitation type and client registration status
+                  // If client is registered and status allows sending gift, allow sending gift
+                  setShowInvitationDialog(false);
+                  if (selectedInvitation) {
+                    setLocation(`/invitation-preview/${selectedInvitation.inviteHash}`);
+                  }
+                } : undefined} // Will show the button only if client is registered and invitation status allows gift sending
               />
             )}
             
-            {/* Not registered message and register button - only for client-initiated invitations */}
-            {selectedInvitation && !isClientRegistered && selectedInvitation.senderId && (
+            {/* Not registered message and register button */}
+            {selectedInvitation && !isClientRegistered && (
               <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
                 <h4 className="text-amber-800 font-medium mb-2">Registration Required</h4>
                 <p className="text-sm text-gray-700 mb-3">
