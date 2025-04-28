@@ -72,6 +72,13 @@ interface ClientInvite {
   inviteHash?: string; // Unique invitation hash for tracking
 }
 
+interface SalonLicenseInfo {
+  licenseVerified: boolean;
+  licenseStatus: string;
+  currentInvitationCount: number;
+  invitationLimit: number;
+}
+
 interface ClientInvitationProps {
   salonId?: number;
 }
@@ -110,6 +117,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [salonInfo, setSalonInfo] = useState<{name: string} | null>(null);
+  const [licenseInfo, setLicenseInfo] = useState<SalonLicenseInfo | null>(null);
   const [recentInvites, setRecentInvites] = useState<ClientInvite[]>([]);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewData, setPreviewData] = useState<{
@@ -276,6 +284,18 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         setSalonInfo({
           name: data.name
         });
+        
+        // Check license status and invitations limit
+        const licenseResponse = await fetch(`/api/salons/${salonId}/invitation-limit`);
+        if (licenseResponse.ok) {
+          const licenseData = await licenseResponse.json();
+          setLicenseInfo({
+            licenseVerified: licenseData.licenseVerified,
+            licenseStatus: licenseData.licenseStatus,
+            currentInvitationCount: licenseData.currentCount,
+            invitationLimit: licenseData.limit
+          });
+        }
       }
     } catch (error) {
       console.error('Failed to fetch salon info:', error);
@@ -452,6 +472,10 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   // We'll remove this import and use our local types since they're already compatible
   // This fixes the type error related to the incompatible status field
   
+  // Determine if invitation limit has been reached
+  const hasReachedLimit = licenseInfo ? 
+    licenseInfo.currentInvitationCount >= licenseInfo.invitationLimit : false;
+
   return (
     <div className="space-y-6">
       {/* Send Invitation Form Section */}
@@ -468,7 +492,47 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         
         {sendFormOpen && (
           <CardContent className="p-4">
+            {/* License Verification Status */}
+            {licenseInfo && (
+              <div className={`mb-4 p-3 rounded-md text-sm ${
+                licenseInfo.licenseVerified 
+                  ? 'bg-green-50 text-green-800 border border-green-200' 
+                  : 'bg-amber-50 text-amber-800 border border-amber-200'
+              }`}>
+                <div className="flex items-center space-x-2">
+                  {licenseInfo.licenseVerified ? (
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                  ) : (
+                    <Clock className="h-5 w-5 text-amber-600" />
+                  )}
+                  <span className="font-medium">
+                    {licenseInfo.licenseVerified 
+                      ? 'License Verified' 
+                      : 'License Verification Pending'}
+                  </span>
+                </div>
+                <div className="mt-1">
+                  {licenseInfo.licenseVerified 
+                    ? 'Your salon license is verified. You can send unlimited client invitations.' 
+                    : `Unverified salons can send a maximum of ${licenseInfo.invitationLimit} client invitations. You have used ${licenseInfo.currentInvitationCount} so far.`}
+                </div>
+                {hasReachedLimit && !licenseInfo.licenseVerified && (
+                  <div className="mt-2 text-red-600 font-medium">
+                    You have reached your invitation limit. Once your license is verified, you'll have unlimited invitations.
+                  </div>
+                )}
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
+              {hasReachedLimit && !licenseInfo?.licenseVerified && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Invitation Limit Reached</AlertTitle>
+                  <AlertDescription>
+                    You cannot send more invitations until your license is verified. Please contact support if you need assistance.
+                  </AlertDescription>
+                </Alert>
+              )}
               {/* Line 1: Name and Phone */}
               <div className="flex gap-4">
                 <Input
