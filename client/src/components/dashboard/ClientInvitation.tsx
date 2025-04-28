@@ -160,6 +160,9 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     return saved ? JSON.parse(saved) : false; // Closed by default
   });
   
+  // State for license warning dialog
+  const [showLicenseWarningDialog, setShowLicenseWarningDialog] = useState(false);
+  
   // Save collapsible states to localStorage
   useEffect(() => {
     localStorage.setItem('vmb-send-invitation-form-open', JSON.stringify(sendFormOpen));
@@ -354,12 +357,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     try {
       // Check if invitation limit has been reached for unverified salons
       if (hasReachedLimit && licenseInfo && !licenseInfo.licenseVerified) {
-        toast({
-          title: "Maximum Invitation Limit Reached",
-          description: "You must provide your current licensing information to send more invitations. Please update your salon license details.",
-          variant: "destructive",
-          duration: 5000,
-        });
+        setShowLicenseWarningDialog(true);
         setIsSubmitting(false);
         return;
       }
@@ -507,59 +505,57 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           <CardContent className="p-4">
             {/* License Verification Status */}
             {licenseInfo && (
-              <div className={`mb-4 p-3 rounded-md text-sm ${
+              <div className={`mb-4 rounded-md text-sm ${
                 licenseInfo.licenseVerified 
                   ? 'bg-green-50 text-green-800 border border-green-200' 
                   : 'bg-amber-50 text-amber-800 border border-amber-200'
               }`}>
-                <div className="flex items-center space-x-2">
-                  {licenseInfo.licenseVerified ? (
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                  ) : (
-                    <Clock className="h-5 w-5 text-amber-600" />
-                  )}
-                  <span className="font-medium">
-                    {licenseInfo.licenseVerified 
-                      ? 'License Verified' 
-                      : 'License Verification Pending'}
-                  </span>
+                <div 
+                  className="p-3 flex items-center justify-between cursor-pointer"
+                  onClick={() => setSendFormOpen(!sendFormOpen)}
+                >
+                  <div className="flex items-center space-x-2">
+                    {licenseInfo.licenseVerified ? (
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <Clock className="h-5 w-5 text-amber-600" />
+                    )}
+                    <span className="font-medium">
+                      {licenseInfo.licenseVerified 
+                        ? 'License Verified' 
+                        : 'License Verification Pending'}
+                    </span>
+                    {hasReachedLimit && !licenseInfo.licenseVerified && !sendFormOpen && (
+                      <Badge className="ml-2 bg-red-100 text-red-800 border-red-200">
+                        Limit Reached
+                      </Badge>
+                    )}
+                  </div>
+                  <ChevronDown 
+                    className={`h-4 w-4 text-amber-800 transition-transform ${sendFormOpen ? 'transform rotate-180' : ''}`} 
+                  />
                 </div>
-                <div className="mt-1">
-                  {licenseInfo.licenseVerified 
-                    ? 'Your salon license is verified. You can send unlimited client invitations.' 
-                    : `Unverified salons can send a maximum of ${licenseInfo.invitationLimit} client invitations. You have used ${licenseInfo.currentInvitationCount} so far.`}
-                </div>
-                {hasReachedLimit && !licenseInfo.licenseVerified && (
-                  <div className="mt-2">
-                    <div className="text-red-600 font-medium mb-2">
-                      You have reached your invitation limit. Once your license is verified, you'll have unlimited invitations.
+                
+                {sendFormOpen && (
+                  <div className="px-3 pb-3">
+                    <div className="mt-1">
+                      {licenseInfo.licenseVerified 
+                        ? 'Your salon license is verified. You can send unlimited client invitations.' 
+                        : `Unverified salons can send a maximum of ${licenseInfo.invitationLimit} client invitations. You have used ${licenseInfo.currentInvitationCount} so far.`}
                     </div>
-                    <Link to="/salon-license">
-                      <Button type="button" variant="outline" size="sm" className="border-amber-300 text-amber-700 hover:bg-amber-50">
-                        <FileText className="mr-2 h-4 w-4" />
-                        Update License Information
-                      </Button>
-                    </Link>
+                    {hasReachedLimit && !licenseInfo.licenseVerified && (
+                      <div className="mt-2">
+                        <div className="text-red-600 font-medium mb-2">
+                          You have reached your invitation limit. Once your license is verified, you'll have unlimited invitations.
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
-              {hasReachedLimit && !licenseInfo?.licenseVerified && (
-                <Alert variant="destructive" className="mb-4">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Invitation Limit Reached</AlertTitle>
-                  <AlertDescription className="mt-2">
-                    <div className="mb-2">You must provide your current licensing information to send more invitations.</div>
-                    <Link to="/salon-license">
-                      <Button variant="secondary" size="sm" className="mt-1">
-                        <FileText className="mr-2 h-4 w-4" />
-                        Update License Information
-                      </Button>
-                    </Link>
-                  </AlertDescription>
-                </Alert>
-              )}
+              {/* Replaced with dialog popup instead */}
               {/* Line 1: Name and Phone */}
               <div className="flex gap-4">
                 <Input
@@ -728,13 +724,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   
                   // Check if invitation limit is reached
                   if (hasReachedLimit && !licenseInfo?.licenseVerified) {
-                    // Show license verification requirement warning
-                    toast({
-                      title: "Maximum Invitation Limit Reached",
-                      description: "You must provide your current licensing information to send more invitations. Please update your salon license details.",
-                      variant: "destructive",
-                      duration: 5000,
-                    });
+                    // Show license warning dialog instead of toast
+                    setShowLicenseWarningDialog(true);
                     return;
                   }
 
@@ -1204,6 +1195,42 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
               }
               Confirm & Send
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* License Limit Warning Dialog */}
+      <Dialog open={showLicenseWarningDialog} onOpenChange={setShowLicenseWarningDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-center text-red-600">Invitation Limit Reached</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <p className="text-center font-medium mb-4">
+              You must provide your current licensing information to send more invitations.
+            </p>
+            <p className="text-center text-gray-600 text-sm">
+              Once your license is verified, you'll have unlimited invitations.
+            </p>
+          </div>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowLicenseWarningDialog(false)}
+              className="sm:flex-1"
+            >
+              Close
+            </Button>
+            <Link to="/salon-license" className="sm:flex-1">
+              <Button 
+                className="w-full bg-pink-500 hover:bg-pink-600"
+                onClick={() => setShowLicenseWarningDialog(false)}
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                Update License Information
+              </Button>
+            </Link>
           </DialogFooter>
         </DialogContent>
       </Dialog>
