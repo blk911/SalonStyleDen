@@ -18,7 +18,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { Loader2Icon, CheckCircleIcon } from 'lucide-react';
+import { Loader2Icon, CheckCircleIcon, UserCircle, Building2 } from 'lucide-react';
 import { PhoneInputField } from '@/components/ui/PhoneInputField';
 
 interface Invitation {
@@ -462,7 +462,7 @@ export default function ClientRegistrationPage() {
                       name="inviteType"
                       render={({ field }) => (
                         <FormItem className="mb-2">
-                          <div className="mb-1 font-medium">This Invite For:</div>
+                          <div className="mb-1 font-medium">Who are you inviting?</div>
                           <div className="flex items-center space-x-6">
                             <div className="flex items-center space-x-2">
                               <input
@@ -472,8 +472,8 @@ export default function ClientRegistrationPage() {
                                 onChange={() => field.onChange('friend')}
                                 className="h-4 w-4 border-gray-300 text-pink-600 focus:ring-pink-600"
                               />
-                              <label htmlFor="friend" className="text-sm font-medium">
-                                Friend
+                              <label htmlFor="friend" className="text-sm font-medium flex items-center">
+                                <UserCircle className="h-4 w-4 mr-1" /> Friend
                               </label>
                             </div>
                             <div className="flex items-center space-x-2">
@@ -484,8 +484,8 @@ export default function ClientRegistrationPage() {
                                 onChange={() => field.onChange('salonOwner')}
                                 className="h-4 w-4 border-gray-300 text-pink-600 focus:ring-pink-600"
                               />
-                              <label htmlFor="salonOwner" className="text-sm font-medium">
-                                Salon Owner
+                              <label htmlFor="salonOwner" className="text-sm font-medium flex items-center">
+                                <Building2 className="h-4 w-4 mr-1" /> Salon Owner
                               </label>
                             </div>
                           </div>
