@@ -48,7 +48,9 @@ export function RenderedInvitation({
   const formattedInviteId = inviteId.startsWith('INV-FINAL-') ? inviteId : `INV-FINAL-${inviteId}`;
   
   // Log to trace if onSendGift is defined for debugging
-  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Send gift button will ${onSendGift && status === 'pending' ? 'SHOW' : 'HIDE'}`);
+  // Check if button should be shown (only for pending status and when onSendGift is provided)
+  const showButton = onSendGift && status === 'pending';
+  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
   
   return (
     <Card className={`w-full max-w-md mx-auto shadow-lg overflow-hidden ${className}`}>
@@ -103,10 +105,13 @@ export function RenderedInvitation({
                 
                 {salonInitiated && (
                   <div className="flex justify-center mt-1 mb-2">
-                    {status === 'sent' || status === 'accepted' || status === 'redeemed' ? (
+                    {status === 'sent' || status === 'accepted' || status === 'redeemed' || status === 'completed' ? (
                       <div className="px-3 py-0.5 text-xs text-green-600 bg-green-50 border border-green-200 rounded flex items-center">
                         <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-1.5"></span>
-                        {status === 'sent' ? 'GIFT SENT' : status === 'accepted' ? 'GIFT ACCEPTED' : 'GIFT REDEEMED'}
+                        {status === 'sent' ? 'GIFT SENT' : 
+                         status === 'accepted' ? 'GIFT ACCEPTED' : 
+                         status === 'redeemed' ? 'GIFT REDEEMED' : 
+                         'COMPLETED'}
                       </div>
                     ) : (
                       <Button 

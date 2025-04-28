@@ -247,13 +247,14 @@ export default function PendingSalonInvitations({
                 imageUrl={selectedInvitation.styleImageUrl || "/assets/french-tips.png"}
                 salonInitiated={!selectedInvitation.senderId} // salonInitiated = true when no senderId (salon sent it)
                 status={selectedInvitation.status} // Pass the invitation status
-                onSendGift={isClientRegistered && selectedInvitation.status === 'pending' ? () => {
-                  // If client is registered and status is pending, allow sending gift
+                onSendGift={isClientRegistered && 
+                  selectedInvitation.status === 'pending' ? () => {
+                  // If client is registered and status allows sending gift, allow sending gift
                   setShowInvitationDialog(false);
                   if (selectedInvitation) {
                     setLocation(`/invitation-preview/${selectedInvitation.inviteHash}`);
                   }
-                } : undefined} // Will show the button only if client is registered and invitation is pending
+                } : undefined} // Will show the button only if client is registered and invitation status allows gift sending
               />
             )}
             
