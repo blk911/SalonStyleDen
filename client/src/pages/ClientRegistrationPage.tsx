@@ -124,6 +124,7 @@ export default function ClientRegistrationPage() {
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
+      inviteType: 'friend',
       name: '',
       email: '',
       phone: '',
@@ -144,6 +145,7 @@ export default function ClientRegistrationPage() {
     const handleFormReset = () => {
       // Reset the form to default values
       form.reset({
+        inviteType: 'friend',
         name: '',
         email: '',
         phone: '',
@@ -228,6 +230,7 @@ export default function ClientRegistrationPage() {
     if (invitation) {
       form.reset({
         ...form.getValues(),
+        inviteType: form.getValues().inviteType || 'friend', // Preserve inviteType
         name: invitation.name || '',
         email: invitation.email || '',
         phone: invitation.phone || '',
@@ -552,7 +555,7 @@ export default function ClientRegistrationPage() {
                     
                     <Separator className="my-4" />
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <FormField
                         control={form.control}
                         name="address"
@@ -613,10 +616,9 @@ export default function ClientRegistrationPage() {
                       name="notes"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Additional Notes (Optional)</FormLabel>
                           <FormControl>
                             <Textarea 
-                              placeholder="Any additional preferences or information you'd like to share" 
+                              placeholder="Additional Notes (Optional)" 
                               className="min-h-[100px]"
                               {...field} 
                             />
