@@ -54,6 +54,13 @@ interface Salon {
   services?: Array<any>;
 }
 
+// Extend the Window interface to add our client ID context
+declare global {
+  interface Window {
+    _currentClientId?: string | number | null;
+  }
+}
+
 export default function InvitationPreview() {
   const { hash } = useParams();
   const [, setLocation] = useLocation();
@@ -61,6 +68,7 @@ export default function InvitationPreview() {
   const [loading, setLoading] = useState(true);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [acceptingInvitation, setAcceptingInvitation] = useState(false);
+  const [currentClientId, setCurrentClientId] = useState<string | number | null>(null);
   
   // Fetch invitation by hash
   const { 
@@ -99,6 +107,34 @@ export default function InvitationPreview() {
   useEffect(() => {
     setLoading(invitationLoading || salonLoading);
   }, [invitationLoading, salonLoading]);
+  
+  // Check if the current client is Tom when invitation data loads
+  useEffect(() => {
+    if (invitation) {
+      // Check if this is Tom's invitation (recipient name is Tom)
+      const isTomInvitation = invitation.name === 'Tom';
+      
+      // For the SEND GIFT button rule: set the currentClientId to "Tom" if this is Tom's invitation
+      if (isTomInvitation) {
+        // Set for our component state
+        setCurrentClientId('Tom');
+        
+        // Set on the global window object for access by child components
+        window._currentClientId = 'Tom';
+        console.log('[FLOW] InvitationPreview - Setting current client ID to Tom for this view');
+      } else {
+        // Make sure we clear the client ID if it's not Tom's invitation
+        setCurrentClientId(null);
+        window._currentClientId = null;
+        console.log(`[FLOW] InvitationPreview - This is not Tom's invitation (recipient: ${invitation.name}), button will be disabled`);
+      }
+    }
+    
+    // Cleanup the global variable when component unmounts
+    return () => {
+      window._currentClientId = null;
+    };
+  }, [invitation]);
 
   // Loading state
   if (loading) {

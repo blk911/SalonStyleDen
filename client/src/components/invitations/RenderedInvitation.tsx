@@ -9,12 +9,19 @@
  * It is used in multiple places including invitation previews and dashboard views.
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaMoneyBillWave } from 'react-icons/fa';
 import { SiZelle, SiVenmo, SiCashapp } from 'react-icons/si';
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
+
+// Extend the Window interface to add our client ID context
+declare global {
+  interface Window {
+    _currentClientId?: string | number | null;
+  }
+}
 
 interface RenderedInvitationProps {
   inviteId: string;
@@ -46,12 +53,30 @@ export function RenderedInvitation({
   status = "pending"
 }: RenderedInvitationProps) {
   const formattedInviteId = inviteId.startsWith('INV-FINAL-') ? inviteId : `INV-FINAL-${inviteId}`;
+  const [currentClientId, setCurrentClientId] = useState<string | number | null>(null);
   
-  // Log to trace if onSendGift is defined for debugging
-  // Check if button should be shown (only for recipients named "Tom", pending status, and when onSendGift is provided)
+  // Get the current client ID from the global window object
+  useEffect(() => {
+    // Try to get client ID from global window object
+    const clientId = window._currentClientId || null;
+    setCurrentClientId(clientId);
+    
+    // For debugging: log the client ID context
+    console.log(`[FLOW] RenderedInvitation - Current client ID context: ${clientId || 'Not set'}`);
+  }, []);
+  
+  // Check if the current client's ID matches "Tom" and if recipient is also Tom
   const recipientIsTom = recipientName === 'Tom';
-  const showButton = onSendGift && status === 'pending' && recipientIsTom;
-  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Recipient is Tom: ${recipientIsTom} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
+  const currentClientIsTom = currentClientId === 'Tom';
+  
+  // The SEND GIFT button should only appear when:
+  // 1. The status is pending
+  // 2. The recipient is Tom
+  // 3. The current client ID is "Tom" (meaning Tom is viewing Tom's own invitation)
+  // 4. There is a valid onSendGift handler
+  const showButton = onSendGift && status === 'pending' && recipientIsTom && currentClientIsTom;
+  
+  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Recipient is Tom: ${recipientIsTom} - Current client is Tom: ${currentClientIsTom} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
   
   return (
     <Card className={`w-full max-w-md mx-auto shadow-lg overflow-hidden ${className}`}>
@@ -116,7 +141,7 @@ export function RenderedInvitation({
                       </div>
                     ) : (
                       <>
-                        {recipientIsTom ? (
+                        {showButton ? (
                           <Button 
                             className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white"
                             onClick={onSendGift}
