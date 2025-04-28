@@ -357,6 +357,9 @@ export default function ClientDashboard() {
           </div>
           <DialogHeader>
             <DialogTitle className="text-center text-pink-700">Complete Your Profile</DialogTitle>
+            <DialogDescription>
+              Take a moment to complete your profile information
+            </DialogDescription>
           </DialogHeader>
           
           <div className="p-4 border border-pink-100 bg-pink-50 rounded mb-5 text-sm">
@@ -391,6 +394,49 @@ export default function ClientDashboard() {
         </DialogContent>
       </Dialog>
       
+      {/* Debug Toolbar - only visible when the URL has ?debug=true */}
+      {window.location.search.includes('debug=true') && (
+        <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white z-50 p-2 text-xs">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div>
+                <span className="opacity-70">Client ID:</span> {client?.id}
+              </div>
+              <div>
+                <span className="opacity-70">Admin View:</span> {isAdminView ? '✅' : '❌'}
+              </div>
+              <div>
+                <span className="opacity-70">Profile Prompt Shown:</span> {client?.profilePromptShown ? '✅' : '❌'}
+              </div>
+              <div>
+                <span className="opacity-70">Terms Accepted:</span> {client?.acceptedTerms ? '✅' : '❌'}
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-6 text-[10px] bg-blue-700 hover:bg-blue-800 border-none" 
+                onClick={() => {
+                  localStorage.setItem('adminView', isAdminView ? 'false' : 'true');
+                  window.location.reload();
+                }}
+              >
+                Toggle Admin View
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-6 text-[10px] bg-green-700 hover:bg-green-800 border-none" 
+                onClick={() => setShowCompleteProfileDialog(true)}
+              >
+                Show Profile Popup
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <main className="flex-grow">
         {/* Hero Section with Client Info - REDUCED PADDING TO 2px */}
         <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-2 border-b border-pink-200">
@@ -402,6 +448,11 @@ export default function ClientDashboard() {
                 </div>
                 <div className="ml-4">
                   <h1 className="font-bold text-2xl text-pink-700">{client.name}</h1>
+                  {isAdminView && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                      Admin View
+                    </span>
+                  )}
                 </div>
               </div>
               
