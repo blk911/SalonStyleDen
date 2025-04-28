@@ -65,21 +65,23 @@ export function RenderedInvitation({
     console.log(`[FLOW] RenderedInvitation - Current client ID context: ${clientId || 'Not set'}`);
   }, []);
   
-  // Get variable references for console.log
-  const isTomName = recipientName === 'Tom';
-  const isTomViewing = currentClientId === 'Tom';
-  
-  // SITE-WIDE CRITICAL RULE:
-  // 1. The SEND GIFT button should NEVER be shown if client ID is not set
-  // 2. ONLY "Tom" can view "Tom's" invites with an active SEND GIFT button
-  
-  // The SEND GIFT button should only appear when:
-  // 1. The status is pending
-  // 2. The recipient is "Tom"
-  // 3. The current viewer is "Tom" (meaning Tom is viewing his own invitation)
+  // SITE-WIDE CRITICAL RULE: 
+  // The SEND GIFT button should ONLY appear when ALL conditions are met:
+  // 1. The current viewer is the same as the invitation recipient (client viewing their OWN invitation)
+  // 2. The invitation is being accessed from a client dashboard (client ID must be set)
+  // 3. The invitation status is pending
   // 4. There is a valid onSendGift handler
-  // 5. The client ID is defined
-  const showButton = Boolean(currentClientId) && onSendGift && status === 'pending' && isTomName && isTomViewing;
+  
+  // Get variable references for console.log
+  const isClientDefined = Boolean(currentClientId);
+  const isClientRecipient = currentClientId === recipientName;
+  
+  // Determine if button should be shown
+  const showButton = isClientDefined && 
+                     isClientRecipient && 
+                     onSendGift && 
+                     status === 'pending' &&
+                     !salonInitiated; // Never show button in salon view
   
   console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Client ID: ${currentClientId || 'NOT SET'} - Is Tom: ${isTomName} - Is Tom viewing: ${isTomViewing} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
   
