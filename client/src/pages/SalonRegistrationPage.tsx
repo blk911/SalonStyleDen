@@ -220,7 +220,6 @@ export default function SalonRegistrationPage() {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Salon Name</FormLabel>
                             <FormControl>
                               <Input placeholder="Your salon name" {...field} />
                             </FormControl>
@@ -234,7 +233,6 @@ export default function SalonRegistrationPage() {
                         name="ownerName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Owner Name</FormLabel>
                             <FormControl>
                               <Input placeholder="Owner's full name" {...field} />
                             </FormControl>
@@ -248,7 +246,6 @@ export default function SalonRegistrationPage() {
                         name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Email</FormLabel>
                             <FormControl>
                               <Input placeholder="Contact email" {...field} />
                             </FormControl>
@@ -262,7 +259,6 @@ export default function SalonRegistrationPage() {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Phone</FormLabel>
                             <FormControl>
                               <PhoneInputField 
                                 placeholder="Contact phone" 
@@ -293,13 +289,17 @@ export default function SalonRegistrationPage() {
                     
                     <Separator className="my-4" />
                     
+                    {/* Salon Address Title */}
+                    <div className="mb-2">
+                      <h3 className="text-sm font-medium text-gray-700">Salon Address</h3>
+                    </div>
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
                         name="address"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Address</FormLabel>
                             <FormControl>
                               <Input 
                                 placeholder="Street address" 
@@ -326,7 +326,6 @@ export default function SalonRegistrationPage() {
                         name="city"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>City</FormLabel>
                             <FormControl>
                               <Input 
                                 placeholder="City" 
@@ -353,7 +352,6 @@ export default function SalonRegistrationPage() {
                         name="state"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>State</FormLabel>
                             <FormControl>
                               <Input 
                                 placeholder="State" 
@@ -380,7 +378,6 @@ export default function SalonRegistrationPage() {
                         name="zipCode"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Zip Code</FormLabel>
                             <FormControl>
                               <Input 
                                 placeholder="Zip code" 
@@ -408,7 +405,6 @@ export default function SalonRegistrationPage() {
                       name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Salon Description <span className="text-xs text-gray-500">(Press Ctrl+Enter to move to Terms)</span></FormLabel>
                           <FormControl>
                             <Textarea 
                               placeholder="Tell us about your salon" 
@@ -427,6 +423,7 @@ export default function SalonRegistrationPage() {
                             />
                           </FormControl>
                           <FormMessage />
+                          <p className="text-xs text-gray-500 mt-1">(Press Ctrl+Enter to move to Terms)</p>
                         </FormItem>
                       )}
                     />
