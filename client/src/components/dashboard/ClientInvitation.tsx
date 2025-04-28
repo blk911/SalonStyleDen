@@ -160,7 +160,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     return saved ? JSON.parse(saved) : false; // Closed by default
   });
   
-  // We're using inline license warning instead of a dialog
+  // We're using inline license warning with Update/Close buttons instead of a separate dialog
   
   // Save collapsible states to localStorage
   useEffect(() => {
@@ -1216,7 +1216,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         </DialogContent>
       </Dialog>
       
-      {/* We're using inline license warning instead of a dialog */}
+      {/* We integrated the license warning with Update/Close buttons inline instead of using a separate dialog */}
     </div>
   );
 }
