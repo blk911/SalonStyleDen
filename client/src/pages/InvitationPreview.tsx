@@ -345,11 +345,13 @@ export default function InvitationPreview() {
                   const testClientId = invitation?.name === "test2" ? 14 : null;
                   if (testClientId) {
                     // Direct to client dashboard with their specific ID
-                    console.log(`[FLOW] Navigating to client dashboard for: ${invitation?.name} (ID: ${testClientId})`);
-                    setLocation(`/client/${testClientId}`);
+                    // Add inviteHash as a parameter to maintain tracking for payment processing
+                    console.log(`[FLOW] Navigating to client dashboard for: ${invitation?.name} (ID: ${testClientId}) with inviteHash: ${invitation?.inviteHash}`);
+                    setLocation(`/client/${testClientId}?inviteHash=${invitation?.inviteHash}`);
                   } else {
                     // Fallback to the main client dashboard page
-                    setLocation(`/client/dashboard`);
+                    // Still pass the invite hash for tracking purposes
+                    setLocation(`/client/dashboard?inviteHash=${invitation?.inviteHash}`);
                   }
                 }}
                 className={isSalonInvitation ? 
