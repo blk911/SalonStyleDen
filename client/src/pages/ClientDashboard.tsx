@@ -574,6 +574,64 @@ export default function ClientDashboard() {
               </CardContent>
             </Card>
             
+            {/* SHARE VMB Card - Always shown whether client has a salon or not */}
+            <Card className="rounded-xl shadow-sm overflow-hidden">
+              <CardHeader className="bg-pink-50 pb-2 pt-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-base flex items-center gap-2 text-pink-700">
+                    <HeartIcon className="h-4 w-4" />
+                    Share Ven Me, Baby! with Friends
+                  </CardTitle>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="p-0 h-8 w-8"
+                    onClick={() => setShowShareForm(!showShareForm)}
+                    aria-label={showShareForm ? "Hide invitation form" : "Show invitation form"}
+                  >
+                    {showShareForm ? (
+                      <ChevronUpIcon className="h-5 w-5" />
+                    ) : (
+                      <ChevronDownIcon className="h-5 w-5" />
+                    )}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className={`pt-4 ${showShareForm ? 'block' : 'hidden'}`}>
+                <ClientInviteForm 
+                  clientId={client.id}
+                  hideLabels={true}
+                  hideToggle={true}
+                  onSuccess={() => {
+                    toast({
+                      title: "Invitation Sent",
+                      description: "Your invitation has been sent successfully!"
+                    });
+                  }} 
+                />
+              </CardContent>
+            </Card>
+            
+            {/* Your Invitations Card - Display invitations the client has sent */}
+            {invitations && invitations.length > 0 && (
+              <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
+                <CardHeader className="bg-pink-50 pb-2 pt-2">
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-base flex items-center gap-2 text-pink-700">
+                      <UserIcon className="h-4 w-4" />
+                      Your Sent Invitations
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <InlineVmbInvitations 
+                    clientId={client.id} 
+                    limit={5} 
+                  />
+                </CardContent>
+              </Card>
+            )}
+            
             {/* Full-width Salon Card */}
             {client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
