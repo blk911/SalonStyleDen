@@ -219,13 +219,34 @@ export default function ClientDashboard() {
     enabled: !!client,
   });
 
+  // Check if user is viewing their own profile or if it's an admin view
+  const [isAdminView, setIsAdminView] = useState(false);
+  
+  // Detect if we're in admin view mode by checking URL parameters or localStorage
+  useEffect(() => {
+    // Check if there's an admin flag in the URL or localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const adminViewParam = urlParams.get('adminView');
+    const adminViewStorage = localStorage.getItem('adminView');
+    
+    // Set admin view mode if either condition is true
+    if (adminViewParam === 'true' || adminViewStorage === 'true') {
+      console.log('[FLOW] ClientDashboard - Admin view mode detected, profile prompt will not show');
+      setIsAdminView(true);
+    } else {
+      console.log('[FLOW] ClientDashboard - Regular client view mode');
+      setIsAdminView(false);
+    }
+  }, []);
+  
   // Check client's registration status when data is loaded
   useEffect(() => {
-    if (client) {
+    if (client && !isAdminView) {
       console.log(`ClientDashboard - Client data loaded. Checking acceptedTerms status: ${client.acceptedTerms}`);
       console.log(`ClientDashboard - Profile prompt shown status: ${client.profilePromptShown}`);
       
       // Only show popup when client has NOT accepted terms AND the prompt hasn't been shown before
+      // AND we're not in admin view mode
       if (client.acceptedTerms !== true && client.profilePromptShown !== true) {
         console.log('[FLOW] ClientDashboard - Client has not accepted terms and prompt not shown before, displaying dialog');
         setShowCompleteProfileDialog(true);
@@ -240,8 +261,11 @@ export default function ClientDashboard() {
         }
         setShowCompleteProfileDialog(false);
       }
+    } else if (isAdminView) {
+      console.log('[FLOW] ClientDashboard - Admin view mode: profile prompt disabled');
+      setShowCompleteProfileDialog(false);
     }
-  }, [client]);
+  }, [client, isAdminView]);
   
   // Function to update the client's profilePromptShown status in the database
   const updateProfilePromptShown = async (clientId: number) => {
