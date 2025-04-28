@@ -22,7 +22,7 @@ import {
   Loader2,
   AlertTriangle
 } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { 
   Table,
   TableBody,
@@ -351,6 +351,11 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     setIsSubmitting(true);
 
     try {
+      // Check if invitation limit has been reached for unverified salons
+      if (hasReachedLimit && licenseInfo && !licenseInfo.licenseVerified) {
+        throw new Error(`You have reached your invitation limit (${licenseInfo.invitationLimit}). Please wait for your license to be verified.`);
+      }
+      
       const cleanPhone = phone.replace(/\D/g, '');
       if (cleanPhone.length !== 10) {
         throw new Error('Phone number must be 10 digits');
@@ -737,7 +742,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   });
                   setShowPreviewModal(true);
                 }}
-                disabled={isSubmitting}
+                disabled={isSubmitting || (hasReachedLimit && !licenseInfo?.licenseVerified)}
                 className="w-full bg-pink-500 hover:bg-pink-600"
               >
                 <Send className="h-4 w-4 mr-2" />

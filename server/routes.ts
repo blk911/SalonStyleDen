@@ -1578,6 +1578,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to retrieve salon invitations" });
     }
   });
+  
+  // New route to check invitation limits for salons based on license verification status
+  apiRouter.get("/salons/:id/invitation-limit", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const salonId = parseInt(id);
+      
+      // Get the salon to check license verification status
+      const salon = await storage.getSalon(salonId);
+      if (!salon) {
+        return res.status(404).json({ error: "Salon not found" });
+      }
+      
+      // Check invitation limit
+      const limitInfo = await storage.hasSalonReachedInvitationLimit(salonId);
+      
+      // Return license and invitation limit information
+      res.json({
+        licenseVerified: salon.licenseVerified || false,
+        licenseStatus: salon.licenseStatus || 'pending',
+        currentCount: limitInfo.currentCount,
+        limit: limitInfo.limit,
+        hasReachedLimit: limitInfo.hasReachedLimit
+      });
+    } catch (error) {
+      console.error('Error checking salon invitation limit:', error);
+      res.status(500).json({ error: "Failed to retrieve salon invitation limit information" });
+    }
+  });
 
   // Style Selection Endpoints
   apiRouter.post("/clients/:clientId/style-selections", async (req: Request, res: Response) => {
