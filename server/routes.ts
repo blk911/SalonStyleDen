@@ -1013,6 +1013,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
             throw new Error("Either Salon ID or Sender ID is required for invitations");
           }
           
+          // Check for salon invitation limits if this is a salon-created invitation
+          if (validatedData.salonId && !validatedData.senderId) {
+            // This is a salon-created invitation
+            console.log(`[API] POST /invitations - Checking invitation limits for salon ${validatedData.salonId}`);
+            
+            // Check if salon has reached its invitation limit
+            const limitCheck = await storage.hasSalonReachedInvitationLimit(validatedData.salonId);
+            
+            if (limitCheck.hasReachedLimit) {
+              console.log(`[API] POST /invitations - Salon ${validatedData.salonId} has reached invitation limit`);
+              console.log(`[API] Current count: ${limitCheck.currentCount}, Limit: ${limitCheck.limit}`);
+              
+              return res.status(403).json({
+                error: 'Invitation limit reached',
+                message: 'Your salon has reached the maximum number of client invitations allowed.',
+                details: 'Salon license verification is required to send more invitations.',
+                currentCount: limitCheck.currentCount,
+                limit: limitCheck.limit
+              });
+            }
+            
+            console.log(`[API] POST /invitations - Salon ${validatedData.salonId} has not reached invitation limit`);
+            console.log(`[API] Current count: ${limitCheck.currentCount}, Limit: ${limitCheck.limit}`);
+          }
+          
           // Validate that the senderId (clientId) exists in the database
           if (validatedData.senderId) {
             const senderClient = await storage.getClient(validatedData.senderId);
