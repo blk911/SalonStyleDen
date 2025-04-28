@@ -41,6 +41,7 @@ interface ClientData {
   email: string;
   isCurrentClient: boolean;
   acceptedTerms?: boolean; // Added field to track terms acceptance status
+  profilePromptShown?: boolean; // Added field to track if profile completion prompt has been shown
   notes?: string;
   favoriteServices?: string[];
   salonId?: number;
@@ -222,18 +223,48 @@ export default function ClientDashboard() {
   useEffect(() => {
     if (client) {
       console.log(`ClientDashboard - Client data loaded. Checking acceptedTerms status: ${client.acceptedTerms}`);
+      console.log(`ClientDashboard - Profile prompt shown status: ${client.profilePromptShown}`);
       
-      // If the acceptedTerms flag is not true, show the popup
-      // Only show popup when client has NOT accepted terms
-      if (client.acceptedTerms !== true) {
-        console.log('ClientDashboard - Client has not accepted terms, showing profile completion dialog');
+      // Only show popup when client has NOT accepted terms AND the prompt hasn't been shown before
+      if (client.acceptedTerms !== true && client.profilePromptShown !== true) {
+        console.log('[FLOW] ClientDashboard - Client has not accepted terms and prompt not shown before, displaying dialog');
         setShowCompleteProfileDialog(true);
+        
+        // Mark that we've shown the popup to this client
+        updateProfilePromptShown(client.id);
       } else {
-        console.log('ClientDashboard - Client has already accepted terms, not showing dialog');
+        if (client.profilePromptShown === true) {
+          console.log('[FLOW] ClientDashboard - Profile prompt already shown to this client, not showing again');
+        } else if (client.acceptedTerms === true) {
+          console.log('[FLOW] ClientDashboard - Client has already accepted terms, not showing dialog');
+        }
         setShowCompleteProfileDialog(false);
       }
     }
   }, [client]);
+  
+  // Function to update the client's profilePromptShown status in the database
+  const updateProfilePromptShown = async (clientId: number) => {
+    try {
+      console.log(`[FLOW] ClientDashboard - Marking profile prompt as shown for client ${clientId}`);
+      const response = await fetch(`/api/clients/${clientId}/profile-prompt-shown`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ profilePromptShown: true }),
+      });
+      
+      if (!response.ok) {
+        console.error(`Error updating profile prompt status: ${response.status}`);
+        return;
+      }
+      
+      console.log(`[FLOW] ClientDashboard - Successfully marked profile prompt as shown`);
+    } catch (error) {
+      console.error('Error updating profile prompt status:', error);
+    }
+  };
 
   const isLoading = clientLoading || (client?.salonId && salonLoading);
 

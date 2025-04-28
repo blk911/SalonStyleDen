@@ -39,6 +39,7 @@ export const clients = pgTable("clients", {
   email: text("email").default(''),
   isCurrentClient: boolean("is_current_client").notNull().default(false),
   acceptedTerms: boolean("accepted_terms").default(false), // Track terms & conditions acceptance
+  profilePromptShown: boolean("profile_prompt_shown").default(false), // Track if profile completion prompt has been shown
   notes: text("notes"),
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
   salonId: integer("salon_id"), // Reference to salon if client belongs to one
