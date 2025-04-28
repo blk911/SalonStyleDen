@@ -437,7 +437,7 @@ export default function SalonRegistrationPage() {
                         const [isFocused, setIsFocused] = useState(false);
                         
                         return (
-                          <FormItem className={`flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 transition-colors duration-200 hover:bg-pink-50/50 ${
+                          <FormItem className={`flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3 transition-colors duration-200 hover:bg-pink-50/50 ${
                             isFocused ? 'bg-pink-50 border-pink-200 shadow-sm' : ''
                           }`}>
                             <FormControl>
@@ -461,7 +461,7 @@ export default function SalonRegistrationPage() {
                                     }
                                   }}
                                 />
-                                <label htmlFor="terms-checkbox" className="cursor-pointer select-none">
+                                <label htmlFor="terms-checkbox" className="cursor-pointer select-none text-sm">
                                   I accept the terms and conditions
                                 </label>
                               </div>
