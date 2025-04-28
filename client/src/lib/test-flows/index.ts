@@ -5,6 +5,7 @@
 import FlowLogger from '../flow-logger';
 import salonInvitationFlow from './salon-invitation-flow';
 import clientInvitationFlow from './client-invitation-flow';
+import invitationStatusFlow from './invitation-status-flow';
 
 // Initialize test flows in development mode
 export function initTestFlows() {
@@ -19,6 +20,9 @@ export function initTestFlows() {
       // Client invitation flow
       (window as any).vmb.flowTests.registerTest('clientInvitation', clientInvitationFlow);
       
+      // Invitation status transition flow
+      (window as any).vmb.flowTests.registerTest('invitationStatus', invitationStatusFlow);
+      
       FlowLogger.success('TestFlows', 'Test flows initialized successfully');
     }
   }
@@ -26,5 +30,6 @@ export function initTestFlows() {
 
 export { 
   salonInvitationFlow,
-  clientInvitationFlow
+  clientInvitationFlow,
+  invitationStatusFlow
 };
