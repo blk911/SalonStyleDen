@@ -9,8 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AtSignIcon, ChevronDownIcon, ChevronUpIcon, PhoneIcon, SendIcon, UserIcon } from "lucide-react";
+import { AtSignIcon, ChevronDownIcon, ChevronUpIcon, PhoneIcon, SendIcon, UserIcon, BuildingIcon, UsersIcon } from "lucide-react";
 import FlowLogger from "@/lib/flow-logger";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface ClientInviteFormProps {
   clientId: number;
@@ -28,6 +29,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     phone: "",
     email: "",
     message: "Hey! I love my salon's Ven Me, Baby! style options. You should check them out!",
+    inviteeType: "friend" // Default to friend, alternative is "salonOwner"
   });
 
   // Log form initialization
@@ -58,6 +60,27 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
       FlowLogger.log('ClientInviteForm', 'Form Field Updated', { field: name, value });
+    }
+  };
+  
+  // Handle invitee type selection
+  const handleTypeChange = (value: string) => {
+    setForm(prev => ({ ...prev, inviteeType: value }));
+    FlowLogger.log('ClientInviteForm', 'Invitee Type Updated', { value });
+    
+    // Adjust placeholder message based on invitee type
+    if (value === 'salonOwner') {
+      setForm(prev => ({ 
+        ...prev, 
+        inviteeType: value,
+        message: "Hey! I'd like to invite you to join VMB as a salon owner. Let's connect!"
+      }));
+    } else {
+      setForm(prev => ({ 
+        ...prev, 
+        inviteeType: value,
+        message: "Hey! I love my salon's Ven Me, Baby! style options. You should check them out!"
+      }));
     }
   };
 
@@ -158,6 +181,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
         phone: "",
         email: "",
         message: "Hey! I love my salon's Ven Me, Baby! style options. You should check them out!",
+        inviteeType: "friend"
       });
       
       // Call success callback if provided
