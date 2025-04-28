@@ -48,6 +48,7 @@ interface Salon {
 
 // Create a client registration schema
 const clientSchema = z.object({
+  inviteType: z.enum(['friend', 'salonOwner']).default('friend'),
   name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
   email: z.string().email({ message: 'Please enter a valid email address' }),
   phone: z.string().min(10, { message: 'Please enter a valid phone number' }),
@@ -451,16 +452,52 @@ export default function ClientRegistrationPage() {
               </CardHeader>
               <CardContent>
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                    {/* Invite Type Radio */}
+                    <FormField
+                      control={form.control}
+                      name="inviteType"
+                      render={({ field }) => (
+                        <FormItem className="mb-2">
+                          <div className="mb-1 font-medium">This Invite For:</div>
+                          <div className="flex items-center space-x-6">
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                id="friend"
+                                checked={field.value === 'friend'}
+                                onChange={() => field.onChange('friend')}
+                                className="h-4 w-4 border-gray-300 text-pink-600 focus:ring-pink-600"
+                              />
+                              <label htmlFor="friend" className="text-sm font-medium">
+                                Friend
+                              </label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                id="salonOwner"
+                                checked={field.value === 'salonOwner'}
+                                onChange={() => field.onChange('salonOwner')}
+                                className="h-4 w-4 border-gray-300 text-pink-600 focus:ring-pink-600"
+                              />
+                              <label htmlFor="salonOwner" className="text-sm font-medium">
+                                Salon Owner
+                              </label>
+                            </div>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <FormField
                         control={form.control}
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Full Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Your name" {...field} />
+                              <Input placeholder="Full Name" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -472,9 +509,8 @@ export default function ClientRegistrationPage() {
                         name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Email</FormLabel>
                             <FormControl>
-                              <Input placeholder="Your email" {...field} />
+                              <Input placeholder="Email" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -486,10 +522,9 @@ export default function ClientRegistrationPage() {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Phone Number</FormLabel>
                             <FormControl>
                               <PhoneInputField 
-                                placeholder="Your phone number" 
+                                placeholder="Phone Number" 
                                 value={field.value}
                                 onChange={field.onChange}
                                 onValidationComplete={(isValid, isRegistered) => {
@@ -523,9 +558,8 @@ export default function ClientRegistrationPage() {
                         name="address"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Address (Optional)</FormLabel>
                             <FormControl>
-                              <Input placeholder="Street address" {...field} />
+                              <Input placeholder="Address (Optional)" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -538,7 +572,6 @@ export default function ClientRegistrationPage() {
                           name="city"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>City</FormLabel>
                               <FormControl>
                                 <Input placeholder="City" {...field} />
                               </FormControl>
@@ -552,7 +585,6 @@ export default function ClientRegistrationPage() {
                           name="state"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>State</FormLabel>
                               <FormControl>
                                 <Input placeholder="State" {...field} />
                               </FormControl>
@@ -567,7 +599,6 @@ export default function ClientRegistrationPage() {
                         name="zipCode"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>ZIP Code</FormLabel>
                             <FormControl>
                               <Input placeholder="ZIP Code" {...field} />
                             </FormControl>
