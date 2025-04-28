@@ -37,8 +37,28 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    FlowLogger.log('ClientInviteForm', 'Form Field Updated', { field: name, value });
+    
+    // Format phone number if phone field is being updated
+    if (name === 'phone') {
+      // Keep only digits
+      const digitsOnly = value.replace(/\D/g, '');
+      
+      // Format the phone number as (XXX) XXX-XXXX
+      let formattedPhone = '';
+      if (digitsOnly.length <= 3) {
+        formattedPhone = digitsOnly;
+      } else if (digitsOnly.length <= 6) {
+        formattedPhone = `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3)}`;
+      } else {
+        formattedPhone = `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6, 10)}`;
+      }
+      
+      setForm((prev) => ({ ...prev, [name]: formattedPhone }));
+      FlowLogger.log('ClientInviteForm', 'Form Field Updated (Formatted Phone)', { field: name, value: formattedPhone, raw: value });
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+      FlowLogger.log('ClientInviteForm', 'Form Field Updated', { field: name, value });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,7 +67,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     
     // Simple validation
     if (!form.name.trim()) {
-      FlowLogger.warn('ClientInviteForm', 'Validation Failed - Name Required');
+      FlowLogger.log('ClientInviteForm', 'Validation Failed - Name Required');
       toast({
         title: "Name required",
         description: "Please enter your friend's name",
@@ -57,7 +77,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     }
     
     if (!form.phone.trim() && !form.email.trim()) {
-      FlowLogger.warn('ClientInviteForm', 'Validation Failed - Contact Info Required');
+      FlowLogger.log('ClientInviteForm', 'Validation Failed - Contact Info Required');
       toast({
         title: "Contact info required",
         description: "Please enter either phone or email",
