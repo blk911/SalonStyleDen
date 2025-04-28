@@ -770,7 +770,7 @@ export default function AdminDashboard() {
                       }
                     }}
                   >
-                    <h3 className="font-bold text-pink-700">{salonName}</h3>
+                    <h3 className="font-bold text-pink-700">Salon: {salonName}</h3>
                     <div className="flex items-center">
                       <Badge className="mr-2 bg-pink-100 text-pink-700 border-pink-200">
                         {salonInvites.length} Invitations
