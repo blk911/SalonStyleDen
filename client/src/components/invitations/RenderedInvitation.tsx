@@ -65,18 +65,23 @@ export function RenderedInvitation({
     console.log(`[FLOW] RenderedInvitation - Current client ID context: ${clientId || 'Not set'}`);
   }, []);
   
-  // Check if the current client's ID matches "Tom" and if recipient is also Tom
-  const recipientIsTom = recipientName === 'Tom';
-  const currentClientIsTom = currentClientId === 'Tom';
+  // Get variable references for console.log
+  const isTomName = recipientName === 'Tom';
+  const isTomViewing = currentClientId === 'Tom';
+  
+  // SITE-WIDE CRITICAL RULE:
+  // 1. The SEND GIFT button should NEVER be shown if client ID is not set
+  // 2. ONLY "Tom" can view "Tom's" invites with an active SEND GIFT button
   
   // The SEND GIFT button should only appear when:
   // 1. The status is pending
-  // 2. The recipient is Tom
-  // 3. The current client ID is "Tom" (meaning Tom is viewing Tom's own invitation)
+  // 2. The recipient is "Tom"
+  // 3. The current viewer is "Tom" (meaning Tom is viewing his own invitation)
   // 4. There is a valid onSendGift handler
-  const showButton = onSendGift && status === 'pending' && recipientIsTom && currentClientIsTom;
+  // 5. The client ID is defined
+  const showButton = Boolean(currentClientId) && onSendGift && status === 'pending' && isTomName && isTomViewing;
   
-  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Recipient is Tom: ${recipientIsTom} - Current client is Tom: ${currentClientIsTom} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
+  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Client ID: ${currentClientId || 'NOT SET'} - Is Tom: ${isTomName} - Is Tom viewing: ${isTomViewing} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
   
   return (
     <Card className={`w-full max-w-md mx-auto shadow-lg overflow-hidden ${className}`}>
