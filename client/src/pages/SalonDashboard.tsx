@@ -126,6 +126,11 @@ export default function SalonDashboard() {
     return saved ? JSON.parse(saved) : false;
   });
   
+  const [accountSectionOpen, setAccountSectionOpen] = useState(() => {
+    const saved = localStorage.getItem('vmb-account-section-open');
+    return saved ? JSON.parse(saved) : false;
+  });
+  
   // Save section states to localStorage when they change
   useEffect(() => {
     localStorage.setItem('vmb-style-section-open', JSON.stringify(styleSectionOpen));
@@ -138,6 +143,10 @@ export default function SalonDashboard() {
   useEffect(() => {
     localStorage.setItem('vmb-invitation-section-open', JSON.stringify(invitationSectionOpen));
   }, [invitationSectionOpen]);
+  
+  useEffect(() => {
+    localStorage.setItem('vmb-account-section-open', JSON.stringify(accountSectionOpen));
+  }, [accountSectionOpen]);
 
   // Weekly schedule state
   const [weeklySchedule, setWeeklySchedule] = useState<DaySchedule[]>([
@@ -866,6 +875,31 @@ export default function SalonDashboard() {
                     initialSchedule={weeklySchedule}
                     onScheduleSaved={handleSaveSchedule}
                   />
+                </CardContent>
+              )}
+            </Card>
+          </div>
+        </section>
+
+        {/* Account Management Section */}
+        <section className="py-2">
+          <div className="container mx-auto px-2">
+            <Card className="rounded-xl shadow-sm overflow-hidden border border-pink-200">
+              <div 
+                className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
+                onClick={() => setAccountSectionOpen(!accountSectionOpen)}
+              >
+                <h3 className="font-medium text-sm sm:text-base text-pink-700">Account Management</h3>
+                <ChevronDown 
+                  className={`h-5 w-5 text-pink-600 transition-transform ${accountSectionOpen ? 'transform rotate-180' : ''}`} 
+                />
+              </div>
+              
+              {accountSectionOpen && (
+                <CardContent className="p-3 bg-white">
+                  <div className="container">
+                    
+                  </div>
                 </CardContent>
               )}
             </Card>
