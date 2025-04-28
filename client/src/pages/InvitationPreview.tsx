@@ -78,6 +78,27 @@ export default function InvitationPreview() {
     },
     enabled: !!hash,
   });
+  
+  // Fetch current client ID for redirection
+  const { 
+    data: currentClient,
+    isLoading: clientLoading
+  } = useQuery({
+    queryKey: ['/api/session/current-client'],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/session/current-client');
+        if (!response.ok) {
+          console.error("Error fetching current client:", response.statusText);
+          return null;
+        }
+        return response.json();
+      } catch (error) {
+        console.error("Error fetching current client:", error);
+        return null;
+      }
+    }
+  });
 
   // Fetch salon if invitation has a salonId
   const { 
@@ -341,17 +362,11 @@ export default function InvitationPreview() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  // Check if we're in a salon or client context and redirect accordingly
-                  if (window.location.pathname.includes('/client/')) {
-                    setLocation("/client/dashboard");
-                  } else if (window.location.pathname.includes('/salon/')) {
-                    setLocation("/salon/dashboard");
-                  } else if (invitation?.salonId) {
-                    // Fallback to salon dashboard if we have a salonId
-                    setLocation("/salon/dashboard");
+                  // Use the client ID if available, otherwise go to clients list
+                  if (currentClient && currentClient.id) {
+                    setLocation(`/client/${currentClient.id}`);
                   } else {
-                    // Default to client dashboard
-                    setLocation("/client/dashboard");
+                    setLocation("/clients");
                   }
                 }}
                 className={isSalonInvitation ? 
