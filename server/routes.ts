@@ -679,6 +679,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to update client" });
     }
   });
+  
+  // Endpoint to update profilePromptShown status
+  apiRouter.post("/clients/:id/profile-prompt-shown", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      // First, check if the client exists
+      const client = await storage.getClient(id);
+      if (!client) {
+        return res.status(404).json({ error: "Client not found" });
+      }
+      
+      // Update only the profilePromptShown field
+      const updatedData = { 
+        ...client,
+        profilePromptShown: true 
+      };
+      
+      // Update the client
+      const result = await storage.updateClient(id, updatedData);
+      
+      res.json({ success: true, message: "Profile prompt shown status updated" });
+    } catch (error) {
+      console.error('[FLOW] Error updating profile prompt status:', error);
+      res.status(500).json({ error: "Failed to update profile prompt status" });
+    }
+  });
 
   // Bulk import routes
   apiRouter.post("/import/salons", async (req: Request, res: Response) => {

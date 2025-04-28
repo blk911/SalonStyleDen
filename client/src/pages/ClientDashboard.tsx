@@ -260,6 +260,7 @@ export default function ClientDashboard() {
         return;
       }
       
+      const result = await response.json();
       console.log(`[FLOW] ClientDashboard - Successfully marked profile prompt as shown`);
     } catch (error) {
       console.error('Error updating profile prompt status:', error);
