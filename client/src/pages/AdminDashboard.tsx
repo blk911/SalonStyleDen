@@ -987,16 +987,16 @@ export default function AdminDashboard() {
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <span className="cursor-help">
-                                      {client.salonName.substring(0, 8)}...
+                                      Salon: {client.salonName.substring(0, 8)}...
                                     </span>
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                    <p>{client.salonName}</p>
+                                    <p>Salon: {client.salonName}</p>
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
                             ) : (
-                              client.salonName || 'N/A'
+                              <>Salon: {client.salonName || 'N/A'}</>
                             )}
                           </TableCell>
                           
