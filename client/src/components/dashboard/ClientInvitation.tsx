@@ -140,44 +140,14 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   };
   
   // State for collapsible sections - all closed by default
-  const [sendFormOpen, setSendFormOpen] = useState(() => {
-    const saved = localStorage.getItem('vmb-send-invitation-form-open');
-    return saved ? JSON.parse(saved) : false; // Closed by default
-  });
-  
-  const [pendingInvitesOpen, setPendingInvitesOpen] = useState(() => {
-    const saved = localStorage.getItem('vmb-pending-invitations-open');
-    return saved ? JSON.parse(saved) : false; // Closed by default
-  });
-  
-  const [scheduledInvitesOpen, setScheduledInvitesOpen] = useState(() => {
-    const saved = localStorage.getItem('vmb-scheduled-invitations-open');
-    return saved ? JSON.parse(saved) : false; // Closed by default
-  });
-  
-  const [completedInvitesOpen, setCompletedInvitesOpen] = useState(() => {
-    const saved = localStorage.getItem('vmb-completed-invitations-open');
-    return saved ? JSON.parse(saved) : false; // Closed by default
-  });
+  const [sendFormOpen, setSendFormOpen] = useState(false);
+  const [pendingInvitesOpen, setPendingInvitesOpen] = useState(false);
+  const [scheduledInvitesOpen, setScheduledInvitesOpen] = useState(false);
+  const [completedInvitesOpen, setCompletedInvitesOpen] = useState(false);
   
   // We're using inline license warning with Update/Close buttons instead of a separate dialog
   
-  // Save collapsible states to localStorage
-  useEffect(() => {
-    localStorage.setItem('vmb-send-invitation-form-open', JSON.stringify(sendFormOpen));
-  }, [sendFormOpen]);
-  
-  useEffect(() => {
-    localStorage.setItem('vmb-pending-invitations-open', JSON.stringify(pendingInvitesOpen));
-  }, [pendingInvitesOpen]);
-  
-  useEffect(() => {
-    localStorage.setItem('vmb-scheduled-invitations-open', JSON.stringify(scheduledInvitesOpen));
-  }, [scheduledInvitesOpen]);
-  
-  useEffect(() => {
-    localStorage.setItem('vmb-completed-invitations-open', JSON.stringify(completedInvitesOpen));
-  }, [completedInvitesOpen]);
+  // All sections start closed by default now
   
   // Simplified validation pattern since we're not using the shared hook
   const [errorField, setErrorField] = useState<'' | 'phone' | 'email'>('');
@@ -495,7 +465,15 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
           onClick={() => setSendFormOpen(!sendFormOpen)}
         >
-          <h3 className="font-medium text-xs sm:text-sm text-pink-800">Step 1: Send Client Invitation</h3>
+          <h3 className="font-medium text-xs sm:text-sm text-pink-800 flex items-center">
+            Step 1: Send Client Invitation
+            {hasReachedLimit && licenseInfo && !licenseInfo.licenseVerified && !sendFormOpen && (
+              <Badge className="ml-2 bg-red-100 text-red-800 border-red-200 flex items-center">
+                <AlertTriangle className="h-3 w-3 mr-1" />
+                Update Required
+              </Badge>
+            )}
+          </h3>
           <ChevronDown 
             className={`h-4 w-4 text-pink-800 transition-transform ${sendFormOpen ? 'transform rotate-180' : ''}`} 
           />
