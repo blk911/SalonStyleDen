@@ -12,6 +12,7 @@ import { eq } from "drizzle-orm";
 import { registerVisualizationRoutes } from "./visualization";
 import { registerMadgeRoutes } from "./madge-api";
 import { errorMonitor } from './error-monitor';
+import licenseRoutes from './routes/license';
 
 // Set up multer for file uploads
 const uploadDir = path.join(process.cwd(), 'client/public/uploads');
@@ -1749,6 +1750,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to fetch activity logs" });
     }
   });
+
+  // Register license routes
+  apiRouter.use("/license", licenseRoutes);
 
   // Register API routes
   app.use("/api", apiRouter);

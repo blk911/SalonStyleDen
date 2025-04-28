@@ -23,6 +23,13 @@ export interface IStorage {
   updateSalonServices(id: number, services: any[]): Promise<Salon>;
   updateSalonPromos(id: number, promos: any[]): Promise<Salon>;
   updateSalon(id: number, salonData: Partial<Salon>): Promise<Salon>;
+  updateSalonLicense(id: number, licenseData: { 
+    licenseName?: string, 
+    licenseNumber?: string, 
+    licenseState?: string, 
+    licenseStatus?: string, 
+    licenseVerified?: boolean 
+  }): Promise<Salon>;
   
   // Client methods
   getClient(id: number): Promise<Client | undefined>;
@@ -210,6 +217,39 @@ export class DatabaseStorage implements IStorage {
       return result[0];
     } catch (error) {
       console.error('DatabaseStorage.updateSalon - Error updating salon:', error);
+      throw error;
+    }
+  }
+  
+  async updateSalonLicense(id: number, licenseData: { 
+    licenseName?: string, 
+    licenseNumber?: string, 
+    licenseState?: string, 
+    licenseStatus?: string, 
+    licenseVerified?: boolean 
+  }): Promise<Salon> {
+    console.log(`DatabaseStorage.updateSalonLicense - Updating license for salon ID ${id}`);
+    
+    try {
+      // Get current salon data to ensure it exists
+      const currentSalon = await this.getSalon(id);
+      if (!currentSalon) {
+        throw new Error(`Salon with ID ${id} not found`);
+      }
+      
+      console.log(`DatabaseStorage.updateSalonLicense - License data:`, JSON.stringify(licenseData));
+      
+      const result = await db
+        .update(salons)
+        .set(licenseData)
+        .where(eq(salons.id, id))
+        .returning();
+      
+      console.log(`DatabaseStorage.updateSalonLicense - Update successful`);
+      
+      return result[0];
+    } catch (error) {
+      console.error('DatabaseStorage.updateSalonLicense - Error updating salon license:', error);
       throw error;
     }
   }
