@@ -47,6 +47,10 @@ export interface IStorage {
   getInvitationsByPhone(phone: string, partialMatch?: boolean): Promise<Invitation[]>;
   getInvitationByHash(hash: string): Promise<Invitation | undefined>;
   
+  // Invitation limit methods
+  countSalonInvitations(salonId: number): Promise<number>;
+  hasSalonReachedInvitationLimit(salonId: number): Promise<{hasReachedLimit: boolean, currentCount: number, limit: number}>;
+  
   // Validation methods
   isDuplicateContact(phone: string, email: string, sponsor?: string, excludeId?: number): Promise<{isDuplicate: boolean, field: string}>;
   validateInvitation(phone: string, email: string, senderId: number): Promise<{isValid: boolean, message?: string}>;
