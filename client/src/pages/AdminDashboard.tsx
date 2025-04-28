@@ -76,6 +76,10 @@ interface Salon {
   phone: string;
   services?: Service[];
   promos?: Promo[];
+  licenseStatus?: 'verified' | 'pending' | 'rejected' | 'not_submitted';
+  licenseNumber?: string;
+  licenseState?: string;
+  licenseVerificationDate?: string;
 }
 
 interface Invitation {
@@ -462,6 +466,39 @@ export default function AdminDashboard() {
               </div>
             )}
             
+            {/* License Verification Status Summary */}
+            {!salonIsLoading && !salonError && salons && salons.length > 0 && (
+              <div className="mb-4 bg-gray-50 p-3 rounded-md border">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">License Verification Status</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                  <div className="bg-green-50 border border-green-100 rounded-md p-2 text-center">
+                    <span className="text-lg font-bold text-green-700">
+                      {salons.filter(salon => salon.licenseStatus === 'verified').length}
+                    </span>
+                    <p className="text-xs text-green-600">Verified</p>
+                  </div>
+                  <div className="bg-yellow-50 border border-yellow-100 rounded-md p-2 text-center">
+                    <span className="text-lg font-bold text-yellow-700">
+                      {salons.filter(salon => salon.licenseStatus === 'pending').length}
+                    </span>
+                    <p className="text-xs text-yellow-600">Pending</p>
+                  </div>
+                  <div className="bg-red-50 border border-red-100 rounded-md p-2 text-center">
+                    <span className="text-lg font-bold text-red-700">
+                      {salons.filter(salon => salon.licenseStatus === 'rejected').length}
+                    </span>
+                    <p className="text-xs text-red-600">Rejected</p>
+                  </div>
+                  <div className="bg-gray-50 border border-gray-200 rounded-md p-2 text-center">
+                    <span className="text-lg font-bold text-gray-700">
+                      {salons.filter(salon => !salon.licenseStatus || salon.licenseStatus === 'not_submitted').length}
+                    </span>
+                    <p className="text-xs text-gray-600">Not Submitted</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {/* Salons with collapsible entries */}
             {!salonIsLoading && !salonError && salons && salons.length > 0 && (
               <ScrollArea className="h-[400px] mt-2">
@@ -476,6 +513,26 @@ export default function AdminDashboard() {
                         <div className="flex items-center">
                           <span className="font-medium text-pink-800">{salon.name}</span>
                           <span className="ml-2 text-xs text-pink-600">ID: {salon.id}</span>
+                          
+                          {/* License Status Badge */}
+                          {salon.licenseStatus && (
+                            <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded-full 
+                              ${salon.licenseStatus === 'verified' ? 'bg-green-100 text-green-800' : ''}
+                              ${salon.licenseStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
+                              ${salon.licenseStatus === 'rejected' ? 'bg-red-100 text-red-800' : ''}
+                              ${salon.licenseStatus === 'not_submitted' ? 'bg-gray-100 text-gray-800' : ''}
+                            `}>
+                              {salon.licenseStatus === 'verified' && 'License Verified'}
+                              {salon.licenseStatus === 'pending' && 'License Pending'}
+                              {salon.licenseStatus === 'rejected' && 'License Rejected'}
+                              {salon.licenseStatus === 'not_submitted' && 'No License Info'}
+                            </span>
+                          )}
+                          {!salon.licenseStatus && (
+                            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
+                              No License Info
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center">
                           <Link 
@@ -535,6 +592,106 @@ export default function AdminDashboard() {
                                 </div>
                               </dl>
                             </div>
+                          </div>
+                          
+                          {/* License Information Section */}
+                          <div className="mt-4 pt-4 border-t">
+                            <h3 className="text-sm font-medium text-gray-700 mb-2">License Information</h3>
+                            
+                            {/* Show appropriate content based on license status */}
+                            {salon.licenseStatus === 'verified' && (
+                              <div className="bg-green-50 p-3 rounded-md border border-green-100">
+                                <div className="flex items-center mb-2">
+                                  <Badge className="bg-green-600">Verified</Badge>
+                                  <span className="ml-2 text-sm text-green-800">License has been verified</span>
+                                </div>
+                                <dl className="space-y-1 text-sm">
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">License Number:</dt>
+                                    <dd className="text-gray-800">{salon.licenseNumber || 'Not available'}</dd>
+                                  </div>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">State:</dt>
+                                    <dd className="text-gray-800">{salon.licenseState || 'Not available'}</dd>
+                                  </div>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">Verified On:</dt>
+                                    <dd className="text-gray-800">{salon.licenseVerificationDate || 'Not available'}</dd>
+                                  </div>
+                                </dl>
+                              </div>
+                            )}
+                            
+                            {salon.licenseStatus === 'pending' && (
+                              <div className="bg-yellow-50 p-3 rounded-md border border-yellow-100">
+                                <div className="flex items-center mb-2">
+                                  <Badge className="bg-yellow-600">Pending</Badge>
+                                  <span className="ml-2 text-sm text-yellow-800">License verification in progress</span>
+                                </div>
+                                <dl className="space-y-1 text-sm">
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">License Number:</dt>
+                                    <dd className="text-gray-800">{salon.licenseNumber || 'Not available'}</dd>
+                                  </div>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">State:</dt>
+                                    <dd className="text-gray-800">{salon.licenseState || 'Not available'}</dd>
+                                  </div>
+                                </dl>
+                                <div className="mt-2 flex">
+                                  <Button size="sm" variant="outline" className="mr-2">
+                                    Verify License
+                                  </Button>
+                                  <Button size="sm" variant="destructive">
+                                    Reject
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {salon.licenseStatus === 'rejected' && (
+                              <div className="bg-red-50 p-3 rounded-md border border-red-100">
+                                <div className="flex items-center mb-2">
+                                  <Badge className="bg-red-600">Rejected</Badge>
+                                  <span className="ml-2 text-sm text-red-800">License verification failed</span>
+                                </div>
+                                <dl className="space-y-1 text-sm">
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">License Number:</dt>
+                                    <dd className="text-gray-800">{salon.licenseNumber || 'Not available'}</dd>
+                                  </div>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">State:</dt>
+                                    <dd className="text-gray-800">{salon.licenseState || 'Not available'}</dd>
+                                  </div>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">Rejected On:</dt>
+                                    <dd className="text-gray-800">{salon.licenseVerificationDate || 'Not available'}</dd>
+                                  </div>
+                                </dl>
+                                <div className="mt-2">
+                                  <Button size="sm" variant="outline">
+                                    Reconsider
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {(!salon.licenseStatus || salon.licenseStatus === 'not_submitted') && (
+                              <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+                                <div className="flex items-center mb-2">
+                                  <Badge className="bg-gray-500">Not Submitted</Badge>
+                                  <span className="ml-2 text-sm text-gray-600">No license information has been submitted</span>
+                                </div>
+                                <p className="text-sm text-gray-600 mb-2">
+                                  This salon has not yet submitted their license information. They need to complete this step
+                                  to get full access to the invitation platform.
+                                </p>
+                                <Button size="sm" variant="outline">
+                                  Send Reminder
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
