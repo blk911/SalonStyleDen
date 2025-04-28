@@ -422,6 +422,129 @@ export default function AdminDashboard() {
             </div>
           </CollapsibleCard>
 
+          {/* Salons Directory */}
+          <CollapsibleCard
+            title="Salon Directory"
+            isOpen={salonDirectoryOpen}
+            onToggle={() => setSalonDirectoryOpen(!salonDirectoryOpen)}
+          >
+            {/* Loading state */}
+            {salonIsLoading && (
+              <div className="py-8 text-center">
+                <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
+                <p className="text-gray-500 text-sm">Loading salon data...</p>
+              </div>
+            )}
+            
+            {/* Error state */}
+            {salonError && !salonIsLoading && (
+              <div className="py-8 text-center border rounded-md bg-red-50">
+                <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
+                <p className="text-red-700 mb-1">Error loading salons</p>
+                <p className="text-sm text-red-600 mb-4">{salonError.message}</p>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => refetchSalons()}
+                  className="mx-auto flex items-center gap-1"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Retry
+                </Button>
+              </div>
+            )}
+            
+            {/* Empty state */}
+            {!salonIsLoading && !salonError && (!salons || salons.length === 0) && (
+              <div className="py-8 text-center border rounded-md bg-gray-50">
+                <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
+                <p className="text-gray-500">No salons found</p>
+              </div>
+            )}
+            
+            {/* Salons with collapsible entries */}
+            {!salonIsLoading && !salonError && salons && salons.length > 0 && (
+              <ScrollArea className="h-[400px] mt-2">
+                <div className="space-y-3">
+                  {salons.map((salon: Salon) => (
+                    <div key={salon.id} className="border rounded-md overflow-hidden">
+                      {/* Salon Header - Pink Background */}
+                      <div 
+                        className="bg-pink-100 px-4 py-2 flex justify-between items-center cursor-pointer"
+                        onClick={() => setExpandedSalon(expandedSalon === salon.id ? null : salon.id)}
+                      >
+                        <div className="flex items-center">
+                          <span className="font-medium text-pink-800">{salon.name}</span>
+                          <span className="ml-2 text-xs text-pink-600">ID: {salon.id}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Link 
+                            to={`/salon/${salon.id}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setLocation(`/salon/${salon.id}`);
+                            }}
+                            className="mr-3 px-2 py-1 text-[10px] bg-pink-200 text-pink-700 rounded hover:bg-pink-300"
+                          >
+                            Salon Page
+                          </Link>
+                          {expandedSalon === salon.id ? (
+                            <ChevronUp className="h-4 w-4 text-pink-600" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 text-pink-600" />
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Salon Details - Hidden until expanded */}
+                      {expandedSalon === salon.id && (
+                        <div className="p-4 bg-white">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <h3 className="text-sm font-medium text-gray-700 mb-2">Salon Information</h3>
+                              <dl className="space-y-1 text-sm">
+                                <div className="flex">
+                                  <dt className="w-24 font-medium text-gray-500">Owner:</dt>
+                                  <dd>{salon.ownerName}</dd>
+                                </div>
+                                <div className="flex">
+                                  <dt className="w-24 font-medium text-gray-500">Email:</dt>
+                                  <dd>{salon.email}</dd>
+                                </div>
+                                <div className="flex">
+                                  <dt className="w-24 font-medium text-gray-500">Phone:</dt>
+                                  <dd>{formatPhoneNumber(salon.phone)}</dd>
+                                </div>
+                              </dl>
+                            </div>
+                            
+                            <div>
+                              <h3 className="text-sm font-medium text-gray-700 mb-2">Services & Stats</h3>
+                              <dl className="space-y-1 text-sm">
+                                <div className="flex">
+                                  <dt className="w-32 font-medium text-gray-500">Services:</dt>
+                                  <dd>{salon.services?.length || 0} services</dd>
+                                </div>
+                                <div className="flex">
+                                  <dt className="w-32 font-medium text-gray-500">Active Promos:</dt>
+                                  <dd>{salon.promos?.length || 0} promotions</dd>
+                                </div>
+                                <div className="flex">
+                                  <dt className="w-32 font-medium text-gray-500">Clients:</dt>
+                                  <dd>{clients?.filter(c => c.salonId === salon.id).length || 0} clients</dd>
+                                </div>
+                              </dl>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+          </CollapsibleCard>
+
           {/* Salon to Client Invitations - Grouped by Salon */}
           <CollapsibleCard
             title="Salon to Client Invitations" 
@@ -750,129 +873,6 @@ export default function AdminDashboard() {
                       ))}
                     </TableBody>
                   </Table>
-                </ScrollArea>
-              )}
-            </CollapsibleCard>
-
-            {/* Salons Directory */}
-            <CollapsibleCard
-              title="Salon Directory"
-              isOpen={salonDirectoryOpen}
-              onToggle={() => setSalonDirectoryOpen(!salonDirectoryOpen)}
-            >
-              {/* Loading state */}
-              {salonIsLoading && (
-                <div className="py-8 text-center">
-                  <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
-                  <p className="text-gray-500 text-sm">Loading salon data...</p>
-                </div>
-              )}
-              
-              {/* Error state */}
-              {salonError && !salonIsLoading && (
-                <div className="py-8 text-center border rounded-md bg-red-50">
-                  <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
-                  <p className="text-red-700 mb-1">Error loading salons</p>
-                  <p className="text-sm text-red-600 mb-4">{salonError.message}</p>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => refetchSalons()}
-                    className="mx-auto flex items-center gap-1"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                    Retry
-                  </Button>
-                </div>
-              )}
-              
-              {/* Empty state */}
-              {!salonIsLoading && !salonError && (!salons || salons.length === 0) && (
-                <div className="py-8 text-center border rounded-md bg-gray-50">
-                  <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-500">No salons found</p>
-                </div>
-              )}
-              
-              {/* Salons with collapsible entries */}
-              {!salonIsLoading && !salonError && salons && salons.length > 0 && (
-                <ScrollArea className="h-[400px] mt-2">
-                  <div className="space-y-3">
-                    {salons.map((salon: Salon) => (
-                      <div key={salon.id} className="border rounded-md overflow-hidden">
-                        {/* Salon Header - Pink Background */}
-                        <div 
-                          className="bg-pink-100 px-4 py-2 flex justify-between items-center cursor-pointer"
-                          onClick={() => setExpandedSalon(expandedSalon === salon.id ? null : salon.id)}
-                        >
-                          <div className="flex items-center">
-                            <span className="font-medium text-pink-800">{salon.name}</span>
-                            <span className="ml-2 text-xs text-pink-600">ID: {salon.id}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Link 
-                              to={`/salon/${salon.id}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setLocation(`/salon/${salon.id}`);
-                              }}
-                              className="mr-3 px-2 py-1 text-[10px] bg-pink-200 text-pink-700 rounded hover:bg-pink-300"
-                            >
-                              Salon Page
-                            </Link>
-                            {expandedSalon === salon.id ? (
-                              <ChevronUp className="h-4 w-4 text-pink-600" />
-                            ) : (
-                              <ChevronDown className="h-4 w-4 text-pink-600" />
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* Salon Details - Hidden until expanded */}
-                        {expandedSalon === salon.id && (
-                          <div className="p-4 bg-white">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <h3 className="text-sm font-medium text-gray-700 mb-2">Salon Information</h3>
-                                <dl className="space-y-1 text-sm">
-                                  <div className="flex">
-                                    <dt className="w-24 font-medium text-gray-500">Owner:</dt>
-                                    <dd>{salon.ownerName}</dd>
-                                  </div>
-                                  <div className="flex">
-                                    <dt className="w-24 font-medium text-gray-500">Email:</dt>
-                                    <dd>{salon.email}</dd>
-                                  </div>
-                                  <div className="flex">
-                                    <dt className="w-24 font-medium text-gray-500">Phone:</dt>
-                                    <dd>{formatPhoneNumber(salon.phone)}</dd>
-                                  </div>
-                                </dl>
-                              </div>
-                              
-                              <div>
-                                <h3 className="text-sm font-medium text-gray-700 mb-2">Services & Stats</h3>
-                                <dl className="space-y-1 text-sm">
-                                  <div className="flex">
-                                    <dt className="w-32 font-medium text-gray-500">Services:</dt>
-                                    <dd>{salon.services?.length || 0} services</dd>
-                                  </div>
-                                  <div className="flex">
-                                    <dt className="w-32 font-medium text-gray-500">Active Promos:</dt>
-                                    <dd>{salon.promos?.length || 0} promotions</dd>
-                                  </div>
-                                  <div className="flex">
-                                    <dt className="w-32 font-medium text-gray-500">Clients:</dt>
-                                    <dd>{clients?.filter(c => c.salonId === salon.id).length || 0} clients</dd>
-                                  </div>
-                                </dl>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
                 </ScrollArea>
               )}
             </CollapsibleCard>
