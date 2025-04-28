@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation, useRoute } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
@@ -20,6 +20,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Loader2Icon, CheckCircleIcon, UserCircle, Building2 } from 'lucide-react';
 import { PhoneInputField } from '@/components/ui/PhoneInputField';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Invitation {
   id: number;
@@ -74,6 +75,8 @@ export default function ClientRegistrationPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [showAddressDialog, setShowAddressDialog] = useState(false);
+  const termsCheckboxRef = useRef<HTMLButtonElement>(null);
 
   // Get query parameters
   const urlParams = new URLSearchParams(window.location.search);
@@ -632,21 +635,25 @@ export default function ClientRegistrationPage() {
                       control={form.control}
                       name="acceptTerms"
                       render={({ field }) => {
-                        // Use component state for tracking focus
+                        // Use component state for tracking focus and highlight
                         const [isFocused, setIsFocused] = useState(false);
+                        const [isHighlighted, setIsHighlighted] = useState(false);
                         
                         return (
                           <FormItem 
                             className={`flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 transition-colors duration-200 hover:bg-pink-50/50 ${
-                              isFocused ? 'bg-pink-50 border-pink-200 shadow-sm' : ''
+                              isFocused || isHighlighted ? 'bg-pink-50 border-pink-200 shadow-sm' : ''
                             }`}
                           >
                             <FormControl>
                               <Checkbox
+                                ref={termsCheckboxRef}
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
                                 onFocus={() => setIsFocused(true)}
                                 onBlur={() => setIsFocused(false)}
+                                onMouseEnter={() => setIsHighlighted(true)}
+                                onMouseLeave={() => setIsHighlighted(false)}
                               />
                             </FormControl>
                             <div className="space-y-1 leading-none">
