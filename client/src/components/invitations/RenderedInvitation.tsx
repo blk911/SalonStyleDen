@@ -28,6 +28,7 @@ interface RenderedInvitationProps {
   className?: string;
   salonInitiated?: boolean; // To identify salon-initiated invitations
   onSendGift?: () => void; // Handler for the SEND GIFT button click
+  status?: string; // Invitation status: pending, sent, accepted, etc.
 }
 
 export function RenderedInvitation({
@@ -41,12 +42,13 @@ export function RenderedInvitation({
   imageUrl = "/assets/french-tips.png",
   className = "",
   salonInitiated = false,
-  onSendGift
+  onSendGift,
+  status = "pending"
 }: RenderedInvitationProps) {
   const formattedInviteId = inviteId.startsWith('INV-FINAL-') ? inviteId : `INV-FINAL-${inviteId}`;
   
   // Log to trace if onSendGift is defined for debugging
-  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Send gift button will ${onSendGift ? 'SHOW' : 'HIDE'}`);
+  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Send gift button will ${onSendGift && status === 'pending' ? 'SHOW' : 'HIDE'}`);
   
   return (
     <Card className={`w-full max-w-md mx-auto shadow-lg overflow-hidden ${className}`}>
@@ -101,12 +103,19 @@ export function RenderedInvitation({
                 
                 {salonInitiated && (
                   <div className="flex justify-center mt-1 mb-2">
-                    <Button 
-                      className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white"
-                      onClick={onSendGift}
-                    >
-                      SEND GIFT
-                    </Button>
+                    {status === 'sent' || status === 'accepted' || status === 'redeemed' ? (
+                      <div className="px-3 py-0.5 text-xs text-green-600 bg-green-50 border border-green-200 rounded flex items-center">
+                        <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-1.5"></span>
+                        {status === 'sent' ? 'GIFT SENT' : status === 'accepted' ? 'GIFT ACCEPTED' : 'GIFT REDEEMED'}
+                      </div>
+                    ) : (
+                      <Button 
+                        className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white"
+                        onClick={onSendGift}
+                      >
+                        SEND GIFT
+                      </Button>
+                    )}
                   </div>
                 )}
                 

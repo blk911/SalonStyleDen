@@ -324,6 +324,7 @@ export default function InvitationPreview() {
                   salonName={salon?.name}
                   imageUrl={"/assets/french-tips.png"} // Default image
                   salonInitiated={isSalonInvitation}
+                  status={invitation.status}
                   onSendGift={promptAcceptInvitation}
                 />
               </div>
