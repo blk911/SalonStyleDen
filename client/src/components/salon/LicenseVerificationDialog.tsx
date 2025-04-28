@@ -45,16 +45,20 @@ const US_STATES = [
 
 interface LicenseVerificationDialogProps {
   open: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
   onSubmit: (licenseData: LicenseFormValues) => void;
   onSkip: () => void;
+  salonId: number | null;
+  salonName: string;
 }
 
 export default function LicenseVerificationDialog({
   open,
-  onClose,
+  onOpenChange,
   onSubmit,
   onSkip,
+  salonId,
+  salonName,
 }: LicenseVerificationDialogProps) {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [licenseData, setLicenseData] = useState<LicenseFormValues | null>(null);
@@ -77,18 +81,18 @@ export default function LicenseVerificationDialog({
   const handleConfirmSubmit = () => {
     if (licenseData) {
       onSubmit(licenseData);
-      onClose();
+      onOpenChange(false);
     }
   };
 
   const handleSkip = () => {
     onSkip();
-    onClose();
+    onOpenChange(false);
   };
 
   if (showConfirmation) {
     return (
-      <Dialog open={open} onOpenChange={onClose}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Confirm License Information</DialogTitle>

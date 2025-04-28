@@ -16,6 +16,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Loader2Icon, CheckCircleIcon } from 'lucide-react';
 import { PhoneInputField } from '@/components/ui/PhoneInputField';
+import LicenseVerificationDialog from '@/components/salon/LicenseVerificationDialog';
 
 // Import necessary modules
 
@@ -42,6 +43,9 @@ export default function SalonRegistrationPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [showLicenseDialog, setShowLicenseDialog] = useState(false);
+  const [salonData, setSalonData] = useState<any>(null);
+  const [createdSalonId, setCreatedSalonId] = useState<number | null>(null);
 
   // Initialize form
   const form = useForm<SalonFormValues>({
@@ -100,13 +104,13 @@ export default function SalonRegistrationPage() {
       setIsSubmitting(true);
       
       // Prepare salon data
-      const salonData = {
+      const salonFormData = {
         ...data,
         type: 'salon',
         accepted_terms: data.acceptTerms || false,
       };
       
-      console.log('Submitting salon data:', salonData);
+      console.log('Submitting salon data:', salonFormData);
       
       // Create the salon
       const salonResponse = await fetch('/api/salons', {
@@ -114,7 +118,7 @@ export default function SalonRegistrationPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(salonData),
+        body: JSON.stringify(salonFormData),
       });
       
       // Parse response JSON
@@ -134,30 +138,12 @@ export default function SalonRegistrationPage() {
       const createdSalon = responseData;
       console.log('Created salon:', createdSalon);
       
-      // Show success message
-      toast({
-        title: 'Registration Successful',
-        description: 'Your salon has been registered successfully.',
-        variant: 'default',
-      });
+      // Store salon data and ID
+      setSalonData(createdSalon);
+      setCreatedSalonId(createdSalon.id);
       
-      // Update registration state
-      setRegistrationComplete(true);
-      
-      // Store salon ID for redirection
-      const salonId = createdSalon?.id;
-      console.log('Salon created with ID:', salonId);
-      
-      // Redirect to salon dashboard after a short delay
-      setTimeout(() => {
-        if (salonId) {
-          navigate(`/dashboard/salon/${salonId}`);
-        } else {
-          // Fallback if we don't have the salon ID
-          console.warn('No salon ID available for redirection');
-          navigate('/');
-        }
-      }, 1500);
+      // Show license dialog
+      setShowLicenseDialog(true);
       
     } catch (error) {
       console.error('Registration error:', error);
@@ -166,9 +152,95 @@ export default function SalonRegistrationPage() {
         description: error instanceof Error ? error.message : 'An unknown error occurred',
         variant: 'destructive',
       });
-    } finally {
       setIsSubmitting(false);
     }
+  };
+  
+  // Handle license submission
+  const handleLicenseSubmit = async (licenseData: any) => {
+    try {
+      if (!createdSalonId) {
+        throw new Error('Salon ID is missing');
+      }
+      
+      // Submit license data
+      const licenseResponse = await fetch('/api/license/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          salonId: createdSalonId,
+          licenseName: licenseData.licenseName,
+          licenseNumber: licenseData.licenseNumber,
+          licenseState: licenseData.licenseState
+        }),
+      });
+      
+      if (!licenseResponse.ok) {
+        const errorData = await licenseResponse.json();
+        throw new Error(`Failed to submit license information: ${JSON.stringify(errorData)}`);
+      }
+      
+      // Show success message
+      toast({
+        title: 'License Submitted',
+        description: 'Your license information has been submitted for verification.',
+        variant: 'default',
+      });
+      
+      // Update registration state
+      setRegistrationComplete(true);
+      
+      // Redirect to salon dashboard after a short delay
+      setTimeout(() => {
+        if (createdSalonId) {
+          navigate(`/dashboard/salon/${createdSalonId}`);
+        } else {
+          // Fallback if we don't have the salon ID
+          console.warn('No salon ID available for redirection');
+          navigate('/');
+        }
+      }, 1500);
+    } catch (error) {
+      console.error('License submission error:', error);
+      toast({
+        title: 'License Submission Failed',
+        description: error instanceof Error ? error.message : 'An unknown error occurred',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+      setShowLicenseDialog(false);
+    }
+  };
+  
+  // Handle skipping license verification
+  const handleSkipLicense = () => {
+    setShowLicenseDialog(false);
+    
+    // Show success message
+    toast({
+      title: 'Registration Successful',
+      description: 'Your salon has been registered successfully. You can provide license information later.',
+      variant: 'default',
+    });
+    
+    // Update registration state
+    setRegistrationComplete(true);
+    
+    // Redirect to salon dashboard after a short delay
+    setTimeout(() => {
+      if (createdSalonId) {
+        navigate(`/dashboard/salon/${createdSalonId}`);
+      } else {
+        // Fallback if we don't have the salon ID
+        console.warn('No salon ID available for redirection');
+        navigate('/');
+      }
+    }, 1500);
+    
+    setIsSubmitting(false);
   };
 
   // Success state
@@ -201,6 +273,16 @@ export default function SalonRegistrationPage() {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-8">
+        {/* License Verification Dialog */}
+        <LicenseVerificationDialog 
+          open={showLicenseDialog} 
+          onOpenChange={setShowLicenseDialog}
+          onSubmit={handleLicenseSubmit}
+          onSkip={handleSkipLicense}
+          salonId={createdSalonId}
+          salonName={salonData?.name || ''}
+        />
+        
         <div className="grid md:grid-cols-5 gap-8">
           {/* Form Column */}
           <div className="md:col-span-3">
