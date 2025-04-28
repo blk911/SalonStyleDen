@@ -245,6 +245,25 @@ export default function ClientRegistrationPage() {
     }
   }, [invitation, form, salonId]);
 
+  // Function to handle phone validation and popup trigger
+  const handlePhoneValidation = (isValid: boolean) => {
+    if (isValid) {
+      setShowAddressDialog(true);
+    }
+  };
+  
+  // Function to handle Later button click in address dialog
+  const handleLaterClick = () => {
+    setShowAddressDialog(false);
+    
+    // Focus on terms checkbox after a short delay
+    setTimeout(() => {
+      if (termsCheckboxRef.current) {
+        termsCheckboxRef.current.focus();
+      }
+    }, 100);
+  };
+  
   // Handle form submission
   const onSubmit = async (data: ClientFormValues) => {
     try {
@@ -536,6 +555,11 @@ export default function ClientRegistrationPage() {
                                 onValidationComplete={(isValid, isRegistered) => {
                                   // We are now displaying this information in the dialog
                                   console.log(`Phone validation: isValid=${isValid}, isRegistered=${isRegistered}`);
+                                  
+                                  // If phone is valid and not registered, show the address dialog
+                                  if (isValid && !isRegistered) {
+                                    handlePhoneValidation(true);
+                                  }
                                 }}
                                 onEnterPress={() => {
                                   // Focus the address field when Enter is pressed
@@ -749,6 +773,63 @@ export default function ClientRegistrationPage() {
         </div>
       </main>
       <Footer />
+      
+      {/* Address Dialog */}
+      <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Enter Your Address</DialogTitle>
+            <DialogDescription>
+              Your address helps us provide location-based services and promotions.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="space-y-3">
+              <Input 
+                placeholder="Address" 
+                value={form.getValues().address || ''}
+                onChange={(e) => form.setValue('address', e.target.value)}
+              />
+              
+              <div className="grid grid-cols-2 gap-2">
+                <Input 
+                  placeholder="City" 
+                  value={form.getValues().city || ''}
+                  onChange={(e) => form.setValue('city', e.target.value)}
+                />
+                <Input 
+                  placeholder="State" 
+                  value={form.getValues().state || ''}
+                  onChange={(e) => form.setValue('state', e.target.value)}
+                />
+              </div>
+              
+              <Input 
+                placeholder="ZIP Code" 
+                value={form.getValues().zipCode || ''}
+                onChange={(e) => form.setValue('zipCode', e.target.value)}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter className="flex justify-between sm:justify-between">
+            <Button 
+              variant="outline" 
+              onClick={handleLaterClick}
+              type="button"
+            >
+              I'll add this later
+            </Button>
+            <Button 
+              type="button"
+              onClick={() => setShowAddressDialog(false)}
+            >
+              Save Address
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
