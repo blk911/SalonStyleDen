@@ -48,9 +48,10 @@ export function RenderedInvitation({
   const formattedInviteId = inviteId.startsWith('INV-FINAL-') ? inviteId : `INV-FINAL-${inviteId}`;
   
   // Log to trace if onSendGift is defined for debugging
-  // Check if button should be shown (only for pending status and when onSendGift is provided)
-  const showButton = onSendGift && status === 'pending';
-  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
+  // Check if button should be shown (only for recipients named "Tom", pending status, and when onSendGift is provided)
+  const recipientIsTom = recipientName === 'Tom';
+  const showButton = onSendGift && status === 'pending' && recipientIsTom;
+  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Recipient is Tom: ${recipientIsTom} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
   
   return (
     <Card className={`w-full max-w-md mx-auto shadow-lg overflow-hidden ${className}`}>
@@ -114,12 +115,21 @@ export function RenderedInvitation({
                          'COMPLETED'}
                       </div>
                     ) : (
-                      <Button 
-                        className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white"
-                        onClick={onSendGift}
-                      >
-                        SEND GIFT
-                      </Button>
+                      <>
+                        {recipientIsTom ? (
+                          <Button 
+                            className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white"
+                            onClick={onSendGift}
+                          >
+                            SEND GIFT
+                          </Button>
+                        ) : (
+                          <div className="px-3 py-0.5 text-xs text-gray-600 bg-gray-100 border border-gray-200 rounded flex items-center">
+                            <span className="inline-block w-2 h-2 bg-gray-400 rounded-full mr-1.5"></span>
+                            GIFT UNAVAILABLE
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
