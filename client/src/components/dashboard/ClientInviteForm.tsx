@@ -67,7 +67,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     
     // Simple validation
     if (!form.name.trim()) {
-      FlowLogger.log('ClientInviteForm', 'Validation Failed - Name Required');
+      FlowLogger.error('ClientInviteForm', 'Validation Failed - Name Required', new Error('Name is required'));
       toast({
         title: "Name required",
         description: "Please enter your friend's name",
@@ -77,7 +77,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     }
     
     if (!form.phone.trim() && !form.email.trim()) {
-      FlowLogger.log('ClientInviteForm', 'Validation Failed - Contact Info Required');
+      FlowLogger.error('ClientInviteForm', 'Validation Failed - Contact Info Required', new Error('Contact info is required'));
       toast({
         title: "Contact info required",
         description: "Please enter either phone or email",
