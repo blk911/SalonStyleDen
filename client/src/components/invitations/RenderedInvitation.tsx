@@ -76,14 +76,15 @@ export function RenderedInvitation({
   const isClientDefined = Boolean(currentClientId);
   const isClientRecipient = currentClientId === recipientName;
   
-  // Determine if button should be shown
+  // CRITICAL RULE: Only show the SEND GIFT button when the invitation recipient
+  // is viewing their own invitation from the Client Dashboard
   const showButton = isClientDefined && 
                      isClientRecipient && 
                      onSendGift && 
                      status === 'pending' &&
                      !salonInitiated; // Never show button in salon view
   
-  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Client ID: ${currentClientId || 'NOT SET'} - Is Tom: ${isTomName} - Is Tom viewing: ${isTomViewing} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
+  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Client ID: ${currentClientId || 'NOT SET'} - Is recipient viewing: ${isClientRecipient} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
   
   return (
     <Card className={`w-full max-w-md mx-auto shadow-lg overflow-hidden ${className}`}>
