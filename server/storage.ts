@@ -909,6 +909,65 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+  
+  // Invitation limit methods
+  async countSalonInvitations(salonId: number): Promise<number> {
+    try {
+      console.log(`DatabaseStorage.countSalonInvitations - Counting invitations for salon ${salonId}`);
+      
+      // Count invitations for the specified salon
+      const result = await db
+        .select({ count: sql`count(*)` })
+        .from(invitations)
+        .where(eq(invitations.salonId, salonId));
+      
+      // Extract count as number
+      const count = Number(result[0]?.count || 0);
+      console.log(`DatabaseStorage.countSalonInvitations - Found ${count} invitations for salon ${salonId}`);
+      
+      return count;
+    } catch (error) {
+      console.error(`DatabaseStorage.countSalonInvitations - Error counting invitations for salon ${salonId}:`, error);
+      throw error;
+    }
+  }
+  
+  async hasSalonReachedInvitationLimit(salonId: number): Promise<{hasReachedLimit: boolean, currentCount: number, limit: number}> {
+    try {
+      console.log(`DatabaseStorage.hasSalonReachedInvitationLimit - Checking limit for salon ${salonId}`);
+      
+      // Get salon to check license verification status
+      const salon = await this.getSalon(salonId);
+      if (!salon) {
+        throw new Error(`Salon with ID ${salonId} not found`);
+      }
+      
+      // Count current invitations
+      const invitationCount = await this.countSalonInvitations(salonId);
+      
+      // Determine invitation limit based on license verification status
+      // If license is verified, there is no limit (use a high number)
+      // If license is not verified, limit is 2
+      const invitationLimit = salon.licenseVerified ? Number.MAX_SAFE_INTEGER : 2;
+      
+      console.log(`DatabaseStorage.hasSalonReachedInvitationLimit - Salon ${salonId}:`);
+      console.log(`  - License verified: ${salon.licenseVerified ? 'Yes' : 'No'}`);
+      console.log(`  - Current invitation count: ${invitationCount}`);
+      console.log(`  - Invitation limit: ${salon.licenseVerified ? 'Unlimited' : invitationLimit}`);
+      
+      // Check if salon has reached its limit
+      const hasReachedLimit = invitationCount >= invitationLimit;
+      
+      return {
+        hasReachedLimit,
+        currentCount: invitationCount,
+        limit: invitationLimit
+      };
+    } catch (error) {
+      console.error(`DatabaseStorage.hasSalonReachedInvitationLimit - Error checking limit for salon ${salonId}:`, error);
+      throw error;
+    }
+  }
 
   async getInvitationsByPhone(phone: string | null | undefined, partialMatch: boolean = false): Promise<Invitation[]> {
     try {
