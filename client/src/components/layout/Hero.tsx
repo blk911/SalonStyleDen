@@ -18,7 +18,7 @@ export default function Hero({
 }: HeroProps) {
   return (
     <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-3 lg:py-3">
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center mb-2">
         {/* Only show image if owner photo is provided (for salon pages) */}
         {ownerPhotoUrl && (
           // For salon owner pages
@@ -35,13 +35,13 @@ export default function Hero({
         )}
       </div>
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-3">
           <h1 className="logo logo-lg">
             <span className="ven-me">Ven Me, </span>
             <span className="baby">Baby!</span>
           </h1>
         </div>
-        <p className="text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+        <p className="text-xl max-w-2xl mx-auto mb-5 leading-relaxed">
             <i>a connection-driven personal gifting platform</i>
           </p>
         <div className="flex justify-center gap-4 flex-wrap">
