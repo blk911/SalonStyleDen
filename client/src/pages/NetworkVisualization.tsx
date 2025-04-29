@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NetworkIcon, Users, RefreshCw, Eye, Download } from "lucide-react";
+import { NetworkIcon, Users, RefreshCw, Eye, Download, Building2 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { SvgVisualizer } from "@/components/visualization/SvgVisualizer";
@@ -117,7 +117,7 @@ export default function NetworkVisualization() {
               </p>
             </div>
             <div>
-              <Link href="/admin-dashboard">
+              <Link href="/admin">
                 <Button variant="outline">Back to Dashboard</Button>
               </Link>
             </div>
@@ -304,15 +304,15 @@ export default function NetworkVisualization() {
                     <h3 className="font-medium text-lg mb-4">Legend</h3>
                     <div className="space-y-2">
                       <div className="flex items-center">
-                        <Building2Icon className="h-5 w-5 text-blue-600 mr-2" />
+                        <Building2 className="h-5 w-5 text-blue-600 mr-2" />
                         <span>Salon</span>
                       </div>
                       <div className="flex items-center">
-                        <UserIcon className="h-5 w-5 text-blue-500 mr-2" />
+                        <CustomUserIcon className="h-5 w-5 text-blue-500 mr-2" />
                         <span>Male Client</span>
                       </div>
                       <div className="flex items-center">
-                        <UserIcon className="h-5 w-5 text-pink-500 mr-2" />
+                        <CustomUserIcon className="h-5 w-5 text-pink-500 mr-2" />
                         <span>Female Client</span>
                       </div>
                       <div className="flex items-center">
@@ -366,35 +366,9 @@ export default function NetworkVisualization() {
 }
 
 // Simple icon components for the legend
-function Building2Icon(props: React.SVGAttributes<SVGElement>) {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      {...props}
-    >
-      <path d="M6 22V4c0-.55.22-1.05.59-1.41C7.05 2.22 7.55 2 8 2h8c.55 0 1.05.22 1.41.59.37.36.59.86.59 1.41v18" />
-      <path d="M2 22h20" />
-      <path d="M3 10h7" />
-      <path d="M3 6h7" />
-      <path d="M3 14h7" />
-      <path d="M3 18h7" />
-      <path d="M14 6h3" />
-      <path d="M14 10h3" />
-      <path d="M14 14h3" />
-      <path d="M14 18h3" />
-    </svg>
-  );
-}
+// Using Building2 from lucide-react instead of custom component
 
-function UserIcon(props: React.SVGAttributes<SVGElement>) {
+function CustomUserIcon(props: React.SVGAttributes<SVGElement>) {
   return (
     <svg 
       xmlns="http://www.w3.org/2000/svg" 
