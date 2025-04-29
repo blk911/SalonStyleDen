@@ -72,12 +72,7 @@ export default function TeaserCarousel() {
 
   return (
     <div className="relative overflow-hidden rounded-xl border shadow-xl">
-      {/* Tagline at the top */}
-      <div className="bg-gradient-to-r from-pink-700 to-fuchsia-600 py-1.5 px-3 text-white text-center text-sm font-medium shadow-sm">
-        a connection-driven personal gifting platform
-      </div>
-      
-      <div className="absolute top-8 left-2 right-2 z-10">
+      <div className="absolute top-2 left-2 right-2 z-10">
         <Progress 
           value={progressPercentage} 
           className="h-1.5 bg-gray-200/50"
