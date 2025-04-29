@@ -117,9 +117,6 @@ export default function ClientDashboard() {
   // Show/hide state for pending invitations section - default to HIDE
   const [showPendingInvitations, setShowPendingInvitations] = useState(false);
   
-  // Show/hide state for personal invitations section - default to HIDE
-  const [showPersonalInvitations, setShowPersonalInvitations] = useState(false);
-  
   // Show/hide state for share form section - default to SHOW
   const [showShareForm, setShowShareForm] = useState(true);
   
@@ -1257,51 +1254,44 @@ export default function ClientDashboard() {
                     <span>Personal Invitations</span>
                   </div>
                   <button 
-                    onClick={() => setShowPersonalInvitations(!showPersonalInvitations)} 
+                    onClick={() => {
+                      // Using local state variable here (create one if you need this to persist)
+                      // For now, this is just for UI consistency
+                      toast({
+                        title: "Feature Coming Soon",
+                        description: "The ability to send personal invitations will be available soon.",
+                        variant: "default"
+                      });
+                    }} 
                     className="flex items-center text-sm text-pink-600 hover:text-pink-800"
-                    aria-label="Toggle personal invitations"
+                    aria-label="Show personal invitations"
                   >
-                    {showPersonalInvitations ? (
-                      <ChevronUpIcon className="h-5 w-5" />
-                    ) : (
-                      <ChevronDownIcon className="h-5 w-5" />
-                    )}
+                    <ChevronDownIcon className="h-5 w-5" />
                   </button>
                 </CardTitle>
               </CardHeader>
-              <CardContent className={`p-4 ${showPersonalInvitations ? 'block' : 'hidden'}`}>
-                {client.id && (
-                  <ClientInviteForm 
-                    clientId={client.id}
-                    hideLabels={true}
-                    hideToggle={true}
-                    onSuccess={() => {
+              <CardContent className="p-4">
+                <div className="py-4 text-center">
+                  <p className="text-gray-500">You haven't sent any personal invitations yet.</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Create a personal invitation to share your favorite salon experience with friends.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-4 border-pink-300 text-pink-700 hover:bg-pink-50"
+                    onClick={() => {
                       toast({
-                        title: "Invitation Sent",
-                        description: "Your personal invitation has been sent successfully!"
+                        title: "Feature Coming Soon",
+                        description: "The ability to send personal invitations will be available soon.",
+                        variant: "default"
                       });
-                    }} 
-                  />
-                )}
+                    }}
+                  >
+                    Create New Invitation
+                  </Button>
+                </div>
               </CardContent>
-              {!showPersonalInvitations && (
-                <CardContent className="p-4">
-                  <div className="py-4 text-center">
-                    <p className="text-gray-500">You haven't sent any personal invitations yet.</p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Create a personal invitation to share your favorite salon experience with friends.
-                    </p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="mt-4 border-pink-300 text-pink-700 hover:bg-pink-50"
-                      onClick={() => setShowPersonalInvitations(true)}
-                    >
-                      Create New Invitation
-                    </Button>
-                  </div>
-                </CardContent>
-              )}
             </Card>
             
             {/* Pending Invitations */}
