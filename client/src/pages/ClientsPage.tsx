@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getImageUrl, formatPhoneNumber } from "@/lib/utils";
+import TeaserCarousel from "@/components/marketing/TeaserCarousel";
 
 // Define interfaces
 interface Client {
@@ -121,32 +122,24 @@ export default function ClientsPage() {
         {/* Main Content */}
         <section className="py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Single Card at the top */}
+            {/* Marketing Teaser Campaign Carousel */}
             <div className="mb-8">
-              <Card className="bg-gradient-to-r from-pink-50 to-purple-50 shadow-md hover:shadow-xl transition-all border border-pink-100">
-                <CardContent className="p-8">
-                  <div className="flex flex-col md:flex-row items-center">
-                    <div className="text-pink-600 mr-6 mb-4 md:mb-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 17V8c0-2.2 1.8-4 4-4h8c2.2 0 4 1.8 4 4v9c0 2.2-1.8 4-4 4H8c-2.2 0-4-1.8-4-4z"/>
-                        <circle cx="12" cy="10" r="3"/>
-                        <path d="M7 18h10"/>
-                      </svg>
-                    </div>
-                    <div className="flex-grow text-center md:text-left">
-                      <h3 className="text-2xl font-serif font-semibold text-pink-800 mb-3">Lorem Ipsum Dolor</h3>
-                      <div className="text-gray-600 mb-6">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, quis aliquam nisl nisl vitae nisl. Sed vitae nisl euismod, aliquam nisl eget.</p>
-                      </div>
-                      <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                        <Button className="bg-pink-600 hover:bg-pink-700 text-white">Lorem Ipsum</Button>
-                        <Button variant="outline" className="border-pink-200 text-pink-700 hover:bg-pink-50">Dolor Sit</Button>
-                        <Button variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50">Amet Consec</Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-serif font-bold text-pink-800 flex items-center">
+                  <span className="mr-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                    </svg>
+                  </span>
+                  <span className="ven-me">Ven Me,</span> <span className="baby">Baby!</span> Teaser Campaign
+                </h3>
+                <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200">NEW</Badge>
+              </div>
+              
+              {/* Import and use TeaserCarousel component */}
+              <div className="overflow-hidden rounded-xl border shadow-md">
+                <TeaserCarousel />
+              </div>
             </div>
 
             {/* Two cards side by side in a 1x2 grid */}
