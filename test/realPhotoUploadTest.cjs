@@ -5,16 +5,10 @@
  * sizes, and data handling to ensure robustness across various devices.
  */
 
-// @ts-check
-
-import fs from 'fs';
-import path from 'path';
-import { Readable } from 'stream';
-import crypto from 'crypto';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const fs = require('fs');
+const path = require('path');
+const { Readable } = require('stream');
+const crypto = require('crypto');
 
 console.log('\x1b[35m===================================================\x1b[0m');
 console.log('\x1b[35m       VMB REAL DEVICE PHOTO UPLOAD TEST SUITE     \x1b[0m');

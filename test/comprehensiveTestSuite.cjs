@@ -20,70 +20,70 @@ console.log(`Test suite started at: ${new Date().toISOString()}`);
 const testSuites = [
   {
     name: 'Master Test Suite',
-    script: 'masterTestSuite.js',
+    script: 'masterTestSuite.fixed.cjs',
     description: 'Core system functionality tests',
     color: '\x1b[0m', // Default color
     timeout: 60000 // 60 seconds
   },
   {
     name: 'Network Visualization Tests',
-    script: 'networkVisualizationTest.js',
+    script: 'networkVisualizationTest.cjs',
     description: 'Tests for the visualization components',
     color: '\x1b[35m', // Magenta
     timeout: 30000 // 30 seconds
   },
   {
     name: 'Security and Authentication Tests',
-    script: 'securityAuthTest.js',
+    script: 'securityAuthTest.cjs',
     description: 'Tests for authentication flows and RBAC',
     color: '\x1b[33m', // Yellow
     timeout: 30000 // 30 seconds
   },
   {
     name: 'Performance and Load Tests',
-    script: 'performanceLoadTest.js',
+    script: 'performanceLoadTest.cjs',
     description: 'Tests for system performance under load',
     color: '\x1b[36m', // Cyan
     timeout: 60000 // 60 seconds
   },
   {
     name: 'Mobile Responsiveness Tests',
-    script: 'mobileResponsivenessTest.cjs',
+    script: 'mobileResponsivenessTest.simple.cjs',
     description: 'Tests for mobile responsive design',
     color: '\x1b[32m', // Green
     timeout: 30000 // 30 seconds
   },
   {
     name: 'Payment Processing Tests',
-    script: 'paymentProcessingTest.js',
+    script: 'paymentProcessingTest.cjs',
     description: 'Tests for payment and subscription flows',
     color: '\x1b[35m', // Magenta
     timeout: 30000 // 30 seconds
   },
   {
     name: 'Database Race Condition Tests',
-    script: 'databaseRaceConditionTest.js',
+    script: 'databaseRaceConditionTest.cjs',
     description: 'Tests for concurrent database operations',
     color: '\x1b[36m', // Cyan
     timeout: 30000 // 30 seconds
   },
   {
     name: 'Backup and Restore Tests',
-    script: 'backupRestoreTest.js',
+    script: 'backupRestoreTest.simple.cjs',
     description: 'Tests for backup and restore functionality',
     color: '\x1b[33m', // Yellow
     timeout: 60000 // 60 seconds
   },
   {
     name: 'Data Migration Tests',
-    script: 'dataMigrationTest.js',
+    script: 'dataMigrationTest.cjs',
     description: 'Tests for schema migration and data portability',
     color: '\x1b[32m', // Green
     timeout: 30000 // 30 seconds
   },
   {
     name: 'Real Photo Upload Tests',
-    script: 'realPhotoUploadTest.js',
+    script: 'realPhotoUploadTest.cjs',
     description: 'Tests for photo upload from various devices',
     color: '\x1b[35m', // Magenta
     timeout: 60000 // 60 seconds
