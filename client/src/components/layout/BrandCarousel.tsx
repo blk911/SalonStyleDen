@@ -27,7 +27,7 @@ const carouselItems: CarouselCard[] = [
   {
     title: 'Why ', 
     titleComponent: <div className="logo logo-md" style={{ fontSize: '36px', display: 'inline' }}><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></div>, 
-    titleSuffix: '...?',
+    titleSuffix: '',
     content: [
       { text: "He's fishing for attention", isBold: true, suffix: " — you're inviting connection." },
       { text: "Seeing your message,", isBold: true, suffix: " you're top of mind." },
