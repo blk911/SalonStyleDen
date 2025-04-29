@@ -5,15 +5,11 @@
  * and provides a detailed report of the results.
  */
 
-import { spawn } from 'child_process';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { promisify } from 'util';
-import { exec as execCallback } from 'child_process';
-
-const exec = promisify(execCallback);
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 
 console.log('\x1b[34m===================================================\x1b[0m');
 console.log('\x1b[34m          VMB COMPREHENSIVE TEST SUITE             \x1b[0m');
@@ -52,7 +48,7 @@ const testSuites = [
   },
   {
     name: 'Mobile Responsiveness Tests',
-    script: 'mobileResponsivenessTest.js',
+    script: 'mobileResponsivenessTest.cjs',
     description: 'Tests for mobile responsive design',
     color: '\x1b[32m', // Green
     timeout: 30000 // 30 seconds
@@ -126,8 +122,8 @@ const extractTestResults = (output) => {
 };
 
 // Run a single test suite
-const runTestSuite = async (suite) => {
-  return new Promise(async (resolve) => {
+const runTestSuite = (suite) => {
+  return new Promise((resolve) => {
     console.log(`\n${suite.color}🧪 RUNNING TEST SUITE: ${suite.name}${'\x1b[0m'}`);
     console.log(`${suite.color}📋 ${suite.description}${'\x1b[0m'}`);
     console.log(`${suite.color}📋 Executing: ${suite.script}${'\x1b[0m'}`);
@@ -137,7 +133,6 @@ const runTestSuite = async (suite) => {
     
     // Check if the script exists
     try {
-      const fs = await import('fs');
       if (!fs.existsSync(scriptPath)) {
         throw new Error(`Script not found: ${scriptPath}`);
       }
@@ -320,7 +315,7 @@ runAllTestSuites().then(exitCode => {
  * How to run this comprehensive test suite:
  * 
  * Simply run with Node.js:
- *    node test/comprehensiveTestSuite.js
+ *    node test/comprehensiveTestSuite.cjs
  * 
  * Expected output:
  * - Execution of all available test suites
