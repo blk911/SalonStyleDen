@@ -88,9 +88,9 @@ function RenderSponsorNode({ node, level }: { node: SponsorMember; level: number
     if (node.isInvitation) return null; // Invitations don't have dashboards
     
     if (node.type === 'salon') {
-      return `/salon-dashboard/${node.id}`;
+      return `/salon/${node.id}`;
     } else {
-      return `/client-dashboard/${node.id}`;
+      return `/client/${node.id}`;
     }
   };
   
