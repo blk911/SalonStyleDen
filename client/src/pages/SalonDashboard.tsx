@@ -131,6 +131,11 @@ export default function SalonDashboard() {
     return saved ? JSON.parse(saved) : false;
   });
   
+  // Sub-sections inside Account Management
+  const [bankingSectionOpen, setBankingSectionOpen] = useState(false);
+  const [credentialsSectionOpen, setCredentialsSectionOpen] = useState(false);
+  const [vmbPspSectionOpen, setVmbPspSectionOpen] = useState(false);
+  
   // Save section states to localStorage when they change
   useEffect(() => {
     localStorage.setItem('vmb-style-section-open', JSON.stringify(styleSectionOpen));
@@ -897,8 +902,69 @@ export default function SalonDashboard() {
               
               {accountSectionOpen && (
                 <CardContent className="p-3 bg-white">
-                  <div className="container">
-                    
+                  <div className="space-y-3">
+                    {/* Banking Section */}
+                    <Card className="rounded-lg shadow-sm overflow-hidden border border-pink-100">
+                      <div 
+                        className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
+                        onClick={() => setBankingSectionOpen(!bankingSectionOpen)}
+                      >
+                        <h4 className="font-medium text-sm text-pink-700">Banking</h4>
+                        <ChevronDown 
+                          className={`h-4 w-4 text-pink-600 transition-transform ${bankingSectionOpen ? 'transform rotate-180' : ''}`} 
+                        />
+                      </div>
+                      
+                      {bankingSectionOpen && (
+                        <div className="p-3 bg-white">
+                          <div className="container">
+                            
+                          </div>
+                        </div>
+                      )}
+                    </Card>
+
+                    {/* Credentials Section */}
+                    <Card className="rounded-lg shadow-sm overflow-hidden border border-pink-100">
+                      <div 
+                        className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
+                        onClick={() => setCredentialsSectionOpen(!credentialsSectionOpen)}
+                      >
+                        <h4 className="font-medium text-sm text-pink-700">Credentials</h4>
+                        <ChevronDown 
+                          className={`h-4 w-4 text-pink-600 transition-transform ${credentialsSectionOpen ? 'transform rotate-180' : ''}`} 
+                        />
+                      </div>
+                      
+                      {credentialsSectionOpen && (
+                        <div className="p-3 bg-white">
+                          <div className="container">
+                            
+                          </div>
+                        </div>
+                      )}
+                    </Card>
+
+                    {/* VMB PSP Section */}
+                    <Card className="rounded-lg shadow-sm overflow-hidden border border-pink-100">
+                      <div 
+                        className="bg-gradient-to-br from-pink-50 to-pink-100 pb-2 pt-2 px-3 cursor-pointer flex justify-between items-center" 
+                        onClick={() => setVmbPspSectionOpen(!vmbPspSectionOpen)}
+                      >
+                        <h4 className="font-medium text-sm text-pink-700">VMB PSP</h4>
+                        <ChevronDown 
+                          className={`h-4 w-4 text-pink-600 transition-transform ${vmbPspSectionOpen ? 'transform rotate-180' : ''}`} 
+                        />
+                      </div>
+                      
+                      {vmbPspSectionOpen && (
+                        <div className="p-3 bg-white">
+                          <div className="container">
+                            
+                          </div>
+                        </div>
+                      )}
+                    </Card>
                   </div>
                 </CardContent>
               )}
