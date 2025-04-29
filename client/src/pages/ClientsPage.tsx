@@ -121,47 +121,37 @@ export default function ClientsPage() {
         {/* Main Content */}
         <section className="py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* 2x2 Grid Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Single Card at the top */}
+            <div className="mb-8">
+              <Card className="bg-gradient-to-r from-pink-50 to-purple-50 shadow-md hover:shadow-xl transition-all border border-pink-100">
+                <CardContent className="p-8">
+                  <div className="flex flex-col md:flex-row items-center">
+                    <div className="text-pink-600 mr-6 mb-4 md:mb-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 17V8c0-2.2 1.8-4 4-4h8c2.2 0 4 1.8 4 4v9c0 2.2-1.8 4-4 4H8c-2.2 0-4-1.8-4-4z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                        <path d="M7 18h10"/>
+                      </svg>
+                    </div>
+                    <div className="flex-grow text-center md:text-left">
+                      <h3 className="text-2xl font-serif font-semibold text-pink-800 mb-3">Lorem Ipsum Dolor</h3>
+                      <div className="text-gray-600 mb-6">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, quis aliquam nisl nisl vitae nisl. Sed vitae nisl euismod, aliquam nisl eget.</p>
+                      </div>
+                      <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                        <Button className="bg-pink-600 hover:bg-pink-700 text-white">Lorem Ipsum</Button>
+                        <Button variant="outline" className="border-pink-200 text-pink-700 hover:bg-pink-50">Dolor Sit</Button>
+                        <Button variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50">Amet Consec</Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Two cards side by side in a 1x2 grid */}
+            <div className="grid grid-cols-2 gap-8">
               {/* Grid Item 1 */}
-              <Card className="bg-gradient-to-br from-pink-50 to-white shadow-md hover:shadow-xl transition-all border border-pink-100 h-full">
-                <CardContent className="p-8 flex flex-col h-full">
-                  <div className="text-pink-600 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 17V8c0-2.2 1.8-4 4-4h8c2.2 0 4 1.8 4 4v9c0 2.2-1.8 4-4 4H8c-2.2 0-4-1.8-4-4z"/>
-                      <circle cx="12" cy="10" r="3"/>
-                      <path d="M7 18h10"/>
-                    </svg>
-                  </div>
-                  <h3 className="text-2xl font-serif font-semibold text-pink-800 mb-3">Your Salons</h3>
-                  <div className="text-gray-600 flex-grow mb-6">
-                    <p>View your favorite salons and recent appointments. Discover new trends and services tailored just for you.</p>
-                  </div>
-                  <div className="mt-auto">
-                    <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white py-2">Browse Salons</Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Grid Item 2 */}
-              <Card className="bg-gradient-to-br from-purple-50 to-white shadow-md hover:shadow-xl transition-all border border-purple-100 h-full">
-                <CardContent className="p-8 flex flex-col h-full">
-                  <div className="text-purple-600 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                    </svg>
-                  </div>
-                  <h3 className="text-2xl font-serif font-semibold text-purple-800 mb-3">Special Offers</h3>
-                  <div className="text-gray-600 flex-grow mb-6">
-                    <p>Explore exclusive promotions, discounts and special pricing available only to VMB members.</p>
-                  </div>
-                  <div className="mt-auto">
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2">View Offers</Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Grid Item 3 */}
               <Card className="bg-gradient-to-br from-blue-50 to-white shadow-md hover:shadow-xl transition-all border border-blue-100 h-full">
                 <CardContent className="p-8 flex flex-col h-full">
                   <div className="text-blue-600 mb-4">
@@ -178,17 +168,17 @@ export default function ClientsPage() {
                       <path d="M16 18h.01"/>
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-serif font-semibold text-blue-800 mb-3">Appointments</h3>
+                  <h3 className="text-2xl font-serif font-semibold text-blue-800 mb-3">Lorem Ipsum</h3>
                   <div className="text-gray-600 flex-grow mb-6">
-                    <p>Check and manage your upcoming services. Never miss a beauty appointment again.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget aliquam ultricies.</p>
                   </div>
                   <div className="mt-auto">
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">View Calendar</Button>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">Dolor Sit</Button>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Grid Item 4 */}
+              {/* Grid Item 2 */}
               <Card className="bg-gradient-to-br from-green-50 to-white shadow-md hover:shadow-xl transition-all border border-green-100 h-full">
                 <CardContent className="p-8 flex flex-col h-full">
                   <div className="text-green-600 mb-4">
@@ -196,12 +186,12 @@ export default function ClientsPage() {
                       <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-serif font-semibold text-green-800 mb-3">Style Preferences</h3>
+                  <h3 className="text-2xl font-serif font-semibold text-green-800 mb-3">Consectetur</h3>
                   <div className="text-gray-600 flex-grow mb-6">
-                    <p>Update your beauty and style preferences to receive personalized recommendations.</p>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
                   </div>
                   <div className="mt-auto">
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2">Update Preferences</Button>
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2">Adipiscing</Button>
                   </div>
                 </CardContent>
               </Card>
