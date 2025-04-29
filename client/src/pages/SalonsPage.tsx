@@ -156,6 +156,9 @@ export default function SalonsPage() {
 
   // State for salon markers
   const [salonMarkers, setSalonMarkers] = useState<Array<{id: number, name: string, position: {lat: number, lng: number}}>>([]);
+  
+  // State to track which salon is being hovered over
+  const [hoveredSalon, setHoveredSalon] = useState<number | null>(null);
 
   // State for location selection
   const [selectedLocation, setSelectedLocation] = useState<string>("Denver");
@@ -554,11 +557,13 @@ export default function SalonsPage() {
             }).map((salon) => (
               <div 
                 key={salon.id} 
-                className={`border-b border-gray-200 py-2 first:pt-0 last:border-b-0 ${
+                className={`border-b border-gray-200 py-2 first:pt-0 last:border-b-0 transition-colors duration-200 ${
                   salon.name.toLowerCase().includes('tiffany') || salon.ownerName.toLowerCase().includes('tiffany') 
                     ? 'bg-[#FFF0F5] rounded-md shadow-sm border border-pink-200 my-1 p-2' 
-                    : ''
+                    : hoveredSalon === salon.id ? 'bg-pink-50 rounded-md p-2' : ''
                 }`}
+                onMouseEnter={() => setHoveredSalon(salon.id)}
+                onMouseLeave={() => setHoveredSalon(null)}
               >
                 <div className="cursor-pointer" onClick={() => toggleCard(salon.id)}>
                   {/* Header section - always visible with salon name, owner, and phone on the same line */}
