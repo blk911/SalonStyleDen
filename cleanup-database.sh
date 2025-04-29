@@ -44,9 +44,8 @@ TRUNCATE TABLE "clients" CASCADE;
 TRUNCATE TABLE "salons" CASCADE; 
 TRUNCATE TABLE "invitations" CASCADE;
 TRUNCATE TABLE "style_selections" CASCADE;
-TRUNCATE TABLE "client_salon_relationships" CASCADE;
 TRUNCATE TABLE "activity_logs" CASCADE;
-TRUNCATE TABLE "promos" CASCADE;
+TRUNCATE TABLE "users" CASCADE;
 EOL
 )
 
@@ -57,17 +56,38 @@ ALTER SEQUENCE clients_id_seq RESTART WITH 1;
 ALTER SEQUENCE salons_id_seq RESTART WITH 1;
 ALTER SEQUENCE invitations_id_seq RESTART WITH 1;
 ALTER SEQUENCE style_selections_id_seq RESTART WITH 1;
-ALTER SEQUENCE client_salon_relationships_id_seq RESTART WITH 1;
 ALTER SEQUENCE activity_logs_id_seq RESTART WITH 1;
-ALTER SEQUENCE promos_id_seq RESTART WITH 1;
+ALTER SEQUENCE users_id_seq RESTART WITH 1;
 EOL
 )
 
 # Create SQL for inserting the default VMB, LTD salon
 INSERT_DEFAULT_SALON_SQL=$(cat <<EOL
 -- Insert VMB, LTD as the default salon
-INSERT INTO "salons" ("name", "ownerName", "phone", "email", "address", "city", "state", "zipCode", "isVerified", "type")
-VALUES ('VMB, LTD', 'VMB Admin', '555-VMB-ADMN', 'admin@venmebaby.com', '1 VMB Plaza', 'Los Angeles', 'CA', '90210', true, 'corporate')
+INSERT INTO "salons" (
+  "name", 
+  "owner_name", 
+  "phone", 
+  "email", 
+  "address", 
+  "city", 
+  "state", 
+  "zip_code", 
+  "type", 
+  "license_verified"
+)
+VALUES (
+  'VMB, LTD', 
+  'VMB Admin', 
+  '555-VMB-ADMN', 
+  'admin@venmebaby.com', 
+  '1 VMB Plaza', 
+  'Los Angeles', 
+  'CA', 
+  '90210', 
+  'corporate', 
+  true
+)
 RETURNING id;
 EOL
 )
