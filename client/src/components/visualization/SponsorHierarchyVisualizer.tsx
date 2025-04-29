@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { User2, UserRound, User, Building2, RefreshCw, ChevronRight, ChevronDown, ExternalLink } from 'lucide-react';
 import { Link } from 'wouter';
 
@@ -40,14 +40,31 @@ export function SponsorHierarchyVisualizer({
     );
   }
   
+  // Define the maximum depth level in the hierarchy
+  const maxLevel = 5;
+  
   return (
     <div className="p-6 bg-white rounded-md shadow w-full overflow-auto">
       <h3 className="font-bold text-xl mb-6 text-purple-800">
         VMB Sponsor Network Hierarchy
-        <div className="text-xs font-semibold text-purple-500 ml-2 inline-block tracking-wider">
-          L ↑ L ↓
-        </div>
       </h3>
+      
+      {/* Horizontal level category header */}
+      <div className="flex justify-between items-center mb-4 border-b border-purple-300 pb-2">
+        {Array.from({ length: maxLevel + 1 }).map((_, index) => (
+          <div key={index} className="flex items-center">
+            <div className={`px-3 py-1 rounded-full ${
+              index === 0 ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-600'
+            } text-xs font-semibold`}>
+              Level {index}
+            </div>
+            {index < maxLevel && (
+              <div className="h-0.5 w-10 bg-purple-200 mx-1"></div>
+            )}
+          </div>
+        ))}
+      </div>
+      
       <div className="sponsor-hierarchy border-t-2 border-purple-800 pt-4">
         <RenderSponsorNode node={data} level={0} />
       </div>
@@ -88,16 +105,6 @@ function RenderSponsorNode({ node, level }: { node: SponsorMember; level: number
   
   return (
     <div className="relative node-container" style={{ marginBottom: `${nodeSpacing}px` }}>
-      {/* Category header for the level */}
-      {level === 0 && (
-        <div className="absolute -top-4 right-0 left-0 flex items-center">
-          <div className="flex-grow border-b border-gray-200"></div>
-          <div className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full ml-auto">
-            Level {level}
-          </div>
-        </div>
-      )}
-      
       {/* The node itself with appropriate indentation */}
       <div 
         className={`flex items-center ${
@@ -201,11 +208,6 @@ function RenderSponsorNode({ node, level }: { node: SponsorMember; level: number
             Pending
           </span>
         )}
-        
-        {/* Level indicator */}
-        <span className="ml-3 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-          Level {level}
-        </span>
       </div>
       
       {/* Vertical connector line to children (only if there are children and expanded) */}
@@ -223,21 +225,6 @@ function RenderSponsorNode({ node, level }: { node: SponsorMember; level: number
       {/* Render children recursively - only if expanded */}
       {node.children.length > 0 && expanded && (
         <div className="children-container">
-          {/* Category header for child level */}
-          {node.children.length > 0 && level < 5 && (
-            <div 
-              className="relative" 
-              style={{ marginLeft: level === 0 ? '20px' : `${leftIndent + 20}px` }}
-            >
-              <div className="absolute flex items-center w-full">
-                <div className="flex-grow border-b border-gray-200"></div>
-                <div className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full ml-auto">
-                  Level {level + 1}
-                </div>
-              </div>
-            </div>
-          )}
-          
           {node.children.map((child, index) => (
             <RenderSponsorNode 
               key={`${child.id}-${index}`} 
