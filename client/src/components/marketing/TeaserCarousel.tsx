@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import placeholderImage from '@/assets/placeholder-1.svg';
-import vmbHeroImage from '@/assets/vmb_hero.png';
 
 interface TeaserSlide {
   title: string;
@@ -22,10 +21,10 @@ interface TeaserSlide {
 
 const campaignSlides: TeaserSlide[] = [
   {
-    title: "The perfect gift is perfectly timed!",
-    content: "Ven Me, Baby: a connection-driven personal gifting platform",
+    title: "He's fishing for attention...",
+    content: "...You're inviting connection.",
     bgClass: "bg-gradient-to-br from-pink-50 to-rose-100",
-    visualCue: "He's fishing for attention... You're inviting connection."
+    visualCue: "Woman smiling while texting, soft/flirty colors."
   },
   {
     title: "One click says it all:",
@@ -128,14 +127,11 @@ export default function TeaserCarousel() {
                   {/* Visual Cue Side */}
                   <div className="w-1/2 flex items-center justify-center">
                     <div className="w-full h-[200px] rounded-lg bg-white/30 backdrop-blur-sm p-3 shadow-lg border border-white/30 flex flex-col items-center justify-center relative overflow-hidden">
-                      {/* Display hero image for first slide, placeholders for rest */}
+                      {/* Placeholder image */}
                       <img 
-                        src={index === 0 ? vmbHeroImage : placeholderImage} 
+                        src={placeholderImage} 
                         alt={`Teaser visual for ${slide.title}`}
-                        className={cn(
-                          "absolute inset-0 w-full h-full object-cover z-0",
-                          index === 0 ? "opacity-80" : "opacity-50"
-                        )}
+                        className="absolute inset-0 w-full h-full object-cover z-0 opacity-50"
                       />
                       <div className="z-10 bg-white/60 px-3 py-2 rounded text-sm text-gray-700 text-center mt-auto mb-2 max-w-[90%]">
                         <span className="font-semibold text-pink-600 mr-1">🧠</span>
