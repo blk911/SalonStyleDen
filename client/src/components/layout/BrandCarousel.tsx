@@ -26,7 +26,7 @@ interface CarouselCard {
 const carouselItems: CarouselCard[] = [
   {
     title: 'Why ', 
-    titleComponent: <div className="logo logo-sm"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></div>, 
+    titleComponent: <div className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></div>, 
     titleSuffix: '...?',
     content: [
       { text: "He's fishing for attention", isBold: true, suffix: " — you're inviting connection." },
@@ -38,7 +38,7 @@ const carouselItems: CarouselCard[] = [
   },
   {
     title: "",
-    titleComponent: <div className="logo logo-sm"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span> Says "I value you"</div>,
+    titleComponent: <div className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span> Says "I value you"</div>,
     titleSuffix: '',
     content: [
       { text: "He's not guessing", isBold: true, suffix: " — you've made it clear." },
@@ -52,7 +52,7 @@ const carouselItems: CarouselCard[] = [
 
   {
     title: "",
-    titleComponent: <div className="font-serif"><span className="logo logo-sm"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span> Gifting Redefined!</div>,
+    titleComponent: <div className="font-serif"><span className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span> Gifting Redefined!</div>,
     content: [
       { text: "The gift card trap", isBold: true, suffix: " — impersonal, untimely, and UNUSED." },
       { text: "You choose. They respond.", isBold: true, suffix: " No guessing. No missed signals." },
@@ -64,7 +64,7 @@ const carouselItems: CarouselCard[] = [
   },
   {
     title: "",
-    titleComponent: <div className="font-serif">One, Two, Three! <span className="logo logo-sm"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span></div>,
+    titleComponent: <div className="font-serif">One, Two, Three! <span className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span></div>,
     content: [],
     imagesComponent: (
       <div className="flex justify-between items-start gap-8 mt-8">
@@ -133,7 +133,7 @@ export default function BrandCarousel() {
           {carouselItems.map((item, index) => (
             <CarouselItem key={index}>
               <div className="min-h-[500px] w-[90%] mx-auto p-6 rounded-2xl bg-gradient-to-br from-white via-white/95 to-pink-50/90 backdrop-blur-sm border border-pink-100 shadow-2xl hover:shadow-pink-100/20 transition-all flex flex-col justify-center">
-                <h3 className="text-3xl mb-8 text-[#FF92A5] leading-tight text-center font-serif">
+                <h3 className="text-4xl mb-8 text-[#FF92A5] leading-tight text-center font-serif">
                   {item.title}
                   {item.titleComponent}
                   {item.titleSuffix}
