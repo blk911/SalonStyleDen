@@ -377,17 +377,28 @@ export default function InvitationPreview() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  // For testing purposes, we know test2 client ID is 14
-                  const testClientId = invitation?.name === "test2" ? 14 : null;
-                  if (testClientId) {
-                    // Direct to client dashboard with their specific ID
-                    // Add inviteHash as a parameter to maintain tracking for payment processing
-                    console.log(`[FLOW] Navigating to client dashboard for: ${invitation?.name} (ID: ${testClientId}) with inviteHash: ${invitation?.inviteHash}`);
-                    setLocation(`/client/${testClientId}?inviteHash=${invitation?.inviteHash}`);
+                  // Check if we came from admin dashboard by checking URL parameters
+                  const urlParams = new URLSearchParams(window.location.search);
+                  const fromAdmin = urlParams.get('adminView') === 'true';
+                  
+                  if (fromAdmin) {
+                    // Go back to admin dashboard if we came from there
+                    console.log(`[FLOW] Navigating back to admin dashboard from invitation preview`);
+                    setLocation('/admin');
                   } else {
-                    // Fallback to the main client dashboard page
-                    // Still pass the invite hash for tracking purposes
-                    setLocation(`/client/dashboard?inviteHash=${invitation?.inviteHash}`);
+                    // For testing purposes, we know test2 client ID is 14
+                    const testClientId = invitation?.name === "test2" ? 14 : null;
+                    
+                    if (testClientId) {
+                      // Direct to client dashboard with their specific ID
+                      // Add inviteHash as a parameter to maintain tracking for payment processing
+                      console.log(`[FLOW] Navigating to client dashboard for: ${invitation?.name} (ID: ${testClientId}) with inviteHash: ${invitation?.inviteHash}`);
+                      setLocation(`/client/${testClientId}?inviteHash=${invitation?.inviteHash}`);
+                    } else {
+                      // Fallback to the clients listing page instead of the invalid /client/dashboard route
+                      console.log(`[FLOW] No specific client ID found, navigating to clients listing`);
+                      setLocation('/clients');
+                    }
                   }
                 }}
                 className={isSalonInvitation ? 
@@ -395,7 +406,7 @@ export default function InvitationPreview() {
                   "border-pink-200 text-pink-700 hover:bg-pink-50"}
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                Go to Client Dashboard
+                Go Back
               </Button>
             </div>
           </CardFooter>
