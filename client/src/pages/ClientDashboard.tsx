@@ -1245,54 +1245,7 @@ export default function ClientDashboard() {
               </Card>
             )}
             
-            {/* Personal Invitations Card */}
-            <Card className="rounded-xl shadow-sm overflow-hidden mt-6">
-              <CardHeader className="bg-gradient-to-r from-pink-50 to-pink-100 pb-2 pt-2">
-                <CardTitle className="text-base flex items-center justify-between gap-2 text-pink-700">
-                  <div className="flex items-center gap-2">
-                    <HeartIcon className="h-4 w-4" />
-                    <span>Personal Invitations</span>
-                  </div>
-                  <button 
-                    onClick={() => {
-                      // Using local state variable here (create one if you need this to persist)
-                      // For now, this is just for UI consistency
-                      toast({
-                        title: "Feature Coming Soon",
-                        description: "The ability to send personal invitations will be available soon.",
-                        variant: "default"
-                      });
-                    }} 
-                    className="flex items-center text-sm text-pink-600 hover:text-pink-800"
-                    aria-label="Show personal invitations"
-                  >
-                    <ChevronDownIcon className="h-5 w-5" />
-                  </button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="py-4 text-center">
-                  <p className="text-gray-500">You haven't sent any personal invitations yet.</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Create a personal invitation to share your favorite salon experience with friends.
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="mt-4 border-pink-300 text-pink-700 hover:bg-pink-50"
-                    onClick={() => {
-                      toast({
-                        title: "Feature Coming Soon",
-                        description: "The ability to send personal invitations will be available soon.",
-                        variant: "default"
-                      });
-                    }}
-                  >
-                    Create New Invitation
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Personal Invitations Card - Removed as it's redundant with "Share Ven Me, Baby!" */}
             
             {/* Pending Invitations */}
             <Card className="rounded-xl shadow-sm overflow-hidden mt-6">
