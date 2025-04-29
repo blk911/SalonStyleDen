@@ -42,7 +42,7 @@ export default function Hero({
           </h1>
         </div>
         <p className="text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            <i>The perfect gift is perfectly timed!</i>
+            <i>a connection-driven personal gifting platform</i>
           </p>
         <div className="flex justify-center gap-4 flex-wrap">
           <button
