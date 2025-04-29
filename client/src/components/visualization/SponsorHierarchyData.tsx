@@ -6,8 +6,8 @@ interface ClientResponse {
   id: number;
   name: string;
   sponsor: string | null;
-  sponsor_name: string | null;
-  sponsor_salon_id: number | null;
+  sponsorName: string | null;
+  sponsorSalonId: number | null;
   type: 'client';
   // Other fields not needed for visualization
 }
@@ -50,8 +50,8 @@ export function useSponsorHierarchy() {
   // Gender mapping based on common English names
   // In a real app, this would be stored with the user profile
   const genderGuesser = (name: string): 'male' | 'female' | 'unknown' => {
-    const maleNames = ['david', 'kevin', 'chris', 'frank', 'robert', 'michael', 'tiffany', 'alex'];
-    const femaleNames = ['jane', 'mary', 'sally', 'tammy', 'deb', 'laura', 'jennifer', 'carla', 'emily'];
+    const maleNames = ['david', 'kevin', 'chris', 'frank', 'robert', 'michael', 'alex'];
+    const femaleNames = ['jane', 'mary', 'sally', 'tammy', 'deb', 'laura', 'jennifer', 'carla', 'emily', 'tiffany'];
     
     const lowerName = name.toLowerCase();
     
@@ -67,6 +67,7 @@ export function useSponsorHierarchy() {
         setLoading(true);
         
         // Fetch clients, salons, and invitations in parallel
+        console.log("[SPONSOR-HIERARCHY] Fetching hierarchy data...");
         const [clientsResponse, salonsResponse, invitationsResponse] = await Promise.all([
           fetch('/api/clients'),
           fetch('/api/salons'),
@@ -80,6 +81,12 @@ export function useSponsorHierarchy() {
         const clients: ClientResponse[] = await clientsResponse.json();
         const salons: SalonResponse[] = await salonsResponse.json();
         const invitations: InvitationResponse[] = await invitationsResponse.json();
+        
+        console.log("[SPONSOR-HIERARCHY] Loaded data:", {
+          clients: clients.length,
+          salons: salons.length,
+          invitations: invitations.length
+        });
         
         // Filter to pending invitations only
         const pendingInvitations = invitations.filter(inv => inv.status === 'pending');
@@ -129,7 +136,7 @@ export function useSponsorHierarchy() {
         });
         
         // Add pending invitations as special nodes
-        pendingInvitations.forEach((inv, index) => {
+        pendingInvitations.forEach(inv => {
           const invNode: SponsorMember = {
             id: -inv.id, // Negative ID to avoid conflicts with real members
             name: inv.name,
@@ -141,84 +148,108 @@ export function useSponsorHierarchy() {
           memberMap.set(invNode.id, invNode);
         });
         
-        // Build the hierarchy by connecting parents and children
+        // CRITICAL: Build proper parent-child relationships
+        console.log("[SPONSOR-HIERARCHY] Building hierarchy connections...");
         
-        // First, connect salons to VMB, LTD (except VMB itself)
+        // First, let's create a connecting function to keep track of what's connected
+        const connectedMembers = new Set<number>();
+        
+        // Helper function to connect a child to its parent
+        const connectToParent = (childId: number, parentId: number) => {
+          const childNode = memberMap.get(childId);
+          const parentNode = memberMap.get(parentId);
+          
+          if (!childNode || !parentNode) {
+            console.warn(`[SPONSOR-HIERARCHY] Cannot connect child ${childId} to parent ${parentId} - node not found`);
+            return false;
+          }
+          
+          parentNode.children.push(childNode);
+          connectedMembers.add(childId);
+          return true;
+        };
+        
+        // Connect Tiffany's salon to VMB, LTD (ID: 42 → 105)
+        const tiffanySalon = salons.find(s => s.id === 42);
+        if (tiffanySalon) {
+          connectToParent(42, 105);
+        }
+        
+        // Connect all other salons to VMB, LTD if they aren't connected yet
         salons.forEach(salon => {
-          if (salon.id !== rootNode.id) {
-            const salonNode = memberMap.get(salon.id);
-            if (salonNode) {
-              rootNode.children.push(salonNode);
-            }
+          if (salon.id !== 105 && !connectedMembers.has(salon.id)) {
+            connectToParent(salon.id, 105);
           }
         });
         
         // Connect clients to their sponsors
+        console.log("[SPONSOR-HIERARCHY] Connecting clients to sponsors...");
         clients.forEach(client => {
-          const clientNode = memberMap.get(client.id);
-          if (!clientNode) return;
+          if (connectedMembers.has(client.id)) return; // Skip if already connected
           
-          // For sponsor - first check for explicit sponsor
-          if (client.sponsor_salon_id) {
-            const salonNode = memberMap.get(client.sponsor_salon_id);
-            if (salonNode) {
-              salonNode.children.push(clientNode);
-            }
-          } 
-          // If no sponsor salon, look for client sponsor by name
-          else if (client.sponsor) {
-            // Find potential client sponsor by name
+          // Case 1: Client has a sponsorSalonId (connected to a salon directly)
+          if (client.sponsorSalonId && memberMap.has(client.sponsorSalonId)) {
+            const connected = connectToParent(client.id, client.sponsorSalonId);
+            console.log(`[SPONSOR-HIERARCHY] Connected client ${client.name} (${client.id}) to salon ${client.sponsorSalonId}:`, connected);
+            if (connected) return;
+          }
+          
+          // Case 2: If sponsor field contains a name, look for a matching client
+          if (client.sponsor) {
             const sponsorClient = clients.find(c => 
               c.name.toLowerCase() === client.sponsor?.toLowerCase()
             );
             
             if (sponsorClient) {
-              const sponsorNode = memberMap.get(sponsorClient.id);
-              if (sponsorNode) {
-                sponsorNode.children.push(clientNode);
-              }
-            } else {
-              // If no sponsor found, default to VMB, LTD
-              rootNode.children.push(clientNode);
+              const connected = connectToParent(client.id, sponsorClient.id);
+              console.log(`[SPONSOR-HIERARCHY] Connected client ${client.name} (${client.id}) to client sponsor ${sponsorClient.name} (${sponsorClient.id}):`, connected);
+              if (connected) return;
             }
-          } else {
-            // If no sponsor info at all, default to VMB, LTD
-            rootNode.children.push(clientNode);
           }
+          
+          // If we get here, connect to VMB, LTD as default sponsor
+          connectToParent(client.id, 105);
+          console.log(`[SPONSOR-HIERARCHY] Connected client ${client.name} (${client.id}) to default sponsor VMB, LTD`);
         });
         
-        // Connect pending invitations to their senders
+        // Connect pending invitations
+        console.log("[SPONSOR-HIERARCHY] Connecting pending invitations...");
         pendingInvitations.forEach(inv => {
-          const invNode = memberMap.get(-inv.id); // Negative ID for invitations
-          if (!invNode) return;
+          const invNodeId = -inv.id; // We're using negative IDs for invitations
           
-          if (inv.senderId) {
-            // Invitation from a client
-            const senderNode = memberMap.get(inv.senderId);
-            if (senderNode) {
-              senderNode.children.push(invNode);
-            }
-          } else if (inv.salonId) {
-            // Invitation from a salon
-            const salonNode = memberMap.get(inv.salonId);
-            if (salonNode) {
-              salonNode.children.push(invNode);
-            }
-          } else if (inv.sponsor) {
-            // Fall back to sponsor name
+          // Case 1: Invitation has senderId (invitation from a client)
+          if (inv.senderId && memberMap.has(inv.senderId)) {
+            const connected = connectToParent(invNodeId, inv.senderId);
+            console.log(`[SPONSOR-HIERARCHY] Connected invitation ${inv.name} (${inv.id}) to sender ${inv.senderId}:`, connected);
+            if (connected) return;
+          }
+          
+          // Case 2: Invitation has salonId (invitation from a salon)
+          if (inv.salonId && memberMap.has(inv.salonId)) {
+            const connected = connectToParent(invNodeId, inv.salonId);
+            console.log(`[SPONSOR-HIERARCHY] Connected invitation ${inv.name} (${inv.id}) to salon ${inv.salonId}:`, connected);
+            if (connected) return;
+          }
+          
+          // Case 3: Try to match by sponsor name
+          if (inv.sponsor) {
             const sponsorClient = clients.find(c => 
               c.name.toLowerCase() === inv.sponsor?.toLowerCase()
             );
             
             if (sponsorClient) {
-              const sponsorNode = memberMap.get(sponsorClient.id);
-              if (sponsorNode) {
-                sponsorNode.children.push(invNode);
-              }
+              const connected = connectToParent(invNodeId, sponsorClient.id);
+              console.log(`[SPONSOR-HIERARCHY] Connected invitation ${inv.name} (${inv.id}) to sponsor by name ${sponsorClient.name} (${sponsorClient.id}):`, connected);
+              if (connected) return;
             }
           }
+          
+          // Default: connect to VMB, LTD
+          connectToParent(invNodeId, 105);
+          console.log(`[SPONSOR-HIERARCHY] Connected invitation ${inv.name} (${inv.id}) to default sponsor VMB, LTD`);
         });
         
+        console.log("[SPONSOR-HIERARCHY] Hierarchy built successfully");
         setHierarchyData(rootNode);
       } catch (err: any) {
         console.error('Error fetching sponsor hierarchy:', err);
