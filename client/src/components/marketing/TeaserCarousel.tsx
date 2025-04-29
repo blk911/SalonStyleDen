@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import placeholderImage from '@/assets/placeholder-1.svg';
 
 interface TeaserSlide {
   title: string;
@@ -55,6 +56,7 @@ export default function TeaserCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [api, setApi] = useState<any>(null);
+  const tagline = "a connection-driven personal gifting platform";
   
   // Auto-play functionality
   useEffect(() => {
@@ -72,7 +74,12 @@ export default function TeaserCarousel() {
 
   return (
     <div className="relative overflow-hidden rounded-xl border shadow-xl">
-      <div className="absolute top-2 left-2 right-2 z-10">
+      {/* Tagline at the top */}
+      <div className="bg-gradient-to-r from-pink-700 to-fuchsia-600 py-1.5 px-3 text-white text-center text-sm font-medium shadow-sm">
+        {tagline}
+      </div>
+      
+      <div className="absolute top-8 left-2 right-2 z-10">
         <Progress 
           value={progressPercentage} 
           className="h-1.5 bg-gray-200/50"
@@ -119,9 +126,15 @@ export default function TeaserCarousel() {
                   
                   {/* Visual Cue Side */}
                   <div className="w-1/2 flex items-center justify-center">
-                    <div className="w-full h-[200px] rounded-lg bg-white/30 backdrop-blur-sm p-3 shadow-lg border border-white/30 flex items-center justify-center">
-                      <div className="text-sm text-gray-600 text-center">
-                        <span className="font-semibold block text-pink-600 mb-1">🧠 Visual Cue:</span>
+                    <div className="w-full h-[200px] rounded-lg bg-white/30 backdrop-blur-sm p-3 shadow-lg border border-white/30 flex flex-col items-center justify-center relative overflow-hidden">
+                      {/* Placeholder image */}
+                      <img 
+                        src={placeholderImage} 
+                        alt={`Teaser visual for ${slide.title}`}
+                        className="absolute inset-0 w-full h-full object-cover z-0 opacity-50"
+                      />
+                      <div className="z-10 bg-white/60 px-3 py-2 rounded text-sm text-gray-700 text-center mt-auto mb-2 max-w-[90%]">
+                        <span className="font-semibold text-pink-600 mr-1">🧠</span>
                         {slide.visualCue}
                       </div>
                     </div>
