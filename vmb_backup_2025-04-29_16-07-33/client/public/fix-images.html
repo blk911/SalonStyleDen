@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fix Service Images</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    button {
+      padding: 8px 16px;
+      background: #FF92A5;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      min-height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Fix Service Images</h1>
+  <p>This tool will update all service images in the database to use local assets instead of external URLs or Windows paths.</p>
+  
+  <button id="runMigration">Run Migration</button>
+  
+  <div id="result">Results will appear here...</div>
+
+  <script>
+    document.getElementById('runMigration').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = 'Running migration...';
+      
+      try {
+        const response = await fetch('/api/migrate/service-images', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        resultDiv.innerHTML = `<p>Success!</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+      } catch (error) {
+        resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        console.error('Migration failed:', error);
+      }
+    });
+  </script>
+</body>
+</html>
