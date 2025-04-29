@@ -383,17 +383,24 @@ export default function InvitationPreview() {
                   // Use static mapping for known invitations
                   if (invitation.name === 'Laura') {
                     // For LAURA's invitation (the specific one in your example)
-                    console.log(`[FLOW] Laura's invitation - using client ID 12`);
-                    setLocation(`/client/12?inviteHash=${invitation?.inviteHash}`);
+                    console.log(`[FLOW] Laura's invitation - using client ID 21`);
+                    setLocation(`/client/21?inviteHash=${invitation?.inviteHash}`);
                   } else if (invitation.name === 'Tom') {
                     // For TOM's invitation (enables SEND GIFT button)
                     console.log(`[FLOW] Tom's invitation - using client ID 16`);
                     setLocation(`/client/16?inviteHash=${invitation?.inviteHash}`);
+                  } else if (invitation.name === 'Robert') {
+                    // For Robert
+                    console.log(`[FLOW] Robert's invitation - using client ID 27`);
+                    setLocation(`/client/27?inviteHash=${invitation?.inviteHash}`);
+                  } else if (invitation.name === 'Sally') {
+                    // For Sally
+                    console.log(`[FLOW] Sally's invitation - using client ID 18`);
+                    setLocation(`/client/18?inviteHash=${invitation?.inviteHash}`);
                   } else {
-                    // Otherwise use client ID from invitation if available
-                    const clientId = invitation.id || 14; // Use 14 as fallback ID
-                    console.log(`[FLOW] Generic invitation - using client ID ${clientId}`);
-                    setLocation(`/client/${clientId}?inviteHash=${invitation?.inviteHash}`);
+                    // Otherwise navigate to admin dashboard
+                    console.log(`[FLOW] No matching client - returning to admin dashboard`);
+                    setLocation(`/admin`);
                   }
                 }}
                 className={isSalonInvitation ? 
@@ -401,7 +408,7 @@ export default function InvitationPreview() {
                   "border-pink-200 text-pink-700 hover:bg-pink-50"}
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                View Gift as Recipient
+                Back to Dash
               </Button>
             </div>
           </CardFooter>
