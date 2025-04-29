@@ -26,7 +26,7 @@ interface CarouselCard {
 const carouselItems: CarouselCard[] = [
   {
     title: 'Why ', 
-    titleComponent: <div className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></div>, 
+    titleComponent: <div style={{ fontSize: '36px', display: 'inline' }}><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></div>, 
     titleSuffix: '...?',
     content: [
       { text: "He's fishing for attention", isBold: true, suffix: " — you're inviting connection." },
@@ -133,7 +133,7 @@ export default function BrandCarousel() {
           {carouselItems.map((item, index) => (
             <CarouselItem key={index}>
               <div className="min-h-[500px] w-[90%] mx-auto p-6 rounded-2xl bg-gradient-to-br from-white via-white/95 to-pink-50/90 backdrop-blur-sm border border-pink-100 shadow-2xl hover:shadow-pink-100/20 transition-all flex flex-col justify-center">
-                <h3 className="text-4xl mb-8 text-[#FF92A5] leading-tight text-center font-serif">
+                <h3 className="mb-8 text-[#FF92A5] leading-tight text-center font-serif" style={{ fontSize: '36px' }}>
                   {item.title}
                   {item.titleComponent}
                   {item.titleSuffix}
