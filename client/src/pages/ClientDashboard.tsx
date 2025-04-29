@@ -446,8 +446,34 @@ export default function ClientDashboard() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="flex items-center">
-                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md">
-                  <UserIcon className="h-8 w-8 text-pink-500" />
+                <div className="relative w-16 h-16">
+                  <Avatar className="w-16 h-16 bg-white border-2 border-pink-100 shadow-md">
+                    <AvatarImage 
+                      src={client.photoUrl ? getImageUrl(client.photoUrl, 'client-card') : undefined}
+                      alt={client.name}
+                      className="object-cover"
+                      onError={(e) => {
+                        console.error("Error loading client avatar image in header");
+                        e.currentTarget.src = '';
+                      }} 
+                    />
+                    <AvatarFallback className="bg-white text-pink-500">
+                      <UserIcon className="h-8 w-8" />
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  {/* Photo Edit Button (Only shows if not in admin view) */}
+                  {!isAdminView && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="absolute -bottom-2 -right-2 h-7 w-7 p-0 rounded-full bg-white border border-pink-200 hover:bg-pink-50"
+                      onClick={() => setIsEditing(true)}
+                      title="Edit profile photo"
+                    >
+                      <PencilIcon className="h-3 w-3 text-pink-500" />
+                    </Button>
+                  )}
                 </div>
                 <div className="ml-4">
                   <h1 className="font-bold text-2xl text-pink-700">{client.name}</h1>
