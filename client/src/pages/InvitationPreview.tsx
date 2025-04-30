@@ -70,6 +70,10 @@ export default function InvitationPreview() {
   const [acceptingInvitation, setAcceptingInvitation] = useState(false);
   const [currentClientId, setCurrentClientId] = useState<string | number | null>(null);
   
+  // Determine the source dashboard from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const sourceDashboard = urlParams.get('source');
+  
   // Fetch invitation by hash
   const { 
     data: invitation,
@@ -370,10 +374,7 @@ export default function InvitationPreview() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  // Get the source dashboard parameter if available, or fallback to referrer detection
-                  const urlParams = new URLSearchParams(window.location.search);
-                  const sourceDashboard = urlParams.get('source');
-                  
+                  // Source dashboard was already determined at component level
                   console.log(`[FLOW] Back button clicked. Source dashboard: ${sourceDashboard || 'not specified'}`);
                   
                   if (sourceDashboard === 'salon' && invitation.salonId) {
@@ -419,7 +420,7 @@ export default function InvitationPreview() {
                   "border-pink-200 text-pink-700 hover:bg-pink-50"}
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                To {invitation?.name} Dash
+                {sourceDashboard === 'salon' ? 'BACK TO INVITEE' : `To ${invitation?.name} Dash`}
               </Button>
             </div>
           </CardFooter>

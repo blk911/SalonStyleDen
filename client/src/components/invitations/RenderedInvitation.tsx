@@ -55,6 +55,10 @@ export function RenderedInvitation({
   const formattedInviteId = inviteId.startsWith('INV-FINAL-') ? inviteId : `INV-FINAL-${inviteId}`;
   const [currentClientId, setCurrentClientId] = useState<string | number | null>(null);
   
+  // Check URL for source parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const sourceDashboard = urlParams.get('source');
+  
   // Get the current client ID from the global window object
   useEffect(() => {
     // Try to get client ID from global window object
@@ -65,17 +69,16 @@ export function RenderedInvitation({
     console.log(`[FLOW] RenderedInvitation - Current client ID context: ${clientId || 'Not set'}`);
   }, []);
   
-  // SITE-WIDE CRITICAL RULE - REVISED FOR FIX: 
+  // SITE-WIDE CRITICAL RULE - UPDATED: 
   // The SEND GIFT button should ONLY appear when ALL conditions are met:
   // 1. We're NOT in preview mode (currentClientId must be set)
-  // 2. The viewer is the intended recipient (client ID matches recipient name)
-  // 3. The invitation status is 'pending'
-  // 4. There is a valid onSendGift handler
-  // 5. This is NOT a salon-initiated invitation
+  // 2. The invitation status is 'pending'
+  // 3. There is a valid onSendGift handler
+  // 4. This is NOT a salon-initiated invitation
+  // 5. The client is viewing their own invitation (sourceDashboard === 'client')
   
-  // Additional sponsor relationship validation
   const isInPreviewMode = !currentClientId;
-  const isClientViewingOwnInvitation = currentClientId === recipientName;
+  const isClientViewingOwnInvitation = currentClientId === recipientName || sourceDashboard === 'client';
   const hasValidSendGiftHandler = Boolean(onSendGift);
   const isPendingStatus = status === 'pending';
   
@@ -85,9 +88,10 @@ export function RenderedInvitation({
                      isClientViewingOwnInvitation && 
                      hasValidSendGiftHandler && 
                      isPendingStatus &&
-                     !salonInitiated; // Never show button in salon view
+                     !salonInitiated &&
+                     sourceDashboard === 'client'; // Only show when viewed from client dashboard
   
-  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Client ID: ${currentClientId || 'NOT SET'} - Is recipient viewing: ${isClientViewingOwnInvitation} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
+  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Client ID: ${currentClientId || 'NOT SET'} - Source: ${sourceDashboard || 'none'} - Is client: ${isClientViewingOwnInvitation} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
   
   return (
     <Card className={`w-full max-w-md mx-auto shadow-lg overflow-hidden ${className}`}>
