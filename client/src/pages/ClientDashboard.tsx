@@ -4,6 +4,13 @@ import { useParams } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+
+// Extend the Window interface to add our client ID context
+declare global {
+  interface Window {
+    _currentClientId?: string | number | null;
+  }
+}
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -141,13 +148,6 @@ export default function ClientDashboard() {
 
   // Add debugging information to trace API calls
   console.log(`ClientDashboard - Fetching client with ID: ${id}`);
-  
-  // Extend the Window interface to add our client ID context
-  declare global {
-    interface Window {
-      _currentClientId?: string | number | null;
-    }
-  }
 
   // Fetch client data
   const { data: client, isLoading: clientLoading, error: clientError } = useQuery<ClientData>({
