@@ -576,8 +576,15 @@ export default function ClientRegistrationPage() {
                                 }}
                                 onEnterPress={() => {
                                   // When Enter is pressed on phone field and validation passes,
-                                  // open the address dialog directly
-                                  setShowAddressDialog(true);
+                                  // check if the phone is valid before showing the dialog
+                                  const phone = form.getValues().phone;
+                                  if (phone && phone.replace(/\D/g, '').length >= 10) {
+                                    // Only show address dialog if phone validation has passed
+                                    const phoneIsValid = !form.formState.errors.phone;
+                                    if (phoneIsValid) {
+                                      setShowAddressDialog(true);
+                                    }
+                                  }
                                 }}
                                 clearField={() => {
                                   // Clear the phone field when a registered number is found
@@ -616,7 +623,6 @@ export default function ClientRegistrationPage() {
                                       toast({
                                         title: "Validating email...",
                                         description: "Please wait while we check your email.",
-                                        duration: 2000,
                                       });
                                       
                                       // Call the validate-contact API to check if email exists
