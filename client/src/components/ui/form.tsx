@@ -42,24 +42,50 @@ const FormField = <
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext)
   const itemContext = React.useContext(FormItemContext)
-  const { getFieldState, formState } = useFormContext()
-
-  const fieldState = getFieldState(fieldContext.name, formState)
 
   if (!fieldContext) {
     throw new Error("useFormField should be used within <FormField>")
   }
 
-  const { id } = itemContext
-
-  return {
+  // Generate a unique ID even if itemContext is null
+  const id = itemContext?.id || React.useId()
+  
+  // Create a base result with all the required properties
+  const result = {
     id,
     name: fieldContext.name,
     formItemId: `${id}-form-item`,
     formDescriptionId: `${id}-form-item-description`,
     formMessageId: `${id}-form-item-message`,
-    ...fieldState,
+    // Default field state values
+    invalid: false,
+    isDirty: false,
+    isTouched: false,
+    error: undefined
   }
+  
+  // Try to get form context and enhance the result with real field state
+  try {
+    const formContext = useFormContext()
+    if (formContext) {
+      const { getFieldState, formState } = formContext
+      const fieldState = getFieldState(fieldContext.name, formState)
+      
+      // Only update properties if they exist in fieldState
+      // This prevents the "specified more than once" TypeScript error
+      Object.assign(result, {
+        ...(fieldState?.invalid !== undefined && { invalid: fieldState.invalid }),
+        ...(fieldState?.isDirty !== undefined && { isDirty: fieldState.isDirty }),
+        ...(fieldState?.isTouched !== undefined && { isTouched: fieldState.isTouched }),
+        ...(fieldState?.error !== undefined && { error: fieldState.error })
+      });
+    }
+  } catch (e) {
+    console.error('Error getting form field state:', e)
+    // We continue with default values if there's an error
+  }
+
+  return result
 }
 
 type FormItemContextValue = {
@@ -145,7 +171,22 @@ const FormMessage = React.forwardRef<
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
-  const body = error ? String(error?.message) : children
+  
+  // Safely handle error message, accounting for various error object structures
+  let errorMessage: React.ReactNode = null;
+  
+  if (error) {
+    if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (typeof error === 'object') {
+      // Try to access message property safely
+      errorMessage = error.message || String(error);
+    } else {
+      errorMessage = String(error);
+    }
+  }
+  
+  const body = errorMessage || children
 
   if (!body) {
     return null
