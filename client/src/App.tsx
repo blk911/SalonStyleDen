@@ -30,13 +30,16 @@ import TestFinalStep3 from "@/pages/TestFinalStep3";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      {/* Redirect homepage to Clients page for marketing test */}
+      <Route path="/" component={ClientsPage} />
+      <Route path="/home" component={Home} /> {/* Keep old Home available at /home */}
       <Route path="/salon/:id" component={SalonPublicPage} />
       <Route path="/dashboard/salon/:id" component={SalonDashboard} />
       <Route path="/client/register" component={ClientRegistrationPage} />
       <Route path="/client-registration" component={ClientRegistrationPage} />
       <Route path="/salon-registration" component={SalonRegistrationPage} />
       <Route path="/client/:id" component={ClientDashboard} />
+      {/* Clients route kept for direct linking */}
       <Route path="/clients" component={ClientsPage} />
       <Route path="/salons" component={SalonsPage} />
       <Route path="/invitation/:hash" component={InvitationPage} />
