@@ -358,7 +358,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         body: JSON.stringify({
           name,
           phone: cleanPhone,
-          email,
+          email: email || null, // Make email null if it's empty
           notes: processedNotes, // Use the processed message with placeholders replaced
           favoriteServices: selectedServices,
           salonId,
