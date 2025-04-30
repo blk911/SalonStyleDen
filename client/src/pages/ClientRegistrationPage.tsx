@@ -251,45 +251,16 @@ export default function ClientRegistrationPage() {
     // Phone validation success no longer triggers the address dialog automatically
     // The dialog will only show when form is submitted and address is missing
     console.log(`[FLOW] Phone validation ${isValid ? 'passed' : 'failed'}`);
-    
-    // Focus the email field after successful phone validation
-    if (isValid) {
-      console.log("Phone validated, focusing email field");
-      setTimeout(() => {
-        const emailField = document.querySelector('input[placeholder="Email"]');
-        if (emailField instanceof HTMLElement) {
-          emailField.focus();
-          console.log("Email field focused after validation");
-        } else {
-          console.log("Email field not found after validation");
-        }
-      }, 100);
-    }
   };
   
   // Function to handle Later button click in address dialog
   const handleLaterClick = () => {
     setShowAddressDialog(false);
-    console.log("Later clicked, attempting to focus fields");
     
-    // First focus the email field
+    // Focus on terms checkbox after a short delay
     setTimeout(() => {
-      const emailField = document.querySelector('input[placeholder="Email"]');
-      if (emailField instanceof HTMLElement) {
-        emailField.focus();
-        console.log("Email field focused after Later click");
-        
-        // Then focus the terms checkbox 
-        setTimeout(() => {
-          if (termsCheckboxRef.current) {
-            termsCheckboxRef.current.focus();
-            console.log("Terms checkbox focused successfully from Later");
-          } else {
-            console.log("Terms checkbox ref not found from Later");
-          }
-        }, 300);
-      } else {
-        console.log("Email field not found after Later click");
+      if (termsCheckboxRef.current) {
+        termsCheckboxRef.current.focus();
       }
     }, 100);
   };
@@ -556,7 +527,6 @@ export default function ClientRegistrationPage() {
                       )}
                     />
                     
-                    {/* FIRST ROW: Name and Phone side by side */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <FormField
                         control={form.control}
@@ -564,20 +534,7 @@ export default function ClientRegistrationPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input 
-                                placeholder="Full Name" 
-                                {...field} 
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    // Focus the phone field when Enter is pressed in name field
-                                    const phoneInput = document.querySelector('input[placeholder="Phone Number"]');
-                                    if (phoneInput instanceof HTMLElement) {
-                                      phoneInput.focus();
-                                    }
-                                  }
-                                }}
-                              />
+                              <Input placeholder="Full Name" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -604,14 +561,10 @@ export default function ClientRegistrationPage() {
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // Focus the email field when Enter is pressed in phone field
-                                  console.log("Phone Enter pressed, focusing email field");
-                                  const emailField = document.querySelector('input[placeholder="Email"]');
-                                  if (emailField instanceof HTMLElement) {
-                                    emailField.focus();
-                                    console.log("Email field focused successfully");
-                                  } else {
-                                    console.log("Email field not found");
+                                  // Focus the address field when Enter is pressed
+                                  const addressField = document.querySelector('input[name="address"]');
+                                  if (addressField instanceof HTMLElement) {
+                                    addressField.focus();
                                   }
                                 }}
                                 clearField={() => {
@@ -624,30 +577,14 @@ export default function ClientRegistrationPage() {
                           </FormItem>
                         )}
                       />
-                    </div>
-                    
-                    {/* SECOND ROW: Email (full width) */}
-                    <div className="grid grid-cols-1 gap-3">
+                      
                       <FormField
                         control={form.control}
                         name="email"
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input 
-                                placeholder="Email" 
-                                {...field} 
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    // Focus the address field when Enter is pressed in email field
-                                    const addressField = document.querySelector('input[name="address"]');
-                                    if (addressField instanceof HTMLElement) {
-                                      addressField.focus();
-                                    }
-                                  }
-                                }}
-                              />
+                              <Input placeholder="Email" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -900,26 +837,10 @@ export default function ClientRegistrationPage() {
               type="button"
               onClick={() => {
                 setShowAddressDialog(false);
-                console.log("Save Address clicked, attempting to focus terms checkbox");
-                
-                // First focus the email field
+                // Focus on terms checkbox after a short delay - same as handleLaterClick
                 setTimeout(() => {
-                  const emailField = document.querySelector('input[placeholder="Email"]');
-                  if (emailField instanceof HTMLElement) {
-                    emailField.focus();
-                    console.log("Email field focused after save address");
-                    
-                    // Then focus the terms checkbox 
-                    setTimeout(() => {
-                      if (termsCheckboxRef.current) {
-                        termsCheckboxRef.current.focus();
-                        console.log("Terms checkbox focused from Save Address button");
-                      } else {
-                        console.log("Terms checkbox ref not found from Save Address button");
-                      }
-                    }, 300);
-                  } else {
-                    console.log("Email field not found after save address");
+                  if (termsCheckboxRef.current) {
+                    termsCheckboxRef.current.focus();
                   }
                 }, 100);
               }}
