@@ -270,8 +270,8 @@ export function getImageUrl(url?: string, debugLabel?: string): string {
         cleanUrl.toLowerCase().includes('profile') || cleanUrl.toLowerCase().includes('photo')) {
       
       // Special handling for Tiffany's salon - use Tiffany's image directly
-      if (cleanUrl.toLowerCase().includes('tiffany')) {
-        finalUrl = `/assets/TIFFANY_5280.png?t=${timestamp}`;
+      if (cleanUrl.toLowerCase().includes('tiffany') || cleanUrl.toLowerCase().includes('5280')) {
+        finalUrl = `/assets/tiffany_profile.png?t=${timestamp}`;
         console.log(`[getImageUrl:${label}] Tiffany's photo detected, using specific image:`, finalUrl);
         return finalUrl;
       }
