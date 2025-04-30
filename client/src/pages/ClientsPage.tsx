@@ -133,7 +133,6 @@ export default function ClientsPage() {
                   </span>
                   <span className="ven-me">Ven Me,</span> <span className="baby">Baby!</span> Teaser Campaign
                 </h3>
-                <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200">NEW</Badge>
               </div>
               
               {/* Import and use TeaserCarousel component */}
