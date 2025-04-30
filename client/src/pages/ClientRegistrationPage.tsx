@@ -254,19 +254,43 @@ export default function ClientRegistrationPage() {
   };
   
   // Function to handle Later button click in address dialog
+  // Enhanced function to reliably focus the terms checkbox
   const handleLaterClick = () => {
+    console.log("Later button clicked - closing dialog");
     setShowAddressDialog(false);
-    console.log("Dialog closed, attempting to focus terms checkbox");
     
-    // Focus on terms checkbox after a short delay
-    setTimeout(() => {
+    // Use requestAnimationFrame for better timing with DOM updates
+    requestAnimationFrame(() => {
+      console.log("Attempting to focus terms checkbox using multiple methods");
+      
+      // Method 1: Try using the ref directly
       if (termsCheckboxRef.current) {
         termsCheckboxRef.current.focus();
-        console.log("Terms checkbox focused successfully");
-      } else {
-        console.log("Terms checkbox ref not found");
+        console.log("Terms checkbox focused successfully via ref");
+        return;
       }
-    }, 300); // Increased delay to ensure DOM is updated
+      
+      // Method 2: Try using DOM query selector for the input
+      const termsInput = document.querySelector('input[name="acceptTerms"]');
+      if (termsInput instanceof HTMLElement) {
+        termsInput.focus();
+        console.log("Terms checkbox focused via direct DOM query");
+        return;
+      }
+      
+      // Method 3: Try finding the FormControl wrapper and focusing within it
+      const termsFormItem = document.querySelector('[data-terms-checkbox-container]');
+      if (termsFormItem) {
+        const focusableElement = termsFormItem.querySelector('button, input, [tabindex="0"]');
+        if (focusableElement instanceof HTMLElement) {
+          focusableElement.focus();
+          console.log("Terms checkbox focused via container query");
+          return;
+        }
+      }
+      
+      console.log("Could not focus terms checkbox using any method");
+    });
   };
   
   // Handle form submission - FIXED to prevent registration loop issues
@@ -711,6 +735,7 @@ export default function ClientRegistrationPage() {
                         
                         return (
                           <FormItem 
+                            data-terms-checkbox-container
                             className={`flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 transition-colors duration-200 hover:bg-pink-50/50 ${
                               isFocused || isHighlighted ? 'bg-pink-50 border-pink-200 shadow-sm' : ''
                             }`}
@@ -870,17 +895,41 @@ export default function ClientRegistrationPage() {
             <Button 
               type="button"
               onClick={() => {
+                console.log("Save Address button clicked - closing dialog");
                 setShowAddressDialog(false);
-                console.log("Save Address clicked, attempting to focus terms checkbox");
-                // Focus on terms checkbox after a short delay
-                setTimeout(() => {
+                
+                // Use same robust focusing approach as handleLaterClick
+                requestAnimationFrame(() => {
+                  console.log("Attempting to focus terms checkbox after Save Address");
+                  
+                  // Method 1: Try using the ref directly
                   if (termsCheckboxRef.current) {
                     termsCheckboxRef.current.focus();
-                    console.log("Terms checkbox focused from Save Address button");
-                  } else {
-                    console.log("Terms checkbox ref not found from Save Address button");
+                    console.log("Terms checkbox focused successfully via ref from Save Address");
+                    return;
                   }
-                }, 300); // Increased delay to ensure DOM is updated
+                  
+                  // Method 2: Try using DOM query selector for the input
+                  const termsInput = document.querySelector('input[name="acceptTerms"]');
+                  if (termsInput instanceof HTMLElement) {
+                    termsInput.focus();
+                    console.log("Terms checkbox focused via direct DOM query from Save Address");
+                    return;
+                  }
+                  
+                  // Method 3: Try finding the FormControl wrapper and focusing within it
+                  const termsFormItem = document.querySelector('[data-terms-checkbox-container]');
+                  if (termsFormItem) {
+                    const focusableElement = termsFormItem.querySelector('button, input, [tabindex="0"]');
+                    if (focusableElement instanceof HTMLElement) {
+                      focusableElement.focus();
+                      console.log("Terms checkbox focused via container query from Save Address");
+                      return;
+                    }
+                  }
+                  
+                  console.log("Could not focus terms checkbox from Save Address using any method");
+                });
               }}
               variant="default"
             >
