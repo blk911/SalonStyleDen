@@ -83,9 +83,10 @@ export default function Navbar() {
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
               </Link>
               {/* Clients tab hidden - now the main page */}
-              <Link href="/admin">
+              {/* Admin button temporarily hidden for marketing testing */}
+              {/* <Link href="/admin">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
-              </Link>
+              </Link> */}
               <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
             </div>
             <LoadingIndicator />
@@ -113,9 +114,10 @@ export default function Navbar() {
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
           </Link>
           {/* Clients tab hidden in mobile menu - now the main page */}
-          <Link href="/admin">
+          {/* Admin button temporarily hidden for marketing testing */}
+          {/* <Link href="/admin">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
-          </Link>
+          </Link> */}
           <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
         </div>
       </div>
