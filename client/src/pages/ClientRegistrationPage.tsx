@@ -76,6 +76,7 @@ export default function ClientRegistrationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [showAddressDialog, setShowAddressDialog] = useState(false);
+  const [phoneValidated, setPhoneValidated] = useState(false);
   const termsCheckboxRef = useRef<HTMLButtonElement>(null);
 
   // Get query parameters
@@ -251,6 +252,18 @@ export default function ClientRegistrationPage() {
     // Phone validation success no longer triggers the address dialog automatically
     // The dialog will only show when form is submitted and address is missing
     console.log(`[FLOW] Phone validation ${isValid ? 'passed' : 'failed'}`);
+    
+    // Mark phone as validated if validation passed
+    if (isValid) {
+      setPhoneValidated(true);
+      
+      // Focus on terms checkbox after a short delay
+      setTimeout(() => {
+        if (termsCheckboxRef.current) {
+          termsCheckboxRef.current.focus();
+        }
+      }, 100);
+    }
   };
   
   // Function to handle Later button click in address dialog
@@ -569,14 +582,14 @@ export default function ClientRegistrationPage() {
                                   // We are now displaying this information in the dialog
                                   console.log(`Phone validation: isValid=${isValid}, isRegistered=${isRegistered}`);
                                   
-                                  // Validation successful but don't open the dialog automatically anymore
-                                  // Just mark the validation as complete
+                                  // Call our improved phone validation handler
                                   if (isValid && !isRegistered) {
-                                    setPhoneValidated(true);
+                                    handlePhoneValidation(isValid);
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // Focus the terms checkbox directly when Enter is pressed in phone field
+                                  // When Enter is pressed in the phone field, always focus on the terms checkbox
+                                  // This handles both validated and non-validated scenarios
                                   if (termsCheckboxRef.current) {
                                     termsCheckboxRef.current.focus();
                                   }
