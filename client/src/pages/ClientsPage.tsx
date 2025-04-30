@@ -160,7 +160,7 @@ export default function ClientsPage() {
                     </div>
                   </div>
                   <div className="text-gray-700 flex-grow mb-6">
-                    <p>"VMB has transformed how I connect with clients. The invitation feature makes client acquisition effortless, and I've seen a 40% increase in retention since joining!"</p>
+                    <p className="italic text-sm leading-relaxed">"VMB has completely transformed the way I connect with my clients. The personalized invitation feature makes client acquisition virtually effortless, and I've seen a remarkable 40% increase in client retention since joining the platform! The system's intuitive design has streamlined my entire scheduling process and allowed me to focus on what truly matters - delivering exceptional service to my valued clients."</p>
                     <div className="mt-4 flex items-center">
                       <div className="text-yellow-500 mr-1">★★★★★</div>
                       <span className="text-sm text-gray-500">Verified VMB Partner</span>
@@ -191,7 +191,7 @@ export default function ClientsPage() {
                     </div>
                   </div>
                   <div className="text-gray-700 flex-grow mb-6">
-                    <p>"I adore the personalized experience! Getting a VMB invitation makes me feel special, and the style selection process is so intuitive. Now all my appointments are through VMB!"</p>
+                    <p className="italic text-sm leading-relaxed">"I absolutely adore the personalized experience that VMB offers! Receiving a Ven Me, Baby invitation from my stylist makes me feel truly valued and special as a client. The style selection process is remarkably intuitive and helps me explore options I might never have considered otherwise. Since discovering this platform, I've scheduled all of my appointments exclusively through VMB - it's become an essential part of my self-care routine and I've recommended it to all my friends!"</p>
                     <div className="mt-4 flex items-center">
                       <div className="text-yellow-500 mr-1">★★★★★</div>
                       <span className="text-sm text-gray-500">VMB Member since 2024</span>

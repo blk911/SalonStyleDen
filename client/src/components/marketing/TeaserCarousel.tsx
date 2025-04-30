@@ -75,7 +75,7 @@ export default function TeaserCarousel() {
     
     const interval = setInterval(() => {
       api.scrollNext();
-    }, 5000); // Change slide every 5 seconds
+    }, 3750); // Change slide every 3.75 seconds
     
     return () => clearInterval(interval);
   }, [api, isAutoPlaying]);
