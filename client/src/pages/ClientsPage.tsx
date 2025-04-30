@@ -26,8 +26,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getImageUrl, formatPhoneNumber } from "@/lib/utils";
 import TeaserCarousel from "@/components/marketing/TeaserCarousel";
-import salonOwnerImage from '@/assets/MS-VMBLTD.jpg';
-import clientImage from '@/assets/kendra.png';
 
 // Define interfaces
 interface Client {
@@ -135,6 +133,7 @@ export default function ClientsPage() {
                   </span>
                   <span className="ven-me">Ven Me,</span> <span className="baby">Baby!</span> Teaser Campaign
                 </h3>
+                <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200">NEW</Badge>
               </div>
               
               {/* Import and use TeaserCarousel component */}
@@ -144,61 +143,48 @@ export default function ClientsPage() {
             </div>
 
             {/* Two cards side by side in a 1x2 grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Salon Owner Testimonial */}
+            <div className="grid grid-cols-2 gap-8">
+              {/* Grid Item 1 */}
               <Card className="bg-gradient-to-br from-blue-50 to-white shadow-md hover:shadow-xl transition-all border border-blue-100 h-full">
                 <CardContent className="p-8 flex flex-col h-full">
-                  <div className="flex items-center mb-4">
-                    <div className="rounded-full overflow-hidden border-4 border-blue-100 mr-4 flex-shrink-0">
-                      <img 
-                        src={salonOwnerImage} 
-                        alt="Salon Owner" 
-                        className="w-16 h-16 object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-serif font-semibold text-blue-800">Maria Spencer</h3>
-                      <p className="text-blue-600 text-sm">Salon Owner, Glow Studio</p>
-                    </div>
+                  <div className="text-blue-600 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                      <line x1="16" x2="16" y1="2" y2="6"/>
+                      <line x1="8" x2="8" y1="2" y2="6"/>
+                      <line x1="3" x2="21" y1="10" y2="10"/>
+                      <path d="M8 14h.01"/>
+                      <path d="M12 14h.01"/>
+                      <path d="M16 14h.01"/>
+                      <path d="M8 18h.01"/>
+                      <path d="M12 18h.01"/>
+                      <path d="M16 18h.01"/>
+                    </svg>
                   </div>
-                  
-                  <div className="text-gray-700 flex-grow mb-6 italic">
-                    <p>"Since joining Ven Me, Baby!, my client base has grown by 30%. The referral system works beautifully, and I've seen a significant boost in my return appointments. This platform truly understands what salon owners need!"</p>
+                  <h3 className="text-2xl font-serif font-semibold text-blue-800 mb-3">Lorem Ipsum</h3>
+                  <div className="text-gray-600 flex-grow mb-6">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget aliquam ultricies.</p>
                   </div>
-                  
                   <div className="mt-auto">
-                    <Link href="/salon/register">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">Register Today</Button>
-                    </Link>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">Dolor Sit</Button>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Client Testimonial */}
-              <Card className="bg-gradient-to-br from-pink-50 to-white shadow-md hover:shadow-xl transition-all border border-pink-100 h-full">
+              {/* Grid Item 2 */}
+              <Card className="bg-gradient-to-br from-green-50 to-white shadow-md hover:shadow-xl transition-all border border-green-100 h-full">
                 <CardContent className="p-8 flex flex-col h-full">
-                  <div className="flex items-center mb-4">
-                    <div className="rounded-full overflow-hidden border-4 border-pink-100 mr-4 flex-shrink-0">
-                      <img 
-                        src={clientImage} 
-                        alt="Happy Client" 
-                        className="w-16 h-16 object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-serif font-semibold text-pink-800">Kendra Williams</h3>
-                      <p className="text-pink-600 text-sm">Delighted Client</p>
-                    </div>
+                  <div className="text-green-600 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                    </svg>
                   </div>
-                  
-                  <div className="text-gray-700 flex-grow mb-6 italic">
-                    <p>"I love being able to send and receive salon invitations! It's the perfect gift for my friends, and I get rewarded too. The styling options are gorgeous and the whole experience feels so personal and thoughtful."</p>
+                  <h3 className="text-2xl font-serif font-semibold text-green-800 mb-3">Consectetur</h3>
+                  <div className="text-gray-600 flex-grow mb-6">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
                   </div>
-                  
                   <div className="mt-auto">
-                    <Link href="/register">
-                      <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white py-2">Yes, Ven Me, Baby!</Button>
-                    </Link>
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2">Adipiscing</Button>
                   </div>
                 </CardContent>
               </Card>
