@@ -625,11 +625,28 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                     
                     className={`w-full ${emailExists ? 'border-red-500 focus:ring-red-500' : ''}`}
                     onKeyDown={(e) => {
-                      // Move to next field on Enter
-                      if (e.key === 'Enter' && email.includes('@')) {
+                      // Move directly to French Tips button on Enter (skip date)
+                      if (e.key === 'Enter') {
                         e.preventDefault();
-                        const dateInput = document.querySelector('input[type="date"]') as HTMLInputElement;
-                        if (dateInput) dateInput.focus();
+                        
+                        // Try to find the French Tips button by looking for buttons with that text
+                        const buttons = document.querySelectorAll('button');
+                        let frenchTipsButton = null;
+                        
+                        for (let i = 0; i < buttons.length; i++) {
+                          if (buttons[i].textContent?.trim() === 'French Tips') {
+                            frenchTipsButton = buttons[i];
+                            break;
+                          }
+                        }
+                        
+                        if (frenchTipsButton) {
+                          (frenchTipsButton as HTMLButtonElement).focus();
+                        } else {
+                          // Fallback to first service button if French Tips not found
+                          const firstServiceButton = document.querySelector('.flex.flex-wrap.gap-2 button') as HTMLButtonElement;
+                          if (firstServiceButton) firstServiceButton.focus();
+                        }
                       }
                     }}
                   />
@@ -642,16 +659,9 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                 <Input
                   type="date"
                   value={firstServiceDate}
-                  onChange={(e) => setFirstServiceDate(e.target.value)}
-                  className="flex-1"
-                  onKeyDown={(e) => {
-                    // Move to notes field on Enter
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      const notesInput = document.querySelector('textarea') as HTMLTextAreaElement;
-                      if (notesInput) notesInput.focus();
-                    }
-                  }}
+                  readOnly
+                  disabled
+                  className="flex-1 bg-gray-50 cursor-not-allowed"
                 />
               </div>
 
