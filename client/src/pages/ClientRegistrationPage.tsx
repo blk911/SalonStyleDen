@@ -76,6 +76,8 @@ export default function ClientRegistrationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [showAddressDialog, setShowAddressDialog] = useState(false);
+  const [addressDialogShown, setAddressDialogShown] = useState(false);
+  const [showOptionalFields, setShowOptionalFields] = useState(false);
   const termsCheckboxRef = useRef<HTMLButtonElement>(null);
 
   // Get query parameters
