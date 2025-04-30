@@ -259,6 +259,7 @@ export default function ClientRegistrationPage() {
   // Function to handle Later button click in address dialog
   const handleLaterClick = () => {
     setShowAddressDialog(false);
+    setAddressDialogShown(true);
     
     // Focus on terms checkbox after a short delay
     setTimeout(() => {
@@ -273,9 +274,9 @@ export default function ClientRegistrationPage() {
     try {
       // Check if address fields should be prompted but are empty
       const hasNoAddress = !data.address && !data.city && !data.state && !data.zipCode;
-      const shouldShowAddressPrompt = hasNoAddress;
+      const shouldShowAddressPrompt = hasNoAddress && !addressDialogShown;
       
-      // If address is empty, show the address dialog and halt submission
+      // If address is empty and dialog hasn't been shown yet, show the address dialog and halt submission
       if (shouldShowAddressPrompt) {
         console.log('[FLOW] Address fields empty, showing address dialog');
         setShowAddressDialog(true);
