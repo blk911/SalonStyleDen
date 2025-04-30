@@ -76,10 +76,6 @@ export default function ClientRegistrationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [showAddressDialog, setShowAddressDialog] = useState(false);
-  // References for form elements
-  const nameInputRef = useRef<HTMLInputElement>(null);
-  const emailInputRef = useRef<HTMLInputElement>(null);
-  const phoneInputRef = useRef<HTMLInputElement>(null);
   const termsCheckboxRef = useRef<HTMLButtonElement>(null);
 
   // Get query parameters
@@ -531,52 +527,32 @@ export default function ClientRegistrationPage() {
                       )}
                     />
                     
-                    <div>
-                      <div className="grid grid-cols-2 gap-3 mb-3">
-                        <FormField
-                          control={form.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input 
-                                  placeholder="Full Name" 
-                                  {...field} 
-                                  ref={nameInputRef}
-                                  onKeyPress={(e) => {
-                                    if (e.key === 'Enter') {
-                                      e.preventDefault();
-                                      // Focus the phone field when Enter is pressed
-                                      if (phoneInputRef.current) {
-                                        phoneInputRef.current.focus();
-                                      }
-                                    }
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input placeholder="Full Name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       
-                        <FormField
-                          control={form.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input 
-                                  placeholder="Email" 
-                                  {...field} 
-                                  ref={emailInputRef}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      
-                      </div>
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input placeholder="Email" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       
                       <FormField
                         control={form.control}
@@ -598,9 +574,10 @@ export default function ClientRegistrationPage() {
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // Focus the email field when Enter is pressed
-                                  if (emailInputRef.current) {
-                                    emailInputRef.current.focus();
+                                  // Focus the address field when Enter is pressed
+                                  const addressField = document.querySelector('input[name="address"]');
+                                  if (addressField instanceof HTMLElement) {
+                                    addressField.focus();
                                   }
                                 }}
                                 clearField={() => {
