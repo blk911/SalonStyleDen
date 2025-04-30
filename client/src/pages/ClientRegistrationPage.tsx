@@ -248,35 +248,12 @@ export default function ClientRegistrationPage() {
     }
   }, [invitation, form, salonId]);
 
-  // Function to handle phone validation - Updated for new form flow
+  // Function to handle phone validation - FIXED: Remove automatic address popup trigger
+  // This prevents the first popup in the double-popup problem
   const handlePhoneValidation = (isValid: boolean) => {
+    // Phone validation success no longer triggers the address dialog automatically
+    // The dialog will only show when form is submitted and address is missing
     console.log(`[FLOW] Phone validation ${isValid ? 'passed' : 'failed'}`);
-    
-    // In the new flow, if phone validation passes and dialog hasn't been shown yet,
-    // we'll show the address dialog automatically
-    if (isValid && !addressDialogShown) {
-      setShowAddressDialog(true);
-      setAddressDialogShown(true);
-    }
-  };
-  
-  // Helper function to check if any optional information has been entered
-  const hasOptionalInfo = (): boolean => {
-    const values = form.getValues();
-    return !!(values.email || values.address || values.city || values.state || values.zipCode || values.notes);
-  };
-  
-  // Helper function to generate a summary of the entered optional information
-  const getOptionalInfoSummary = (): string => {
-    const values = form.getValues();
-    const parts: string[] = [];
-    
-    if (values.email) parts.push('Email');
-    if (values.address || values.city || values.state || values.zipCode) parts.push('Address');
-    if (values.notes) parts.push('Notes');
-    
-    if (parts.length === 0) return 'No additional information provided';
-    return `You've added: ${parts.join(', ')}`;
   };
   
   // Function to handle Later button click in address dialog
@@ -291,17 +268,17 @@ export default function ClientRegistrationPage() {
     }, 100);
   };
   
-  // Handle form submission - Updated for new registration flow
+  // Handle form submission - FIXED to prevent registration loop issues
   const onSubmit = async (data: ClientFormValues) => {
     try {
       // Check if address fields should be prompted but are empty
       const hasNoAddress = !data.address && !data.city && !data.state && !data.zipCode;
+      const shouldShowAddressPrompt = hasNoAddress;
       
-      // If address is empty and dialog hasn't been shown yet, show the dialog and halt submission
-      if (hasNoAddress && !addressDialogShown) {
+      // If address is empty, show the address dialog and halt submission
+      if (shouldShowAddressPrompt) {
         console.log('[FLOW] Address fields empty, showing address dialog');
         setShowAddressDialog(true);
-        setAddressDialogShown(true);
         return; // Don't proceed with form submission until address is provided or skipped
       }
       
@@ -626,22 +603,9 @@ export default function ClientRegistrationPage() {
                       />
                     </div>
                     
-                    {/* Show optional fields toggle button or info indicator */}
+                    {/* Show optional fields toggle button */}
                     {addressDialogShown && (
                       <div className="mt-3">
-                        {/* If any optional info was entered, show a summary banner */}
-                        {!showOptionalFields && (hasOptionalInfo() || showOptionalFields) && (
-                          <div className="mb-2 p-2 bg-pink-50 border border-pink-100 rounded-md text-sm">
-                            <div className="flex items-center text-pink-700">
-                              <CheckCircleIcon className="h-4 w-4 mr-2" />
-                              <span className="font-medium">Optional Information Added</span>
-                            </div>
-                            <p className="text-xs text-gray-500 mt-1 pl-6">
-                              {getOptionalInfoSummary()}
-                            </p>
-                          </div>
-                        )}
-                        
                         <Button
                           type="button"
                           variant="outline"
@@ -906,7 +870,7 @@ export default function ClientRegistrationPage() {
           <div className="grid gap-4 py-4">
             <div className="space-y-3">
               <div className="mb-2">
-                <div className="text-sm font-medium mb-1">Email (Optional)</div>
+                <FormLabel htmlFor="dialog-email">Email (Optional)</FormLabel>
                 <Input 
                   id="dialog-email"
                   placeholder="Email" 
@@ -916,7 +880,7 @@ export default function ClientRegistrationPage() {
               </div>
               
               <div className="mb-2">
-                <div className="text-sm font-medium mb-1">Street Address (Optional)</div>
+                <FormLabel htmlFor="dialog-address">Street Address (Optional)</FormLabel>
                 <Input 
                   id="dialog-address"
                   placeholder="Address" 
@@ -927,7 +891,7 @@ export default function ClientRegistrationPage() {
               
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <div>
-                  <div className="text-sm font-medium mb-1">City (Optional)</div>
+                  <FormLabel htmlFor="dialog-city">City (Optional)</FormLabel>
                   <Input 
                     id="dialog-city"
                     placeholder="City" 
@@ -936,7 +900,7 @@ export default function ClientRegistrationPage() {
                   />
                 </div>
                 <div>
-                  <div className="text-sm font-medium mb-1">State (Optional)</div>
+                  <FormLabel htmlFor="dialog-state">State (Optional)</FormLabel>
                   <Input 
                     id="dialog-state"
                     placeholder="State" 
@@ -947,7 +911,7 @@ export default function ClientRegistrationPage() {
               </div>
               
               <div>
-                <div className="text-sm font-medium mb-1">ZIP Code (Optional)</div>
+                <FormLabel htmlFor="dialog-zipcode">ZIP Code (Optional)</FormLabel>
                 <Input 
                   id="dialog-zipcode"
                   placeholder="ZIP Code" 
