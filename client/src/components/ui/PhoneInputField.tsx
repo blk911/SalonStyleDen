@@ -110,48 +110,29 @@ export function PhoneInputField({
     }
   };
 
-  // Handle key presses in the input field
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+  // Handle key presses in the input field - SIMPLIFIED VERSION
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      logFlowStep('ENTER key pressed on phone field', value);
+      logFlowStep('ENTER key pressed on phone field - IMMEDIATE FOCUS ON TERMS');
       
-      // Check if the phone is valid
-      const isValid = isValidPhone(value);
+      // SIMPLE VERSION: Always focus on terms checkbox when Enter pressed, no validation
+      // Set data attribute to prevent the address dialog
+      document.body.setAttribute('data-address-shown', 'true');
       
-      if (!isValid) {
-        setTouched(true);
-        logFlowStep('Invalid phone format on ENTER key', value);
-        return;
-      }
+      // Directly focus terms checkbox without validation
+      moveToTermsCheckbox();
       
-      // Immediately validate the phone number against database
-      logFlowStep('Valid phone format on ENTER key, validating with database', value);
-      
-      try {
-        const result = await validateContact(value);
-        logFlowStep('ENTER key validation result', result);
-        
-        if (result === 'registered') {
-          // Phone is already registered - show registered dialog
-          logFlowStep('Phone already registered on ENTER key - showing registered dialog', value);
-          setShowRegisteredDialog(true);
-        } else if (result === 'not_registered') {
-          // For valid phone numbers that aren't registered
-          document.body.setAttribute('data-address-shown', 'true');
-          logFlowStep('Phone is valid and not registered on ENTER key - focusing terms checkbox');
-          
-          // Focus directly on terms checkbox
-          moveToTermsCheckbox();
-          
-          // Call the validation complete callback
+      // Also run validation in the background so it's complete by the time they submit
+      if (isValidPhone(value)) {
+        validateContact(value).then(result => {
+          logFlowStep('Background validation complete', result);
           if (onValidationComplete) {
-            onValidationComplete(true, false);
+            onValidationComplete(result !== 'invalid', result === 'registered');
           }
-        }
-      } catch (error) {
-        console.error('Error validating phone on ENTER key:', error);
-        logFlowStep('Error validating phone on ENTER key', error);
+        }).catch(error => {
+          console.error('Background validation error:', error);
+        });
       }
     }
   };
@@ -175,20 +156,28 @@ export function PhoneInputField({
   const moveToTermsCheckbox = () => {
     logFlowStep('Starting focus transition to terms checkbox');
     
-    // Use direct DOM manipulation to force cursor placement to terms checkbox
-    setTimeout(() => {
-      const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
-      if (termsCheckbox instanceof HTMLElement) {
-        logFlowStep('Terms checkbox found, focusing...');
-        termsCheckbox.focus();
-        
-        // Scroll to the terms area to make it visible
-        termsCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        logFlowStep('Terms checkbox focused and scrolled into view');
-      } else {
-        logFlowStep('ERROR: Terms checkbox not found in DOM');
-      }
-    }, 50);
+    // Immediately focus terms checkbox without delay
+    const termsCheckbox = document.getElementById('acceptTerms');
+    if (termsCheckbox instanceof HTMLElement) {
+      logFlowStep('Terms checkbox found by ID, focusing immediately');
+      termsCheckbox.focus();
+      termsCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      logFlowStep('Terms checkbox focused and scrolled into view');
+    } else {
+      // Fallback to the old selector approach but reduce timeout
+      logFlowStep('Falling back to query selector approach');
+      setTimeout(() => {
+        const termsCheckboxByQuery = document.querySelector('input[name="acceptTerms"]');
+        if (termsCheckboxByQuery instanceof HTMLElement) {
+          logFlowStep('Terms checkbox found by query, focusing');
+          termsCheckboxByQuery.focus();
+          termsCheckboxByQuery.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          logFlowStep('Terms checkbox focused and scrolled into view');
+        } else {
+          logFlowStep('ERROR: Terms checkbox not found by either method');
+        }
+      }, 10); // Minimal timeout
+    }
   };
   
   // Handle the validation dialog close - now goes directly to terms checkbox

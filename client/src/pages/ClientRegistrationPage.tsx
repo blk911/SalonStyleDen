@@ -109,19 +109,31 @@ export default function ClientRegistrationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   
-  // We'll use a ref to the terms checkbox element via DOM ID instead of direct ref
+  // We'll use a direct approach to the terms checkbox element
   const focusTermsCheckbox = () => {
-    setTimeout(() => {
-      const checkbox = document.getElementById('acceptTerms');
-      if (checkbox) {
-        logFlow('Terms checkbox found by ID, focusing');
-        checkbox.focus();
-        checkbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        logFlow('Terms checkbox focused and scrolled into view');
-      } else {
-        logFlow('ERROR: Terms checkbox not found by ID');
-      }
-    }, 50);
+    logFlow('Focusing terms checkbox - direct approach');
+    // Immediate focus attempt without timeout
+    const checkbox = document.getElementById('acceptTerms');
+    if (checkbox) {
+      logFlow('Terms checkbox found by ID, focusing immediately');
+      checkbox.focus();
+      checkbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      logFlow('Terms checkbox focused and scrolled into view');
+    } else {
+      // Extra logging for debugging
+      logFlow('ERROR: Terms checkbox not found by ID on first attempt');
+      // Try again with a very short delay as a fallback
+      setTimeout(() => {
+        const retryCheckbox = document.getElementById('acceptTerms');
+        if (retryCheckbox) {
+          logFlow('Terms checkbox found on retry');
+          retryCheckbox.focus();
+          retryCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          logFlow('CRITICAL ERROR: Terms checkbox not found even on retry');
+        }
+      }, 10);
+    }
   };
   
   // Form definition with zod validation
