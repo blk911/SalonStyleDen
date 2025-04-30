@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import placeholderImage from '@/assets/placeholder-1.svg';
 import shoppingWomanImage from '@/assets/shopping-woman.jpg';
 import himReceivingVideo from '@/assets/him_rcv_vmb.mp4';
+import boomVideo from '@/assets/BOOM.mp4';
 
 interface TeaserSlide {
   title: string;
@@ -41,6 +42,7 @@ const campaignSlides: TeaserSlide[] = [
     title: "He steps up. You glow up.",
     content: "#TwinWin #VenMeBaby",
     bgClass: "bg-gradient-to-br from-blue-50 to-teal-100",
+    videoUrl: boomVideo,
     visualCue: "Split screen: him sending → her showing off nails."
   },
   {
