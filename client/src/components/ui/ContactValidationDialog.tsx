@@ -1,13 +1,12 @@
+import { useEffect } from "react";
 import { 
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { CheckIcon, AlertTriangle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { ValidationResult } from "@/hooks/use-contact-validation";
 
 interface ContactValidationDialogProps {
@@ -20,8 +19,8 @@ interface ContactValidationDialogProps {
 }
 
 /**
- * A standardized dialog for showing contact validation results
- * Used to display whether a phone/email is already registered in the system
+ * A streamlined dialog for phone/email validation
+ * Now auto-closes and redirects focus to terms checkbox when validation completes
  */
 export function ContactValidationDialog({
   open,
@@ -31,99 +30,48 @@ export function ContactValidationDialog({
   contactValue,
   onClose
 }: ContactValidationDialogProps) {
-  // The dialog close handler in the button component will handle focus management directly
+  // Use useEffect to handle side effects properly
+  useEffect(() => {
+    // Auto-close for non-loading states
+    if (open && validationResult !== 'loading') {
+      // Close dialog
+      onOpenChange(false);
+      
+      // Set data attribute to prevent address dialog from showing again
+      document.body.setAttribute('data-address-shown', 'true');
+      
+      // Focus on terms checkbox
+      setTimeout(() => {
+        const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
+        if (termsCheckbox instanceof HTMLElement) {
+          termsCheckbox.focus();
+          // Scroll to the terms area to make it visible
+          termsCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          console.log('[FLOW] Direct navigation to terms checkbox after validation');
+        }
+      }, 50);
+    }
+  }, [open, validationResult, onOpenChange]);
+  
+  // Only render the dialog when it's supposed to be open
+  if (!open) return null;
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
+        {/* Only show loading state, all other states will auto-close */}
         <DialogHeader>
-          <DialogTitle>Contact Validation Result</DialogTitle>
+          <DialogTitle>Validating Contact Info</DialogTitle>
           <DialogDescription>
-            {validationResult === 'loading' ? 
-              "Checking registration status..." : 
-              `The ${contactType} information has been validated.`}
+            Please wait while we verify your information...
           </DialogDescription>
         </DialogHeader>
         
         <div className="py-6">
-          {validationResult === 'loading' ? (
-            <div className="flex items-center justify-center">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            </div>
-          ) : validationResult === 'registered' ? (
-            <div className="text-center p-4 bg-green-50 border border-green-200 rounded-md">
-              <CheckIcon className="h-12 w-12 text-green-500 mx-auto mb-2" />
-              <h3 className="text-lg font-semibold text-green-700 mb-1">Registered</h3>
-              <p className="text-green-600">
-                {contactType === 'phone' ? 'Phone number' : 'Email address'} is registered in the database.
-              </p>
-              <p className="font-bold mt-2 text-green-800">IN DB</p>
-            </div>
-          ) : validationResult === 'not_registered' ? (
-            <div className="text-center p-4 bg-amber-50 border border-amber-200 rounded-md">
-              <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
-              <h3 className="text-lg font-semibold text-amber-700 mb-1">Not Registered</h3>
-              <p className="text-amber-600">
-                {contactType === 'phone' ? 'Phone number' : 'Email address'} is not registered in the database.
-              </p>
-              <p className="mt-2 text-sm text-amber-700">
-                The client needs to register before proceeding.
-              </p>
-            </div>
-          ) : validationResult === 'invalid' ? (
-            <div className="text-center p-4 bg-red-50 border border-red-200 rounded-md">
-              <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-2" />
-              <h3 className="text-lg font-semibold text-red-700 mb-1">Invalid Format</h3>
-              <p className="text-red-600">
-                The {contactType} format is invalid: {contactValue}
-              </p>
-              <p className="mt-2 text-sm text-red-700">
-                Please check the format and try again.
-              </p>
-            </div>
-          ) : null}
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          </div>
         </div>
-        
-        <DialogFooter className="flex justify-between">
-          <Button 
-            type="button"
-            variant="outline"
-            onClick={() => {
-              // Close dialog first
-              onOpenChange(false);
-              
-              // Set data attribute to prevent dialog from showing again
-              document.body.setAttribute('data-address-shown', 'true');
-              
-              // Move focus to accept terms checkbox
-              setTimeout(() => {
-                const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
-                if (termsCheckbox instanceof HTMLElement) {
-                  termsCheckbox.focus();
-                }
-              }, 10);
-            }}
-          >
-            Later
-          </Button>
-          
-          <Button 
-            type="button" 
-            onClick={() => {
-              // Set data attribute to prevent dialog from showing again
-              document.body.setAttribute('data-address-shown', 'true');
-              
-              // First call onClose if provided (which should move focus to address field)
-              if (onClose) {
-                onClose();
-              }
-              
-              // Then close the dialog
-              onOpenChange(false);
-            }}
-          >
-            Enter Address
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

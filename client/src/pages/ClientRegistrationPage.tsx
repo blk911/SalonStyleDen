@@ -266,18 +266,25 @@ export default function ClientRegistrationPage() {
   
   // Function to handle Later button click in address dialog
   const handleLaterClick = () => {
+    // Close the dialog
     setShowAddressDialog(false);
     setAddressDialogShown(true);
     
     // Set data attribute on body to indicate dialog was shown
     document.body.setAttribute('data-address-shown', 'true');
     
-    // Focus on terms checkbox after a short delay
+    // Focus directly on terms checkbox immediately
     setTimeout(() => {
       if (termsCheckboxRef.current) {
         termsCheckboxRef.current.focus();
+        
+        // Scroll to the terms area to make it visible
+        termsCheckboxRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // No secondary dialog needed - direct navigation to terms checkbox
+        console.log('[FLOW] Direct navigation to terms checkbox after clicking "Later"');
       }
-    }, 100);
+    }, 50); // Reduced timeout for faster focus transition
   };
   
   // Handle form submission - FIXED to prevent registration loop issues
@@ -947,15 +954,19 @@ export default function ClientRegistrationPage() {
             <Button 
               type="button"
               onClick={() => {
+                // Close dialog
                 setShowAddressDialog(false);
                 setAddressDialogShown(true);
                 
-                // Focus on terms checkbox after a short delay
+                // Focus directly on terms checkbox immediately
                 setTimeout(() => {
                   if (termsCheckboxRef.current) {
                     termsCheckboxRef.current.focus();
+                    // Scroll to the terms area to make it visible
+                    termsCheckboxRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    console.log('[FLOW] Direct navigation to terms checkbox after saving information');
                   }
-                }, 100);
+                }, 50); // Reduced timeout for faster focus transition
               }}
               variant="default"
             >
