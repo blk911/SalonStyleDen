@@ -751,8 +751,13 @@ export default function SalonDashboard() {
                     className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
                     onError={(e) => {
                       console.log("Owner photo fallback used for:", salon.name);
-                      // Use the standard fallback without hardcoded paths
-                      e.currentTarget.src = '/assets/salon-card.png';
+                      // Special case for Tiffany's salon
+                      if (salon.name.includes('Tiffany') || salon.name.includes('5280')) {
+                        e.currentTarget.src = '/assets/tiffany_profile.png';
+                      } else {
+                        // Use the standard fallback for other salons
+                        e.currentTarget.src = '/assets/salon-card.png';
+                      }
                     }}
                   />
                 </div>
