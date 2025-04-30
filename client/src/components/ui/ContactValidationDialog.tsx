@@ -9,6 +9,11 @@ import {
 import { Loader2 } from "lucide-react";
 import { ValidationResult } from "@/hooks/use-contact-validation";
 
+// Flow testing helper - logs flow steps to console
+const logFlowStep = (step: string, data?: any) => {
+  console.log(`[FLOW TEST] ${step}`, data ? data : '');
+};
+
 interface ContactValidationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

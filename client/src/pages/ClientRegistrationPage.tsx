@@ -1,28 +1,67 @@
-import { useState, useEffect, useRef } from 'react';
-import { useLocation, useRoute } from 'wouter';
+import React, { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
-import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { queryClient, apiRequest } from '@/lib/queryClient';
-
-import { Button } from '@/components/ui/button';
+import { z } from 'zod';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { toast } from '@/hooks/use-toast';
+import { PhoneInputField } from '@/components/ui/PhoneInputField';
+import { useContactValidation } from '@/hooks/use-contact-validation';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import {
+  Loader2 as Loader2Icon,
+  CheckCircle as CheckCircleIcon,
+  UserCircle,
+  Building2,
+  Mail,
+  CheckCheck,
+  Scissors,
+  Sparkles,
+} from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { Loader2Icon, CheckCircleIcon, UserCircle, Building2, ChevronDown, ChevronUp } from 'lucide-react';
-import { PhoneInputField } from '@/components/ui/PhoneInputField';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
+// Create a flow testing logger helper for this component
+const logFlow = (step: string, data?: any) => {
+  console.log(`[FLOW TEST] ${step}`, data ? data : '');
+};
+
+// Client schema with basic validation
+const clientSchema = z.object({
+  inviteType: z.enum(['friend', 'salonOwner']).default('friend'),
+  name: z.string().min(2, { message: 'Name is required' }),
+  phone: z.string().min(10, { message: 'Valid phone number is required' }),
+  email: z.string().email().optional().or(z.literal('')),
+  address: z.string().optional().or(z.literal('')),
+  city: z.string().optional().or(z.literal('')),
+  state: z.string().optional().or(z.literal('')),
+  zipCode: z.string().optional().or(z.literal('')),
+  favoriteServices: z.array(z.string()).optional(),
+  notes: z.string().optional().or(z.literal('')),
+  acceptTerms: z.boolean().refine(val => val === true, {
+    message: 'You must accept the terms and conditions'
+  }),
+  sponsorSalonId: z.number().optional(),
+});
+
+// Define the form values type
+type ClientFormValues = z.infer<typeof clientSchema>;
+
+// Interface for the invitation data
 interface Invitation {
   id: number;
   name: string;
@@ -38,6 +77,7 @@ interface Invitation {
   inviteHash: string;
 }
 
+// Interface for salon data
 interface Salon {
   id: number;
   name: string;
@@ -48,225 +88,102 @@ interface Salon {
   zipCode?: string;
 }
 
-// Create a client registration schema
-const clientSchema = z.object({
-  inviteType: z.enum(['friend', 'salonOwner']).default('friend'),
-  name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  phone: z.string().min(10, { message: 'Please enter a valid phone number' }),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  zipCode: z.string().optional(),
-  notes: z.string().optional(),
-  favoriteServices: z.array(z.string()).optional(),
-  acceptTerms: z.boolean().refine(val => val === true, {
-    message: 'You must accept the terms and conditions',
-  }),
-  sponsorSalonId: z.number().optional(),
-  invitationId: z.number().optional(),
-});
-
-type ClientFormValues = z.infer<typeof clientSchema>;
-
 export default function ClientRegistrationPage() {
-  const [, navigate] = useLocation();
-  const [isClientRegister] = useRoute('/client/register');
-  const [isClientRegistration] = useRoute('/client-registration');
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [registrationComplete, setRegistrationComplete] = useState(false);
+  const navigate = useNavigate();
+  const [location] = useLocation();
+  
+  // Extract invite hash from URL if present
+  const inviteHash = location.includes('/invite/') 
+    ? location.split('/invite/')[1]
+    : null;
+    
+  // Extract salon ID from URL if present
+  const salonIdParam = location.includes('/salon/') 
+    ? location.split('/salon/')[1]
+    : null;
+    
+  const salonId = salonIdParam ? parseInt(salonIdParam, 10) : undefined;
+  
+  // State management for address dialog and form submission
   const [showAddressDialog, setShowAddressDialog] = useState(false);
   const [addressDialogShown, setAddressDialogShown] = useState(false);
-  const [showOptionalFields, setShowOptionalFields] = useState(false);
-  const termsCheckboxRef = useRef<HTMLButtonElement>(null);
-
-  // Get query parameters
-  const urlParams = new URLSearchParams(window.location.search);
-  const salonId = urlParams.get('salonId') ? Number(urlParams.get('salonId')) : undefined;
-  const invitationId = urlParams.get('invitationId') ? Number(urlParams.get('invitationId')) : undefined;
-  const invitationHash = urlParams.get('hash');
-
-  // Fetch invitation data if we have an invitation ID or hash
-  const {
-    data: invitation,
-    isLoading: invitationLoading,
-    error: invitationError,
-  } = useQuery<Invitation>({
-    queryKey: invitationHash 
-      ? ['/api/invitations/by-hash', invitationHash] 
-      : ['/api/invitations', invitationId],
-    queryFn: async () => {
-      const url = invitationHash
-        ? `/api/invitations/by-hash/${invitationHash}`
-        : `/api/invitations/${invitationId}`;
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error('Failed to fetch invitation');
-      }
-      return response.json();
-    },
-    enabled: !!(invitationId || invitationHash),
-  });
-
-  // Fetch salon data
-  const {
-    data: salon,
-    isLoading: salonLoading,
-  } = useQuery<Salon>({
-    queryKey: ['/api/salons', salonId || invitation?.salonId],
-    queryFn: async () => {
-      const id = salonId || invitation?.salonId;
-      const response = await fetch(`/api/salons/${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch salon');
-      }
-      return response.json();
-    },
-    enabled: !!(salonId || invitation?.salonId),
-  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
   
-  // Initialize form with invitation data if available
+  // Reference to the terms checkbox for direct focus
+  const termsCheckboxRef = useRef<HTMLInputElement>(null);
+  
+  // Form definition with zod validation
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
       inviteType: 'friend',
       name: '',
-      email: '',
       phone: '',
+      email: '',
       address: '',
       city: '',
       state: '',
       zipCode: '',
       notes: '',
-      favoriteServices: [],
       acceptTerms: false,
       sponsorSalonId: salonId,
-      invitationId: invitationId,
     },
   });
   
-  // Listen for form reset event from PhoneInputField
-  useEffect(() => {
-    const handleFormReset = () => {
-      // Reset the form to default values
-      form.reset({
-        inviteType: 'friend',
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        city: '',
-        state: '',
-        zipCode: '',
-        notes: '',
-        favoriteServices: [],
-        acceptTerms: false,
-        sponsorSalonId: salonId,
-        invitationId: invitationId,
-      });
-      
-      // Show toast notification
-      toast({
-        title: "Form Reset",
-        description: "The form has been reset due to registered phone number",
-        variant: "default",
-      });
-    };
-    
-    // Add event listener for custom reset event
-    document.addEventListener('vmb-form-reset', handleFormReset);
-    
-    // Clean up event listener on component unmount
-    return () => {
-      document.removeEventListener('vmb-form-reset', handleFormReset);
-    };
-  }, [form, toast, salonId, invitationId]);
-
-  // When invitation data is loaded, populate the form
-  // Auto-redirect effect for already processed invitations
-  useEffect(() => {
-    // Check if we have an invitation and if it's already been accepted/completed
-    if (invitation && (invitation.status === "accepted" || invitation.status === "completed")) {
-      // Check if a client already exists with this phone number
-      const checkForExistingClient = async () => {
-        try {
-          console.log(`Auto-checking if client with phone ${invitation.phone} already exists...`);
-          const response = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
-          
-          if (response.ok) {
-            const clients = await response.json();
-            
-            if (clients && clients.length > 0) {
-              const clientId = clients[0].id;
-              console.log(`Client found with ID ${clientId}, auto-redirecting to dashboard`);
-              
-              // Show toast notification
-              toast({
-                title: "Account Found",
-                description: "Your account is already registered. Redirecting to your dashboard.",
-                variant: "default"
-              });
-              
-              // Set registration complete to show transition UI
-              setRegistrationComplete(true);
-              
-              // Redirect to client dashboard after a short delay
-              setTimeout(() => {
-                navigate(`/client/${clientId}`);
-              }, 1000);
-              
-              return true; // Client found and redirect in progress
-            }
-          }
-          return false; // No client found
-        } catch (error) {
-          console.error("Error checking for existing client:", error);
-          return false;
-        }
-      };
-      
-      // Execute the check
-      checkForExistingClient();
-    }
-  }, [invitation, navigate, toast]);
-
-  // Setup and cleanup effect - reset state when component mounts
-  useEffect(() => {
-    // Clear the data attribute to reset dialog state on mount
-    document.body.removeAttribute('data-address-shown');
-    
-    // Reset local state tracking for a fresh form start
-    setAddressDialogShown(false);
-    setShowAddressDialog(false);
-    
-    return () => {
-      // Clean up data attribute when component unmounts
-      document.body.removeAttribute('data-address-shown');
-    };
-  }, []);
+  // Contact validation hook for phone validation
+  const { validateContact } = useContactValidation();
   
-  // Populate form with invitation data
+  // Load invitation data if invite hash is present
+  const { 
+    data: invitation,
+    isLoading: invitationLoading,
+  } = useQuery<Invitation>({
+    queryKey: ['/api/invitations/hash', inviteHash],
+    queryFn: async () => {
+      if (!inviteHash) return null;
+      
+      const response = await fetch(`/api/invitations/hash/${inviteHash}`);
+      if (!response.ok) {
+        throw new Error('Failed to load invitation');
+      }
+      return response.json();
+    },
+    enabled: !!inviteHash,
+  });
+  
+  // Load salon data if salon ID is present
+  const { 
+    data: salon,
+    isLoading: salonLoading,
+  } = useQuery<Salon>({
+    queryKey: ['/api/salons', salonId],
+    queryFn: async () => {
+      if (!salonId) return null;
+      
+      const response = await fetch(`/api/salons/${salonId}`);
+      if (!response.ok) {
+        throw new Error('Failed to load salon information');
+      }
+      return response.json();
+    },
+    enabled: !!salonId,
+  });
+  
+  // If invitation data is loaded, prefill the form
   useEffect(() => {
     if (invitation) {
       form.reset({
         ...form.getValues(),
-        inviteType: form.getValues().inviteType || 'friend', // Preserve inviteType
         name: invitation.name || '',
-        email: invitation.email || '',
         phone: invitation.phone || '',
+        email: invitation.email || '',
         notes: invitation.notes || '',
         favoriteServices: invitation.favoriteServices || [],
         sponsorSalonId: invitation.salonId || salonId,
-        invitationId: invitation.id,
       });
     }
   }, [invitation, form, salonId]);
-
-  // Create a flow testing logger helper for this component
-  const logFlow = (step: string, data?: any) => {
-    console.log(`[FLOW TEST] ${step}`, data ? data : '');
-  };
   
   // Function to handle phone validation - FIXED: Remove automatic address popup trigger
   // This prevents the first popup in the double-popup problem
@@ -631,35 +548,10 @@ export default function ClientRegistrationPage() {
                             <FormControl>
                               <PhoneInputField 
                                 placeholder="Phone Number" 
-                                value={field.value}
+                                value={field.value} 
                                 onChange={field.onChange}
-                                onValidationComplete={(isValid, isRegistered) => {
-                                  // We are now displaying this information in the dialog
-                                  console.log(`Phone validation: isValid=${isValid}, isRegistered=${isRegistered}`);
-                                  
-                                  if (isValid && !isRegistered && !addressDialogShown) {
-                                    // Show address dialog after valid phone is entered
-                                    setShowAddressDialog(true);
-                                    setAddressDialogShown(true);
-                                  }
-                                }}
-                                onEnterPress={() => {
-                                  if (!addressDialogShown) {
-                                    // Show the address dialog when Enter is pressed in phone field
-                                    // if it hasn't been shown yet
-                                    setShowAddressDialog(true);
-                                    setAddressDialogShown(true);
-                                  } else {
-                                    // Focus terms checkbox if dialog was already shown
-                                    if (termsCheckboxRef.current) {
-                                      termsCheckboxRef.current.focus();
-                                    }
-                                  }
-                                }}
-                                clearField={() => {
-                                  // Clear the phone field when a registered number is found
-                                  field.onChange('');
-                                }}
+                                onValidationComplete={handlePhoneValidation}
+                                clearField={() => form.setValue('phone', '')}
                               />
                             </FormControl>
                             <FormMessage />
@@ -668,237 +560,98 @@ export default function ClientRegistrationPage() {
                       />
                     </div>
                     
-                    {/* Show optional fields toggle button */}
-                    {addressDialogShown && (
-                      <div className="mt-3">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setShowOptionalFields(!showOptionalFields)}
-                          className="w-full text-gray-600 border-gray-300"
-                        >
-                          {showOptionalFields ? (
-                            <>
-                              <ChevronUp className="mr-2 h-4 w-4" />
-                              Hide optional details
-                            </>
-                          ) : (
-                            <>
-                              <ChevronDown className="mr-2 h-4 w-4" />
-                              Show optional details
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    )}
-                    
-                    {/* Optional fields section - only displayed when toggled */}
-                    {showOptionalFields && (
-                      <div className="space-y-4 mt-3 border-l-2 border-pink-100 pl-3 py-2">
-                        {/* Email field - full width */}
-                        <FormField
-                          control={form.control}
-                          name="email"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input 
-                                  placeholder="Email (Optional)" 
-                                  {...field} 
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        {/* Address field - full width */}
-                        <FormField
-                          control={form.control}
-                          name="address"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input placeholder="Address (Optional)" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        {/* City and State fields */}
-                        <div className="grid grid-cols-2 gap-2">
-                          <FormField
-                            control={form.control}
-                            name="city"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input placeholder="City (Optional)" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          
-                          <FormField
-                            control={form.control}
-                            name="state"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input placeholder="State (Optional)" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        
-                        {/* ZIP Code field */}
-                        <FormField
-                          control={form.control}
-                          name="zipCode"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input placeholder="ZIP Code (Optional)" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        {/* Notes field */}
-                        <FormField
-                          control={form.control}
-                          name="notes"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Textarea 
-                                  placeholder="Additional Notes (Optional)" 
-                                  className="min-h-[100px]"
-                                  {...field} 
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    )}
-                    
+                    {/* Terms and Conditions Checkbox */}
                     <FormField
                       control={form.control}
                       name="acceptTerms"
-                      render={({ field }) => {
-                        // Use component state for tracking focus and highlight
-                        const [isFocused, setIsFocused] = useState(false);
-                        const [isHighlighted, setIsHighlighted] = useState(false);
-                        
-                        return (
-                          <FormItem 
-                            className={`flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 transition-colors duration-200 hover:bg-pink-50/50 ${
-                              isFocused || isHighlighted ? 'bg-pink-50 border-pink-200 shadow-sm' : ''
-                            }`}
-                          >
-                            <FormControl>
-                              <Checkbox
-                                ref={termsCheckboxRef}
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                                onFocus={() => setIsFocused(true)}
-                                onBlur={() => setIsFocused(false)}
-                                onMouseEnter={() => setIsHighlighted(true)}
-                                onMouseLeave={() => setIsHighlighted(false)}
-                              />
-                            </FormControl>
-                            <div className="space-y-1 leading-none">
-                              <FormLabel>
-                                I accept the terms and conditions
-                              </FormLabel>
-                              <FormDescription>
-                                By registering, you agree to our privacy policy and terms of service.
-                              </FormDescription>
-                            </div>
-                            <FormMessage />
-                          </FormItem>
-                        );
-                      }}
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-6">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              ref={termsCheckboxRef}
+                              id="acceptTerms"
+                              name="acceptTerms"
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel className="text-sm cursor-pointer">
+                              I accept the <a href="/terms" className="text-pink-600 hover:underline">Terms and Conditions</a>
+                            </FormLabel>
+                          </div>
+                        </FormItem>
+                      )}
                     />
                     
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-pink-600 hover:bg-pink-700"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                          Registering...
-                        </>
-                      ) : (
-                        'Complete Registration'
-                      )}
-                    </Button>
+                    {/* Submit Button */}
+                    <div className="mt-6">
+                      <Button 
+                        type="submit" 
+                        className="w-full"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          'Complete Registration'
+                        )}
+                      </Button>
+                    </div>
                   </form>
                 </Form>
               </CardContent>
             </Card>
           </div>
           
-          {/* Info Column */}
+          {/* Information Column */}
           <div className="md:col-span-2">
-            <Card className="bg-gray-50">
+            <Card>
               <CardHeader>
-                <CardTitle className="text-xl">Registration Information</CardTitle>
+                <CardTitle>Welcome to the VMB Network</CardTitle>
+                <CardDescription>
+                  A connection-driven personal gifting platform
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                {salon && (
-                  <div className="mb-6">
-                    <h3 className="font-medium text-lg mb-2">Your Sponsor Salon</h3>
-                    <div className="bg-white rounded-lg p-4 border">
-                      <div className="flex items-center mb-3">
-                        <Avatar className="h-12 w-12 mr-3">
-                          <AvatarFallback>{salon.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{salon.name}</p>
-                          {salon.address && (
-                            <p className="text-sm text-gray-500">
-                              {salon.address}, {salon.city}, {salon.state} {salon.zipCode}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-600">Owner: {salon.ownerName}</p>
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-pink-100 p-2 rounded-full">
+                      <CheckCheck className="h-5 w-5 text-pink-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Personalized Service</h3>
+                      <p className="text-sm text-gray-500">Unlock personalized recommendations from top salons.</p>
                     </div>
                   </div>
-                )}
-                
-                {invitation && invitation.favoriteServices && invitation.favoriteServices.length > 0 && (
-                  <div className="mb-6">
-                    <h3 className="font-medium text-lg mb-2">Your Favorite Services</h3>
-                    <div className="bg-white rounded-lg p-4 border">
-                      <ul className="list-disc pl-5">
-                        {invitation.favoriteServices.map((service, idx) => (
-                          <li key={idx} className="text-gray-600">{service}</li>
-                        ))}
-                      </ul>
+                  
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-pink-100 p-2 rounded-full">
+                      <Scissors className="h-5 w-5 text-pink-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Exclusive Offers</h3>
+                      <p className="text-sm text-gray-500">Access to special promotions and member-only services.</p>
                     </div>
                   </div>
-                )}
-                
-                <div>
-                  <h3 className="font-medium text-lg mb-2">Next Steps</h3>
-                  <div className="bg-white rounded-lg p-4 border">
-                    <ol className="list-decimal pl-5 space-y-2">
-                      <li className="text-gray-600">Complete the registration form</li>
-                      <li className="text-gray-600">Access your client dashboard</li>
-                      <li className="text-gray-600">Explore available services and styles</li>
-                      <li className="text-gray-600">Connect with your salon</li>
-                    </ol>
+                  
+                  <div className="flex items-start space-x-3">
+                    <div className="bg-pink-100 p-2 rounded-full">
+                      <Sparkles className="h-5 w-5 text-pink-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Gifting Economy</h3>
+                      <p className="text-sm text-gray-500">Join a community that values personal connection and gifting.</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-50 p-4 rounded-lg mt-6">
+                    <p className="text-sm text-gray-700">
+                      By joining Ven Me, Baby!, you're entering a network of salons and clients focused on authentic connections and personalized beauty experiences.
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -906,119 +659,117 @@ export default function ClientRegistrationPage() {
           </div>
         </div>
       </main>
-      <Footer />
       
-      {/* Address Dialog */}
-      <Dialog open={showAddressDialog} onOpenChange={(open) => {
-        setShowAddressDialog(open);
-        if (!open) {
-          // When dialog is closed, mark it as shown
-          setAddressDialogShown(true);
-          
-          // Focus the terms checkbox when dialog is closed
-          setTimeout(() => {
-            if (termsCheckboxRef.current) {
-              termsCheckboxRef.current.focus();
-            }
-          }, 100);
-        }
-      }}>
+      {/* Address Collection Dialog */}
+      <Dialog 
+        open={showAddressDialog} 
+        onOpenChange={setShowAddressDialog}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Additional Information</DialogTitle>
+            <DialogTitle>Add Your Address</DialogTitle>
             <DialogDescription>
-              Your address helps us provide location-based services and promotions. 
-              You can also add this information later.
+              Adding your address helps us provide more personalized service recommendations.
             </DialogDescription>
           </DialogHeader>
-          
           <div className="grid gap-4 py-4">
-            <div className="space-y-3">
-              <div className="mb-2">
-                <FormLabel htmlFor="dialog-email">Email (Optional)</FormLabel>
-                <Input 
-                  id="dialog-email"
-                  placeholder="Email" 
-                  value={form.getValues().email || ''}
-                  onChange={(e) => form.setValue('email', e.target.value)}
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Street Address</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="123 Main St" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>City</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="City" />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="state"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>State</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="State" maxLength={2} />
+                      </FormControl>
+                    </FormItem>
+                  )}
                 />
-              </div>
-              
-              <div className="mb-2">
-                <FormLabel htmlFor="dialog-address">Street Address (Optional)</FormLabel>
-                <Input 
-                  id="dialog-address"
-                  placeholder="Address" 
-                  value={form.getValues().address || ''}
-                  onChange={(e) => form.setValue('address', e.target.value)}
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2 mb-2">
-                <div>
-                  <FormLabel htmlFor="dialog-city">City (Optional)</FormLabel>
-                  <Input 
-                    id="dialog-city"
-                    placeholder="City" 
-                    value={form.getValues().city || ''}
-                    onChange={(e) => form.setValue('city', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <FormLabel htmlFor="dialog-state">State (Optional)</FormLabel>
-                  <Input 
-                    id="dialog-state"
-                    placeholder="State" 
-                    value={form.getValues().state || ''}
-                    onChange={(e) => form.setValue('state', e.target.value)}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <FormLabel htmlFor="dialog-zipcode">ZIP Code (Optional)</FormLabel>
-                <Input 
-                  id="dialog-zipcode"
-                  placeholder="ZIP Code" 
-                  value={form.getValues().zipCode || ''}
-                  onChange={(e) => form.setValue('zipCode', e.target.value)}
+                
+                <FormField
+                  control={form.control}
+                  name="zipCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Zip Code</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Zip" maxLength={5} />
+                      </FormControl>
+                    </FormItem>
+                  )}
                 />
               </div>
             </div>
+            
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Additional Notes</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      {...field} 
+                      placeholder="Any special requests or information you'd like to share" 
+                      className="min-h-[80px]"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
           </div>
-          
-          <DialogFooter className="flex justify-between sm:justify-between">
+          <DialogFooter className="flex justify-between">
             <Button 
+              type="button" 
               variant="outline" 
               onClick={handleLaterClick}
-              type="button"
             >
-              I'll add this later
+              Later
             </Button>
             <Button 
-              type="button"
+              type="button" 
               onClick={() => {
-                // Close dialog
                 setShowAddressDialog(false);
                 setAddressDialogShown(true);
-                
-                // Focus directly on terms checkbox immediately
-                setTimeout(() => {
-                  if (termsCheckboxRef.current) {
-                    termsCheckboxRef.current.focus();
-                    // Scroll to the terms area to make it visible
-                    termsCheckboxRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    console.log('[FLOW] Direct navigation to terms checkbox after saving information');
-                  }
-                }, 50); // Reduced timeout for faster focus transition
+                document.body.setAttribute('data-address-shown', 'true');
+                form.handleSubmit(onSubmit)();
               }}
-              variant="default"
             >
-              Save Information
+              Save & Continue
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      <Footer />
     </div>
   );
 }
