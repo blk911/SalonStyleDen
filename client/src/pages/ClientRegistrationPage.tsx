@@ -263,33 +263,44 @@ export default function ClientRegistrationPage() {
     }
   }, [invitation, form, salonId]);
 
+  // Create a flow testing logger helper for this component
+  const logFlow = (step: string, data?: any) => {
+    console.log(`[FLOW TEST] ${step}`, data ? data : '');
+  };
+  
   // Function to handle phone validation - FIXED: Remove automatic address popup trigger
   // This prevents the first popup in the double-popup problem
   const handlePhoneValidation = (isValid: boolean) => {
     // Phone validation success no longer triggers the address dialog automatically
     // The dialog will only show when form is submitted and address is missing
-    console.log(`[FLOW] Phone validation ${isValid ? 'passed' : 'failed'}`);
+    logFlow(`Phone validation ${isValid ? 'passed' : 'failed'}`);
   };
   
   // Function to handle Later button click in address dialog
   const handleLaterClick = () => {
+    logFlow('Later button clicked in address dialog');
+    
     // Close the dialog
     setShowAddressDialog(false);
     setAddressDialogShown(true);
     
     // Set data attribute on body to indicate dialog was shown
     document.body.setAttribute('data-address-shown', 'true');
+    logFlow('Dialog closed, data-address-shown attribute set to true');
     
     // Focus directly on terms checkbox immediately
     setTimeout(() => {
       if (termsCheckboxRef.current) {
+        logFlow('Terms checkbox ref found, focusing');
         termsCheckboxRef.current.focus();
         
         // Scroll to the terms area to make it visible
         termsCheckboxRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
         // No secondary dialog needed - direct navigation to terms checkbox
-        console.log('[FLOW] Direct navigation to terms checkbox after clicking "Later"');
+        logFlow('Terms checkbox focused and scrolled into view after clicking "Later"');
+      } else {
+        logFlow('ERROR: Terms checkbox not found after clicking "Later"');
       }
     }, 50); // Reduced timeout for faster focus transition
   };
@@ -297,12 +308,18 @@ export default function ClientRegistrationPage() {
   // Handle form submission - FIXED to prevent registration loop issues
   const onSubmit = async (data: ClientFormValues) => {
     try {
-      console.log('[FLOW] Form submission started');
+      logFlow('Form submission initiated');
+      logFlow('Form data', {
+        name: data.name,
+        phone: data.phone,
+        acceptTerms: data.acceptTerms,
+        hasAddress: Boolean(data.address || data.city || data.state || data.zipCode)
+      });
       
       // First, reset the dialog state on each form submission attempt 
       // to ensure consistent behavior even after multiple form submissions
       if (document.body.hasAttribute('data-address-shown')) {
-        console.log('[FLOW] Resetting address dialog state for new submission');
+        logFlow('Resetting address dialog state for new submission');
         document.body.removeAttribute('data-address-shown');
         setAddressDialogShown(false);
       }
@@ -313,12 +330,22 @@ export default function ClientRegistrationPage() {
       
       // If address is empty and dialog hasn't been shown yet, show the address dialog and halt submission
       if (shouldShowAddressPrompt) {
-        console.log('[FLOW] Address fields empty, showing address dialog');
+        logFlow('Address fields empty, showing address dialog');
+        logFlow('Address dialog state', {
+          hasNoAddress,
+          addressDialogShown,
+          shouldShowAddressPrompt
+        });
+        
         setShowAddressDialog(true);
         setAddressDialogShown(true);
         document.body.setAttribute('data-address-shown', 'true');
+        
+        logFlow('Address dialog opened, submission halted until address provided or skipped');
         return; // Don't proceed with form submission until address is provided or skipped
       }
+      
+      logFlow('Address validation passed, continuing with form submission');
       
       setIsSubmitting(true);
       

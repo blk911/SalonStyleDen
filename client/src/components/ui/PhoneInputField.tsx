@@ -7,6 +7,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
 
+// Flow testing helper - logs flow steps to console
+const logFlowStep = (step: string, data?: any) => {
+  console.log(`[FLOW TEST] ${step}`, data ? data : '');
+};
+
 interface PhoneInputFieldProps extends Omit<InputProps, 'onChange'> {
   value: string;
   onChange: (value: string) => void;
@@ -41,6 +46,7 @@ export function PhoneInputField({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formattedValue = formatPhoneNumber(e.target.value);
     onChange(formattedValue);
+    logFlowStep('Phone number typed', formattedValue);
   };
 
   // Handle validation when focus is lost
@@ -50,17 +56,22 @@ export function PhoneInputField({
 
     // Reset dialog state to ensure consistent behavior between form attempts
     document.body.removeAttribute('data-address-shown');
+    logFlowStep('Phone field lost focus - resetting dialog state');
     
     // Only validate if we have a value and 10 digits
     const digits = cleanPhoneNumber(value);
     if (digits.length === 10) {
+      logFlowStep('Valid 10-digit phone detected, validating', value);
       await validatePhoneNumber();
+    } else {
+      logFlowStep('Invalid/incomplete phone skipping validation', value);
     }
   };
 
   // Validate the phone number against the database
   const validatePhoneNumber = async () => {
     if (!value || !isValidPhone(value)) {
+      logFlowStep('Phone validation failed - invalid format', value);
       if (onValidationComplete) {
         onValidationComplete(false, false);
       }
@@ -68,17 +79,22 @@ export function PhoneInputField({
     }
 
     try {
+      logFlowStep('Validating phone number against database', value);
       const result = await validateContact(value);
+      logFlowStep('Validation result', result);
       
       if (result === 'registered') {
         // Phone is already registered - show registered dialog
+        logFlowStep('Phone already registered - showing registered dialog', value);
         setShowRegisteredDialog(true);
       } else if (result === 'not_registered') {
         // For valid phone numbers, skip showing any dialog
         // Set the data attribute to prevent dialogs from showing again
         document.body.setAttribute('data-address-shown', 'true');
+        logFlowStep('Phone is valid and not registered - setting data-address-shown attribute');
         
         // Move directly to terms checkbox
+        logFlowStep('Moving directly to terms checkbox');
         moveToTermsCheckbox();
       }
       
@@ -90,6 +106,7 @@ export function PhoneInputField({
       }
     } catch (error) {
       console.error('Error validating phone:', error);
+      logFlowStep('Error validating phone', error);
     }
   };
 
@@ -141,14 +158,20 @@ export function PhoneInputField({
 
   // Move cursor directly to terms checkbox function
   const moveToTermsCheckbox = () => {
+    logFlowStep('Starting focus transition to terms checkbox');
+    
     // Use direct DOM manipulation to force cursor placement to terms checkbox
     setTimeout(() => {
       const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
       if (termsCheckbox instanceof HTMLElement) {
+        logFlowStep('Terms checkbox found, focusing...');
         termsCheckbox.focus();
+        
         // Scroll to the terms area to make it visible
         termsCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        console.log('[FLOW] Direct navigation to terms checkbox after phone validation');
+        logFlowStep('Terms checkbox focused and scrolled into view');
+      } else {
+        logFlowStep('ERROR: Terms checkbox not found in DOM');
       }
     }, 50);
   };
