@@ -657,7 +657,7 @@ export default function ClientRegistrationPage() {
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input placeholder="City" {...field} />
+                                <Input placeholder="City" tabIndex={5} {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -670,7 +670,7 @@ export default function ClientRegistrationPage() {
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input placeholder="State" {...field} />
+                                <Input placeholder="State" tabIndex={6} {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -684,7 +684,7 @@ export default function ClientRegistrationPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input placeholder="ZIP Code" {...field} />
+                              <Input placeholder="ZIP Code" tabIndex={7} {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -701,6 +701,7 @@ export default function ClientRegistrationPage() {
                             <Textarea 
                               placeholder="Additional Notes (Optional)" 
                               className="min-h-[100px]"
+                              tabIndex={8}
                               {...field} 
                             />
                           </FormControl>
@@ -732,6 +733,7 @@ export default function ClientRegistrationPage() {
                                 onBlur={() => setIsFocused(false)}
                                 onMouseEnter={() => setIsHighlighted(true)}
                                 onMouseLeave={() => setIsHighlighted(false)}
+                                tabIndex={9}
                               />
                             </FormControl>
                             <div className="space-y-1 leading-none">
@@ -752,6 +754,7 @@ export default function ClientRegistrationPage() {
                       type="submit" 
                       className="w-full bg-pink-600 hover:bg-pink-700"
                       disabled={isSubmitting}
+                      tabIndex={10}
                     >
                       {isSubmitting ? (
                         <>

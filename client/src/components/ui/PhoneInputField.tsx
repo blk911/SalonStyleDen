@@ -101,6 +101,12 @@ export function PhoneInputField({
         return;
       }
       
+      // Call the onEnterPress callback if provided
+      if (onEnterPress) {
+        console.log('Calling onEnterPress from PhoneInputField');
+        onEnterPress();
+      }
+      
       // Start validation process
       validatePhoneNumber();
     }
