@@ -622,7 +622,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                         validateContact('email', email);
                       }
                     }}
-                    required
+                    
                     className={`w-full ${emailExists ? 'border-red-500 focus:ring-red-500' : ''}`}
                     onKeyDown={(e) => {
                       // Move to next field on Enter
@@ -726,7 +726,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
 
                   // Validate fields first
                   const cleanPhone = phone.replace(/\D/g, '');
-                  if (!name || cleanPhone.length !== 10 || !email) {
+                  if (!name || cleanPhone.length !== 10) {
                     toast({
                       title: "Missing Information",
                       description: "Please fill out all required fields",
@@ -735,7 +735,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                     return;
                   }
                   
-                  if (phoneExists || emailExists) {
+                  if (phoneExists || (email && emailExists)) {
                     toast({
                       title: "Validation Error",
                       description: "Please fix validation errors before continuing",
