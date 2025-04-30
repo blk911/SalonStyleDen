@@ -111,33 +111,48 @@ export function PhoneInputField({
   };
 
   // Handle key presses in the input field
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      logFlowStep('ENTER key pressed on phone field', value);
       
       // Check if the phone is valid
       const isValid = isValidPhone(value);
       
       if (!isValid) {
         setTouched(true);
+        logFlowStep('Invalid phone format on ENTER key', value);
         return;
       }
       
-      // Check if address dialog has already been shown
-      const addressDialogShown = document.body.hasAttribute('data-address-shown');
+      // Immediately validate the phone number against database
+      logFlowStep('Valid phone format on ENTER key, validating with database', value);
       
-      if (addressDialogShown) {
-        // Skip validation and directly focus on terms checkbox
-        moveToTermsCheckbox();
-        return;
+      try {
+        const result = await validateContact(value);
+        logFlowStep('ENTER key validation result', result);
+        
+        if (result === 'registered') {
+          // Phone is already registered - show registered dialog
+          logFlowStep('Phone already registered on ENTER key - showing registered dialog', value);
+          setShowRegisteredDialog(true);
+        } else if (result === 'not_registered') {
+          // For valid phone numbers that aren't registered
+          document.body.setAttribute('data-address-shown', 'true');
+          logFlowStep('Phone is valid and not registered on ENTER key - focusing terms checkbox');
+          
+          // Focus directly on terms checkbox
+          moveToTermsCheckbox();
+          
+          // Call the validation complete callback
+          if (onValidationComplete) {
+            onValidationComplete(true, false);
+          }
+        }
+      } catch (error) {
+        console.error('Error validating phone on ENTER key:', error);
+        logFlowStep('Error validating phone on ENTER key', error);
       }
-      
-      // Phone is valid and dialog hasn't been shown yet
-      // Set the data attribute to prevent dialogs from showing again
-      document.body.setAttribute('data-address-shown', 'true');
-      
-      // Move directly to terms checkbox instead of showing validation dialog
-      moveToTermsCheckbox();
     }
   };
 
