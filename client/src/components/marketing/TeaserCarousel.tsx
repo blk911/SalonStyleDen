@@ -67,18 +67,37 @@ export default function TeaserCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [api, setApi] = useState<any>(null);
+  const videoRefs = React.useRef<(HTMLVideoElement | null)[]>([]);
   const tagline = "a connection-driven personal gifting platform";
   
-  // Auto-play functionality
+  // Initialize video refs array
+  useEffect(() => {
+    videoRefs.current = Array(campaignSlides.length).fill(null);
+  }, []);
+  
+  // Auto-play functionality with fixed timing
   useEffect(() => {
     if (!api || !isAutoPlaying) return;
     
+    // All slides 3.5 seconds
+    const slideInterval = 3500;
+    
     const interval = setInterval(() => {
       api.scrollNext();
-    }, 3750); // Change slide every 3.75 seconds
+    }, slideInterval);
     
     return () => clearInterval(interval);
   }, [api, isAutoPlaying]);
+  
+  // Handle slide change - reset videos
+  useEffect(() => {
+    // Reset all videos that aren't currently showing
+    videoRefs.current.forEach((videoRef, index) => {
+      if (videoRef && index !== currentSlide) {
+        videoRef.currentTime = 0;
+      }
+    });
+  }, [currentSlide]);
   
   // Calculate progress percentage
   const progressPercentage = ((currentSlide + 1) / campaignSlides.length) * 100;
@@ -142,6 +161,18 @@ export default function TeaserCarousel() {
                       {slide.videoUrl ? (
                         <div className="w-full h-full flex items-center justify-center bg-black/5 overflow-hidden">
                           <video 
+                            ref={(el) => {
+                              if (el) {
+                                // Store the video element reference in the useRef
+                                videoRefs.current[index] = el;
+                                
+                                // Reset video if this is the current slide
+                                if (currentSlide === index) {
+                                  el.currentTime = 0;
+                                  el.play();
+                                }
+                              }
+                            }}
                             src={slide.videoUrl} 
                             autoPlay 
                             loop 
