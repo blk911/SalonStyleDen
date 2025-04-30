@@ -82,9 +82,7 @@ export default function Navbar() {
               <Link href="/salons">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
               </Link>
-              <Link href="/clients">
-                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
-              </Link>
+              {/* Clients tab hidden - now the main page */}
               <Link href="/admin">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
               </Link>
@@ -114,9 +112,7 @@ export default function Navbar() {
           <Link href="/salons">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
           </Link>
-          <Link href="/clients">
-            <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Clients</div>
-          </Link>
+          {/* Clients tab hidden in mobile menu - now the main page */}
           <Link href="/admin">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
           </Link>
