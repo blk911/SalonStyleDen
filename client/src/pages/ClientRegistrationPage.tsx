@@ -859,17 +859,8 @@ export default function ClientRegistrationPage() {
           
           <DialogFooter className="flex justify-between sm:justify-between">
             <Button 
-              variant="outline"
-              onClick={() => {
-                console.log('Later button clicked');
-                setShowAddressDialog(false);
-                // Focus on terms checkbox after closing dialog
-                setTimeout(() => {
-                  if (termsCheckboxRef.current) {
-                    termsCheckboxRef.current.focus();
-                  }
-                }, 100);
-              }}
+              variant="outline" 
+              onClick={handleLaterClick}
               type="button"
             >
               I'll add this later
