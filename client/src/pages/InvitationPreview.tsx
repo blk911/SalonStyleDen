@@ -111,23 +111,16 @@ export default function InvitationPreview() {
   // Check if the current client is Tom when invitation data loads
   useEffect(() => {
     if (invitation) {
-      // Check if this is Tom's invitation (recipient name is Tom)
-      const isTomInvitation = invitation.name === 'Tom';
+      // IMPORTANT FIX: In preview mode, we explicitly set currentClientId to null
+      // This ensures the SEND GIFT button is never shown in preview mode
       
-      // For the SEND GIFT button rule: set the currentClientId to "Tom" if this is Tom's invitation
-      if (isTomInvitation) {
-        // Set for our component state
-        setCurrentClientId('Tom');
-        
-        // Set on the global window object for access by child components
-        window._currentClientId = 'Tom';
-        console.log('[FLOW] InvitationPreview - Setting current client ID to Tom for this view');
-      } else {
-        // Make sure we clear the client ID if it's not Tom's invitation
-        setCurrentClientId(null);
-        window._currentClientId = null;
-        console.log(`[FLOW] InvitationPreview - This is not Tom's invitation (recipient: ${invitation.name}), button will be disabled`);
-      }
+      // Clear the client ID for all previews - no gifts should be sendable from preview
+      setCurrentClientId(null);
+      
+      // Set on the global window object to null to ensure child components know this is preview mode
+      window._currentClientId = null;
+      
+      console.log(`[FLOW] InvitationPreview - Preview mode for ${invitation.name}'s invitation, gift button will be disabled`);
     }
     
     // Cleanup the global variable when component unmounts
@@ -377,30 +370,48 @@ export default function InvitationPreview() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  // The invitation contains all the info we need to navigate correctly
-                  console.log(`[FLOW] Navigating to client dashboard for invitation: ${invitation?.inviteHash}`);
+                  // Get the source dashboard parameter if available, or fallback to referrer detection
+                  const urlParams = new URLSearchParams(window.location.search);
+                  const sourceDashboard = urlParams.get('source');
                   
-                  // Use static mapping for known invitations
-                  if (invitation.name === 'Laura') {
-                    // For LAURA's invitation (the specific one in your example)
-                    console.log(`[FLOW] Laura's invitation - using client ID 21`);
-                    setLocation(`/client/21?inviteHash=${invitation?.inviteHash}`);
-                  } else if (invitation.name === 'Tom') {
-                    // For TOM's invitation (enables SEND GIFT button)
-                    console.log(`[FLOW] Tom's invitation - using client ID 16`);
-                    setLocation(`/client/16?inviteHash=${invitation?.inviteHash}`);
-                  } else if (invitation.name === 'Robert') {
-                    // For Robert
-                    console.log(`[FLOW] Robert's invitation - using client ID 27`);
-                    setLocation(`/client/27?inviteHash=${invitation?.inviteHash}`);
-                  } else if (invitation.name === 'Sally') {
-                    // For Sally
-                    console.log(`[FLOW] Sally's invitation - using client ID 18`);
-                    setLocation(`/client/18?inviteHash=${invitation?.inviteHash}`);
-                  } else {
-                    // Otherwise navigate to admin dashboard
-                    console.log(`[FLOW] No matching client - returning to admin dashboard`);
-                    setLocation(`/admin`);
+                  console.log(`[FLOW] Back button clicked. Source dashboard: ${sourceDashboard || 'not specified'}`);
+                  
+                  if (sourceDashboard === 'salon' && invitation.salonId) {
+                    // If from salon dashboard and we have a salon ID, go back to that salon's dashboard
+                    console.log(`[FLOW] Returning to salon dashboard for salon ID: ${invitation.salonId}`);
+                    setLocation(`/salon/${invitation.salonId}`);
+                  } 
+                  else if (sourceDashboard === 'client' && invitation.senderId) {
+                    // If from client dashboard and we have a sender ID, go back to that client's dashboard
+                    console.log(`[FLOW] Returning to client dashboard for client ID: ${invitation.senderId}`);
+                    setLocation(`/client/${invitation.senderId}`);
+                  }
+                  // Static mapping used as fallback for specific known clients
+                  else if (invitation.name === 'Laura') {
+                    console.log(`[FLOW] Laura's invitation - returning to client ID 21`);
+                    setLocation(`/client/21`);
+                  } 
+                  else if (invitation.name === 'Tom') {
+                    console.log(`[FLOW] Tom's invitation - returning to client ID 16`);
+                    setLocation(`/client/16`);
+                  } 
+                  else if (invitation.name === 'Robert') {
+                    console.log(`[FLOW] Robert's invitation - returning to client ID 27`);
+                    setLocation(`/client/27`);
+                  } 
+                  else if (invitation.name === 'Sally') {
+                    console.log(`[FLOW] Sally's invitation - returning to client ID 18`);
+                    setLocation(`/client/18`);
+                  }
+                  // If we have a salon ID but no source, go to that salon
+                  else if (invitation.salonId) {
+                    console.log(`[FLOW] Defaulting to salon dashboard for salon ID: ${invitation.salonId}`);
+                    setLocation(`/salon/${invitation.salonId}`);
+                  }
+                  // Absolute last resort - go to home page instead of admin dashboard
+                  else {
+                    console.log(`[FLOW] No context information - returning to home page`);
+                    setLocation(`/`);
                   }
                 }}
                 className={isSalonInvitation ? 

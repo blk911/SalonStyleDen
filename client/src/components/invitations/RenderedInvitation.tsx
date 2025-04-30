@@ -65,26 +65,29 @@ export function RenderedInvitation({
     console.log(`[FLOW] RenderedInvitation - Current client ID context: ${clientId || 'Not set'}`);
   }, []);
   
-  // SITE-WIDE CRITICAL RULE: 
+  // SITE-WIDE CRITICAL RULE - REVISED FOR FIX: 
   // The SEND GIFT button should ONLY appear when ALL conditions are met:
-  // 1. The current viewer is the same as the invitation recipient (client viewing their OWN invitation)
-  // 2. The invitation is being accessed from a client dashboard (client ID must be set)
-  // 3. The invitation status is pending
+  // 1. We're NOT in preview mode (currentClientId must be set)
+  // 2. The viewer is the intended recipient (client ID matches recipient name)
+  // 3. The invitation status is 'pending'
   // 4. There is a valid onSendGift handler
+  // 5. This is NOT a salon-initiated invitation
   
-  // Get variable references for console.log
-  const isClientDefined = Boolean(currentClientId);
-  const isClientRecipient = currentClientId === recipientName;
+  // Additional sponsor relationship validation
+  const isInPreviewMode = !currentClientId;
+  const isClientViewingOwnInvitation = currentClientId === recipientName;
+  const hasValidSendGiftHandler = Boolean(onSendGift);
+  const isPendingStatus = status === 'pending';
   
   // CRITICAL RULE: Only show the SEND GIFT button when the invitation recipient
   // is viewing their own invitation from the Client Dashboard
-  const showButton = isClientDefined && 
-                     isClientRecipient && 
-                     onSendGift && 
-                     status === 'pending' &&
+  const showButton = !isInPreviewMode && 
+                     isClientViewingOwnInvitation && 
+                     hasValidSendGiftHandler && 
+                     isPendingStatus &&
                      !salonInitiated; // Never show button in salon view
   
-  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Client ID: ${currentClientId || 'NOT SET'} - Is recipient viewing: ${isClientRecipient} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
+  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Client ID: ${currentClientId || 'NOT SET'} - Is recipient viewing: ${isClientViewingOwnInvitation} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
   
   return (
     <Card className={`w-full max-w-md mx-auto shadow-lg overflow-hidden ${className}`}>
