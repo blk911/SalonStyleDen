@@ -527,6 +527,7 @@ export default function ClientRegistrationPage() {
                       )}
                     />
                     
+                    {/* FIRST ROW: Name and Phone side by side */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <FormField
                         control={form.control}
@@ -535,19 +536,6 @@ export default function ClientRegistrationPage() {
                           <FormItem>
                             <FormControl>
                               <Input placeholder="Full Name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input placeholder="Email" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -585,6 +573,22 @@ export default function ClientRegistrationPage() {
                                   field.onChange('');
                                 }}
                               />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    {/* SECOND ROW: Email (full width) */}
+                    <div className="grid grid-cols-1 gap-3">
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input placeholder="Email" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
