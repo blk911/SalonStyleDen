@@ -168,7 +168,7 @@ export default function ClientsPage() {
                   </div>
                   <div className="mt-auto">
                     <Link href="/salons">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">Explore Salon Benefits</Button>
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">Register Your Salon Today!</Button>
                     </Link>
                   </div>
                 </CardContent>
@@ -199,7 +199,7 @@ export default function ClientsPage() {
                   </div>
                   <div className="mt-auto">
                     <Link href="/register-client">
-                      <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2">Join as a Client</Button>
+                      <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2">Yes! Ven Me, Baby!</Button>
                     </Link>
                   </div>
                 </CardContent>
