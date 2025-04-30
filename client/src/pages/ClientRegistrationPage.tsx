@@ -256,13 +256,17 @@ export default function ClientRegistrationPage() {
   // Function to handle Later button click in address dialog
   const handleLaterClick = () => {
     setShowAddressDialog(false);
+    console.log("Dialog closed, attempting to focus terms checkbox");
     
     // Focus on terms checkbox after a short delay
     setTimeout(() => {
       if (termsCheckboxRef.current) {
         termsCheckboxRef.current.focus();
+        console.log("Terms checkbox focused successfully");
+      } else {
+        console.log("Terms checkbox ref not found");
       }
-    }, 100);
+    }, 300); // Increased delay to ensure DOM is updated
   };
   
   // Handle form submission - FIXED to prevent registration loop issues
@@ -527,6 +531,7 @@ export default function ClientRegistrationPage() {
                       )}
                     />
                     
+                    {/* FIRST ROW: Name and Phone side by side */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <FormField
                         control={form.control}
@@ -534,7 +539,20 @@ export default function ClientRegistrationPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input placeholder="Full Name" {...field} />
+                              <Input 
+                                placeholder="Full Name" 
+                                {...field} 
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    // Focus the phone field when Enter is pressed in name field
+                                    const phoneInput = document.querySelector('input[placeholder="Phone Number"]');
+                                    if (phoneInput instanceof HTMLElement) {
+                                      phoneInput.focus();
+                                    }
+                                  }
+                                }}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -577,14 +595,30 @@ export default function ClientRegistrationPage() {
                           </FormItem>
                         )}
                       />
-                      
+                    </div>
+                    
+                    {/* SECOND ROW: Email (full width) */}
+                    <div className="grid grid-cols-1 gap-3">
                       <FormField
                         control={form.control}
                         name="email"
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input placeholder="Email" {...field} />
+                              <Input 
+                                placeholder="Email" 
+                                {...field} 
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    // Focus the address field when Enter is pressed in email field
+                                    const addressField = document.querySelector('input[name="address"]');
+                                    if (addressField instanceof HTMLElement) {
+                                      addressField.focus();
+                                    }
+                                  }
+                                }}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -837,12 +871,16 @@ export default function ClientRegistrationPage() {
               type="button"
               onClick={() => {
                 setShowAddressDialog(false);
-                // Focus on terms checkbox after a short delay - same as handleLaterClick
+                console.log("Save Address clicked, attempting to focus terms checkbox");
+                // Focus on terms checkbox after a short delay
                 setTimeout(() => {
                   if (termsCheckboxRef.current) {
                     termsCheckboxRef.current.focus();
+                    console.log("Terms checkbox focused from Save Address button");
+                  } else {
+                    console.log("Terms checkbox ref not found from Save Address button");
                   }
-                }, 100);
+                }, 300); // Increased delay to ensure DOM is updated
               }}
               variant="default"
             >
