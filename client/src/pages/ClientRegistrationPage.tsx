@@ -15,10 +15,11 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { Loader2Icon, CheckCircleIcon, UserCircle, Building2 } from 'lucide-react';
+import { Loader2Icon, CheckCircleIcon, UserCircle, Building2, ChevronDown, ChevronUp } from 'lucide-react';
 import { PhoneInputField } from '@/components/ui/PhoneInputField';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
@@ -571,16 +572,23 @@ export default function ClientRegistrationPage() {
                                   // We are now displaying this information in the dialog
                                   console.log(`Phone validation: isValid=${isValid}, isRegistered=${isRegistered}`);
                                   
-                                  // If phone is valid and not registered, show the address dialog
-                                  if (isValid && !isRegistered) {
-                                    handlePhoneValidation(true);
+                                  if (isValid && !isRegistered && !addressDialogShown) {
+                                    // Show address dialog after valid phone is entered
+                                    setShowAddressDialog(true);
+                                    setAddressDialogShown(true);
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // Focus the email field when Enter is pressed in phone field
-                                  const emailField = document.querySelector('input[placeholder="Email (Optional)"]');
-                                  if (emailField instanceof HTMLElement) {
-                                    emailField.focus();
+                                  if (!addressDialogShown) {
+                                    // Show the address dialog when Enter is pressed in phone field
+                                    // if it hasn't been shown yet
+                                    setShowAddressDialog(true);
+                                    setAddressDialogShown(true);
+                                  } else {
+                                    // Focus terms checkbox if dialog was already shown
+                                    if (termsCheckboxRef.current) {
+                                      termsCheckboxRef.current.focus();
+                                    }
                                   }
                                 }}
                                 clearField={() => {
@@ -595,111 +603,126 @@ export default function ClientRegistrationPage() {
                       />
                     </div>
                     
-                    <Separator className="my-4" />
+                    {/* Show optional fields toggle button */}
+                    {addressDialogShown && (
+                      <div className="mt-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setShowOptionalFields(!showOptionalFields)}
+                          className="w-full text-gray-600 border-gray-300"
+                        >
+                          {showOptionalFields ? (
+                            <>
+                              <ChevronUp className="mr-2 h-4 w-4" />
+                              Hide optional details
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown className="mr-2 h-4 w-4" />
+                              Show optional details
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
                     
-                    {/* Optional fields section */}
-                    <div className="space-y-4">
-                      {/* Email field - full width */}
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input 
-                                placeholder="Email (Optional)" 
-                                {...field} 
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    // Focus the address field when Enter is pressed in email field
-                                    const addressField = document.querySelector('input[name="address"]');
-                                    if (addressField instanceof HTMLElement) {
-                                      addressField.focus();
-                                    }
-                                  }
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      {/* Address field - full width */}
-                      <FormField
-                        control={form.control}
-                        name="address"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input placeholder="Address (Optional)" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      {/* City and State fields */}
-                      <div className="grid grid-cols-2 gap-2">
+                    {/* Optional fields section - only displayed when toggled */}
+                    {showOptionalFields && (
+                      <div className="space-y-4 mt-3 border-l-2 border-pink-100 pl-3 py-2">
+                        {/* Email field - full width */}
                         <FormField
                           control={form.control}
-                          name="city"
+                          name="email"
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input placeholder="City (Optional)" {...field} />
+                                <Input 
+                                  placeholder="Email (Optional)" 
+                                  {...field} 
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                         
+                        {/* Address field - full width */}
                         <FormField
                           control={form.control}
-                          name="state"
+                          name="address"
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input placeholder="State (Optional)" {...field} />
+                                <Input placeholder="Address (Optional)" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        {/* City and State fields */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <FormField
+                            control={form.control}
+                            name="city"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input placeholder="City (Optional)" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          
+                          <FormField
+                            control={form.control}
+                            name="state"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input placeholder="State (Optional)" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        {/* ZIP Code field */}
+                        <FormField
+                          control={form.control}
+                          name="zipCode"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input placeholder="ZIP Code (Optional)" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        {/* Notes field */}
+                        <FormField
+                          control={form.control}
+                          name="notes"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Textarea 
+                                  placeholder="Additional Notes (Optional)" 
+                                  className="min-h-[100px]"
+                                  {...field} 
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                       </div>
-                      
-                      {/* ZIP Code field */}
-                      <FormField
-                        control={form.control}
-                        name="zipCode"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input placeholder="ZIP Code (Optional)" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <FormField
-                      control={form.control}
-                      name="notes"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Additional Notes (Optional)" 
-                              className="min-h-[100px]"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    )}
                     
                     <FormField
                       control={form.control}
@@ -821,41 +844,81 @@ export default function ClientRegistrationPage() {
       <Footer />
       
       {/* Address Dialog */}
-      <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
+      <Dialog open={showAddressDialog} onOpenChange={(open) => {
+        setShowAddressDialog(open);
+        if (!open) {
+          // When dialog is closed, mark it as shown
+          setAddressDialogShown(true);
+          
+          // Focus the terms checkbox when dialog is closed
+          setTimeout(() => {
+            if (termsCheckboxRef.current) {
+              termsCheckboxRef.current.focus();
+            }
+          }, 100);
+        }
+      }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Enter Your Address</DialogTitle>
+            <DialogTitle>Additional Information</DialogTitle>
             <DialogDescription>
-              Your address helps us provide location-based services and promotions.
+              Your address helps us provide location-based services and promotions. 
+              You can also add this information later.
             </DialogDescription>
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
             <div className="space-y-3">
-              <Input 
-                placeholder="Address" 
-                value={form.getValues().address || ''}
-                onChange={(e) => form.setValue('address', e.target.value)}
-              />
-              
-              <div className="grid grid-cols-2 gap-2">
+              <div className="mb-2">
+                <FormLabel htmlFor="dialog-email">Email (Optional)</FormLabel>
                 <Input 
-                  placeholder="City" 
-                  value={form.getValues().city || ''}
-                  onChange={(e) => form.setValue('city', e.target.value)}
-                />
-                <Input 
-                  placeholder="State" 
-                  value={form.getValues().state || ''}
-                  onChange={(e) => form.setValue('state', e.target.value)}
+                  id="dialog-email"
+                  placeholder="Email" 
+                  value={form.getValues().email || ''}
+                  onChange={(e) => form.setValue('email', e.target.value)}
                 />
               </div>
               
-              <Input 
-                placeholder="ZIP Code" 
-                value={form.getValues().zipCode || ''}
-                onChange={(e) => form.setValue('zipCode', e.target.value)}
-              />
+              <div className="mb-2">
+                <FormLabel htmlFor="dialog-address">Street Address (Optional)</FormLabel>
+                <Input 
+                  id="dialog-address"
+                  placeholder="Address" 
+                  value={form.getValues().address || ''}
+                  onChange={(e) => form.setValue('address', e.target.value)}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <div>
+                  <FormLabel htmlFor="dialog-city">City (Optional)</FormLabel>
+                  <Input 
+                    id="dialog-city"
+                    placeholder="City" 
+                    value={form.getValues().city || ''}
+                    onChange={(e) => form.setValue('city', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <FormLabel htmlFor="dialog-state">State (Optional)</FormLabel>
+                  <Input 
+                    id="dialog-state"
+                    placeholder="State" 
+                    value={form.getValues().state || ''}
+                    onChange={(e) => form.setValue('state', e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <FormLabel htmlFor="dialog-zipcode">ZIP Code (Optional)</FormLabel>
+                <Input 
+                  id="dialog-zipcode"
+                  placeholder="ZIP Code" 
+                  value={form.getValues().zipCode || ''}
+                  onChange={(e) => form.setValue('zipCode', e.target.value)}
+                />
+              </div>
             </div>
           </div>
           
@@ -871,7 +934,9 @@ export default function ClientRegistrationPage() {
               type="button"
               onClick={() => {
                 setShowAddressDialog(false);
-                // Focus on terms checkbox after a short delay - same as handleLaterClick
+                setAddressDialogShown(true);
+                
+                // Focus on terms checkbox after a short delay
                 setTimeout(() => {
                   if (termsCheckboxRef.current) {
                     termsCheckboxRef.current.focus();
@@ -880,7 +945,7 @@ export default function ClientRegistrationPage() {
               }}
               variant="default"
             >
-              Save Address
+              Save Information
             </Button>
           </DialogFooter>
         </DialogContent>
