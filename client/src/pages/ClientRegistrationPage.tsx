@@ -857,14 +857,28 @@ export default function ClientRegistrationPage() {
             </div>
           </div>
           
-          <DialogFooter className="flex justify-center">
+          <DialogFooter className="flex justify-between sm:justify-between">
             <Button 
               variant="outline" 
               onClick={handleLaterClick}
               type="button"
-              className="w-full"
             >
               I'll add this later
+            </Button>
+            <Button 
+              type="button"
+              onClick={() => {
+                setShowAddressDialog(false);
+                // Focus on terms checkbox after a short delay - same as handleLaterClick
+                setTimeout(() => {
+                  if (termsCheckboxRef.current) {
+                    termsCheckboxRef.current.focus();
+                  }
+                }, 100);
+              }}
+              variant="default"
+            >
+              Save Address
             </Button>
           </DialogFooter>
         </DialogContent>
