@@ -83,12 +83,12 @@ export default function TeaserCarousel() {
 
   return (
     <div className="relative overflow-hidden rounded-xl border shadow-xl">
-      {/* Tagline at the top */}
-      <div className="bg-gradient-to-r from-pink-700 to-fuchsia-600 py-1.5 px-3 text-white text-center text-sm font-medium shadow-sm">
+      {/* Small tagline indicator (hidden) */}
+      <div className="hidden">
         {tagline}
       </div>
       
-      <div className="absolute top-8 left-2 right-2 z-10">
+      <div className="absolute top-2 left-2 right-2 z-10">
         <Progress 
           value={progressPercentage} 
           className="h-1.5 bg-gray-200/50"
@@ -192,7 +192,7 @@ export default function TeaserCarousel() {
       <Button 
         size="sm" 
         variant="ghost" 
-        className="absolute top-10 right-3 z-10 h-8 w-8 rounded-full p-0 bg-white/80 hover:bg-white text-pink-600"
+        className="absolute top-4 right-3 z-10 h-6 w-6 rounded-full p-0 bg-white/80 hover:bg-white text-pink-600"
         onClick={() => setIsAutoPlaying(!isAutoPlaying)}
       >
         {isAutoPlaying ? '⏸️' : '▶️'}
