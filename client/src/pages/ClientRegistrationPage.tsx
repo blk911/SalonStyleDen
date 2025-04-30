@@ -540,10 +540,10 @@ export default function ClientRegistrationPage() {
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    // Focus the email field when Enter is pressed
-                                    const emailField = document.querySelector('input[name="email"]');
-                                    if (emailField instanceof HTMLElement) {
-                                      emailField.focus();
+                                    // Focus the phone field when Enter is pressed
+                                    const phoneField = document.querySelector('input[name="phone"]');
+                                    if (phoneField instanceof HTMLElement) {
+                                      phoneField.focus();
                                     }
                                   }
                                 }}
@@ -600,10 +600,10 @@ export default function ClientRegistrationPage() {
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // Focus the address field when Enter is pressed
-                                  const addressField = document.querySelector('input[name="address"]');
-                                  if (addressField instanceof HTMLElement) {
-                                    addressField.focus();
+                                  // Focus the email field when Enter is pressed
+                                  const emailField = document.querySelector('input[name="email"]');
+                                  if (emailField instanceof HTMLElement) {
+                                    emailField.focus();
                                   }
                                 }}
                                 clearField={() => {
