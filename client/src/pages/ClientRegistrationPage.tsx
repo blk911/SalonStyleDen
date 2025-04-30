@@ -256,13 +256,17 @@ export default function ClientRegistrationPage() {
   // Function to handle Later button click in address dialog
   const handleLaterClick = () => {
     setShowAddressDialog(false);
+    console.log("Dialog closed, attempting to focus terms checkbox");
     
     // Focus on terms checkbox after a short delay
     setTimeout(() => {
       if (termsCheckboxRef.current) {
         termsCheckboxRef.current.focus();
+        console.log("Terms checkbox focused successfully");
+      } else {
+        console.log("Terms checkbox ref not found");
       }
-    }, 100);
+    }, 300); // Increased delay to ensure DOM is updated
   };
   
   // Handle form submission - FIXED to prevent registration loop issues
@@ -867,12 +871,16 @@ export default function ClientRegistrationPage() {
               type="button"
               onClick={() => {
                 setShowAddressDialog(false);
-                // Focus on terms checkbox after a short delay - same as handleLaterClick
+                console.log("Save Address clicked, attempting to focus terms checkbox");
+                // Focus on terms checkbox after a short delay
                 setTimeout(() => {
                   if (termsCheckboxRef.current) {
                     termsCheckboxRef.current.focus();
+                    console.log("Terms checkbox focused from Save Address button");
+                  } else {
+                    console.log("Terms checkbox ref not found from Save Address button");
                   }
-                }, 100);
+                }, 300); // Increased delay to ensure DOM is updated
               }}
               variant="default"
             >
