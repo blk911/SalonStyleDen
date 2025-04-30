@@ -262,71 +262,6 @@ export default function ClientRegistrationPage() {
       if (termsCheckboxRef.current) {
         termsCheckboxRef.current.focus();
       }
-      
-      // Continue with form submission
-      const formData = form.getValues();
-      
-      // Proceed with form submission logic - proceed to account
-      setIsSubmitting(true);
-      
-      // Add sponsor information
-      const clientData = {
-        ...formData,
-        type: 'client',
-        sponsor: salon?.name || invitation?.sponsor || 'Unknown',
-        sponsorSalonId: formData.sponsorSalonId || salonId || invitation?.salonId,
-        isCurrentClient: true,
-        accepted_terms: formData.acceptTerms || false,
-        invitationId: invitation?.id
-      };
-      
-      console.log('[FLOW] Continuing to account after Later button click');
-      
-      // Submit the form data to create client account
-      fetch('/api/clients', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(clientData),
-      })
-      .then(response => response.json())
-      .then(data => {
-        setIsSubmitting(false);
-        
-        if (data.success && data.clientId) {
-          // Show success toast
-          toast({
-            title: 'Registration Successful',
-            description: 'Your account has been created successfully!',
-            variant: 'default',
-          });
-          
-          // Set registration complete
-          setRegistrationComplete(true);
-          
-          // Redirect to client dashboard
-          setTimeout(() => {
-            navigate(`/client/${data.clientId}`);
-          }, 1500);
-        } else {
-          // Show error toast
-          toast({
-            title: 'Registration Failed',
-            description: data.message || 'Please try again.',
-            variant: 'destructive',
-          });
-        }
-      })
-      .catch(error => {
-        setIsSubmitting(false);
-        console.error('Error submitting form:', error);
-        toast({
-          title: 'Registration Error',
-          description: 'An unexpected error occurred. Please try again.',
-          variant: 'destructive',
-        });
-      });
     }, 100);
   };
   
@@ -934,24 +869,10 @@ export default function ClientRegistrationPage() {
               type="button"
               onClick={() => {
                 setShowAddressDialog(false);
-                
-                // Focus on terms checkbox after a short delay
+                // Focus on terms checkbox after a short delay - same as handleLaterClick
                 setTimeout(() => {
                   if (termsCheckboxRef.current) {
                     termsCheckboxRef.current.focus();
-                  }
-                  
-                  // Continue with form submission if address data is present
-                  const formData = form.getValues();
-                  
-                  // Only continue if some address data was entered
-                  if (formData.address || formData.city || formData.state || formData.zipCode) {
-                    console.log('[FLOW] Continuing to account after Save Address button click');
-                    
-                    // Submit the form if terms are accepted
-                    if (formData.acceptTerms) {
-                      form.handleSubmit(onSubmit)();
-                    }
                   }
                 }, 100);
               }}
