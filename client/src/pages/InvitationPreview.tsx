@@ -419,7 +419,7 @@ export default function InvitationPreview() {
                   "border-pink-200 text-pink-700 hover:bg-pink-50"}
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                Back to Dash
+                To {invitation?.name} Dash
               </Button>
             </div>
           </CardFooter>
