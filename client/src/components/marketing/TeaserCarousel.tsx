@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   Carousel,
   CarouselContent,
@@ -63,23 +63,95 @@ const campaignSlides: TeaserSlide[] = [
   }
 ];
 
+// Individual slide component to handle video refs properly
+const CarouselSlide = ({ 
+  slide, 
+  index, 
+  totalSlides,
+  isActive
+}: { 
+  slide: TeaserSlide; 
+  index: number;
+  totalSlides: number;
+  isActive: boolean;
+}) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  
+  // Reset video when this slide becomes active
+  useEffect(() => {
+    if (isActive && videoRef.current && slide.videoUrl) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play();
+    }
+  }, [isActive, slide.videoUrl]);
+  
+  return (
+    <CarouselItem key={index}>
+      <div 
+        className={cn(
+          "relative flex w-full p-4 rounded-lg overflow-hidden h-[280px]", 
+          slide.bgClass
+        )}
+      >
+        {/* Visual Indicator (hidden) */}
+        <div className="hidden">
+          {index + 1}/{totalSlides}
+        </div>
+        
+        <div className="flex w-full h-full">
+          {/* Text Content Side */}
+          <div className="w-1/2 flex flex-col justify-center pr-4 text-left">
+            <h2 className="text-2xl font-semibold font-serif text-pink-800 leading-tight mb-3">
+              {slide.title}
+            </h2>
+            <div className="text-lg font-medium text-pink-600 whitespace-pre-line">
+              {slide.content}
+            </div>
+          </div>
+          
+          {/* Visual Cue Side */}
+          <div className="w-1/2 flex items-center justify-center">
+            <div className="w-full h-[200px] rounded-lg overflow-hidden">
+              {/* Video or Image */}
+              {slide.videoUrl ? (
+                <div className="w-full h-full flex items-center justify-center bg-black/5 overflow-hidden">
+                  <video 
+                    ref={videoRef}
+                    src={slide.videoUrl} 
+                    autoPlay 
+                    loop 
+                    muted 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <img 
+                  src={slide.imageUrl || placeholderImage} 
+                  alt={`Teaser visual for ${slide.title}`}
+                  className="w-full h-full object-cover"
+                />
+              )}
+              <div className="z-10 bg-transparent px-0 py-0 text-xs text-black/60 text-center mt-auto mb-0 max-w-[1px] h-0 overflow-hidden">
+                {slide.visualCue}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </CarouselItem>
+  );
+};
+
 export default function TeaserCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [api, setApi] = useState<any>(null);
-  const videoRefs = React.useRef<(HTMLVideoElement | null)[]>([]);
   const tagline = "a connection-driven personal gifting platform";
   
-  // Initialize video refs array
-  useEffect(() => {
-    videoRefs.current = Array(campaignSlides.length).fill(null);
-  }, []);
-  
-  // Auto-play functionality with fixed timing
+  // Auto-play functionality with fixed timing (3.5 seconds per slide)
   useEffect(() => {
     if (!api || !isAutoPlaying) return;
     
-    // All slides 3.5 seconds
     const slideInterval = 3500;
     
     const interval = setInterval(() => {
@@ -88,16 +160,6 @@ export default function TeaserCarousel() {
     
     return () => clearInterval(interval);
   }, [api, isAutoPlaying]);
-  
-  // Handle slide change - reset videos
-  useEffect(() => {
-    // Reset all videos that aren't currently showing
-    videoRefs.current.forEach((videoRef, index) => {
-      if (videoRef && index !== currentSlide) {
-        videoRef.currentTime = 0;
-      }
-    });
-  }, [currentSlide]);
   
   // Calculate progress percentage
   const progressPercentage = ((currentSlide + 1) / campaignSlides.length) * 100;
@@ -131,70 +193,13 @@ export default function TeaserCarousel() {
       >
         <CarouselContent>
           {campaignSlides.map((slide, index) => (
-            <CarouselItem key={index}>
-              <div 
-                className={cn(
-                  "relative flex w-full p-4 rounded-lg overflow-hidden h-[280px]", 
-                  slide.bgClass
-                )}
-              >
-                {/* Visual Indicator (hidden) */}
-                <div className="hidden">
-                  {index + 1}/{campaignSlides.length}
-                </div>
-                
-                <div className="flex w-full h-full">
-                  {/* Text Content Side */}
-                  <div className="w-1/2 flex flex-col justify-center pr-4 text-left">
-                    <h2 className="text-2xl font-semibold font-serif text-pink-800 leading-tight mb-3">
-                      {slide.title}
-                    </h2>
-                    <div className="text-lg font-medium text-pink-600 whitespace-pre-line">
-                      {slide.content}
-                    </div>
-                  </div>
-                  
-                  {/* Visual Cue Side */}
-                  <div className="w-1/2 flex items-center justify-center">
-                    <div className="w-full h-[200px] rounded-lg overflow-hidden">
-                      {/* Video or Image */}
-                      {slide.videoUrl ? (
-                        <div className="w-full h-full flex items-center justify-center bg-black/5 overflow-hidden">
-                          <video 
-                            ref={(el) => {
-                              if (el) {
-                                // Store the video element reference in the useRef
-                                videoRefs.current[index] = el;
-                                
-                                // Reset video if this is the current slide
-                                if (currentSlide === index) {
-                                  el.currentTime = 0;
-                                  el.play();
-                                }
-                              }
-                            }}
-                            src={slide.videoUrl} 
-                            autoPlay 
-                            loop 
-                            muted 
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <img 
-                          src={slide.imageUrl || placeholderImage} 
-                          alt={`Teaser visual for ${slide.title}`}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                      <div className="z-10 bg-transparent px-0 py-0 text-xs text-black/60 text-center mt-auto mb-0 max-w-[1px] h-0 overflow-hidden">
-                        {slide.visualCue}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CarouselItem>
+            <CarouselSlide 
+              key={index}
+              slide={slide} 
+              index={index}
+              totalSlides={campaignSlides.length}
+              isActive={currentSlide === index}
+            />
           ))}
         </CarouselContent>
         
