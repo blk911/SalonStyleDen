@@ -934,10 +934,24 @@ export default function ClientRegistrationPage() {
               type="button"
               onClick={() => {
                 setShowAddressDialog(false);
-                // Focus on terms checkbox after a short delay - same as handleLaterClick
+                
+                // Focus on terms checkbox after a short delay
                 setTimeout(() => {
                   if (termsCheckboxRef.current) {
                     termsCheckboxRef.current.focus();
+                  }
+                  
+                  // Continue with form submission if address data is present
+                  const formData = form.getValues();
+                  
+                  // Only continue if some address data was entered
+                  if (formData.address || formData.city || formData.state || formData.zipCode) {
+                    console.log('[FLOW] Continuing to account after Save Address button click');
+                    
+                    // Submit the form if terms are accepted
+                    if (formData.acceptTerms) {
+                      form.handleSubmit(onSubmit)();
+                    }
                   }
                 }, 100);
               }}
