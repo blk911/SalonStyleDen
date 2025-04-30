@@ -534,7 +534,46 @@ export default function ClientRegistrationPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input placeholder="Full Name" {...field} />
+                              <Input 
+                                placeholder="Full Name" 
+                                {...field} 
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    // Focus the email field when Enter is pressed
+                                    const emailField = document.querySelector('input[name="email"]');
+                                    if (emailField instanceof HTMLElement) {
+                                      emailField.focus();
+                                    }
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input 
+                                placeholder="Email" 
+                                {...field} 
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    // Focus the phone field when Enter is pressed
+                                    const phoneField = document.querySelector('input[name="phone"]');
+                                    if (phoneField instanceof HTMLElement) {
+                                      phoneField.focus();
+                                    }
+                                  }
+                                }}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -572,19 +611,6 @@ export default function ClientRegistrationPage() {
                                   field.onChange('');
                                 }}
                               />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input placeholder="Email" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
