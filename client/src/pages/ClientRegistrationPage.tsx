@@ -569,16 +569,16 @@ export default function ClientRegistrationPage() {
                                   // We are now displaying this information in the dialog
                                   console.log(`Phone validation: isValid=${isValid}, isRegistered=${isRegistered}`);
                                   
-                                  // If phone is valid and not registered, show the address dialog
+                                  // Validation successful but don't open the dialog automatically anymore
+                                  // Just mark the validation as complete
                                   if (isValid && !isRegistered) {
-                                    handlePhoneValidation(true);
+                                    setPhoneValidated(true);
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // Focus the email field when Enter is pressed in phone field
-                                  const emailField = document.querySelector('input[placeholder="Email (Optional)"]');
-                                  if (emailField instanceof HTMLElement) {
-                                    emailField.focus();
+                                  // Focus the terms checkbox directly when Enter is pressed in phone field
+                                  if (termsCheckboxRef.current) {
+                                    termsCheckboxRef.current.focus();
                                   }
                                 }}
                                 clearField={() => {
@@ -624,19 +624,31 @@ export default function ClientRegistrationPage() {
                         )}
                       />
                       
-                      {/* Address field - full width */}
-                      <FormField
-                        control={form.control}
-                        name="address"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input placeholder="Address (Optional)" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      {/* Address field with add button - full width */}
+                      <div className="flex space-x-2">
+                        <div className="flex-grow">
+                          <FormField
+                            control={form.control}
+                            name="address"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input placeholder="Address (Optional)" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          className="mt-0.5"
+                          onClick={() => setShowAddressDialog(true)}
+                        >
+                          Add Details
+                        </Button>
+                      </div>
                       
                       {/* City and State fields */}
                       <div className="grid grid-cols-2 gap-2">
