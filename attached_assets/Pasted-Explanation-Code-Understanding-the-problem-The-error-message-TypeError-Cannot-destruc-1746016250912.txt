@@ -1,0 +1,52 @@
+Explanation
+
+Code
+
+### Understanding the problem
+
+The error message "TypeError: Cannot destructure property 'getFieldState' of 'useFormContext(...)' as it is null" indicates that you're trying to use the `getFieldState` function from React Hook Form's `useFormContext`, but the `useFormContext` hook is returning `null`. This usually happens when a component that depends on `useFormContext` is rendered outside of a `<FormProvider>` component.  `useFormContext` is designed to retrieve the form context from the nearest `FormProvider` in the React component tree, and if it can't find one, it returns null. The destructuring operation fails when it attempts to extract `getFieldState` from the `null` result. The error also indicates that this problem is originating in `form.tsx` at line 45, in a custom hook called `useFormField`, and is being used in the same `form.tsx` file at line 91.
+
+### How to verify
+
+1.  **Check the component tree:** Examine the component hierarchy where `useFormField` is used (at `form.tsx:91`). Ensure that this component is nested within a `<FormProvider>` component provided by `react-hook-form`.
+2.  **Verify FormProvider:** Ensure that the `<FormProvider>` component is properly imported and used in the parent component that wraps the component using the form.
+3.  **Check conditional rendering:** If the form or the component containing the form is conditionally rendered, make sure the `<FormProvider>` is rendered in all cases where the form is present.
+4.  **Verify that `useForm` is called:**  Make sure the `useForm` hook from `react-hook-form` is called inside the `<FormProvider>` component and it's value is passed to the `FormProvider`'s `value` prop.
+
+### Suggested fix
+
+The most likely solution is to wrap the component that is calling the `useFormField` hook with a `FormProvider`. Also, make sure that `useForm` is called in a parent and its results are provided to `FormProvider`'s `value` prop.
+
+Here's an example of how to properly set up the form context.
+Use code snippets with caution
+
+tsx import React from 'react'; import { FormProvider, useForm, useFormContext } from 'react-hook-form';
+
+// ... other imports
+
+// This represents your useFormField hook. // The important part is that it uses useFormContext. const useFormField = (name: string) => { const { getFieldState } = useFormContext(); // ... use getFieldState };
+
+// ... other code
+
+// This represents your component that is consuming the form. const MyFormComponent = () => { // This component will use the form context. // You can use your useFormField hook here: useFormField("myField");
+
+// ... other logic and rendering return ( <div> {/* ... */} </div> ) }
+
+// This is the parent component where the form is created. const MyParentComponent = () => { // We need to use useForm here. const methods = useForm();
+
+return ( // Wrap your form component in FormProvider. // Pass the result of useForm into FormProvider. <FormProvider {...methods}> <MyFormComponent /> </FormProvider> ); };
+
+export default MyParentComponent;
+
+Code
+
+The edited code shows:
+  - The usage of `useForm` in a parent component.
+  - The usage of `FormProvider` to pass the form's context to children.
+  - The usage of `useFormContext` and `getFieldState` in a custom hook.
+
+### Summary
+
+The error arises because `useFormContext` couldn't find a valid form context in the component tree.  To solve this issue, wrap the components that need access to the form context with a `<FormProvider>` component. Ensure that you are passing the result from `useForm` to the `FormProvider`'s `value` prop. Verify that any conditional rendering includes the `FormProvider` component. The issue is located in `form.tsx` on line 45 and is being called on line 91.
+Use code snippets with caution
+
