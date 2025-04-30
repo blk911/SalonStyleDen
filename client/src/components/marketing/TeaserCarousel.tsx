@@ -14,6 +14,7 @@ import shoppingWomanImage from '@/assets/shopping-woman.jpg';
 import himReceivingVideo from '@/assets/him_rcv_vmb.mp4';
 import boomVideo from '@/assets/BOOM.mp4';
 import endVideo from '@/assets/end3.mp4';
+import finalVideo from '@/assets/end.mp4';
 
 interface TeaserSlide {
   title: string;
@@ -57,6 +58,7 @@ const campaignSlides: TeaserSlide[] = [
     title: "Ready?",
     content: "1. Pick your style 💅\n2. Send your invite 💌\n3. Glow up 💖\nVen Me, Baby!",
     bgClass: "bg-gradient-to-br from-pink-50 to-rose-200",
+    videoUrl: finalVideo,
     visualCue: "Fun emoji steps with clean bold design."
   }
 ];
@@ -138,18 +140,20 @@ export default function TeaserCarousel() {
                     <div className="w-full h-[200px] rounded-lg p-0 shadow-sm border border-gray-100 flex flex-col items-center justify-center relative overflow-hidden">
                       {/* Video or Image */}
                       {slide.videoUrl ? (
-                        <video 
-                          src={slide.videoUrl} 
-                          autoPlay 
-                          loop 
-                          muted 
-                          className="absolute inset-0 w-full h-full object-cover z-0"
-                        />
+                        <div className="w-full h-full flex items-center justify-center bg-black/5 overflow-hidden">
+                          <video 
+                            src={slide.videoUrl} 
+                            autoPlay 
+                            loop 
+                            muted 
+                            className="w-auto h-auto max-w-full max-h-full object-contain z-0"
+                          />
+                        </div>
                       ) : (
                         <img 
                           src={slide.imageUrl || placeholderImage} 
                           alt={`Teaser visual for ${slide.title}`}
-                          className="absolute inset-0 w-full h-full object-cover z-0"
+                          className="w-auto h-auto max-w-full max-h-full object-contain z-0"
                         />
                       )}
                       <div className="z-10 bg-transparent px-0 py-0 text-xs text-black/60 text-center mt-auto mb-0 max-w-[1px] h-0 overflow-hidden">
