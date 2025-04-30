@@ -575,11 +575,9 @@ export default function ClientRegistrationPage() {
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // Focus the email field when Enter is pressed in phone field
-                                  const emailField = document.querySelector('input[placeholder="Email (Optional)"]');
-                                  if (emailField instanceof HTMLElement) {
-                                    emailField.focus();
-                                  }
+                                  // When Enter is pressed on phone field and validation passes,
+                                  // open the address dialog directly
+                                  setShowAddressDialog(true);
                                 }}
                                 clearField={() => {
                                   // Clear the phone field when a registered number is found
@@ -610,10 +608,60 @@ export default function ClientRegistrationPage() {
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    // Focus the address field when Enter is pressed in email field
-                                    const addressField = document.querySelector('input[name="address"]');
-                                    if (addressField instanceof HTMLElement) {
-                                      addressField.focus();
+                                    
+                                    // Validate email when Enter is pressed
+                                    const email = field.value;
+                                    if (email) {
+                                      // Show a loading state while validating
+                                      toast({
+                                        title: "Validating email...",
+                                        description: "Please wait while we check your email.",
+                                        duration: 2000,
+                                      });
+                                      
+                                      // Call the validate-contact API to check if email exists
+                                      apiRequest('POST', '/api/validate-contact', {
+                                        email,
+                                        phone: '',
+                                        type: 'client'
+                                      })
+                                      .then(res => res.json())
+                                      .then(data => {
+                                        if (data.exists) {
+                                          // Email already in use
+                                          toast({
+                                            title: "Email already in use",
+                                            description: "Please use a different email address.",
+                                            variant: "destructive",
+                                          });
+                                        } else {
+                                          // Valid email, focus address field
+                                          toast({
+                                            title: "Email validated",
+                                            description: "Please complete your address information.",
+                                          });
+                                          
+                                          // Focus on address field
+                                          const addressField = document.querySelector('input[name="address"]');
+                                          if (addressField instanceof HTMLElement) {
+                                            addressField.focus();
+                                          }
+                                        }
+                                      })
+                                      .catch(err => {
+                                        toast({
+                                          title: "Validation error",
+                                          description: "Error validating email. Please try again.",
+                                          variant: "destructive",
+                                        });
+                                        console.error('Email validation error:', err);
+                                      });
+                                    } else {
+                                      // No email provided, just move to address field
+                                      const addressField = document.querySelector('input[name="address"]');
+                                      if (addressField instanceof HTMLElement) {
+                                        addressField.focus();
+                                      }
                                     }
                                   }
                                 }}
@@ -869,16 +917,17 @@ export default function ClientRegistrationPage() {
               type="button"
               onClick={() => {
                 setShowAddressDialog(false);
-                // Focus on terms checkbox after a short delay - same as handleLaterClick
+                // Focus on email field after a short delay when user chooses to enter address
                 setTimeout(() => {
-                  if (termsCheckboxRef.current) {
-                    termsCheckboxRef.current.focus();
+                  const emailField = document.querySelector('input[placeholder="Email (Optional)"]');
+                  if (emailField instanceof HTMLElement) {
+                    emailField.focus();
                   }
                 }, 100);
               }}
               variant="default"
             >
-              Save Address
+              Enter Address
             </Button>
           </DialogFooter>
         </DialogContent>
