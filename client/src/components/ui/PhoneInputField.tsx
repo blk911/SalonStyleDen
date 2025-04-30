@@ -99,13 +99,8 @@ export function PhoneInputField({
         return;
       }
       
-      // Validate the phone number in the background
+      // Start validation process
       validatePhoneNumber();
-      
-      // Execute the onEnterPress callback if provided
-      if (onEnterPress) {
-        onEnterPress();
-      }
     }
   };
 

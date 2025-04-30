@@ -527,7 +527,6 @@ export default function ClientRegistrationPage() {
                       )}
                     />
                     
-                    {/* First row: Name and Phone fields */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <FormField
                         control={form.control}
@@ -537,6 +536,32 @@ export default function ClientRegistrationPage() {
                             <FormControl>
                               <Input 
                                 placeholder="Full Name" 
+                                {...field} 
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    // Focus the email field when Enter is pressed
+                                    const emailField = document.querySelector('input[name="email"]');
+                                    if (emailField instanceof HTMLElement) {
+                                      emailField.focus();
+                                    }
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input 
+                                placeholder="Email" 
                                 {...field} 
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
@@ -575,10 +600,10 @@ export default function ClientRegistrationPage() {
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // Focus the email field when Enter is pressed
-                                  const emailField = document.querySelector('input[name="email"]');
-                                  if (emailField instanceof HTMLElement) {
-                                    emailField.focus();
+                                  // Focus the address field when Enter is pressed
+                                  const addressField = document.querySelector('input[name="address"]');
+                                  if (addressField instanceof HTMLElement) {
+                                    addressField.focus();
                                   }
                                 }}
                                 clearField={() => {
@@ -592,33 +617,6 @@ export default function ClientRegistrationPage() {
                         )}
                       />
                     </div>
-                    
-                    {/* Second row: Email field */}
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input 
-                              placeholder="Email" 
-                              {...field} 
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  // Focus the address field when Enter is pressed
-                                  const addressField = document.querySelector('input[name="address"]');
-                                  if (addressField instanceof HTMLElement) {
-                                    addressField.focus();
-                                  }
-                                }
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
                     
                     <Separator className="my-4" />
                     
