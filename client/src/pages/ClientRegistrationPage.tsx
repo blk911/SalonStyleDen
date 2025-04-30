@@ -535,7 +535,20 @@ export default function ClientRegistrationPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input placeholder="Full Name" {...field} />
+                              <Input 
+                                placeholder="Full Name" 
+                                {...field} 
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    // Focus the phone field when Enter is pressed in name field
+                                    const phoneInput = document.querySelector('input[placeholder="Phone Number"]');
+                                    if (phoneInput instanceof HTMLElement) {
+                                      phoneInput.focus();
+                                    }
+                                  }
+                                }}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -588,7 +601,20 @@ export default function ClientRegistrationPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input placeholder="Email" {...field} />
+                              <Input 
+                                placeholder="Email" 
+                                {...field} 
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    // Focus the address field when Enter is pressed in email field
+                                    const addressField = document.querySelector('input[name="address"]');
+                                    if (addressField instanceof HTMLElement) {
+                                      addressField.focus();
+                                    }
+                                  }
+                                }}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
