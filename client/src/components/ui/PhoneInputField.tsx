@@ -71,8 +71,20 @@ export function PhoneInputField({
         // Phone is already registered - show registered dialog
         setShowRegisteredDialog(true);
       } else if (result === 'not_registered') {
-        // Valid phone number - show validation dialog
-        setShowValidationDialog(true);
+        // Valid phone number - show validation dialog only if not already shown
+        // Check if addressDialogShown flag exists in the parent component
+        const addressDialogShown = document.body.hasAttribute('data-address-shown');
+        if (!addressDialogShown) {
+          setShowValidationDialog(true);
+        } else {
+          // If dialog was already shown, just focus on terms checkbox
+          setTimeout(() => {
+            const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
+            if (termsCheckbox instanceof HTMLElement) {
+              termsCheckbox.focus();
+            }
+          }, 10);
+        }
       }
       
       if (onValidationComplete) {
@@ -96,6 +108,20 @@ export function PhoneInputField({
       
       if (!isValid) {
         setTouched(true);
+        return;
+      }
+      
+      // Check if address dialog has already been shown
+      const addressDialogShown = document.body.hasAttribute('data-address-shown');
+      
+      if (addressDialogShown) {
+        // Skip validation and just focus on terms checkbox
+        setTimeout(() => {
+          const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
+          if (termsCheckbox instanceof HTMLElement) {
+            termsCheckbox.focus();
+          }
+        }, 10);
         return;
       }
       

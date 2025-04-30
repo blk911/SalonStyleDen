@@ -231,6 +231,14 @@ export default function ClientRegistrationPage() {
     }
   }, [invitation, navigate, toast]);
 
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      // Clean up data attribute when component unmounts
+      document.body.removeAttribute('data-address-shown');
+    };
+  }, []);
+  
   // Populate form with invitation data
   useEffect(() => {
     if (invitation) {
@@ -261,6 +269,9 @@ export default function ClientRegistrationPage() {
     setShowAddressDialog(false);
     setAddressDialogShown(true);
     
+    // Set data attribute on body to indicate dialog was shown
+    document.body.setAttribute('data-address-shown', 'true');
+    
     // Focus on terms checkbox after a short delay
     setTimeout(() => {
       if (termsCheckboxRef.current) {
@@ -280,6 +291,8 @@ export default function ClientRegistrationPage() {
       if (shouldShowAddressPrompt) {
         console.log('[FLOW] Address fields empty, showing address dialog');
         setShowAddressDialog(true);
+        setAddressDialogShown(true);
+        document.body.setAttribute('data-address-shown', 'true');
         return; // Don't proceed with form submission until address is provided or skipped
       }
       

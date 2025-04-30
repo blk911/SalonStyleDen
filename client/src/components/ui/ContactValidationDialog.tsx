@@ -91,6 +91,9 @@ export function ContactValidationDialog({
               // Close dialog first
               onOpenChange(false);
               
+              // Set data attribute to prevent dialog from showing again
+              document.body.setAttribute('data-address-shown', 'true');
+              
               // Move focus to accept terms checkbox
               setTimeout(() => {
                 const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
@@ -106,6 +109,9 @@ export function ContactValidationDialog({
           <Button 
             type="button" 
             onClick={() => {
+              // Set data attribute to prevent dialog from showing again
+              document.body.setAttribute('data-address-shown', 'true');
+              
               // First call onClose if provided (which should move focus to address field)
               if (onClose) {
                 onClose();
