@@ -76,6 +76,10 @@ export default function ClientRegistrationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [showAddressDialog, setShowAddressDialog] = useState(false);
+  // References for form elements
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
   const termsCheckboxRef = useRef<HTMLButtonElement>(null);
 
   // Get query parameters
@@ -537,13 +541,13 @@ export default function ClientRegistrationPage() {
                               <Input 
                                 placeholder="Full Name" 
                                 {...field} 
-                                onKeyDown={(e) => {
+                                ref={nameInputRef}
+                                onKeyPress={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
                                     // Focus the email field when Enter is pressed
-                                    const emailField = document.querySelector('input[name="email"]');
-                                    if (emailField instanceof HTMLElement) {
-                                      emailField.focus();
+                                    if (emailInputRef.current) {
+                                      emailInputRef.current.focus();
                                     }
                                   }
                                 }}
@@ -563,13 +567,13 @@ export default function ClientRegistrationPage() {
                               <Input 
                                 placeholder="Email" 
                                 {...field} 
-                                onKeyDown={(e) => {
+                                ref={emailInputRef}
+                                onKeyPress={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
                                     // Focus the phone field when Enter is pressed
-                                    const phoneField = document.querySelector('input[name="phone"]');
-                                    if (phoneField instanceof HTMLElement) {
-                                      phoneField.focus();
+                                    if (phoneInputRef.current) {
+                                      phoneInputRef.current.focus();
                                     }
                                   }
                                 }}
