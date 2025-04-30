@@ -595,7 +595,9 @@ export default function ClientRegistrationPage() {
                     
                     <Separator className="my-4" />
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {/* Optional fields section */}
+                    <div className="space-y-4">
+                      {/* Email field - full width */}
                       <FormField
                         control={form.control}
                         name="email"
@@ -622,6 +624,7 @@ export default function ClientRegistrationPage() {
                         )}
                       />
                       
+                      {/* Address field - full width */}
                       <FormField
                         control={form.control}
                         name="address"
@@ -635,6 +638,7 @@ export default function ClientRegistrationPage() {
                         )}
                       />
                       
+                      {/* City and State fields */}
                       <div className="grid grid-cols-2 gap-2">
                         <FormField
                           control={form.control}
@@ -642,7 +646,7 @@ export default function ClientRegistrationPage() {
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input placeholder="City" {...field} />
+                                <Input placeholder="City (Optional)" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -655,7 +659,7 @@ export default function ClientRegistrationPage() {
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input placeholder="State" {...field} />
+                                <Input placeholder="State (Optional)" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -663,13 +667,14 @@ export default function ClientRegistrationPage() {
                         />
                       </div>
                       
+                      {/* ZIP Code field */}
                       <FormField
                         control={form.control}
                         name="zipCode"
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input placeholder="ZIP Code" {...field} />
+                              <Input placeholder="ZIP Code (Optional)" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
