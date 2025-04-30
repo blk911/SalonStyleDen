@@ -142,7 +142,7 @@ export default function ClientsPage() {
             </div>
 
             {/* Two cards side by side in a 1x2 grid */}
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Salon Testimonial */}
               <Card className="bg-gradient-to-br from-blue-50 to-white shadow-md hover:shadow-xl transition-all border border-blue-100 h-full">
                 <CardContent className="p-8 flex flex-col h-full">
