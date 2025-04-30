@@ -13,6 +13,7 @@ import placeholderImage from '@/assets/placeholder-1.svg';
 import shoppingWomanImage from '@/assets/shopping-woman.jpg';
 import himReceivingVideo from '@/assets/him_rcv_vmb.mp4';
 import boomVideo from '@/assets/BOOM.mp4';
+import endVideo from '@/assets/end3.mp4';
 
 interface TeaserSlide {
   title: string;
@@ -49,6 +50,7 @@ const campaignSlides: TeaserSlide[] = [
     title: "Gift cards: Cold. Untimely. Forgotten.",
     content: "Ven Me, Baby: Real. Timed. Personal.",
     bgClass: "bg-gradient-to-br from-amber-50 to-yellow-100",
+    videoUrl: endVideo,
     visualCue: "Sad dusty gift card vs. bright, colorful Ven Me Baby screen."
   },
   {
