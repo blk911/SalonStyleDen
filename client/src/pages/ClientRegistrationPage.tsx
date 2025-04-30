@@ -245,11 +245,12 @@ export default function ClientRegistrationPage() {
     }
   }, [invitation, form, salonId]);
 
-  // Function to handle phone validation and popup trigger
+  // Function to handle phone validation - FIXED: Remove automatic address popup trigger
+  // This prevents the first popup in the double-popup problem
   const handlePhoneValidation = (isValid: boolean) => {
-    if (isValid) {
-      setShowAddressDialog(true);
-    }
+    // Phone validation success no longer triggers the address dialog automatically
+    // The dialog will only show when form is submitted and address is missing
+    console.log(`[FLOW] Phone validation ${isValid ? 'passed' : 'failed'}`);
   };
   
   // Function to handle Later button click in address dialog
@@ -264,9 +265,20 @@ export default function ClientRegistrationPage() {
     }, 100);
   };
   
-  // Handle form submission
+  // Handle form submission - FIXED to prevent registration loop issues
   const onSubmit = async (data: ClientFormValues) => {
     try {
+      // Check if address fields should be prompted but are empty
+      const hasNoAddress = !data.address && !data.city && !data.state && !data.zipCode;
+      const shouldShowAddressPrompt = hasNoAddress;
+      
+      // If address is empty, show the address dialog and halt submission
+      if (shouldShowAddressPrompt) {
+        console.log('[FLOW] Address fields empty, showing address dialog');
+        setShowAddressDialog(true);
+        return; // Don't proceed with form submission until address is provided or skipped
+      }
+      
       setIsSubmitting(true);
       
       // Add sponsor information
@@ -823,7 +835,16 @@ export default function ClientRegistrationPage() {
             </Button>
             <Button 
               type="button"
-              onClick={() => setShowAddressDialog(false)}
+              onClick={() => {
+                setShowAddressDialog(false);
+                // Focus on terms checkbox after a short delay - same as handleLaterClick
+                setTimeout(() => {
+                  if (termsCheckboxRef.current) {
+                    termsCheckboxRef.current.focus();
+                  }
+                }, 100);
+              }}
+              variant="default"
             >
               Save Address
             </Button>
