@@ -78,20 +78,12 @@ export function PhoneInputField({
         // Phone is already registered - show registered dialog
         setShowRegisteredDialog(true);
       } else if (result === 'not_registered') {
-        // Valid phone number - show validation dialog only if not already shown
-        // Check if addressDialogShown flag exists in the parent component
-        const addressDialogShown = document.body.hasAttribute('data-address-shown');
-        if (!addressDialogShown) {
-          setShowValidationDialog(true);
-        } else {
-          // If dialog was already shown, just focus on terms checkbox
-          setTimeout(() => {
-            const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
-            if (termsCheckbox instanceof HTMLElement) {
-              termsCheckbox.focus();
-            }
-          }, 10);
-        }
+        // For valid phone numbers, skip showing any dialog
+        // Set the data attribute to prevent dialogs from showing again
+        document.body.setAttribute('data-address-shown', 'true');
+        
+        // Move directly to terms checkbox
+        moveToTermsCheckbox();
       }
       
       if (onValidationComplete) {
@@ -122,18 +114,17 @@ export function PhoneInputField({
       const addressDialogShown = document.body.hasAttribute('data-address-shown');
       
       if (addressDialogShown) {
-        // Skip validation and just focus on terms checkbox
-        setTimeout(() => {
-          const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
-          if (termsCheckbox instanceof HTMLElement) {
-            termsCheckbox.focus();
-          }
-        }, 10);
+        // Skip validation and directly focus on terms checkbox
+        moveToTermsCheckbox();
         return;
       }
       
-      // Start validation process
-      validatePhoneNumber();
+      // Phone is valid and dialog hasn't been shown yet
+      // Set the data attribute to prevent dialogs from showing again
+      document.body.setAttribute('data-address-shown', 'true');
+      
+      // Move directly to terms checkbox instead of showing validation dialog
+      moveToTermsCheckbox();
     }
   };
 
@@ -152,25 +143,21 @@ export function PhoneInputField({
     }
   };
 
-  // Move cursor to address field function
-  const moveToAddressField = () => {
-    // Use direct DOM manipulation to force the cursor placement
-    // First try by ID (more precise)
+  // Move cursor directly to terms checkbox function
+  const moveToTermsCheckbox = () => {
+    // Use direct DOM manipulation to force cursor placement to terms checkbox
     setTimeout(() => {
-      const addressField = document.getElementById('address-field');
-      if (addressField instanceof HTMLElement) {
-        addressField.focus();
-      } else {
-        // Try by name as a fallback
-        const addressFieldByName = document.querySelector('input[name="address"]');
-        if (addressFieldByName instanceof HTMLElement) {
-          addressFieldByName.focus();
-        }
+      const termsCheckbox = document.querySelector('input[name="acceptTerms"]');
+      if (termsCheckbox instanceof HTMLElement) {
+        termsCheckbox.focus();
+        // Scroll to the terms area to make it visible
+        termsCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        console.log('[FLOW] Direct navigation to terms checkbox after phone validation');
       }
-    }, 10);
+    }, 50);
   };
   
-  // Handle the validation dialog close
+  // Handle the validation dialog close - now goes directly to terms checkbox
   const handleValidationDialogClose = () => {
     // Use a timeout to ensure dialog is closed before moving focus
     setShowValidationDialog(false);
@@ -178,8 +165,8 @@ export function PhoneInputField({
     // Set the data attribute to prevent the dialog from showing again
     document.body.setAttribute('data-address-shown', 'true');
     
-    // Move focus to the address field
-    moveToAddressField();
+    // Move focus directly to terms checkbox
+    moveToTermsCheckbox();
   };
 
   // Set focus to the input on mount if autofocus is true
