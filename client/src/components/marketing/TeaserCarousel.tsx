@@ -11,12 +11,14 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import placeholderImage from '@/assets/placeholder-1.svg';
 import shoppingWomanImage from '@/assets/shopping-woman.jpg';
+import himReceivingVideo from '@/assets/him_rcv_vmb.mp4';
 
 interface TeaserSlide {
   title: string;
   content: string;
   bgClass: string;
   imageUrl?: string;
+  videoUrl?: string;
   visualCue: string;
 }
 
@@ -32,6 +34,7 @@ const campaignSlides: TeaserSlide[] = [
     title: "One click says it all:",
     content: "'I Notice. I Care. I See You.'",
     bgClass: "bg-gradient-to-br from-purple-50 to-indigo-100",
+    videoUrl: himReceivingVideo,
     visualCue: "Phone screen lighting up with a gift invite."
   },
   {
@@ -128,15 +131,24 @@ export default function TeaserCarousel() {
                   
                   {/* Visual Cue Side */}
                   <div className="w-1/2 flex items-center justify-center">
-                    <div className="w-full h-[200px] rounded-lg bg-white/30 backdrop-blur-sm p-3 shadow-lg border border-white/30 flex flex-col items-center justify-center relative overflow-hidden">
-                      {/* Image - use slide.imageUrl if available, otherwise placeholder */}
-                      <img 
-                        src={slide.imageUrl || placeholderImage} 
-                        alt={`Teaser visual for ${slide.title}`}
-                        className="absolute inset-0 w-full h-full object-cover z-0 opacity-70"
-                      />
-                      <div className="z-10 bg-white/60 px-3 py-2 rounded text-sm text-gray-700 text-center mt-auto mb-2 max-w-[90%]">
-                        <span className="font-semibold text-pink-600 mr-1">🧠</span>
+                    <div className="w-full h-[200px] rounded-lg p-3 shadow-lg border border-white/30 flex flex-col items-center justify-center relative overflow-hidden">
+                      {/* Video or Image */}
+                      {slide.videoUrl ? (
+                        <video 
+                          src={slide.videoUrl} 
+                          autoPlay 
+                          loop 
+                          muted 
+                          className="absolute inset-0 w-full h-full object-cover z-0"
+                        />
+                      ) : (
+                        <img 
+                          src={slide.imageUrl || placeholderImage} 
+                          alt={`Teaser visual for ${slide.title}`}
+                          className="absolute inset-0 w-full h-full object-cover z-0"
+                        />
+                      )}
+                      <div className="z-10 bg-transparent px-3 py-2 rounded text-sm text-gray-700 text-center mt-auto mb-2 max-w-[90%]">
                         {slide.visualCue}
                       </div>
                     </div>
