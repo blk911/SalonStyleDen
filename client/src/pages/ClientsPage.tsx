@@ -26,8 +26,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getImageUrl, formatPhoneNumber } from "@/lib/utils";
 import TeaserCarousel from "@/components/marketing/TeaserCarousel";
-import mariaSanchezImg from '@assets/MS-VMBLTD.jpg';
-import kendraWilliamsImg from '@assets/kendra.png';
 
 // Define interfaces
 interface Client {
@@ -146,60 +144,49 @@ export default function ClientsPage() {
             {/* Two cards side by side in a 1x2 grid */}
             <div className="grid grid-cols-2 gap-8">
               {/* Salon Testimonial */}
-              <Card className="bg-gradient-to-br from-pink-50 to-white shadow-md hover:shadow-xl transition-all border border-pink-100 h-full">
-                <CardContent className="p-6 flex flex-col h-full">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-20 h-20 rounded-full overflow-hidden">
-                      <img src={mariaSanchezImg} alt="Maria" className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-serif font-semibold text-pink-800">Maria Sanchez</h3>
-                      <p className="text-sm text-pink-600">Owner, Bella Nails</p>
-                    </div>
+              <Card className="bg-gradient-to-br from-blue-50 to-white shadow-md hover:shadow-xl transition-all border border-blue-100 h-full">
+                <CardContent className="p-8 flex flex-col h-full">
+                  <div className="text-blue-600 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                      <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                      <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                      <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                      <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                      <path d="M9 9h.01"></path>
+                      <path d="M15 9h.01"></path>
+                    </svg>
                   </div>
-                  <div className="text-gray-600 flex-grow">
-                    <p className="italic">"Ven Me, Baby's invitation system has doubled our new client rate! The ability to customize service options makes the booking process so much more efficient."</p>
-                    <div className="flex mt-3">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <svg key={star} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#FF92A5" className="mr-1">
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </svg>
-                      ))}
-                    </div>
+                  <h3 className="text-2xl font-serif font-semibold text-blue-800 mb-3">Salon Success Stories</h3>
+                  <div className="text-gray-600 flex-grow mb-6">
+                    <p>"My salon has doubled its bookings since joining Ven Me, Baby! The client invitation system makes it so easy to connect with new customers."</p>
+                    <p className="mt-2 text-sm font-medium">- Sarah, Glam & Shine Salon</p>
                   </div>
-                  <div className="mt-4">
+                  <div className="mt-auto">
                     <Link href="/salons">
-                      <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white py-2">Salon Benefits</Button>
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">View Salons</Button>
                     </Link>
                   </div>
                 </CardContent>
               </Card>
 
               {/* Client Testimonial */}
-              <Card className="bg-gradient-to-br from-pink-50 to-white shadow-md hover:shadow-xl transition-all border border-pink-100 h-full">
-                <CardContent className="p-6 flex flex-col h-full">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-20 h-20 rounded-full overflow-hidden">
-                      <img src={kendraWilliamsImg} alt="Kendra" className="w-full h-full object-cover" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-serif font-semibold text-pink-800">Kendra Williams</h3>
-                      <p className="text-sm text-pink-600">Regular Client</p>
-                    </div>
+              <Card className="bg-gradient-to-br from-green-50 to-white shadow-md hover:shadow-xl transition-all border border-green-100 h-full">
+                <CardContent className="p-8 flex flex-col h-full">
+                  <div className="text-green-600 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
                   </div>
-                  <div className="text-gray-600 flex-grow">
-                    <p className="italic">"I love receiving nail service invitations through Ven Me, Baby! It feels so personal, and I can easily see what options my technician recommends specifically for me."</p>
-                    <div className="flex mt-3">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <svg key={star} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#FF92A5" className="mr-1">
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </svg>
-                      ))}
-                    </div>
+                  <h3 className="text-2xl font-serif font-semibold text-green-800 mb-3">Client Experiences</h3>
+                  <div className="text-gray-600 flex-grow mb-6">
+                    <p>"I love how easy it is to book appointments and discover new styles. The personal touch of receiving an invitation makes me feel valued as a client!"</p>
+                    <p className="mt-2 text-sm font-medium">- Jessica, Regular Client</p>
                   </div>
-                  <div className="mt-4">
+                  <div className="mt-auto">
                     <Link href="/register-client">
-                      <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white py-2">Client Benefits</Button>
+                      <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2">Register as Client</Button>
                     </Link>
                   </div>
                 </CardContent>
