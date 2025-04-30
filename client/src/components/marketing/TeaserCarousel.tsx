@@ -119,8 +119,8 @@ export default function TeaserCarousel() {
                   slide.bgClass
                 )}
               >
-                {/* Visual Indicator */}
-                <div className="absolute top-2 right-2 text-xs rounded-full bg-white/80 px-2 py-1 text-pink-600">
+                {/* Visual Indicator (hidden) */}
+                <div className="hidden">
                   {index + 1}/{campaignSlides.length}
                 </div>
                 
