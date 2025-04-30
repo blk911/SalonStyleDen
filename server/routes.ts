@@ -64,8 +64,9 @@ const invitationInputSchema = z.object({
   phone: z.string().min(10),
   email: z.union([
     z.string().email(),
-    z.string().length(0)  // Allow empty string
-  ]),
+    z.string().length(0),  // Allow empty string
+    z.null()  // Also allow null
+  ]).optional(),
   message: z.string().optional(), // Optional message for client-to-client invitations
   notes: z.string().optional(),
   favoriteServices: z.array(z.string()).optional(),
