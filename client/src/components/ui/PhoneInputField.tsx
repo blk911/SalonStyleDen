@@ -13,7 +13,6 @@ interface PhoneInputFieldProps extends Omit<InputProps, 'onChange'> {
   onValidationComplete?: (isValid: boolean, isRegistered: boolean) => void;
   onEnterPress?: () => void;
   clearField?: () => void;
-  tabIndex?: number;
 }
 
 export function PhoneInputField({
@@ -22,7 +21,6 @@ export function PhoneInputField({
   onValidationComplete,
   onEnterPress,
   clearField,
-  tabIndex,
   ...props
 }: PhoneInputFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -99,12 +97,6 @@ export function PhoneInputField({
       if (!isValid) {
         setTouched(true);
         return;
-      }
-      
-      // Call the onEnterPress callback if provided
-      if (onEnterPress) {
-        console.log('Calling onEnterPress from PhoneInputField');
-        onEnterPress();
       }
       
       // Start validation process

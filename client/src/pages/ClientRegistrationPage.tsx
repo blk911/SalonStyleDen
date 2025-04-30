@@ -542,15 +542,12 @@ export default function ClientRegistrationPage() {
                                 placeholder="Full Name" 
                                 {...field} 
                                 ref={nameInputRef}
-                                tabIndex={1}
-                                onKeyDown={(e) => {
+                                onKeyPress={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    // Focus the phone field when Enter is pressed (based on screenshot layout)
-                                    const phoneField = document.querySelector('input[name="phone"]');
-                                    if (phoneField) {
-                                      (phoneField as HTMLElement).focus();
-                                      console.log('Focusing on phone field after Enter in name');
+                                    // Focus the email field when Enter is pressed
+                                    if (emailInputRef.current) {
+                                      emailInputRef.current.focus();
                                     }
                                   }
                                 }}
@@ -571,15 +568,12 @@ export default function ClientRegistrationPage() {
                                 placeholder="Email" 
                                 {...field} 
                                 ref={emailInputRef}
-                                tabIndex={2}
-                                onKeyDown={(e) => {
+                                onKeyPress={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    // Focus the address field when Enter is pressed (based on screenshot layout)
-                                    const addressField = document.querySelector('input[name="address"]');
-                                    if (addressField) {
-                                      (addressField as HTMLElement).focus();
-                                      console.log('Focusing on address field after Enter in email');
+                                    // Focus the phone field when Enter is pressed
+                                    if (phoneInputRef.current) {
+                                      phoneInputRef.current.focus();
                                     }
                                   }
                                 }}
@@ -600,7 +594,6 @@ export default function ClientRegistrationPage() {
                                 placeholder="Phone Number" 
                                 value={field.value}
                                 onChange={field.onChange}
-                                tabIndex={3}
                                 onValidationComplete={(isValid, isRegistered) => {
                                   // We are now displaying this information in the dialog
                                   console.log(`Phone validation: isValid=${isValid}, isRegistered=${isRegistered}`);
@@ -611,11 +604,10 @@ export default function ClientRegistrationPage() {
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // Focus the email field when Enter is pressed in the phone field (based on screenshot layout)
-                                  console.log('Enter pressed in phone field, focusing email field');
-                                  const emailField = document.querySelector('input[name="email"]');
-                                  if (emailField instanceof HTMLElement) {
-                                    emailField.focus();
+                                  // Focus the address field when Enter is pressed
+                                  const addressField = document.querySelector('input[name="address"]');
+                                  if (addressField instanceof HTMLElement) {
+                                    addressField.focus();
                                   }
                                 }}
                                 clearField={() => {
@@ -639,11 +631,7 @@ export default function ClientRegistrationPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input 
-                                placeholder="Address (Optional)" 
-                                tabIndex={4}
-                                {...field} 
-                              />
+                              <Input placeholder="Address (Optional)" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -657,7 +645,7 @@ export default function ClientRegistrationPage() {
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input placeholder="City" tabIndex={5} {...field} />
+                                <Input placeholder="City" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -670,7 +658,7 @@ export default function ClientRegistrationPage() {
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input placeholder="State" tabIndex={6} {...field} />
+                                <Input placeholder="State" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -684,7 +672,7 @@ export default function ClientRegistrationPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input placeholder="ZIP Code" tabIndex={7} {...field} />
+                              <Input placeholder="ZIP Code" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -701,7 +689,6 @@ export default function ClientRegistrationPage() {
                             <Textarea 
                               placeholder="Additional Notes (Optional)" 
                               className="min-h-[100px]"
-                              tabIndex={8}
                               {...field} 
                             />
                           </FormControl>
@@ -733,7 +720,6 @@ export default function ClientRegistrationPage() {
                                 onBlur={() => setIsFocused(false)}
                                 onMouseEnter={() => setIsHighlighted(true)}
                                 onMouseLeave={() => setIsHighlighted(false)}
-                                tabIndex={9}
                               />
                             </FormControl>
                             <div className="space-y-1 leading-none">
@@ -754,7 +740,6 @@ export default function ClientRegistrationPage() {
                       type="submit" 
                       className="w-full bg-pink-600 hover:bg-pink-700"
                       disabled={isSubmitting}
-                      tabIndex={10}
                     >
                       {isSubmitting ? (
                         <>
