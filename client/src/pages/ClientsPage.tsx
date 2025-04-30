@@ -167,7 +167,7 @@ export default function ClientsPage() {
                   </div>
                   <div className="mt-auto">
                     <Link href="/register-salon">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">Register Your Salon!</Button>
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">How Easy? See For Yourself</Button>
                     </Link>
                   </div>
                 </CardContent>
