@@ -89,8 +89,7 @@ interface Salon {
 }
 
 export default function ClientRegistrationPage() {
-  const navigate = useNavigate();
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   
   // Extract invite hash from URL if present
   const inviteHash = location.includes('/invite/') 
@@ -110,8 +109,20 @@ export default function ClientRegistrationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   
-  // Reference to the terms checkbox for direct focus
-  const termsCheckboxRef = useRef<HTMLInputElement>(null);
+  // We'll use a ref to the terms checkbox element via DOM ID instead of direct ref
+  const focusTermsCheckbox = () => {
+    setTimeout(() => {
+      const checkbox = document.getElementById('acceptTerms');
+      if (checkbox) {
+        logFlow('Terms checkbox found by ID, focusing');
+        checkbox.focus();
+        checkbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        logFlow('Terms checkbox focused and scrolled into view');
+      } else {
+        logFlow('ERROR: Terms checkbox not found by ID');
+      }
+    }, 50);
+  };
   
   // Form definition with zod validation
   const form = useForm<ClientFormValues>({
@@ -205,21 +216,8 @@ export default function ClientRegistrationPage() {
     document.body.setAttribute('data-address-shown', 'true');
     logFlow('Dialog closed, data-address-shown attribute set to true');
     
-    // Focus directly on terms checkbox immediately
-    setTimeout(() => {
-      if (termsCheckboxRef.current) {
-        logFlow('Terms checkbox ref found, focusing');
-        termsCheckboxRef.current.focus();
-        
-        // Scroll to the terms area to make it visible
-        termsCheckboxRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // No secondary dialog needed - direct navigation to terms checkbox
-        logFlow('Terms checkbox focused and scrolled into view after clicking "Later"');
-      } else {
-        logFlow('ERROR: Terms checkbox not found after clicking "Later"');
-      }
-    }, 50); // Reduced timeout for faster focus transition
+    // Focus directly on terms checkbox using DOM ID
+    focusTermsCheckbox();
   };
   
   // Handle form submission - FIXED to prevent registration loop issues
@@ -570,9 +568,9 @@ export default function ClientRegistrationPage() {
                             <Checkbox
                               checked={field.value}
                               onCheckedChange={field.onChange}
-                              ref={termsCheckboxRef}
                               id="acceptTerms"
                               name="acceptTerms"
+                              // Using DOM reference directly rather than ref forwarding
                             />
                           </FormControl>
                           <div className="space-y-1 leading-none">
