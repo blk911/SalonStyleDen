@@ -133,7 +133,6 @@ export default function ClientsPage() {
                   </span>
                   <span className="ven-me">Ven Me,</span> <span className="baby">Baby!</span> Teaser Campaign
                 </h3>
-                <Badge variant="outline" className="bg-pink-50 text-pink-700 border-pink-200">NEW</Badge>
               </div>
               
               {/* Import and use TeaserCarousel component */}
@@ -144,47 +143,51 @@ export default function ClientsPage() {
 
             {/* Two cards side by side in a 1x2 grid */}
             <div className="grid grid-cols-2 gap-8">
-              {/* Grid Item 1 */}
+              {/* Salon Testimonial */}
               <Card className="bg-gradient-to-br from-blue-50 to-white shadow-md hover:shadow-xl transition-all border border-blue-100 h-full">
                 <CardContent className="p-8 flex flex-col h-full">
                   <div className="text-blue-600 mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-                      <line x1="16" x2="16" y1="2" y2="6"/>
-                      <line x1="8" x2="8" y1="2" y2="6"/>
-                      <line x1="3" x2="21" y1="10" y2="10"/>
-                      <path d="M8 14h.01"/>
-                      <path d="M12 14h.01"/>
-                      <path d="M16 14h.01"/>
-                      <path d="M8 18h.01"/>
-                      <path d="M12 18h.01"/>
-                      <path d="M16 18h.01"/>
+                      <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                      <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                      <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                      <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                      <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                      <path d="M9 9h.01"></path>
+                      <path d="M15 9h.01"></path>
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-serif font-semibold text-blue-800 mb-3">Lorem Ipsum</h3>
+                  <h3 className="text-2xl font-serif font-semibold text-blue-800 mb-3">Salon Success Stories</h3>
                   <div className="text-gray-600 flex-grow mb-6">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget aliquam ultricies.</p>
+                    <p>"My salon has doubled its bookings since joining Ven Me, Baby! The client invitation system makes it so easy to connect with new customers."</p>
+                    <p className="mt-2 text-sm font-medium">- Sarah, Glam & Shine Salon</p>
                   </div>
                   <div className="mt-auto">
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">Dolor Sit</Button>
+                    <Link href="/salons">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">View Salons</Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Grid Item 2 */}
+              {/* Client Testimonial */}
               <Card className="bg-gradient-to-br from-green-50 to-white shadow-md hover:shadow-xl transition-all border border-green-100 h-full">
                 <CardContent className="p-8 flex flex-col h-full">
                   <div className="text-green-600 mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-serif font-semibold text-green-800 mb-3">Consectetur</h3>
+                  <h3 className="text-2xl font-serif font-semibold text-green-800 mb-3">Client Experiences</h3>
                   <div className="text-gray-600 flex-grow mb-6">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
+                    <p>"I love how easy it is to book appointments and discover new styles. The personal touch of receiving an invitation makes me feel valued as a client!"</p>
+                    <p className="mt-2 text-sm font-medium">- Jessica, Regular Client</p>
                   </div>
                   <div className="mt-auto">
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2">Adipiscing</Button>
+                    <Link href="/register-client">
+                      <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2">Register as Client</Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

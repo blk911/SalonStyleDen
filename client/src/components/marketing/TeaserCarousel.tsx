@@ -137,7 +137,7 @@ export default function TeaserCarousel() {
                   
                   {/* Visual Cue Side */}
                   <div className="w-1/2 flex items-center justify-center">
-                    <div className="w-full h-[200px] rounded-lg p-0 shadow-sm border border-gray-100 flex flex-col items-center justify-center relative overflow-hidden">
+                    <div className="w-full h-[200px] rounded-lg overflow-hidden">
                       {/* Video or Image */}
                       {slide.videoUrl ? (
                         <div className="w-full h-full flex items-center justify-center bg-black/5 overflow-hidden">
@@ -146,14 +146,14 @@ export default function TeaserCarousel() {
                             autoPlay 
                             loop 
                             muted 
-                            className="w-auto h-auto max-w-full max-h-full object-contain z-0"
+                            className="w-full h-full object-cover"
                           />
                         </div>
                       ) : (
                         <img 
                           src={slide.imageUrl || placeholderImage} 
                           alt={`Teaser visual for ${slide.title}`}
-                          className="w-auto h-auto max-w-full max-h-full object-contain z-0"
+                          className="w-full h-full object-cover"
                         />
                       )}
                       <div className="z-10 bg-transparent px-0 py-0 text-xs text-black/60 text-center mt-auto mb-0 max-w-[1px] h-0 overflow-hidden">
