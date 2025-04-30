@@ -260,22 +260,43 @@ export default function ClientRegistrationPage() {
     
     setShowAddressDialog(false);
     
-    // Highlight the terms checkbox to make it clear what to focus on next
-    const termsItem = termsCheckboxRef.current?.closest('.flex.flex-row');
-    if (termsItem instanceof HTMLElement) {
-      // Add a temporary highlight to the terms box
-      termsItem.classList.add('bg-pink-50', 'border-pink-200', 'shadow-sm');
-      setTimeout(() => {
-        termsItem.classList.remove('bg-pink-50', 'border-pink-200', 'shadow-sm');
-      }, 2000);
-    }
-    
-    // Focus on terms checkbox after a short delay
+    // Use a slightly longer delay to ensure the dialog is fully closed
     setTimeout(() => {
+      // Force the checkbox element to be focusable and explicitly visible
       if (termsCheckboxRef.current) {
+        // Make sure the checkbox is properly focused
+        termsCheckboxRef.current.setAttribute('tabindex', '0');
         termsCheckboxRef.current.focus();
+        console.log("[FLOW] Terms checkbox focused");
+        
+        // Dispatch a focus event to ensure event listeners trigger
+        const focusEvent = new FocusEvent('focus', {
+          bubbles: true,
+          cancelable: true,
+          view: window
+        });
+        termsCheckboxRef.current.dispatchEvent(focusEvent);
+        
+        // Also highlight the parent container for visual cue
+        const termsItem = termsCheckboxRef.current.closest('.flex.flex-row');
+        if (termsItem instanceof HTMLElement) {
+          termsItem.classList.add('bg-pink-50', 'border-pink-200', 'shadow-sm');
+          
+          // Click effect - brief flash of a more intense color
+          termsItem.classList.add('bg-pink-100');
+          setTimeout(() => {
+            termsItem.classList.remove('bg-pink-100');
+          }, 200);
+          
+          // Remove highlight after 2 seconds
+          setTimeout(() => {
+            termsItem.classList.remove('bg-pink-50', 'border-pink-200', 'shadow-sm');
+          }, 2000);
+        }
+      } else {
+        console.error("[FLOW] Terms checkbox reference not found");
       }
-    }, 100);
+    }, 300); // Longer delay for more reliable focus
   };
   
   // Handle form submission - FIXED to prevent registration loop issues
