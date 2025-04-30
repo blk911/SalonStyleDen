@@ -255,7 +255,20 @@ export default function ClientRegistrationPage() {
   
   // Function to handle Later button click in address dialog
   const handleLaterClick = () => {
+    // Log which path is being taken for debugging
+    console.log("[FLOW] User selected Later path (fast registration)");
+    
     setShowAddressDialog(false);
+    
+    // Highlight the terms checkbox to make it clear what to focus on next
+    const termsItem = termsCheckboxRef.current?.closest('.flex.flex-row');
+    if (termsItem instanceof HTMLElement) {
+      // Add a temporary highlight to the terms box
+      termsItem.classList.add('bg-pink-50', 'border-pink-200', 'shadow-sm');
+      setTimeout(() => {
+        termsItem.classList.remove('bg-pink-50', 'border-pink-200', 'shadow-sm');
+      }, 2000);
+    }
     
     // Focus on terms checkbox after a short delay
     setTimeout(() => {
@@ -626,10 +639,16 @@ export default function ClientRegistrationPage() {
                                       });
                                       
                                       // Call the validate-contact API to check if email exists
-                                      apiRequest('POST', '/api/validate-contact', {
-                                        email,
-                                        phone: '',
-                                        type: 'client'
+                                      fetch('/api/validate-contact', {
+                                        method: 'POST',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                          email,
+                                          phone: '',
+                                          type: 'client'
+                                        })
                                       })
                                       .then(res => res.json())
                                       .then(data => {
@@ -917,12 +936,15 @@ export default function ClientRegistrationPage() {
               onClick={handleLaterClick}
               type="button"
             >
-              I'll add this later
+              Later
             </Button>
             <Button 
               type="button"
               onClick={() => {
                 setShowAddressDialog(false);
+                // Log which path is being taken for debugging
+                console.log("[FLOW] User selected Enter Address path");
+                
                 // Focus on email field after a short delay when user chooses to enter address
                 setTimeout(() => {
                   const emailField = document.querySelector('input[placeholder="Email (Optional)"]');
