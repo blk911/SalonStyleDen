@@ -113,9 +113,8 @@ export default function ClientsPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-3xl font-bold text-pink-800 flex items-center justify-center">
               <span className="logo logo-md mr-2"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span> 
-              Client Info Hub
             </h1>
-            <p className="mt-2 text-gray-600">New Salons, Premium Offers, and More</p>
+            <p className="mt-2 text-lg font-medium text-gray-700">Empowering. Personal. Connection.</p>
           </div>
         </section>
         
