@@ -253,37 +253,16 @@ export default function ClientRegistrationPage() {
     console.log(`[FLOW] Phone validation ${isValid ? 'passed' : 'failed'}`);
   };
   
-  // Helper function to apply focus and visual feedback to the terms checkbox
-  const focusOnTermsCheckbox = (action: string) => {
-    console.log(`[VMB Flow] ${action}, focusing on terms checkbox`);
-    
-    // Remove any existing highlight class first in case it was previously applied
-    const allFormItems = document.querySelectorAll('.flex.flex-row');
-    allFormItems.forEach(item => {
-      if (item.classList.contains('bg-pink-50')) {
-        item.classList.remove('bg-pink-50', 'border-pink-200', 'shadow-sm');
-      }
-    });
-    
-    // Focus on terms checkbox after a delay to ensure dialog is closed
-    setTimeout(() => {
-      if (termsCheckboxRef.current) {
-        // Focus the checkbox
-        termsCheckboxRef.current.focus();
-        
-        // Simulate hover effect to provide visual feedback
-        const formItem = termsCheckboxRef.current.closest('.flex.flex-row');
-        if (formItem) {
-          formItem.classList.add('bg-pink-50', 'border-pink-200', 'shadow-sm');
-        }
-      }
-    }, 300); // Delay for better reliability
-  };
-  
   // Function to handle Later button click in address dialog
   const handleLaterClick = () => {
     setShowAddressDialog(false);
-    focusOnTermsCheckbox('Later button clicked');
+    
+    // Focus on terms checkbox after a short delay
+    setTimeout(() => {
+      if (termsCheckboxRef.current) {
+        termsCheckboxRef.current.focus();
+      }
+    }, 100);
   };
   
   // Handle form submission - FIXED to prevent registration loop issues
@@ -562,12 +541,10 @@ export default function ClientRegistrationPage() {
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    console.log("[VMB Flow] Enter pressed in name field, focusing phone input");
                                     // Focus the phone field when Enter is pressed in name field
                                     const phoneInput = document.querySelector('input[placeholder="Phone Number"]');
                                     if (phoneInput instanceof HTMLElement) {
                                       phoneInput.focus();
-                                      phoneInput.click(); // Click to ensure phone field is fully activated
                                     }
                                   }
                                 }}
@@ -598,18 +575,10 @@ export default function ClientRegistrationPage() {
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // If address is required but not filled, show the dialog on Enter key
-                                  const hasEmptyAddress = !form.getValues().address;
-                                  if (hasEmptyAddress) {
-                                    console.log("[VMB Flow] Enter pressed in phone field with empty address, showing dialog");
-                                    setShowAddressDialog(true);
-                                  } else {
-                                    // Otherwise, focus the email field when Enter is pressed in phone field
-                                    console.log("[VMB Flow] Enter pressed in phone field, focusing email field");
-                                    const emailField = document.querySelector('input[placeholder="Email (Optional)"]');
-                                    if (emailField instanceof HTMLElement) {
-                                      emailField.focus();
-                                    }
+                                  // Focus the email field when Enter is pressed in phone field
+                                  const emailField = document.querySelector('input[placeholder="Email (Optional)"]');
+                                  if (emailField instanceof HTMLElement) {
+                                    emailField.focus();
                                   }
                                 }}
                                 clearField={() => {
@@ -641,20 +610,10 @@ export default function ClientRegistrationPage() {
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    console.log("[VMB Flow] Enter pressed in email field, focusing address field");
-                                    
-                                    // If this is a multi-step form and we're handling the address separately
-                                    const hasEmptyAddress = !form.getValues().address;
-                                    if (hasEmptyAddress) {
-                                      // Show address dialog if address is empty
-                                      console.log("[VMB Flow] Address is empty, showing dialog");
-                                      setShowAddressDialog(true);
-                                    } else {
-                                      // Focus the address field when Enter is pressed in email field
-                                      const addressField = document.querySelector('input[name="address"]');
-                                      if (addressField instanceof HTMLElement) {
-                                        addressField.focus();
-                                      }
+                                    // Focus the address field when Enter is pressed in email field
+                                    const addressField = document.querySelector('input[name="address"]');
+                                    if (addressField instanceof HTMLElement) {
+                                      addressField.focus();
                                     }
                                   }
                                 }}
@@ -759,24 +718,10 @@ export default function ClientRegistrationPage() {
                                 ref={termsCheckboxRef}
                                 checked={field.value}
                                 onCheckedChange={field.onChange}
-                                onFocus={() => {
-                                  console.log("[VMB Flow] Terms checkbox focused");
-                                  setIsFocused(true);
-                                }}
+                                onFocus={() => setIsFocused(true)}
                                 onBlur={() => setIsFocused(false)}
-                                onMouseEnter={() => {
-                                  console.log("[VMB Flow] Terms checkbox hover");
-                                  setIsHighlighted(true);
-                                }}
+                                onMouseEnter={() => setIsHighlighted(true)}
                                 onMouseLeave={() => setIsHighlighted(false)}
-                                onKeyDown={(e) => {
-                                  console.log(`[VMB Flow] Terms checkbox key pressed: ${e.key}`);
-                                  if (e.key === 'Enter' || e.key === ' ') {
-                                    // Toggle checkbox on Enter/Space
-                                    field.onChange(!field.value);
-                                    e.preventDefault();
-                                  }
-                                }}
                               />
                             </FormControl>
                             <div className="space-y-1 leading-none">
@@ -924,8 +869,12 @@ export default function ClientRegistrationPage() {
               type="button"
               onClick={() => {
                 setShowAddressDialog(false);
-                // Use the shared helper function for consistent behavior
-                focusOnTermsCheckbox('Save Address button clicked');
+                // Focus on terms checkbox after a short delay - same as handleLaterClick
+                setTimeout(() => {
+                  if (termsCheckboxRef.current) {
+                    termsCheckboxRef.current.focus();
+                  }
+                }, 100);
               }}
               variant="default"
             >
