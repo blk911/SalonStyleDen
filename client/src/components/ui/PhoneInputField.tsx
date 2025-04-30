@@ -48,6 +48,13 @@ export function PhoneInputField({
     setFocused(false);
     setTouched(true);
 
+    // Check if address dialog has already been shown
+    const addressDialogShown = document.body.hasAttribute('data-address-shown');
+    if (addressDialogShown) {
+      // Skip validation if dialog already shown
+      return;
+    }
+
     // Only validate if we have a value and 10 digits
     const digits = cleanPhoneNumber(value);
     if (digits.length === 10) {
@@ -167,6 +174,11 @@ export function PhoneInputField({
   const handleValidationDialogClose = () => {
     // Use a timeout to ensure dialog is closed before moving focus
     setShowValidationDialog(false);
+    
+    // Set the data attribute to prevent the dialog from showing again
+    document.body.setAttribute('data-address-shown', 'true');
+    
+    // Move focus to the address field
     moveToAddressField();
   };
 
