@@ -575,10 +575,10 @@ export default function ClientRegistrationPage() {
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // Focus the address field when Enter is pressed
-                                  const addressField = document.querySelector('input[name="address"]');
-                                  if (addressField instanceof HTMLElement) {
-                                    addressField.focus();
+                                  // Focus the email field when Enter is pressed in phone field
+                                  const emailField = document.querySelector('input[placeholder="Email (Optional)"]');
+                                  if (emailField instanceof HTMLElement) {
+                                    emailField.focus();
                                   }
                                 }}
                                 clearField={() => {
@@ -593,8 +593,9 @@ export default function ClientRegistrationPage() {
                       />
                     </div>
                     
-                    {/* SECOND ROW: Email (full width) */}
-                    <div className="grid grid-cols-1 gap-3">
+                    <Separator className="my-4" />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <FormField
                         control={form.control}
                         name="email"
@@ -602,7 +603,7 @@ export default function ClientRegistrationPage() {
                           <FormItem>
                             <FormControl>
                               <Input 
-                                placeholder="Email" 
+                                placeholder="Email (Optional)" 
                                 {...field} 
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
@@ -620,11 +621,7 @@ export default function ClientRegistrationPage() {
                           </FormItem>
                         )}
                       />
-                    </div>
-                    
-                    <Separator className="my-4" />
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      
                       <FormField
                         control={form.control}
                         name="address"
