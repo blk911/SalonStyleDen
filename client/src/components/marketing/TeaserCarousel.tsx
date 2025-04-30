@@ -9,49 +9,45 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import placeholderImage from '@/assets/placeholder-1.svg';
 
 interface TeaserSlide {
   title: string;
   content: string;
   bgClass: string;
-  imageUrl: string;
+  imageUrl?: string;
   visualCue: string;
 }
 
 const campaignSlides: TeaserSlide[] = [
   {
-    title: "She's shopping for compliments...",
-    content: "...You're sending real appreciation.",
+    title: "He's fishing for attention...",
+    content: "...You're inviting connection.",
     bgClass: "bg-gradient-to-br from-pink-50 to-rose-100",
-    imageUrl: "/assets/client-carousel/shopping-woman.jpg",
-    visualCue: "Woman in stylish outfit checking her phone while shopping."
+    visualCue: "Woman smiling while texting, soft/flirty colors."
   },
   {
-    title: "One tap says it all:",
+    title: "One click says it all:",
     content: "'I Notice. I Care. I See You.'",
     bgClass: "bg-gradient-to-br from-purple-50 to-indigo-100",
-    imageUrl: "/assets/client-carousel/businessman.jpg",
-    visualCue: "Professional man smiling at gift request on his phone."
+    visualCue: "Phone screen lighting up with a gift invite."
   },
   {
     title: "He steps up. You glow up.",
     content: "#TwinWin #VenMeBaby",
     bgClass: "bg-gradient-to-br from-blue-50 to-teal-100",
-    imageUrl: "/assets/client-carousel/shopping-woman.jpg",
     visualCue: "Split screen: him sending → her showing off nails."
   },
   {
     title: "Gift cards: Cold. Untimely. Forgotten.",
     content: "Ven Me, Baby: Real. Timed. Personal.",
     bgClass: "bg-gradient-to-br from-amber-50 to-yellow-100",
-    imageUrl: "/assets/client-carousel/businessman.jpg",
-    visualCue: "Elegant solution for gifting in today's busy world."
+    visualCue: "Sad dusty gift card vs. bright, colorful Ven Me Baby screen."
   },
   {
     title: "Ready?",
     content: "1. Pick your style 💅\n2. Send your invite 💌\n3. Glow up 💖\nVen Me, Baby!",
     bgClass: "bg-gradient-to-br from-pink-50 to-rose-200",
-    imageUrl: "/assets/client-carousel/shopping-woman.jpg",
     visualCue: "Fun emoji steps with clean bold design."
   }
 ];
@@ -130,16 +126,15 @@ export default function TeaserCarousel() {
                   
                   {/* Visual Cue Side */}
                   <div className="w-1/2 flex items-center justify-center">
-                    <div className="w-full h-[200px] rounded-lg shadow-lg border border-white/30 flex flex-col items-center justify-center relative overflow-hidden">
-                      {/* Actual carousel image */}
+                    <div className="w-full h-[200px] rounded-lg bg-white/30 backdrop-blur-sm p-3 shadow-lg border border-white/30 flex flex-col items-center justify-center relative overflow-hidden">
+                      {/* Placeholder image */}
                       <img 
-                        src={slide.imageUrl} 
+                        src={placeholderImage} 
                         alt={`Teaser visual for ${slide.title}`}
-                        className="absolute inset-0 w-full h-full object-cover z-0"
+                        className="absolute inset-0 w-full h-full object-cover z-0 opacity-50"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                      <div className="z-10 bg-white/70 px-3 py-2 rounded text-sm text-gray-700 text-center mt-auto mb-2 max-w-[90%] absolute bottom-2">
-                        <span className="font-semibold text-pink-600 mr-1">💡</span>
+                      <div className="z-10 bg-white/60 px-3 py-2 rounded text-sm text-gray-700 text-center mt-auto mb-2 max-w-[90%]">
+                        <span className="font-semibold text-pink-600 mr-1">🧠</span>
                         {slide.visualCue}
                       </div>
                     </div>
