@@ -255,48 +255,14 @@ export default function ClientRegistrationPage() {
   
   // Function to handle Later button click in address dialog
   const handleLaterClick = () => {
-    // Log which path is being taken for debugging
-    console.log("[FLOW] User selected Later path (fast registration)");
-    
     setShowAddressDialog(false);
     
-    // Use a slightly longer delay to ensure the dialog is fully closed
+    // Focus on terms checkbox after a short delay
     setTimeout(() => {
-      // Force the checkbox element to be focusable and explicitly visible
       if (termsCheckboxRef.current) {
-        // Make sure the checkbox is properly focused
-        termsCheckboxRef.current.setAttribute('tabindex', '0');
         termsCheckboxRef.current.focus();
-        console.log("[FLOW] Terms checkbox focused");
-        
-        // Dispatch a focus event to ensure event listeners trigger
-        const focusEvent = new FocusEvent('focus', {
-          bubbles: true,
-          cancelable: true,
-          view: window
-        });
-        termsCheckboxRef.current.dispatchEvent(focusEvent);
-        
-        // Also highlight the parent container for visual cue
-        const termsItem = termsCheckboxRef.current.closest('.flex.flex-row');
-        if (termsItem instanceof HTMLElement) {
-          termsItem.classList.add('bg-pink-50', 'border-pink-200', 'shadow-sm');
-          
-          // Click effect - brief flash of a more intense color
-          termsItem.classList.add('bg-pink-100');
-          setTimeout(() => {
-            termsItem.classList.remove('bg-pink-100');
-          }, 200);
-          
-          // Remove highlight after 2 seconds
-          setTimeout(() => {
-            termsItem.classList.remove('bg-pink-50', 'border-pink-200', 'shadow-sm');
-          }, 2000);
-        }
-      } else {
-        console.error("[FLOW] Terms checkbox reference not found");
       }
-    }, 300); // Longer delay for more reliable focus
+    }, 100);
   };
   
   // Handle form submission - FIXED to prevent registration loop issues
@@ -660,16 +626,10 @@ export default function ClientRegistrationPage() {
                                       });
                                       
                                       // Call the validate-contact API to check if email exists
-                                      fetch('/api/validate-contact', {
-                                        method: 'POST',
-                                        headers: {
-                                          'Content-Type': 'application/json',
-                                        },
-                                        body: JSON.stringify({
-                                          email,
-                                          phone: '',
-                                          type: 'client'
-                                        })
+                                      apiRequest('POST', '/api/validate-contact', {
+                                        email,
+                                        phone: '',
+                                        type: 'client'
                                       })
                                       .then(res => res.json())
                                       .then(data => {
@@ -957,15 +917,12 @@ export default function ClientRegistrationPage() {
               onClick={handleLaterClick}
               type="button"
             >
-              Later
+              I'll add this later
             </Button>
             <Button 
               type="button"
               onClick={() => {
                 setShowAddressDialog(false);
-                // Log which path is being taken for debugging
-                console.log("[FLOW] User selected Enter Address path");
-                
                 // Focus on email field after a short delay when user chooses to enter address
                 setTimeout(() => {
                   const emailField = document.querySelector('input[placeholder="Email (Optional)"]');
