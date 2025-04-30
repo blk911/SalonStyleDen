@@ -231,8 +231,15 @@ export default function ClientRegistrationPage() {
     }
   }, [invitation, navigate, toast]);
 
-  // Cleanup effect
+  // Setup and cleanup effect - reset state when component mounts
   useEffect(() => {
+    // Clear the data attribute to reset dialog state on mount
+    document.body.removeAttribute('data-address-shown');
+    
+    // Reset local state tracking for a fresh form start
+    setAddressDialogShown(false);
+    setShowAddressDialog(false);
+    
     return () => {
       // Clean up data attribute when component unmounts
       document.body.removeAttribute('data-address-shown');
@@ -290,6 +297,16 @@ export default function ClientRegistrationPage() {
   // Handle form submission - FIXED to prevent registration loop issues
   const onSubmit = async (data: ClientFormValues) => {
     try {
+      console.log('[FLOW] Form submission started');
+      
+      // First, reset the dialog state on each form submission attempt 
+      // to ensure consistent behavior even after multiple form submissions
+      if (document.body.hasAttribute('data-address-shown')) {
+        console.log('[FLOW] Resetting address dialog state for new submission');
+        document.body.removeAttribute('data-address-shown');
+        setAddressDialogShown(false);
+      }
+      
       // Check if address fields should be prompted but are empty
       const hasNoAddress = !data.address && !data.city && !data.state && !data.zipCode;
       const shouldShowAddressPrompt = hasNoAddress && !addressDialogShown;
