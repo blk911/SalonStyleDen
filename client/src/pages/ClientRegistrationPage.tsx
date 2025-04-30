@@ -871,7 +871,7 @@ export default function ClientRegistrationPage() {
           <div className="grid gap-4 py-4">
             <div className="space-y-3">
               <div className="mb-2">
-                <FormLabel htmlFor="dialog-email">Email (Optional)</FormLabel>
+                <div className="text-sm font-medium mb-1">Email (Optional)</div>
                 <Input 
                   id="dialog-email"
                   placeholder="Email" 
@@ -881,7 +881,7 @@ export default function ClientRegistrationPage() {
               </div>
               
               <div className="mb-2">
-                <FormLabel htmlFor="dialog-address">Street Address (Optional)</FormLabel>
+                <div className="text-sm font-medium mb-1">Street Address (Optional)</div>
                 <Input 
                   id="dialog-address"
                   placeholder="Address" 
@@ -892,7 +892,7 @@ export default function ClientRegistrationPage() {
               
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <div>
-                  <FormLabel htmlFor="dialog-city">City (Optional)</FormLabel>
+                  <div className="text-sm font-medium mb-1">City (Optional)</div>
                   <Input 
                     id="dialog-city"
                     placeholder="City" 
@@ -901,7 +901,7 @@ export default function ClientRegistrationPage() {
                   />
                 </div>
                 <div>
-                  <FormLabel htmlFor="dialog-state">State (Optional)</FormLabel>
+                  <div className="text-sm font-medium mb-1">State (Optional)</div>
                   <Input 
                     id="dialog-state"
                     placeholder="State" 
@@ -912,7 +912,7 @@ export default function ClientRegistrationPage() {
               </div>
               
               <div>
-                <FormLabel htmlFor="dialog-zipcode">ZIP Code (Optional)</FormLabel>
+                <div className="text-sm font-medium mb-1">ZIP Code (Optional)</div>
                 <Input 
                   id="dialog-zipcode"
                   placeholder="ZIP Code" 
