@@ -191,16 +191,6 @@ export default function TeaserCarousel() {
           <CarouselNext className="relative border-0 bg-white/80 hover:bg-white text-pink-600" />
         </div>
       </Carousel>
-      
-      {/* Auto-play toggle */}
-      <Button 
-        size="sm" 
-        variant="ghost" 
-        className="absolute top-4 right-3 z-10 h-6 w-6 rounded-full p-0 bg-white/80 hover:bg-white text-pink-600"
-        onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-      >
-        {isAutoPlaying ? '⏸️' : '▶️'}
-      </Button>
     </div>
   );
 }

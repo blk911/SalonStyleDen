@@ -146,25 +146,29 @@ export default function ClientsPage() {
               {/* Salon Testimonial */}
               <Card className="bg-gradient-to-br from-blue-50 to-white shadow-md hover:shadow-xl transition-all border border-blue-100 h-full">
                 <CardContent className="p-8 flex flex-col h-full">
-                  <div className="text-blue-600 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-                      <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-                      <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-                      <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-                      <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                      <path d="M9 9h.01"></path>
-                      <path d="M15 9h.01"></path>
-                    </svg>
+                  <div className="flex items-center mb-6">
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-blue-200 mr-4 flex-shrink-0">
+                      <img 
+                        src="/assets/MS-VMBLTD.jpg" 
+                        alt="Michelle, Salon Owner" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-serif font-semibold text-blue-800">Salon Owner Benefits</h3>
+                      <p className="text-blue-600 text-sm font-medium">Michelle S., VMB Certified Stylist</p>
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-serif font-semibold text-blue-800 mb-3">Salon Success Stories</h3>
-                  <div className="text-gray-600 flex-grow mb-6">
-                    <p>"My salon has doubled its bookings since joining Ven Me, Baby! The client invitation system makes it so easy to connect with new customers."</p>
-                    <p className="mt-2 text-sm font-medium">- Sarah, Glam & Shine Salon</p>
+                  <div className="text-gray-700 flex-grow mb-6">
+                    <p>"VMB has transformed how I connect with clients. The invitation feature makes client acquisition effortless, and I've seen a 40% increase in retention since joining!"</p>
+                    <div className="mt-4 flex items-center">
+                      <div className="text-yellow-500 mr-1">★★★★★</div>
+                      <span className="text-sm text-gray-500">Verified VMB Partner</span>
+                    </div>
                   </div>
                   <div className="mt-auto">
                     <Link href="/salons">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">View Salons</Button>
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">Explore Salon Benefits</Button>
                     </Link>
                   </div>
                 </CardContent>
@@ -173,20 +177,29 @@ export default function ClientsPage() {
               {/* Client Testimonial */}
               <Card className="bg-gradient-to-br from-green-50 to-white shadow-md hover:shadow-xl transition-all border border-green-100 h-full">
                 <CardContent className="p-8 flex flex-col h-full">
-                  <div className="text-green-600 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
+                  <div className="flex items-center mb-6">
+                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-green-200 mr-4 flex-shrink-0">
+                      <img 
+                        src="/assets/kendra.png" 
+                        alt="Kendra, Client" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-serif font-semibold text-green-800">Client Success Stories</h3>
+                      <p className="text-green-600 text-sm font-medium">Kendra T., Premium Client</p>
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-serif font-semibold text-green-800 mb-3">Client Experiences</h3>
-                  <div className="text-gray-600 flex-grow mb-6">
-                    <p>"I love how easy it is to book appointments and discover new styles. The personal touch of receiving an invitation makes me feel valued as a client!"</p>
-                    <p className="mt-2 text-sm font-medium">- Jessica, Regular Client</p>
+                  <div className="text-gray-700 flex-grow mb-6">
+                    <p>"I adore the personalized experience! Getting a VMB invitation makes me feel special, and the style selection process is so intuitive. Now all my appointments are through VMB!"</p>
+                    <div className="mt-4 flex items-center">
+                      <div className="text-yellow-500 mr-1">★★★★★</div>
+                      <span className="text-sm text-gray-500">VMB Member since 2024</span>
+                    </div>
                   </div>
                   <div className="mt-auto">
                     <Link href="/register-client">
-                      <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2">Register as Client</Button>
+                      <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2">Join as a Client</Button>
                     </Link>
                   </div>
                 </CardContent>
