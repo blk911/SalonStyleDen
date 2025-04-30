@@ -575,15 +575,10 @@ export default function ClientRegistrationPage() {
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // When Enter is pressed on phone field and validation passes,
-                                  // check if the phone is valid before showing the dialog
-                                  const phone = form.getValues().phone;
-                                  if (phone && phone.replace(/\D/g, '').length >= 10) {
-                                    // Only show address dialog if phone validation has passed
-                                    const phoneIsValid = !form.formState.errors.phone;
-                                    if (phoneIsValid) {
-                                      setShowAddressDialog(true);
-                                    }
+                                  // Focus the email field when Enter is pressed in phone field
+                                  const emailField = document.querySelector('input[placeholder="Email (Optional)"]');
+                                  if (emailField instanceof HTMLElement) {
+                                    emailField.focus();
                                   }
                                 }}
                                 clearField={() => {
@@ -615,59 +610,10 @@ export default function ClientRegistrationPage() {
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    
-                                    // Validate email when Enter is pressed
-                                    const email = field.value;
-                                    if (email) {
-                                      // Show a loading state while validating
-                                      toast({
-                                        title: "Validating email...",
-                                        description: "Please wait while we check your email.",
-                                      });
-                                      
-                                      // Call the validate-contact API to check if email exists
-                                      apiRequest('POST', '/api/validate-contact', {
-                                        email,
-                                        phone: '',
-                                        type: 'client'
-                                      })
-                                      .then(res => res.json())
-                                      .then(data => {
-                                        if (data.exists) {
-                                          // Email already in use
-                                          toast({
-                                            title: "Email already in use",
-                                            description: "Please use a different email address.",
-                                            variant: "destructive",
-                                          });
-                                        } else {
-                                          // Valid email, focus address field
-                                          toast({
-                                            title: "Email validated",
-                                            description: "Please complete your address information.",
-                                          });
-                                          
-                                          // Focus on address field
-                                          const addressField = document.querySelector('input[name="address"]');
-                                          if (addressField instanceof HTMLElement) {
-                                            addressField.focus();
-                                          }
-                                        }
-                                      })
-                                      .catch(err => {
-                                        toast({
-                                          title: "Validation error",
-                                          description: "Error validating email. Please try again.",
-                                          variant: "destructive",
-                                        });
-                                        console.error('Email validation error:', err);
-                                      });
-                                    } else {
-                                      // No email provided, just move to address field
-                                      const addressField = document.querySelector('input[name="address"]');
-                                      if (addressField instanceof HTMLElement) {
-                                        addressField.focus();
-                                      }
+                                    // Focus the address field when Enter is pressed in email field
+                                    const addressField = document.querySelector('input[name="address"]');
+                                    if (addressField instanceof HTMLElement) {
+                                      addressField.focus();
                                     }
                                   }
                                 }}
@@ -923,17 +869,16 @@ export default function ClientRegistrationPage() {
               type="button"
               onClick={() => {
                 setShowAddressDialog(false);
-                // Focus on email field after a short delay when user chooses to enter address
+                // Focus on terms checkbox after a short delay - same as handleLaterClick
                 setTimeout(() => {
-                  const emailField = document.querySelector('input[placeholder="Email (Optional)"]');
-                  if (emailField instanceof HTMLElement) {
-                    emailField.focus();
+                  if (termsCheckboxRef.current) {
+                    termsCheckboxRef.current.focus();
                   }
                 }, 100);
               }}
               variant="default"
             >
-              Enter Address
+              Save Address
             </Button>
           </DialogFooter>
         </DialogContent>
