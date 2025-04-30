@@ -76,14 +76,27 @@ const CarouselSlide = ({
   isActive: boolean;
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isLastSlide = index === totalSlides - 1;
   
-  // Reset video when this slide becomes active
+  // Special handling for videos
   useEffect(() => {
-    if (isActive && videoRef.current && slide.videoUrl) {
-      videoRef.current.currentTime = 0;
-      videoRef.current.play();
+    if (!isActive || !videoRef.current || !slide.videoUrl) return;
+    
+    // For all slides, reset to beginning when they appear
+    videoRef.current.currentTime = 0;
+    videoRef.current.play();
+    
+    // Special handling for the last slide (freeze frame after 2 seconds)
+    if (isLastSlide) {
+      const timer = setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.pause();
+        }
+      }, 2000); // 2 seconds
+      
+      return () => clearTimeout(timer);
     }
-  }, [isActive, slide.videoUrl]);
+  }, [isActive, slide.videoUrl, isLastSlide]);
   
   return (
     <CarouselItem key={index}>
@@ -119,7 +132,7 @@ const CarouselSlide = ({
                     ref={videoRef}
                     src={slide.videoUrl} 
                     autoPlay 
-                    loop 
+                    loop={!isLastSlide} 
                     muted 
                     className="w-full h-full object-cover"
                   />
