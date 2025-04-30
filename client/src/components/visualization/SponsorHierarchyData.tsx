@@ -91,11 +91,21 @@ export function useSponsorHierarchy() {
         // Filter to pending invitations only
         const pendingInvitations = invitations.filter(inv => inv.status === 'pending');
         
-        // Build the hierarchy starting with VMB, LTD
-        const vmbLtd = salons.find(s => s.id === 105);
+        // Build the hierarchy starting with VMB, LTD (ID: 1)
+        const vmbLtd = salons.find(s => s.id === 1);
         
         if (!vmbLtd) {
-          throw new Error('VMB, LTD salon not found');
+          console.warn('VMB, LTD salon not found in results, creating a placeholder');
+          // Create a placeholder for VMB, LTD
+          const vmbPlaceholder: SalonResponse = {
+            id: 1,
+            name: 'VMB, LTD',
+            owner_name: 'VMB Admin',
+            license_verified: true
+          };
+          // Add to salons array
+          salons.push(vmbPlaceholder);
+          return vmbPlaceholder;
         }
         
         // Create root node for VMB, LTD
@@ -169,16 +179,18 @@ export function useSponsorHierarchy() {
           return true;
         };
         
-        // Connect Tiffany's salon to VMB, LTD (ID: 42 → 105)
-        const tiffanySalon = salons.find(s => s.id === 42);
+        // Connect Tiffany's salon to VMB, LTD (ID: 42 → 1)
+        const tiffanySalon = salons.find(s => s.name.includes('Tiffany') || s.id === 42);
         if (tiffanySalon) {
-          connectToParent(42, 105);
+          connectToParent(tiffanySalon.id, 1);
+          console.log('[SPONSOR-HIERARCHY] Connected Tiffany\'s salon to VMB, LTD (ID: 1)');
         }
         
         // Connect all other salons to VMB, LTD if they aren't connected yet
         salons.forEach(salon => {
-          if (salon.id !== 105 && !connectedMembers.has(salon.id)) {
-            connectToParent(salon.id, 105);
+          if (salon.id !== 1 && !connectedMembers.has(salon.id)) {
+            connectToParent(salon.id, 1);
+            console.log(`[SPONSOR-HIERARCHY] Connected salon ${salon.name} (${salon.id}) to VMB, LTD (ID: 1)`);
           }
         });
         
@@ -207,9 +219,9 @@ export function useSponsorHierarchy() {
             }
           }
           
-          // If we get here, connect to VMB, LTD as default sponsor
-          connectToParent(client.id, 105);
-          console.log(`[SPONSOR-HIERARCHY] Connected client ${client.name} (${client.id}) to default sponsor VMB, LTD`);
+          // If we get here, connect to VMB, LTD as default sponsor (ID: 1)
+          connectToParent(client.id, 1);
+          console.log(`[SPONSOR-HIERARCHY] Connected client ${client.name} (${client.id}) to default sponsor VMB, LTD (ID: 1)`);
         });
         
         // Connect pending invitations
@@ -244,9 +256,9 @@ export function useSponsorHierarchy() {
             }
           }
           
-          // Default: connect to VMB, LTD
-          connectToParent(invNodeId, 105);
-          console.log(`[SPONSOR-HIERARCHY] Connected invitation ${inv.name} (${inv.id}) to default sponsor VMB, LTD`);
+          // Default: connect to VMB, LTD (ID: 1)
+          connectToParent(invNodeId, 1);
+          console.log(`[SPONSOR-HIERARCHY] Connected invitation ${inv.name} (${inv.id}) to default sponsor VMB, LTD (ID: 1)`);
         });
         
         console.log("[SPONSOR-HIERARCHY] Hierarchy built successfully");

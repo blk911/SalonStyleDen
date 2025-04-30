@@ -267,8 +267,16 @@ export function getImageUrl(url?: string, debugLabel?: string): string {
 
     // If the URL has "owner" or related words, it's likely an owner photo
     if (cleanUrl.toLowerCase().includes('owner') || cleanUrl.toLowerCase().includes('salon') || 
-        cleanUrl.toLowerCase().includes('profile') || cleanUrl.toLowerCase().includes('photo') || 
-        cleanUrl.toLowerCase().includes('tiffany')) {
+        cleanUrl.toLowerCase().includes('profile') || cleanUrl.toLowerCase().includes('photo')) {
+      
+      // Special handling for Tiffany's salon - use Tiffany's image directly
+      if (cleanUrl.toLowerCase().includes('tiffany')) {
+        finalUrl = `/assets/TIFFANY_5280.png?t=${timestamp}`;
+        console.log(`[getImageUrl:${label}] Tiffany's photo detected, using specific image:`, finalUrl);
+        return finalUrl;
+      }
+      
+      // For other owner photos
       finalUrl = `/assets/salon-card.png?t=${timestamp}`;
       console.log(`[getImageUrl:${label}] Owner photo keyword detected:`, finalUrl);
       return finalUrl;
