@@ -142,6 +142,13 @@ export default function ClientDashboard() {
   // Add debugging information to trace API calls
   console.log(`ClientDashboard - Fetching client with ID: ${id}`);
   
+  // Extend the Window interface to add our client ID context
+  declare global {
+    interface Window {
+      _currentClientId?: string | number | null;
+    }
+  }
+
   // Fetch client data
   const { data: client, isLoading: clientLoading, error: clientError } = useQuery<ClientData>({
     queryKey: ['/api/clients', id],
@@ -251,6 +258,22 @@ export default function ClientDashboard() {
     };
   }, []);
   
+  // CRITICAL FIX: Set the global client ID for invitation context
+  // This allows the RenderedInvitation component to properly determine who is viewing invitations
+  useEffect(() => {
+    if (client?.id) {
+      // Set the client ID in the global window object for invitation context
+      window._currentClientId = client.name; // We store client name to match the recipientName in invitations
+      console.log(`[FLOW] ClientDashboard - Setting global client ID context: ${client.name} (ID: ${client.id})`);
+    }
+    
+    // Clean up when component unmounts
+    return () => {
+      console.log('[FLOW] ClientDashboard - Clearing global client ID context');
+      window._currentClientId = null;
+    };
+  }, [client]);
+
   // Check client's registration status when data is loaded
   useEffect(() => {
     if (!client) return;
