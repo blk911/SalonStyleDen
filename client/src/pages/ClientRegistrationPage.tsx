@@ -251,22 +251,47 @@ export default function ClientRegistrationPage() {
     // Phone validation success no longer triggers the address dialog automatically
     // The dialog will only show when form is submitted and address is missing
     console.log(`[FLOW] Phone validation ${isValid ? 'passed' : 'failed'}`);
+    
+    // Focus the email field after successful phone validation
+    if (isValid) {
+      console.log("Phone validated, focusing email field");
+      setTimeout(() => {
+        const emailField = document.querySelector('input[placeholder="Email"]');
+        if (emailField instanceof HTMLElement) {
+          emailField.focus();
+          console.log("Email field focused after validation");
+        } else {
+          console.log("Email field not found after validation");
+        }
+      }, 100);
+    }
   };
   
   // Function to handle Later button click in address dialog
   const handleLaterClick = () => {
     setShowAddressDialog(false);
-    console.log("Dialog closed, attempting to focus terms checkbox");
+    console.log("Later clicked, attempting to focus fields");
     
-    // Focus on terms checkbox after a short delay
+    // First focus the email field
     setTimeout(() => {
-      if (termsCheckboxRef.current) {
-        termsCheckboxRef.current.focus();
-        console.log("Terms checkbox focused successfully");
+      const emailField = document.querySelector('input[placeholder="Email"]');
+      if (emailField instanceof HTMLElement) {
+        emailField.focus();
+        console.log("Email field focused after Later click");
+        
+        // Then focus the terms checkbox 
+        setTimeout(() => {
+          if (termsCheckboxRef.current) {
+            termsCheckboxRef.current.focus();
+            console.log("Terms checkbox focused successfully from Later");
+          } else {
+            console.log("Terms checkbox ref not found from Later");
+          }
+        }, 300);
       } else {
-        console.log("Terms checkbox ref not found");
+        console.log("Email field not found after Later click");
       }
-    }, 300); // Increased delay to ensure DOM is updated
+    }, 100);
   };
   
   // Handle form submission - FIXED to prevent registration loop issues
@@ -579,10 +604,14 @@ export default function ClientRegistrationPage() {
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // Focus the address field when Enter is pressed
-                                  const addressField = document.querySelector('input[name="address"]');
-                                  if (addressField instanceof HTMLElement) {
-                                    addressField.focus();
+                                  // Focus the email field when Enter is pressed in phone field
+                                  console.log("Phone Enter pressed, focusing email field");
+                                  const emailField = document.querySelector('input[placeholder="Email"]');
+                                  if (emailField instanceof HTMLElement) {
+                                    emailField.focus();
+                                    console.log("Email field focused successfully");
+                                  } else {
+                                    console.log("Email field not found");
                                   }
                                 }}
                                 clearField={() => {
@@ -872,15 +901,27 @@ export default function ClientRegistrationPage() {
               onClick={() => {
                 setShowAddressDialog(false);
                 console.log("Save Address clicked, attempting to focus terms checkbox");
-                // Focus on terms checkbox after a short delay
+                
+                // First focus the email field
                 setTimeout(() => {
-                  if (termsCheckboxRef.current) {
-                    termsCheckboxRef.current.focus();
-                    console.log("Terms checkbox focused from Save Address button");
+                  const emailField = document.querySelector('input[placeholder="Email"]');
+                  if (emailField instanceof HTMLElement) {
+                    emailField.focus();
+                    console.log("Email field focused after save address");
+                    
+                    // Then focus the terms checkbox 
+                    setTimeout(() => {
+                      if (termsCheckboxRef.current) {
+                        termsCheckboxRef.current.focus();
+                        console.log("Terms checkbox focused from Save Address button");
+                      } else {
+                        console.log("Terms checkbox ref not found from Save Address button");
+                      }
+                    }, 300);
                   } else {
-                    console.log("Terms checkbox ref not found from Save Address button");
+                    console.log("Email field not found after save address");
                   }
-                }, 300); // Increased delay to ensure DOM is updated
+                }, 100);
               }}
               variant="default"
             >
