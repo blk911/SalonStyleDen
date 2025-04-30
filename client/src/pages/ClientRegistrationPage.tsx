@@ -51,7 +51,7 @@ interface Salon {
 const clientSchema = z.object({
   inviteType: z.enum(['friend', 'salonOwner']).default('friend'),
   name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
-  email: z.string().email({ message: 'Please enter a valid email address' }),
+  email: z.string().email({ message: 'Please enter a valid email address' }).optional(),
   phone: z.string().min(10, { message: 'Please enter a valid phone number' }),
   address: z.string().optional(),
   city: z.string().optional(),
@@ -624,7 +624,7 @@ export default function ClientRegistrationPage() {
                     
                     <Separator className="my-4" />
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-3">
                       <FormField
                         control={form.control}
                         name="address"
@@ -638,7 +638,7 @@ export default function ClientRegistrationPage() {
                         )}
                       />
                       
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-3 gap-3">
                         <FormField
                           control={form.control}
                           name="city"
@@ -664,20 +664,20 @@ export default function ClientRegistrationPage() {
                             </FormItem>
                           )}
                         />
+                        
+                        <FormField
+                          control={form.control}
+                          name="zipCode"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input placeholder="ZIP Code" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </div>
-                      
-                      <FormField
-                        control={form.control}
-                        name="zipCode"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input placeholder="ZIP Code" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                     </div>
                     
                     <FormField
