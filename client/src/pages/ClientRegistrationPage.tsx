@@ -256,13 +256,21 @@ export default function ClientRegistrationPage() {
   // Function to handle Later button click in address dialog
   const handleLaterClick = () => {
     setShowAddressDialog(false);
+    console.log("[VMB Flow] Later button clicked, focusing on terms checkbox");
     
-    // Focus on terms checkbox after a short delay
+    // Focus on terms checkbox after a longer delay to ensure dialog is closed
     setTimeout(() => {
       if (termsCheckboxRef.current) {
+        // Focus the checkbox
         termsCheckboxRef.current.focus();
+        
+        // Simulate hover effect to provide visual feedback
+        const formItem = termsCheckboxRef.current.closest('.flex.flex-row');
+        if (formItem) {
+          formItem.classList.add('bg-pink-50', 'border-pink-200', 'shadow-sm');
+        }
       }
-    }, 100);
+    }, 300); // Increased delay for better reliability
   };
   
   // Handle form submission - FIXED to prevent registration loop issues
@@ -575,10 +583,18 @@ export default function ClientRegistrationPage() {
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // Focus the email field when Enter is pressed in phone field
-                                  const emailField = document.querySelector('input[placeholder="Email (Optional)"]');
-                                  if (emailField instanceof HTMLElement) {
-                                    emailField.focus();
+                                  // If address is required but not filled, show the dialog on Enter key
+                                  const hasEmptyAddress = !form.getValues().address;
+                                  if (hasEmptyAddress) {
+                                    console.log("[VMB Flow] Enter pressed in phone field with empty address, showing dialog");
+                                    setShowAddressDialog(true);
+                                  } else {
+                                    // Otherwise, focus the email field when Enter is pressed in phone field
+                                    console.log("[VMB Flow] Enter pressed in phone field, focusing email field");
+                                    const emailField = document.querySelector('input[placeholder="Email (Optional)"]');
+                                    if (emailField instanceof HTMLElement) {
+                                      emailField.focus();
+                                    }
                                   }
                                 }}
                                 clearField={() => {
@@ -869,12 +885,21 @@ export default function ClientRegistrationPage() {
               type="button"
               onClick={() => {
                 setShowAddressDialog(false);
-                // Focus on terms checkbox after a short delay - same as handleLaterClick
+                console.log("[VMB Flow] Save Address button clicked, focusing on terms checkbox");
+                
+                // Use the same logic as handleLaterClick for consistency
                 setTimeout(() => {
                   if (termsCheckboxRef.current) {
+                    // Focus the checkbox
                     termsCheckboxRef.current.focus();
+                    
+                    // Simulate hover effect to provide visual feedback
+                    const formItem = termsCheckboxRef.current.closest('.flex.flex-row');
+                    if (formItem) {
+                      formItem.classList.add('bg-pink-50', 'border-pink-200', 'shadow-sm');
+                    }
                   }
-                }, 100);
+                }, 300); // Same increased delay for better reliability
               }}
               variant="default"
             >
