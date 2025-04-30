@@ -21,7 +21,8 @@ import {
   AtSign as AtSignIcon,
   ArrowUpDown as SortIcon,
   Filter as FilterIcon,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  Gift as GiftIcon
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getImageUrl, formatPhoneNumber } from "@/lib/utils";
@@ -198,7 +199,10 @@ export default function ClientsPage() {
                   </div>
                   <div className="mt-auto">
                     <Link href="/salon/2">
-                      <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2">CREATE A GIFT INVITATION :)</Button>
+                      <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2">
+                        CREATE A GIFT INVITATION 
+                        <GiftIcon className="ml-1 h-4 w-4" stroke="gold" strokeWidth={2.5} />
+                      </Button>
                     </Link>
                   </div>
                 </CardContent>
