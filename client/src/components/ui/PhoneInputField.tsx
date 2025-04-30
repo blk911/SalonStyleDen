@@ -168,7 +168,8 @@ export function PhoneInputField({
         onFocus={() => setFocused(true)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
-        className={`${touched && !isValidPhone(value) && !focused ? 'border-red-500' : ''}`}
+        className={`PhoneInputField ${touched && !isValidPhone(value) && !focused ? 'border-red-500' : ''}`}
+        data-testid="phone-input"
         {...props}
       />
       

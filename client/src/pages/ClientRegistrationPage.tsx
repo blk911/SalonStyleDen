@@ -565,15 +565,42 @@ export default function ClientRegistrationPage() {
                             <FormControl>
                               <Input 
                                 placeholder="Full Name" 
+                                data-testid="name-input"
                                 {...field} 
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    // Focus the phone field when Enter is pressed in name field
-                                    const phoneInput = document.querySelector('input[placeholder="Phone Number"]');
-                                    if (phoneInput instanceof HTMLElement) {
-                                      phoneInput.focus();
-                                    }
+                                    console.log("Enter pressed in name field - attempting to focus phone field");
+                                    
+                                    // Use requestAnimationFrame for more reliable focus management
+                                    requestAnimationFrame(() => {
+                                      // Method 1: Try by placeholder
+                                      const phoneInput = document.querySelector('input[placeholder="Phone Number"]');
+                                      if (phoneInput instanceof HTMLElement) {
+                                        phoneInput.focus();
+                                        console.log("Phone field focused via placeholder selector");
+                                        return;
+                                      }
+                                      
+                                      // Method 2: Try by PhoneInputField wrapper
+                                      const phoneComponent = document.querySelector('.PhoneInputField input');
+                                      if (phoneComponent instanceof HTMLElement) {
+                                        phoneComponent.focus();
+                                        console.log("Phone field focused via class selector");
+                                        return;
+                                      }
+                                      
+                                      // Method 3: Try focusing the next input in the DOM
+                                      const allInputs = Array.from(document.querySelectorAll('input'));
+                                      const currentIndex = allInputs.findIndex(input => input === e.target);
+                                      if (currentIndex >= 0 && currentIndex < allInputs.length - 1) {
+                                        allInputs[currentIndex + 1].focus();
+                                        console.log("Next input field focused");
+                                        return;
+                                      }
+                                      
+                                      console.log("Could not focus phone field by any method");
+                                    });
                                   }
                                 }}
                               />
@@ -603,11 +630,38 @@ export default function ClientRegistrationPage() {
                                   }
                                 }}
                                 onEnterPress={() => {
-                                  // Focus the address field when Enter is pressed
-                                  const addressField = document.querySelector('input[name="address"]');
-                                  if (addressField instanceof HTMLElement) {
-                                    addressField.focus();
-                                  }
+                                  console.log("Enter pressed in phone field - attempting to focus email field");
+                                  
+                                  // Use requestAnimationFrame for more reliable focus management
+                                  requestAnimationFrame(() => {
+                                    // Method 1: Try by data-testid
+                                    const emailInput = document.querySelector('[data-testid="email-input"]');
+                                    if (emailInput instanceof HTMLElement) {
+                                      emailInput.focus();
+                                      console.log("Email field focused via data-testid selector");
+                                      return;
+                                    }
+                                    
+                                    // Method 2: Try by placeholder
+                                    const emailByPlaceholder = document.querySelector('input[placeholder="Email"]');
+                                    if (emailByPlaceholder instanceof HTMLElement) {
+                                      emailByPlaceholder.focus();
+                                      console.log("Email field focused via placeholder selector");
+                                      return;
+                                    }
+                                    
+                                    // Method 3: Try focusing the next input in the DOM
+                                    const allInputs = Array.from(document.querySelectorAll('input'));
+                                    const phoneInput = document.querySelector('[data-testid="phone-input"]');
+                                    const currentIndex = allInputs.findIndex(input => input === phoneInput);
+                                    if (currentIndex >= 0 && currentIndex < allInputs.length - 1) {
+                                      allInputs[currentIndex + 1].focus();
+                                      console.log("Next input field focused after phone");
+                                      return;
+                                    }
+                                    
+                                    console.log("Could not focus email field by any method");
+                                  });
                                 }}
                                 clearField={() => {
                                   // Clear the phone field when a registered number is found
@@ -631,15 +685,42 @@ export default function ClientRegistrationPage() {
                             <FormControl>
                               <Input 
                                 placeholder="Email" 
+                                data-testid="email-input"
                                 {...field} 
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    // Focus the address field when Enter is pressed in email field
-                                    const addressField = document.querySelector('input[name="address"]');
-                                    if (addressField instanceof HTMLElement) {
-                                      addressField.focus();
-                                    }
+                                    console.log("Enter pressed in email field - attempting to focus address field");
+                                    
+                                    // Use requestAnimationFrame for more reliable focus management
+                                    requestAnimationFrame(() => {
+                                      // Method 1: Try by name
+                                      const addressField = document.querySelector('input[name="address"]');
+                                      if (addressField instanceof HTMLElement) {
+                                        addressField.focus();
+                                        console.log("Address field focused via name selector");
+                                        return;
+                                      }
+                                      
+                                      // Method 2: Try by placeholder
+                                      const addressByPlaceholder = document.querySelector('input[placeholder="Address (Optional)"]');
+                                      if (addressByPlaceholder instanceof HTMLElement) {
+                                        addressByPlaceholder.focus();
+                                        console.log("Address field focused via placeholder selector");
+                                        return;
+                                      }
+                                      
+                                      // Method 3: Try focusing the next input in the DOM
+                                      const allInputs = Array.from(document.querySelectorAll('input'));
+                                      const currentIndex = allInputs.findIndex(input => input === e.target);
+                                      if (currentIndex >= 0 && currentIndex < allInputs.length - 1) {
+                                        allInputs[currentIndex + 1].focus();
+                                        console.log("Next input field focused");
+                                        return;
+                                      }
+                                      
+                                      console.log("Could not focus address field by any method");
+                                    });
                                   }
                                 }}
                               />
@@ -659,7 +740,12 @@ export default function ClientRegistrationPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Input placeholder="Address (Optional)" {...field} />
+                              <Input 
+                                placeholder="Address (Optional)" 
+                                id="address-field"
+                                data-testid="address-input" 
+                                {...field} 
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
