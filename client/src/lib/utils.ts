@@ -152,6 +152,15 @@ export function getImageUrl(url?: string, debugLabel?: string): string {
   const label = debugLabel || 'unknown';
   console.log(`[getImageUrl:${label}] Input URL:`, url);
 
+  // Special handling for Tiffany's profile photo
+  if (debugLabel && 
+      (debugLabel === 'public_hero' || debugLabel === 'dashboard_hero') && 
+      url && 
+      (url.includes('tiffany') || url.includes('5280'))) {
+    console.log(`[getImageUrl:${label}] Tiffany's profile photo detected, using specific path`);
+    return '/assets/tiffany_profile.png';
+  }
+
   if (!url || url === 'null' || url === 'undefined') {
     console.log(`[getImageUrl:${label}] Empty or invalid URL, using default placeholder`);
     return '/assets/salon-card.png'; // Return a default placeholder
