@@ -808,13 +808,35 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DatabaseStorage.getClientInvitations - Fetching invitations for client ${clientId}${status ? ` with status ${status}` : ''}`);
       
+      // First, get the client info to look up by phone/email
+      const userClient = await this.getClient(clientId);
+      if (!userClient) {
+        console.log(`DatabaseStorage.getClientInvitations - Client ${clientId} not found`);
+        return [];
+      }
+      
       // Build the query parameters list and values array
       const queryParams: string[] = [];
       const values: any[] = [];
       
-      // Always filter by sender_id (which is the clientId)
-      queryParams.push(`sender_id = $${values.length + 1}`);
-      values.push(clientId);
+      // Find invitations where the client is either:
+      // 1. The recipient (by matching phone)
+      // 2. Or the sender (sender_id = clientId)
+      
+      // Clean the phone number for comparison
+      const cleanedPhone = userClient.phone.replace(/\D/g, '');
+      
+      // We'll use an OR condition to find invitations for this client
+      // either as a recipient or as a sender
+      queryParams.push(`(
+        (replace(phone, '-', '') = $${values.length + 1} AND sender_id != $${values.length + 2}) 
+        OR 
+        sender_id = $${values.length + 3}
+      )`);
+      
+      values.push(cleanedPhone);  // For phone matching
+      values.push(clientId);      // For excluding client's own sent invitations in phone match
+      values.push(clientId);      // For finding client's sent invitations
       
       // Add status filter if provided
       if (status) {
@@ -842,14 +864,14 @@ export class DatabaseStorage implements IStorage {
         ${limitClause}
       `;
       
-      const client = await pool.connect();
+      const dbClient = await pool.connect();
       try {
-        const result = await client.query(sqlQuery, values);
+        const result = await dbClient.query(sqlQuery, values);
         const rows = result.rows;
         console.log(`DatabaseStorage.getClientInvitations - Retrieved ${rows.length} invitations for client ${clientId}`);
         
         // Map the result to our expected format with all fields
-        const invitationList: Invitation[] = rows.map(row => ({
+        const invitationList: Invitation[] = rows.map((row: any) => ({
           id: row.id,
           name: row.name,
           phone: row.phone,
@@ -869,7 +891,7 @@ export class DatabaseStorage implements IStorage {
         
         return invitationList;
       } finally {
-        client.release();
+        dbClient.release();
       }
     } catch (error) {
       console.error(`DatabaseStorage.getClientInvitations - Error fetching invitations for client ${clientId}:`, error);
