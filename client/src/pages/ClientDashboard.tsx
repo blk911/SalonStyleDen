@@ -122,11 +122,11 @@ export default function ClientDashboard() {
   // Show/hide state for gift options section - default to HIDE
   const [showGiftOptions, setShowGiftOptions] = useState(false);
   
-  // Show/hide state for pending invitations section - default to HIDE
-  const [showPendingInvitations, setShowPendingInvitations] = useState(false);
+  // Show/hide state for pending invitations section - default to SHOW per user request
+  const [showPendingInvitations, setShowPendingInvitations] = useState(true);
   
-  // Show/hide state for sent invitations section - default to HIDE
-  const [showSentInvitations, setShowSentInvitations] = useState(false);
+  // Show/hide state for sent invitations section - default to SHOW per user request
+  const [showSentInvitations, setShowSentInvitations] = useState(true);
   
   // Show/hide state for share form section - default to SHOW
   const [showShareForm, setShowShareForm] = useState(true);
