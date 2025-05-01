@@ -141,29 +141,29 @@ export default function ClientsPage() {
               </div>
             </div>
 
-            {/* Two cards side by side in a 1x2 grid */}
-            <div className="grid grid-cols-2 gap-8">
+            {/* Cards that stack on mobile and display side by side on larger screens */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
               {/* Salon Testimonial */}
               <Card className="bg-gradient-to-br from-blue-50 to-white shadow-md hover:shadow-xl transition-all border border-blue-100 h-full">
-                <CardContent className="p-8 flex flex-col h-full">
-                  <div className="flex items-center mb-6">
-                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-blue-200 mr-4 flex-shrink-0">
+                <CardContent className="p-4 md:p-8 flex flex-col h-full">
+                  <div className="flex flex-col sm:flex-row items-center mb-6">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-blue-200 mb-3 sm:mb-0 sm:mr-4 flex-shrink-0">
                       <img 
                         src="/assets/MS-VMBLTD.jpg" 
                         alt="Michelle, Salon Owner" 
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-serif font-semibold text-blue-800">Salon Owner Benefits</h3>
+                    <div className="text-center sm:text-left">
+                      <h3 className="text-xl md:text-2xl font-serif font-semibold text-blue-800">Salon Owner Benefits</h3>
                       <p className="text-blue-600 text-sm font-medium">Michelle S., VMB Certified Stylist</p>
                     </div>
                   </div>
                   <div className="text-gray-700 flex-grow mb-6">
-                    <p className="italic text-sm leading-relaxed">"VMB has transformed how I connect with clients. The personalized invitation feature makes client acquisition effortless, and I've seen a 40% increase in client retention! The system's intuitive design has streamlined my scheduling process so I can focus on what matters - delivering exceptional service."</p>
-                    <div className="mt-4 flex items-center">
+                    <p className="italic text-xs sm:text-sm leading-relaxed">"VMB has transformed how I connect with clients. The personalized invitation feature makes client acquisition effortless, and I've seen a 40% increase in client retention! The system's intuitive design has streamlined my scheduling process so I can focus on what matters - delivering exceptional service."</p>
+                    <div className="mt-4 flex flex-col sm:flex-row items-center">
                       <div className="text-yellow-500 mr-1">★★★★★</div>
-                      <span className="text-sm text-gray-500">Verified VMB Partner</span>
+                      <span className="text-xs sm:text-sm text-gray-500">Verified VMB Partner</span>
                     </div>
                   </div>
                   <div className="mt-auto">
@@ -176,25 +176,25 @@ export default function ClientsPage() {
 
               {/* Client Testimonial */}
               <Card className="bg-gradient-to-br from-green-50 to-white shadow-md hover:shadow-xl transition-all border border-green-100 h-full">
-                <CardContent className="p-8 flex flex-col h-full">
-                  <div className="flex items-center mb-6">
-                    <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-green-200 mr-4 flex-shrink-0">
+                <CardContent className="p-4 md:p-8 flex flex-col h-full">
+                  <div className="flex flex-col sm:flex-row items-center mb-6">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-green-200 mb-3 sm:mb-0 sm:mr-4 flex-shrink-0">
                       <img 
                         src="/assets/kendra.png" 
                         alt="Kendra, Client" 
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-serif font-semibold text-green-800">Client Success Stories</h3>
+                    <div className="text-center sm:text-left">
+                      <h3 className="text-xl md:text-2xl font-serif font-semibold text-green-800">Client Success Stories</h3>
                       <p className="text-green-600 text-sm font-medium">Kendra T., Premium Client</p>
                     </div>
                   </div>
                   <div className="text-gray-700 flex-grow mb-6">
-                    <p className="italic text-sm leading-relaxed">"I adore the personalized VMB experience! Receiving an invitation makes me feel valued and special. The style selection is intuitive and helps me explore new options. Since discovering VMB, I've scheduled all my appointments through the platform - it's become essential to my self-care routine and I recommend it to everyone!"</p>
-                    <div className="mt-4 flex items-center">
+                    <p className="italic text-xs sm:text-sm leading-relaxed">"I adore the personalized VMB experience! Receiving an invitation makes me feel valued and special. The style selection is intuitive and helps me explore new options. Since discovering VMB, I've scheduled all my appointments through the platform - it's become essential to my self-care routine and I recommend it to everyone!"</p>
+                    <div className="mt-4 flex flex-col sm:flex-row items-center">
                       <div className="text-yellow-500 mr-1">★★★★★</div>
-                      <span className="text-sm text-gray-500">VMB Member since 2024</span>
+                      <span className="text-xs sm:text-sm text-gray-500">VMB Member since 2024</span>
                     </div>
                   </div>
                   <div className="mt-auto">
