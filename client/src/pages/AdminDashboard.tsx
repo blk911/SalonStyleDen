@@ -36,7 +36,11 @@ import {
   Code, 
   Eye,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  AtSign as AtSignIcon,
+  Phone as PhoneIcon,
+  Calendar as CalendarIcon,
+  Gift as GiftIcon
 } from "lucide-react";
 import { CollapsibleCard } from "@/components/ui/card-section";
 import { useToast } from "@/hooks/use-toast";
@@ -793,23 +797,23 @@ export default function AdminDashboard() {
                   
                   {/* Invitations Table */}
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
+                    <table className="w-full text-left text-xs">
                       <thead className="bg-gray-50 text-gray-600">
                         <tr>
                           <th className="py-2 px-4">Name</th>
-                          <th className="py-2 px-4">Email</th>
-                          <th className="py-2 px-4">Phone</th>
+                          <th className="py-2 px-4 text-center"><AtSignIcon className="h-4 w-4 inline" /></th>
+                          <th className="py-2 px-4 text-center"><PhoneIcon className="h-4 w-4 inline" /></th>
                           <th className="py-2 px-4">Status</th>
-                          <th className="py-2 px-4">Date</th>
+                          <th className="py-2 px-4 text-center"><CalendarIcon className="h-4 w-4 inline" /></th>
                           <th className="py-2 px-4 text-right">Page</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y">
+                      <tbody className="divide-y text-xs">
                         {salonInvites.map((invitation) => (
                           <tr key={invitation.id} className="hover:bg-gray-50">
-                            <td className="py-2 px-4">{invitation.name}</td>
-                            <td className="py-2 px-4">{invitation.email}</td>
-                            <td className="py-2 px-4">{formatPhoneNumber(invitation.phone)}</td>
+                            <td className="py-2 px-4 font-medium">{invitation.name}</td>
+                            <td className="py-2 px-4 text-center">{invitation.email}</td>
+                            <td className="py-2 px-4 text-center">{formatPhoneNumber(invitation.phone)}</td>
                             <td className="py-2 px-4">
                               <span className={`px-2 py-1 rounded-full text-xs font-medium
                                 ${invitation.status === 'pending' ? 'bg-yellow-50 text-yellow-700' : ''}
@@ -820,7 +824,7 @@ export default function AdminDashboard() {
                                 {invitation.status || 'pending'}
                               </span>
                             </td>
-                            <td className="py-2 px-4">{new Date(invitation.createdAt).toLocaleDateString()}</td>
+                            <td className="py-2 px-4 text-center">{new Date(invitation.createdAt).toLocaleDateString()}</td>
                             <td className="py-2 px-4 text-right">
                               {/* Check for matching client first */}
                               {(() => {
@@ -832,7 +836,7 @@ export default function AdminDashboard() {
                                   return (
                                     <Link 
                                       to={`/client/${clientId}?adminView=true`}
-                                      className="inline-flex items-center text-pink-600 font-medium gap-1 text-sm hover:text-pink-800 cursor-pointer"
+                                      className="inline-flex items-center justify-center text-pink-600 font-medium hover:text-pink-800 cursor-pointer px-2 py-1"
                                       onClick={() => {
                                         // Set admin view flag in localStorage to persist through navigation
                                         localStorage.setItem('adminView', 'true');
@@ -841,7 +845,6 @@ export default function AdminDashboard() {
                                       }}
                                     >
                                       <ExternalLinkIcon className="h-4 w-4" />
-                                      View Client Page
                                     </Link>
                                   );
                                 } else {
@@ -849,14 +852,13 @@ export default function AdminDashboard() {
                                   return (
                                     <Link 
                                       to={`/invitation-preview/${invitation.inviteHash}?adminView=true`}
-                                      className="inline-flex items-center text-gray-500 font-medium gap-1 text-sm hover:text-gray-700 cursor-pointer"
+                                      className="inline-flex items-center justify-center text-gray-500 font-medium hover:text-gray-700 cursor-pointer px-2 py-1"
                                       onClick={() => {
                                         // Navigate to invitation page with preview mode and admin view flag
                                         setLocation(`/invitation-preview/${invitation.inviteHash}?adminView=true`);
                                       }}
                                     >
                                       <ExternalLinkIcon className="h-4 w-4" />
-                                      View Invite
                                     </Link>
                                   );
                                 }
