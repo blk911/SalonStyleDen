@@ -808,13 +808,25 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DatabaseStorage.getClientInvitations - Fetching invitations for client ${clientId}${status ? ` with status ${status}` : ''}`);
       
+      // First get the client's phone number
+      const clientData = await this.getClient(clientId);
+      if (!clientData) {
+        console.error(`DatabaseStorage.getClientInvitations - Client ${clientId} not found`);
+        return [];
+      }
+      
+      // Normalize the phone number for comparison (strip non-digits)
+      const clientPhone = clientData.phone.replace(/\D/g, '');
+      
       // Build the query parameters list and values array
       const queryParams: string[] = [];
       const values: any[] = [];
       
-      // Always filter by sender_id (which is the clientId)
-      queryParams.push(`sender_id = $${values.length + 1}`);
+      // Get invitations where the client is the sender OR the recipient (by phone)
+      // Use parentheses for proper boolean logic
+      queryParams.push(`(sender_id = $${values.length + 1} OR phone LIKE $${values.length + 2})`);
       values.push(clientId);
+      values.push(`%${clientPhone}%`); // Use LIKE with wildcards for flexible matching
       
       // Add status filter if provided
       if (status) {
