@@ -46,6 +46,7 @@ export interface IStorage {
   updateInvitationStatus(id: number, status: string): Promise<Invitation>;
   getInvitationsByPhone(phone: string, partialMatch?: boolean): Promise<Invitation[]>;
   getInvitationByHash(hash: string): Promise<Invitation | undefined>;
+  deleteInvitation(id: number): Promise<boolean>;
   
   // Invitation limit methods
   countSalonInvitations(salonId: number): Promise<number>;
@@ -1458,6 +1459,41 @@ export class DatabaseStorage implements IStorage {
   // Schema access method for dynamic validation
   getSalonsTable(): typeof salons {
     return salons;
+  }
+  
+  async deleteInvitation(id: number): Promise<boolean> {
+    try {
+      console.log(`DatabaseStorage.deleteInvitation - Deleting invitation with ID ${id}`);
+      
+      // Check if invitation exists first
+      const invitation = await this.getInvitation(id);
+      if (!invitation) {
+        console.log(`DatabaseStorage.deleteInvitation - No invitation found with ID ${id}`);
+        return false;
+      }
+      
+      // Delete the invitation
+      const result = await db.delete(invitations).where(eq(invitations.id, id)).returning();
+      
+      if (result.length === 0) {
+        console.log(`DatabaseStorage.deleteInvitation - Delete operation didn't return any records`);
+        return false;
+      }
+      
+      console.log(`DatabaseStorage.deleteInvitation - Successfully deleted invitation ID ${id}`);
+      
+      // Log this action
+      await this.createActivityLog({
+        type: 'invitation_deleted',
+        description: `Admin deleted invitation for ${invitation.name}`,
+        timestamp: new Date(),
+      });
+      
+      return true;
+    } catch (error) {
+      console.error(`DatabaseStorage.deleteInvitation - Error:`, error);
+      return false;
+    }
   }
 }
 
