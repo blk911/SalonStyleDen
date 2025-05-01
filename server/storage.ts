@@ -638,7 +638,7 @@ export class DatabaseStorage implements IStorage {
       await this.createActivityLog({
         type: 'client_deleted',
         description: `Client ${client.name} (ID: ${id}) was permanently deleted`,
-        timestamp: new Date().toISOString()
+        timestamp: new Date()
       });
       
       // Delete the client

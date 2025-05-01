@@ -682,6 +682,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Client suspend endpoint
+  apiRouter.post("/clients/:id/suspend", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      // Check if the client exists
+      const client = await storage.getClient(id);
+      if (!client) {
+        return res.status(404).json({ error: "Client not found" });
+      }
+      
+      // Suspend the client
+      const result = await storage.suspendClient(id);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Error suspending client:', error);
+      res.status(500).json({ error: "Failed to suspend client" });
+    }
+  });
+  
+  // Client delete endpoint
+  apiRouter.delete("/clients/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      // Check if the client exists
+      const client = await storage.getClient(id);
+      if (!client) {
+        return res.status(404).json({ error: "Client not found" });
+      }
+      
+      // Delete the client
+      const success = await storage.deleteClient(id);
+      
+      if (success) {
+        res.status(200).json({ message: "Client deleted successfully" });
+      } else {
+        res.status(500).json({ error: "Failed to delete client" });
+      }
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      res.status(500).json({ error: "Failed to delete client" });
+    }
+  });
+  
   // Endpoint to update profilePromptShown status
   apiRouter.post("/clients/:id/profile-prompt-shown", async (req: Request, res: Response) => {
     try {
