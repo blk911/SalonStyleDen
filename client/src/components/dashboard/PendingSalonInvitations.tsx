@@ -63,7 +63,28 @@ export default function PendingSalonInvitations({
     queryFn: async () => {
       const response = await fetch(`/api/invitations?${filterParams}`);
       if (!response.ok) throw new Error('Network response was not ok');
-      return response.json() as Promise<Invitation[]>;
+      
+      // Get all invitations
+      const allInvitations = await response.json() as Invitation[];
+      
+      // Filter for the current client's pending invitations
+      // This works because getRecentInvitations returns all invitations
+      // and we can filter client-side for the ones we need
+      if (clientId) {
+        const client = await fetch(`/api/clients/${clientId}`).then(res => res.json());
+        if (client && client.phone) {
+          // Filter invitations where the client's phone matches the invitation's phone
+          // and the status is pending (if that parameter was provided)
+          const filteredInvitations = allInvitations.filter(inv => 
+            inv.phone.replace(/\D/g, '') === client.phone.replace(/\D/g, '') && 
+            (!status || inv.status === status)
+          );
+          console.log(`[CLIENT-FILTER] Found ${filteredInvitations.length} matching invitations for client ${clientId}`);
+          return filteredInvitations;
+        }
+      }
+      
+      return allInvitations;
     }
   });
 
