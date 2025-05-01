@@ -627,9 +627,14 @@ export default function ClientDashboard() {
             <Card className="rounded-xl shadow-sm overflow-hidden">
               <CardHeader className="bg-pink-50 pb-2 pt-2">
                 <div className="flex justify-between items-center">
-                  <CardTitle className="text-base flex items-center gap-2 text-pink-700">
-                    <HeartIcon className="h-4 w-4" />
-                    Share Ven Me, Baby! with Friends
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <HeartIcon className="h-4 w-4 text-red-500" />
+                    <span>
+                      <span className="text-black font-semibold">Ven Me,</span>
+                      <span className="text-pink-600 italic font-semibold">Baby!</span>
+                      <span className="text-red-500"> Make Connections Personal!</span>
+                    </span>
+                    <HeartIcon className="h-4 w-4 text-red-500" />
                   </CardTitle>
                   <Button 
                     variant="ghost" 

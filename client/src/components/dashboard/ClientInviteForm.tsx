@@ -247,16 +247,30 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
               className="flex space-x-6"
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="friend" id="friend" className="text-pink-500" />
-                <Label htmlFor="friend" className="flex items-center cursor-pointer">
-                  <UsersIcon className="h-4 w-4 mr-1" />
+                <RadioGroupItem 
+                  value="friend" 
+                  id="friend" 
+                  className={form.inviteeType === "friend" ? "text-pink-500 bg-pink-200 border-pink-500" : "text-gray-500"} 
+                />
+                <Label 
+                  htmlFor="friend" 
+                  className={`flex items-center cursor-pointer ${form.inviteeType === "friend" ? "text-pink-500 font-medium" : ""}`}
+                >
+                  <UsersIcon className={`h-4 w-4 mr-1 ${form.inviteeType === "friend" ? "text-pink-500" : "text-gray-500"}`} />
                   Friend
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="salonOwner" id="salonOwner" className="text-pink-500" />
-                <Label htmlFor="salonOwner" className="flex items-center cursor-pointer">
-                  <BuildingIcon className="h-4 w-4 mr-1" />
+                <RadioGroupItem 
+                  value="salonOwner" 
+                  id="salonOwner" 
+                  className={form.inviteeType === "salonOwner" ? "text-amber-500 bg-amber-200 border-amber-500" : "text-gray-500"} 
+                />
+                <Label 
+                  htmlFor="salonOwner" 
+                  className={`flex items-center cursor-pointer ${form.inviteeType === "salonOwner" ? "text-amber-500 font-medium" : ""}`}
+                >
+                  <BuildingIcon className={`h-4 w-4 mr-1 ${form.inviteeType === "salonOwner" ? "text-amber-500" : "text-gray-500"}`} />
                   Salon Owner
                 </Label>
               </div>
