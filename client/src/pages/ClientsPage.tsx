@@ -113,9 +113,9 @@ export default function ClientsPage() {
         <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-4 md:py-8 border-b border-pink-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-2xl md:text-3xl font-bold text-pink-800 flex items-center justify-center">
-              <span className="logo logo-md mr-2">❤️ <span className="ven-me">Ven Me,</span><span className="baby">Baby!</span> ❤️</span> 
+              <span className="logo logo-md mr-2"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span> 
             </h1>
-            <p className="mt-1 md:mt-2 text-base md:text-lg font-medium text-gray-700">Make Connections Personal!</p>
+            <p className="mt-1 md:mt-2 text-base md:text-lg font-medium text-gray-700">Empowering. Personal. Connection.</p>
           </div>
         </section>
         
@@ -131,7 +131,7 @@ export default function ClientsPage() {
                       <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
                     </svg>
                   </span>
-                  ❤️ <span className="ven-me">Ven Me,</span><span className="baby">Baby!</span> ❤️ Make Connections Personal! ❤️
+                  <span className="ven-me">Ven Me,</span> <span className="baby">Baby!</span>  Makes Connections Happen!
                 </h3>
               </div>
               
