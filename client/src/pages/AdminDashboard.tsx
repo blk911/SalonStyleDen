@@ -824,7 +824,7 @@ export default function AdminDashboard() {
                                 {invitation.status || 'pending'}
                               </span>
                             </td>
-                            <td className="py-2 px-4 text-center">{new Date(invitation.createdAt).toLocaleDateString()}</td>
+                            <td className="py-2 px-4 text-center">...</td>
                             <td className="py-2 px-4 text-right">
                               {/* Check for matching client first */}
                               {(() => {
@@ -1026,6 +1026,19 @@ export default function AdminDashboard() {
                                   Salon
                                 </Link>
                               )}
+                              <Link
+                                to="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  toast({
+                                    title: "Gift Invitation",
+                                    description: "This feature will allow sending a gift invitation",
+                                  });
+                                }}
+                                className="px-2 py-1 text-[10px] bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                              >
+                                <GiftIcon className="h-3 w-3" />
+                              </Link>
                             </div>
                           </TableCell>
                         </TableRow>
