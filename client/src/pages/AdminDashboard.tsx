@@ -1,5 +1,5 @@
 import { useState, useEffect, ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -9,6 +9,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Link } from 'wouter';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { apiRequest } from "@/lib/queryClient";
 import InviteCompleteStatus from "@/components/dashboard/InviteCompleteStatus";
 import { SvgVisualizer } from "@/components/visualization/SvgVisualizer";
 import { VisualizationSelector } from "@/components/visualization/VisualizationSelector";
@@ -25,6 +26,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { 
   ExternalLink as ExternalLinkIcon, 
   Loader as LoaderIcon, 
@@ -40,7 +52,8 @@ import {
   AtSign as AtSignIcon,
   Phone as PhoneIcon,
   Calendar as CalendarIcon,
-  Gift as GiftIcon
+  Gift as GiftIcon,
+  Trash2 as TrashIcon
 } from "lucide-react";
 import { CollapsibleCard } from "@/components/ui/card-section";
 import { useToast } from "@/hooks/use-toast";
@@ -117,10 +130,12 @@ interface ActivityLog {
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [selectedLayout, setSelectedLayout] = useState('dot');
   const [focusPath, setFocusPath] = useState('fullapp');
   const [generating, setGenerating] = useState(false);
   const [selectedVisualization, setSelectedVisualization] = useState<string | null>(null);
+  const [invitationToDelete, setInvitationToDelete] = useState<Invitation | null>(null);
   
   // Section visibility states (stored in localStorage for persistence)
   const [styleOptionsOpen, setStyleOptionsOpen] = useState(true);
@@ -293,6 +308,42 @@ export default function AdminDashboard() {
     if (cleaned.length !== 10) return phone;
     return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
   };
+  
+  // Delete invitation mutation
+  const deleteInvitationMutation = useMutation({
+    mutationFn: async (invitationId: number) => {
+      const response = await fetch(`/api/invitations/${invitationId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to delete invitation');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Invitation deleted",
+        description: "The invitation has been successfully removed from the system.",
+      });
+      // Reset the selected invitation
+      setInvitationToDelete(null);
+      // Invalidate the invitations query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['/api/invitations'] });
+      // Also invalidate activity logs since a new log entry will be created
+      queryClient.invalidateQueries({ queryKey: ['/api/activity-logs'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error deleting invitation",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
 
   // Show global loading state only if everything is loading
   if (clientIsLoading && salonIsLoading && inviteIsLoading && logsIsLoading) {
@@ -805,7 +856,7 @@ export default function AdminDashboard() {
                           <th className="py-2 px-4 text-center"><PhoneIcon className="h-4 w-4 inline" /></th>
                           <th className="py-2 px-4">Status</th>
                           <th className="py-2 px-4 text-center"><CalendarIcon className="h-4 w-4 inline" /></th>
-                          <th className="py-2 px-4 text-right">Page</th>
+                          <th className="py-2 px-4 text-center">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y text-xs">
@@ -825,44 +876,80 @@ export default function AdminDashboard() {
                               </span>
                             </td>
                             <td className="py-2 px-4 text-center">...</td>
-                            <td className="py-2 px-4 text-right">
-                              {/* Check for matching client first */}
-                              {(() => {
-                                // Try to find matching client
-                                const clientId = findClientIdForInvitation(invitation, clients);
+                            <td className="py-2 px-4 text-center">
+                              <div className="flex items-center justify-center space-x-2">
+                                {/* View invitation/client button */}
+                                {(() => {
+                                  // Try to find matching client
+                                  const clientId = findClientIdForInvitation(invitation, clients);
+                                  
+                                  if (clientId) {
+                                    // Client exists - link to client dashboard
+                                    return (
+                                      <Link 
+                                        to={`/client/${clientId}?adminView=true`}
+                                        className="inline-flex items-center justify-center text-pink-600 font-medium hover:text-pink-800 cursor-pointer px-2 py-1"
+                                        onClick={() => {
+                                          // Set admin view flag in localStorage to persist through navigation
+                                          localStorage.setItem('adminView', 'true');
+                                          // Navigate to client dashboard page with admin view query parameter
+                                          setLocation(`/client/${clientId}?adminView=true`);
+                                        }}
+                                      >
+                                        <ExternalLinkIcon className="h-4 w-4" />
+                                      </Link>
+                                    );
+                                  } else {
+                                    // No matching client - link to invitation
+                                    return (
+                                      <Link 
+                                        to={`/invitation-preview/${invitation.inviteHash}?adminView=true`}
+                                        className="inline-flex items-center justify-center text-gray-500 font-medium hover:text-gray-700 cursor-pointer px-2 py-1"
+                                        onClick={() => {
+                                          // Navigate to invitation page with preview mode and admin view flag
+                                          setLocation(`/invitation-preview/${invitation.inviteHash}?adminView=true`);
+                                        }}
+                                      >
+                                        <ExternalLinkIcon className="h-4 w-4" />
+                                      </Link>
+                                    );
+                                  }
+                                })()}
                                 
-                                if (clientId) {
-                                  // Client exists - link to client dashboard
-                                  return (
-                                    <Link 
-                                      to={`/client/${clientId}?adminView=true`}
-                                      className="inline-flex items-center justify-center text-pink-600 font-medium hover:text-pink-800 cursor-pointer px-2 py-1"
-                                      onClick={() => {
-                                        // Set admin view flag in localStorage to persist through navigation
-                                        localStorage.setItem('adminView', 'true');
-                                        // Navigate to client dashboard page with admin view query parameter
-                                        setLocation(`/client/${clientId}?adminView=true`);
-                                      }}
+                                {/* Delete invitation button */}
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <button 
+                                      className="inline-flex items-center justify-center text-red-500 hover:text-red-700 cursor-pointer px-2 py-1"
+                                      onClick={() => setInvitationToDelete(invitation)}
                                     >
-                                      <ExternalLinkIcon className="h-4 w-4" />
-                                    </Link>
-                                  );
-                                } else {
-                                  // No matching client - link to invitation
-                                  return (
-                                    <Link 
-                                      to={`/invitation-preview/${invitation.inviteHash}?adminView=true`}
-                                      className="inline-flex items-center justify-center text-gray-500 font-medium hover:text-gray-700 cursor-pointer px-2 py-1"
-                                      onClick={() => {
-                                        // Navigate to invitation page with preview mode and admin view flag
-                                        setLocation(`/invitation-preview/${invitation.inviteHash}?adminView=true`);
-                                      }}
-                                    >
-                                      <ExternalLinkIcon className="h-4 w-4" />
-                                    </Link>
-                                  );
-                                }
-                              })()}
+                                      <TrashIcon className="h-4 w-4" />
+                                    </button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete Invitation</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to delete this invitation for {invitation.name}? 
+                                        This action cannot be undone.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel onClick={() => setInvitationToDelete(null)}>
+                                        Cancel
+                                      </AlertDialogCancel>
+                                      <AlertDialogAction 
+                                        onClick={() => {
+                                          deleteInvitationMutation.mutate(invitation.id);
+                                        }}
+                                        className="bg-red-500 hover:bg-red-600"
+                                      >
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
                             </td>
                           </tr>
                         ))}
