@@ -136,6 +136,8 @@ export default function AdminDashboard() {
   const [generating, setGenerating] = useState(false);
   const [selectedVisualization, setSelectedVisualization] = useState<string | null>(null);
   const [invitationToDelete, setInvitationToDelete] = useState<Invitation | null>(null);
+  const [clientToSuspend, setClientToSuspend] = useState<Client | null>(null);
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   
   // Section visibility states (stored in localStorage for persistence)
   const [styleOptionsOpen, setStyleOptionsOpen] = useState(true);
@@ -339,6 +341,76 @@ export default function AdminDashboard() {
     onError: (error: Error) => {
       toast({
         title: "Error deleting invitation",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Suspend client mutation
+  const suspendClientMutation = useMutation({
+    mutationFn: async (clientId: number) => {
+      const response = await fetch(`/api/clients/${clientId}/suspend`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to suspend client');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Client suspended",
+        description: "The client account has been suspended.",
+      });
+      // Reset the selected client
+      setClientToSuspend(null);
+      // Invalidate queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/activity-logs'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error suspending client",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Delete client mutation
+  const deleteClientMutation = useMutation({
+    mutationFn: async (clientId: number) => {
+      const response = await fetch(`/api/clients/${clientId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to delete client');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Client deleted",
+        description: "The client has been permanently removed from the system.",
+      });
+      // Reset the selected client
+      setClientToDelete(null);
+      // Invalidate queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['/api/clients'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/activity-logs'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error deleting client",
         description: error.message,
         variant: "destructive",
       });
@@ -1126,6 +1198,79 @@ export default function AdminDashboard() {
                               >
                                 <GiftIcon className="h-3 w-3" />
                               </Link>
+                              
+                              {/* Suspend Client Button with Alert Dialog */}
+                              <AlertDialog open={clientToSuspend?.id === client.id} onOpenChange={(open) => !open && setClientToSuspend(null)}>
+                                <AlertDialogTrigger asChild>
+                                  <button
+                                    onClick={() => setClientToSuspend(client)}
+                                    className="px-2 py-1 text-[10px] bg-amber-100 text-amber-700 rounded hover:bg-amber-200"
+                                    title="Suspend client account"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3">
+                                      <rect width="18" height="18" x="3" y="3" rx="2" />
+                                      <path d="M9 12h6" />
+                                    </svg>
+                                  </button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Suspend Client Account</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to suspend {clientToSuspend?.name}'s account? 
+                                      This will temporarily disable their access to the platform.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => {
+                                        if (clientToSuspend) {
+                                          suspendClientMutation.mutate(clientToSuspend.id);
+                                        }
+                                      }}
+                                      className="bg-amber-500 hover:bg-amber-600"
+                                    >
+                                      Suspend Account
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                              
+                              {/* Delete Client Button with Alert Dialog */}
+                              <AlertDialog open={clientToDelete?.id === client.id} onOpenChange={(open) => !open && setClientToDelete(null)}>
+                                <AlertDialogTrigger asChild>
+                                  <button
+                                    onClick={() => setClientToDelete(client)}
+                                    className="px-2 py-1 text-[10px] bg-red-100 text-red-700 rounded hover:bg-red-200"
+                                    title="Delete client account"
+                                  >
+                                    <TrashIcon className="h-3 w-3" />
+                                  </button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Client Account</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to permanently delete {clientToDelete?.name}'s account? 
+                                      This action cannot be undone and will remove all associated data.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => {
+                                        if (clientToDelete) {
+                                          deleteClientMutation.mutate(clientToDelete.id);
+                                        }
+                                      }}
+                                      className="bg-red-500 hover:bg-red-600"
+                                    >
+                                      Delete Account
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </div>
                           </TableCell>
                         </TableRow>
