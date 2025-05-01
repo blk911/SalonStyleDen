@@ -1298,6 +1298,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Admin-only endpoint to delete an invitation
+  apiRouter.delete("/invitations/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid invitation ID format" });
+      }
+      
+      // First check if the invitation exists
+      const invitation = await storage.getInvitation(id);
+      if (!invitation) {
+        return res.status(404).json({ error: "Invitation not found" });
+      }
+      
+      // Delete the invitation
+      const success = await storage.deleteInvitation(id);
+      
+      if (!success) {
+        return res.status(500).json({ error: "Failed to delete invitation" });
+      }
+      
+      res.json({ 
+        success: true,
+        message: `Invitation ${id} successfully deleted`
+      });
+    } catch (error) {
+      console.error('Error deleting invitation:', error);
+      res.status(500).json({ error: "Failed to delete invitation" });
+    }
+  });
+  
   // Invitation validation endpoint - Validates promo codes and phone numbers
   apiRouter.post("/invitations/validate", async (req: Request, res: Response) => {
     try {
