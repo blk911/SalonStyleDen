@@ -1103,10 +1103,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const salonId = req.query.salonId ? parseInt(req.query.salonId as string) : undefined;
       const clientId = req.query.clientId ? parseInt(req.query.clientId as string) : undefined;
       const status = req.query.status as string | undefined;
+      const type = req.query.type as string | undefined; // 'sent', 'received', or undefined for all
       
       let invitations;
       
-      console.log(`[API] GET /invitations - Params: salonId=${salonId}, clientId=${clientId}, status=${status}, limit=${limit}`);
+      console.log(`[API] GET /invitations - Params: salonId=${salonId}, clientId=${clientId}, status=${status}, type=${type}, limit=${limit}`);
       
       // Check if salonId is provided
       if (salonId) {
@@ -1115,8 +1116,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`[API] GET /invitations - Got ${invitations.length} invitations for salon ${salonId}`);
       } else if (clientId) {
         // Get invitations specific to this client
-        invitations = await storage.getClientInvitations(clientId, status, limit);
-        console.log(`[API] GET /invitations - Got ${invitations.length} invitations for client ${clientId}`);
+        if (type === 'sent') {
+          // Get invitations sent by this client
+          invitations = await storage.getClientSentInvitations(clientId, status, limit);
+          console.log(`[API] GET /invitations - Got ${invitations.length} sent invitations for client ${clientId}`);
+        } else if (type === 'received') {
+          // Get invitations received by this client
+          invitations = await storage.getClientReceivedInvitations(clientId, status, limit);
+          console.log(`[API] GET /invitations - Got ${invitations.length} received invitations for client ${clientId}`);
+        } else {
+          // Get all invitations for this client (backward compatibility)
+          invitations = await storage.getClientInvitations(clientId, status, limit);
+          console.log(`[API] GET /invitations - Got ${invitations.length} invitations for client ${clientId}`);
+        }
       } else {
         // Default: get recent invitations with limit
         invitations = await storage.getRecentInvitations(limit);

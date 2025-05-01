@@ -43,6 +43,8 @@ export interface IStorage {
   getRecentInvitations(limit?: number): Promise<Invitation[]>;
   getSalonInvitations(salonId: number): Promise<Invitation[]>;
   getClientInvitations(clientId: number, status?: string, limit?: number): Promise<Invitation[]>;
+  getClientSentInvitations(clientId: number, status?: string, limit?: number): Promise<Invitation[]>;
+  getClientReceivedInvitations(clientId: number, status?: string, limit?: number): Promise<Invitation[]>;
   updateInvitationStatus(id: number, status: string): Promise<Invitation>;
   getInvitationsByPhone(phone: string, partialMatch?: boolean): Promise<Invitation[]>;
   getInvitationByHash(hash: string): Promise<Invitation | undefined>;
