@@ -57,9 +57,10 @@ export default function PendingSalonInvitations({
   if (limit) filterParams.set('limit', limit.toString());
   if (clientId) filterParams.set('clientId', clientId.toString());
   filterParams.set('status', 'pending'); // Only get pending invitations
+  filterParams.set('type', 'received'); // Only get received invitations
   
   const { data: invitations, isLoading } = useQuery({
-    queryKey: ['/api/invitations/pending', clientId, limit],
+    queryKey: ['/api/invitations/received', clientId, limit],
     queryFn: async () => {
       const response = await fetch(`/api/invitations?${filterParams}`);
       if (!response.ok) throw new Error('Network response was not ok');
