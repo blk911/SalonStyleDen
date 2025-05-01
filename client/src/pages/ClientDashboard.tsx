@@ -14,6 +14,7 @@ import EditableClientInfo from "@/components/dashboard/EditableClientInfo";
 import RecentVmbInvitations from "@/components/dashboard/RecentVmbInvitations";
 import InlineVmbInvitations from "@/components/dashboard/InlineVmbInvitations";
 import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitations";
+import SentInvitations from "@/components/dashboard/SentInvitations";
 import ClientInviteForm from "@/components/dashboard/ClientInviteForm";
 import { getImageUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -666,25 +667,23 @@ export default function ClientDashboard() {
               </CardContent>
             </Card>
             
-            {/* Your Invitations Card - Display invitations the client has sent */}
-            {invitations && invitations.length > 0 && (
-              <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
-                <CardHeader className="bg-pink-50 pb-2 pt-2">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-base flex items-center gap-2 text-pink-700">
-                      <UserIcon className="h-4 w-4" />
-                      Your Sent Invitations
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <InlineVmbInvitations 
-                    clientId={client.id} 
-                    limit={5} 
-                  />
-                </CardContent>
-              </Card>
-            )}
+            {/* Your Sent Invitations Card */}
+            <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
+              <CardHeader className="bg-pink-50 pb-2 pt-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-base flex items-center gap-2 text-pink-700">
+                    <UserIcon className="h-4 w-4" />
+                    Your Sent Invitations
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <SentInvitations 
+                  clientId={client.id} 
+                  limit={5} 
+                />
+              </CardContent>
+            </Card>
             
             {/* Full-width Salon Card */}
             {client.salonId && (
@@ -770,7 +769,7 @@ export default function ClientDashboard() {
                           <CardTitle className="text-base flex items-center justify-between gap-2 text-amber-700">
                             <div className="flex items-center gap-2">
                               <StarIcon className="h-4 w-4" />
-                              <span>Pending Invitations From Salons</span>
+                              <span>Salon Invitations Received</span>
                             </div>
                             <button 
                               onClick={() => setShowPendingInvitations(!showPendingInvitations)} 
