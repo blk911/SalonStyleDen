@@ -808,22 +808,13 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DatabaseStorage.getClientInvitations - Fetching invitations for client ${clientId}${status ? ` with status ${status}` : ''}`);
       
-      // Get the client info first to have their phone and email for recipient matching
-      const clientInfo = await this.getClient(clientId);
-      if (!clientInfo) {
-        console.log(`DatabaseStorage.getClientInvitations - Client ${clientId} not found`);
-        return [];
-      }
-      
       // Build the query parameters list and values array
       const queryParams: string[] = [];
       const values: any[] = [];
       
-      // Find invitations where client is either the sender or recipient
-      queryParams.push(`(sender_id = $${values.length + 1} OR phone = $${values.length + 2} OR email = $${values.length + 3})`);
+      // Always filter by sender_id (which is the clientId)
+      queryParams.push(`sender_id = $${values.length + 1}`);
       values.push(clientId);
-      values.push(clientInfo.phone);
-      values.push(clientInfo.email);
       
       // Add status filter if provided
       if (status) {
@@ -851,9 +842,9 @@ export class DatabaseStorage implements IStorage {
         ${limitClause}
       `;
       
-      const pgClient = await pool.connect();
+      const client = await pool.connect();
       try {
-        const result = await pgClient.query(sqlQuery, values);
+        const result = await client.query(sqlQuery, values);
         const rows = result.rows;
         console.log(`DatabaseStorage.getClientInvitations - Retrieved ${rows.length} invitations for client ${clientId}`);
         
@@ -878,7 +869,7 @@ export class DatabaseStorage implements IStorage {
         
         return invitationList;
       } finally {
-        pgClient.release();
+        client.release();
       }
     } catch (error) {
       console.error(`DatabaseStorage.getClientInvitations - Error fetching invitations for client ${clientId}:`, error);
