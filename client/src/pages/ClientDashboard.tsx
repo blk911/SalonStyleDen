@@ -1,3 +1,10 @@
+// Extend the Window interface to add our client ID context
+declare global {
+  interface Window {
+    _currentClientId?: string | number | null;
+  }
+}
+
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "wouter";
@@ -145,13 +152,6 @@ export default function ClientDashboard() {
 
   // Add debugging information to trace API calls
   console.log(`ClientDashboard - Fetching client with ID: ${id}`);
-  
-  // Extend the Window interface to add our client ID context
-  declare global {
-    interface Window {
-      _currentClientId?: string | number | null;
-    }
-  }
 
   // Fetch client data
   const { data: client, isLoading: clientLoading, error: clientError } = useQuery<ClientData>({

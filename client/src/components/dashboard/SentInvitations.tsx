@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLinkIcon, PhoneIcon, CalendarIcon, ClockIcon, GiftIcon, UserIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { RenderedInvitation } from "../invitations/RenderedInvitation";
+import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
 
 interface Invitation {
   id: number;
