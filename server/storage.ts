@@ -36,6 +36,8 @@ export interface IStorage {
   createClient(client: InsertClient): Promise<Client>;
   getAllClients(): Promise<Client[]>;
   updateClient(id: number, clientData: Partial<Client>): Promise<Client>;
+  suspendClient(id: number): Promise<Client>;
+  deleteClient(id: number): Promise<boolean>;
   
   // Invitation methods
   createInvitation(invitation: InsertInvitation): Promise<Invitation>;
@@ -549,6 +551,107 @@ export class DatabaseStorage implements IStorage {
       return result[0];
     } catch (error) {
       console.error('DatabaseStorage.updateClient - Error updating client:', error);
+      throw error;
+    }
+  }
+  
+  async suspendClient(id: number): Promise<Client> {
+    console.log(`DatabaseStorage.suspendClient - Suspending client ID ${id}`);
+    
+    try {
+      // First check if client exists
+      const client = await this.getClient(id);
+      if (!client) {
+        throw new Error(`Client with ID ${id} not found`);
+      }
+      
+      // Use raw SQL to update the status field safely
+      const client_pool = await pool.connect();
+      try {
+        const result = await client_pool.query(`
+          UPDATE clients
+          SET status = 'suspended'
+          WHERE id = $1
+          RETURNING *
+        `, [id]);
+        
+        if (result.rowCount === 0) {
+          throw new Error(`Failed to suspend client with ID ${id}`);
+        }
+        
+        // Log the action to activity logs
+        await this.createActivityLog({
+          type: 'client_suspended',
+          description: `Client ${client.name} (ID: ${id}) was suspended`,
+          clientId: id,
+          timestamp: new Date()
+        });
+        
+        console.log(`DatabaseStorage.suspendClient - Client ${id} suspended successfully`);
+        
+        // Convert row to Client object
+        const updatedClient: Client = {
+          id: result.rows[0].id,
+          name: result.rows[0].name,
+          phone: result.rows[0].phone,
+          email: result.rows[0].email,
+          address: result.rows[0].address,
+          city: result.rows[0].city,
+          state: result.rows[0].state,
+          zipCode: result.rows[0].zip_code,
+          type: result.rows[0].type,
+          salonId: result.rows[0].salon_id,
+          sponsorId: result.rows[0].sponsor_id,
+          sponsorName: result.rows[0].sponsor_name,
+          sponsorSalonId: result.rows[0].sponsor_salon_id,
+          notes: result.rows[0].notes,
+          socialMedia: result.rows[0].social_media,
+          favoriteServices: result.rows[0].favorite_services,
+          profileComplete: result.rows[0].profile_complete,
+          profilePromptShown: result.rows[0].profile_prompt_shown,
+          photoUrl: result.rows[0].photo_url,
+          status: result.rows[0].status,
+          createdAt: result.rows[0].created_at
+        };
+        
+        return updatedClient;
+      } finally {
+        client_pool.release();
+      }
+    } catch (error) {
+      console.error('DatabaseStorage.suspendClient - Error suspending client:', error);
+      throw error;
+    }
+  }
+  
+  async deleteClient(id: number): Promise<boolean> {
+    console.log(`DatabaseStorage.deleteClient - Deleting client ID ${id}`);
+    
+    try {
+      // First check if client exists and get their info for the log
+      const client = await this.getClient(id);
+      if (!client) {
+        throw new Error(`Client with ID ${id} not found`);
+      }
+      
+      // Log the action to activity logs before deleting
+      await this.createActivityLog({
+        type: 'client_deleted',
+        description: `Client ${client.name} (ID: ${id}) was permanently deleted`,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Delete the client
+      const result = await db
+        .delete(clients)
+        .where(eq(clients.id, id))
+        .returning();
+      
+      const success = result.length > 0;
+      console.log(`DatabaseStorage.deleteClient - Client ${id} deletion ${success ? 'successful' : 'failed'}`);
+      return success;
+    } catch (error) {
+      console.error('DatabaseStorage.deleteClient - Error deleting client:', error);
       throw error;
     }
   }
