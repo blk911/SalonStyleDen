@@ -110,24 +110,24 @@ export default function ClientsPage() {
       
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-8 border-b border-pink-200">
+        <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-4 md:py-8 border-b border-pink-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-3xl font-bold text-pink-800 flex items-center justify-center">
+            <h1 className="text-2xl md:text-3xl font-bold text-pink-800 flex items-center justify-center">
               <span className="logo logo-md mr-2"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span> 
             </h1>
-            <p className="mt-2 text-lg font-medium text-gray-700">Empowering. Personal. Connection.</p>
+            <p className="mt-1 md:mt-2 text-base md:text-lg font-medium text-gray-700">Empowering. Personal. Connection.</p>
           </div>
         </section>
         
         {/* Main Content */}
-        <section className="py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-4 md:py-8">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             {/* Marketing Teaser Campaign Carousel */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-serif font-bold text-pink-800 flex items-center">
-                  <span className="mr-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-base md:text-xl font-serif font-bold text-pink-800 flex items-center">
+                  <span className="mr-1 md:mr-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
                     </svg>
                   </span>
@@ -141,8 +141,8 @@ export default function ClientsPage() {
               </div>
             </div>
 
-            {/* Cards that stack on mobile and display side by side on larger screens */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+            {/* Cards now always stack vertically on all devices */}
+            <div className="grid grid-cols-1 gap-4">
               {/* Salon Testimonial */}
               <Card className="bg-gradient-to-br from-blue-50 to-white shadow-md hover:shadow-xl transition-all border border-blue-100 h-full">
                 <CardContent className="p-4 md:p-8 flex flex-col h-full">
@@ -166,9 +166,9 @@ export default function ClientsPage() {
                       <span className="text-xs sm:text-sm text-gray-500">Verified VMB Partner</span>
                     </div>
                   </div>
-                  <div className="mt-auto">
+                  <div className="mt-auto text-center">
                     <Link href="/salon/2">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">HOW EASY? SEE FOR YOUR SELF</Button>
+                      <Button className="px-6 bg-blue-600 hover:bg-blue-700 text-white py-2 text-sm">HOW EASY? SEE FOR YOUR SELF</Button>
                     </Link>
                   </div>
                 </CardContent>
@@ -197,9 +197,9 @@ export default function ClientsPage() {
                       <span className="text-xs sm:text-sm text-gray-500">VMB Member since 2024</span>
                     </div>
                   </div>
-                  <div className="mt-auto">
+                  <div className="mt-auto text-center">
                     <Link href="/salon/2">
-                      <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2">
+                      <Button className="px-6 bg-green-600 hover:bg-green-700 text-white py-2 text-sm">
                         CREATE A GIFT INVITATION 
                         <GiftIcon className="ml-1 h-4 w-4" stroke="gold" strokeWidth={2.5} />
                       </Button>
