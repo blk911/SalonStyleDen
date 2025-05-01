@@ -102,7 +102,7 @@ const CarouselSlide = ({
     <CarouselItem key={index}>
       <div 
         className={cn(
-          "relative flex w-full p-4 rounded-lg overflow-hidden min-h-[350px] md:h-[280px]", 
+          "relative flex w-full p-4 rounded-lg overflow-hidden h-[280px]", 
           slide.bgClass
         )}
       >
@@ -111,19 +111,19 @@ const CarouselSlide = ({
           {index + 1}/{totalSlides}
         </div>
         
-        <div className="flex flex-col md:flex-row w-full h-full">
+        <div className="flex w-full h-full">
           {/* Text Content Side */}
-          <div className="w-full md:w-1/2 flex flex-col justify-center md:pr-4 text-center md:text-left">
-            <h2 className="text-xl md:text-2xl font-semibold font-serif text-pink-800 leading-tight mb-2 md:mb-3">
+          <div className="w-1/2 flex flex-col justify-center pr-4 text-left">
+            <h2 className="text-2xl font-semibold font-serif text-pink-800 leading-tight mb-3">
               {slide.title}
             </h2>
-            <div className="text-base md:text-lg font-medium text-pink-600 whitespace-pre-line">
+            <div className="text-lg font-medium text-pink-600 whitespace-pre-line">
               {slide.content}
             </div>
           </div>
           
           {/* Visual Cue Side */}
-          <div className="w-full md:w-1/2 flex items-center justify-center mt-4 md:mt-0">
+          <div className="w-1/2 flex items-center justify-center">
             <div className="w-full h-[200px] rounded-lg overflow-hidden">
               {/* Video or Image */}
               {slide.videoUrl ? (
@@ -134,11 +134,6 @@ const CarouselSlide = ({
                     autoPlay 
                     loop={!isLastSlide} 
                     muted 
-                    playsInline={true}
-                    controls={false}
-                    controlsList="nodownload nofullscreen"
-                    disablePictureInPicture
-                    disableRemotePlayback
                     className="w-full h-full object-cover"
                   />
                 </div>
