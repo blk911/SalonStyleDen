@@ -58,7 +58,7 @@ export default function PendingSalonInvitations({
   if (clientId) filterParams.set('clientId', clientId.toString());
   filterParams.set('status', 'pending'); // Only get pending invitations
   
-  const { data: invitations, isLoading } = useQuery({
+  const { data: allInvitations, isLoading } = useQuery({
     queryKey: ['/api/invitations/pending', clientId, limit],
     queryFn: async () => {
       const response = await fetch(`/api/invitations?${filterParams}`);
@@ -66,6 +66,12 @@ export default function PendingSalonInvitations({
       return response.json() as Promise<Invitation[]>;
     }
   });
+  
+  // Filter to only include invitations sent TO this client (not FROM them)
+  const invitations = allInvitations ? allInvitations.filter(invitation => 
+    // Include only invitations where this client is NOT the sender
+    invitation.senderId !== clientId
+  ) : [];
 
   // Function to check if a client is registered based on invitation data
   const checkClientRegistration = async (invitation: Invitation): Promise<boolean> => {
