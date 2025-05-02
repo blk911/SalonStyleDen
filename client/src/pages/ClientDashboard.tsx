@@ -119,17 +119,20 @@ export default function ClientDashboard() {
   const [showPersonalizedOffers, setShowPersonalizedOffers] = useState(false);
   const [showCreatePromo, setShowCreatePromo] = useState(false);
   
+  // Show/hide state for VMB Style Options section - default to HIDE per user request
+  const [showStyleOptions, setShowStyleOptions] = useState(false);
+  
   // Show/hide state for gift options section - default to HIDE
   const [showGiftOptions, setShowGiftOptions] = useState(false);
   
   // Show/hide state for pending invitations section - default to HIDE
   const [showPendingInvitations, setShowPendingInvitations] = useState(false);
   
-  // Show/hide state for sent invitations section - default to SHOW
-  const [showSentInvitations, setShowSentInvitations] = useState(true);
+  // Show/hide state for sent invitations section - default to HIDE per user request
+  const [showSentInvitations, setShowSentInvitations] = useState(false);
   
-  // Show/hide state for share form section - default to SHOW
-  const [showShareForm, setShowShareForm] = useState(true);
+  // Show/hide state for share form section - default to HIDE per user request
+  const [showShareForm, setShowShareForm] = useState(false);
   
   // Show "Complete Your Profile" dialog for newly validated clients
   const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(false);
