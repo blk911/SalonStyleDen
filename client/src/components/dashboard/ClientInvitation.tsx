@@ -1130,7 +1130,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           <DialogHeader className="pb-2 border-b border-amber-200">
             <DialogTitle className="text-center text-amber-800 text-xl flex items-center justify-center">
               <Mail className="h-5 w-5 mr-2 text-amber-600" />
-              Salon Invitation Preview
+              <span>Salon Invitation <span className="text-pink-700">Preview</span></span>
             </DialogTitle>
             <DialogDescription className="text-center">
               Please review your invitation carefully before sending
@@ -1139,21 +1139,25 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           
           {previewData && (
             <div className="py-4">
+              {/* Simplified TO/FROM display */}
               <div className="mb-4 border border-amber-200 rounded-md p-3 bg-amber-50">
-                <p className="text-sm font-medium text-gray-700">Recipient: {previewData.name}</p>
-                <p className="text-sm text-gray-600">Phone: {formatPhoneNumber(previewData.phone)}</p>
-                <p className="text-sm text-gray-600">Email: {previewData.email}</p>
-                <p className="text-sm text-gray-600">Service Date: {formatDate(previewData.firstServiceDate)}</p>
-                {previewData.favoriteServices.length > 0 && (
-                  <div className="mt-1">
-                    <p className="text-sm text-gray-700">Services:</p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {previewData.favoriteServices.map(service => (
-                        <Badge key={service} variant="outline" className="bg-amber-50">{service}</Badge>
-                      ))}
-                    </div>
+                <div className="flex flex-col space-y-1">
+                  <div className="flex items-center">
+                    <span className="text-sm font-semibold text-amber-800 w-16">TO:</span>
+                    <span className="text-sm font-medium text-gray-700">{previewData.name}</span>
                   </div>
-                )}
+                  <div className="flex items-center">
+                    <span className="text-sm font-semibold text-amber-800 w-16">FROM:</span>
+                    <span className="text-sm font-medium text-gray-700">{salonInfo?.name || ''}</span>
+                  </div>
+                </div>
+                
+                <div className="mt-3 pt-2 border-t border-amber-200">
+                  <p className="text-xs text-amber-700 italic flex items-center">
+                    <AlertCircle className="h-3 w-3 mr-1 text-amber-500" />
+                    Questions? Ask for help or click "Confirm & Send" when ready to proceed.
+                  </p>
+                </div>
               </div>
               
               <div className="border border-gray-200 rounded-md overflow-hidden">
@@ -1167,9 +1171,6 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   salonName={salonInfo?.name || ''}
                   salonInitiated={true}
                 />
-                
-                {/* We've removed the duplicate plain text message preview since it's already included
-                    in the RenderedInvitation component above */}
               </div>
             </div>
           )}
