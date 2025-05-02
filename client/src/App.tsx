@@ -49,8 +49,8 @@ function Router() {
       <Route path="/invitation-preview/:hash" component={InvitationPreview} />
       <Route path="/invitations/by-hash/:hash" component={InvitationPage} />
       <Route path="/complete-invitation/:id" component={CompleteInvitationPage} />
-      {/* Temporarily hiding the Promos page */}
-      {/* <Route path="/promos" component={PromosPage} /> */}
+      {/* Unhiding all routes as requested */}
+      <Route path="/promos" component={PromosPage} />
       <Route path="/sitemap" component={Sitemap} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/test-image/:id" component={TestImagePage} />
@@ -111,8 +111,8 @@ function App() {
         <StatusProvider>
           <MonitoringProvider>
             <Router />
-            {/* Temporarily hiding the MonitoringDashboard as requested */}
-            {/* <MonitoringDashboard /> */}
+            {/* Unhiding monitoring dashboard as requested */}
+            <MonitoringDashboard />
             <Toaster />
           </MonitoringProvider>
         </StatusProvider>

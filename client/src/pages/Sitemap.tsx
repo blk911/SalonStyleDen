@@ -13,8 +13,10 @@ export default function Sitemap() {
             <h2 className="text-xl font-semibold mb-4">/ (Root)</h2>
             <ul className="space-y-2 pl-6 border-l-2 border-pink-200">
               <li><Link href="/" className="text-pink-600 hover:underline">Home Page</Link></li>
-              {/* Temporarily commented out until Promos page is enabled */}
-              {/* <li><Link href="/promos" className="text-pink-600 hover:underline">Promotions Page</Link></li> */}
+              <li><Link href="/promos" className="text-pink-600 hover:underline">Promotions Page</Link></li>
+              <li><Link href="/admin" className="text-pink-600 hover:underline font-bold">Admin Dashboard</Link></li>
+              <li><Link href="/network-visualization" className="text-pink-600 hover:underline font-bold">Network Visualization</Link></li>
+              <li><Link href="/madge-visualization" className="text-pink-600 hover:underline font-bold">Code Dependencies Visualization</Link></li>
             </ul>
           </section>
 
@@ -42,7 +44,10 @@ export default function Sitemap() {
           <section>
             <h2 className="text-xl font-semibold mb-4">/client</h2>
             <ul className="space-y-2 pl-6 border-l-2 border-pink-200">
-              <li><Link href="/clients" className="text-pink-600 hover:underline">Client Registration</Link></li>
+              <li><Link href="/clients" className="text-pink-600 hover:underline">Client Directory</Link></li>
+              <li><Link href="/client/register" className="text-pink-600 hover:underline font-bold">Client Registration</Link></li>
+              <li><Link href="/client-registration" className="text-pink-600 hover:underline">Client Registration (Alt Path)</Link></li>
+              <li><Link href="/register-client" className="text-pink-600 hover:underline">Client Registration (Alt Path 2)</Link></li>
               <li className="pl-4 border-l border-pink-100">
                 <span className="text-gray-600">/:id (Dynamic Routes)</span>
                 <ul className="pl-4 mt-2">
@@ -52,6 +57,20 @@ export default function Sitemap() {
                   </li>
                 </ul>
               </li>
+            </ul>
+          </section>
+          
+          {/* Registration and Invitation Section - ADDED FOR ENDPOINT VISIBILITY */}
+          <section>
+            <h2 className="text-xl font-semibold mb-4 text-pink-700">Registration & Invitation Routes</h2>
+            <ul className="space-y-2 pl-6 border-l-2 border-pink-200">
+              <li><Link href="/salon-registration" className="text-pink-600 hover:underline font-bold">Salon Registration</Link></li>
+              <li><Link href="/register-salon" className="text-pink-600 hover:underline">Salon Registration (Alt Path)</Link></li>
+              <li className="mt-4 pt-2 border-t border-pink-100"><span className="text-gray-700 font-medium">Invitation Routes:</span></li>
+              <li><Link href="/invitation/:hash" className="text-pink-600 hover:underline">Invitation View</Link> <span className="text-gray-500 text-sm">(Requires invitation hash)</span></li>
+              <li><Link href="/invitation-preview/:hash" className="text-pink-600 hover:underline">Invitation Preview</Link> <span className="text-gray-500 text-sm">(Requires invitation hash)</span></li>
+              <li><Link href="/invitations/by-hash/:hash" className="text-pink-600 hover:underline">Invitation View (Alt Path)</Link> <span className="text-gray-500 text-sm">(Requires invitation hash)</span></li>
+              <li><Link href="/complete-invitation/:id" className="text-pink-600 hover:underline">Complete Invitation</Link> <span className="text-gray-500 text-sm">(Requires invitation ID)</span></li>
             </ul>
           </section>
 

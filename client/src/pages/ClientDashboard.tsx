@@ -289,7 +289,7 @@ export default function ClientDashboard() {
     };
   }, [client]);
 
-  // Check client's registration status when data is loaded
+  // Check client's registration status when data is loaded - POPUP DISABLED BY REQUEST
   useEffect(() => {
     if (!client) return;
 
@@ -297,6 +297,16 @@ export default function ClientDashboard() {
     console.log(`ClientDashboard - Profile prompt shown status: ${client.profilePromptShown}`);
     console.log(`ClientDashboard - adminView status: ${isAdminView}`);
     
+    // CRITICAL FIX: Bypass profile completion popup per user request
+    console.log('[CRITICAL FIX] Bypassing profile prompt popup as requested');
+    setShowCompleteProfileDialog(false);
+    
+    // Still mark that we've shown the popup to this client in the database
+    if (client.profilePromptShown !== true) {
+      updateProfilePromptShown(client.id);
+    }
+    
+    /* TEMPORARILY DISABLED - original logic
     // If this is an admin view, never show the dialog regardless of client status
     if (isAdminView) {
       console.log('[FLOW] ClientDashboard - Admin view mode: profile prompt disabled');
@@ -324,6 +334,7 @@ export default function ClientDashboard() {
       }
       setShowCompleteProfileDialog(false);
     }
+    */
   }, [client, isAdminView]);
   
   // Function to update the client's profilePromptShown status in the database
