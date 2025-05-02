@@ -161,11 +161,11 @@ export default function TeaserCarousel() {
   const [api, setApi] = useState<any>(null);
   const tagline = "a connection-driven personal gifting platform";
   
-  // Auto-play functionality with fixed timing (3.5 seconds per slide)
+  // Auto-play functionality with fixed timing (4.5 seconds per slide)
   useEffect(() => {
     if (!api || !isAutoPlaying) return;
     
-    const slideInterval = 3500;
+    const slideInterval = 4500;
     
     const interval = setInterval(() => {
       api.scrollNext();
