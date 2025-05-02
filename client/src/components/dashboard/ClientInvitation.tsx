@@ -1139,26 +1139,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           
           {previewData && (
             <div className="py-4">
-              {/* Simplified TO/FROM display */}
-              <div className="mb-4 border border-amber-200 rounded-md p-3 bg-amber-50">
-                <div className="flex flex-col space-y-1">
-                  <div className="flex items-center">
-                    <span className="text-sm font-semibold text-amber-800 w-16">TO:</span>
-                    <span className="text-sm font-medium text-gray-700">{previewData.name}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="text-sm font-semibold text-amber-800 w-16">FROM:</span>
-                    <span className="text-sm font-medium text-gray-700">{salonInfo?.name || ''}</span>
-                  </div>
-                </div>
-                
-                <div className="mt-3 pt-2 border-t border-amber-200">
-                  <p className="text-xs text-amber-700 italic flex items-center">
-                    <AlertCircle className="h-3 w-3 mr-1 text-amber-500" />
-                    Questions? Ask for help or click "Confirm & Send" when ready to proceed.
-                  </p>
-                </div>
-              </div>
+              {/* We've hidden the separate TO/FROM display box as requested,
+                  and now the invitation itself directly shows this information */}
               
               <div className="border border-gray-200 rounded-md overflow-hidden">
                 <RenderedInvitation 
