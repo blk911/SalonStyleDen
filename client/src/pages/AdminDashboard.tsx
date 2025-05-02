@@ -13,6 +13,9 @@ import { apiRequest } from "@/lib/queryClient";
 import InviteCompleteStatus from "@/components/dashboard/InviteCompleteStatus";
 import { SvgVisualizer } from "@/components/visualization/SvgVisualizer";
 import { VisualizationSelector } from "@/components/visualization/VisualizationSelector";
+import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
+import { EnhancedDeleteConfirmation } from "@/components/admin/EnhancedDeleteConfirmation";
+import { AdminActionButton, ActionGroup } from "@/components/admin/AdminActionButton";
 import { 
   Select, 
   SelectContent, 

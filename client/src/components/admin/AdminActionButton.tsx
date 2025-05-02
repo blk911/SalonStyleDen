@@ -1,9 +1,9 @@
 import React from 'react';
 import { Button, ButtonProps } from "@/components/ui/button";
-import { IconProps } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 interface AdminActionButtonProps extends Omit<ButtonProps, 'children'> {
-  icon?: React.FC<IconProps>;
+  icon?: LucideIcon;
   text: string;
   compact?: boolean;
   iconSize?: number;
