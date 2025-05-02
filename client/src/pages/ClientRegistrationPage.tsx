@@ -40,21 +40,34 @@ const logFlow = (step: string, data?: any) => {
   console.log(`[FLOW TEST] ${step}`, data ? data : '');
 };
 
-// Client schema with basic validation
+// Client schema with enhanced validation
 const clientSchema = z.object({
   inviteType: z.enum(['friend', 'salonOwner']).default('friend'),
-  name: z.string().min(2, { message: 'Name is required' }),
-  phone: z.string().min(10, { message: 'Valid phone number is required' }),
-  email: z.string().email().optional().or(z.literal('')),
+  name: z.string().min(2, { message: 'Full name is required (minimum 2 characters)' }),
+  phone: z.string()
+    .min(10, { message: 'Valid phone number is required (10 digits minimum)' })
+    .refine(val => /^[0-9()+\-.\s]+$/.test(val), { 
+      message: 'Phone number can only contain digits, spaces, and these symbols: () + - .'
+    }),
+  email: z.string()
+    .email({ message: 'Valid email address is required if provided' })
+    .optional()
+    .or(z.literal('')),
   address: z.string().optional().or(z.literal('')),
   city: z.string().optional().or(z.literal('')),
   state: z.string().optional().or(z.literal('')),
-  zipCode: z.string().optional().or(z.literal('')),
+  zipCode: z.string()
+    .optional()
+    .or(z.literal(''))
+    .refine((val: string) => val === '' || /^\d{5}(-\d{4})?$/.test(val), {
+      message: 'ZIP code must be in format 12345 or 12345-6789'
+    }),
   favoriteServices: z.array(z.string()).optional(),
   notes: z.string().optional().or(z.literal('')),
-  acceptTerms: z.boolean().refine(val => val === true, {
-    message: 'You must accept the terms and conditions'
-  }),
+  acceptTerms: z.boolean()
+    .refine(val => val === true, {
+      message: 'You must accept the terms and conditions to continue'
+    }),
   sponsorSalonId: z.number().optional(),
 });
 
@@ -614,25 +627,30 @@ export default function ClientRegistrationPage() {
                       />
                     </div>
                     
-                    {/* Terms and Conditions Checkbox */}
+                    {/* Terms and Conditions Checkbox - Enhanced for visibility */}
                     <FormField
                       control={form.control}
                       name="acceptTerms"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-6">
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-6 p-3 rounded-md border-2 border-pink-100 bg-pink-50">
                           <FormControl>
                             <Checkbox
                               checked={field.value}
                               onCheckedChange={field.onChange}
                               id="acceptTerms"
                               name="acceptTerms"
+                              className="h-5 w-5 mt-0.5"
                               // Using DOM reference directly rather than ref forwarding
                             />
                           </FormControl>
                           <div className="space-y-1 leading-none">
-                            <FormLabel className="text-sm cursor-pointer">
-                              I accept the <a href="/terms" className="text-pink-600 hover:underline">Terms and Conditions</a>
+                            <FormLabel className="text-sm font-medium cursor-pointer">
+                              I accept the <a href="/terms" target="_blank" className="text-pink-600 font-bold hover:underline">Terms and Conditions</a> of Ven Me, Baby!
                             </FormLabel>
+                            <FormDescription className="text-xs">
+                              Required to complete registration
+                            </FormDescription>
+                            <FormMessage className="font-medium text-red-500"/>
                           </div>
                         </FormItem>
                       )}
@@ -815,10 +833,31 @@ export default function ClientRegistrationPage() {
             <Button 
               type="button" 
               onClick={() => {
-                setShowAddressDialog(false);
-                setAddressDialogShown(true);
-                document.body.setAttribute('data-address-shown', 'true');
-                form.handleSubmit(onSubmit)();
+                try {
+                  // Get the current form values
+                  const formValues = form.getValues();
+                  
+                  // First, close the dialog and update state
+                  setShowAddressDialog(false);
+                  setAddressDialogShown(true);
+                  document.body.setAttribute('data-address-shown', 'true');
+                  
+                  // Log that we're about to continue with form submission
+                  logFlow('Address saved, continuing with form submission');
+                  
+                  // Give the dialog time to close before submitting
+                  // This prevents UI glitches during form submission
+                  setTimeout(() => {
+                    form.handleSubmit(onSubmit)();
+                  }, 100);
+                } catch (error) {
+                  console.error('Error in Save & Continue handler:', error);
+                  toast({
+                    title: 'Form Error',
+                    description: 'There was a problem continuing with registration. Please try again.',
+                    variant: 'destructive',
+                  });
+                }
               }}
             >
               Save & Continue
