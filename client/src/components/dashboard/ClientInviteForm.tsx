@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AtSignIcon, ChevronDownIcon, ChevronUpIcon, PhoneIcon, SendIcon, UserIcon, BuildingIcon, UsersIcon } from "lucide-react";
 import FlowLogger from "@/lib/flow-logger";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { queryClient } from "@/lib/queryClient";
 
 interface ClientInviteFormProps {
   clientId: number;
@@ -187,6 +188,10 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
         message: "Hey! I love my salon's Ven Me, Baby! style options. You should check them out!",
         inviteeType: "friend"
       });
+      
+      // Invalidate invitations queries to refresh the list
+      FlowLogger.log('ClientInviteForm', 'Invalidating invitations queries');
+      queryClient.invalidateQueries({ queryKey: ['/api/invitations'] });
       
       // Call success callback if provided
       if (onSuccess) {

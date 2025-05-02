@@ -50,11 +50,14 @@ export default function SentInvitations({
   if (clientId) filterParams.set('clientId', clientId.toString());
   
   const { data: allInvitations, isLoading } = useQuery({
-    queryKey: ['/api/invitations/all', clientId, limit],
+    queryKey: ['/api/invitations', clientId, limit],
     queryFn: async () => {
+      console.log('[SentInvitations] Fetching invitations with params:', filterParams.toString());
       const response = await fetch(`/api/invitations?${filterParams}`);
       if (!response.ok) throw new Error('Network response was not ok');
-      return response.json() as Promise<Invitation[]>;
+      const data = await response.json();
+      console.log('[SentInvitations] Retrieved invitations:', data);
+      return data as Invitation[];
     }
   });
   
