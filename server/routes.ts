@@ -510,19 +510,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const invitationId = parseInt(req.body.invitationId);
           if (!isNaN(invitationId)) {
             try {
-              // Get the invitation details first to check if it's a salon invitation or client invitation
-              const invitation = await storage.getInvitation(invitationId);
-              
-              if (invitation) {
-                // For salon invitations, mark as "accepted" instead of "completed"
-                // This keeps them visible in the client's dashboard but shows they've been acted upon
-                const newStatus = invitation.senderId === null ? 'accepted' : 'completed';
-                
-                console.log(`Updating invitation ${invitationId} status to ${newStatus} (sender type: ${invitation.senderId === null ? 'salon' : 'client'})`);
-                await storage.updateInvitationStatus(invitationId, newStatus);
-              } else {
-                console.error(`Invitation ${invitationId} not found when trying to update status`);
-              }
+              // Update invitation status to completed
+              await storage.updateInvitationStatus(invitationId, 'completed');
             } catch (invitationError) {
               // Log error but don't fail the client creation
               console.error(`Failed to update invitation ${invitationId} status:`, invitationError);
@@ -536,26 +525,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const matchingInvitations = await storage.getInvitationsByPhone(validatedData.phone);
             
             if (matchingInvitations.length > 0) {
-              // Mark as "completed" ONLY if:
-              // 1. The invitation is explicitly provided in the request via invitationId parameter, OR
-              // 2. The invitation was sent by another client (has senderId), not by a salon
-              // This ensures salon invitations stay "pending" for future acceptance
+              // Update all matching invitations to completed
               for (const invitation of matchingInvitations) {
-                const invitationIdFromReq = req.body.invitationId ? parseInt(req.body.invitationId) : null;
-                
-                const shouldMarkCompleted = 
-                  // Only mark as completed if:
-                  (invitation.status !== 'completed') && // Not already completed
-                  (
-                    invitation.id === invitationIdFromReq || // Explicit ID match with request
-                    invitation.senderId !== null // It's a client-to-client invitation, not salon-to-client
-                  );
-                
-                if (shouldMarkCompleted) {
-                  console.log(`Marking invitation ${invitation.id} as completed: explicit=${invitation.id === invitationIdFromReq}, hasClientSender=${invitation.senderId !== null}`);
+                if (invitation.status !== 'completed') {
                   await storage.updateInvitationStatus(invitation.id, 'completed');
-                } else {
-                  console.log(`Preserving invitation ${invitation.id} as ${invitation.status}: from salon=${invitation.senderId === null}, explicit=${invitation.id === invitationIdFromReq}`);
                 }
               }
             }
