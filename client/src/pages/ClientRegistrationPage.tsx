@@ -208,12 +208,18 @@ export default function ClientRegistrationPage() {
     }
   }, [invitation, form, salonId]);
   
-  // Function to handle phone validation - FIXED: Remove automatic address popup trigger
-  // This prevents the first popup in the double-popup problem
+  // Function to handle phone validation - tracks validation state but doesn't affect form flow
   const handlePhoneValidation = (isValid: boolean) => {
-    // Phone validation success no longer triggers the address dialog automatically
-    // The dialog will only show when form is submitted and address is missing
     logFlow(`Phone validation ${isValid ? 'passed' : 'failed'}`);
+    
+    // Only show a toast for invalid phone numbers to help user correct them immediately
+    if (!isValid) {
+      toast({
+        title: 'Invalid Phone Number',
+        description: 'Please enter a valid 10-digit phone number',
+        variant: 'destructive',
+      });
+    }
   };
   
   // Function to handle Later button click in address dialog
@@ -232,7 +238,7 @@ export default function ClientRegistrationPage() {
     focusTermsCheckbox();
   };
   
-  // Handle form submission - FIXED to prevent registration loop issues
+  // Handle form submission - IMPROVED with better error handling and debugging
   const onSubmit = async (data: ClientFormValues) => {
     try {
       logFlow('Form submission initiated');
@@ -289,125 +295,163 @@ export default function ClientRegistrationPage() {
       
       console.log('Submitting client data:', clientData);
       
-      // Create the client
-      const clientResponse = await fetch('/api/clients', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(clientData),
-      });
-      
-      // Parse response JSON
-      const responseData = await clientResponse.json();
-      
-      // Handle duplicate client scenario (HTTP 409 Conflict)
-      if (clientResponse.status === 409 && responseData.status === 'duplicate') {
-        console.log('Duplicate client detected:', responseData);
-        
-        // Try to find existing client by the duplicate contact information
-        let existingClientId: number | undefined;
-        
-        // Search for existing client with this phone or email
-        const searchResponse = await fetch(`/api/clients?${responseData.field}=${encodeURIComponent(data[responseData.field as keyof ClientFormValues] as string)}`, {
-          method: 'GET'
-        });
-        
-        if (searchResponse.ok) {
-          const foundClients = await searchResponse.json();
-          
-          if (foundClients && foundClients.length > 0) {
-            // Use the first matching client
-            existingClientId = foundClients[0].id;
-            console.log('Found existing client with ID:', existingClientId);
-            
-            // Update invitation status if we have an invitation ID
-            if (invitation?.id) {
-              await fetch(`/api/invitations/${invitation.id}`, {
-                method: 'PATCH',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                  status: 'accepted',
-                  clientId: existingClientId // Link invitation to existing client
-                }),
-              });
-            }
-            
-            toast({
-              title: 'Account Already Exists',
-              description: 'We found your existing account. Redirecting to your dashboard.',
-              variant: 'default',
-            });
-            
-            setRegistrationComplete(true);
-            
-            // Redirect to existing client's dashboard after a delay
-            setTimeout(() => {
-              navigate(`/client/${existingClientId}`);
-            }, 1500);
-            
-            return;
-          }
-        }
-        
-        // If we can't find a matching client, show an error
-        throw new Error(`A client with this ${responseData.field} already exists. Please use a different ${responseData.field} or contact support.`);
-      }
-      
-      // Handle invalid/error response
-      if (!clientResponse.ok) {
-        throw new Error(`Failed to register client: ${JSON.stringify(responseData)}`);
-      }
-      
-      // Handle successful client creation (HTTP 201 Created)
-      const createdClient = responseData;
-      console.log('Created client:', createdClient);
-      
-      // Update invitation status if we have an invitation ID
-      if (invitation?.id) {
-        const inviteResponse = await fetch(`/api/invitations/${invitation.id}`, {
-          method: 'PATCH',
+      try {
+        // Create the client with better error handling
+        const clientResponse = await fetch('/api/clients', {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ 
-            status: 'accepted',
-            clientId: createdClient.id // Link invitation to new client
-          }),
+          body: JSON.stringify(clientData),
         });
         
-        if (!inviteResponse.ok) {
-          console.warn('Failed to update invitation status, but client was created');
+        // Ensure we can parse the response - wrap in try-catch to handle json parse errors
+        let responseData;
+        try {
+          responseData = await clientResponse.json();
+          console.log('Client registration response:', { status: clientResponse.status, data: responseData });
+        } catch (jsonError) {
+          console.error('Failed to parse response JSON:', jsonError);
+          toast({
+            title: 'Registration Error',
+            description: 'Server response was invalid. Please try again.',
+            variant: 'destructive',
+          });
+          return;
         }
+        
+        // Handle duplicate client scenario (HTTP 409 Conflict)
+        if (clientResponse.status === 409 && responseData.status === 'duplicate') {
+          console.log('Duplicate client detected:', responseData);
+          
+          // Show a toast about the duplicate account
+          toast({
+            title: 'Account Already Exists',
+            description: responseData.message || `A client with this ${responseData.field} already exists.`,
+            variant: 'default',
+          });
+          
+          // Try to find existing client by the duplicate contact information
+          let existingClientId: number | undefined;
+          
+          // Search for existing client with this phone or email
+          const fieldValue = data[responseData.field as keyof ClientFormValues] as string;
+          if (!fieldValue) {
+            throw new Error(`Missing ${responseData.field} value for duplicate client lookup`);
+          }
+          
+          try {
+            const searchResponse = await fetch(`/api/clients?${responseData.field}=${encodeURIComponent(fieldValue)}`, {
+              method: 'GET'
+            });
+            
+            if (searchResponse.ok) {
+              const foundClients = await searchResponse.json();
+              
+              if (foundClients && foundClients.length > 0) {
+                // Use the first matching client
+                existingClientId = foundClients[0].id;
+                console.log('Found existing client with ID:', existingClientId);
+                
+                // Update invitation status if we have an invitation ID
+                if (invitation?.id) {
+                  try {
+                    await fetch(`/api/invitations/${invitation.id}`, {
+                      method: 'PATCH',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ 
+                        status: 'accepted',
+                        clientId: existingClientId // Link invitation to existing client
+                      }),
+                    });
+                  } catch (inviteError) {
+                    console.warn('Failed to update invitation for existing client:', inviteError);
+                  }
+                }
+                
+                setRegistrationComplete(true);
+                
+                // Redirect to existing client's dashboard after a delay
+                setTimeout(() => {
+                  navigate(`/client/${existingClientId}`);
+                }, 1500);
+                
+                return;
+              }
+            }
+          } catch (searchError) {
+            console.error('Error searching for existing client:', searchError);
+          }
+          
+          // If we can't find a matching client, show an error
+          throw new Error(`A client with this ${responseData.field} already exists. Please use a different ${responseData.field} or contact support.`);
+        }
+        
+        // Handle invalid/error response
+        if (!clientResponse.ok) {
+          throw new Error(`Failed to register client: ${responseData.error || JSON.stringify(responseData)}`);
+        }
+        
+        // Handle successful client creation (HTTP 201 Created)
+        const createdClient = responseData;
+        console.log('Created client:', createdClient);
+        
+        // Update invitation status if we have an invitation ID
+        if (invitation?.id) {
+          try {
+            const inviteResponse = await fetch(`/api/invitations/${invitation.id}`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ 
+                status: 'accepted',
+                clientId: createdClient.id // Link invitation to new client
+              }),
+            });
+            
+            if (!inviteResponse.ok) {
+              console.warn('Failed to update invitation status, but client was created');
+            }
+          } catch (inviteError) {
+            console.warn('Error updating invitation after client creation:', inviteError);
+          }
+        }
+        
+        // Show success message
+        toast({
+          title: 'Registration Successful',
+          description: 'Your account has been created successfully.',
+          variant: 'default',
+        });
+        
+        // Update registration state
+        setRegistrationComplete(true);
+        
+        // Store client ID for redirection
+        const clientId = createdClient?.id;
+        console.log('Client created with ID:', clientId);
+        
+        // Redirect to client dashboard after a short delay
+        setTimeout(() => {
+          if (clientId) {
+            navigate(`/client/${clientId}`);
+          } else {
+            // Fallback if we don't have the client ID
+            console.warn('No client ID available for redirection');
+            navigate('/');
+          }
+        }, 1500);
+      } catch (fetchError) {
+        console.error('Fetch error during client registration:', fetchError);
+        toast({
+          title: 'Registration Failed',
+          description: fetchError instanceof Error ? fetchError.message : 'Network error occurred while registering',
+          variant: 'destructive',
+        });
       }
-      
-      // Show success message
-      toast({
-        title: 'Registration Successful',
-        description: 'Your account has been created successfully.',
-        variant: 'default',
-      });
-      
-      // Update registration state
-      setRegistrationComplete(true);
-      
-      // Store client ID for redirection
-      const clientId = createdClient?.id;
-      console.log('Client created with ID:', clientId);
-      
-      // Redirect to client dashboard after a short delay
-      setTimeout(() => {
-        if (clientId) {
-          navigate(`/client/${clientId}`);
-        } else {
-          // Fallback if we don't have the client ID
-          console.warn('No client ID available for redirection');
-          navigate('/');
-        }
-      }, 1500);
-      
     } catch (error) {
       console.error('Registration error:', error);
       toast({
@@ -600,14 +644,18 @@ export default function ClientRegistrationPage() {
                         type="submit" 
                         className="w-full"
                         disabled={isSubmitting}
+                        variant={isSubmitting ? "outline" : "default"}
                       >
                         {isSubmitting ? (
                           <>
                             <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                            Processing...
+                            Processing Registration...
                           </>
                         ) : (
-                          'Complete Registration'
+                          <>
+                            <CheckCheck className="mr-2 h-4 w-4" />
+                            Complete Registration
+                          </>
                         )}
                       </Button>
                     </div>
