@@ -134,7 +134,10 @@ const CarouselSlide = ({
                     autoPlay 
                     loop={!isLastSlide} 
                     muted 
+                    playsInline
+                    disablePictureInPicture
                     className="w-full h-full object-cover"
+                    style={{ objectFit: 'cover', maxWidth: '100%' }}
                   />
                 </div>
               ) : (
