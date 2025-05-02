@@ -238,7 +238,7 @@ export default function ClientsPage() {
         position="top-right"
         isOpen={showThoughtBubble}
         onClose={() => setShowThoughtBubble(false)}
-        className="z-50 fixed top-[450px] right-[30px] max-w-[280px]"
+        className="z-50 fixed top-[450px] right-[40px] max-w-[280px]"
       />
     </div>
   );
