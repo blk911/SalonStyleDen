@@ -114,7 +114,7 @@ export function RenderedInvitation({
           <>
             <div className="flex justify-between items-center">
               <div className="text-xs text-gray-500">{salonName}</div>
-              <div className="text-xs font-mono text-gray-600">{formattedInviteId}</div>
+              {/* Removed invitation ID display from header */}
             </div>
             <h3 className="text-xl font-semibold text-pink-800 text-center mt-2">
               Ven Me, Baby! Gift Request
@@ -178,10 +178,7 @@ export function RenderedInvitation({
                   </div>
                 )}
                 
-                {/* Only show the VMB ID when there's an actual ID */}
-                {inviteId && (
-                  <div className="text-center mt-2 text-xs text-gray-400">VMB:{inviteId}</div>
-                )}
+                {/* Removed VMB ID display */}
 
               </>
             ) : (
@@ -190,7 +187,7 @@ export function RenderedInvitation({
                 My stylist has an opening for <span className="font-semibold">{styleOption}</span>, {price} ({time}) 
                 will you Ven Me, Baby! ❤️❤️❤️ <span className="font-semibold">{senderName}</span>
                 
-                <div className="text-center mt-2 text-xs text-gray-400">VMB:{inviteId}</div>
+                {/* Removed VMB ID display */}
               </>
             )}
           </div>
