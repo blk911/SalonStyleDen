@@ -245,7 +245,17 @@ export default function ClientRegistrationPage() {
     document.body.setAttribute('data-address-shown', 'true');
     logFlow('Dialog closed, data-address-shown attribute set to true');
     
-    // Focus directly on terms checkbox using DOM ID
+    // CRITICAL FIX: Manually continue form submission after dialog is closed
+    setTimeout(() => {
+      logFlow('CRITICAL FIX: Manually continuing form submission after address dialog');
+      const formData = form.getValues();
+      console.log('Form data for manual submission:', formData);
+      
+      // Manually submit the form with the current values
+      form.handleSubmit(onSubmit)();
+    }, 100);
+    
+    // Focus directly on terms checkbox in case manual submission doesn't work
     focusTermsCheckbox();
   };
   
