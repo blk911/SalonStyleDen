@@ -24,7 +24,8 @@ import { useContactValidation } from '@/hooks/use-contact-validation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import {
   Loader2 as Loader2Icon,
-  CheckCircle as CheckCircleIcon,
+  CheckCircle,
+  Check as CheckIcon,
   UserCircle,
   Building2,
   Mail,
@@ -56,12 +57,7 @@ const clientSchema = z.object({
   address: z.string().optional().or(z.literal('')),
   city: z.string().optional().or(z.literal('')),
   state: z.string().optional().or(z.literal('')),
-  zipCode: z.string()
-    .optional()
-    .or(z.literal(''))
-    .refine((val: string) => val === '' || /^\d{5}(-\d{4})?$/.test(val), {
-      message: 'ZIP code must be in format 12345 or 12345-6789'
-    }),
+  zipCode: z.string().optional(),
   favoriteServices: z.array(z.string()).optional(),
   notes: z.string().optional().or(z.literal('')),
   acceptTerms: z.boolean()
@@ -121,6 +117,7 @@ export default function ClientRegistrationPage() {
   const [addressDialogShown, setAddressDialogShown] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [registeredClientId, setRegisteredClientId] = useState<number | null>(null);
   
   // We'll use a direct approach to the terms checkbox element
   const focusTermsCheckbox = () => {
@@ -497,10 +494,10 @@ export default function ClientRegistrationPage() {
     );
   }
 
-  // Success state
+  // Enhanced success state with animation and better feedback
   if (registrationComplete) {
     return (
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-pink-50">
         <Navbar />
         <main className="flex-grow container mx-auto px-4 py-8">
           <Card>
@@ -797,8 +794,35 @@ export default function ClientRegistrationPage() {
                     <FormItem>
                       <FormLabel>Zip Code</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Zip" maxLength={5} />
+                        <Input 
+                          {...field} 
+                          placeholder="Zip" 
+                          maxLength={10} 
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            // Allow only numbers and hyphens
+                            if (/^[\d-]*$/.test(value)) {
+                              field.onChange(value);
+                            }
+                          }}
+                          onBlur={(e) => {
+                            const value = e.target.value;
+                            // Validate zip code format on blur
+                            if (value && !/^\d{5}(-\d{4})?$/.test(value)) {
+                              toast({
+                                title: "Invalid ZIP Code",
+                                description: "Please use format 12345 or 12345-6789",
+                                variant: "destructive"
+                              });
+                            }
+                            field.onBlur();
+                          }}
+                        />
                       </FormControl>
+                      <FormDescription className="text-xs">
+                        Format: 12345 or 12345-6789
+                      </FormDescription>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
