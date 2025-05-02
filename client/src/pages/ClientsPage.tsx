@@ -219,7 +219,6 @@ export default function ClientsPage() {
       
       {/* Welcome ThoughtBubble */}
       <ThoughtBubble
-        text={"See how Ven Me Baby makes gifting personal work...for real! For salons, 'How easy!' and for personal care clients, create your gift invitation."}
         position="top-right"
         isOpen={showThoughtBubble}
         onClose={() => setShowThoughtBubble(false)}

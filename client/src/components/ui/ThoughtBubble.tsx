@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ThoughtBubbleProps {
-  text: string;
+  message?: string;
   position?: "top-right" | "top-left" | "bottom-right" | "bottom-left";
   isOpen: boolean;
   onClose: () => void;
@@ -12,7 +12,7 @@ interface ThoughtBubbleProps {
 }
 
 export function ThoughtBubble({
-  text,
+  message,
   position = "top-right",
   isOpen,
   onClose,
@@ -71,7 +71,7 @@ export function ThoughtBubble({
       
       {/* Bubble content */}
       <p className="text-gray-700 text-xs leading-relaxed">
-        See how Ven Me Baby makes gifting personal work...for real! For salons, &apos;How easy!&apos; and for personal care clients, create your gift invitation.
+        {message || "See how Ven Me Baby makes gifting personal work...for real! For salons, 'How easy!' and for personal care clients, create your gift invitation."}
       </p>
     </div>
   );
