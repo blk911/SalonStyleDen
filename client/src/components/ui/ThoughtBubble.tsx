@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 interface ThoughtBubbleProps {
   message?: string;
-  position?: "top-right" | "top-left" | "bottom-right" | "bottom-left";
+  position?: "top-right" | "top-left" | "bottom-right" | "bottom-left" | "middle-center";
   isOpen: boolean;
   onClose: () => void;
   className?: string;
@@ -22,11 +22,12 @@ export function ThoughtBubble({
   const [show, setShow] = useState(false);
   
   // Position classes
-  const positionClasses = {
+  const positionClasses: Record<string, string> = {
     "top-right": "top-4 right-4",
     "top-left": "top-4 left-4",
     "bottom-right": "bottom-4 right-4",
-    "bottom-left": "bottom-4 left-4"
+    "bottom-left": "bottom-4 left-4",
+    "middle-center": "top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
   };
 
   // Show with delay

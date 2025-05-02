@@ -168,7 +168,12 @@ export default function ClientsPage() {
                         </div>
                         <div className="mt-1 sm:mt-0 sm:ml-2">
                           <Link href="/salon/2">
-                            <Button className="px-2 bg-blue-600 hover:bg-blue-700 text-white py-0.5 text-xs">See How Easy!</Button>
+                            <Button className="px-2 bg-blue-600 hover:bg-blue-700 text-white py-0.5 text-xs flex items-center">
+                              See How Easy!
+                              <svg className="ml-1" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M5 12h14m-7-7 7 7-7 7"/>
+                              </svg>
+                            </Button>
                           </Link>
                         </div>
                       </div>
@@ -228,12 +233,12 @@ export default function ClientsPage() {
       
       <Footer />
       
-      {/* Welcome ThoughtBubble */}
+      {/* Welcome ThoughtBubble - Repositioned to float between carousel and salon card */}
       <ThoughtBubble
-        position="top-right"
+        position="middle-center"
         isOpen={showThoughtBubble}
         onClose={() => setShowThoughtBubble(false)}
-        className="z-50"
+        className="z-50 absolute top-[500px] left-0 right-0 mx-auto"
       />
     </div>
   );
