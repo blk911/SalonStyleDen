@@ -233,12 +233,12 @@ export default function ClientsPage() {
       
       <Footer />
       
-      {/* Welcome ThoughtBubble - Repositioned to float between carousel and salon card */}
+      {/* Welcome ThoughtBubble - Repositioned as requested */}
       <ThoughtBubble
-        position="middle-center"
+        position="top-right"
         isOpen={showThoughtBubble}
         onClose={() => setShowThoughtBubble(false)}
-        className="z-50 absolute top-[500px] left-0 right-0 mx-auto"
+        className="z-50 translate-y-[150px] translate-x-[25px]"
       />
     </div>
   );
