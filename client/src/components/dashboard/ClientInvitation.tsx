@@ -136,6 +136,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     return message
       .replace(/\[nm\]/g, clientName)
       .replace(/\[insert sty opt NAME\]/g, styleOption || "Salon Service")
+      .replace(/Selected Style/g, styleOption || "Salon Service")
       .replace(/\[RANDOM ID\]/g, `VMB-${Math.floor(100000 + Math.random() * 900000)}`);
   };
   
