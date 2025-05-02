@@ -510,9 +510,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const invitationId = parseInt(req.body.invitationId);
           if (!isNaN(invitationId)) {
             try {
-              // Update invitation status to accepted, not completed
-              // This ensures the invitation is linked to the client but not automatically completed without viewing
-              await storage.updateInvitationStatus(invitationId, 'accepted');
+              // Update invitation status to completed
+              await storage.updateInvitationStatus(invitationId, 'completed');
             } catch (invitationError) {
               // Log error but don't fail the client creation
               console.error(`Failed to update invitation ${invitationId} status:`, invitationError);
@@ -526,11 +525,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const matchingInvitations = await storage.getInvitationsByPhone(validatedData.phone);
             
             if (matchingInvitations.length > 0) {
-              // Update all matching invitations to accepted (not completed)
-              // This ensures invitations are linked to the client but not marked as completed without viewing
+              // Update all matching invitations to completed
               for (const invitation of matchingInvitations) {
-                if (invitation.status !== 'completed' && invitation.status !== 'accepted') {
-                  await storage.updateInvitationStatus(invitation.id, 'accepted');
+                if (invitation.status !== 'completed') {
+                  await storage.updateInvitationStatus(invitation.id, 'completed');
                 }
               }
             }
