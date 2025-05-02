@@ -118,6 +118,7 @@ export default function ClientRegistrationPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [registeredClientId, setRegisteredClientId] = useState<number | null>(null);
+  const [isExistingClient, setIsExistingClient] = useState(false);
   
   // We'll use a direct approach to the terms checkbox element
   const focusTermsCheckbox = () => {
@@ -381,12 +382,18 @@ export default function ClientRegistrationPage() {
                   }
                 }
                 
+                // Set registration as complete and store client ID for improved UX
                 setRegistrationComplete(true);
+                setIsExistingClient(true); // Flag this as an existing client for different UI messaging
+                if (existingClientId) {
+                  setRegisteredClientId(existingClientId);
+                }
                 
-                // Redirect to existing client's dashboard after a delay
+                // Redirect to existing client's dashboard after a longer delay
+                // to show the success screen with helpful information
                 setTimeout(() => {
                   navigate(`/client/${existingClientId}`);
-                }, 1500);
+                }, 2500);
                 
                 return;
               }
@@ -437,23 +444,25 @@ export default function ClientRegistrationPage() {
           variant: 'default',
         });
         
-        // Update registration state
+        // Update registration state and store client ID
         setRegistrationComplete(true);
         
-        // Store client ID for redirection
         const clientId = createdClient?.id;
-        console.log('Client created with ID:', clientId);
-        
-        // Redirect to client dashboard after a short delay
-        setTimeout(() => {
-          if (clientId) {
+        if (clientId) {
+          setRegisteredClientId(clientId);
+          console.log('Client created with ID:', clientId);
+          
+          // Redirect to client dashboard after a short delay (gives user time to read success message)
+          setTimeout(() => {
             navigate(`/client/${clientId}`);
-          } else {
-            // Fallback if we don't have the client ID
-            console.warn('No client ID available for redirection');
+          }, 2500);
+        } else {
+          // Fallback if we don't have the client ID
+          console.warn('No client ID available for redirection');
+          setTimeout(() => {
             navigate('/');
-          }
-        }, 1500);
+          }, 2000);
+        }
       } catch (fetchError) {
         console.error('Fetch error during client registration:', fetchError);
         toast({
@@ -500,20 +509,71 @@ export default function ClientRegistrationPage() {
       <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-pink-50">
         <Navbar />
         <main className="flex-grow container mx-auto px-4 py-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center justify-center py-12">
-                <CheckCircleIcon className="h-16 w-16 text-green-500 mb-4" />
-                <h2 className="text-2xl font-bold mb-2">Registration Complete!</h2>
-                <p className="text-gray-600 mb-4">
-                  Your account has been created successfully. Redirecting to your dashboard...
-                </p>
-                <div className="animate-pulse">
-                  <Loader2Icon className="h-6 w-6 animate-spin text-gray-400" />
+          <div className="max-w-2xl mx-auto">
+            <Card className="border-2 border-green-100 shadow-md overflow-hidden">
+              <div className="bg-green-50 py-4 px-6 border-b border-green-100">
+                <div className="flex items-center">
+                  <div className="bg-white p-3 rounded-full mr-4">
+                    <CheckCircle className="h-10 w-10 text-green-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">Registration Complete!</h2>
+                    <p className="text-gray-600">
+                      {isExistingClient 
+                        ? 'Welcome back! Your existing account was found' 
+                        : 'Your account has been created successfully'}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+              
+              <CardContent className="pt-6">
+                <div className="space-y-6">
+                  <div className="bg-white p-4 rounded-lg border border-gray-100">
+                    <h3 className="font-medium text-gray-800 mb-3">What's next?</h3>
+                    {isExistingClient ? (
+                      <ul className="space-y-3">
+                        <li className="flex items-start">
+                          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                          <span className="text-gray-600">You'll be redirected to your existing dashboard</span>
+                        </li>
+                        <li className="flex items-start">
+                          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                          <span className="text-gray-600">Your invitation has been linked to your account</span>
+                        </li>
+                        <li className="flex items-start">
+                          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                          <span className="text-gray-600">Continue enjoying all member benefits</span>
+                        </li>
+                      </ul>
+                    ) : (
+                      <ul className="space-y-3">
+                        <li className="flex items-start">
+                          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                          <span className="text-gray-600">You'll be redirected to your new dashboard</span>
+                        </li>
+                        <li className="flex items-start">
+                          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                          <span className="text-gray-600">Browse services from your sponsoring salon</span>
+                        </li>
+                        <li className="flex items-start">
+                          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                          <span className="text-gray-600">Invite your friends for special offers</span>
+                        </li>
+                      </ul>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center justify-center pt-2">
+                    <div className="flex items-center space-x-2 bg-gray-50 py-2 px-4 rounded-full">
+                      <Loader2Icon className="animate-spin h-4 w-4 text-pink-500" />
+                      <span className="text-sm text-gray-600">Redirecting to your dashboard...</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </main>
         <Footer />
       </div>
