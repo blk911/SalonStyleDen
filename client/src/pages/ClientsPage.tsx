@@ -157,22 +157,26 @@ export default function ClientsPage() {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="text-center sm:text-left">
-                      <h3 className="text-xl md:text-2xl font-serif font-semibold text-blue-800">Salon Owner Benefits</h3>
-                      <p className="text-blue-600 text-sm font-medium">Michelle S., VMB Certified Stylist</p>
+                    <div className="text-center sm:text-left flex-grow">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <h3 className="text-xl md:text-2xl font-serif font-semibold text-blue-800">Salon Owner Benefits</h3>
+                          <p className="text-blue-600 text-sm font-medium">Michelle S., VMB Certified Stylist</p>
+                        </div>
+                        <div className="mt-2 sm:mt-0">
+                          <Link href="/salon/2">
+                            <Button className="px-3 bg-blue-600 hover:bg-blue-700 text-white py-1 text-xs">See How Easy!</Button>
+                          </Link>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="text-gray-700 flex-grow mb-6">
+                  <div className="text-gray-700 flex-grow mb-4">
                     <p className="italic text-xs sm:text-sm leading-relaxed">"VMB has transformed how I connect with clients. The personalized invitation feature makes client acquisition effortless, and I've seen a 40% increase in client retention! The system's intuitive design has streamlined my scheduling process so I can focus on what matters - delivering exceptional service."</p>
-                    <div className="mt-4 flex flex-col sm:flex-row items-center">
+                    <div className="mt-3 flex flex-col sm:flex-row items-center">
                       <div className="text-yellow-500 mr-1">★★★★★</div>
                       <span className="text-xs sm:text-sm text-gray-500">Verified VMB Partner</span>
                     </div>
-                  </div>
-                  <div className="mt-auto text-center">
-                    <Link href="/salon/2">
-                      <Button className="px-6 bg-blue-600 hover:bg-blue-700 text-white py-2 text-sm">HOW EASY? SEE FOR YOUR SELF</Button>
-                    </Link>
                   </div>
                 </CardContent>
               </Card>
@@ -188,25 +192,29 @@ export default function ClientsPage() {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="text-center sm:text-left">
-                      <h3 className="text-xl md:text-2xl font-serif font-semibold text-green-800">Client Success Stories</h3>
-                      <p className="text-green-600 text-sm font-medium">Kendra T., Premium Client</p>
+                    <div className="text-center sm:text-left flex-grow">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <h3 className="text-xl md:text-2xl font-serif font-semibold text-green-800">Client Success Stories</h3>
+                          <p className="text-green-600 text-sm font-medium">Kendra T., Premium Client</p>
+                        </div>
+                        <div className="mt-2 sm:mt-0">
+                          <Link href="/salon/2">
+                            <Button className="px-3 bg-green-600 hover:bg-green-700 text-white py-1 text-xs">
+                              Create Your Gift!
+                              <GiftIcon className="ml-1 h-3 w-3" stroke="gold" strokeWidth={2.5} />
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="text-gray-700 flex-grow mb-6">
+                  <div className="text-gray-700 flex-grow mb-4">
                     <p className="italic text-xs sm:text-sm leading-relaxed">"I adore the personalized VMB experience! Receiving an invitation makes me feel valued and special. The style selection is intuitive and helps me explore new options. Since discovering VMB, I've scheduled all my appointments through the platform - it's become essential to my self-care routine and I recommend it to everyone!"</p>
-                    <div className="mt-4 flex flex-col sm:flex-row items-center">
+                    <div className="mt-3 flex flex-col sm:flex-row items-center">
                       <div className="text-yellow-500 mr-1">★★★★★</div>
                       <span className="text-xs sm:text-sm text-gray-500">VMB Member since 2024</span>
                     </div>
-                  </div>
-                  <div className="mt-auto text-center">
-                    <Link href="/salon/2">
-                      <Button className="px-6 bg-green-600 hover:bg-green-700 text-white py-2 text-sm">
-                        CREATE A GIFT INVITATION 
-                        <GiftIcon className="ml-1 h-4 w-4" stroke="gold" strokeWidth={2.5} />
-                      </Button>
-                    </Link>
                   </div>
                 </CardContent>
               </Card>
