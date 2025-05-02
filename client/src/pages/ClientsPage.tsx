@@ -233,12 +233,12 @@ export default function ClientsPage() {
       
       <Footer />
       
-      {/* Welcome ThoughtBubble - Positioned above "See How Easy!" button */}
+      {/* Welcome ThoughtBubble - Positioned to right side of carousel with padding */}
       <ThoughtBubble
         position="top-right"
         isOpen={showThoughtBubble}
         onClose={() => setShowThoughtBubble(false)}
-        className="z-50 fixed bottom-[120px] right-[100px] max-w-[280px]"
+        className="z-50 fixed top-[450px] right-[30px] max-w-[280px]"
       />
     </div>
   );
