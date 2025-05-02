@@ -31,6 +31,9 @@ import { DaySchedule } from "@/components/dashboard/WeeklySchedule";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import { PromoDetailsPopup } from "@/components/ui/PromoDetailsPopup";
 import { PromoConfirmationPopup } from "@/components/ui/PromoConfirmationPopup";
+import { InstructionPopup } from "@/components/ui/InstructionPopup";
+import { ContextualHelp } from "@/components/ui/ContextualHelp";
+import { Lightbulb } from "lucide-react";
 
 // Define a type for social media
 interface SocialMediaItem {
@@ -89,6 +92,8 @@ export default function SalonPublicPage() {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   // State for current client ID (if authenticated)
   const [currentClientId, setCurrentClientId] = useState<number | undefined>(undefined);
+  // State for instruction popup
+  const [isInstructionOpen, setIsInstructionOpen] = useState(false);
   
   // Function to get the current client ID from the URL or session
   const getCurrentClientId = useCallback(async () => {
@@ -424,15 +429,30 @@ export default function SalonPublicPage() {
             </div>
           </section>
         ) : (
-          <VmbStyleOptions 
-            services={salon.services} 
-            salonId={salon.id}
-            clientId={currentClientId} // Dynamic client ID from session
-            onSelectionComplete={(selection) => {
-              console.log("Style selected:", selection);
-              // You could update UI or redirect here
-            }}
-          />
+          <section className="relative py-2">
+            <ContextualHelp
+              id="vmb-style-selection"
+              title="Style Selection Guide"
+              description="Follow these simple steps to choose your style and send an invitation:"
+              steps={[
+                "Browse through all available nail styles and click on one that interests you.",
+                "Enter the name and contact of the person you'd like to invite.",
+                "Add a personal message to make your invitation special.",
+                "Submit and we'll send your invitation right away!"
+              ]}
+              position="top-right"
+              autoShow={true}
+            />
+            <VmbStyleOptions 
+              services={salon.services} 
+              salonId={salon.id}
+              clientId={currentClientId} // Dynamic client ID from session
+              onSelectionComplete={(selection) => {
+                console.log("Style selected:", selection);
+                // You could update UI or redirect here
+              }}
+            />
+          </section>
         )}
 
         {/* Business Hours Section */}
@@ -516,10 +536,36 @@ export default function SalonPublicPage() {
             <div className="bg-[#FEE1E8] rounded p-3 text-center">
               <h2 className="font-bold text-sm mb-2">Ready to look gorgeous?</h2>
               <p className="text-mini mb-2">Book your appointment at {salon.name} today!</p>
-              <Button className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white">Book Now</Button>
+              <div className="flex justify-center gap-2">
+                <Button className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white">Book Now</Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => setIsInstructionOpen(true)}
+                  className="border-pink-300 text-pink-700 flex items-center gap-1"
+                >
+                  <Lightbulb className="h-4 w-4" />
+                  How It Works
+                </Button>
+              </div>
             </div>
           </div>
         </section>
+        
+        {/* Instruction Popup */}
+        <InstructionPopup
+          title="How Ven Me, Baby! Works"
+          description="Make connections personal with a few simple steps."
+          isOpen={isInstructionOpen}
+          onClose={() => setIsInstructionOpen(false)}
+          steps={[
+            "Select your favorite nail style from the options above.",
+            "Send an invitation to someone special who might treat you.",
+            "They'll receive your invitation and can easily fulfill your request.",
+            "Visit the salon and enjoy your service when the appointment is confirmed!"
+          ]}
+          icon={<Lightbulb className="h-5 w-5" />}
+          actionText="Got it!"
+        />
       </main>
       <Footer />
     </div>
