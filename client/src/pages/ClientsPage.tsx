@@ -129,12 +129,15 @@ export default function ClientsPage() {
             {/* Marketing Teaser Campaign Carousel */}
             <div className="mb-6">
               <div className="flex items-center justify-center mb-3">
-                <h3 className="text-base md:text-xl font-serif font-bold text-red-600 flex items-center justify-center w-full">
-                  <HeartIcon className="h-5 w-5 text-red-600 mr-2" fill="currentColor" /> 
-                  <span className="ven-me">Ven Me,</span><span className="baby">Baby!</span> 
-                  <HeartIcon className="h-5 w-5 text-red-600 mx-2" fill="currentColor" /> 
-                  Make Connections Personal! 
-                  <HeartIcon className="h-5 w-5 text-red-600 ml-2" fill="currentColor" />
+                <h3 className="text-base md:text-xl font-serif font-bold text-red-600 w-full text-center">
+                  <div className="flex flex-col sm:flex-row items-center justify-center">
+                    <div className="mb-1 sm:mb-0">
+                      <span className="ven-me">Ven Me,</span><span className="baby">Baby!</span>
+                    </div> 
+                    <div className="sm:ml-2">
+                      Make Connections Personal!
+                    </div>
+                  </div>
                 </h3>
               </div>
               
