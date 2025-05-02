@@ -72,7 +72,7 @@ export function ThoughtBubble({
       
       {/* Bubble content */}
       <p className="text-gray-700 text-xs leading-relaxed">
-        {message || "See how Ven Me Baby makes gifting empower clients, grow your business! For salons, 'How easy!'; if you're a client \"Create Your Gift!\", try it now!"}
+        {message || "See how Ven Me Baby gifting empowers clients and business owners! For salons, 'How easy!'; For Clients, \"Create Your Gift!\", try it now! Click the button below!"}
       </p>
     </div>
   );
