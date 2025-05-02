@@ -893,7 +893,8 @@ export default function AdminDashboard() {
                       // Find the salon ID from the first invitation in group
                       const firstInvite = salonInvites[0];
                       if (firstInvite && firstInvite.salonId) {
-                        setLocation(`/salon/${firstInvite.salonId}`);
+                        // Use Link component navigation instead of direct setLocation
+                        window.location.href = `/salon/${firstInvite.salonId}`;
                       }
                     }}
                   >
@@ -907,9 +908,7 @@ export default function AdminDashboard() {
                         className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center"
                         onClick={(e) => {
                           e.stopPropagation(); // Prevent triggering the salon header click
-                          if (salonInvites[0]?.salonId) {
-                            setLocation(`/salon/${salonInvites[0].salonId}`);
-                          }
+                          // Remove the setLocation call as it's redundant with the Link's "to" property
                         }}
                       >
                         <span className="hidden md:inline mr-1">View Salon</span>
@@ -964,8 +963,7 @@ export default function AdminDashboard() {
                                         onClick={() => {
                                           // Set admin view flag in localStorage to persist through navigation
                                           localStorage.setItem('adminView', 'true');
-                                          // Navigate to client dashboard page with admin view query parameter
-                                          setLocation(`/client/${clientId}?adminView=true`);
+                                          // Link's "to" property will handle navigation
                                         }}
                                       >
                                         <ExternalLinkIcon className="h-4 w-4" />
@@ -977,9 +975,9 @@ export default function AdminDashboard() {
                                       <Link 
                                         to={`/invitation-preview/${invitation.inviteHash}?adminView=true`}
                                         className="inline-flex items-center justify-center text-gray-500 font-medium hover:text-gray-700 cursor-pointer px-2 py-1"
-                                        onClick={() => {
-                                          // Navigate to invitation page with preview mode and admin view flag
-                                          setLocation(`/invitation-preview/${invitation.inviteHash}?adminView=true`);
+                                        onClick={(e) => {
+                                          e.stopPropagation(); // Prevent triggering the parent click
+                                          // Link's "to" property will handle navigation
                                         }}
                                       >
                                         <ExternalLinkIcon className="h-4 w-4" />
@@ -1169,8 +1167,7 @@ export default function AdminDashboard() {
                                 onClick={() => {
                                   // Set admin view flag in localStorage to persist through navigation
                                   localStorage.setItem('adminView', 'true');
-                                  // Navigate to client dashboard with admin view query parameter
-                                  setLocation(`/client/${client.id}?adminView=true`);
+                                  // Link's "to" property will handle navigation
                                 }}
                                 className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]"
                               >
@@ -1179,7 +1176,6 @@ export default function AdminDashboard() {
                               {client.salonId && (
                                 <Link 
                                   to={`/salon/${client.salonId}`}
-                                  onClick={() => setLocation(`/salon/${client.salonId}`)}
                                   className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200"
                                 >
                                   Salon
@@ -1290,7 +1286,6 @@ export default function AdminDashboard() {
               action={
                 <Link 
                   to="/network-visualization"
-                  onClick={() => setLocation('/network-visualization')}
                 >
                   <Button size="sm" variant="outline">
                     <ExternalLinkIcon className="h-4 w-4 mr-1" />
