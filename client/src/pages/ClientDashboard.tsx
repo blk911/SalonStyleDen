@@ -150,16 +150,23 @@ export default function ClientDashboard() {
   // State for invitation preview
   const [showInvitePreview, setShowInvitePreview] = useState(false);
 
+  // Validate ID parameter - should be a number, not 'registration' or other text
+  const numericId = id && !isNaN(Number(id)) ? id : null;
+  
   // Add debugging information to trace API calls
-  console.log(`ClientDashboard - Fetching client with ID: ${id}`);
+  console.log(`ClientDashboard - Fetching client with ID: ${numericId || 'INVALID'}`);
 
   // Fetch client data
   const { data: client, isLoading: clientLoading, error: clientError } = useQuery<ClientData>({
-    queryKey: ['/api/clients', id],
+    queryKey: ['/api/clients', numericId],
     queryFn: async () => {
       try {
-        console.log(`ClientDashboard - Making API request to fetch client ${id}`);
-        const response = await fetch(`/api/clients/${id}`);
+        if (!numericId) {
+          throw new Error('Invalid client ID format');
+        }
+        
+        console.log(`ClientDashboard - Making API request to fetch client ${numericId}`);
+        const response = await fetch(`/api/clients/${numericId}`);
         if (!response.ok) {
           const errorText = await response.text();
           console.error(`ClientDashboard - API error: ${response.status} ${errorText}`);
@@ -169,12 +176,12 @@ export default function ClientDashboard() {
         console.log(`ClientDashboard - Successfully fetched client:`, data);
         return data;
       } catch (error) {
-        console.error(`ClientDashboard - Error fetching client ${id}:`, error);
+        console.error(`ClientDashboard - Error fetching client ${numericId || 'INVALID'}:`, error);
         throw error;
       }
     },
     refetchOnMount: true,
-    enabled: !!id, // Only run the query if we have an ID
+    enabled: !!numericId, // Only run the query if we have a valid numeric ID
   });
 
   // Fetch linked salon data if salonId exists
@@ -195,10 +202,14 @@ export default function ClientDashboard() {
   
   // Fetch client's style selections
   const { data: styleSelections, isLoading: selectionsLoading } = useQuery<StyleSelection[]>({
-    queryKey: ['/api/clients', id, 'style-selections'],
+    queryKey: ['/api/clients', numericId, 'style-selections'],
     queryFn: async () => {
-      console.log(`ClientDashboard - Fetching style selections for client ${id}`);
-      const response = await fetch(`/api/clients/${id}/style-selections`);
+      if (!numericId) {
+        throw new Error('Invalid client ID format');
+      }
+      
+      console.log(`ClientDashboard - Fetching style selections for client ${numericId}`);
+      const response = await fetch(`/api/clients/${numericId}/style-selections`);
       if (!response.ok) {
         throw new Error(`Failed to fetch style selections: ${response.status}`);
       }
@@ -206,7 +217,7 @@ export default function ClientDashboard() {
       console.log(`ClientDashboard - Successfully fetched style selections:`, data);
       return data;
     },
-    enabled: !!id,
+    enabled: !!numericId, // Only run if we have a valid numeric ID
   });
 
   // Fetch client's invitations
