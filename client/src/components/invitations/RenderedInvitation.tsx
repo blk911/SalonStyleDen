@@ -95,16 +95,35 @@ export function RenderedInvitation({
   
   return (
     <Card className={`w-full max-w-md mx-auto shadow-lg overflow-hidden ${className}`}>
-      <CardHeader className={`${salonInitiated ? 'bg-amber-100' : 'bg-pink-100'} pb-2`}>
-        <div className="flex justify-between items-center">
-          <div className="text-xs text-gray-500">{salonName}</div>
-          <div className="text-xs font-mono text-gray-600">{formattedInviteId}</div>
-        </div>
-        <h3 className={`text-xl font-semibold ${salonInitiated ? 'text-amber-800' : 'text-pink-800'} text-center mt-2`}>
-          {salonInitiated ? "SALON INVITE" : "Ven Me, Baby! Gift Request"}
-        </h3>
+      <CardHeader className={`${salonInitiated ? 'bg-amber-50 border-b border-amber-200' : 'bg-pink-100'} pb-2`}>
+        {salonInitiated ? (
+          <div className="flex flex-col space-y-1">
+            <div className="flex items-center">
+              <span className="text-sm font-semibold text-amber-800 w-16">TO:</span>
+              <span className="text-sm font-medium text-gray-700">{recipientName}</span>
+            </div>
+            <div className="flex items-center">
+              <span className="text-sm font-semibold text-amber-800 w-16">FROM:</span>
+              <span className="text-sm font-medium text-gray-700">{salonName}</span>
+            </div>
+            <div className="flex justify-end">
+              <div className="text-xs font-mono text-gray-500">{formattedInviteId}</div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-between items-center">
+              <div className="text-xs text-gray-500">{salonName}</div>
+              <div className="text-xs font-mono text-gray-600">{formattedInviteId}</div>
+            </div>
+            <h3 className="text-xl font-semibold text-pink-800 text-center mt-2">
+              Ven Me, Baby! Gift Request
+            </h3>
+          </>
+        )}
       </CardHeader>
       
+      {/* Gradient bar under header (keep this for styling) */}
       <div className={`p-1 bg-gradient-to-r ${salonInitiated 
         ? 'from-amber-300 via-orange-300 to-yellow-300' 
         : 'from-pink-300 via-purple-300 to-indigo-300'}`}></div>
