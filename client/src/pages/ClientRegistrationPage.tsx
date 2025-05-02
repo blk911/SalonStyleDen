@@ -41,12 +41,12 @@ const logFlow = (step: string, data?: any) => {
   console.log(`[FLOW TEST] ${step}`, data ? data : '');
 };
 
-// Client schema with enhanced validation
+// Client schema with enhanced validation and more forgiving rules
 const clientSchema = z.object({
   inviteType: z.enum(['friend', 'salonOwner']).default('friend'),
   name: z.string().min(2, { message: 'Full name is required (minimum 2 characters)' }),
   phone: z.string()
-    .min(10, { message: 'Valid phone number is required (10 digits minimum)' })
+    .min(7, { message: 'Valid phone number is required' }) // More forgiving phone validation
     .refine(val => /^[0-9()+\-.\s]+$/.test(val), { 
       message: 'Phone number can only contain digits, spaces, and these symbols: () + - .'
     }),
@@ -57,14 +57,14 @@ const clientSchema = z.object({
   address: z.string().optional().or(z.literal('')),
   city: z.string().optional().or(z.literal('')),
   state: z.string().optional().or(z.literal('')),
-  zipCode: z.string().optional(),
+  zipCode: z.string().optional().or(z.literal('')), // Allow empty string for zip code
   favoriteServices: z.array(z.string()).optional(),
   notes: z.string().optional().or(z.literal('')),
   acceptTerms: z.boolean()
     .refine(val => val === true, {
       message: 'You must accept the terms and conditions to continue'
     }),
-  sponsorSalonId: z.number().optional(),
+  sponsorSalonId: z.number().optional().nullable(), // Allow null value
 });
 
 // Define the form values type
@@ -147,7 +147,7 @@ export default function ClientRegistrationPage() {
     }
   };
   
-  // Form definition with zod validation
+  // Form definition with zod validation - enhanced for reliability
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
@@ -163,7 +163,48 @@ export default function ClientRegistrationPage() {
       acceptTerms: false,
       sponsorSalonId: salonId,
     },
+    mode: 'onChange', // Validate fields as they change for better user feedback
   });
+  
+  // Add an effect to monitor form state for debugging critical issues
+  useEffect(() => {
+    // Attach a direct submit event listener to the form element as a fallback
+    const formElement = document.querySelector('form');
+    if (formElement) {
+      console.log("[CRITICAL DEBUG] Adding direct form submit listener");
+      
+      const handleDirectSubmit = (e: Event) => {
+        e.preventDefault(); // Prevent default form submission
+        console.log("[CRITICAL DEBUG] Direct form submit triggered");
+        
+        // Get form values
+        const formValues = form.getValues();
+        console.log("[CRITICAL DEBUG] Current form values:", formValues);
+        
+        // Check if terms are accepted
+        if (!formValues.acceptTerms) {
+          console.log("[CRITICAL DEBUG] Terms not accepted, focusing checkbox");
+          toast({
+            title: "Please Accept Terms",
+            description: "You must accept the terms and conditions to continue",
+            variant: "destructive",
+          });
+          focusTermsCheckbox();
+          return;
+        }
+        
+        // Manually trigger the onSubmit handler
+        onSubmit(formValues);
+      };
+      
+      formElement.addEventListener('submit', handleDirectSubmit);
+      
+      return () => {
+        // Clean up event listener
+        formElement.removeEventListener('submit', handleDirectSubmit);
+      };
+    }
+  }, []);
   
   // Contact validation hook for phone validation
   const { validateContact } = useContactValidation();
@@ -261,7 +302,17 @@ export default function ClientRegistrationPage() {
   
   // Handle form submission - IMPROVED with better error handling and debugging
   const onSubmit = async (data: ClientFormValues) => {
+    // Critical Debug: Show form submission occurred in browser console
+    console.log('[CRITICAL DEBUG] CLIENT REGISTRATION FORM SUBMITTED', data);
+
     try {
+      // Show a toast immediately so user knows form was submitted
+      toast({
+        title: 'Processing Registration',
+        description: 'Please wait while we process your information...',
+        variant: 'default',
+      });
+
       logFlow('Form submission initiated');
       logFlow('Form data', {
         name: data.name,
@@ -709,30 +760,47 @@ export default function ClientRegistrationPage() {
                       />
                     </div>
                     
-                    {/* Terms and Conditions Checkbox - Enhanced for visibility */}
+                    {/* Terms and Conditions Checkbox - CRITICALLY ENHANCED for visibility and reliability */}
                     <FormField
                       control={form.control}
                       name="acceptTerms"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-6 p-3 rounded-md border-2 border-pink-100 bg-pink-50">
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-6 p-4 rounded-md border-2 border-pink-200 bg-pink-50 shadow-sm">
                           <FormControl>
                             <Checkbox
                               checked={field.value}
-                              onCheckedChange={field.onChange}
+                              onCheckedChange={(checked) => {
+                                console.log("Terms checkbox changed to:", checked);
+                                field.onChange(checked);
+                                // Set form value explicitly as a backup
+                                form.setValue('acceptTerms', !!checked, { shouldValidate: true });
+                              }}
+                              onClick={(e) => {
+                                console.log("Terms checkbox clicked");
+                                // Log checkbox state after click to debug any issues
+                                setTimeout(() => {
+                                  const isChecked = form.getValues().acceptTerms;
+                                  console.log("Terms checkbox state after click:", isChecked);
+                                }, 10);
+                              }}
                               id="acceptTerms"
                               name="acceptTerms"
-                              className="h-5 w-5 mt-0.5"
-                              // Using DOM reference directly rather than ref forwarding
+                              className="h-6 w-6 mt-0.5 border-2 border-pink-400"
                             />
                           </FormControl>
                           <div className="space-y-1 leading-none">
-                            <FormLabel className="text-sm font-medium cursor-pointer">
+                            <FormLabel className="text-base font-medium cursor-pointer" onClick={() => {
+                              // Handle label click as a backup for the checkbox
+                              const currentValue = form.getValues().acceptTerms;
+                              console.log("Terms label clicked, setting checkbox to:", !currentValue);
+                              form.setValue('acceptTerms', !currentValue, { shouldValidate: true });
+                            }}>
                               I accept the <a href="/terms" target="_blank" className="text-pink-600 font-bold hover:underline">Terms and Conditions</a> of Ven Me, Baby!
                             </FormLabel>
-                            <FormDescription className="text-xs">
+                            <FormDescription className="text-sm font-medium text-pink-800">
                               Required to complete registration
                             </FormDescription>
-                            <FormMessage className="font-medium text-red-500"/>
+                            <FormMessage className="font-medium text-red-500 text-sm"/>
                           </div>
                         </FormItem>
                       )}
@@ -745,6 +813,63 @@ export default function ClientRegistrationPage() {
                         className="w-full"
                         disabled={isSubmitting}
                         variant={isSubmitting ? "outline" : "default"}
+                        onClick={(e) => {
+                          // Enhanced submit button handler
+                          console.log("[CRITICAL DEBUG] Registration submit button clicked directly");
+                          
+                          try {
+                            // Get current form values
+                            const values = form.getValues();
+                            
+                            // Log form state
+                            console.log("[CRITICAL DEBUG] Current form state:", {
+                              values,
+                              errors: form.formState.errors,
+                              isValid: form.formState.isValid,
+                              isSubmitting: form.formState.isSubmitting,
+                              submitCount: form.formState.submitCount
+                            });
+                            
+                            // Check for critical error conditions
+                            if (!values.acceptTerms) {
+                              console.warn("[CRITICAL DEBUG] Terms not accepted, focusing checkbox");
+                              focusTermsCheckbox();
+                              
+                              // Show clear message to user
+                              toast({
+                                title: "Please Accept Terms",
+                                description: "You must accept the terms and conditions to continue",
+                                variant: "destructive",
+                              });
+                              
+                              // Don't prevent default - let form validation handle this
+                              return;
+                            }
+                            
+                            // Force validation
+                            const isFormValid = form.trigger();
+                            console.log("[CRITICAL DEBUG] Form validation triggered, result promise:", isFormValid);
+                            
+                            // Don't prevent default - let the form's onSubmit handler work
+                            // This is just for extra monitoring and error recovery
+                          } catch (err) {
+                            console.error("[CRITICAL DEBUG] Error in submit button handler:", err);
+                            
+                            // Recovery attempt - try direct submission
+                            try {
+                              // Don't prevent default here - let normal submission continue
+                              console.log("[CRITICAL DEBUG] Attempting recovery via direct onSubmit call");
+                              setTimeout(() => {
+                                const values = form.getValues();
+                                if (values.name && values.phone) {
+                                  onSubmit(values);
+                                }
+                              }, 10);
+                            } catch (recoveryError) {
+                              console.error("[CRITICAL DEBUG] Recovery failed:", recoveryError);
+                            }
+                          }
+                        }}
                       >
                         {isSubmitting ? (
                           <>
