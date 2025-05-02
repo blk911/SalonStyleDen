@@ -162,7 +162,7 @@ export function RenderedInvitation({
                       <>
                         {showButton ? (
                           <Button 
-                            className="px-3 py-0.5 h-auto text-xs bg-green-500 hover:bg-green-600 text-white"
+                            className="h-10 px-4 py-2 w-full bg-green-500 hover:bg-green-600 text-white font-medium"
                             onClick={onSendGift}
                           >
                             SEND GIFT
