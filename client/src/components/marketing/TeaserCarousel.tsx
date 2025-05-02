@@ -86,13 +86,13 @@ const CarouselSlide = ({
     videoRef.current.currentTime = 0;
     videoRef.current.play();
     
-    // Special handling for the last slide (freeze frame after 1.75 seconds)
+    // Special handling for the last slide (freeze frame after 2.25 seconds)
     if (isLastSlide) {
       const timer = setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.pause();
         }
-      }, 1750); // 1.75 seconds
+      }, 2250); // 2.25 seconds
       
       return () => clearTimeout(timer);
     }
