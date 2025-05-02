@@ -111,7 +111,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [email, setEmail] = useState("");
   
   // Default message for salon-to-client invitations
-  const defaultSalonToClientMessage = "Hi [nm], We are joining Ven Me, Baby! It's all about YOU! Create a request, enter your BF, admirer, or Mr. and send your gift request for Selected Style. VMB fits today's lifestyle. It's direct, it's easy...and he gets to choose... Ven Me, Baby!\n❤️❤️❤️\n\nVMB:[RANDOM ID]\n\nPS: Clients register here: 🏠";
+  const defaultSalonToClientMessage = "Hi [nm], We are joining Ven Me, Baby! VMB fits today's lifestyle. It's direct, it's easy. You choose your style, send your gift request. It's a powerful way to connect on a personal level.\nCheck out the samples, and REGISTER!! Become a Ven Me, Baby!\n❤️❤️❤️\n\nVMB:[RANDOM ID]\n\nPS: Clients register here: 🏠";
   
   const [notes, setNotes] = useState(defaultSalonToClientMessage);
   const [firstServiceDate, setFirstServiceDate] = useState(new Date().toISOString().split('T')[0]);
@@ -136,7 +136,6 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     return message
       .replace(/\[nm\]/g, clientName)
       .replace(/\[insert sty opt NAME\]/g, styleOption || "Salon Service")
-      .replace(/Selected Style/g, styleOption || "Salon Service")
       .replace(/\[RANDOM ID\]/g, `VMB-${Math.floor(100000 + Math.random() * 900000)}`);
   };
   
