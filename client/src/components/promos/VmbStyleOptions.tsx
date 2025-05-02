@@ -1340,9 +1340,7 @@ export function VmbStyleOptions({
             </div>
             
             <div className="flex flex-col space-y-2">
-              <div className="text-sm text-gray-500 text-center">
-                Unique ID: <span className="font-mono">INV-FINAL-{finalInvitationId}</span>
-              </div>
+              {/* Removed Unique ID display */}
               
               <DialogFooter className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
                 <Button 
