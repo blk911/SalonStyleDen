@@ -65,10 +65,10 @@ export function ThoughtBubble({
         <X className="h-3 w-3" />
       </button>
       
-      {/* Thought bubble connectors - small circles */}
-      <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-white border border-pink-200"></div>
-      <div className="absolute -top-3 -right-2 w-1.5 h-1.5 rounded-full bg-white border border-pink-200"></div>
-      <div className="absolute -top-4 -right-4 w-1 h-1 rounded-full bg-white border border-pink-200"></div>
+      {/* Thought bubble connectors - pointing toward button */}
+      <div className="absolute bottom-[-15px] left-[50%] w-4 h-4 rounded-full bg-white border border-pink-200 transform translate-x-[30px]"></div>
+      <div className="absolute bottom-[-25px] left-[50%] w-3 h-3 rounded-full bg-white border border-pink-200 transform translate-x-[50px]"></div>
+      <div className="absolute bottom-[-35px] left-[50%] w-2 h-2 rounded-full bg-white border border-pink-200 transform translate-x-[70px]"></div>
       
       {/* Bubble content */}
       <p className="text-gray-700 text-xs leading-relaxed">
