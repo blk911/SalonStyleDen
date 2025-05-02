@@ -1143,8 +1143,9 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   and now the invitation itself directly shows this information */}
               
               <div className="border border-gray-200 rounded-md overflow-hidden">
+                {/* Use empty string for inviteId to avoid showing VMB-PREVIEW */}
                 <RenderedInvitation 
-                  inviteId="PREVIEW"
+                  inviteId=""
                   recipientName={previewData.name}
                   styleOption={previewData.favoriteServices[0] || "Salon Service"}
                   price="varies"

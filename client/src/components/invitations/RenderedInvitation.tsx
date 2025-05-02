@@ -178,8 +178,10 @@ export function RenderedInvitation({
                   </div>
                 )}
                 
-                {/* Only show the VMB ID, not "VMB-PREVIEW" text */}
-                <div className="text-center mt-2 text-xs text-gray-400">VMB:{inviteId}</div>
+                {/* Only show the VMB ID when there's an actual ID */}
+                {inviteId && (
+                  <div className="text-center mt-2 text-xs text-gray-400">VMB:{inviteId}</div>
+                )}
 
               </>
             ) : (
