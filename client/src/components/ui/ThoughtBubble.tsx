@@ -30,21 +30,30 @@ export function ThoughtBubble({
     "middle-center": "top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
   };
 
-  // Show with delay
+  // Show with delay and auto-dismiss after 10 seconds
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let showTimer: NodeJS.Timeout;
+    let dismissTimer: NodeJS.Timeout;
+    
     if (isOpen) {
-      timer = setTimeout(() => {
+      // Show the bubble after the specified delay
+      showTimer = setTimeout(() => {
         setShow(true);
+        
+        // Auto-dismiss after 10 seconds
+        dismissTimer = setTimeout(() => {
+          onClose();
+        }, 10000); // 10 seconds
       }, delay);
     } else {
       setShow(false);
     }
     
     return () => {
-      clearTimeout(timer);
+      clearTimeout(showTimer);
+      clearTimeout(dismissTimer);
     };
-  }, [isOpen, delay]);
+  }, [isOpen, delay, onClose]);
   
   if (!show) return null;
   
