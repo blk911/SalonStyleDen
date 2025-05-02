@@ -145,12 +145,12 @@ export default function ClientsPage() {
             </div>
 
             {/* Cards now always stack vertically on all devices */}
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-2">
               {/* Salon Testimonial */}
               <Card className="bg-gradient-to-br from-blue-50 to-white shadow-md hover:shadow-xl transition-all border border-blue-100 h-full">
-                <CardContent className="p-4 md:p-8 flex flex-col h-full">
-                  <div className="flex flex-col sm:flex-row items-center mb-6">
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-blue-200 mb-3 sm:mb-0 sm:mr-4 flex-shrink-0">
+                <CardContent className="p-2 flex flex-col h-full">
+                  <div className="flex flex-col sm:flex-row items-center mb-2">
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-blue-200 mb-1 sm:mb-0 sm:mr-2 flex-shrink-0">
                       <img 
                         src="/assets/MS-VMBLTD.jpg" 
                         alt="Michelle, Salon Owner" 
@@ -160,22 +160,22 @@ export default function ClientsPage() {
                     <div className="text-center sm:text-left flex-grow">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                          <h3 className="text-xl md:text-2xl font-serif font-semibold text-blue-800">Salon Owner Benefits</h3>
-                          <p className="text-blue-600 text-sm font-medium">Michelle S., VMB Certified Stylist</p>
+                          <h3 className="text-base md:text-lg font-serif font-semibold text-blue-800">Salon Owner Benefits</h3>
+                          <p className="text-blue-600 text-xs font-medium">Michelle S., VMB Certified Stylist</p>
                         </div>
-                        <div className="mt-2 sm:mt-0">
+                        <div className="mt-1 sm:mt-0 sm:ml-2">
                           <Link href="/salon/2">
-                            <Button className="px-3 bg-blue-600 hover:bg-blue-700 text-white py-1 text-xs">See How Easy!</Button>
+                            <Button className="px-2 bg-blue-600 hover:bg-blue-700 text-white py-0.5 text-xs">See How Easy!</Button>
                           </Link>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="text-gray-700 flex-grow mb-4">
-                    <p className="italic text-xs sm:text-sm leading-relaxed">"VMB has transformed how I connect with clients. The personalized invitation feature makes client acquisition effortless, and I've seen a 40% increase in client retention! The system's intuitive design has streamlined my scheduling process so I can focus on what matters - delivering exceptional service."</p>
-                    <div className="mt-3 flex flex-col sm:flex-row items-center">
+                  <div className="text-gray-700 flex-grow mb-1">
+                    <p className="italic text-xs leading-tight">"VMB has transformed how I connect with clients. The personalized invitation feature makes client acquisition effortless, and I've seen a 40% increase in client retention! The system's intuitive design has streamlined my scheduling process so I can focus on what matters - delivering exceptional service."</p>
+                    <div className="mt-1 flex flex-col sm:flex-row items-center">
                       <div className="text-yellow-500 mr-1">★★★★★</div>
-                      <span className="text-xs sm:text-sm text-gray-500">Verified VMB Partner</span>
+                      <span className="text-xs text-gray-500">Verified VMB Partner</span>
                     </div>
                   </div>
                 </CardContent>
@@ -183,9 +183,9 @@ export default function ClientsPage() {
 
               {/* Client Testimonial */}
               <Card className="bg-gradient-to-br from-green-50 to-white shadow-md hover:shadow-xl transition-all border border-green-100 h-full">
-                <CardContent className="p-4 md:p-8 flex flex-col h-full">
-                  <div className="flex flex-col sm:flex-row items-center mb-6">
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-green-200 mb-3 sm:mb-0 sm:mr-4 flex-shrink-0">
+                <CardContent className="p-2 flex flex-col h-full">
+                  <div className="flex flex-col sm:flex-row items-center mb-2">
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-green-200 mb-1 sm:mb-0 sm:mr-2 flex-shrink-0">
                       <img 
                         src="/assets/kendra.png" 
                         alt="Kendra, Client" 
@@ -195,25 +195,25 @@ export default function ClientsPage() {
                     <div className="text-center sm:text-left flex-grow">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                          <h3 className="text-xl md:text-2xl font-serif font-semibold text-green-800">Client Success Stories</h3>
-                          <p className="text-green-600 text-sm font-medium">Kendra T., Premium Client</p>
+                          <h3 className="text-base md:text-lg font-serif font-semibold text-green-800">Client Success Stories</h3>
+                          <p className="text-green-600 text-xs font-medium">Kendra T., Premium Client</p>
                         </div>
-                        <div className="mt-2 sm:mt-0">
+                        <div className="mt-1 sm:mt-0 sm:ml-2">
                           <Link href="/salon/2">
-                            <Button className="px-3 bg-green-600 hover:bg-green-700 text-white py-1 text-xs">
+                            <Button className="px-2 bg-green-600 hover:bg-green-700 text-white py-0.5 text-xs">
                               Create Your Gift!
-                              <GiftIcon className="ml-1 h-3 w-3" stroke="gold" strokeWidth={2.5} />
+                              <GiftIcon className="ml-1 h-2.5 w-2.5" stroke="gold" strokeWidth={2.5} />
                             </Button>
                           </Link>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="text-gray-700 flex-grow mb-4">
-                    <p className="italic text-xs sm:text-sm leading-relaxed">"I adore the personalized VMB experience! Receiving an invitation makes me feel valued and special. The style selection is intuitive and helps me explore new options. Since discovering VMB, I've scheduled all my appointments through the platform - it's become essential to my self-care routine and I recommend it to everyone!"</p>
-                    <div className="mt-3 flex flex-col sm:flex-row items-center">
+                  <div className="text-gray-700 flex-grow mb-1">
+                    <p className="italic text-xs leading-tight">"I adore the personalized VMB experience! Receiving an invitation makes me feel valued and special. The style selection is intuitive and helps me explore new options. Since discovering VMB, I've scheduled all my appointments through the platform - it's become essential to my self-care routine and I recommend it to everyone!"</p>
+                    <div className="mt-1 flex flex-col sm:flex-row items-center">
                       <div className="text-yellow-500 mr-1">★★★★★</div>
-                      <span className="text-xs sm:text-sm text-gray-500">VMB Member since 2024</span>
+                      <span className="text-xs text-gray-500">VMB Member since 2024</span>
                     </div>
                   </div>
                 </CardContent>
