@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import Navbar from "@/components/layout/Navbar";
@@ -23,11 +23,13 @@ import {
   Filter as FilterIcon,
   Calendar as CalendarIcon,
   Gift as GiftIcon,
-  Heart as HeartIcon
+  Heart as HeartIcon,
+  HelpCircle
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getImageUrl, formatPhoneNumber } from "@/lib/utils";
 import TeaserCarousel from "@/components/marketing/TeaserCarousel";
+import { ThoughtBubble } from "@/components/ui/ThoughtBubble";
 
 // Define interfaces
 interface Client {
@@ -59,6 +61,7 @@ interface Invitation {
 export default function ClientsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all-clients");
+  const [showThoughtBubble, setShowThoughtBubble] = useState(true);
 
   // Fetch clients data
   const { data: clients = [], isLoading: clientsLoading } = useQuery<Client[]>({
@@ -213,6 +216,15 @@ export default function ClientsPage() {
       </main>
       
       <Footer />
+      
+      {/* Welcome ThoughtBubble */}
+      <ThoughtBubble
+        text={"See how Ven Me Baby makes gifting personal work...for real! For salons, 'How easy!' and for personal care clients, create your gift invitation."}
+        position="top-right"
+        isOpen={showThoughtBubble}
+        onClose={() => setShowThoughtBubble(false)}
+        className="z-50"
+      />
     </div>
   );
 }
