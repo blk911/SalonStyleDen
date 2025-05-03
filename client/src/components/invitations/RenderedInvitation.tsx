@@ -280,24 +280,6 @@ export function RenderedInvitation({
                       )}
                     </div>
                   )}
-                  
-                  {/* Only show this for completed invitations */}
-                  {localStatus === 'completed' && isRecipientViewingSelfInvitation && (
-                    <div className="mt-3 border-t border-amber-200 pt-3">
-                      <div className="flex justify-center">
-                        <Button 
-                          className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium"
-                          onClick={() => {
-                            // Navigate to client dashboard with highlight for completed invitations
-                            window.location.href = `/client/10?showCompletedInvitations=true`;
-                          }}
-                        >
-                          <Calendar className="h-4 w-4 mr-2" />
-                          SET APPOINTMENT
-                        </Button>
-                      </div>
-                    </div>
-                  )}
                 </>
               ) : (
                 <>
