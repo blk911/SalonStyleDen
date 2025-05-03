@@ -5,10 +5,10 @@ export default function GiftsPage() {
   return (
     <div className="space-y-4 w-full">
       {/* SHARE VMB Card - Always shown whether client has a salon or not */}
-      <Card className="rounded-xl shadow-sm overflow-hidden">
-        <CardHeader className="bg-pink-50 pb-2 pt-2">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-base flex items-center gap-2">
+      <Card className="rounded-xl shadow-sm overflow-hidden w-full">
+        <CardHeader className="bg-pink-50 py-4 px-6">
+          <div className="flex justify-center items-center w-full">
+            <CardTitle className="text-base flex items-center gap-2 mx-auto">
               <HeartIcon className="h-4 w-4 text-red-500" />
               <span>
                 <span className="text-black font-semibold">Ven Me,</span>
