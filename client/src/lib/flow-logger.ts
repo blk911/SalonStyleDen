@@ -2,6 +2,8 @@
 // 🚫 DO NOT MODIFY WITHOUT FULL RETEST
 // Module: flow-logger.ts - Standard logging format for application flows
 
+import { shouldLog } from './debug-config';
+
 /**
  * Flow Logger - Standardized logging system for the VMB application
  * 
@@ -20,7 +22,10 @@ class FlowLogger {
       startTime: Date.now(),
       steps: []
     };
-    console.log(`[FLOW][${flowName}] Flow started`);
+    
+    if (shouldLog()) {
+      console.log(`[FLOW][${flowName}] Flow started`);
+    }
   }
   
   /**
@@ -30,7 +35,9 @@ class FlowLogger {
    * @param data Optional data to include in the log
    */
   static log(component: string, step: string, data?: any): void {
-    console.log(`[FLOW][${component}] ${step}`, data || '');
+    if (shouldLog()) {
+      console.log(`[FLOW][${component}] ${step}`, data || '');
+    }
   }
   
   /**
@@ -40,7 +47,9 @@ class FlowLogger {
    * @param data Optional data to include in the log
    */
   static success(component: string, step: string, data?: any): void {
-    console.log(`[FLOW:SUCCESS][${component}] ${step}`, data || '');
+    if (shouldLog()) {
+      console.log(`[FLOW:SUCCESS][${component}] ${step}`, data || '');
+    }
   }
   
   /**
@@ -50,6 +59,7 @@ class FlowLogger {
    * @param error The error that occurred
    */
   static error(component: string, step: string, error: any): void {
+    // Always log errors for debugging, regardless of shouldLog setting
     console.error(`[FLOW:ERROR][${component}] ${step}`, error);
   }
   
@@ -61,15 +71,18 @@ class FlowLogger {
   static endFlow(flowName: string, success: boolean): void {
     const flow = this.activeFlows[flowName];
     if (!flow) {
-      console.warn(`[FLOW:WARNING] Attempted to end flow "${flowName}" which was not started`);
+      if (shouldLog()) {
+        console.warn(`[FLOW:WARNING] Attempted to end flow "${flowName}" which was not started`);
+      }
       return;
     }
     
     const duration = Date.now() - flow.startTime;
     
-    if (success) {
+    if (success && shouldLog()) {
       console.log(`[FLOW:SUCCESS][${flowName}] Flow completed successfully (duration: ${duration}ms)`);
-    } else {
+    } else if (!success) {
+      // Always log errors
       console.error(`[FLOW:ERROR][${flowName}] Flow failed (duration: ${duration}ms)`);
     }
     
@@ -84,13 +97,15 @@ class FlowLogger {
    * @param data Optional data to include with the marker
    */
   static marker(component: string, marker: string, status: 'success' | 'warning' | 'error', data?: any): void {
-    const prefix = status === 'success' 
-      ? '[FLOW:SUCCESS]' 
-      : status === 'warning' 
-        ? '[FLOW:WARNING]' 
-        : '[FLOW:ERROR]';
-    
-    console.log(`${prefix}[${component}] ${marker}`, data || '');
+    if (status === 'error' || shouldLog()) {
+      const prefix = status === 'success' 
+        ? '[FLOW:SUCCESS]' 
+        : status === 'warning' 
+          ? '[FLOW:WARNING]' 
+          : '[FLOW:ERROR]';
+      
+      console.log(`${prefix}[${component}] ${marker}`, data || '');
+    }
   }
 }
 
