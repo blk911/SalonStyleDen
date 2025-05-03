@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bug, Terminal, RotateCcw } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { 
   shouldLog, 
   toggleConsoleMessages,
@@ -30,22 +31,45 @@ export function DebugControls() {
   };
 
   // Handle backup
+  const [isBackingUp, setIsBackingUp] = useState(false);
+  const { toast } = useToast();
+  
   const handleBackup = () => {
     const timestamp = new Date().toISOString()
       .replace(/:/g, '-')
       .replace(/\..+/, '')
       .replace('T', '_');
-      
+    
+    setIsBackingUp(true);
     fetch(`/api/admin/backup?timestamp=${timestamp}`)
-      .then(response => {
-        if (response.ok) {
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          toast({
+            title: "Backup Created",
+            description: `Backup created: ${timestamp}`,
+            variant: "default"
+          });
           console.log(`Backup created with timestamp: ${timestamp}`);
         } else {
-          console.error('Failed to create backup');
+          toast({
+            title: "Backup Failed",
+            description: data.message || "Failed to create backup",
+            variant: "destructive"
+          });
+          console.error('Failed to create backup:', data.message);
         }
       })
       .catch(error => {
+        toast({
+          title: "Backup Error",
+          description: error.message || "An error occurred creating backup",
+          variant: "destructive"
+        });
         console.error('Error creating backup:', error);
+      })
+      .finally(() => {
+        setIsBackingUp(false);
       });
   };
   
@@ -79,9 +103,10 @@ export function DebugControls() {
               size="sm"
               className="w-full flex items-center justify-center gap-2"
               onClick={handleBackup}
+              disabled={isBackingUp}
             >
-              <RotateCcw className="h-4 w-4" />
-              Create Timestamped Backup
+              <RotateCcw className={`h-4 w-4 ${isBackingUp ? 'animate-spin' : ''}`} />
+              {isBackingUp ? 'Creating Backup...' : 'Create Timestamped Backup'}
             </Button>
           </div>
         </div>
