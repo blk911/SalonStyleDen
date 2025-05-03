@@ -4,6 +4,7 @@
 
 import FlowLogger from './flow-logger';
 import { runFlowTest, TestStep } from './flow-tester';
+import { shouldLog } from './debug-config';
 
 /**
  * Run a complete sequential flow test manually
@@ -98,9 +99,11 @@ if (import.meta.env.DEV) {
     }
   };
   
-  // Log that dev tools are available
-  console.log('%c VMB Developer Tools Initialized', 'background: #500; color: white; padding: 5px; border-radius: 3px;');
-  console.log('Type vmb.devTools.help() for available commands');
+  // Log that dev tools are available - only if debug is enabled
+  if (shouldLog()) {
+    console.log('%c VMB Developer Tools Initialized', 'background: #500; color: white; padding: 5px; border-radius: 3px;');
+    console.log('Type vmb.devTools.help() for available commands');
+  }
 }
 
 export default {

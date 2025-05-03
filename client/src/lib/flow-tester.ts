@@ -86,6 +86,9 @@ export function createTestFlow(flowName: string, steps: TestStep[]): () => Promi
   };
 }
 
+// Import the debug config to control console output
+import { shouldLog } from './debug-config';
+
 // Only expose testing utilities in development
 if (import.meta.env.DEV) {
   (window as any).vmb = (window as any).vmb || {};
@@ -107,6 +110,7 @@ if (import.meta.env.DEV) {
     // List all available tests
     listAvailableTests: () => {
       const testRegistry = (window as any).vmb.flowTests;
+      // Always show this when explicitly requested by user
       console.log('%c VMB Flow Tests', 'background: #500; color: white; padding: 5px; border-radius: 3px;');
       console.log('Available tests:');
       testRegistry.availableTests.forEach((name: string) => {
@@ -115,9 +119,11 @@ if (import.meta.env.DEV) {
     }
   };
   
-  // Log that flow testing is available
-  console.log('%c VMB Flow Testing Initialized', 'background: #500; color: white; padding: 5px; border-radius: 3px;');
-  console.log('Type vmb.flowTests.listAvailableTests() to see available tests');
+  // Only log startup messages if debug is enabled
+  if (shouldLog()) {
+    console.log('%c VMB Flow Testing Initialized', 'background: #500; color: white; padding: 5px; border-radius: 3px;');
+    console.log('Type vmb.flowTests.listAvailableTests() to see available tests');
+  }
 }
 
 export default {
