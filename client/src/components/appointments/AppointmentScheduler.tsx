@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/card';
 import { apiRequest } from '@/lib/queryClient';
 import { Textarea } from '@/components/ui/textarea';
-import { Invitation } from '@/types';
+import type { Invitation } from '../../types';
 import { Loader2 } from 'lucide-react';
 
 interface Schedule {
@@ -75,8 +75,7 @@ export default function AppointmentScheduler({ invitation, clientId, onScheduled
       serviceTime: string;
       notes?: string;
     }) => {
-      const response = await apiRequest('POST', '/api/appointments', appointmentData);
-      return response.json();
+      return apiRequest('POST', '/api/appointments', appointmentData);
     },
     onSuccess: () => {
       toast({

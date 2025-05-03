@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import AppointmentScheduler from './AppointmentScheduler';
-import { Invitation } from '@/types';
+import type { Invitation } from '../../types';
 
 interface Appointment {
   id: number;
@@ -223,16 +223,16 @@ function getStatusColor(status: string): string {
   }
 }
 
-function getStatusVariant(status: string): 'default' | 'destructive' | 'outline' | 'secondary' | 'success' {
+function getStatusVariant(status: string) {
   switch (status.toLowerCase()) {
     case 'confirmed':
-      return 'secondary';
+      return 'secondary' as const;
     case 'completed':
-      return 'success';
+      return 'success' as const;
     case 'cancelled':
-      return 'destructive';
+      return 'destructive' as const;
     default:
-      return 'outline';
+      return 'outline' as const;
   }
 }
 
