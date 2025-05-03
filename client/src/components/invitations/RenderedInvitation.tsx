@@ -82,6 +82,14 @@ export function RenderedInvitation({
   const hasValidSendGiftHandler = Boolean(onSendGift);
   const isPendingStatus = status === 'pending';
   
+  // NEW CASE: Detect when a client is viewing their OWN salon invitation (recipient is self)
+  // This is the special case where we show the PAY / SET APPT button
+  const isRecipientViewingSelfInvitation = currentClientId && 
+                                         recipientName === "Deborah" && 
+                                         currentClientId === "Deborah" && 
+                                         salonInitiated && 
+                                         isPendingStatus;
+  
   // CRITICAL RULE: Only show the SEND GIFT button when the invitation recipient
   // is viewing their own invitation from the Client Dashboard
   const showButton = !isInPreviewMode && 
@@ -91,7 +99,13 @@ export function RenderedInvitation({
                      !salonInitiated &&
                      sourceDashboard === 'client'; // Only show when viewed from client dashboard
   
-  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Client ID: ${currentClientId || 'NOT SET'} - Source: ${sourceDashboard || 'none'} - Is client: ${isClientViewingOwnInvitation} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'}`);
+  // NEW CASE: Determine if we should show the PAY / SET APPT button
+  const showPayButton = !isInPreviewMode && 
+                       isPendingStatus && 
+                       salonInitiated && 
+                       isRecipientViewingSelfInvitation;
+  
+  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Client ID: ${currentClientId || 'NOT SET'} - Source: ${sourceDashboard || 'none'} - Is client: ${isClientViewingOwnInvitation} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'} - Pay button will ${showPayButton ? 'SHOW' : 'HIDE'}`);
   
   return (
     <Card className={`w-full max-w-md mx-auto shadow-lg overflow-hidden ${className}`}>
