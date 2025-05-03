@@ -546,7 +546,7 @@ export default function ClientDashboard() {
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="profile" className="mt-4 transition-all duration-300 animate-in fade-in-50">
+            <TabsContent value="profile" className="mt-8 transition-all duration-300 animate-in fade-in-50">
               {/* Add dialog for editing client profile */}
               <Dialog open={isEditing} onOpenChange={setIsEditing}>
                 <DialogContent className="max-w-4xl" aria-describedby="edit-profile-description">
@@ -598,14 +598,14 @@ export default function ClientDashboard() {
               </div>
             </TabsContent>
             
-            <TabsContent value="invitations" className="mt-4 transition-all duration-300 animate-in fade-in-50">
+            <TabsContent value="invitations" className="mt-8 transition-all duration-300 animate-in fade-in-50">
               {/* Invitations Page Component */}
               <div className="bg-white rounded-xl shadow-md p-4 border border-indigo-100">
                 <InvitationsPage />
               </div>
             </TabsContent>
             
-            <TabsContent value="appointments" className="mt-4 transition-all duration-300 animate-in fade-in-50">
+            <TabsContent value="appointments" className="mt-8 transition-all duration-300 animate-in fade-in-50">
               <div className="bg-white rounded-xl shadow-md p-4 border border-blue-100">
                 <ClientAppointments clientId={client.id} />
               </div>
