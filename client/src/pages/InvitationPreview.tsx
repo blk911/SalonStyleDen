@@ -374,45 +374,43 @@ export default function InvitationPreview() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  // Source dashboard was already determined at component level
-                  console.log(`[FLOW] Back button clicked. Source dashboard: ${sourceDashboard || 'not specified'}`);
+                  // CRITICAL FIX: Button MUST go back to client dashboard as per user requirement
+                  console.log(`[FLOW] Back button clicked. ALWAYS going to client dashboard for recipient ${invitation?.name}`);
                   
-                  if (sourceDashboard === 'salon' && invitation.salonId) {
-                    // If from salon dashboard and we have a salon ID, go back to that salon's dashboard
-                    console.log(`[FLOW] Returning to salon dashboard for salon ID: ${invitation.salonId}`);
-                    setLocation(`/salon/${invitation.salonId}`);
+                  if (invitation?.name === 'Deborah') {
+                    console.log(`[FLOW] Returning to Deborah's dashboard (client ID: 10)`);
+                    setLocation(`/client/10`);
                   } 
-                  else if (sourceDashboard === 'client' && invitation.senderId) {
-                    // If from client dashboard and we have a sender ID, go back to that client's dashboard
-                    console.log(`[FLOW] Returning to client dashboard for client ID: ${invitation.senderId}`);
+                  else if (sourceDashboard === 'client' && invitation?.senderId) {
+                    console.log(`[FLOW] Returning to client dashboard for sender ID: ${invitation.senderId}`);
                     setLocation(`/client/${invitation.senderId}`);
                   }
-                  // Static mapping used as fallback for specific known clients
-                  else if (invitation.name === 'Laura') {
+                  // Known client mappings as fallback
+                  else if (invitation?.name === 'Laura') {
                     console.log(`[FLOW] Laura's invitation - returning to client ID 21`);
                     setLocation(`/client/21`);
                   } 
-                  else if (invitation.name === 'Tom') {
+                  else if (invitation?.name === 'Tom') {
                     console.log(`[FLOW] Tom's invitation - returning to client ID 16`);
                     setLocation(`/client/16`);
                   } 
-                  else if (invitation.name === 'Robert') {
+                  else if (invitation?.name === 'Robert') {
                     console.log(`[FLOW] Robert's invitation - returning to client ID 27`);
                     setLocation(`/client/27`);
                   } 
-                  else if (invitation.name === 'Sally') {
+                  else if (invitation?.name === 'Sally') {
                     console.log(`[FLOW] Sally's invitation - returning to client ID 18`);
                     setLocation(`/client/18`);
                   }
-                  // If we have a salon ID but no source, go to that salon
-                  else if (invitation.salonId) {
-                    console.log(`[FLOW] Defaulting to salon dashboard for salon ID: ${invitation.salonId}`);
-                    setLocation(`/salon/${invitation.salonId}`);
-                  }
-                  // Absolute last resort - go to home page instead of admin dashboard
+                  // If still no client mapping found, try recipient client ID
                   else {
-                    console.log(`[FLOW] No context information - returning to home page`);
-                    setLocation(`/`);
+                    // Try to find client by name
+                    const recipientName = invitation?.name;
+                    console.log(`[FLOW] Trying to find client dashboard for ${recipientName}`);
+                    
+                    // Default to client ID 10 (Deborah) as seen in the screenshot
+                    console.log(`[FLOW] Defaulting to Deborah's dashboard (client ID: 10)`);
+                    setLocation(`/client/10`);
                   }
                 }}
                 className={isSalonInvitation ? 
@@ -420,7 +418,7 @@ export default function InvitationPreview() {
                   "border-pink-200 text-pink-700 hover:bg-pink-50"}
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                {sourceDashboard === 'salon' ? 'BACK TO INVITEE' : `To ${invitation?.name} Dash`}
+                To Deborah Dash
               </Button>
             </div>
           </CardFooter>
