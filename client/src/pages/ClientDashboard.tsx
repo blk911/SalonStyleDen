@@ -525,16 +525,6 @@ export default function ClientDashboard() {
               </TabsTrigger>
             </TabsList>
             
-            {/* Added Tagline - Styled exactly per user request */}
-            <div className="text-center py-2 bg-pink-50 rounded-b-md mb-2">
-              <p className="flex items-center justify-center gap-1">
-                <span className="text-sm font-semibold">❤️ Ven Me,</span>
-                <span className="text-sm font-semibold text-pink-600 italic">Baby!</span>
-                <span className="text-sm text-gray-600 ml-1">Make Connections Personal!</span>
-                <span className="text-sm text-pink-600">❤️</span>
-              </p>
-            </div>
-            
             <TabsContent value="profile" className="mt-4">
               {/* Add dialog for editing client profile */}
               <Dialog open={isEditing} onOpenChange={setIsEditing}>
