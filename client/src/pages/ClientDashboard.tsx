@@ -549,7 +549,16 @@ export default function ClientDashboard() {
 
         {/* REDUCED SPACE TO 3px */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="space-y-6">
+          {/* Tabs for different dashboard sections */}
+          <Tabs defaultValue="profile" className="w-full mb-6">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="profile">Profile</TabsTrigger>
+              <TabsTrigger value="invitations">Invitations</TabsTrigger>
+              <TabsTrigger value="appointments">Appointments</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="profile" className="mt-4">
+              <div className="space-y-6">
             {/* Add dialog for editing client profile */}
             <Dialog open={isEditing} onOpenChange={setIsEditing}>
               <DialogContent className="max-w-4xl" aria-describedby="edit-profile-description">
@@ -1360,6 +1369,122 @@ export default function ClientDashboard() {
               </CardContent>
             </Card>
           </div>
+            </TabsContent>
+            
+            <TabsContent value="invitations" className="mt-4">
+              <div className="space-y-6">
+                {/* Share VMB Card - Always shown whether client has a salon or not */}
+                <Card className="rounded-xl shadow-sm overflow-hidden">
+                  <CardHeader className="bg-pink-50 pb-2 pt-2">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <HeartIcon className="h-4 w-4 text-red-500" />
+                        <span>
+                          <span className="text-black font-semibold">Ven Me,</span>
+                          <span className="text-pink-600 italic font-semibold">Baby!</span>
+                          <span className="text-red-500"> Make Connections Personal!</span>
+                        </span>
+                        <HeartIcon className="h-4 w-4 text-red-500" />
+                      </CardTitle>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="p-0 h-8 w-8"
+                        onClick={() => setShowShareForm(!showShareForm)}
+                        aria-label={showShareForm ? "Hide invitation form" : "Show invitation form"}
+                      >
+                        {showShareForm ? (
+                          <ChevronUpIcon className="h-5 w-5" />
+                        ) : (
+                          <ChevronDownIcon className="h-5 w-5" />
+                        )}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className={`pt-4 ${showShareForm ? 'block' : 'hidden'}`}>
+                    <ClientInviteForm 
+                      clientId={client.id}
+                      hideLabels={true}
+                      hideToggle={true}
+                      onSuccess={() => {
+                        toast({
+                          title: "Invitation Sent",
+                          description: "Your invitation has been sent successfully!"
+                        });
+                      }} 
+                    />
+                  </CardContent>
+                </Card>
+                
+                {/* Your Sent Invitations Card - Display invitations the client has sent */}
+                <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
+                  <CardHeader className="bg-pink-50 pb-2 pt-2">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-base flex items-center gap-2 text-pink-700">
+                        <UserIcon className="h-4 w-4" />
+                        Your Sent Invitations
+                      </CardTitle>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="p-0 h-8 w-8"
+                        onClick={() => setShowSentInvitations(!showSentInvitations)}
+                        aria-label={showSentInvitations ? "Hide sent invitations" : "Show sent invitations"}
+                      >
+                        {showSentInvitations ? (
+                          <ChevronUpIcon className="h-5 w-5" />
+                        ) : (
+                          <ChevronDownIcon className="h-5 w-5" />
+                        )}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className={`pt-4 ${showSentInvitations ? 'block' : 'hidden'}`}>
+                    <SentInvitations 
+                      clientId={client.id} 
+                      limit={5} 
+                    />
+                  </CardContent>
+                </Card>
+                
+                {/* Pending Invitations Card - Display invitations sent to this client */}
+                <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
+                  <CardHeader className="bg-pink-50 pb-2 pt-2">
+                    <CardTitle className="text-base flex items-center gap-2 text-pink-700">
+                      <div className="flex items-center">
+                        <CheckCircleIcon className="h-4 w-4 mr-1" />
+                        <span>Pending Invitations</span>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <PendingSalonInvitations 
+                      clientId={client.id} 
+                      limit={5} 
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="appointments" className="mt-4">
+              <div className="space-y-6">
+                <Card className="rounded-xl shadow-sm overflow-hidden">
+                  <CardHeader className="bg-pink-50 pb-2 pt-2">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-base flex items-center gap-2 text-pink-700">
+                        <CalendarIcon className="h-4 w-4" />
+                        Your Appointments
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <ClientAppointments clientId={client.id} />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
       <Footer />
