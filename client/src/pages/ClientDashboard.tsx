@@ -7,7 +7,7 @@ declare global {
 
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -23,6 +23,7 @@ import InlineVmbInvitations from "@/components/dashboard/InlineVmbInvitations";
 import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitations";
 import SentInvitations from "@/components/dashboard/SentInvitations";
 import ClientInviteForm from "@/components/dashboard/ClientInviteForm";
+import ClientAppointments from "@/components/appointments/ClientAppointments";
 import { getImageUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { 
