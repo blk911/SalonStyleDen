@@ -529,18 +529,7 @@ export default function ClientDashboard() {
                   )}
                 </div>
                 <div className="ml-4">
-                  <div className="flex items-center gap-3">
-                    <h1 className="font-bold text-2xl text-pink-700">{client.name}</h1>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="h-8 border-pink-300 text-pink-700 hover:bg-pink-50"
-                      onClick={() => setIsEditing(true)}
-                    >
-                      <PencilIcon className="h-3.5 w-3.5 mr-1" />
-                      Edit Profile
-                    </Button>
-                  </div>
+                  <h1 className="font-bold text-2xl text-pink-700">{client.name}</h1>
                   {isAdminView && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
                       Admin View
@@ -549,11 +538,20 @@ export default function ClientDashboard() {
                 </div>
               </div>
               
-              {salon && (
-                <div className="mt-4 md:mt-0 text-right">
-                  <span className="text-sm font-medium text-pink-700">Member: {salon.name}</span>
-                </div>
-              )}
+              <div className="mt-4 md:mt-0 text-right flex items-center">
+                {salon && (
+                  <span className="text-sm font-medium text-pink-700 mr-4">Member: {salon.name}</span>
+                )}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-8 border-pink-300 text-pink-700 hover:bg-pink-50"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <PencilIcon className="h-3.5 w-3.5 mr-1" />
+                  Edit Profile
+                </Button>
+              </div>
             </div>
           </div>
         </section>
