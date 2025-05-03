@@ -12,7 +12,8 @@ export const DEBUG_CONFIG_KEY = 'vmb_debug_config';
 export const defaultDebugConfig = {
   showConsoleMessages: false,  // Controls console messages
   showFlowTesting: false,      // Controls flow testing messages
-  showDevTools: false          // Controls developer tool messages
+  showDevTools: false,         // Controls developer tool messages
+  showMonitoringDashboard: false  // Controls VMB Testing Monitor visibility
 };
 
 // Get current debug configuration from localStorage
@@ -60,4 +61,32 @@ export function toggleConsoleMessages() {
   config.showConsoleMessages = !config.showConsoleMessages;
   saveDebugConfig(config);
   return config.showConsoleMessages;
+}
+
+// Check if monitoring dashboard should be shown
+export function shouldShowMonitoringDashboard() {
+  const config = getDebugConfig();
+  return config.showMonitoringDashboard;
+}
+
+// Enable monitoring dashboard
+export function enableMonitoringDashboard() {
+  const config = getDebugConfig();
+  config.showMonitoringDashboard = true;
+  saveDebugConfig(config);
+}
+
+// Disable monitoring dashboard
+export function disableMonitoringDashboard() {
+  const config = getDebugConfig();
+  config.showMonitoringDashboard = false;
+  saveDebugConfig(config);
+}
+
+// Toggle monitoring dashboard visibility
+export function toggleMonitoringDashboard() {
+  const config = getDebugConfig();
+  config.showMonitoringDashboard = !config.showMonitoringDashboard;
+  saveDebugConfig(config);
+  return config.showMonitoringDashboard;
 }
