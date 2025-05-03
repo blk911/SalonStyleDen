@@ -613,63 +613,7 @@ export default function ClientDashboard() {
               </DialogContent>
             </Dialog>
             
-            {/* Client Profile Card */}
-            <Card className="rounded-xl shadow-sm overflow-hidden">
-              <CardHeader className="bg-pink-50 pb-2 pt-2">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-base flex items-center gap-2 text-pink-700">
-                    <UserIcon className="h-4 w-4" />
-                    Your Profile
-                  </CardTitle>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-8 border-pink-300 text-pink-700 hover:bg-pink-50"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    <PencilIcon className="h-3.5 w-3.5 mr-1" />
-                    Edit Profile
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <div className="flex flex-col space-y-2">
-                      <div className="flex items-center text-sm">
-                        <UserIcon className="h-4 w-4 mr-2 text-gray-400" />
-                        <span className="font-medium text-gray-600">Name:</span>
-                        <span className="ml-2">{client.name}</span>
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <PhoneIcon className="h-4 w-4 mr-2 text-gray-400" />
-                        <span className="font-medium text-gray-600">Phone:</span>
-                        <span className="ml-2">{client.phone}</span>
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <AtSignIcon className="h-4 w-4 mr-2 text-gray-400" />
-                        <span className="font-medium text-gray-600">Email:</span>
-                        <span className="ml-2">{client.email}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    {client.address && (
-                      <div className="flex items-start text-sm">
-                        <MapPinIcon className="h-4 w-4 mr-2 mt-0.5 text-gray-400" />
-                        <div>
-                          <span className="font-medium text-gray-600">Address:</span>
-                          <div className="ml-2">
-                            <p>{client.address}</p>
-                            <p>{client.city}, {client.state} {client.zipCode}</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
             
             {/* SHARE VMB Card - Always shown whether client has a salon or not */}
             <Card className="rounded-xl shadow-sm overflow-hidden">
