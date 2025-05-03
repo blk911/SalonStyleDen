@@ -211,8 +211,25 @@ export default function ClientDashboard() {
   // Add Style Selection Mutation
   const addStyleSelectionMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await apiRequest('POST', `/api/clients/${data.clientId}/style-selections`, data);
-      return await response.json();
+      try {
+        const response = await fetch(`/api/clients/${data.clientId}/style-selections`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+          credentials: 'include'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`${response.status}: ${response.statusText}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('Error during style selection:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       setShowConfirmDialog(false);
@@ -401,17 +418,17 @@ export default function ClientDashboard() {
       </Dialog>
 
       <main className="flex-grow">
-        {/* Hero section */}
-        <section className="bg-gradient-to-b from-pink-50 to-white pb-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+        {/* Hero section - Tightened vertically */}
+        <section className="bg-gradient-to-b from-pink-50 to-white pb-2">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2 items-center">
               {/* Section 1: Avatar */}
               <div className="flex justify-center md:justify-start">
-                <Avatar className="h-20 w-20 border-2 border-white shadow-md">
+                <Avatar className="h-16 w-16 border-2 border-white shadow-md">
                   {client.photoUrl ? (
                     <AvatarImage src={getImageUrl(client.photoUrl)} alt={client.name} />
                   ) : (
-                    <AvatarFallback className="bg-pink-100 text-pink-800 text-xl">
+                    <AvatarFallback className="bg-pink-100 text-pink-800 text-lg">
                       {client.name.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   )}
@@ -421,7 +438,7 @@ export default function ClientDashboard() {
               {/* Section 2: Client name and type */}
               <div className="text-center md:text-left">
                 <h1 className="text-2xl font-bold text-gray-900">{client.name}</h1>
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-sm text-gray-500 mt-1.5">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-sm text-gray-500 mt-1">
                   <Badge variant="outline" className="bg-pink-50 border-pink-200 text-pink-700 hover:bg-pink-100">
                     {client.type === 'client' ? 'Client' : 'Salon Owner'}
                   </Badge>
@@ -432,7 +449,7 @@ export default function ClientDashboard() {
               </div>
               
               {/* Section 3: Contact information stacked vertically */}
-              <div className="space-y-2.5 text-center md:text-left">
+              <div className="space-y-1.5 text-center md:text-left">
                 <div className="flex items-center justify-center md:justify-start gap-2 text-sm text-gray-600">
                   <PhoneIcon className="h-4 w-4 flex-shrink-0 text-gray-400" />
                   <span className="truncate">{client.phone || 'No phone number'}</span>
@@ -460,7 +477,7 @@ export default function ClientDashboard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="px-4 py-2 text-sm rounded-full border-pink-200 hover:bg-pink-50"
+                  className="px-4 py-1.5 text-sm rounded-full border-pink-200 hover:bg-pink-50"
                   onClick={() => setIsEditing(true)}
                 >
                   <PencilIcon className="mr-2 h-4 w-4 text-pink-500" />
@@ -471,10 +488,10 @@ export default function ClientDashboard() {
           </div>
         </section>
 
-        {/* REDUCED SPACE TO MAX 4px */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-1 pb-2">
+        {/* REDUCED SPACE - No space between hero and tabs */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Tabs for different dashboard sections */}
-          <Tabs defaultValue="profile" className="w-full mb-6">
+          <Tabs defaultValue="profile" className="w-full mb-2">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile">
                 <div className="w-full text-center py-1">
@@ -507,6 +524,16 @@ export default function ClientDashboard() {
                 </div>
               </TabsTrigger>
             </TabsList>
+            
+            {/* Added Tagline */}
+            <div className="text-center py-2 bg-pink-50 rounded-b-md mb-2">
+              <p className="flex items-center justify-center gap-1">
+                <span className="text-sm font-semibold">❤️ Ven Me,</span>
+                <span className="text-sm font-semibold text-pink-600 italic">Baby!</span>
+                <span className="text-sm text-gray-600 ml-1">Makes Connections Personal!</span>
+                <span className="text-sm text-pink-600">❤️</span>
+              </p>
+            </div>
             
             <TabsContent value="profile" className="mt-4">
               {/* Add dialog for editing client profile */}
