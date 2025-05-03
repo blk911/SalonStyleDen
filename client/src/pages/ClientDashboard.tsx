@@ -403,63 +403,69 @@ export default function ClientDashboard() {
       <main className="flex-grow">
         {/* Hero section */}
         <section className="bg-gradient-to-b from-pink-50 to-white pb-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16 border-2 border-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+              {/* Section 1: Avatar */}
+              <div className="flex justify-center md:justify-start">
+                <Avatar className="h-20 w-20 border-2 border-white shadow-md">
                   {client.photoUrl ? (
                     <AvatarImage src={getImageUrl(client.photoUrl)} alt={client.name} />
                   ) : (
-                    <AvatarFallback className="bg-pink-100 text-pink-800">
+                    <AvatarFallback className="bg-pink-100 text-pink-800 text-xl">
                       {client.name.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   )}
                 </Avatar>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{client.name}</h1>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                    <Badge variant="outline" className="bg-pink-50 border-pink-200 text-pink-700 hover:bg-pink-100">
-                      {client.type === 'client' ? 'Client' : 'Salon Owner'}
-                    </Badge>
-                    {client.salonId && <Badge variant="outline" className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100">
-                      Linked to {client.salonName}
-                    </Badge>}
-                  </div>
+              </div>
+              
+              {/* Section 2: Client name and type */}
+              <div className="text-center md:text-left">
+                <h1 className="text-2xl font-bold text-gray-900">{client.name}</h1>
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 text-sm text-gray-500 mt-1.5">
+                  <Badge variant="outline" className="bg-pink-50 border-pink-200 text-pink-700 hover:bg-pink-100">
+                    {client.type === 'client' ? 'Client' : 'Salon Owner'}
+                  </Badge>
+                  {client.salonId && <Badge variant="outline" className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100">
+                    Linked to {client.salonName}
+                  </Badge>}
                 </div>
               </div>
               
-              <div className="flex gap-3">
+              {/* Section 3: Contact information stacked vertically */}
+              <div className="space-y-2.5 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-2 text-sm text-gray-600">
+                  <PhoneIcon className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                  <span className="truncate">{client.phone || 'No phone number'}</span>
+                </div>
+                
+                <div className="flex items-center justify-center md:justify-start gap-2 text-sm text-gray-600">
+                  <AtSignIcon className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                  <span className="truncate">{client.email || 'No email'}</span>
+                </div>
+                
+                <div className="flex items-center justify-center md:justify-start gap-2 text-sm text-gray-600">
+                  <MapPinIcon className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                  <span className="truncate">
+                    {client.address ? (
+                      <>{client.address}, {client.city || ''}, {client.state || ''} {client.zipCode || ''}</>
+                    ) : (
+                      'No address'
+                    )}
+                  </span>
+                </div>
+              </div>
+              
+              {/* Section 4: Edit Profile Button */}
+              <div className="flex items-center justify-center">
                 <Button
                   variant="outline"
-                  className="text-sm"
+                  size="sm"
+                  className="px-4 py-2 text-sm rounded-full border-pink-200 hover:bg-pink-50"
                   onClick={() => setIsEditing(true)}
                 >
-                  <PencilIcon className="mr-2 h-4 w-4" />
+                  <PencilIcon className="mr-2 h-4 w-4 text-pink-500" />
                   Edit Profile
                 </Button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <PhoneIcon className="h-4 w-4 text-gray-400" />
-                <span>{client.phone || 'No phone number'}</span>
-              </div>
-              
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <AtSignIcon className="h-4 w-4 text-gray-400" />
-                <span>{client.email || 'No email'}</span>
-              </div>
-              
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <MapPinIcon className="h-4 w-4 text-gray-400" />
-                <span>
-                  {client.address ? (
-                    <>{client.address}, {client.city || ''}, {client.state || ''} {client.zipCode || ''}</>
-                  ) : (
-                    'No address'
-                  )}
-                </span>
               </div>
             </div>
           </div>
