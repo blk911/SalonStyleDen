@@ -492,8 +492,8 @@ export default function ClientDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Tabs for different dashboard sections */}
           <Tabs defaultValue="profile" className="w-full mb-2">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="profile">
+            <TabsList className="grid w-full grid-cols-3 bg-transparent shadow-none">
+              <TabsTrigger value="profile" className="bg-white hover:bg-gray-50 data-[state=active]:bg-white">
                 <div className="w-full text-center py-1">
                   <div className="font-semibold">Gifts</div>
                   <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
@@ -503,7 +503,7 @@ export default function ClientDashboard() {
                   </div>
                 </div>
               </TabsTrigger>
-              <TabsTrigger value="invitations">
+              <TabsTrigger value="invitations" className="bg-white hover:bg-gray-50 data-[state=active]:bg-white">
                 <div className="w-full text-center py-1">
                   <div className="font-semibold">Invitations</div>
                   <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
@@ -513,7 +513,7 @@ export default function ClientDashboard() {
                   </div>
                 </div>
               </TabsTrigger>
-              <TabsTrigger value="appointments">
+              <TabsTrigger value="appointments" className="bg-white hover:bg-gray-50 data-[state=active]:bg-white">
                 <div className="w-full text-center py-1">
                   <div className="font-semibold">Appointments</div>
                   <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
