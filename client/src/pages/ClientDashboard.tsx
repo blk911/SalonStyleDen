@@ -23,6 +23,7 @@ import InlineVmbInvitations from "@/components/dashboard/InlineVmbInvitations";
 import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitations";
 import SentInvitations from "@/components/dashboard/SentInvitations";
 import ClientInviteForm from "@/components/dashboard/ClientInviteForm";
+import CompletedInvitationSummary from "@/components/dashboard/CompletedInvitationSummary";
 import { getImageUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -127,6 +128,9 @@ export default function ClientDashboard() {
   
   // Show/hide state for pending invitations section - default to HIDE
   const [showPendingInvitations, setShowPendingInvitations] = useState(false);
+  
+  // Show/hide state for completed invitations section - default to SHOW
+  const [showCompletedInvitations, setShowCompletedInvitations] = useState(true);
   
   // Show/hide state for sent invitations section - default to HIDE per user request
   const [showSentInvitations, setShowSentInvitations] = useState(false);
@@ -245,6 +249,27 @@ export default function ClientDashboard() {
       return clientInvitations;
     },
     enabled: !!client,
+  });
+  
+  // Fetch completed invitations for this client
+  const { data: completedInvitations, isLoading: completedInvitationsLoading, refetch: refetchCompletedInvitations } = useQuery<Invitation[]>({
+    queryKey: ['/api/invitations/completed', client?.id],
+    queryFn: async () => {
+      console.log(`ClientDashboard - Fetching completed invitations for client ${client?.id}`);
+      const filterParams = new URLSearchParams();
+      if (client?.id) filterParams.set('clientId', client.id.toString());
+      filterParams.set('status', 'completed');
+      
+      const response = await fetch(`/api/invitations?${filterParams}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch completed invitations: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log(`ClientDashboard - Found ${data.length} completed invitations`);
+      return data;
+    },
+    enabled: !!client?.id,
   });
 
   // Check if user is viewing their own profile or if it's an admin view
@@ -1340,6 +1365,51 @@ export default function ClientDashboard() {
             )}
             
             {/* Personal Invitations Card - Removed as it's redundant with "Share Ven Me, Baby!" */}
+            
+            {/* Completed/Paid Invitations */}
+            <Card className="rounded-xl shadow-sm overflow-hidden mt-6">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 pb-2 pt-2">
+                <CardTitle className="text-base flex items-center justify-between gap-2 text-green-700">
+                  <div className="flex items-center gap-2">
+                    <CheckCircleIcon className="h-4 w-4" />
+                    <span>Your Paid Services</span>
+                  </div>
+                  <button 
+                    onClick={() => setShowCompletedInvitations(!showCompletedInvitations)} 
+                    className="flex items-center text-sm text-green-600 hover:text-green-800"
+                    aria-label={showCompletedInvitations ? "Hide paid services" : "Show paid services"}
+                  >
+                    {showCompletedInvitations ? (
+                      <ChevronUpIcon className="h-5 w-5" />
+                    ) : (
+                      <ChevronDownIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className={`p-4 ${showCompletedInvitations ? 'block' : 'hidden'}`}>
+                {completedInvitationsLoading ? (
+                  <div className="flex justify-center py-4">
+                    <div className="animate-spin h-6 w-6 border-2 border-green-500 border-t-transparent rounded-full"></div>
+                  </div>
+                ) : completedInvitations && completedInvitations.length > 0 ? (
+                  <div className="space-y-4">
+                    {completedInvitations.map((invitation) => (
+                      <CompletedInvitationSummary 
+                        key={invitation.id}
+                        invitation={invitation}
+                        onAppointmentUpdate={refetchCompletedInvitations}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-gray-500">
+                    <p>You don't have any paid services yet.</p>
+                    <p className="text-sm mt-1">Once you pay for a service, it will appear here for scheduling.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
             
             {/* Pending Invitations */}
             <Card className="rounded-xl shadow-sm overflow-hidden mt-6">
