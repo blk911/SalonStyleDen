@@ -492,10 +492,17 @@ export default function ClientDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Tabs for different dashboard sections */}
           <Tabs defaultValue="profile" className="w-full mb-2">
-            <TabsList className="grid w-full grid-cols-3 bg-transparent shadow-none">
-              <TabsTrigger value="profile" className="bg-white hover:bg-gray-50 data-[state=active]:bg-white">
-                <div className="w-full text-center py-1">
-                  <div className="font-semibold">Gifts</div>
+            <TabsList className="grid w-full grid-cols-3 bg-transparent shadow-none gap-3 px-1 py-1">
+              <TabsTrigger 
+                value="profile" 
+                className="bg-white shadow-sm rounded-md transition-all duration-200 
+                           hover:bg-gradient-to-r hover:from-pink-50 hover:to-pink-100
+                           hover:shadow-md hover:scale-105
+                           data-[state=active]:bg-white data-[state=active]:shadow-md
+                           data-[state=active]:border-b-2 data-[state=active]:border-pink-500"
+              >
+                <div className="w-full text-center py-2">
+                  <div className="font-semibold text-gray-800">Gifts</div>
                   <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
                     <span>New</span>
                     <span className="text-muted-foreground/30 px-1">|</span>
@@ -503,9 +510,16 @@ export default function ClientDashboard() {
                   </div>
                 </div>
               </TabsTrigger>
-              <TabsTrigger value="invitations" className="bg-white hover:bg-gray-50 data-[state=active]:bg-white">
-                <div className="w-full text-center py-1">
-                  <div className="font-semibold">Invitations</div>
+              <TabsTrigger 
+                value="invitations" 
+                className="bg-white shadow-sm rounded-md transition-all duration-200 
+                           hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100
+                           hover:shadow-md hover:scale-105
+                           data-[state=active]:bg-white data-[state=active]:shadow-md
+                           data-[state=active]:border-b-2 data-[state=active]:border-indigo-500"
+              >
+                <div className="w-full text-center py-2">
+                  <div className="font-semibold text-gray-800">Invitations</div>
                   <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
                     <span>Send</span>
                     <span className="text-muted-foreground/30 px-1">|</span>
@@ -513,9 +527,16 @@ export default function ClientDashboard() {
                   </div>
                 </div>
               </TabsTrigger>
-              <TabsTrigger value="appointments" className="bg-white hover:bg-gray-50 data-[state=active]:bg-white">
-                <div className="w-full text-center py-1">
-                  <div className="font-semibold">Appointments</div>
+              <TabsTrigger 
+                value="appointments" 
+                className="bg-white shadow-sm rounded-md transition-all duration-200 
+                           hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100
+                           hover:shadow-md hover:scale-105
+                           data-[state=active]:bg-white data-[state=active]:shadow-md
+                           data-[state=active]:border-b-2 data-[state=active]:border-blue-500"
+              >
+                <div className="w-full text-center py-2">
+                  <div className="font-semibold text-gray-800">Appointments</div>
                   <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
                     <span>Pending</span>
                     <span className="text-muted-foreground/30 px-1">|</span>
@@ -525,7 +546,7 @@ export default function ClientDashboard() {
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="profile" className="mt-4">
+            <TabsContent value="profile" className="mt-4 transition-all duration-300 animate-in fade-in-50">
               {/* Add dialog for editing client profile */}
               <Dialog open={isEditing} onOpenChange={setIsEditing}>
                 <DialogContent className="max-w-4xl" aria-describedby="edit-profile-description">
@@ -572,16 +593,20 @@ export default function ClientDashboard() {
               </Dialog>
               
               {/* Gifts Page Component */}
-              <GiftsPage />
+              <div className="bg-white rounded-xl shadow-md p-4 border border-pink-100">
+                <GiftsPage />
+              </div>
             </TabsContent>
             
-            <TabsContent value="invitations" className="mt-4">
+            <TabsContent value="invitations" className="mt-4 transition-all duration-300 animate-in fade-in-50">
               {/* Invitations Page Component */}
-              <InvitationsPage />
+              <div className="bg-white rounded-xl shadow-md p-4 border border-indigo-100">
+                <InvitationsPage />
+              </div>
             </TabsContent>
             
-            <TabsContent value="appointments" className="mt-4">
-              <div className="space-y-6">
+            <TabsContent value="appointments" className="mt-4 transition-all duration-300 animate-in fade-in-50">
+              <div className="bg-white rounded-xl shadow-md p-4 border border-blue-100">
                 <ClientAppointments clientId={client.id} />
               </div>
             </TabsContent>
