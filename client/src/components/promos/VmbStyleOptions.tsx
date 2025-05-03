@@ -1393,7 +1393,7 @@ export function VmbStyleOptions({
                       inviteHash: finalInvitationId,
                       status: "pending", // Must be lowercase 'pending' to match salon dashboard filter
                       sponsor: signature || "Your Friend",
-                      favoriteServices: [confirmedStyle?.name || "Selected Style"],
+                      favoriteServices: [confirmedStyle?.name || "style"],
                       firstServiceDate: new Date().toISOString().split('T')[0],
                       
                       // Track the sender (client ID) - must be a number for the server validation
