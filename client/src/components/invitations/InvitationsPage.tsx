@@ -10,17 +10,19 @@ export default function InvitationsPage() {
     <div className="space-y-4 w-full">
       {/* VMB Tagline Card */}
       <Card className="rounded-xl shadow-sm overflow-hidden">
-        <div className="bg-pink-50 py-1.5 flex justify-center items-center">
-          <div className="flex items-center gap-1.5 text-sm">
-            <HeartIcon className="h-3.5 w-3.5 text-red-500" />
-            <span>
-              <span className="text-black font-semibold">Ven Me,</span>
-              <span className="text-pink-600 italic font-semibold">Baby!</span>
-              <span className="text-gray-600"> Make Connections Personal!</span>
-            </span>
-            <HeartIcon className="h-3.5 w-3.5 text-red-500" />
+        <CardHeader className="bg-pink-50 pb-2 pt-2">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-base flex items-center gap-2">
+              <HeartIcon className="h-4 w-4 text-red-500" />
+              <span>
+                <span className="text-black font-semibold">Ven Me,</span>
+                <span className="text-pink-600 italic font-semibold">Baby!</span>
+                <span className="text-gray-600"> Make Connections Personal!</span>
+              </span>
+              <HeartIcon className="h-4 w-4 text-red-500" />
+            </CardTitle>
           </div>
-        </div>
+        </CardHeader>
       </Card>
       
       {/* Send Invitation Card */}
