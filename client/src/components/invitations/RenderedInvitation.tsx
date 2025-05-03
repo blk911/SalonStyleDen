@@ -144,7 +144,7 @@ export function RenderedInvitation({
           <div className={`text-center italic text-gray-700 px-4 ${salonInitiated ? 'text-sm' : ''}`}>
             {salonInitiated ? (
               <>
-                Hi <span className="font-semibold">{recipientName}</span>, We are joining Ven Me, Baby! VMB fits today's lifestyle. It's direct, it's easy. You choose your style, send your gift request. It's a powerful way to connect on a personal level. Check out the samples, and REGISTER!! Become a Ven Me, Baby!
+                Hi <span className="font-semibold">{recipientName}</span>, We are joining Ven Me, Baby! VMB fits today's lifestyle. It's direct, it's easy. You choose your {styleOption ? <span className="font-semibold">{styleOption}</span> : "style"}, send your gift request. It's a powerful way to connect on a personal level. Check out the samples, and REGISTER!! Become a Ven Me, Baby!
                 
                 <div className="text-center mt-1">❤️❤️❤️</div>
                 
