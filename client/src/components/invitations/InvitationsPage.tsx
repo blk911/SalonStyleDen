@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { UserIcon, UserPlusIcon, ClipboardListIcon } from "lucide-react";
+import { UserIcon, UserPlusIcon, ClipboardListIcon, HeartIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +8,23 @@ import { Textarea } from "@/components/ui/textarea";
 export default function InvitationsPage() {
   return (
     <div className="space-y-4 w-full">
+      {/* VMB Tagline Card */}
+      <Card className="rounded-xl shadow-sm overflow-hidden">
+        <CardHeader className="bg-pink-50 pb-2 pt-2">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-base flex items-center gap-2">
+              <HeartIcon className="h-4 w-4 text-red-500" />
+              <span>
+                <span className="text-black font-semibold">Ven Me,</span>
+                <span className="text-pink-600 italic font-semibold">Baby!</span>
+                <span className="text-gray-600"> Make Connections Personal!</span>
+              </span>
+              <HeartIcon className="h-4 w-4 text-red-500" />
+            </CardTitle>
+          </div>
+        </CardHeader>
+      </Card>
+      
       {/* Send Invitation Card */}
       <Card className="rounded-xl shadow-sm overflow-hidden">
         <CardHeader className="bg-pink-50 pb-2 pt-2">

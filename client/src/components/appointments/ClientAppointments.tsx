@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Calendar, Clock, MapPin, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Calendar, Clock, MapPin, AlertCircle, CheckCircle2, HeartIcon } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import {
   Accordion,
@@ -101,6 +101,23 @@ export default function ClientAppointments({ clientId, completedInvitations = []
 
   return (
     <div className="space-y-6 mt-4">
+      {/* VMB Tagline Card */}
+      <Card className="rounded-xl shadow-sm overflow-hidden">
+        <CardHeader className="bg-pink-50 pb-2 pt-2">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-base flex items-center gap-2">
+              <HeartIcon className="h-4 w-4 text-red-500" />
+              <span>
+                <span className="text-black font-semibold">Ven Me,</span>
+                <span className="text-pink-600 italic font-semibold">Baby!</span>
+                <span className="text-gray-600"> Make Connections Personal!</span>
+              </span>
+              <HeartIcon className="h-4 w-4 text-red-500" />
+            </CardTitle>
+          </div>
+        </CardHeader>
+      </Card>
+      
       <Accordion type="single" collapsible defaultValue="appointments" className="w-full">
         {hasAppointments && (
           <AccordionItem value="appointments">

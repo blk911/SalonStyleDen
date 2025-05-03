@@ -13,7 +13,7 @@ export default function GiftsPage() {
               <span>
                 <span className="text-black font-semibold">Ven Me,</span>
                 <span className="text-pink-600 italic font-semibold">Baby!</span>
-                <span className="text-red-500"> Make Connections Personal!</span>
+                <span className="text-gray-600"> Make Connections Personal!</span>
               </span>
               <HeartIcon className="h-4 w-4 text-red-500" />
             </CardTitle>
