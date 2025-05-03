@@ -75,7 +75,10 @@ export default function AppointmentScheduler({ invitation, clientId, onScheduled
       serviceTime: string;
       notes?: string;
     }) => {
-      return apiRequest('POST', '/api/appointments', appointmentData);
+      return apiRequest('/api/appointments', {
+        method: 'POST',
+        data: appointmentData
+      });
     },
     onSuccess: () => {
       toast({

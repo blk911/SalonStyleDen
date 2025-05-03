@@ -121,10 +121,35 @@ export function RenderedInvitation({
       if (response.ok) {
         // Update local status immediately to show the status change
         setLocalStatus('completed');
+        
+        // Log the completion for analytics
+        try {
+          await fetch('/api/activity-logs', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              type: 'gift_redeemed',
+              description: `Gift invitation #${numericId} redeemed by ${recipientName}`,
+              clientId: 10, // Hardcoded for Deborah as a test
+              salonId: 2, // Hardcoded for Tiffany salon
+              timestamp: new Date()
+            }),
+          });
+        } catch (logError) {
+          console.error('Failed to log activity:', logError);
+        }
+        
         toast({
           title: "Payment Confirmed",
-          description: "Your appointment has been scheduled and completed!"
+          description: "Your gift has been redeemed! Now you can schedule your appointment."
         });
+        
+        // Navigate to client dashboard after a short delay to show the toast
+        setTimeout(() => {
+          window.location.href = '/client-dashboard?tab=appointments';
+        }, 1500);
       } else {
         toast({
           title: "Error",
@@ -245,12 +270,29 @@ export function RenderedInvitation({
                   {salonInitiated && (
                     <div className="flex justify-center mt-2 mb-2">
                       {localStatus === 'sent' || localStatus === 'accepted' || localStatus === 'redeemed' || localStatus === 'completed' ? (
-                        <div className="px-3 py-0.5 text-xs text-green-600 bg-green-50 border border-green-200 rounded flex items-center">
-                          <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-1.5"></span>
-                          {localStatus === 'sent' ? 'GIFT SENT' : 
-                           localStatus === 'accepted' ? 'GIFT ACCEPTED' : 
-                           localStatus === 'redeemed' ? 'GIFT REDEEMED' : 
-                           'COMPLETED'}
+                        <div className="flex flex-col gap-2 w-full">
+                          <div className="px-3 py-0.5 text-xs text-green-600 bg-green-50 border border-green-200 rounded flex items-center">
+                            <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-1.5"></span>
+                            {localStatus === 'sent' ? 'GIFT SENT' : 
+                             localStatus === 'accepted' ? 'GIFT ACCEPTED' : 
+                             localStatus === 'redeemed' ? 'GIFT REDEEMED' : 
+                             'COMPLETED'}
+                          </div>
+                          
+                          {/* For completed invitations, show a Schedule button if viewing from client dashboard */}
+                          {(localStatus === 'completed' || localStatus === 'redeemed') && 
+                           sourceDashboard === 'client' && 
+                           !isInPreviewMode && (
+                            <Button 
+                              className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
+                              onClick={() => {
+                                window.location.href = '/client-dashboard?tab=appointments';
+                              }}
+                            >
+                              <Calendar className="h-4 w-4" />
+                              Schedule Appointment
+                            </Button>
+                          )}
                         </div>
                       ) : (
                         <>
