@@ -196,7 +196,7 @@ export default function SentInvitations({
               <RenderedInvitation
                 inviteId={selectedInvitation.inviteHash || `inv-${selectedInvitation.id}`}
                 recipientName={selectedInvitation.name}
-                styleOption={selectedInvitation.styleOption || "Selected Style"}
+                styleOption={selectedInvitation.styleOption || ""}
                 price={selectedInvitation.stylePrice ? `$${selectedInvitation.stylePrice}` : "$45"}
                 time={selectedInvitation.styleDuration ? `${selectedInvitation.styleDuration} min` : "30 min"}
                 senderName="You"
