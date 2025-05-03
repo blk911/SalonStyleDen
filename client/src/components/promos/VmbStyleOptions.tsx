@@ -1247,7 +1247,7 @@ export function VmbStyleOptions({
               <div className={`${salonInitiated ? 'bg-amber-50 border-amber-100' : 'bg-blue-50 border-blue-100'} p-3 rounded-md border text-sm`}>
                 {salonInitiated ? (
                   <p className="font-medium">
-                    Your Ven Me, Baby! for {confirmedStyle?.name || "Selected Style"} is ready to send to {recipientName || "Friend"} cell: {
+                    Your Ven Me, Baby! for {confirmedStyle?.name || "your style"} is ready to send to {recipientName || "Friend"} cell: {
                       recipientContact ? (
                         // Format phone number if it's numeric and 10 digits
                         recipientContact.replace(/\D/g, '').length === 10 ? 
@@ -1259,7 +1259,7 @@ export function VmbStyleOptions({
                 ) : (
                   <>
                     <p>The following gift will be sent:</p>
-                    <p className="font-medium mt-1">{confirmedStyle?.name || "Selected Style"}</p>
+                    <p className="font-medium mt-1">{confirmedStyle?.name || "your style"}</p>
                     <p className="text-xs mt-2">Recipient: {recipientName || "Friend"}</p>
                     <p className="text-xs">{recipientContact || "No contact provided"}</p>
                   </>
@@ -1330,7 +1330,7 @@ export function VmbStyleOptions({
               <RenderedInvitation
                 inviteId={finalInvitationId}
                 recipientName={recipientName || "Friend"}
-                styleOption={confirmedStyle?.name || "Selected Style"}
+                styleOption={confirmedStyle?.name || ""}
                 price={confirmedStyle ? `$${confirmedStyle.price}` : "$45"}
                 time={confirmedStyle ? `${confirmedStyle.duration} min` : "30 min"}
                 senderName={signature || "Your Friend"}
@@ -1386,7 +1386,7 @@ export function VmbStyleOptions({
                       name: recipientName || "Friend",
                       phone: cleanedPhone || "",
                       email: "",  // We may not have this in the flow
-                      notes: `Hi ${recipientName || "Friend"}, I would love a fresh set. My stylist has an opening for ${confirmedStyle?.name || "Selected Style"}, $${confirmedStyle?.price || 45} (${confirmedStyle?.duration || 30} min) will you Ven Me, Baby! ❤️ ❤️ ❤️ ${signature || "Your friend"}`,
+                      notes: `Hi ${recipientName || "Friend"}, I would love a fresh set. My stylist has an opening for ${confirmedStyle?.name || "a style"}, $${confirmedStyle?.price || 45} (${confirmedStyle?.duration || 30} min) will you Ven Me, Baby! ❤️ ❤️ ❤️ ${signature || "Your friend"}`,
                       message: signature ? `From: ${signature}` : "From your friend",
                       type: "client_to_friend",
                       salonId: salonId || 42, // Default to Tiffany's salon if not provided
