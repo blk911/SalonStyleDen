@@ -43,7 +43,11 @@ export async function createTimestampedBackup(timestamp: string): Promise<string
     return `Backup created successfully: ${backupDir}`;
   } catch (error) {
     console.error('Error creating backup:', error);
-    throw new Error(`Failed to create backup: ${error.message}`);
+    if (error instanceof Error) {
+      throw new Error(`Failed to create backup: ${error.message}`);
+    } else {
+      throw new Error('Failed to create backup: Unknown error');
+    }
   }
 }
 

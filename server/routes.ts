@@ -13,6 +13,7 @@ import { registerVisualizationRoutes } from "./visualization";
 import { registerMadgeRoutes } from "./madge-api";
 import { errorMonitor } from './error-monitor';
 import licenseRoutes from './routes/license';
+import createTimestampedBackup from './utils/create-backup';
 
 // Set up multer for file uploads
 const uploadDir = path.join(process.cwd(), 'client/public/uploads');
@@ -1891,6 +1892,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register license routes
   apiRouter.use("/license", licenseRoutes);
+
+  // Admin API routes
+  const adminRouter = express.Router();
+  
+  // Admin backup endpoint - creates a timestamped backup of the codebase
+  adminRouter.get("/backup", async (req: Request, res: Response) => {
+    try {
+      const timestamp = req.query.timestamp as string || new Date().toISOString().replace(/:/g, '-');
+      const result = await createTimestampedBackup(timestamp);
+      res.json({ success: true, message: result });
+    } catch (error) {
+      console.error('Error creating backup:', error);
+      if (error instanceof Error) {
+        res.status(500).json({ success: false, message: error.message });
+      } else {
+        res.status(500).json({ success: false, message: 'Unknown error creating backup' });
+      }
+    }
+  });
+  
+  // Register admin routes
+  app.use("/api/admin", adminRouter);
 
   // Register API routes
   app.use("/api", apiRouter);

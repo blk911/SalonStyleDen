@@ -16,6 +16,7 @@ import { VisualizationSelector } from "@/components/visualization/VisualizationS
 import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 import { EnhancedDeleteConfirmation } from "@/components/admin/EnhancedDeleteConfirmation";
 import { AdminActionButton, ActionGroup } from "@/components/admin/AdminActionButton";
+import DebugControls from "@/components/admin/DebugControls";
 import { 
   Select, 
   SelectContent, 
@@ -437,7 +438,12 @@ export default function AdminDashboard() {
       <Navbar />
       <main className="flex-grow p-4">
         <div className="container mx-auto">
-          <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+          <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
+            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+            <div className="w-full md:w-64">
+              <DebugControls />
+            </div>
+          </div>
 
           {/* Ven Me Baby Style Options */}
           <CollapsibleCard 
