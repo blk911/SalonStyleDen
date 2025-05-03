@@ -4,7 +4,8 @@ import {
   clients, type Client, type InsertClient,
   invitations, type Invitation, type InsertInvitation,
   styleSelections, type StyleSelection, type InsertStyleSelection,
-  activityLogs, type ActivityLog, type InsertActivityLog
+  activityLogs, type ActivityLog, type InsertActivityLog,
+  appointments, type Appointment, type InsertAppointment
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, sql } from "drizzle-orm";
@@ -78,6 +79,13 @@ export interface IStorage {
   trackGiftRedemption(invitationId: number, clientId: number, salonId: number): Promise<ActivityLog>;
   postToClientDashboard(invitationId: number): Promise<boolean>;
   postToSalonDashboard(invitationId: number): Promise<boolean>;
+  
+  // Appointment methods
+  createAppointment(appointment: InsertAppointment): Promise<Appointment>;
+  getAppointment(id: number): Promise<Appointment | undefined>;
+  getClientAppointments(clientId: number): Promise<Appointment[]>;
+  getSalonAppointments(salonId: number): Promise<Appointment[]>;
+  updateAppointmentStatus(id: number, status: string): Promise<Appointment>;
 }
 
 // Copy over all the implementation from old storage.ts then add getSalonsTable method at the end

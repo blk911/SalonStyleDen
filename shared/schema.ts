@@ -151,6 +151,19 @@ export const activityLogs = pgTable("activity_logs", {
   timestamp: timestamp("timestamp").notNull()
 });
 
+// Appointments schema
+export const appointments = pgTable("appointments", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id").notNull().references(() => clients.id),
+  salonId: integer("salon_id").notNull().references(() => salons.id),
+  invitationId: integer("invitation_id").references(() => invitations.id),
+  serviceDate: text("service_date").notNull(),
+  serviceTime: text("service_time").notNull(),
+  status: text("status").notNull().default("confirmed"), // confirmed, cancelled, completed
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
 // Add relations for new tables
 export const styleSelectionsRelations = relations(styleSelections, ({ one }) => ({
   client: one(clients, {
@@ -178,9 +191,25 @@ export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
   })
 }));
 
+export const appointmentsRelations = relations(appointments, ({ one }) => ({
+  client: one(clients, {
+    fields: [appointments.clientId],
+    references: [clients.id]
+  }),
+  salon: one(salons, {
+    fields: [appointments.salonId],
+    references: [salons.id]
+  }),
+  invitation: one(invitations, {
+    fields: [appointments.invitationId],
+    references: [invitations.id]
+  })
+}));
+
 // Insert schemas for new tables
 export const insertStyleSelectionSchema = createInsertSchema(styleSelections).omit({ id: true });
 export const insertActivityLogSchema = createInsertSchema(activityLogs).omit({ id: true });
+export const insertAppointmentSchema = createInsertSchema(appointments).omit({ id: true });
 
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -200,3 +229,6 @@ export type StyleSelection = typeof styleSelections.$inferSelect;
 
 export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
 export type ActivityLog = typeof activityLogs.$inferSelect;
+
+export type InsertAppointment = z.infer<typeof insertAppointmentSchema>;
+export type Appointment = typeof appointments.$inferSelect;
