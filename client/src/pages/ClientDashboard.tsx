@@ -561,9 +561,30 @@ export default function ClientDashboard() {
           {/* Tabs for different dashboard sections */}
           <Tabs defaultValue="profile" className="w-full mb-6">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="profile">Gifts</TabsTrigger>
-              <TabsTrigger value="invitations">Invitations</TabsTrigger>
-              <TabsTrigger value="appointments">Appointments</TabsTrigger>
+              <TabsTrigger value="profile" className="flex flex-col">
+                <span>Gifts</span>
+                <span className="text-xs mt-1 text-muted-foreground flex gap-1">
+                  <span>New</span>
+                  <span className="text-muted-foreground/30">|</span>
+                  <span>Status</span>
+                </span>
+              </TabsTrigger>
+              <TabsTrigger value="invitations" className="flex flex-col">
+                <span>Invitations</span>
+                <span className="text-xs mt-1 text-muted-foreground flex gap-1">
+                  <span>Send</span>
+                  <span className="text-muted-foreground/30">|</span>
+                  <span>Status</span>
+                </span>
+              </TabsTrigger>
+              <TabsTrigger value="appointments" className="flex flex-col">
+                <span>Appointments</span>
+                <span className="text-xs mt-1 text-muted-foreground flex gap-1">
+                  <span>Pending</span>
+                  <span className="text-muted-foreground/30">|</span>
+                  <span>Booked</span>
+                </span>
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="profile" className="mt-4">
