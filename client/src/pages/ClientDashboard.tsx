@@ -211,7 +211,8 @@ export default function ClientDashboard() {
   // Add Style Selection Mutation
   const addStyleSelectionMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await apiRequest('POST', `/api/clients/${data.clientId}/style-selections`, data);
+      const response = await apiRequest('POST', `/api/clients/${data.clientId}/style-selections`, data);
+      return await response.json();
     },
     onSuccess: () => {
       setShowConfirmDialog(false);
@@ -464,40 +465,40 @@ export default function ClientDashboard() {
           </div>
         </section>
 
-        {/* REDUCED SPACE TO 3px */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        {/* REDUCED SPACE TO MAX 4px */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-1 pb-2">
           {/* Tabs for different dashboard sections */}
           <Tabs defaultValue="profile" className="w-full mb-6">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile">
-                <span className="flex flex-col items-center gap-1">
-                  <span className="font-semibold">Gifts</span>
-                  <span className="text-xs text-muted-foreground flex items-center gap-2">
+                <div className="w-full text-center py-1">
+                  <div className="font-semibold">Gifts</div>
+                  <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
                     <span>New</span>
-                    <span className="text-muted-foreground/30">|</span>
+                    <span className="text-muted-foreground/30 px-1">|</span>
                     <span>Status</span>
-                  </span>
-                </span>
+                  </div>
+                </div>
               </TabsTrigger>
               <TabsTrigger value="invitations">
-                <span className="flex flex-col items-center gap-1">
-                  <span className="font-semibold">Invitations</span>
-                  <span className="text-xs text-muted-foreground flex items-center gap-2">
+                <div className="w-full text-center py-1">
+                  <div className="font-semibold">Invitations</div>
+                  <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
                     <span>Send</span>
-                    <span className="text-muted-foreground/30">|</span>
+                    <span className="text-muted-foreground/30 px-1">|</span>
                     <span>Status</span>
-                  </span>
-                </span>
+                  </div>
+                </div>
               </TabsTrigger>
               <TabsTrigger value="appointments">
-                <span className="flex flex-col items-center gap-1">
-                  <span className="font-semibold">Appointments</span>
-                  <span className="text-xs text-muted-foreground flex items-center gap-2">
+                <div className="w-full text-center py-1">
+                  <div className="font-semibold">Appointments</div>
+                  <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
                     <span>Pending</span>
-                    <span className="text-muted-foreground/30">|</span>
+                    <span className="text-muted-foreground/30 px-1">|</span>
                     <span>Booked</span>
-                  </span>
-                </span>
+                  </div>
+                </div>
               </TabsTrigger>
             </TabsList>
             
