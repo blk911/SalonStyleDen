@@ -6,7 +6,7 @@ export default function GiftsPage() {
     <div className="space-y-4 w-full">
       {/* SHARE VMB Card - Always shown whether client has a salon or not */}
       <Card className="rounded-xl shadow-sm overflow-hidden">
-        <div className="bg-pink-50 py-1.5 flex justify-center items-center">
+        <div className="bg-pink-50 pt-5 pb-2.5 flex justify-center items-center">
           <div className="flex items-center gap-1.5 text-sm">
             <HeartIcon className="h-3.5 w-3.5 text-red-500" />
             <span>
