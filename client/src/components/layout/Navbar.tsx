@@ -83,10 +83,14 @@ export default function Navbar() {
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
               </Link>
               {/* Clients tab hidden - now the main page */}
-              {/* Admin button temporarily hidden for marketing testing */}
-              {/* <Link href="/admin">
+              {/* ADMIN RESURFACED PER USER REQUEST */}
+              <Link href="/admin">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
-              </Link> */}
+              </Link>
+              {/* TEMP-A LINK ADDED PER USER REQUEST */}
+              <Link href="/home">
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">TEMP-A</div>
+              </Link>
               <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
             </div>
             <LoadingIndicator />
@@ -114,10 +118,14 @@ export default function Navbar() {
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
           </Link>
           {/* Clients tab hidden in mobile menu - now the main page */}
-          {/* Admin button temporarily hidden for marketing testing */}
-          {/* <Link href="/admin">
+          {/* ADMIN RESURFACED PER USER REQUEST */}
+          <Link href="/admin">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
-          </Link> */}
+          </Link>
+          {/* TEMP-A LINK ADDED PER USER REQUEST */}
+          <Link href="/home">
+            <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">TEMP-A</div>
+          </Link>
           <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
         </div>
       </div>
