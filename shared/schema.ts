@@ -80,6 +80,9 @@ export const invitations = pgTable("invitations", {
   inviteHash: text("invite_hash").unique(), // Unique hash identifier for tracking invitations
   status: text("status").notNull().default("pending"), // pending, accepted, declined
   firstServiceDate: text("first_service_date"), // Date of first service (if scheduled)
+  styleOption: text("style_option"), // Selected style name/option
+  stylePrice: integer("style_price"), // Price of the selected style in cents
+  styleDuration: integer("style_duration"), // Duration of the style service in minutes
   createdAt: timestamp("created_at").defaultNow(),
 });
 

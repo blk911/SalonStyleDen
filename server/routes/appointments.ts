@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { storage } from '../storage';
-import { insertAppointmentSchema } from '@shared/schema';
+import { insertAppointmentSchema, Invitation } from '@shared/schema';
 import { z } from 'zod';
 
 const router = Router();
