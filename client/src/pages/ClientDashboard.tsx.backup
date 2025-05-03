@@ -1,29 +1,19 @@
-// Extend the Window interface to add our client ID context
-declare global {
-  interface Window {
-    _currentClientId?: string | number | null;
-  }
-}
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useParams, useLocation } from "wouter";
+import { useParams } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import EditableClientInfo from "@/components/dashboard/EditableClientInfo";
 import RecentVmbInvitations from "@/components/dashboard/RecentVmbInvitations";
 import InlineVmbInvitations from "@/components/dashboard/InlineVmbInvitations";
-import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitations";
-import SentInvitations from "@/components/dashboard/SentInvitations";
 import ClientInviteForm from "@/components/dashboard/ClientInviteForm";
-import ClientAppointments from "@/components/appointments/ClientAppointments";
 import { getImageUrl } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -50,7 +40,6 @@ interface ClientData {
   email: string;
   isCurrentClient: boolean;
   acceptedTerms?: boolean; // Added field to track terms acceptance status
-  profilePromptShown?: boolean; // Added field to track if profile completion prompt has been shown
   notes?: string;
   favoriteServices?: string[];
   salonId?: number;
@@ -120,25 +109,13 @@ export default function ClientDashboard() {
   const [showPersonalizedOffers, setShowPersonalizedOffers] = useState(false);
   const [showCreatePromo, setShowCreatePromo] = useState(false);
   
-  // Show/hide state for VMB Style Options section - default to HIDE per user request
-  const [showStyleOptions, setShowStyleOptions] = useState(false);
-  
   // Show/hide state for gift options section - default to HIDE
   const [showGiftOptions, setShowGiftOptions] = useState(false);
-  
-  // Show/hide state for pending invitations section - default to HIDE
-  const [showPendingInvitations, setShowPendingInvitations] = useState(false);
-  
-  // Show/hide state for sent invitations section - default to HIDE per user request
-  const [showSentInvitations, setShowSentInvitations] = useState(false);
-  
-  // Show/hide state for share form section - default to HIDE per user request
-  const [showShareForm, setShowShareForm] = useState(false);
   
   // Show "Complete Your Profile" dialog for newly validated clients
   const [showCompleteProfileDialog, setShowCompleteProfileDialog] = useState(false);
   
-  // State for invitation form with default client-to-others message template
+  // State for invitation form
   const [inviteForm, setInviteForm] = useState({
     recipientName: '',
     recipientPhone: '',
@@ -146,31 +123,19 @@ export default function ClientDashboard() {
     message: ''
   });
   
-  // Define client-to-others default message template
-  const getDefaultClientToOthersMessage = () => {
-    return `Hi! ${inviteForm.recipientName || '[recpt name]'},\n\nI love this style - ${selectedStyle?.name || '[selected opt]'}. My nails are a mess and ${salon?.ownerName || '[sal own nm]'} has an opening.\n\nI would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ ${client?.name || ''}`;
-  };
-  
   // State for invitation preview
   const [showInvitePreview, setShowInvitePreview] = useState(false);
 
-  // Validate ID parameter - should be a number, not 'registration' or other text
-  const numericId = id && !isNaN(Number(id)) ? id : null;
-  
   // Add debugging information to trace API calls
-  console.log(`ClientDashboard - Fetching client with ID: ${numericId || 'INVALID'}`);
-
+  console.log(`ClientDashboard - Fetching client with ID: ${id}`);
+  
   // Fetch client data
   const { data: client, isLoading: clientLoading, error: clientError } = useQuery<ClientData>({
-    queryKey: ['/api/clients', numericId],
+    queryKey: ['/api/clients', id],
     queryFn: async () => {
       try {
-        if (!numericId) {
-          throw new Error('Invalid client ID format');
-        }
-        
-        console.log(`ClientDashboard - Making API request to fetch client ${numericId}`);
-        const response = await fetch(`/api/clients/${numericId}`);
+        console.log(`ClientDashboard - Making API request to fetch client ${id}`);
+        const response = await fetch(`/api/clients/${id}`);
         if (!response.ok) {
           const errorText = await response.text();
           console.error(`ClientDashboard - API error: ${response.status} ${errorText}`);
@@ -180,12 +145,12 @@ export default function ClientDashboard() {
         console.log(`ClientDashboard - Successfully fetched client:`, data);
         return data;
       } catch (error) {
-        console.error(`ClientDashboard - Error fetching client ${numericId || 'INVALID'}:`, error);
+        console.error(`ClientDashboard - Error fetching client ${id}:`, error);
         throw error;
       }
     },
     refetchOnMount: true,
-    enabled: !!numericId, // Only run the query if we have a valid numeric ID
+    enabled: !!id, // Only run the query if we have an ID
   });
 
   // Fetch linked salon data if salonId exists
@@ -206,14 +171,10 @@ export default function ClientDashboard() {
   
   // Fetch client's style selections
   const { data: styleSelections, isLoading: selectionsLoading } = useQuery<StyleSelection[]>({
-    queryKey: ['/api/clients', numericId, 'style-selections'],
+    queryKey: ['/api/clients', id, 'style-selections'],
     queryFn: async () => {
-      if (!numericId) {
-        throw new Error('Invalid client ID format');
-      }
-      
-      console.log(`ClientDashboard - Fetching style selections for client ${numericId}`);
-      const response = await fetch(`/api/clients/${numericId}/style-selections`);
+      console.log(`ClientDashboard - Fetching style selections for client ${id}`);
+      const response = await fetch(`/api/clients/${id}/style-selections`);
       if (!response.ok) {
         throw new Error(`Failed to fetch style selections: ${response.status}`);
       }
@@ -221,7 +182,7 @@ export default function ClientDashboard() {
       console.log(`ClientDashboard - Successfully fetched style selections:`, data);
       return data;
     },
-    enabled: !!numericId, // Only run if we have a valid numeric ID
+    enabled: !!id,
   });
 
   // Fetch client's invitations
@@ -248,122 +209,22 @@ export default function ClientDashboard() {
     enabled: !!client,
   });
 
-  // Check if user is viewing their own profile or if it's an admin view
-  const [isAdminView, setIsAdminView] = useState(false);
-  
-  // Detect if we're in admin view mode by checking URL parameters or localStorage
+  // Check client's registration status when data is loaded
   useEffect(() => {
-    // Check if there's an admin flag in the URL or localStorage
-    const urlParams = new URLSearchParams(window.location.search);
-    const adminViewParam = urlParams.get('adminView');
-    const adminViewStorage = localStorage.getItem('adminView');
-    
-    // Set admin view mode if either condition is true
-    if (adminViewParam === 'true' || adminViewStorage === 'true') {
-      console.log('[FLOW] ClientDashboard - Admin view mode detected, profile prompt will not show');
-      setIsAdminView(true);
-    } else {
-      console.log('[FLOW] ClientDashboard - Regular client view mode');
-      setIsAdminView(false);
-    }
-    
-    // Cleanup function to remove adminView from localStorage when leaving the page
-    return () => {
-      // Only remove if this was set by the admin dashboard navigation
-      if (adminViewParam === 'true') {
-        console.log('[FLOW] ClientDashboard - Cleaning up adminView flag from localStorage');
-        localStorage.removeItem('adminView');
+    if (client) {
+      console.log(`ClientDashboard - Client data loaded. Checking acceptedTerms status: ${client.acceptedTerms}`);
+      
+      // If the acceptedTerms flag is not true, show the popup
+      // Only show popup when client has NOT accepted terms
+      if (client.acceptedTerms !== true) {
+        console.log('ClientDashboard - Client has not accepted terms, showing profile completion dialog');
+        setShowCompleteProfileDialog(true);
+      } else {
+        console.log('ClientDashboard - Client has already accepted terms, not showing dialog');
+        setShowCompleteProfileDialog(false);
       }
-    };
-  }, []);
-  
-  // CRITICAL FIX: Set the global client ID for invitation context
-  // This allows the RenderedInvitation component to properly determine who is viewing invitations
-  useEffect(() => {
-    if (client?.id) {
-      // Set the client ID in the global window object for invitation context
-      window._currentClientId = client.name; // We store client name to match the recipientName in invitations
-      console.log(`[FLOW] ClientDashboard - Setting global client ID context: ${client.name} (ID: ${client.id})`);
     }
-    
-    // Clean up when component unmounts
-    return () => {
-      console.log('[FLOW] ClientDashboard - Clearing global client ID context');
-      window._currentClientId = null;
-    };
   }, [client]);
-
-  // Check client's registration status when data is loaded - POPUP DISABLED BY REQUEST
-  useEffect(() => {
-    if (!client) return;
-
-    console.log(`ClientDashboard - Client data loaded. Checking acceptedTerms status: ${client.acceptedTerms}`);
-    console.log(`ClientDashboard - Profile prompt shown status: ${client.profilePromptShown}`);
-    console.log(`ClientDashboard - adminView status: ${isAdminView}`);
-    
-    // CRITICAL FIX: Bypass profile completion popup per user request
-    console.log('[CRITICAL FIX] Bypassing profile prompt popup as requested');
-    setShowCompleteProfileDialog(false);
-    
-    // Still mark that we've shown the popup to this client in the database
-    if (client.profilePromptShown !== true) {
-      updateProfilePromptShown(client.id);
-    }
-    
-    /* TEMPORARILY DISABLED - original logic
-    // If this is an admin view, never show the dialog regardless of client status
-    if (isAdminView) {
-      console.log('[FLOW] ClientDashboard - Admin view mode: profile prompt disabled');
-      setShowCompleteProfileDialog(false);
-      return; // Exit early
-    }
-    
-    // TESTING: For demo purposes, if Client ID is 12 (Oleta), always show the dialog in regular view
-    if (client.id === 12) {
-      console.log('[TEST] ClientDashboard - This is Oleta\'s profile with regular view, SHOWING dialog');
-      setShowCompleteProfileDialog(true);
-    }
-    // Normal logic for other clients
-    else if (client.acceptedTerms !== true && client.profilePromptShown !== true) {
-      console.log('[FLOW] ClientDashboard - Client has not accepted terms and prompt not shown before, displaying dialog');
-      setShowCompleteProfileDialog(true);
-      
-      // Mark that we've shown the popup to this client
-      updateProfilePromptShown(client.id);
-    } else {
-      if (client.profilePromptShown === true) {
-        console.log('[FLOW] ClientDashboard - Profile prompt already shown to this client, not showing again');
-      } else if (client.acceptedTerms === true) {
-        console.log('[FLOW] ClientDashboard - Client has already accepted terms, not showing dialog');
-      }
-      setShowCompleteProfileDialog(false);
-    }
-    */
-  }, [client, isAdminView]);
-  
-  // Function to update the client's profilePromptShown status in the database
-  const updateProfilePromptShown = async (clientId: number) => {
-    try {
-      console.log(`[FLOW] ClientDashboard - Marking profile prompt as shown for client ${clientId}`);
-      const response = await fetch(`/api/clients/${clientId}/profile-prompt-shown`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ profilePromptShown: true }),
-      });
-      
-      if (!response.ok) {
-        console.error(`Error updating profile prompt status: ${response.status}`);
-        return;
-      }
-      
-      const result = await response.json();
-      console.log(`[FLOW] ClientDashboard - Successfully marked profile prompt as shown`);
-    } catch (error) {
-      console.error('Error updating profile prompt status:', error);
-    }
-  };
 
   const isLoading = clientLoading || (client?.salonId && salonLoading);
 
@@ -413,9 +274,6 @@ export default function ClientDashboard() {
           </div>
           <DialogHeader>
             <DialogTitle className="text-center text-pink-700">Complete Your Profile</DialogTitle>
-            <DialogDescription>
-              Take a moment to complete your profile information
-            </DialogDescription>
           </DialogHeader>
           
           <div className="p-4 border border-pink-100 bg-pink-50 rounded mb-5 text-sm">
@@ -450,107 +308,58 @@ export default function ClientDashboard() {
         </DialogContent>
       </Dialog>
       
-      {/* Debug Toolbar - only visible when the URL has ?debug=true */}
-      {window.location.search.includes('debug=true') && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white z-50 p-2 text-xs">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div>
-                <span className="opacity-70">Client ID:</span> {client?.id}
-              </div>
-              <div>
-                <span className="opacity-70">Admin View:</span> {isAdminView ? '✅' : '❌'}
-              </div>
-              <div>
-                <span className="opacity-70">Profile Prompt Shown:</span> {client?.profilePromptShown ? '✅' : '❌'}
-              </div>
-              <div>
-                <span className="opacity-70">Terms Accepted:</span> {client?.acceptedTerms ? '✅' : '❌'}
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="h-6 text-[10px] bg-blue-700 hover:bg-blue-800 border-none" 
-                onClick={() => {
-                  localStorage.setItem('adminView', isAdminView ? 'false' : 'true');
-                  window.location.reload();
-                }}
-              >
-                Toggle Admin View
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="h-6 text-[10px] bg-green-700 hover:bg-green-800 border-none" 
-                onClick={() => setShowCompleteProfileDialog(true)}
-              >
-                Show Profile Popup
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-      
       <main className="flex-grow">
         {/* Hero Section with Client Info - REDUCED PADDING TO 2px */}
         <section className="bg-gradient-to-r from-pink-100 to-pink-50 py-2 border-b border-pink-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="flex items-center">
-                <div className="relative w-16 h-16">
-                  <Avatar className="w-16 h-16 bg-white border-2 border-pink-100 shadow-md">
-                    <AvatarImage 
-                      src={client.photoUrl ? getImageUrl(client.photoUrl, 'client-card') : undefined}
-                      alt={client.name}
-                      className="object-cover"
-                      onError={(e) => {
-                        console.error("Error loading client avatar image in header");
-                        e.currentTarget.src = '';
-                      }} 
-                    />
-                    <AvatarFallback className="bg-white text-pink-500">
-                      <UserIcon className="h-8 w-8" />
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  {/* Photo Edit Button (Only shows if not in admin view) */}
-                  {!isAdminView && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="absolute -bottom-2 -right-2 h-7 w-7 p-0 rounded-full bg-white border border-pink-200 hover:bg-pink-50"
-                      onClick={() => setIsEditing(true)}
-                      title="Edit profile photo"
-                    >
-                      <PencilIcon className="h-3 w-3 text-pink-500" />
-                    </Button>
-                  )}
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md">
+                  <UserIcon className="h-8 w-8 text-pink-500" />
                 </div>
                 <div className="ml-4">
                   <h1 className="font-bold text-2xl text-pink-700">{client.name}</h1>
-                  {isAdminView && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                      Admin View
-                    </span>
-                  )}
                 </div>
               </div>
               
-              <div className="mt-4 md:mt-0 text-right flex items-center">
-                {salon && (
-                  <span className="text-sm font-medium text-pink-700 mr-4">Member: {salon.name}</span>
-                )}
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="h-8 border-pink-300 text-pink-700 hover:bg-pink-50"
-                  onClick={() => setIsEditing(true)}
-                >
-                  <PencilIcon className="h-3.5 w-3.5 mr-1" />
-                  Gifts
-                </Button>
+              <div className="mt-4 md:mt-0">
+                <div className="flex space-x-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center justify-center gap-2 min-w-[160px]"
+                  >
+                    <CalendarIcon className="h-4 w-4" />
+                    Joined: {new Date(client.createdAt).toLocaleDateString()}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center justify-center gap-2 min-w-[160px]"
+                  >
+                    <StarIcon className="h-4 w-4 text-pink-500" />
+                    Sponsor: {client.sponsor || "None"}
+                  </Button>
+                  {client.salonId && salon && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center justify-center min-w-[160px]"
+                      onClick={() => window.location.href = `/salon/${salon.id}`}
+                    >
+                      View Salon Page
+                    </Button>
+                  )}
+                  <Button 
+                    variant="outline"
+                    size="sm" 
+                    className="border-pink-300 text-pink-700 hover:bg-pink-50 flex items-center justify-center gap-2 min-w-[160px]"
+                    onClick={() => setIsEditing(!isEditing)}
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                    Edit Profile
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -561,15 +370,9 @@ export default function ClientDashboard() {
           <div className="space-y-6">
             {/* Add dialog for editing client profile */}
             <Dialog open={isEditing} onOpenChange={setIsEditing}>
-              <DialogContent className="max-w-4xl" aria-describedby="edit-profile-description">
-                <div id="edit-profile-description" className="sr-only">
-                  Edit your profile information to keep it current.
-                </div>
+              <DialogContent className="max-w-4xl">
                 <DialogHeader>
                   <DialogTitle>Edit Your Profile</DialogTitle>
-                  <DialogDescription>
-                    Update your personal information and preferences.
-                  </DialogDescription>
                 </DialogHeader>
                 {client && (
                   <EditableClientInfo 
@@ -604,138 +407,18 @@ export default function ClientDashboard() {
               </DialogContent>
             </Dialog>
             
-            {/* Client Profile Card */}
-            <Card className="rounded-xl shadow-sm overflow-hidden">
-              <CardHeader className="bg-pink-50 pb-2 pt-2">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-base flex items-center gap-2 text-pink-700">
-                    <UserIcon className="h-4 w-4" />
-                    Your Profile
-                  </CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <div className="flex flex-col space-y-2">
-                      <div className="flex items-center text-sm">
-                        <UserIcon className="h-4 w-4 mr-2 text-gray-400" />
-                        <span className="font-medium text-gray-600">Name:</span>
-                        <span className="ml-2">{client.name}</span>
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <PhoneIcon className="h-4 w-4 mr-2 text-gray-400" />
-                        <span className="font-medium text-gray-600">Phone:</span>
-                        <span className="ml-2">{client.phone}</span>
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <AtSignIcon className="h-4 w-4 mr-2 text-gray-400" />
-                        <span className="font-medium text-gray-600">Email:</span>
-                        <span className="ml-2">{client.email}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    {client.address && (
-                      <div className="flex items-start text-sm">
-                        <MapPinIcon className="h-4 w-4 mr-2 mt-0.5 text-gray-400" />
-                        <div>
-                          <span className="font-medium text-gray-600">Address:</span>
-                          <div className="ml-2">
-                            <p>{client.address}</p>
-                            <p>{client.city}, {client.state} {client.zipCode}</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* SHARE VMB Card - Always shown whether client has a salon or not */}
-            <Card className="rounded-xl shadow-sm overflow-hidden">
-              <CardHeader className="bg-pink-50 pb-2 pt-2">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <HeartIcon className="h-4 w-4 text-red-500" />
-                    <span>
-                      <span className="text-black font-semibold">Ven Me,</span>
-                      <span className="text-pink-600 italic font-semibold">Baby!</span>
-                      <span className="text-red-500"> Make Connections Personal!</span>
-                    </span>
-                    <HeartIcon className="h-4 w-4 text-red-500" />
-                  </CardTitle>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="p-0 h-8 w-8"
-                    onClick={() => setShowShareForm(!showShareForm)}
-                    aria-label={showShareForm ? "Hide invitation form" : "Show invitation form"}
-                  >
-                    {showShareForm ? (
-                      <ChevronUpIcon className="h-5 w-5" />
-                    ) : (
-                      <ChevronDownIcon className="h-5 w-5" />
-                    )}
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className={`pt-4 ${showShareForm ? 'block' : 'hidden'}`}>
-                <ClientInviteForm 
-                  clientId={client.id}
-                  hideLabels={true}
-                  hideToggle={true}
-                  onSuccess={() => {
-                    toast({
-                      title: "Invitation Sent",
-                      description: "Your invitation has been sent successfully!"
-                    });
-                  }} 
-                />
-              </CardContent>
-            </Card>
-            
-            {/* Your Sent Invitations Card - Display invitations the client has sent */}
-            <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
-              <CardHeader className="bg-pink-50 pb-2 pt-2">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-base flex items-center gap-2 text-pink-700">
-                    <UserIcon className="h-4 w-4" />
-                    Your Sent Invitations
-                  </CardTitle>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="p-0 h-8 w-8"
-                    onClick={() => setShowSentInvitations(!showSentInvitations)}
-                    aria-label={showSentInvitations ? "Hide sent invitations" : "Show sent invitations"}
-                  >
-                    {showSentInvitations ? (
-                      <ChevronUpIcon className="h-5 w-5" />
-                    ) : (
-                      <ChevronDownIcon className="h-5 w-5" />
-                    )}
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className={`pt-4 ${showSentInvitations ? 'block' : 'hidden'}`}>
-                <SentInvitations 
-                  clientId={client.id} 
-                  limit={5} 
-                />
-              </CardContent>
-            </Card>
-            
             {/* Full-width Salon Card */}
             {client.salonId && (
               <Card className="rounded-xl shadow-sm overflow-hidden">
                 <CardHeader className="bg-pink-50 pb-2 pt-2">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-base flex items-center gap-2 text-pink-700">
+                  <div>
+                    <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
                       <ScissorsIcon className="h-4 w-4" />
                       Your Ven Me, Baby! Dashboard
                     </CardTitle>
+                    {salon && (
+                      <CardDescription>Member of {salon.name}</CardDescription>
+                    )}
                   </div>
                 </CardHeader>
                 
@@ -746,7 +429,7 @@ export default function ClientDashboard() {
                       {salon?.services && salon.services.length > 0 && (
                         <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
                           <CardHeader className="bg-pink-50 pb-2 pt-2">
-                            <CardTitle className="text-base flex items-center justify-between gap-2 text-pink-700">
+                            <CardTitle className="text-lg flex items-center justify-between gap-2 text-pink-700">
                               <span>Pick Your Next Ven Me, Baby! Gift</span>
                               <button 
                                 onClick={() => setShowGiftOptions(!showGiftOptions)} 
@@ -805,46 +488,11 @@ export default function ClientDashboard() {
                         </Card>
                       )}
                       
-                      {/* Pending Salon Invitations Section */}
-                      <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
-                        <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100 pb-2 pt-2">
-                          <CardTitle className="text-base flex items-center justify-between gap-2 text-amber-700">
-                            <div className="flex items-center gap-2">
-                              <StarIcon className="h-4 w-4" />
-                              <span>Pending Invitations From Salons</span>
-                            </div>
-                            <button 
-                              onClick={() => setShowPendingInvitations(!showPendingInvitations)} 
-                              className="flex items-center text-sm text-amber-600 hover:text-amber-800"
-                              aria-label={showPendingInvitations ? "Hide pending invitations" : "Show pending invitations"}
-                            >
-                              {showPendingInvitations ? (
-                                <ChevronUpIcon className="h-5 w-5" />
-                              ) : (
-                                <ChevronDownIcon className="h-5 w-5" />
-                              )}
-                            </button>
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className={`pt-4 ${showPendingInvitations ? 'block' : 'hidden'}`}>
-                          <PendingSalonInvitations 
-                            clientId={client.id} 
-                            limit={5} 
-                          />
-                        </CardContent>
-                      </Card>
-                      
                       {/* Style Selection Confirmation Dialog */}
                       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-                        <DialogContent className="max-w-md" aria-describedby="confirm-style-description">
-                          <div id="confirm-style-description" className="sr-only">
-                            Confirm your style selection to add to your profile.
-                          </div>
+                        <DialogContent className="max-w-md">
                           <DialogHeader>
                             <DialogTitle>Confirm Style Selection</DialogTitle>
-                            <DialogDescription>
-                              Review and confirm your selected nail style.
-                            </DialogDescription>
                           </DialogHeader>
                           {selectedStyle && (
                             <div className="space-y-4">
@@ -911,7 +559,7 @@ export default function ClientDashboard() {
                       {showPersonalizedOffers && selectedStyle && (
                         <div className="mt-8 border-t pt-4">
                           <div className="bg-gradient-to-r from-pink-100 to-pink-50 p-5 rounded-xl border border-pink-200 relative overflow-hidden">
-                            <h3 className="font-bold text-base text-pink-700 mb-3 flex items-center">
+                            <h3 className="font-bold text-lg text-pink-700 mb-3 flex items-center">
                               <StarIcon className="h-5 w-5 mr-2 text-pink-500" />
                               My Ven Me, Baby! Offers
                             </h3>
@@ -1000,12 +648,12 @@ export default function ClientDashboard() {
                                     />
                                   </div>
                                   
-                                  {/* Custom Message Field - Client-to-Others Message Template */}
+                                  {/* Custom Message Field */}
                                   <textarea
                                     id="message"
                                     rows={4}
                                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                    placeholder={getDefaultClientToOthersMessage()}
+                                    placeholder={`Hi! ${inviteForm.recipientName || '[recpt name]'},\n\nI love this style - ${selectedStyle?.name || '[selected opt]'}. My nails are a mess and ${salon?.ownerName || '[sal own nm]'} has an opening.\n\nI would love a treat from you! Will you Ven Me, Baby! ❤️❤️❤️ ${client.name}`}
                                     value={inviteForm.message}
                                     onChange={(e) => setInviteForm({...inviteForm, message: e.target.value})}
                                   />
@@ -1159,15 +807,9 @@ export default function ClientDashboard() {
                             
                             {/* Invitation Preview Dialog */}
                             <Dialog open={showInvitePreview} onOpenChange={setShowInvitePreview}>
-                              <DialogContent className="max-w-md" aria-describedby="invitation-preview-description">
-                                <div id="invitation-preview-description" className="sr-only">
-                                  Preview of your nail style invitation before sending it to your friend.
-                                </div>
+                              <DialogContent className="max-w-md">
                                 <DialogHeader>
                                   <DialogTitle>Invitation Preview</DialogTitle>
-                                  <DialogDescription>
-                                    This is how your invitation will appear to the recipient.
-                                  </DialogDescription>
                                 </DialogHeader>
                                 
                                 <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-5 rounded-lg border border-blue-200 max-w-sm mx-auto">
@@ -1327,9 +969,32 @@ export default function ClientDashboard() {
                         </div>
                       )}
                       
-
+                      {/* SHARE VMB Section - MOVED DOWN */}
+                      <div className="mt-8 border-t pt-2">
+                        <h3 className="font-semibold text-pink-700 mb-2">SHARE Ven Me, Baby!, WITH YOUR FRIENDS, SO'S, BF, BFF...NOW!</h3>
+                        <Card className="shadow-sm overflow-hidden">
+                          <CardHeader className="bg-pink-50 pb-2 pt-2">
+                            <CardTitle className="text-sm">VMB is a must share, send via cell or email, send now!</CardTitle>
+                          </CardHeader>
+                          <CardContent className="p-4">
+                            <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
+                              // Refresh the invitations list
+                              toast({
+                                title: "Invitation Sent",
+                                description: "Your invitation has been sent successfully!"
+                              });
+                            }} />
+                          </CardContent>
+                        </Card>
+                      </div>
                       
-                      {/* Recent VMB Invitations Sent - REMOVED */}
+                      {/* Recent VMB Invitations Sent - MOVED UP */}
+                      <div className="mt-4 border-t pt-2">
+                        <h3 className="font-semibold text-pink-700 mb-2">Your Ven Me, Baby! Dashboard</h3>
+                        <div className="mb-2">
+                          <InlineVmbInvitations clientId={client.id} />
+                        </div>
+                      </div>
                     </div>
                   ) : salonLoading ? (
                     <p>Loading salon information...</p>
@@ -1340,142 +1005,44 @@ export default function ClientDashboard() {
               </Card>
             )}
             
-            {/* Personal Invitations Card - Removed as it's redundant with "Share Ven Me, Baby!" */}
-            
-            {/* Pending Invitations */}
-            <Card className="rounded-xl shadow-sm overflow-hidden mt-6">
-              <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100 pb-2 pt-2">
-                <CardTitle className="text-base flex items-center justify-between gap-2 text-amber-700">
-                  <div className="flex items-center gap-2">
+            {/* Invitations Card - MOVED UP */}
+            {invitations && invitations.length > 0 && (
+              <Card className="rounded-xl shadow-sm overflow-hidden">
+                <CardHeader className="bg-pink-50 pb-2 pt-2">
+                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
                     <StarIcon className="h-4 w-4" />
-                    <span>Pending Invitations</span>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <PendingSalonInvitations 
-                  clientId={client.id} 
-                  limit={5} 
-                />
-              </CardContent>
-            </Card>
+                    Your Invitations
+                  </CardTitle>
+                </CardHeader>
+                
+                <CardContent className="pt-4">
+                  <InlineVmbInvitations clientId={client.id} />
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* Standalone SHARE VMB Card - MOVED DOWN - shown whether client has a salon or not */}
+            {!client.salonId && (
+              <Card className="rounded-xl shadow-sm overflow-hidden">
+                <CardHeader className="bg-pink-50 pb-2 pt-2">
+                  <CardTitle className="text-lg flex items-center gap-2 text-pink-700">
+                    SHARE Ven Me, Baby!, WITH YOUR FRIENDS, SO'S, BF, BFF...NOW!
+                  </CardTitle>
+                  <CardDescription>
+                    Invite your friends to join Ven Me, Baby!
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <ClientInviteForm clientId={client.id} hideLabels={true} onSuccess={() => {
+                    toast({
+                      title: "Invitation Sent",
+                      description: "Your invitation has been sent successfully!"
+                    });
+                  }} />
+                </CardContent>
+              </Card>
+            )}
           </div>
-            </TabsContent>
-            
-            <TabsContent value="invitations" className="mt-4">
-              <div className="space-y-6">
-                {/* Share VMB Card - Always shown whether client has a salon or not */}
-                <Card className="rounded-xl shadow-sm overflow-hidden">
-                  <CardHeader className="bg-pink-50 pb-2 pt-2">
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <HeartIcon className="h-4 w-4 text-red-500" />
-                        <span>
-                          <span className="text-black font-semibold">Ven Me,</span>
-                          <span className="text-pink-600 italic font-semibold">Baby!</span>
-                          <span className="text-red-500"> Make Connections Personal!</span>
-                        </span>
-                        <HeartIcon className="h-4 w-4 text-red-500" />
-                      </CardTitle>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="p-0 h-8 w-8"
-                        onClick={() => setShowShareForm(!showShareForm)}
-                        aria-label={showShareForm ? "Hide invitation form" : "Show invitation form"}
-                      >
-                        {showShareForm ? (
-                          <ChevronUpIcon className="h-5 w-5" />
-                        ) : (
-                          <ChevronDownIcon className="h-5 w-5" />
-                        )}
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent className={`pt-4 ${showShareForm ? 'block' : 'hidden'}`}>
-                    <ClientInviteForm 
-                      clientId={client.id}
-                      hideLabels={true}
-                      hideToggle={true}
-                      onSuccess={() => {
-                        toast({
-                          title: "Invitation Sent",
-                          description: "Your invitation has been sent successfully!"
-                        });
-                      }} 
-                    />
-                  </CardContent>
-                </Card>
-                
-                {/* Your Sent Invitations Card - Display invitations the client has sent */}
-                <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
-                  <CardHeader className="bg-pink-50 pb-2 pt-2">
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="text-base flex items-center gap-2 text-pink-700">
-                        <UserIcon className="h-4 w-4" />
-                        Your Sent Invitations
-                      </CardTitle>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="p-0 h-8 w-8"
-                        onClick={() => setShowSentInvitations(!showSentInvitations)}
-                        aria-label={showSentInvitations ? "Hide sent invitations" : "Show sent invitations"}
-                      >
-                        {showSentInvitations ? (
-                          <ChevronUpIcon className="h-5 w-5" />
-                        ) : (
-                          <ChevronDownIcon className="h-5 w-5" />
-                        )}
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent className={`pt-4 ${showSentInvitations ? 'block' : 'hidden'}`}>
-                    <SentInvitations 
-                      clientId={client.id} 
-                      limit={5} 
-                    />
-                  </CardContent>
-                </Card>
-                
-                {/* Pending Invitations Card - Display invitations sent to this client */}
-                <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
-                  <CardHeader className="bg-pink-50 pb-2 pt-2">
-                    <CardTitle className="text-base flex items-center gap-2 text-pink-700">
-                      <div className="flex items-center">
-                        <CheckCircleIcon className="h-4 w-4 mr-1" />
-                        <span>Pending Invitations</span>
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <PendingSalonInvitations 
-                      clientId={client.id} 
-                      limit={5} 
-                    />
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="appointments" className="mt-4">
-              <div className="space-y-6">
-                <Card className="rounded-xl shadow-sm overflow-hidden">
-                  <CardHeader className="bg-pink-50 pb-2 pt-2">
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="text-base flex items-center gap-2 text-pink-700">
-                        <CalendarIcon className="h-4 w-4" />
-                        Your Appointments
-                      </CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <ClientAppointments clientId={client.id} />
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
         </div>
       </main>
       <Footer />
