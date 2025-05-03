@@ -492,14 +492,18 @@ export default function ClientDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Tabs for different dashboard sections */}
           <Tabs defaultValue="profile" className="w-full mb-2">
-            <TabsList className="grid w-full grid-cols-3 bg-transparent shadow-none gap-3 px-1 py-1">
+            <TabsList className="grid w-full grid-cols-3 bg-transparent shadow-none gap-3 px-1 py-1 mb-1">
               <TabsTrigger 
                 value="profile" 
-                className="bg-white shadow-sm rounded-md transition-all duration-200 
+                className="bg-white shadow-md rounded-md transition-all duration-200 
+                           border border-gray-100
                            hover:bg-gradient-to-r hover:from-pink-50 hover:to-pink-100
-                           hover:shadow-md hover:scale-105
-                           data-[state=active]:bg-white data-[state=active]:shadow-md
-                           data-[state=active]:border-b-2 data-[state=active]:border-pink-500"
+                           hover:shadow-lg hover:scale-105
+                           data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-50 data-[state=active]:to-pink-100
+                           data-[state=active]:shadow-lg data-[state=active]:border-b-2 data-[state=active]:border-pink-500
+                           data-[state=active]:border-t data-[state=active]:border-t-pink-200
+                           data-[state=active]:border-l data-[state=active]:border-l-pink-200
+                           data-[state=active]:border-r data-[state=active]:border-r-pink-200"
               >
                 <div className="w-full text-center py-2">
                   <div className="font-semibold text-gray-800">Gifts</div>
@@ -512,11 +516,15 @@ export default function ClientDashboard() {
               </TabsTrigger>
               <TabsTrigger 
                 value="invitations" 
-                className="bg-white shadow-sm rounded-md transition-all duration-200 
+                className="bg-white shadow-md rounded-md transition-all duration-200 
+                           border border-gray-100
                            hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100
-                           hover:shadow-md hover:scale-105
-                           data-[state=active]:bg-white data-[state=active]:shadow-md
-                           data-[state=active]:border-b-2 data-[state=active]:border-indigo-500"
+                           hover:shadow-lg hover:scale-105
+                           data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-50 data-[state=active]:to-indigo-100
+                           data-[state=active]:shadow-lg data-[state=active]:border-b-2 data-[state=active]:border-indigo-500
+                           data-[state=active]:border-t data-[state=active]:border-t-indigo-200 
+                           data-[state=active]:border-l data-[state=active]:border-l-indigo-200
+                           data-[state=active]:border-r data-[state=active]:border-r-indigo-200"
               >
                 <div className="w-full text-center py-2">
                   <div className="font-semibold text-gray-800">Invitations</div>
@@ -529,11 +537,15 @@ export default function ClientDashboard() {
               </TabsTrigger>
               <TabsTrigger 
                 value="appointments" 
-                className="bg-white shadow-sm rounded-md transition-all duration-200 
+                className="bg-white shadow-md rounded-md transition-all duration-200 
+                           border border-gray-100
                            hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100
-                           hover:shadow-md hover:scale-105
-                           data-[state=active]:bg-white data-[state=active]:shadow-md
-                           data-[state=active]:border-b-2 data-[state=active]:border-blue-500"
+                           hover:shadow-lg hover:scale-105
+                           data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-50 data-[state=active]:to-blue-100
+                           data-[state=active]:shadow-lg data-[state=active]:border-b-2 data-[state=active]:border-blue-500
+                           data-[state=active]:border-t data-[state=active]:border-t-blue-200
+                           data-[state=active]:border-l data-[state=active]:border-l-blue-200
+                           data-[state=active]:border-r data-[state=active]:border-r-blue-200"
               >
                 <div className="w-full text-center py-2">
                   <div className="font-semibold text-gray-800">Appointments</div>
@@ -546,7 +558,7 @@ export default function ClientDashboard() {
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="profile" className="mt-10 transition-all duration-300 animate-in fade-in-50">
+            <TabsContent value="profile" className="mt-12 transition-all duration-300 animate-in fade-in-50">
               {/* Add dialog for editing client profile */}
               <Dialog open={isEditing} onOpenChange={setIsEditing}>
                 <DialogContent className="max-w-4xl" aria-describedby="edit-profile-description">
@@ -593,20 +605,20 @@ export default function ClientDashboard() {
               </Dialog>
               
               {/* Gifts Page Component */}
-              <div className="bg-white rounded-xl shadow-md p-4 border border-pink-100">
+              <div className="bg-white rounded-xl shadow-md p-4 border border-pink-200 bg-gradient-to-b from-pink-50/50 to-white">
                 <GiftsPage />
               </div>
             </TabsContent>
             
             <TabsContent value="invitations" className="mt-10 transition-all duration-300 animate-in fade-in-50">
               {/* Invitations Page Component */}
-              <div className="bg-white rounded-xl shadow-md p-4 border border-indigo-100">
+              <div className="bg-white rounded-xl shadow-md p-4 border border-indigo-200 bg-gradient-to-b from-indigo-50/50 to-white">
                 <InvitationsPage />
               </div>
             </TabsContent>
             
             <TabsContent value="appointments" className="mt-10 transition-all duration-300 animate-in fade-in-50">
-              <div className="bg-white rounded-xl shadow-md p-4 border border-blue-100">
+              <div className="bg-white rounded-xl shadow-md p-4 border border-blue-200 bg-gradient-to-b from-blue-50/50 to-white">
                 <ClientAppointments clientId={client.id} />
               </div>
             </TabsContent>
