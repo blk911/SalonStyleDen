@@ -610,14 +610,14 @@ export default function ClientDashboard() {
               </div>
             </TabsContent>
             
-            <TabsContent value="invitations" className="mt-10 transition-all duration-300 animate-in fade-in-50">
+            <TabsContent value="invitations" className="mt-12 transition-all duration-300 animate-in fade-in-50">
               {/* Invitations Page Component */}
               <div className="bg-white rounded-xl shadow-md p-4 border border-indigo-200 bg-gradient-to-b from-indigo-50/50 to-white">
                 <InvitationsPage />
               </div>
             </TabsContent>
             
-            <TabsContent value="appointments" className="mt-10 transition-all duration-300 animate-in fade-in-50">
+            <TabsContent value="appointments" className="mt-12 transition-all duration-300 animate-in fade-in-50">
               <div className="bg-white rounded-xl shadow-md p-4 border border-blue-200 bg-gradient-to-b from-blue-50/50 to-white">
                 <ClientAppointments clientId={client.id} />
               </div>
