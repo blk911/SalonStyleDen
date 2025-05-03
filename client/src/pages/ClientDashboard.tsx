@@ -538,11 +538,20 @@ export default function ClientDashboard() {
                 </div>
               </div>
               
-              {salon && (
-                <div className="mt-4 md:mt-0 text-right">
-                  <span className="text-sm font-medium text-pink-700">Member: {salon.name}</span>
-                </div>
-              )}
+              <div className="mt-4 md:mt-0 text-right flex items-center">
+                {salon && (
+                  <span className="text-sm font-medium text-pink-700 mr-4">Member: {salon.name}</span>
+                )}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-8 border-pink-300 text-pink-700 hover:bg-pink-50"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <PencilIcon className="h-3.5 w-3.5 mr-1" />
+                  Edit Profile
+                </Button>
+              </div>
             </div>
           </div>
         </section>
@@ -552,7 +561,7 @@ export default function ClientDashboard() {
           {/* Tabs for different dashboard sections */}
           <Tabs defaultValue="profile" className="w-full mb-6">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="profile">Profile</TabsTrigger>
+              <TabsTrigger value="profile">Gifts</TabsTrigger>
               <TabsTrigger value="invitations">Invitations</TabsTrigger>
               <TabsTrigger value="appointments">Appointments</TabsTrigger>
             </TabsList>
