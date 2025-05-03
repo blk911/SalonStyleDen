@@ -8,26 +8,36 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bug, Terminal, RotateCcw } from "lucide-react";
+import { Bug, Terminal, RotateCcw, Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { 
   shouldLog, 
   toggleConsoleMessages,
+  shouldShowMonitoringDashboard,
+  toggleMonitoringDashboard,
   getDebugConfig
 } from '@/lib/debug-config';
 
 export function DebugControls() {
   const [consoleMessagesEnabled, setConsoleMessagesEnabled] = useState(false);
+  const [monitoringEnabled, setMonitoringEnabled] = useState(false);
   
   // Load initial state
   useEffect(() => {
     setConsoleMessagesEnabled(shouldLog());
+    setMonitoringEnabled(shouldShowMonitoringDashboard());
   }, []);
   
-  // Handle toggle
+  // Handle toggle for console messages
   const handleToggleConsole = () => {
     const newState = toggleConsoleMessages();
     setConsoleMessagesEnabled(newState);
+  };
+  
+  // Handle toggle for monitoring dashboard
+  const handleToggleMonitoring = () => {
+    const newState = toggleMonitoringDashboard();
+    setMonitoringEnabled(newState);
   };
 
   // Handle backup
@@ -94,6 +104,20 @@ export function DebugControls() {
               id="console-toggle"
               checked={consoleMessagesEnabled}
               onCheckedChange={handleToggleConsole}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Activity className="h-4 w-4 text-stone-500" />
+              <Label htmlFor="monitoring-toggle" className="font-medium">
+                VMB Testing Monitor
+              </Label>
+            </div>
+            <Switch
+              id="monitoring-toggle"
+              checked={monitoringEnabled}
+              onCheckedChange={handleToggleMonitoring}
             />
           </div>
           

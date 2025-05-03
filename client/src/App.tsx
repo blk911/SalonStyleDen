@@ -1,4 +1,4 @@
-import React, { ErrorInfo, useEffect } from 'react';
+import React, { ErrorInfo, useEffect, useState } from 'react';
 import { Switch, Route, Link } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -7,6 +7,7 @@ import { logError, initMonitoring } from "@/lib/monitoring";
 import { MonitoringProvider } from "@/contexts/MonitoringContext";
 import { StatusProvider } from "@/contexts/StatusContext";
 import MonitoringDashboard from "@/components/monitoring/MonitoringDashboard";
+import { shouldShowMonitoringDashboard } from "@/lib/debug-config";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import SalonDashboard from "@/pages/SalonDashboard";
@@ -100,9 +101,19 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 }
 
 function App() {
+  // State to track visibility of monitoring dashboard
+  const [showMonitoring, setShowMonitoring] = useState(shouldShowMonitoringDashboard());
+  
   // Initialize error monitoring on app startup
   useEffect(() => {
     initMonitoring();
+    
+    // Update monitoring visibility when debug config changes
+    const intervalId = setInterval(() => {
+      setShowMonitoring(shouldShowMonitoringDashboard());
+    }, 1000);
+    
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
@@ -111,8 +122,8 @@ function App() {
         <StatusProvider>
           <MonitoringProvider>
             <Router />
-            {/* Unhiding monitoring dashboard as requested */}
-            <MonitoringDashboard />
+            {/* Only render MonitoringDashboard when debug config enables it */}
+            {showMonitoring && <MonitoringDashboard />}
             <Toaster />
           </MonitoringProvider>
         </StatusProvider>
