@@ -21,6 +21,7 @@ import {
   Calendar as CalendarIcon,
   AlertTriangle 
 } from "lucide-react";
+import { FaMoneyBillWave } from "react-icons/fa";
 
 interface StyleOption {
   id: number;
@@ -396,46 +397,62 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Left column - "Your Invitation Design" */}
                 <div>
-                  <div className="rounded-md border border-pink-100 bg-white p-4">
-                    <div className="font-medium text-center">Your Invitation Design</div>
-                    <div className="space-y-3 mt-2">
-                      <div className="space-y-2">
+                  <div className="bg-pink-50 p-4 rounded-md">
+                    <div className="font-medium text-center mb-3">Your Invitation Design</div>
+                    <div className="space-y-3">
+                      <div>
                         <Input 
                           id="recipientName" 
                           placeholder="Who is your Ven Me, Baby!: Enter name" 
                           value={recipientData.name}
                           onChange={(e) => setRecipientData({...recipientData, name: e.target.value})}
                           required
-                          className="border-pink-100 focus:border-pink-400 text-xs"
+                          className="border-pink-100 focus:border-pink-400 text-xs py-1.5 h-8"
                         />
                       </div>
-                      <div className="space-y-1">
+                      <div>
                         <Input 
                           id="recipientPhone" 
                           placeholder="Phone: 555-555-5555 OR Email: you@example.com" 
                           value={recipientData.phone}
                           onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
                           required
-                          className="border-pink-100 focus:border-pink-400 text-xs"
+                          className="border-pink-100 focus:border-pink-400 text-xs py-1.5 h-8"
                         />
                       </div>
-                      <div className="space-y-1 hidden">
+                      <div className="hidden">
                         <Input 
                           id="recipientEmail" 
                           placeholder="Recipient Email (Optional)" 
                           value={recipientData.email}
                           onChange={(e) => setRecipientData({...recipientData, email: e.target.value})}
-                          className="border-pink-100 focus:border-pink-400 text-xs"
+                          className="border-pink-100 focus:border-pink-400 text-xs py-1.5 h-8"
                         />
                       </div>
-                      <div className="space-y-1">
+                      <div>
                         <Input 
                           id="senderName" 
                           placeholder="SIGN HERE!" 
                           value={client?.name || ""}
-                          className="border-pink-100 focus:border-pink-400 text-xs"
+                          className="border-pink-100 focus:border-pink-400 text-xs py-1.5 h-8"
                           readOnly
                         />
+                      </div>
+                      
+                      <div className="space-y-3 mt-4">
+                        <Button 
+                          type="button"
+                          className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-md py-1.5 h-9"
+                          onClick={() => setStep("payment")}
+                        >
+                          PREVIEW DESIGN
+                        </Button>
+                        <Button 
+                          type="button"
+                          className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 rounded-md py-1.5 h-9"
+                        >
+                          NEXT STEP
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -443,14 +460,16 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 
                 {/* Right column - "Message Preview" */}
                 <div>
-                  <div className="rounded-md border border-pink-100 bg-white p-4">
-                    <div className="font-medium text-center">Message Preview</div>
-                    <div className="border border-dashed border-pink-200 rounded-md p-2 mt-2 bg-blue-50 text-xs">
-                      Hi {recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! ❤️❤️❤️ {client?.name || ""}
+                  <div className="bg-pink-50 p-4 rounded-md">
+                    <div className="font-medium text-center mb-3">Message Preview</div>
+                    <div className="border border-gray-200 rounded-lg p-3 bg-blue-50 text-xs relative">
+                      <div>
+                        Hi {recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! <span className="text-red-500">❤️ ❤️ ❤️</span> {client?.name || ""}
+                      </div>
                       
                       {selectedStyleId && services && (
-                        <div className="flex items-center p-2 rounded-md bg-pink-50 border border-pink-100">
-                          <div className="flex-shrink-0 h-12 w-12 rounded-md overflow-hidden bg-pink-200">
+                        <div className="flex items-center my-3 p-2 bg-white rounded-md border border-gray-200 shadow-sm">
+                          <div className="flex-shrink-0 h-14 w-14 rounded-md overflow-hidden bg-gray-100">
                             <img 
                               src={services.find((s: StyleOption) => s.id === selectedStyleId)?.gifUrl || '/assets/default-nail.png'} 
                               alt="Selected style"
@@ -458,15 +477,34 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                             />
                           </div>
                           <div className="ml-3">
-                            <div className="text-sm font-medium text-pink-800">
-                              {services.find((s: StyleOption) => s.id === selectedStyleId)?.name}
+                            <div className="text-sm font-medium text-gray-800">
+                              {services.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Sculpted Acrylics"}
                             </div>
-                            <div className="text-xs text-pink-600">
-                              ${services.find((s: StyleOption) => s.id === selectedStyleId)?.price} • {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration} min
+                            <div className="text-xs text-gray-600">
+                              ${services.find((s: StyleOption) => s.id === selectedStyleId)?.price || "70"} • {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration || "60"} min
                             </div>
                           </div>
                         </div>
                       )}
+                      
+                      <div className="text-center text-xs text-gray-400 my-2">
+                        VMB-6UVQYI
+                      </div>
+                      
+                      <div className="flex justify-center space-x-3 mt-3">
+                        <button className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm">
+                          <FaMoneyBillWave className="h-3 w-3 mr-1" />
+                          Z
+                        </button>
+                        <button className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm">
+                          <FaMoneyBillWave className="h-3 w-3 mr-1" />
+                          V
+                        </button>
+                        <button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm">
+                          <FaMoneyBillWave className="h-3 w-3 mr-1" />
+                          CA
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
