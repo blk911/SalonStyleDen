@@ -50,7 +50,12 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   const [selectedStyleId, setSelectedStyleId] = useState<number | null>(null);
   const [personalMessage, setPersonalMessage] = useState("");
   const [invitationId, setInvitationId] = useState<number | null>(null);
+  
+  // Generate unique identifiers for tracking - these will be stored in the database
   const [vmbId] = useState(`VMB-${Math.random().toString(36).substring(2, 8).toUpperCase()}`);
+  const [trackingId] = useState(`GIFT-${Date.now().toString().substring(7)}-${Math.random().toString(36).substring(2, 5).toUpperCase()}`);
+  const [sessionId] = useState(`SESSION-${clientId}-${Date.now().toString().substring(8)}`);
+  const [sourceTracking] = useState(`client-initiated-${clientId}`);
 
   // If salonId is not provided, we need to fetch the salon associated with the client
   // or default to Tiffany's salon (ID: 2) which is the sponsor
@@ -124,27 +129,44 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     mutationFn: async (data: any) => {
       console.log("GiftCreationFlow: Creating client-driven invitation with data:", data);
       
+      // Validate required fields
+      if (!data.name || !data.phone || !data.styleId) {
+        throw new Error("Missing required fields: name, phone, and style selection are required");
+      }
+      
       // Mark this invitation as client-driven by adding a source field
       const invitationWithSource = {
         ...data,
         source: "client", // Add source field to differentiate from salon-driven invitations
-        clientDriven: true // Explicit flag for client-driven invitations
+        clientDriven: true, // Explicit flag for client-driven invitations
+        vmbId: vmbId, // Add the generated VMB ID to the invitation data
+        status: "pending" // Ensure status is set to pending for new invitations
       };
       
-      const response = await fetch("/api/invitations", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(invitationWithSource)
-      });
+      console.log("GiftCreationFlow: Submitting invitation with full data:", invitationWithSource);
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to create invitation: ${response.status} - ${errorText}`);
+      try {
+        const response = await fetch("/api/invitations", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(invitationWithSource)
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("GiftCreationFlow: Server returned error:", response.status, errorText);
+          throw new Error(`Failed to create invitation: ${response.status} - ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log("GiftCreationFlow: Successfully created invitation:", result);
+        return result;
+      } catch (error) {
+        console.error("GiftCreationFlow: Error creating invitation:", error);
+        throw error;
       }
-      
-      return await response.json();
     },
     onSuccess: (data) => {
       console.log("GiftCreationFlow: Client invitation created successfully:", data);
@@ -244,11 +266,18 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       return;
     }
     
+    // Update the message with the recipient name if it was just added
+    if (recipientData.name && !personalMessage.includes(recipientData.name)) {
+      const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
+      const defaultMessage = `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${selectedStyle?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️`;
+      setPersonalMessage(defaultMessage);
+    }
+    
     setStep("payment");
   };
 
   // Function to handle payment and create the invitation
-  const handlePayment = () => {
+  const handlePayment = (paymentMethod: string = 'card') => {
     if (!selectedStyleId || !client) {
       toast({
         title: "Missing Information",
@@ -269,19 +298,54 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       return;
     }
     
-    // Create invitation data
+    // Log payment method selected
+    console.log(`GiftCreationFlow: Payment method selected - ${paymentMethod}`);
+    
+    // Validate all required information is present
+    if (!recipientData.name || !recipientData.phone) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide recipient name and phone number",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Create invitation data with all unique tracking IDs
     const invitationData = {
+      // Required recipient information
       name: recipientData.name,
       phone: recipientData.phone,
       email: recipientData.email || null,
+      
+      // Message content
       message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️`,
+      
+      // Style information
       styleId: selectedStyleId,
       stylePrice: selectedStyle.price,
       styleName: selectedStyle.name,
+      
+      // Relationship information
       clientId: clientId,
       salonId: useSalonId,
+      senderName: client.name,
+      
+      // Status information
       status: "pending",
-      senderName: client.name
+      paymentStatus: "unpaid",
+      
+      // Unique tracking IDs for database relationships
+      vmbId: vmbId,
+      trackingId: trackingId,
+      sessionId: sessionId,
+      sourceTracking: sourceTracking,
+      
+      // Additional metadata for reporting and analytics
+      createdAt: new Date().toISOString(),
+      clientSource: "client-portal",
+      deviceInfo: navigator.userAgent,
+      flowType: "client-gift"
     };
     
     // Call the mutation to create the invitation
@@ -406,7 +470,18 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                           id="recipientName" 
                           placeholder="Who is your Ven Me, Baby!: Enter name" 
                           value={recipientData.name}
-                          onChange={(e) => setRecipientData({...recipientData, name: e.target.value})}
+                          onChange={(e) => {
+                            console.log("Name input changed:", e.target.value);
+                            setRecipientData(prev => ({...prev, name: e.target.value}));
+                          }}
+                          onBlur={(e) => {
+                            // If name has value but no personal message is set, update the default message
+                            if (e.target.value && !personalMessage) {
+                              const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
+                              const defaultMessage = `Hi ${e.target.value}, I would love a fresh set. My stylist has an opening for a ${selectedStyle?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️`;
+                              setPersonalMessage(defaultMessage);
+                            }
+                          }}
                           required
                           className="border-pink-100 focus:border-pink-400 text-xs py-1.5 h-8"
                         />
@@ -416,7 +491,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                           id="recipientPhone" 
                           placeholder="Phone: 555-555-5555 OR Email: you@example.com" 
                           value={recipientData.phone}
-                          onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
+                          onChange={(e) => {
+                            console.log("Phone input changed:", e.target.value);
+                            setRecipientData(prev => ({...prev, phone: e.target.value}));
+                          }}
                           required
                           className="border-pink-100 focus:border-pink-400 text-xs py-1.5 h-8"
                         />
@@ -426,7 +504,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                           id="recipientEmail" 
                           placeholder="Recipient Email (Optional)" 
                           value={recipientData.email}
-                          onChange={(e) => setRecipientData({...recipientData, email: e.target.value})}
+                          onChange={(e) => {
+                            console.log("Email input changed:", e.target.value);
+                            setRecipientData(prev => ({...prev, email: e.target.value}));
+                          }}
                           className="border-pink-100 focus:border-pink-400 text-xs py-1.5 h-8"
                         />
                       </div>
@@ -437,6 +518,19 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                           value={client?.name || ""}
                           className="border-pink-100 focus:border-pink-400 text-xs py-1.5 h-8"
                           readOnly
+                        />
+                      </div>
+                      
+                      <div className="mt-2">
+                        <Textarea
+                          id="personalMessage"
+                          placeholder="Add a personal message (optional)"
+                          value={personalMessage}
+                          onChange={(e) => {
+                            console.log("Message input changed:", e.target.value);
+                            setPersonalMessage(e.target.value);
+                          }}
+                          className="border-pink-100 focus:border-pink-400 text-xs min-h-[60px] resize-none"
                         />
                       </div>
                       
@@ -497,15 +591,57 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       </div>
                       
                       <div className="flex justify-center space-x-3 mt-3">
-                        <button className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm">
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            // Auto advance to payment step when clicking a payment method
+                            setStep("payment");
+                            setTimeout(() => {
+                              const paymentSection = document.querySelector('[data-step="payment"]');
+                              if (paymentSection) {
+                                paymentSection.scrollIntoView({ behavior: 'smooth' });
+                              }
+                            }, 100);
+                            console.log("Preview payment method selected: Z (Zelle)");
+                          }}
+                          className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm"
+                        >
                           <FaMoneyBillWave className="h-3 w-3 mr-1" />
                           Z
                         </button>
-                        <button className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm">
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            // Auto advance to payment step when clicking a payment method
+                            setStep("payment");
+                            setTimeout(() => {
+                              const paymentSection = document.querySelector('[data-step="payment"]');
+                              if (paymentSection) {
+                                paymentSection.scrollIntoView({ behavior: 'smooth' });
+                              }
+                            }, 100);
+                            console.log("Preview payment method selected: V (Venmo)");
+                          }}
+                          className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm"
+                        >
                           <FaMoneyBillWave className="h-3 w-3 mr-1" />
                           V
                         </button>
-                        <button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm">
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            // Auto advance to payment step when clicking a payment method
+                            setStep("payment");
+                            setTimeout(() => {
+                              const paymentSection = document.querySelector('[data-step="payment"]');
+                              if (paymentSection) {
+                                paymentSection.scrollIntoView({ behavior: 'smooth' });
+                              }
+                            }, 100);
+                            console.log("Preview payment method selected: CA (Cash App)");
+                          }}
+                          className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm"
+                        >
                           <FaMoneyBillWave className="h-3 w-3 mr-1" />
                           CA
                         </button>
@@ -596,7 +732,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   
                   <div className="space-y-2">
                     <Button 
-                      onClick={handlePayment}
+                      onClick={() => handlePayment('card')}
                       className="w-full bg-pink-600 hover:bg-pink-700 text-white"
                     >
                       <CreditCardIcon className="mr-2 h-4 w-4" />
@@ -604,15 +740,33 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     </Button>
                     
                     <div className="flex justify-center space-x-3">
-                      <button className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center px-3 py-1.5 h-8 text-xs rounded-full shadow-sm">
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          handlePayment('zelle');
+                        }}
+                        className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center px-3 py-1.5 h-8 text-xs rounded-full shadow-sm"
+                      >
                         <FaMoneyBillWave className="h-3 w-3 mr-1" />
                         Z
                       </button>
-                      <button className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center px-3 py-1.5 h-8 text-xs rounded-full shadow-sm">
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          handlePayment('venmo');
+                        }}
+                        className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center px-3 py-1.5 h-8 text-xs rounded-full shadow-sm"
+                      >
                         <FaMoneyBillWave className="h-3 w-3 mr-1" />
                         V
                       </button>
-                      <button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-3 py-1.5 h-8 text-xs rounded-full shadow-sm">
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          handlePayment('cashapp');
+                        }}
+                        className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-3 py-1.5 h-8 text-xs rounded-full shadow-sm"
+                      >
                         <FaMoneyBillWave className="h-3 w-3 mr-1" />
                         CA
                       </button>
