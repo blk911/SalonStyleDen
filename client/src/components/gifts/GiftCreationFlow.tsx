@@ -407,15 +407,14 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         {step === "recipient" && (
           <div className="p-4">
             <form onSubmit={handleRecipientSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left column - Invitation Design */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <div className="text-center mb-2 font-medium">Your Invitation Design</div>
-                  <div className="space-y-2 p-2 border border-dashed border-pink-200 rounded-md">
+                  <h3 className="text-center mb-3 font-medium">Your Invitation Design</h3>
+                  <div className="space-y-2 p-4 bg-pink-50 border border-pink-100 rounded-md">
                     <input 
                       type="text"
                       placeholder="Who is your Ven Me, Baby!: Enter name"
-                      className="w-full p-1.5 text-sm border border-pink-100 rounded"
+                      className="w-full p-2 text-sm border border-gray-200 rounded"
                       value={recipientData.name}
                       onChange={(e) => {
                         setRecipientData({...recipientData, name: e.target.value});
@@ -434,7 +433,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     <input 
                       type="text"
                       placeholder="Phone: 555-555-5555 OR Email: you@example.com"
-                      className="w-full p-1.5 text-sm border border-pink-100 rounded"
+                      className="w-full p-2 text-sm border border-gray-200 rounded"
                       value={recipientData.phone}
                       onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
                       required
@@ -443,7 +442,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     <input 
                       type="text"
                       placeholder="SIGN HERE!"
-                      className="w-full p-1.5 text-sm border border-pink-100 rounded"
+                      className="w-full p-2 text-sm border border-gray-200 rounded"
                       value={recipientData.signature || ""}
                       onChange={(e) => {
                         setRecipientData({...recipientData, signature: e.target.value});
@@ -458,10 +457,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       }}
                     />
                     
-                    <div className="flex justify-center mt-3">
+                    <div className="flex justify-center mt-4">
                       <button 
                         type="button"
-                        className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-1.5 px-4 rounded"
+                        className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded"
                         onClick={() => {
                           toast({
                             title: "Design Preview",
@@ -476,28 +475,27 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   </div>
                 </div>
                 
-                {/* Right column - Message Preview */}
                 <div>
-                  <div className="text-center mb-2 font-medium">Message Preview</div>
-                  <div className="border border-dashed border-pink-200 rounded-md p-2">
-                    {/* Message preview */}
-                    <div className="rounded-lg p-2 bg-blue-50 border border-blue-100 mb-2">
-                      {personalMessage}
+                  <h3 className="text-center mb-3 font-medium">Message Preview</h3>
+                  <div className="p-4 bg-pink-50 border border-pink-100 rounded-md">
+                    {/* Message preview is in the blue box */}
+                    <div className="rounded-lg p-3 bg-blue-50 border border-blue-100 mb-3">
+                      {personalMessage || "Hi [NAME], I would love a fresh set. My stylist has an opening for a French Tips / Touch-Up, will you Ven Me, Baby! ❤️ ❤️ ❤️ [SIGNED]"}
                     </div>
                     
                     {/* Style card preview */}
                     {selectedStyleId && services && (
-                      <div className="flex items-center gap-2 border border-gray-200 rounded-lg p-2 my-2 bg-white">
+                      <div className="flex items-center gap-2 border border-gray-200 rounded-lg p-2 my-3 bg-white">
                         <img 
                           src={services.find((s: StyleOption) => s.id === selectedStyleId)?.gifUrl || '/assets/default-nail.png'} 
                           alt="Selected style"
                           className="h-14 w-14 object-cover rounded-md"
                         />
                         <div>
-                          <div className="font-medium text-xs">
+                          <div className="font-medium text-sm">
                             {services.find((s: StyleOption) => s.id === selectedStyleId)?.name}
                           </div>
-                          <div className="text-xs text-gray-600">
+                          <div className="text-sm text-gray-600">
                             ${services.find((s: StyleOption) => s.id === selectedStyleId)?.price} • {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration} min
                           </div>
                         </div>
@@ -505,33 +503,33 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     )}
                     
                     {/* Unique ID */}
-                    <div className="mb-2 text-center">
+                    <div className="mb-3 text-center">
                       <div className="text-xs text-gray-500">Your VMB gift has a unique ID:</div>
                       <div className="text-xs font-mono bg-gray-50 p-1 rounded border border-gray-100">
-                        VMB-{Math.random().toString(36).substring(2, 7).toUpperCase()}
+                        VMB-{selectedStyleId ? selectedStyleId.toString(36).padStart(5, '0').toUpperCase() : "A57O5"}
                       </div>
                     </div>
                     
                     {/* Payment icons */}
-                    <div className="flex gap-2 items-center justify-center mt-3">
-                      <div className="h-7 w-7 rounded-full bg-blue-500 text-white shadow-sm flex items-center justify-center hover:bg-blue-600 cursor-pointer">
+                    <div className="flex gap-3 items-center justify-center">
+                      <button className="h-8 w-8 rounded-full bg-blue-500 text-white shadow-sm flex items-center justify-center hover:bg-blue-600 transition-colors">
                         <span className="text-xs font-bold">Z</span>
-                      </div>
-                      <div className="h-7 w-7 rounded-full bg-teal-500 text-white shadow-sm flex items-center justify-center hover:bg-teal-600 cursor-pointer">
+                      </button>
+                      <button className="h-8 w-8 rounded-full bg-teal-500 text-white shadow-sm flex items-center justify-center hover:bg-teal-600 transition-colors">
                         <span className="text-xs font-bold">V</span>
-                      </div>
-                      <div className="h-7 w-7 rounded-full bg-green-500 text-white shadow-sm flex items-center justify-center hover:bg-green-600 cursor-pointer">
+                      </button>
+                      <button className="h-8 w-8 rounded-full bg-green-500 text-white shadow-sm flex items-center justify-center hover:bg-green-600 transition-colors">
                         <span className="text-xs font-bold">CA</span>
-                      </div>
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div className="flex justify-end mt-4">
+              <div className="flex justify-end mt-6">
                 <Button 
                   type="submit" 
-                  className="bg-pink-600 hover:bg-pink-700 text-white px-6"
+                  className="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 px-8 rounded-md"
                 >
                   Continue
                   <ChevronRightIcon className="ml-2 h-4 w-4" />
