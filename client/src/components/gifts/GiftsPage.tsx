@@ -1,7 +1,17 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HeartIcon, PlusCircleIcon, UserPlusIcon } from "lucide-react";
+import { HeartIcon, PlusCircleIcon, UserPlusIcon, XIcon } from "lucide-react";
+import GiftCreationFlow from "./GiftCreationFlow";
+import { Button } from "@/components/ui/button";
 
-export default function GiftsPage() {
+interface GiftsPageProps {
+  clientId?: number;
+  salonId?: number;
+}
+
+export default function GiftsPage({ clientId = 10 }: GiftsPageProps) {
+  const [showGiftCreation, setShowGiftCreation] = useState(false);
+  
   return (
     <div className="space-y-4 w-full">
       {/* SHARE VMB Card - Always shown whether client has a salon or not */}
@@ -18,23 +28,38 @@ export default function GiftsPage() {
           </div>
         </div>
         <CardContent className="pt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="border rounded-lg p-4 bg-gradient-to-r from-pink-50 to-pink-100 shadow-sm flex flex-col items-center justify-center text-center min-h-[180px] transition-all hover:shadow-md cursor-pointer">
+          {!showGiftCreation ? (
+            <div 
+              className="border rounded-lg p-4 bg-gradient-to-r from-pink-50 to-pink-100 shadow-sm flex flex-col items-center justify-center text-center min-h-[180px] transition-all hover:shadow-md cursor-pointer"
+              onClick={() => setShowGiftCreation(true)}
+            >
               <div className="p-3 bg-white rounded-full mb-3">
                 <PlusCircleIcon className="h-8 w-8 text-pink-500" />
               </div>
               <h3 className="text-lg font-medium text-pink-800">Create New Gift</h3>
               <p className="text-sm text-pink-700 mt-1">Send someone special a salon treatment</p>
             </div>
-
-            <div className="border rounded-lg p-4 bg-gradient-to-r from-indigo-50 to-indigo-100 shadow-sm flex flex-col items-center justify-center text-center min-h-[180px] transition-all hover:shadow-md cursor-pointer">
-              <div className="p-3 bg-white rounded-full mb-3">
-                <UserPlusIcon className="h-8 w-8 text-indigo-500" />
+          ) : (
+            <div className="border rounded-lg p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium text-pink-800">Create a New Gift</h3>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setShowGiftCreation(false)}
+                  className="h-8 w-8 p-0"
+                >
+                  <XIcon className="h-5 w-5" />
+                  <span className="sr-only">Close</span>
+                </Button>
               </div>
-              <h3 className="text-lg font-medium text-indigo-800">Invite a Friend</h3>
-              <p className="text-sm text-indigo-700 mt-1">Share your favorite salon with friends</p>
+              
+              <GiftCreationFlow 
+                clientId={clientId} 
+                onComplete={() => setShowGiftCreation(false)}
+              />
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
   
