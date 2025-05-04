@@ -439,19 +439,13 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                         />
                       </div>
                       
-                      <div className="space-y-3 mt-4">
+                      <div className="mt-4">
                         <Button 
                           type="button"
                           className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-md py-1.5 h-9"
                           onClick={() => setStep("payment")}
                         >
                           PREVIEW DESIGN
-                        </Button>
-                        <Button 
-                          type="button"
-                          className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 rounded-md py-1.5 h-9"
-                        >
-                          NEXT STEP
                         </Button>
                       </div>
                     </div>
@@ -510,15 +504,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 </div>
               </div>
               
-              <div className="flex justify-center mt-4">
-                <Button 
-                  type="submit" 
-                  className="bg-pink-600 hover:bg-pink-700 text-white px-6 rounded-full"
-                >
-                  Continue
-                  <ChevronRightIcon className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
+
             </form>
           </div>
         )}
