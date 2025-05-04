@@ -58,6 +58,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     // Set initial value for styleOptions hidden field
     const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
     if (styleOptionsElement) {
+      // This styling data is what VmbStyleOptions uses to identify client-salon relationships
       const styleOptionsData = {
         styleId: -1, // Will be updated when user selects a style
         clientId: clientId || 0,
@@ -65,25 +66,31 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         invitationId: 0
       };
       styleOptionsElement.value = JSON.stringify(styleOptionsData);
+      console.log(`GiftCreationFlow: Initialized styleOptions with clientId=${clientId}, salonId=${useSalonId}`);
     }
   }, [clientId, useSalonId]);
 
-  // Fetch salon services
+  // Fetch salon services in real-time
   const { data: services, isLoading: isLoadingServices, error: servicesError } = useQuery({
     queryKey: [`/api/salons/${useSalonId}/services`],
     queryFn: async () => {
       try {
+        console.log(`GiftCreationFlow: Fetching real-time salon services for salon ID ${useSalonId}`);
         const response = await fetch(`/api/salons/${useSalonId}/services`);
         if (!response.ok) {
-          throw new Error(`Failed to fetch salon services: ${response.status}`);
+          throw new Error(`Failed to fetch real-time salon services: ${response.status}`);
         }
-        return await response.json();
+        const servicesData = await response.json();
+        console.log(`GiftCreationFlow: Successfully fetched ${servicesData?.length || 0} real-time services`);
+        return servicesData;
       } catch (error) {
-        console.error('Error fetching salon services:', error);
+        console.error('Error fetching real-time salon services:', error);
         throw error;
       }
     },
-    enabled: !!useSalonId // Only fetch if we have a salonId
+    enabled: !!useSalonId, // Only fetch if we have a salonId
+    refetchOnWindowFocus: true, // Refresh data when window regains focus
+    staleTime: 30000 // Consider data fresh for 30 seconds
   });
 
   // Fetch client details
@@ -141,7 +148,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     }
   });
 
-  // Handle style selection - now watches for DOM changes to detect selection from VmbStyleOptions
+  // Handle style selection - watches for DOM changes to detect selection from VmbStyleOptions
   useEffect(() => {
     // Watch for changes in the DOM to detect style selection from VmbStyleOptions
     const styleSelectionObserver = new MutationObserver((mutations) => {
@@ -150,9 +157,23 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       if (styleOptionsElement && styleOptionsElement.value) {
         try {
           const styleData = JSON.parse(styleOptionsElement.value);
+          
+          // Make sure we have a valid style ID (not -1 which is the initialization value)
           if (styleData && styleData.styleId && styleData.styleId !== -1) {
-            console.log(`Selected style ID: ${styleData.styleId}`);
+            console.log(`GiftCreationFlow: Selected style ID: ${styleData.styleId} for client ${styleData.clientId} at salon ${styleData.salonId}`);
+            
+            // Update the selected style ID
             setSelectedStyleId(styleData.styleId);
+            
+            // Verify that the style exists in services
+            const styleExists = services?.some((s: StyleOption) => s.id === styleData.styleId);
+            if (styleExists) {
+              console.log(`GiftCreationFlow: Style ${styleData.styleId} exists in salon services`);
+            } else {
+              console.log(`GiftCreationFlow: Warning - Style ${styleData.styleId} not found in salon services`);
+            }
+            
+            // Move to recipient step
             setStep("recipient");
             
             // Add a small delay to allow for visual confirmation before transitioning
@@ -169,7 +190,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       }
     });
 
-    // Start observing the document for changes
+    // Start observing the document body for changes
     styleSelectionObserver.observe(document.body, {
       childList: true,
       subtree: true,
@@ -181,7 +202,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     return () => {
       styleSelectionObserver.disconnect();
     };
-  }, []);
+  }, [services]); // Add services as dependency to ensure proper validation
 
   // Function to handle recipient data submission
   const handleRecipientSubmit = (e: React.FormEvent) => {
@@ -225,7 +246,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       name: recipientData.name,
       phone: recipientData.phone,
       email: recipientData.email || null,
-      message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. Will you Ven Me, Baby! ❤️`,
+      message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️`,
       styleId: selectedStyleId,
       stylePrice: selectedStyle.price,
       styleName: selectedStyle.name,
@@ -446,7 +467,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   <Label htmlFor="message">Personal Message</Label>
                   <Textarea 
                     id="message" 
-                    placeholder="Add a personal message to your gift"
+                    placeholder={`Hi [NAME], I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! ❤️❤️❤️`}
                     className="min-h-[100px]"
                     value={personalMessage}
                     onChange={(e) => setPersonalMessage(e.target.value)}
@@ -541,8 +562,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   </div>
                   
                   <div className="mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                    <p className="text-sm text-gray-500 mb-4">
-                      In the full implementation, this will be connected to Stripe for payment processing.
+                    <p className="text-sm text-gray-600 mb-4">
+                      By sending this gift, you're inviting {recipientData.name} to enjoy a salon service at {client?.salonName || "your salon"}. They'll receive your invitation and can schedule their appointment directly.
                     </p>
                     
                     <Button 
@@ -550,7 +571,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       className="w-full bg-pink-600 hover:bg-pink-700 text-white"
                     >
                       <CreditCardIcon className="mr-2 h-4 w-4" />
-                      Process Payment
+                      Send Gift Invitation
                     </Button>
                   </div>
                 </CardContent>
@@ -581,16 +602,19 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
             <div className="p-4">
               <div className="text-center p-6 bg-green-50 rounded-lg">
                 <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-green-800 mb-2">Gift Creation Successful!</h3>
-                <p className="text-green-700 mb-6">
-                  Your gift has been created and will be sent to {recipientData.name}.
+                <h3 className="text-xl font-semibold text-green-800 mb-2">Gift Invitation Sent!</h3>
+                <p className="text-green-700 mb-4">
+                  Your personal gift invitation has been created and sent to {recipientData.name}.
+                </p>
+                <p className="text-sm text-green-600 mb-6">
+                  They'll receive your invitation for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'salon service'} at {client?.salonName || "your connected salon"}.
                 </p>
                 
                 <Button 
                   onClick={handleConfirm}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
-                  Return to Dashboard
+                  Return to Gifts
                 </Button>
               </div>
             </div>
