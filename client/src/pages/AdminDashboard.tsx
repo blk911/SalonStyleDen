@@ -987,16 +987,28 @@ export default function AdminDashboard() {
                                   } else {
                                     // No matching client - link to invitation
                                     return (
-                                      <Link 
-                                        to={`/invitation-preview/${invitation.inviteHash}?adminView=true`}
-                                        className="inline-flex items-center justify-center text-gray-500 font-medium hover:text-gray-700 cursor-pointer px-2 py-1"
-                                        onClick={(e) => {
-                                          e.stopPropagation(); // Prevent triggering the parent click
-                                          // Link's "to" property will handle navigation
-                                        }}
-                                      >
-                                        <ExternalLinkIcon className="h-4 w-4" />
-                                      </Link>
+                                      invitation.inviteHash ? (
+                                        <Link 
+                                          to={`/invitation-preview/${invitation.inviteHash}?adminView=true`}
+                                          className="inline-flex items-center justify-center text-gray-500 font-medium hover:text-gray-700 cursor-pointer px-2 py-1"
+                                          onClick={(e) => {
+                                            e.stopPropagation(); // Prevent triggering the parent click
+                                            // Link's "to" property will handle navigation
+                                          }}
+                                        >
+                                          <ExternalLinkIcon className="h-4 w-4" />
+                                        </Link>
+                                      ) : (
+                                        <Link 
+                                          to={`/invitation/${invitation.id}?adminView=true`}
+                                          className="inline-flex items-center justify-center text-gray-500 font-medium hover:text-gray-700 cursor-pointer px-2 py-1"
+                                          onClick={(e) => {
+                                            e.stopPropagation(); // Prevent triggering the parent click
+                                          }}
+                                        >
+                                          <ExternalLinkIcon className="h-4 w-4" />
+                                        </Link>
+                                      )
                                     );
                                   }
                                 })()}
