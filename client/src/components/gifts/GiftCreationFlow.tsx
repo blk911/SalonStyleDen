@@ -13,11 +13,12 @@ import { apiRequest } from "@/lib/queryClient";
 import { Loader2 } from "lucide-react";
 import { 
   CheckCircleIcon, 
-  ChevronRightIcon, 
-  UserIcon,
-  UserPlusIcon, 
-  CreditCardIcon, 
-  CalendarIcon,
+  ChevronRight as ChevronRightIcon, 
+  ChevronDown as ChevronDownIcon,
+  User as UserIcon,
+  UserPlus as UserPlusIcon, 
+  CreditCard as CreditCardIcon, 
+  Calendar as CalendarIcon,
   AlertTriangle 
 } from "lucide-react";
 
@@ -303,349 +304,359 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       <input type="hidden" name="styleOptions" id="styleOptions" />
       
       {/* Style Selection Step */}
-      <Accordion
-        type="single"
-        defaultValue={step === "style" ? "style" : undefined}
-        collapsible
-        className="w-full"
-      >
-        <AccordionItem value="style" className="border border-gray-200 rounded-lg">
-          <AccordionTrigger className="flex w-full items-center justify-between pb-2 pt-2 px-3">
-            <div className="flex items-center">
-              <span className="bg-pink-100 text-pink-800 font-semibold px-2 py-0.5 rounded-full text-xs mr-2">
-                STEP 1
-              </span>
-              <span>Pick your style...</span>
-            </div>
+      <div className="rounded-lg bg-pink-50 mb-6">
+        <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
+             onClick={() => step === "style" ? setStep("") : setStep("style")}>
+          <h3 className="text-pink-800 font-semibold flex items-center">
+            STEP 1 Pick your style...
+          </h3>
+          <div className="flex items-center">
             {selectedStyleId && <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />}
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="p-4">
-              {isLoadingServices ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
-                  <span className="ml-2 text-gray-600">Loading salon services...</span>
-                </div>
-              ) : servicesError ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <AlertTriangle className="h-10 w-10 text-red-500 mb-2" />
-                  <h3 className="text-lg font-semibold text-red-800">Error Loading Services</h3>
-                  <p className="text-sm text-gray-600 max-w-md mt-1">
-                    We couldn't load the salon services. Using default services instead.
-                  </p>
-                  
-                  <VmbStyleOptions 
-                    salonId={useSalonId} 
-                    clientId={clientId}
-                    services={[
-                      {
-                        id: 1,
-                        name: "French Tips",
-                        description: "Classic French manicure with white tips",
-                        price: 35,
-                        duration: 45,
-                        gifUrl: "/assets/french-tips.png"
-                      },
-                      {
-                        id: 2,
-                        name: "Gel Manicure",
-                        description: "Long-lasting gel polish in your choice of color",
-                        price: 40,
-                        duration: 60,
-                        gifUrl: "/assets/gel-manicure.png"
-                      },
-                      {
-                        id: 3,
-                        name: "Sculpted Acrylics",
-                        description: "Full set of sculpted acrylic nails",
-                        price: 55,
-                        duration: 90,
-                        gifUrl: "/assets/sculpted-acrylics.png",
-                        featured: true
-                      },
-                      {
-                        id: 4,
-                        name: "Nail Art Design",
-                        description: "Custom nail art and design",
-                        price: 50,
-                        duration: 75,
-                        gifUrl: "/assets/glam-design.png"
-                      }
-                    ]}
-                  />
-                </div>
-              ) : services?.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <AlertTriangle className="h-10 w-10 text-amber-500 mb-2" />
-                  <h3 className="text-lg font-semibold text-amber-800">No Services Found</h3>
-                  <p className="text-sm text-gray-600 max-w-md mt-1">
-                    This salon has no services available. Using default services instead.
-                  </p>
-                  
-                  <VmbStyleOptions 
-                    salonId={useSalonId} 
-                    clientId={clientId}
-                    services={[
-                      {
-                        id: 1,
-                        name: "French Tips",
-                        description: "Classic French manicure with white tips",
-                        price: 35,
-                        duration: 45,
-                        gifUrl: "/assets/french-tips.png"
-                      },
-                      {
-                        id: 2,
-                        name: "Gel Manicure",
-                        description: "Long-lasting gel polish in your choice of color",
-                        price: 40,
-                        duration: 60,
-                        gifUrl: "/assets/gel-manicure.png"
-                      },
-                      {
-                        id: 3,
-                        name: "Sculpted Acrylics",
-                        description: "Full set of sculpted acrylic nails",
-                        price: 55,
-                        duration: 90,
-                        gifUrl: "/assets/sculpted-acrylics.png",
-                        featured: true
-                      },
-                      {
-                        id: 4,
-                        name: "Nail Art Design",
-                        description: "Custom nail art and design",
-                        price: 50,
-                        duration: 75,
-                        gifUrl: "/assets/glam-design.png"
-                      }
-                    ]}
-                  />
-                </div>
-              ) : (
+            <ChevronDownIcon className={`h-5 w-5 text-pink-800 transition-transform ${step === "style" ? "transform rotate-180" : ""}`} />
+          </div>
+        </div>
+        
+        {step === "style" && (
+          <div className="p-4">
+            {isLoadingServices ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
+                <span className="ml-2 text-gray-600">Loading salon services...</span>
+              </div>
+            ) : servicesError ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <AlertTriangle className="h-10 w-10 text-red-500 mb-2" />
+                <h3 className="text-lg font-semibold text-red-800">Error Loading Services</h3>
+                <p className="text-sm text-gray-600 max-w-md mt-1">
+                  We couldn't load the salon services. Using default services instead.
+                </p>
+                
                 <VmbStyleOptions 
                   salonId={useSalonId} 
                   clientId={clientId}
-                  services={services}
+                  services={[
+                    {
+                      id: 1,
+                      name: "French Tips",
+                      description: "Classic French manicure with white tips",
+                      price: 35,
+                      duration: 45,
+                      gifUrl: "/assets/french-tips.png"
+                    },
+                    {
+                      id: 2,
+                      name: "Gel Manicure",
+                      description: "Long-lasting gel polish in your choice of color",
+                      price: 40,
+                      duration: 60,
+                      gifUrl: "/assets/gel-manicure.png"
+                    },
+                    {
+                      id: 3,
+                      name: "Sculpted Acrylics",
+                      description: "Full set of sculpted acrylic nails",
+                      price: 55,
+                      duration: 90,
+                      gifUrl: "/assets/sculpted-acrylics.png",
+                      featured: true
+                    },
+                    {
+                      id: 4,
+                      name: "Nail Art Design",
+                      description: "Custom nail art and design",
+                      price: 50,
+                      duration: 75,
+                      gifUrl: "/assets/glam-design.png"
+                    }
+                  ]}
                 />
-              )}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+              </div>
+            ) : services?.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <AlertTriangle className="h-10 w-10 text-amber-500 mb-2" />
+                <h3 className="text-lg font-semibold text-amber-800">No Services Found</h3>
+                <p className="text-sm text-gray-600 max-w-md mt-1">
+                  This salon has no services available. Using default services instead.
+                </p>
+                
+                <VmbStyleOptions 
+                  salonId={useSalonId} 
+                  clientId={clientId}
+                  services={[
+                    {
+                      id: 1,
+                      name: "French Tips",
+                      description: "Classic French manicure with white tips",
+                      price: 35,
+                      duration: 45,
+                      gifUrl: "/assets/french-tips.png"
+                    },
+                    {
+                      id: 2,
+                      name: "Gel Manicure",
+                      description: "Long-lasting gel polish in your choice of color",
+                      price: 40,
+                      duration: 60,
+                      gifUrl: "/assets/gel-manicure.png"
+                    },
+                    {
+                      id: 3,
+                      name: "Sculpted Acrylics",
+                      description: "Full set of sculpted acrylic nails",
+                      price: 55,
+                      duration: 90,
+                      gifUrl: "/assets/sculpted-acrylics.png",
+                      featured: true
+                    },
+                    {
+                      id: 4,
+                      name: "Nail Art Design",
+                      description: "Custom nail art and design",
+                      price: 50,
+                      duration: 75,
+                      gifUrl: "/assets/glam-design.png"
+                    }
+                  ]}
+                />
+              </div>
+            ) : (
+              <VmbStyleOptions 
+                salonId={useSalonId} 
+                clientId={clientId}
+                services={services}
+              />
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Recipient Information Step */}
-      <Accordion
-        type="single"
-        defaultValue={step === "recipient" ? "recipient" : undefined}
-        collapsible
-        className="w-full"
-        disabled={!selectedStyleId}
-      >
-        <AccordionItem value="recipient" className="border border-gray-200 rounded-lg">
-          <AccordionTrigger className="flex w-full items-center justify-between pb-2 pt-2 px-3">
-            <div className="flex items-center">
-              <span className="bg-pink-100 text-pink-800 font-semibold px-2 py-0.5 rounded-full text-xs mr-2">
-                STEP 2
-              </span>
-              <span>Recipient information</span>
-            </div>
+      <div className="rounded-lg bg-pink-50 mb-6">
+        <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
+             onClick={() => selectedStyleId && (step === "recipient" ? setStep("") : setStep("recipient"))}
+             style={{opacity: selectedStyleId ? 1 : 0.5, pointerEvents: selectedStyleId ? 'auto' : 'none'}}>
+          <h3 className="text-pink-800 font-semibold flex items-center">
+            STEP 2 Style Your Invitation...
+          </h3>
+          <div className="flex items-center">
             {step === "payment" && <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />}
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="p-4">
-              <form onSubmit={handleRecipientSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="recipientName">Recipient Name</Label>
-                    <Input 
-                      id="recipientName" 
-                      placeholder="Enter name" 
-                      value={recipientData.name}
-                      onChange={(e) => setRecipientData({...recipientData, name: e.target.value})}
-                      required
-                    />
+            <ChevronDownIcon className={`h-5 w-5 text-pink-800 transition-transform ${step === "recipient" ? "transform rotate-180" : ""}`} />
+          </div>
+        </div>
+        
+        {step === "recipient" && (
+          <div className="p-4">
+            <form onSubmit={handleRecipientSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-5">
+                  <div className="rounded-md border bg-white p-4">
+                    <div className="font-medium mb-2">Your Invitation Design</div>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Input 
+                          id="recipientName" 
+                          placeholder="Recipient Name" 
+                          value={recipientData.name}
+                          onChange={(e) => setRecipientData({...recipientData, name: e.target.value})}
+                          required
+                          className="border-pink-200 focus:border-pink-400"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Input 
+                          id="recipientPhone" 
+                          placeholder="Recipient Phone" 
+                          value={recipientData.phone}
+                          onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
+                          required
+                          className="border-pink-200 focus:border-pink-400"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Input 
+                          id="recipientEmail" 
+                          placeholder="Recipient Email (Optional)" 
+                          value={recipientData.email}
+                          onChange={(e) => setRecipientData({...recipientData, email: e.target.value})}
+                          className="border-pink-200 focus:border-pink-400"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="recipientPhone">Recipient Phone</Label>
-                    <Input 
-                      id="recipientPhone" 
-                      placeholder="Enter phone number" 
-                      value={recipientData.phone}
-                      onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
-                      required
-                    />
-                  </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="recipientEmail">Recipient Email (Optional)</Label>
-                  <Input 
-                    id="recipientEmail" 
-                    placeholder="Enter email address" 
-                    value={recipientData.email}
-                    onChange={(e) => setRecipientData({...recipientData, email: e.target.value})}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="message">Personal Message</Label>
-                  <Textarea 
-                    id="message" 
-                    placeholder={`Hi [NAME], I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! ❤️❤️❤️`}
-                    className="min-h-[100px]"
-                    value={personalMessage}
-                    onChange={(e) => setPersonalMessage(e.target.value)}
-                  />
-                </div>
-                
-                <div className="flex justify-end">
-                  <Button 
-                    type="submit" 
-                    className="bg-pink-600 hover:bg-pink-700 text-white"
-                  >
-                    Continue to Payment
-                    <ChevronRightIcon className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-
-      {/* Payment Step */}
-      <Accordion
-        type="single"
-        defaultValue={step === "payment" ? "payment" : undefined}
-        collapsible
-        className="w-full"
-        disabled={step !== "payment" && step !== "confirm"}
-      >
-        <AccordionItem value="payment" className="border border-gray-200 rounded-lg">
-          <AccordionTrigger className="flex w-full items-center justify-between pb-2 pt-2 px-3">
-            <div className="flex items-center">
-              <span className="bg-pink-100 text-pink-800 font-semibold px-2 py-0.5 rounded-full text-xs mr-2">
-                STEP 3
-              </span>
-              <span>Payment</span>
-            </div>
-            {step === "confirm" && <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />}
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="p-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Gift Summary</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {/* Selected Style Info */}
-                    {selectedStyleId && services && (
-                      <div className="flex flex-col space-y-1 border-b pb-3">
-                        <div className="font-medium text-lg text-pink-700">
-                          {services.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Selected Style"}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {services.find((s: StyleOption) => s.id === selectedStyleId)?.description || "Custom nail service"}
-                        </div>
-                        <div className="flex justify-between mt-1">
-                          <span className="text-gray-600">Duration:</span>
-                          <span className="font-medium">
-                            {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration || 60} min
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {/* Recipient Info */}
-                    <div className="flex flex-col space-y-2 border-b pb-3">
-                      <div className="font-medium">Recipient Details</div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Name:</span>
-                        <span className="font-medium">{recipientData.name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Phone:</span>
-                        <span className="font-medium">{recipientData.phone}</span>
-                      </div>
-                      {recipientData.email && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Email:</span>
-                          <span className="font-medium">{recipientData.email}</span>
+                <div className="space-y-5">
+                  <div className="rounded-md border bg-white p-4">
+                    <div className="font-medium mb-2">Message Preview</div>
+                    <div className="space-y-4">
+                      <Textarea 
+                        id="message" 
+                        placeholder={`Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! ❤️❤️❤️`}
+                        className="min-h-[120px] border-pink-200 focus:border-pink-400"
+                        value={personalMessage}
+                        onChange={(e) => setPersonalMessage(e.target.value)}
+                      />
+                      
+                      {selectedStyleId && services && (
+                        <div className="flex items-center p-2 rounded-md bg-pink-50 border border-pink-100">
+                          <div className="flex-shrink-0 h-12 w-12 rounded-md overflow-hidden bg-pink-200">
+                            <img 
+                              src={services.find((s: StyleOption) => s.id === selectedStyleId)?.gifUrl || '/assets/default-nail.png'} 
+                              alt="Selected style"
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <div className="ml-3">
+                            <div className="text-sm font-medium text-pink-800">
+                              {services.find((s: StyleOption) => s.id === selectedStyleId)?.name}
+                            </div>
+                            <div className="text-xs text-pink-600">
+                              ${services.find((s: StyleOption) => s.id === selectedStyleId)?.price} • {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration} min
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
-                    
-                    {/* Price Info */}
-                    <div className="flex justify-between pt-2 font-semibold text-lg">
-                      <span className="text-gray-700">Total:</span>
-                      <span className="text-pink-700">
-                        ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.price?.toFixed(2) || "50.00"}
-                      </span>
-                    </div>
                   </div>
-                  
-                  <div className="mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                    <p className="text-sm text-gray-600 mb-4">
-                      By sending this gift, you're inviting {recipientData.name} to enjoy a salon service at {client?.salonName || "your salon"}. They'll receive your invitation and can schedule their appointment directly.
-                    </p>
-                    
-                    <Button 
-                      onClick={handlePayment}
-                      className="w-full bg-pink-600 hover:bg-pink-700 text-white"
-                    >
-                      <CreditCardIcon className="mr-2 h-4 w-4" />
-                      Send Gift Invitation
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-
-      {/* Confirmation Step */}
-      <Accordion
-        type="single"
-        defaultValue={step === "confirm" ? "confirm" : undefined}
-        collapsible
-        className="w-full"
-        disabled={step !== "confirm"}
-      >
-        <AccordionItem value="confirm" className="border border-gray-200 rounded-lg">
-          <AccordionTrigger className="flex w-full items-center justify-between pb-2 pt-2 px-3">
-            <div className="flex items-center">
-              <span className="bg-pink-100 text-pink-800 font-semibold px-2 py-0.5 rounded-full text-xs mr-2">
-                STEP 4
-              </span>
-              <span>Confirmation</span>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent>
-            <div className="p-4">
-              <div className="text-center p-6 bg-green-50 rounded-lg">
-                <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-green-800 mb-2">Gift Invitation Sent!</h3>
-                <p className="text-green-700 mb-4">
-                  Your personal gift invitation has been created and sent to {recipientData.name}.
-                </p>
-                <p className="text-sm text-green-600 mb-6">
-                  They'll receive your invitation for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'salon service'} at {client?.salonName || "your connected salon"}.
-                </p>
-                
+                </div>
+              </div>
+              
+              <div className="flex justify-end mt-4">
                 <Button 
-                  onClick={handleConfirm}
-                  className="bg-green-600 hover:bg-green-700 text-white"
+                  type="submit" 
+                  className="bg-pink-600 hover:bg-pink-700 text-white px-6"
                 >
-                  Return to Gifts
+                  Continue
+                  <ChevronRightIcon className="ml-2 h-4 w-4" />
                 </Button>
               </div>
+            </form>
+          </div>
+        )}
+      </div>
+
+      {/* Payment Step */}
+      <div className="rounded-lg bg-pink-50 mb-6">
+        <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
+             onClick={() => step === "payment" ? setStep("") : setStep("payment")}
+             style={{opacity: (step === "payment" || step === "confirm") ? 1 : 0.5, pointerEvents: (step === "payment" || step === "confirm") ? 'auto' : 'none'}}>
+          <h3 className="text-pink-800 font-semibold flex items-center">
+            STEP 3 Payment
+          </h3>
+          <div className="flex items-center">
+            {step === "confirm" && <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />}
+            <ChevronDownIcon className={`h-5 w-5 text-pink-800 transition-transform ${step === "payment" ? "transform rotate-180" : ""}`} />
+          </div>
+        </div>
+        
+        {step === "payment" && (
+          <div className="p-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Gift Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {/* Selected Style Info */}
+                  {selectedStyleId && services && (
+                    <div className="flex flex-col space-y-1 border-b pb-3">
+                      <div className="font-medium text-lg text-pink-700">
+                        {services.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Selected Style"}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {services.find((s: StyleOption) => s.id === selectedStyleId)?.description || "Custom nail service"}
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <span className="text-gray-600">Duration:</span>
+                        <span className="font-medium">
+                          {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration || 60} min
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Recipient Info */}
+                  <div className="flex flex-col space-y-2 border-b pb-3">
+                    <div className="font-medium">Recipient Details</div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Name:</span>
+                      <span className="font-medium">{recipientData.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Phone:</span>
+                      <span className="font-medium">{recipientData.phone}</span>
+                    </div>
+                    {recipientData.email && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Email:</span>
+                        <span className="font-medium">{recipientData.email}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Price Info */}
+                  <div className="flex justify-between pt-2 font-semibold text-lg">
+                    <span className="text-gray-700">Total:</span>
+                    <span className="text-pink-700">
+                      ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.price?.toFixed(2) || "50.00"}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                  <p className="text-sm text-gray-600 mb-4">
+                    By sending this gift, you're inviting {recipientData.name} to enjoy a salon service at {client?.salonName || "your salon"}. They'll receive your invitation and can schedule their appointment directly.
+                  </p>
+                  
+                  <Button 
+                    onClick={handlePayment}
+                    className="w-full bg-pink-600 hover:bg-pink-700 text-white"
+                  >
+                    <CreditCardIcon className="mr-2 h-4 w-4" />
+                    Send Gift Invitation
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+
+      {/* Confirmation Step */}
+      <div className="rounded-lg bg-pink-50 mb-6">
+        <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
+             onClick={() => step === "confirm" ? setStep("") : setStep("confirm")}
+             style={{opacity: step === "confirm" ? 1 : 0.5, pointerEvents: step === "confirm" ? 'auto' : 'none'}}>
+          <h3 className="text-pink-800 font-semibold flex items-center">
+            STEP 4 Confirmation
+          </h3>
+          <div className="flex items-center">
+            <ChevronDownIcon className={`h-5 w-5 text-pink-800 transition-transform ${step === "confirm" ? "transform rotate-180" : ""}`} />
+          </div>
+        </div>
+        
+        {step === "confirm" && (
+          <div className="p-4">
+            <div className="text-center p-6 bg-green-50 rounded-lg">
+              <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-green-800 mb-2">Gift Invitation Sent!</h3>
+              <p className="text-green-700 mb-4">
+                Your personal gift invitation has been created and sent to {recipientData.name}.
+              </p>
+              <p className="text-sm text-green-600 mb-6">
+                They'll receive your invitation for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'salon service'} at {client?.salonName || "your connected salon"}.
+              </p>
+              
+              <Button 
+                onClick={handleConfirm}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                Return to Gifts
+              </Button>
             </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
