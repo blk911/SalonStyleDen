@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { queryClient, apiRequest } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
   CheckCircleIcon, 
@@ -15,24 +15,13 @@ import {
   UserIcon,
   UserPlusIcon, 
   CreditCardIcon, 
-  CalendarIcon,
-  Loader2
+  CalendarIcon 
 } from "lucide-react";
 
 interface GiftCreationFlowProps {
   clientId: number;
   salonId?: number;
   onComplete?: () => void;
-}
-
-interface StyleOption {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  duration: number;
-  gifUrl?: string;
-  featured?: boolean;
 }
 
 export default function GiftCreationFlow({ clientId, salonId, onComplete }: GiftCreationFlowProps) {
@@ -49,19 +38,6 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   // If salonId is not provided, we need to fetch the salon associated with the client
   // or default to Tiffany's salon (ID: 2) which is the sponsor
   const useSalonId = salonId || 2; // Default to Tiffany's salon if none specified
-  
-  // Fetch salon services
-  const { data: salonServices, isLoading: isLoadingServices } = useQuery({
-    queryKey: [`/api/salons/${useSalonId}/services`],
-    queryFn: async () => {
-      const response = await fetch(`/api/salons/${useSalonId}/services`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch salon services");
-      }
-      return response.json() as Promise<StyleOption[]>;
-    },
-    enabled: !!useSalonId, // Only fetch if we have a salonId
-  });
 
   // Function to handle style selection
   const handleStyleSelect = (styleId: number) => {
@@ -129,19 +105,11 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
           </AccordionTrigger>
           <AccordionContent>
             <div className="p-4">
-              {isLoadingServices ? (
-                <div className="flex justify-center items-center py-10">
-                  <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
-                  <span className="ml-2 text-gray-600">Loading salon services...</span>
-                </div>
-              ) : (
-                <VmbStyleOptions 
-                  salonId={useSalonId} 
-                  onStyleSelect={handleStyleSelect}
-                  clientId={clientId}
-                  services={salonServices}
-                />
-              )}
+              <VmbStyleOptions 
+                salonId={useSalonId} 
+                onStyleSelect={handleStyleSelect}
+                clientId={clientId}
+              />
             </div>
           </AccordionContent>
         </AccordionItem>
