@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import InviteCompleteStatus from "@/components/dashboard/InviteCompleteStatus";
+import type { Invitation } from "@/types/invitation";
 import { SvgVisualizer } from "@/components/visualization/SvgVisualizer";
 import { VisualizationSelector } from "@/components/visualization/VisualizationSelector";
 import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
@@ -69,7 +70,10 @@ interface Client {
   phone: string;
   salonName?: string;
   isCurrentClient: boolean;
-  salonId?: number; // Added salonId to Client interface
+  salonId?: number; // Direct salon association
+  sponsor?: string; // Sponsor name
+  sponsorName?: string; // Sponsor display name
+  sponsorSalonId?: number; // Sponsor salon ID for linking
 }
 
 interface Service {
@@ -103,21 +107,7 @@ interface Salon {
   licenseVerificationDate?: string;
 }
 
-interface Invitation {
-  id: number;
-  name: string;
-  phone: string;
-  email: string;
-  notes?: string;
-  favoriteServices: string[];
-  salonId?: number;
-  salonName?: string;
-  status?: string;
-  sponsor?: string;
-  firstServiceDate?: string;
-  createdAt: string;
-  inviteHash?: string;
-}
+// Use shared Invitation type from @/types/invitation
 
 interface ActivityLog {
   id: number;
@@ -223,14 +213,23 @@ export default function AdminDashboard() {
 
   // Helper function to find client ID for an invitation
   const findClientIdForInvitation = (invitation: Invitation, clientsList: Client[] | undefined): number | null => {
-    if (!clientsList || clientsList.length === 0) return null;
+    if (!clientsList || clientsList.length === 0) {
+      console.log(`No clients available to match with invitation ID ${invitation.id}`);
+      return null;
+    }
     
     // Match by phone number (most reliable identifier)
     const matchingClient = clientsList.find(client => 
       client.phone === invitation.phone
     );
     
-    return matchingClient ? matchingClient.id : null;
+    if (matchingClient) {
+      console.log(`Found matching client ID ${matchingClient.id} for invitation ID ${invitation.id} via phone number`);
+      return matchingClient.id;
+    }
+    
+    console.log(`No matching client found for invitation ID ${invitation.id} with phone ${invitation.phone}`);
+    return null;
   };
 
   const { data: clients, error: clientError, isLoading: clientIsLoading } = useQuery<Client[]>({
@@ -724,7 +723,7 @@ export default function AdminDashboard() {
                                 </div>
                                 <div className="flex">
                                   <dt className="w-32 font-medium text-gray-500">Clients:</dt>
-                                  <dd>{clients?.filter(c => c.salonId === salon.id).length || 0} clients</dd>
+                                  <dd>{clients?.filter(c => c.salonId === salon.id || c.sponsorSalonId === salon.id).length || 0} clients</dd>
                                 </div>
                               </dl>
                             </div>
@@ -851,6 +850,13 @@ export default function AdminDashboard() {
                   inviteCount={invitations.filter(invite => 
                     invite.status === 'complete' || invite.status === 'accepted'
                   ).length} 
+                  invitations={invitations.filter(invite => 
+                    (invite.status === 'complete' || invite.status === 'accepted')
+                  ).map(invite => ({
+                    ...invite,
+                    // Ensure status is never undefined
+                    status: invite.status || 'pending'
+                  }))}
                   showTitle={true}
                 />
               </div>
@@ -1082,7 +1088,7 @@ export default function AdminDashboard() {
                         <TableHead className="max-h-[30px] py-1">Name</TableHead>
                         <TableHead className="max-h-[30px] py-1">Email</TableHead>
                         <TableHead className="max-h-[30px] py-1">Phone</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Salon</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Salon/Sponsor</TableHead>
                         <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -1148,7 +1154,7 @@ export default function AdminDashboard() {
                             </TooltipProvider>
                           </TableCell>
                           
-                          {/* Salon name with truncation */}
+                          {/* Salon/Sponsor name with truncation */}
                           <TableCell className="py-0">
                             {client.salonName && client.salonName.length > 10 ? (
                               <TooltipProvider>
@@ -1160,11 +1166,17 @@ export default function AdminDashboard() {
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p>Salon: {client.salonName}</p>
+                                    {client.sponsor && <p>Sponsor: {client.sponsor}</p>}
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
                             ) : (
-                              <>Salon: {client.salonName || 'N/A'}</>
+                              <>
+                                {client.salonName ? 
+                                  <>Salon: {client.salonName}</> : 
+                                  (client.sponsor ? <>Sponsor: {client.sponsor}</> : 'N/A')
+                                }
+                              </>
                             )}
                           </TableCell>
                           

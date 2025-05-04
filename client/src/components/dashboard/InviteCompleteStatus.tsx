@@ -3,19 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { format } from "date-fns";
-
-interface Invitation {
-  id: number;
-  name: string;
-  phone: string;
-  email: string;
-  notes?: string;
-  status: string;
-  createdAt: string;
-  inviteHash?: string;
-  firstServiceDate?: string;
-  favoriteServices?: string[];
-}
+import { Invitation } from "@/types/invitation";
 
 interface InviteCompleteStatusProps {
   inviteCount?: number;
@@ -115,6 +103,20 @@ export default function InviteCompleteStatus({
                     <span className="font-medium text-gray-700">Email:</span>
                     <span className="ml-1 truncate">{invitation.email}</span>
                   </div>
+                  {invitation.salonName && (
+                    <div className="flex items-center">
+                      <span className="h-3.5 w-3.5 mr-1.5 text-gray-500">💈</span>
+                      <span className="font-medium text-gray-700">Salon:</span>
+                      <span className="ml-1 truncate">{invitation.salonName}</span>
+                    </div>
+                  )}
+                  {invitation.sponsor && (
+                    <div className="flex items-center">
+                      <span className="h-3.5 w-3.5 mr-1.5 text-gray-500">👤</span>
+                      <span className="font-medium text-gray-700">Sponsor:</span>
+                      <span className="ml-1 truncate">{invitation.sponsor}</span>
+                    </div>
+                  )}
                   <div className="flex items-center">
                     <Calendar className="h-3.5 w-3.5 mr-1.5 text-gray-500" />
                     <span className="font-medium text-gray-700">First Service:</span>
