@@ -303,7 +303,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       {/* Hidden field for style selection data */}
       <input type="hidden" name="styleOptions" id="styleOptions" />
       
-      {/* Style Selection Step */}
+      {/* Style Selection Section - STEP 1 */}
       <div className="rounded-lg bg-pink-50 mb-6">
         <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
              onClick={() => step === "style" ? setStep("") : setStep("style")}>
@@ -324,13 +324,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <span className="ml-2 text-gray-600">Loading salon services...</span>
               </div>
             ) : servicesError ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <AlertTriangle className="h-10 w-10 text-red-500 mb-2" />
-                <h3 className="text-lg font-semibold text-red-800">Error Loading Services</h3>
-                <p className="text-sm text-gray-600 max-w-md mt-1">
-                  We couldn't load the salon services. Using default services instead.
-                </p>
-                
+              <div className="p-4">
                 <VmbStyleOptions 
                   salonId={useSalonId} 
                   clientId={clientId}
@@ -372,13 +366,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 />
               </div>
             ) : services?.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <AlertTriangle className="h-10 w-10 text-amber-500 mb-2" />
-                <h3 className="text-lg font-semibold text-amber-800">No Services Found</h3>
-                <p className="text-sm text-gray-600 max-w-md mt-1">
-                  This salon has no services available. Using default services instead.
-                </p>
-                
+              <div className="p-4">
                 <VmbStyleOptions 
                   salonId={useSalonId} 
                   clientId={clientId}
