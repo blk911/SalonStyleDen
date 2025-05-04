@@ -1,176 +1,16 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HeartIcon, PlusCircleIcon, UserPlusIcon, XIcon, Loader2 } from "lucide-react";
+import { HeartIcon, PlusCircleIcon, UserPlusIcon, XIcon } from "lucide-react";
 import GiftCreationFlow from "./GiftCreationFlow";
 import { Button } from "@/components/ui/button";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
-import { queryClient } from "@/lib/queryClient";
 
 interface GiftsPageProps {
   clientId?: number;
   salonId?: number;
 }
 
-interface Invitation {
-  id: number;
-  name: string;
-  phone: string;
-  salonId: number;
-  salonName?: string;
-  sponsor?: string;
-  status: string;
-  styleId?: number;
-  styleName?: string;
-  paymentStatus?: string;
-  createdAt: string;
-}
-
 export default function GiftsPage({ clientId = 10 }: GiftsPageProps) {
   const [showGiftCreation, setShowGiftCreation] = useState(false);
-  const { toast } = useToast();
-  
-  // Fetch gifts received by this client
-  const { data: receivedGifts, isLoading } = useQuery({
-    queryKey: [`/api/clients/${clientId}/received-gifts`],
-    queryFn: async () => {
-      const response = await fetch(`/api/invitations?recipientClientId=${clientId}&status=pending,accepted,completed`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch received gifts");
-      }
-      return response.json() as Promise<Invitation[]>;
-    },
-  });
-  
-  // Fetch gifts sent by this client
-  const { data: sentGifts } = useQuery({
-    queryKey: [`/api/clients/${clientId}/sent-gifts`],
-    queryFn: async () => {
-      const response = await fetch(`/api/invitations?sponsorClientId=${clientId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch sent gifts");
-      }
-      return response.json() as Promise<Invitation[]>;
-    },
-  });
-  
-  // Mutation to accept a gift
-  const acceptGiftMutation = useMutation({
-    mutationFn: async (invitationId: number) => {
-      const response = await fetch(`/api/invitations/${invitationId}/accept`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ clientId })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to accept gift");
-      }
-      
-      return await response.json();
-    },
-    onSuccess: () => {
-      // Invalidate both received and sent gifts queries to refresh the data
-      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/received-gifts`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/sent-gifts`] });
-      
-      toast({
-        title: "Gift Accepted!",
-        description: "You've successfully accepted the gift",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error Accepting Gift",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  });
-  
-  // Mutation to complete payment for a gift
-  const completePaymentMutation = useMutation({
-    mutationFn: async (invitationId: number) => {
-      const response = await fetch(`/api/invitations/${invitationId}/payment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
-          clientId,
-          paymentStatus: "paid" 
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to process payment");
-      }
-      
-      return await response.json();
-    },
-    onSuccess: () => {
-      // Only need to invalidate the sent gifts query since we're updating gifts sent by this client
-      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/sent-gifts`] });
-      
-      toast({
-        title: "Payment Completed!",
-        description: "Your gift payment has been processed successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Payment Failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  });
-
-  // Function to render gift status badge
-  const renderStatusBadge = (status: string) => {
-    let badgeColor = "bg-gray-200 text-gray-800";
-    
-    if (status === "pending") {
-      badgeColor = "bg-yellow-100 text-yellow-800";
-    } else if (status === "accepted") {
-      badgeColor = "bg-blue-100 text-blue-800";
-    } else if (status === "completed") {
-      badgeColor = "bg-green-100 text-green-800";
-    } else if (status === "cancelled") {
-      badgeColor = "bg-red-100 text-red-800";
-    }
-    
-    return (
-      <span className={`text-xs font-medium px-2 py-1 rounded ${badgeColor}`}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </span>
-    );
-  };
-  
-  // Function to render payment status badge, if available
-  const renderPaymentBadge = (paymentStatus?: string) => {
-    if (!paymentStatus) return null;
-    
-    let badgeColor = "bg-gray-200 text-gray-800";
-    
-    if (paymentStatus === "pending") {
-      badgeColor = "bg-yellow-100 text-yellow-800";
-    } else if (paymentStatus === "paid") {
-      badgeColor = "bg-green-100 text-green-800";
-    } else if (paymentStatus === "failed") {
-      badgeColor = "bg-red-100 text-red-800";
-    }
-    
-    return (
-      <span className={`text-xs font-medium px-2 py-1 rounded ${badgeColor} mt-1`}>
-        Payment: {paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}
-      </span>
-    );
-  };
   
   return (
     <div className="space-y-4 w-full">
@@ -223,100 +63,15 @@ export default function GiftsPage({ clientId = 10 }: GiftsPageProps) {
         </CardContent>
       </Card>
   
-      {/* Gifts Received Card */}
+      {/* Gift Status Card */}
       <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
         <CardHeader className="bg-pink-50 pb-2 pt-2">
-          <CardTitle className="text-base text-pink-700">Gifts Received</CardTitle>
+          <CardTitle className="text-base text-pink-700">Your Gift Status</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
-          {isLoading ? (
-            <div className="flex justify-center items-center py-6">
-              <Loader2 className="h-6 w-6 animate-spin text-pink-600" />
-              <span className="ml-2 text-gray-600">Loading gifts...</span>
-            </div>
-          ) : receivedGifts && receivedGifts.length > 0 ? (
-            <div className="space-y-3">
-              {receivedGifts.map((gift: Invitation) => (
-                <div key={gift.id} className="border rounded-lg p-3 flex justify-between items-center">
-                  <div>
-                    <h4 className="font-medium text-gray-800">{gift.styleName || "Salon Treatment"}</h4>
-                    <p className="text-sm text-gray-600">From: {gift.sponsor || "Anonymous"}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(gift.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end space-y-2">
-                    {renderStatusBadge(gift.status)}
-                    {renderPaymentBadge(gift.paymentStatus)}
-                    {gift.status === "pending" && (
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="text-xs h-7"
-                        onClick={() => acceptGiftMutation.mutate(gift.id)}
-                        disabled={acceptGiftMutation.isPending}
-                      >
-                        {acceptGiftMutation.isPending && acceptGiftMutation.variables === gift.id ? (
-                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                        ) : null}
-                        Accept Gift
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
-              <p className="text-gray-500">You have no received gifts at the moment</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Gifts Sent Card */}
-      <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
-        <CardHeader className="bg-pink-50 pb-2 pt-2">
-          <CardTitle className="text-base text-pink-700">Gifts Sent</CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4">
-          {sentGifts && sentGifts.length > 0 ? (
-            <div className="space-y-3">
-              {sentGifts.map((gift: Invitation) => (
-                <div key={gift.id} className="border rounded-lg p-3 flex justify-between items-center">
-                  <div>
-                    <h4 className="font-medium text-gray-800">{gift.styleName || "Salon Treatment"}</h4>
-                    <p className="text-sm text-gray-600">To: {gift.name}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(gift.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end space-y-2">
-                    {renderStatusBadge(gift.status)}
-                    {renderPaymentBadge(gift.paymentStatus)}
-                    {gift.status === "pending" && gift.paymentStatus !== "paid" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="text-xs h-7"
-                        onClick={() => completePaymentMutation.mutate(gift.id)}
-                        disabled={completePaymentMutation.isPending}
-                      >
-                        {completePaymentMutation.isPending && completePaymentMutation.variables === gift.id ? (
-                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                        ) : null}
-                        Complete Payment
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
-              <p className="text-gray-500">You haven't sent any gifts yet</p>
-            </div>
-          )}
+          <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
+            <p className="text-gray-500">You have no active gifts at the moment</p>
+          </div>
         </CardContent>
       </Card>
     </div>
