@@ -399,7 +399,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               <VmbStyleOptions 
                 salonId={useSalonId} 
                 clientId={clientId}
-                services={services || []}
+                services={Array.isArray(services) ? services : []}
               />
             )}
           </div>
@@ -467,13 +467,13 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     <div className="space-y-4">
                       <Textarea 
                         id="message" 
-                        placeholder={`Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! ❤️❤️❤️`}
+                        placeholder={`Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${Array.isArray(services) && services.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! ❤️❤️❤️`}
                         className="min-h-[120px] border-pink-200 focus:border-pink-400"
                         value={personalMessage}
                         onChange={(e) => setPersonalMessage(e.target.value)}
                       />
                       
-                      {selectedStyleId && services && (
+                      {selectedStyleId && Array.isArray(services) && (
                         <div className="flex items-center p-2 rounded-md bg-pink-50 border border-pink-100">
                           <div className="flex-shrink-0 h-12 w-12 rounded-md overflow-hidden bg-pink-200">
                             <img 
@@ -534,7 +534,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               <CardContent>
                 <div className="space-y-3">
                   {/* Selected Style Info */}
-                  {selectedStyleId && services && (
+                  {selectedStyleId && Array.isArray(services) && (
                     <div className="flex flex-col space-y-1 border-b pb-3">
                       <div className="font-medium text-lg text-pink-700">
                         {services.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Selected Style"}
