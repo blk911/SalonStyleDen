@@ -52,6 +52,21 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   // If salonId is not provided, we need to fetch the salon associated with the client
   // or default to Tiffany's salon (ID: 2) which is the sponsor
   const useSalonId = salonId || 2; // Default to Tiffany's salon if none specified
+  
+  // Initialize hidden input with default values
+  useEffect(() => {
+    // Set initial value for styleOptions hidden field
+    const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
+    if (styleOptionsElement) {
+      const styleOptionsData = {
+        styleId: -1, // Will be updated when user selects a style
+        clientId: clientId || 0,
+        salonId: useSalonId || 0,
+        invitationId: 0
+      };
+      styleOptionsElement.value = JSON.stringify(styleOptionsData);
+    }
+  }, [clientId, useSalonId]);
 
   // Fetch salon services
   const { data: services, isLoading: isLoadingServices, error: servicesError } = useQuery({
@@ -135,10 +150,18 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       if (styleOptionsElement && styleOptionsElement.value) {
         try {
           const styleData = JSON.parse(styleOptionsElement.value);
-          if (styleData && styleData.styleId) {
+          if (styleData && styleData.styleId && styleData.styleId !== -1) {
             console.log(`Selected style ID: ${styleData.styleId}`);
             setSelectedStyleId(styleData.styleId);
             setStep("recipient");
+            
+            // Add a small delay to allow for visual confirmation before transitioning
+            setTimeout(() => {
+              const recipientSection = document.querySelector('[value="recipient"]');
+              if (recipientSection) {
+                recipientSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }, 300);
           }
         } catch (error) {
           console.error("Error parsing style selection data:", error);
@@ -230,6 +253,9 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
 
   return (
     <div className="space-y-4">
+      {/* Hidden field for style selection data */}
+      <input type="hidden" name="styleOptions" id="styleOptions" />
+      
       {/* Style Selection Step */}
       <Accordion
         type="single"
