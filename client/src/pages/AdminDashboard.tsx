@@ -908,8 +908,8 @@ export default function AdminDashboard() {
                       // Find the salon ID from the first invitation in group
                       const firstInvite = salonInvites[0];
                       if (firstInvite && firstInvite.salonId) {
-                        // Use Link component navigation instead of direct setLocation
-                        window.location.href = `/salon/${firstInvite.salonId}`;
+                        // Use proper navigation with setLocation
+                        setLocation(`/salon/${firstInvite.salonId}`);
                       }
                     }}
                   >
