@@ -93,53 +93,78 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     staleTime: 30000 // Consider data fresh for 30 seconds
   });
 
-  // Fetch client details
+  // Fetch client details with their connected salon in real-time
   const { data: client, isLoading: isLoadingClient } = useQuery({
     queryKey: [`/api/clients/${clientId}`],
     queryFn: async () => {
       try {
+        console.log(`GiftCreationFlow: Fetching real-time client data for client ID ${clientId}`);
         const response = await fetch(`/api/clients/${clientId}`);
         if (!response.ok) {
-          throw new Error(`Failed to fetch client: ${response.status}`);
+          throw new Error(`Failed to fetch client data: ${response.status}`);
         }
-        return await response.json();
+        const clientData = await response.json();
+        console.log(`GiftCreationFlow: Client connected to salon: ${clientData?.salonName || 'None'}`);
+        return clientData;
       } catch (error) {
-        console.error('Error fetching client:', error);
+        console.error('Error fetching client data:', error);
         throw error;
       }
     },
-    enabled: !!clientId
+    enabled: !!clientId,
+    refetchOnWindowFocus: true, // Refresh data when window regains focus
+    staleTime: 60000 // Consider data fresh for 1 minute
   });
 
-  // Create Invitation Mutation
+  // Create Client-Driven Invitation Mutation
   const createInvitationMutation = useMutation({
     mutationFn: async (data: any) => {
+      console.log("GiftCreationFlow: Creating client-driven invitation with data:", data);
+      
+      // Mark this invitation as client-driven by adding a source field
+      const invitationWithSource = {
+        ...data,
+        source: "client", // Add source field to differentiate from salon-driven invitations
+        clientDriven: true // Explicit flag for client-driven invitations
+      };
+      
       const response = await fetch("/api/invitations", {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(invitationWithSource)
       });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to create invitation: ${response.status} - ${errorText}`);
+      }
+      
       return await response.json();
     },
     onSuccess: (data) => {
-      console.log("Invitation created successfully:", data);
+      console.log("GiftCreationFlow: Client invitation created successfully:", data);
       setInvitationId(data.id);
       
       // Invalidate relevant queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['/api/invitations'] });
       
+      // Also invalidate client-specific queries to ensure dashboard updates
+      if (clientId) {
+        queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/invitations`] });
+      }
+      
       // Move to confirmation step
       setStep("confirm");
       
       toast({
-        title: "Gift Created!",
-        description: "Your gift invitation has been created successfully.",
+        title: "Gift Invitation Sent!",
+        description: "Your personal gift invitation has been created successfully.",
       });
     },
     onError: (error: any) => {
-      console.error("Error creating invitation:", error);
+      console.error("GiftCreationFlow: Error creating client invitation:", error);
       toast({
         title: "Error",
         description: `Failed to create invitation: ${error.message}`,
