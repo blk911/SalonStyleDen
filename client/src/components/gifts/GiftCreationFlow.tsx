@@ -304,138 +304,135 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       <input type="hidden" name="styleOptions" id="styleOptions" />
       
       {/* Style Selection Step */}
-      <div className="rounded-lg bg-pink-50 mb-6">
+      <div className="mb-6">
         <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
              onClick={() => step === "style" ? setStep("") : setStep("style")}>
-          <h3 className="text-pink-800 font-semibold flex items-center">
+          <h3 className="text-pink-800 font-semibold">
             STEP 1 Pick your style...
           </h3>
           <div className="flex items-center">
-            {selectedStyleId && <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />}
             <ChevronDownIcon className={`h-5 w-5 text-pink-800 transition-transform ${step === "style" ? "transform rotate-180" : ""}`} />
           </div>
         </div>
         
-        {step === "style" && (
-          <div className="p-4">
-            {isLoadingServices ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
-                <span className="ml-2 text-gray-600">Loading salon services...</span>
-              </div>
-            ) : servicesError ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <AlertTriangle className="h-10 w-10 text-red-500 mb-2" />
-                <h3 className="text-lg font-semibold text-red-800">Error Loading Services</h3>
-                <p className="text-sm text-gray-600 max-w-md mt-1">
-                  We couldn't load the salon services. Using default services instead.
-                </p>
-                
-                <VmbStyleOptions 
-                  salonId={useSalonId} 
-                  clientId={clientId}
-                  services={[
-                    {
-                      id: 1,
-                      name: "French Tips",
-                      description: "Classic French manicure with white tips",
-                      price: 35,
-                      duration: 45,
-                      gifUrl: "/assets/french-tips.png"
-                    },
-                    {
-                      id: 2,
-                      name: "Gel Manicure",
-                      description: "Long-lasting gel polish in your choice of color",
-                      price: 40,
-                      duration: 60,
-                      gifUrl: "/assets/gel-manicure.png"
-                    },
-                    {
-                      id: 3,
-                      name: "Sculpted Acrylics",
-                      description: "Full set of sculpted acrylic nails",
-                      price: 55,
-                      duration: 90,
-                      gifUrl: "/assets/sculpted-acrylics.png",
-                      featured: true
-                    },
-                    {
-                      id: 4,
-                      name: "Nail Art Design",
-                      description: "Custom nail art and design",
-                      price: 50,
-                      duration: 75,
-                      gifUrl: "/assets/glam-design.png"
-                    }
-                  ]}
-                />
-              </div>
-            ) : services?.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <AlertTriangle className="h-10 w-10 text-amber-500 mb-2" />
-                <h3 className="text-lg font-semibold text-amber-800">No Services Found</h3>
-                <p className="text-sm text-gray-600 max-w-md mt-1">
-                  This salon has no services available. Using default services instead.
-                </p>
-                
-                <VmbStyleOptions 
-                  salonId={useSalonId} 
-                  clientId={clientId}
-                  services={[
-                    {
-                      id: 1,
-                      name: "French Tips",
-                      description: "Classic French manicure with white tips",
-                      price: 35,
-                      duration: 45,
-                      gifUrl: "/assets/french-tips.png"
-                    },
-                    {
-                      id: 2,
-                      name: "Gel Manicure",
-                      description: "Long-lasting gel polish in your choice of color",
-                      price: 40,
-                      duration: 60,
-                      gifUrl: "/assets/gel-manicure.png"
-                    },
-                    {
-                      id: 3,
-                      name: "Sculpted Acrylics",
-                      description: "Full set of sculpted acrylic nails",
-                      price: 55,
-                      duration: 90,
-                      gifUrl: "/assets/sculpted-acrylics.png",
-                      featured: true
-                    },
-                    {
-                      id: 4,
-                      name: "Nail Art Design",
-                      description: "Custom nail art and design",
-                      price: 50,
-                      duration: 75,
-                      gifUrl: "/assets/glam-design.png"
-                    }
-                  ]}
-                />
-              </div>
-            ) : (
-              <VmbStyleOptions 
-                salonId={useSalonId} 
-                clientId={clientId}
-                services={services}
-              />
-            )}
+        {isLoadingServices ? (
+          <div className="bg-pink-50 p-8 flex flex-col items-center justify-center text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
+            <span className="mt-2 text-gray-600">Loading salon services...</span>
+          </div>
+        ) : servicesError ? (
+          <div className="bg-pink-50 p-8 flex flex-col items-center justify-center text-center">
+            <AlertTriangle className="h-16 w-16 text-red-500 mb-2" />
+            <h3 className="text-xl font-semibold text-red-800 mt-4">Error Loading Services</h3>
+            <p className="text-gray-600 max-w-md mt-4 mb-8">
+              We couldn't load the salon services. Using default services instead.
+            </p>
+            
+            <VmbStyleOptions 
+              salonId={useSalonId} 
+              clientId={clientId}
+              services={[
+                {
+                  id: 1,
+                  name: "French Tips",
+                  description: "Classic French manicure with white tips",
+                  price: 35,
+                  duration: 45,
+                  gifUrl: "/assets/french-tips.png"
+                },
+                {
+                  id: 2,
+                  name: "Gel Manicure",
+                  description: "Long-lasting gel polish in your choice of color",
+                  price: 40,
+                  duration: 60,
+                  gifUrl: "/assets/gel-manicure.png"
+                },
+                {
+                  id: 3,
+                  name: "Sculpted Acrylics",
+                  description: "Full set of sculpted acrylic nails",
+                  price: 55,
+                  duration: 90,
+                  gifUrl: "/assets/sculpted-acrylics.png",
+                  featured: true
+                },
+                {
+                  id: 4,
+                  name: "Nail Art Design",
+                  description: "Custom nail art and design",
+                  price: 50,
+                  duration: 75,
+                  gifUrl: "/assets/glam-design.png"
+                }
+              ]}
+            />
+          </div>
+        ) : services?.length === 0 ? (
+          <div className="bg-pink-50 p-8 flex flex-col items-center justify-center text-center">
+            <AlertTriangle className="h-16 w-16 text-amber-500 mb-2" />
+            <h3 className="text-xl font-semibold text-amber-800 mt-4">No Services Found</h3>
+            <p className="text-gray-600 max-w-md mt-4 mb-8">
+              This salon has no services available. Using default services instead.
+            </p>
+            
+            <VmbStyleOptions 
+              salonId={useSalonId} 
+              clientId={clientId}
+              services={[
+                {
+                  id: 1,
+                  name: "French Tips",
+                  description: "Classic French manicure with white tips",
+                  price: 35,
+                  duration: 45,
+                  gifUrl: "/assets/french-tips.png"
+                },
+                {
+                  id: 2,
+                  name: "Gel Manicure",
+                  description: "Long-lasting gel polish in your choice of color",
+                  price: 40,
+                  duration: 60,
+                  gifUrl: "/assets/gel-manicure.png"
+                },
+                {
+                  id: 3,
+                  name: "Sculpted Acrylics",
+                  description: "Full set of sculpted acrylic nails",
+                  price: 55,
+                  duration: 90,
+                  gifUrl: "/assets/sculpted-acrylics.png",
+                  featured: true
+                },
+                {
+                  id: 4,
+                  name: "Nail Art Design",
+                  description: "Custom nail art and design",
+                  price: 50,
+                  duration: 75,
+                  gifUrl: "/assets/glam-design.png"
+                }
+              ]}
+            />
+          </div>
+        ) : (
+          <div className={step === "style" ? "block" : "hidden"}>
+            <VmbStyleOptions 
+              salonId={useSalonId} 
+              clientId={clientId}
+              services={services}
+            />
           </div>
         )}
       </div>
 
       {/* Recipient Information Step */}
-      <div className="rounded-lg bg-pink-50 mb-6">
+      <div className="mb-6">
         <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
              onClick={() => selectedStyleId && (step === "recipient" ? setStep("") : setStep("recipient"))}
              style={{opacity: selectedStyleId ? 1 : 0.5, pointerEvents: selectedStyleId ? 'auto' : 'none'}}>
-          <h3 className="text-pink-800 font-semibold flex items-center">
+          <h3 className="text-pink-800 font-semibold">
             STEP 2 Style Your Invitation...
           </h3>
           <div className="flex items-center">
@@ -444,7 +441,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
           </div>
         </div>
         
-        {step === "recipient" && (
+        <div className={step === "recipient" ? "block bg-pink-50" : "hidden"}>
           <div className="p-4">
             <form onSubmit={handleRecipientSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -532,15 +529,15 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               </div>
             </form>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Payment Step */}
-      <div className="rounded-lg bg-pink-50 mb-6">
+      <div className="mb-6">
         <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
              onClick={() => step === "payment" ? setStep("") : setStep("payment")}
              style={{opacity: (step === "payment" || step === "confirm") ? 1 : 0.5, pointerEvents: (step === "payment" || step === "confirm") ? 'auto' : 'none'}}>
-          <h3 className="text-pink-800 font-semibold flex items-center">
+          <h3 className="text-pink-800 font-semibold">
             STEP 3 Payment
           </h3>
           <div className="flex items-center">
@@ -549,7 +546,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
           </div>
         </div>
         
-        {step === "payment" && (
+        <div className={step === "payment" ? "block bg-pink-50" : "hidden"}>
           <div className="p-4">
             <Card>
               <CardHeader>
@@ -619,15 +616,15 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               </CardContent>
             </Card>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Confirmation Step */}
-      <div className="rounded-lg bg-pink-50 mb-6">
+      <div className="mb-6">
         <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
              onClick={() => step === "confirm" ? setStep("") : setStep("confirm")}
              style={{opacity: step === "confirm" ? 1 : 0.5, pointerEvents: step === "confirm" ? 'auto' : 'none'}}>
-          <h3 className="text-pink-800 font-semibold flex items-center">
+          <h3 className="text-pink-800 font-semibold">
             STEP 4 Confirmation
           </h3>
           <div className="flex items-center">
@@ -635,7 +632,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
           </div>
         </div>
         
-        {step === "confirm" && (
+        <div className={step === "confirm" ? "block bg-pink-50" : "hidden"}>
           <div className="p-4">
             <div className="text-center p-6 bg-green-50 rounded-lg">
               <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto mb-4" />
@@ -655,7 +652,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               </Button>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
