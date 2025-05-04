@@ -10,7 +10,8 @@ import { Link } from 'wouter';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
-import InviteCompleteStatus, { Invitation as InviteStatusInvitation } from "@/components/dashboard/InviteCompleteStatus";
+import InviteCompleteStatus from "@/components/dashboard/InviteCompleteStatus";
+import type { Invitation } from "@/types/invitation";
 import { SvgVisualizer } from "@/components/visualization/SvgVisualizer";
 import { VisualizationSelector } from "@/components/visualization/VisualizationSelector";
 import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
@@ -106,21 +107,7 @@ interface Salon {
   licenseVerificationDate?: string;
 }
 
-interface Invitation {
-  id: number;
-  name: string;
-  phone: string;
-  email: string;
-  notes?: string;
-  favoriteServices: string[];
-  salonId?: number;
-  salonName?: string;
-  status?: string;
-  sponsor?: string;
-  firstServiceDate?: string;
-  createdAt: string;
-  inviteHash?: string;
-}
+// Use shared Invitation type from @/types/invitation
 
 interface ActivityLog {
   id: number;
@@ -864,8 +851,12 @@ export default function AdminDashboard() {
                     invite.status === 'complete' || invite.status === 'accepted'
                   ).length} 
                   invitations={invitations.filter(invite => 
-                    invite.status === 'complete' || invite.status === 'accepted'
-                  )}
+                    (invite.status === 'complete' || invite.status === 'accepted')
+                  ).map(invite => ({
+                    ...invite,
+                    // Ensure status is never undefined
+                    status: invite.status || 'pending'
+                  }))}
                   showTitle={true}
                 />
               </div>
