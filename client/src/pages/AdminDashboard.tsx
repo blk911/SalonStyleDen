@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import InviteCompleteStatus from "@/components/dashboard/InviteCompleteStatus";
-import type { Invitation } from "@/types/invitation";
 import { SvgVisualizer } from "@/components/visualization/SvgVisualizer";
 import { VisualizationSelector } from "@/components/visualization/VisualizationSelector";
 import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
@@ -70,10 +69,7 @@ interface Client {
   phone: string;
   salonName?: string;
   isCurrentClient: boolean;
-  salonId?: number; // Direct salon association
-  sponsor?: string; // Sponsor name
-  sponsorName?: string; // Sponsor display name
-  sponsorSalonId?: number; // Sponsor salon ID for linking
+  salonId?: number; // Added salonId to Client interface
 }
 
 interface Service {
@@ -107,7 +103,21 @@ interface Salon {
   licenseVerificationDate?: string;
 }
 
-// Use shared Invitation type from @/types/invitation
+interface Invitation {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  notes?: string;
+  favoriteServices: string[];
+  salonId?: number;
+  salonName?: string;
+  status?: string;
+  sponsor?: string;
+  firstServiceDate?: string;
+  createdAt: string;
+  inviteHash?: string;
+}
 
 interface ActivityLog {
   id: number;
@@ -850,13 +860,6 @@ export default function AdminDashboard() {
                   inviteCount={invitations.filter(invite => 
                     invite.status === 'complete' || invite.status === 'accepted'
                   ).length} 
-                  invitations={invitations.filter(invite => 
-                    (invite.status === 'complete' || invite.status === 'accepted')
-                  ).map(invite => ({
-                    ...invite,
-                    // Ensure status is never undefined
-                    status: invite.status || 'pending'
-                  }))}
                   showTitle={true}
                 />
               </div>
@@ -1088,7 +1091,7 @@ export default function AdminDashboard() {
                         <TableHead className="max-h-[30px] py-1">Name</TableHead>
                         <TableHead className="max-h-[30px] py-1">Email</TableHead>
                         <TableHead className="max-h-[30px] py-1">Phone</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Salon/Sponsor</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Salon</TableHead>
                         <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -1154,7 +1157,7 @@ export default function AdminDashboard() {
                             </TooltipProvider>
                           </TableCell>
                           
-                          {/* Salon/Sponsor name with truncation */}
+                          {/* Salon name with truncation */}
                           <TableCell className="py-0">
                             {client.salonName && client.salonName.length > 10 ? (
                               <TooltipProvider>
@@ -1166,17 +1169,11 @@ export default function AdminDashboard() {
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p>Salon: {client.salonName}</p>
-                                    {client.sponsor && <p>Sponsor: {client.sponsor}</p>}
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
                             ) : (
-                              <>
-                                {client.salonName ? 
-                                  <>Salon: {client.salonName}</> : 
-                                  (client.sponsor ? <>Sponsor: {client.sponsor}</> : 'N/A')
-                                }
-                              </>
+                              <>Salon: {client.salonName || 'N/A'}</>
                             )}
                           </TableCell>
                           
