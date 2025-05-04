@@ -9,17 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  AtSignIcon, 
-  ChevronDownIcon, 
-  ChevronUpIcon, 
-  PhoneIcon, 
-  SendIcon, 
-  UserIcon, 
-  BuildingIcon, 
-  UsersIcon,
-  AlertCircle
-} from "lucide-react";
+import { AtSignIcon, ChevronDownIcon, ChevronUpIcon, PhoneIcon, SendIcon, UserIcon, BuildingIcon, UsersIcon } from "lucide-react";
 import FlowLogger from "@/lib/flow-logger";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { queryClient } from "@/lib/queryClient";
@@ -47,19 +37,6 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
   useEffect(() => {
     FlowLogger.log('ClientInviteForm', 'Form Initialized', { clientId });
   }, [clientId]);
-
-  // Validation helpers
-  const isValidPhone = (phone: string) => {
-    // Allow formats like: (555) 123-4567, 555-123-4567, 5551234567
-    const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
-    return phoneRegex.test(phone);
-  };
-
-  const isValidEmail = (email: string) => {
-    if (!email) return true; // Email is optional
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -108,32 +85,11 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     }
   };
 
-  // Preview design button click handler
-  const handlePreviewDesign = () => {
-    // Validate form fields first
-    if (!form.name.trim()) {
-      toast({
-        title: "Name required",
-        description: form.inviteeType === "friend" 
-          ? "Please enter your friend's name" 
-          : "Please enter the salon owner's name",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Display a success toast
-    toast({
-      title: "Preview Generated!",
-      description: "Your invitation design has been previewed.",
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     FlowLogger.log('ClientInviteForm', 'Form Submit Initiated');
     
-    // Enhanced validation
+    // Simple validation
     if (!form.name.trim()) {
       FlowLogger.error('ClientInviteForm', 'Validation Failed - Name Required', new Error('Name is required'));
       toast({
@@ -152,28 +108,6 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
         title: "Contact info required",
         description: "Please enter either phone or email",
         variant: "destructive",
-      });
-      return;
-    }
-    
-    // Validate phone format if provided
-    if (form.phone && !isValidPhone(form.phone)) {
-      FlowLogger.error('ClientInviteForm', 'Validation Failed - Invalid Phone Format', new Error('Invalid phone format'));
-      toast({
-        title: "Invalid phone number",
-        description: "Please enter a valid phone number (e.g., (555) 123-4567)",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Validate email format if provided
-    if (form.email && !isValidEmail(form.email)) {
-      FlowLogger.error('ClientInviteForm', 'Validation Failed - Invalid Email Format', new Error('Invalid email format'));
-      toast({
-        title: "Invalid email",
-        description: "Please enter a valid email address",
-        variant: "destructive"
       });
       return;
     }
@@ -440,46 +374,20 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
             />
           </div>
           
-          {/* Add button row with Preview Design and Send Invitation buttons */}
-          <div className="flex gap-2 mt-2">
-            <Button 
-              type="button"
-              onClick={handlePreviewDesign}
-              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800"
-            >
-              PREVIEW DESIGN
-            </Button>
-            
-            <Button 
-              type="submit" 
-              disabled={loading}
-              className="flex-1 bg-pink-500 hover:bg-pink-600"
-            >
-              {loading ? (
-                "Sending..."
-              ) : (
-                <>
-                  <SendIcon className="h-4 w-4 mr-2" />
-                  Send Invitation
-                </>
-              )}
-            </Button>
-          </div>
-          
-          {/* Validation indicators */}
-          {form.phone && !isValidPhone(form.phone) && (
-            <div className="text-red-500 text-xs flex items-center mt-1">
-              <AlertCircle className="h-3 w-3 mr-1" />
-              Invalid phone format
-            </div>
-          )}
-          
-          {form.email && !isValidEmail(form.email) && (
-            <div className="text-red-500 text-xs flex items-center mt-1">
-              <AlertCircle className="h-3 w-3 mr-1" />
-              Invalid email format
-            </div>
-          )}
+          <Button 
+            type="submit" 
+            disabled={loading}
+            className="w-full bg-pink-500 hover:bg-pink-600"
+          >
+            {loading ? (
+              "Sending..."
+            ) : (
+              <>
+                <SendIcon className="h-4 w-4 mr-2" />
+                Send Invitation
+              </>
+            )}
+          </Button>
         </form>
       )}
     </div>

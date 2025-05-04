@@ -19,8 +19,7 @@ import {
   UserPlus as UserPlusIcon, 
   CreditCard as CreditCardIcon, 
   Calendar as CalendarIcon,
-  AlertTriangle, 
-  AlertCircle
+  AlertTriangle 
 } from "lucide-react";
 
 interface StyleOption {
@@ -231,48 +230,13 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     };
   }, [services]); // Add services as dependency to ensure proper validation
 
-  // Validation helpers
-  const isValidPhone = (phone: string) => {
-    // Allow formats like: (555) 123-4567, 555-123-4567, 5551234567
-    const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
-    return phoneRegex.test(phone);
-  };
-
-  const isValidEmail = (email: string) => {
-    if (!email) return true; // Email is optional
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
   // Function to handle recipient data submission
   const handleRecipientSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate required fields
     if (!recipientData.name || !recipientData.phone) {
       toast({
         title: "Missing information",
         description: "Please provide recipient name and phone number",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Validate phone format
-    if (!isValidPhone(recipientData.phone)) {
-      toast({
-        title: "Invalid phone number",
-        description: "Please enter a valid phone number (e.g., (555) 123-4567)",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    // Validate email format if provided
-    if (recipientData.email && !isValidEmail(recipientData.email)) {
-      toast({
-        title: "Invalid email",
-        description: "Please enter a valid email address",
         variant: "destructive"
       });
       return;
