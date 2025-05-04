@@ -50,6 +50,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   const [selectedStyleId, setSelectedStyleId] = useState<number | null>(null);
   const [personalMessage, setPersonalMessage] = useState("");
   const [invitationId, setInvitationId] = useState<number | null>(null);
+  const [vmbId] = useState(`VMB-${Math.random().toString(36).substring(2, 8).toUpperCase()}`);
 
   // If salonId is not provided, we need to fetch the salon associated with the client
   // or default to Tiffany's salon (ID: 2) which is the sponsor
@@ -443,7 +444,17 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                         <Button 
                           type="button"
                           className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-md py-1.5 h-9"
-                          onClick={() => setStep("payment")}
+                          onClick={() => {
+                            // Automatically move to the payment step when preview is clicked
+                            setStep("payment");
+                            // Ensure the payment section is visible after a short delay to allow for animation
+                            setTimeout(() => {
+                              const paymentSection = document.querySelector('[data-step="payment"]');
+                              if (paymentSection) {
+                                paymentSection.scrollIntoView({ behavior: 'smooth' });
+                              }
+                            }, 100);
+                          }}
                         >
                           PREVIEW DESIGN
                         </Button>
@@ -482,7 +493,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       )}
                       
                       <div className="text-center text-xs text-gray-400 my-2">
-                        VMB-6UVQYI
+                        {vmbId}
                       </div>
                       
                       <div className="flex justify-center space-x-3 mt-3">
@@ -511,7 +522,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       </div>
 
       {/* Payment Step */}
-      <div className="rounded-lg bg-pink-50 mb-6">
+      <div className="rounded-lg bg-pink-50 mb-6" data-step="payment">
         <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
              onClick={() => step === "payment" ? setStep("") : setStep("payment")}
              style={{opacity: (step === "payment" || step === "confirm") ? 1 : 0.5, pointerEvents: (step === "payment" || step === "confirm") ? 'auto' : 'none'}}>
@@ -583,13 +594,30 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     By sending this gift, you're inviting {recipientData.name} to enjoy a salon service at {client?.salonName || "your salon"}. They'll receive your invitation and can schedule their appointment directly.
                   </p>
                   
-                  <Button 
-                    onClick={handlePayment}
-                    className="w-full bg-pink-600 hover:bg-pink-700 text-white"
-                  >
-                    <CreditCardIcon className="mr-2 h-4 w-4" />
-                    Send Gift Invitation
-                  </Button>
+                  <div className="space-y-2">
+                    <Button 
+                      onClick={handlePayment}
+                      className="w-full bg-pink-600 hover:bg-pink-700 text-white"
+                    >
+                      <CreditCardIcon className="mr-2 h-4 w-4" />
+                      Send Gift Invitation
+                    </Button>
+                    
+                    <div className="flex justify-center space-x-3">
+                      <button className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center px-3 py-1.5 h-8 text-xs rounded-full shadow-sm">
+                        <FaMoneyBillWave className="h-3 w-3 mr-1" />
+                        Z
+                      </button>
+                      <button className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center px-3 py-1.5 h-8 text-xs rounded-full shadow-sm">
+                        <FaMoneyBillWave className="h-3 w-3 mr-1" />
+                        V
+                      </button>
+                      <button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-3 py-1.5 h-8 text-xs rounded-full shadow-sm">
+                        <FaMoneyBillWave className="h-3 w-3 mr-1" />
+                        CA
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
