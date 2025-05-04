@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { queryClient } from "@/lib/queryClient";
@@ -49,6 +50,43 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   const [selectedStyleId, setSelectedStyleId] = useState<number | null>(null);
   const [personalMessage, setPersonalMessage] = useState("");
   const [invitationId, setInvitationId] = useState<number | null>(null);
+  
+  // Default services to display when API fails or no services are found
+  const defaultServices = [
+    {
+      id: 1,
+      name: "French Tips",
+      description: "Classic French manicure with white tips",
+      price: 35,
+      duration: 45,
+      gifUrl: "/assets/french-tips.png"
+    },
+    {
+      id: 2,
+      name: "Gel Manicure",
+      description: "Long-lasting gel polish in your choice of color",
+      price: 40,
+      duration: 60,
+      gifUrl: "/assets/gel-manicure.png"
+    },
+    {
+      id: 3,
+      name: "Sculpted Acrylics",
+      description: "Full set of sculpted acrylic nails",
+      price: 55,
+      duration: 90,
+      gifUrl: "/assets/sculpted-acrylics.png",
+      featured: true
+    },
+    {
+      id: 4,
+      name: "Nail Art Design",
+      description: "Custom nail art and design",
+      price: 50,
+      duration: 75,
+      gifUrl: "/assets/glam-design.png"
+    }
+  ];
 
   // If salonId is not provided, we need to fetch the salon associated with the client
   // or default to Tiffany's salon (ID: 2) which is the sponsor
@@ -291,6 +329,29 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     });
   };
 
+  // Function to handle style selection
+  const handleSelectStyle = (service: StyleOption) => {
+    console.log(`GiftCreationFlow: Manually selected style ID: ${service.id}`);
+    setSelectedStyleId(service.id);
+    
+    // Update the styleOptions hidden field to trigger the mutation observer
+    const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
+    if (styleOptionsElement) {
+      const styleOptionsData = {
+        styleId: service.id,
+        clientId: clientId || 0,
+        salonId: useSalonId || 0,
+        invitationId: 0
+      };
+      styleOptionsElement.value = JSON.stringify(styleOptionsData);
+    }
+    
+    // Move to recipient step after a short delay
+    setTimeout(() => {
+      setStep("recipient");
+    }, 300);
+  };
+  
   // Function to handle gift creation confirmation
   const handleConfirm = () => {
     if (onComplete) {
@@ -327,97 +388,61 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <AlertTriangle className="h-10 w-10 text-red-500 mb-2" />
                 <h3 className="text-lg font-semibold text-red-800">Error Loading Services</h3>
-                <p className="text-sm text-gray-600 max-w-md mt-1">
+                <p className="text-sm text-gray-600 max-w-md mt-1 mb-4">
                   We couldn't load the salon services. Using default services instead.
                 </p>
                 
-                <VmbStyleOptions 
-                  salonId={useSalonId} 
-                  clientId={clientId}
-                  services={[
-                    {
-                      id: 1,
-                      name: "French Tips",
-                      description: "Classic French manicure with white tips",
-                      price: 35,
-                      duration: 45,
-                      gifUrl: "/assets/french-tips.png"
-                    },
-                    {
-                      id: 2,
-                      name: "Gel Manicure",
-                      description: "Long-lasting gel polish in your choice of color",
-                      price: 40,
-                      duration: 60,
-                      gifUrl: "/assets/gel-manicure.png"
-                    },
-                    {
-                      id: 3,
-                      name: "Sculpted Acrylics",
-                      description: "Full set of sculpted acrylic nails",
-                      price: 55,
-                      duration: 90,
-                      gifUrl: "/assets/sculpted-acrylics.png",
-                      featured: true
-                    },
-                    {
-                      id: 4,
-                      name: "Nail Art Design",
-                      description: "Custom nail art and design",
-                      price: 50,
-                      duration: 75,
-                      gifUrl: "/assets/glam-design.png"
-                    }
-                  ]}
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-2">
+                  {defaultServices.map(service => (
+                    <div 
+                      key={service.id}
+                      className={`border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${selectedStyleId === service.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200'}`}
+                      onClick={() => handleSelectStyle(service)}
+                    >
+                      <h4 className="font-semibold text-sm sm:text-base">{service.name}</h4>
+                      <p className="text-gray-600 text-sm mt-1">{service.description}</p>
+                      <div className="mt-2 flex justify-between items-center">
+                        <span className="text-pink-600 font-semibold">${service.price}</span>
+                        <span className="text-gray-500 text-sm">{service.duration} min</span>
+                      </div>
+                      {service.featured && (
+                        <div className="mt-2">
+                          <Badge variant="secondary" className="bg-pink-100 text-pink-800">Popular</Badge>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : services?.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <AlertTriangle className="h-10 w-10 text-amber-500 mb-2" />
                 <h3 className="text-lg font-semibold text-amber-800">No Services Found</h3>
-                <p className="text-sm text-gray-600 max-w-md mt-1">
+                <p className="text-sm text-gray-600 max-w-md mt-1 mb-4">
                   This salon has no services available. Using default services instead.
                 </p>
                 
-                <VmbStyleOptions 
-                  salonId={useSalonId} 
-                  clientId={clientId}
-                  services={[
-                    {
-                      id: 1,
-                      name: "French Tips",
-                      description: "Classic French manicure with white tips",
-                      price: 35,
-                      duration: 45,
-                      gifUrl: "/assets/french-tips.png"
-                    },
-                    {
-                      id: 2,
-                      name: "Gel Manicure",
-                      description: "Long-lasting gel polish in your choice of color",
-                      price: 40,
-                      duration: 60,
-                      gifUrl: "/assets/gel-manicure.png"
-                    },
-                    {
-                      id: 3,
-                      name: "Sculpted Acrylics",
-                      description: "Full set of sculpted acrylic nails",
-                      price: 55,
-                      duration: 90,
-                      gifUrl: "/assets/sculpted-acrylics.png",
-                      featured: true
-                    },
-                    {
-                      id: 4,
-                      name: "Nail Art Design",
-                      description: "Custom nail art and design",
-                      price: 50,
-                      duration: 75,
-                      gifUrl: "/assets/glam-design.png"
-                    }
-                  ]}
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-2">
+                  {defaultServices.map(service => (
+                    <div 
+                      key={service.id}
+                      className={`border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${selectedStyleId === service.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200'}`}
+                      onClick={() => handleSelectStyle(service)}
+                    >
+                      <h4 className="font-semibold text-sm sm:text-base">{service.name}</h4>
+                      <p className="text-gray-600 text-sm mt-1">{service.description}</p>
+                      <div className="mt-2 flex justify-between items-center">
+                        <span className="text-pink-600 font-semibold">${service.price}</span>
+                        <span className="text-gray-500 text-sm">{service.duration} min</span>
+                      </div>
+                      {service.featured && (
+                        <div className="mt-2">
+                          <Badge variant="secondary" className="bg-pink-100 text-pink-800">Popular</Badge>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               <VmbStyleOptions 
