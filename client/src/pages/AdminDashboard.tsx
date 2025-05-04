@@ -1186,16 +1186,16 @@ export default function AdminDashboard() {
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <span className="cursor-help">
-                                        Sponsor: {sponsorName.substring(0, 8)}...
+                                        {sponsorName.substring(0, 8)}...
                                       </span>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                      <p>Sponsor: {sponsorName}</p>
+                                      <p>{sponsorName}</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </TooltipProvider>
                               ) : (
-                                <>Sponsor: {sponsorName}</>
+                                <>{sponsorName}</>
                               );
                             })()}
                           </TableCell>
