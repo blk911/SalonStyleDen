@@ -305,129 +305,126 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       
       {/* Style Selection Step */}
       <div className="mb-6">
-        {/* Step 1 Header - Always shown */}
         <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
              onClick={() => step === "style" ? setStep("") : setStep("style")}>
           <h3 className="text-pink-800 font-semibold">
             STEP 1 Pick your style...
           </h3>
           <div className="flex items-center">
-            {selectedStyleId && <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />}
             <ChevronDownIcon className={`h-5 w-5 text-pink-800 transition-transform ${step === "style" ? "transform rotate-180" : ""}`} />
           </div>
         </div>
         
-        {/* Step 1 Content */}
-        <div className={step === "style" ? "block bg-pink-50" : "hidden"}>
-          {isLoadingServices ? (
-            <div className="p-8 flex flex-col items-center justify-center text-center">
-              <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
-              <span className="mt-2 text-gray-600">Loading salon services...</span>
-            </div>
-          ) : servicesError ? (
-            <div className="p-8 flex flex-col items-center justify-center text-center">
-              <AlertTriangle className="h-16 w-16 text-red-500 mb-2" />
-              <h3 className="text-xl font-semibold text-red-800 mt-4">Error Loading Services</h3>
-              <p className="text-gray-600 max-w-md mt-4 mb-8">
-                We couldn't load the salon services. Using default services instead.
-              </p>
-              
-              <VmbStyleOptions 
-                salonId={useSalonId} 
-                clientId={clientId}
-                services={[
-                  {
-                    id: 1,
-                    name: "French Tips",
-                    description: "Classic French manicure with white tips",
-                    price: 35,
-                    duration: 45,
-                    gifUrl: "/assets/french-tips.png"
-                  },
-                  {
-                    id: 2,
-                    name: "Gel Manicure",
-                    description: "Long-lasting gel polish in your choice of color",
-                    price: 40,
-                    duration: 60,
-                    gifUrl: "/assets/gel-manicure.png"
-                  },
-                  {
-                    id: 3,
-                    name: "Sculpted Acrylics",
-                    description: "Full set of sculpted acrylic nails",
-                    price: 55,
-                    duration: 90,
-                    gifUrl: "/assets/sculpted-acrylics.png",
-                    featured: true
-                  },
-                  {
-                    id: 4,
-                    name: "Nail Art Design",
-                    description: "Custom nail art and design",
-                    price: 50,
-                    duration: 75,
-                    gifUrl: "/assets/glam-design.png"
-                  }
-                ]}
-              />
-            </div>
-          ) : services?.length === 0 ? (
-            <div className="p-8 flex flex-col items-center justify-center text-center">
-              <AlertTriangle className="h-16 w-16 text-amber-500 mb-2" />
-              <h3 className="text-xl font-semibold text-amber-800 mt-4">No Services Found</h3>
-              <p className="text-gray-600 max-w-md mt-4 mb-8">
-                This salon has no services available. Using default services instead.
-              </p>
-              
-              <VmbStyleOptions 
-                salonId={useSalonId} 
-                clientId={clientId}
-                services={[
-                  {
-                    id: 1,
-                    name: "French Tips",
-                    description: "Classic French manicure with white tips",
-                    price: 35,
-                    duration: 45,
-                    gifUrl: "/assets/french-tips.png"
-                  },
-                  {
-                    id: 2,
-                    name: "Gel Manicure",
-                    description: "Long-lasting gel polish in your choice of color",
-                    price: 40,
-                    duration: 60,
-                    gifUrl: "/assets/gel-manicure.png"
-                  },
-                  {
-                    id: 3,
-                    name: "Sculpted Acrylics",
-                    description: "Full set of sculpted acrylic nails",
-                    price: 55,
-                    duration: 90,
-                    gifUrl: "/assets/sculpted-acrylics.png",
-                    featured: true
-                  },
-                  {
-                    id: 4,
-                    name: "Nail Art Design",
-                    description: "Custom nail art and design",
-                    price: 50,
-                    duration: 75,
-                    gifUrl: "/assets/glam-design.png"
-                  }
-                ]}
-              />
-            </div>
-          ) : (
+        {isLoadingServices ? (
+          <div className="bg-pink-50 p-8 flex flex-col items-center justify-center text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
+            <span className="mt-2 text-gray-600">Loading salon services...</span>
+          </div>
+        ) : servicesError ? (
+          <div className="bg-pink-50 p-8 flex flex-col items-center justify-center text-center">
+            <AlertTriangle className="h-16 w-16 text-red-500 mb-2" />
+            <h3 className="text-xl font-semibold text-red-800 mt-4">Error Loading Services</h3>
+            <p className="text-gray-600 max-w-md mt-4 mb-8">
+              We couldn't load the salon services. Using default services instead.
+            </p>
+            
+            <VmbStyleOptions 
+              salonId={useSalonId} 
+              clientId={clientId}
+              services={[
+                {
+                  id: 1,
+                  name: "French Tips",
+                  description: "Classic French manicure with white tips",
+                  price: 35,
+                  duration: 45,
+                  gifUrl: "/assets/french-tips.png"
+                },
+                {
+                  id: 2,
+                  name: "Gel Manicure",
+                  description: "Long-lasting gel polish in your choice of color",
+                  price: 40,
+                  duration: 60,
+                  gifUrl: "/assets/gel-manicure.png"
+                },
+                {
+                  id: 3,
+                  name: "Sculpted Acrylics",
+                  description: "Full set of sculpted acrylic nails",
+                  price: 55,
+                  duration: 90,
+                  gifUrl: "/assets/sculpted-acrylics.png",
+                  featured: true
+                },
+                {
+                  id: 4,
+                  name: "Nail Art Design",
+                  description: "Custom nail art and design",
+                  price: 50,
+                  duration: 75,
+                  gifUrl: "/assets/glam-design.png"
+                }
+              ]}
+            />
+          </div>
+        ) : services?.length === 0 ? (
+          <div className="bg-pink-50 p-8 flex flex-col items-center justify-center text-center">
+            <AlertTriangle className="h-16 w-16 text-amber-500 mb-2" />
+            <h3 className="text-xl font-semibold text-amber-800 mt-4">No Services Found</h3>
+            <p className="text-gray-600 max-w-md mt-4 mb-8">
+              This salon has no services available. Using default services instead.
+            </p>
+            
+            <VmbStyleOptions 
+              salonId={useSalonId} 
+              clientId={clientId}
+              services={[
+                {
+                  id: 1,
+                  name: "French Tips",
+                  description: "Classic French manicure with white tips",
+                  price: 35,
+                  duration: 45,
+                  gifUrl: "/assets/french-tips.png"
+                },
+                {
+                  id: 2,
+                  name: "Gel Manicure",
+                  description: "Long-lasting gel polish in your choice of color",
+                  price: 40,
+                  duration: 60,
+                  gifUrl: "/assets/gel-manicure.png"
+                },
+                {
+                  id: 3,
+                  name: "Sculpted Acrylics",
+                  description: "Full set of sculpted acrylic nails",
+                  price: 55,
+                  duration: 90,
+                  gifUrl: "/assets/sculpted-acrylics.png",
+                  featured: true
+                },
+                {
+                  id: 4,
+                  name: "Nail Art Design",
+                  description: "Custom nail art and design",
+                  price: 50,
+                  duration: 75,
+                  gifUrl: "/assets/glam-design.png"
+                }
+              ]}
+            />
+          </div>
+        ) : (
+          <div className={step === "style" ? "block" : "hidden"}>
             <VmbStyleOptions 
               salonId={useSalonId} 
               clientId={clientId}
               services={services}
             />
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Recipient Information Step */}
