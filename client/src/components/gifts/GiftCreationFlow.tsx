@@ -71,47 +71,19 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     }
   }, [clientId, useSalonId]);
 
-  // Fetch salon services in real-time
-  const { data: services, isLoading: isLoadingServices, error: servicesError } = useQuery({
+  // Fetch salon services using the query client, matching the salon dashboard pattern
+  const { data: services, isLoading: isLoadingServices, error: servicesError } = useQuery<StyleOption[]>({
     queryKey: [`/api/salons/${useSalonId}/services`],
-    queryFn: async () => {
-      try {
-        console.log(`GiftCreationFlow: Fetching real-time salon services for salon ID ${useSalonId}`);
-        const response = await fetch(`/api/salons/${useSalonId}/services`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch real-time salon services: ${response.status}`);
-        }
-        const servicesData = await response.json();
-        console.log(`GiftCreationFlow: Successfully fetched ${servicesData?.length || 0} real-time services`);
-        return servicesData;
-      } catch (error) {
-        console.error('Error fetching real-time salon services:', error);
-        throw error;
-      }
-    },
+    // Use the queryClient's default fetcher instead of custom fetch
     enabled: !!useSalonId, // Only fetch if we have a salonId
     refetchOnWindowFocus: true, // Refresh data when window regains focus
     staleTime: 30000 // Consider data fresh for 30 seconds
   });
 
-  // Fetch client details with their connected salon in real-time
+  // Fetch client details using the query client, matching salon dashboard pattern
   const { data: client, isLoading: isLoadingClient } = useQuery({
     queryKey: [`/api/clients/${clientId}`],
-    queryFn: async () => {
-      try {
-        console.log(`GiftCreationFlow: Fetching real-time client data for client ID ${clientId}`);
-        const response = await fetch(`/api/clients/${clientId}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch client data: ${response.status}`);
-        }
-        const clientData = await response.json();
-        console.log(`GiftCreationFlow: Client connected to salon: ${clientData?.salonName || 'None'}`);
-        return clientData;
-      } catch (error) {
-        console.error('Error fetching client data:', error);
-        throw error;
-      }
-    },
+    // Use the queryClient's default fetcher instead of custom fetch
     enabled: !!clientId,
     refetchOnWindowFocus: true, // Refresh data when window regains focus
     staleTime: 60000 // Consider data fresh for 1 minute
