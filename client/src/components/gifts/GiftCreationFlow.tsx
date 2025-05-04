@@ -336,7 +336,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               {services.map((service) => (
                 <div 
                   key={service.id} 
-                  className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'} cursor-pointer hover:border-pink-400 transition-colors duration-200 ${selectedStyleId === service.id ? 'border-pink-500 ring-1 ring-pink-500 bg-white' : 'bg-white'}`}
+                  className={`border rounded px-3 py-3 bg-white cursor-pointer hover:border-pink-400 transition-colors duration-200 ${selectedStyleId === service.id ? 'border-pink-500 ring-2 ring-pink-300' : 'border-gray-200'}`}
                   onClick={() => {
                     // Set selectedStyleId for UI
                     setSelectedStyleId(service.id);
