@@ -69,7 +69,10 @@ interface Client {
   phone: string;
   salonName?: string;
   isCurrentClient: boolean;
-  salonId?: number; // Added salonId to Client interface
+  salonId?: number; // Direct salon association
+  sponsor?: string; // Sponsor name
+  sponsorName?: string; // Sponsor display name
+  sponsorSalonId?: number; // Sponsor salon ID for linking
 }
 
 interface Service {
@@ -1091,7 +1094,7 @@ export default function AdminDashboard() {
                         <TableHead className="max-h-[30px] py-1">Name</TableHead>
                         <TableHead className="max-h-[30px] py-1">Email</TableHead>
                         <TableHead className="max-h-[30px] py-1">Phone</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Salon</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Salon/Sponsor</TableHead>
                         <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -1157,7 +1160,7 @@ export default function AdminDashboard() {
                             </TooltipProvider>
                           </TableCell>
                           
-                          {/* Salon name with truncation */}
+                          {/* Salon/Sponsor name with truncation */}
                           <TableCell className="py-0">
                             {client.salonName && client.salonName.length > 10 ? (
                               <TooltipProvider>
@@ -1169,11 +1172,17 @@ export default function AdminDashboard() {
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p>Salon: {client.salonName}</p>
+                                    {client.sponsor && <p>Sponsor: {client.sponsor}</p>}
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
                             ) : (
-                              <>Salon: {client.salonName || 'N/A'}</>
+                              <>
+                                {client.salonName ? 
+                                  <>Salon: {client.salonName}</> : 
+                                  (client.sponsor ? <>Sponsor: {client.sponsor}</> : 'N/A')
+                                }
+                              </>
                             )}
                           </TableCell>
                           
