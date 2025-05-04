@@ -334,7 +334,6 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       // Status information
       status: "pending",
       paymentStatus: "unpaid",
-      paymentMethod: paymentMethod, // Add the payment method selected by user
       
       // Unique tracking IDs for database relationships
       vmbId: vmbId,
@@ -346,17 +345,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       createdAt: new Date().toISOString(),
       clientSource: "client-portal",
       deviceInfo: navigator.userAgent,
-      flowType: "client-gift",
-      
-      // VMB system tracking info
-      systemInfo: {
-        createdInApp: true,
-        vmbVersion: "2.0",
-        source: "client-flow",
-        formType: "gift-creation",
-        phoneValidated: recipientData.phone && recipientData.phone.length >= 10,
-        completionTimestamp: new Date().toISOString()
-      }
+      flowType: "client-gift"
     };
     
     // Call the mutation to create the invitation
@@ -500,24 +489,11 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       <div>
                         <Input 
                           id="recipientPhone" 
-                          placeholder="Phone: Enter 10+ digit phone number" 
+                          placeholder="Phone: 555-555-5555 OR Email: you@example.com" 
                           value={recipientData.phone}
                           onChange={(e) => {
-                            // Only allow digits to be entered
-                            const value = e.target.value.replace(/\D/g, '');
-                            console.log("Phone input changed:", value);
-                            setRecipientData(prev => ({...prev, phone: value}));
-                          }}
-                          onBlur={(e) => {
-                            // Validate on blur that we have at least 10 digits
-                            const phoneDigits = e.target.value.replace(/\D/g, '');
-                            if (phoneDigits.length < 10) {
-                              toast({
-                                title: "Invalid Phone Number",
-                                description: "Please enter a valid phone number with at least 10 digits",
-                                variant: "destructive"
-                              });
-                            }
+                            console.log("Phone input changed:", e.target.value);
+                            setRecipientData(prev => ({...prev, phone: e.target.value}));
                           }}
                           required
                           className="border-pink-100 focus:border-pink-400 text-xs py-1.5 h-8"
@@ -626,16 +602,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                                 paymentSection.scrollIntoView({ behavior: 'smooth' });
                               }
                             }, 100);
-                            // Ensure we have required data before proceeding
-                            if (!recipientData.name || recipientData.phone.length < 10) {
-                              toast({
-                                title: "Missing Information",
-                                description: "Please complete name and phone before proceeding to payment",
-                                variant: "destructive"
-                              });
-                              return;
-                            }
-                            handlePayment('zelle');
+                            console.log("Preview payment method selected: Z (Zelle)");
                           }}
                           className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm"
                         >
@@ -653,16 +620,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                                 paymentSection.scrollIntoView({ behavior: 'smooth' });
                               }
                             }, 100);
-                            // Ensure we have required data before proceeding
-                            if (!recipientData.name || recipientData.phone.length < 10) {
-                              toast({
-                                title: "Missing Information",
-                                description: "Please complete name and phone before proceeding to payment",
-                                variant: "destructive"
-                              });
-                              return;
-                            }
-                            handlePayment('venmo');
+                            console.log("Preview payment method selected: V (Venmo)");
                           }}
                           className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm"
                         >
@@ -680,16 +638,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                                 paymentSection.scrollIntoView({ behavior: 'smooth' });
                               }
                             }, 100);
-                            // Ensure we have required data before proceeding
-                            if (!recipientData.name || recipientData.phone.length < 10) {
-                              toast({
-                                title: "Missing Information",
-                                description: "Please complete name and phone before proceeding to payment",
-                                variant: "destructive"
-                              });
-                              return;
-                            }
-                            handlePayment('cashapp');
+                            console.log("Preview payment method selected: CA (Cash App)");
                           }}
                           className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm"
                         >
