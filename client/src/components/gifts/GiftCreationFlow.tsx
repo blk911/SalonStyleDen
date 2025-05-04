@@ -136,16 +136,41 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
 
   // Function to handle payment
   const handlePayment = () => {
+    if (!selectedStyleId || !selectedStyle) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a service before proceeding",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (!recipientData.name || !recipientData.phone) {
+      toast({
+        title: "Missing Information",
+        description: "Please complete recipient information",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     toast({
       title: "Payment Processing",
       description: "This will be connected to Stripe payment processing",
     });
     
     // Create the gift in the database
-    createGiftMutation.mutate();
-    
-    // For now, we'll just proceed to the confirmation
-    setStep("confirm");
+    createGiftMutation.mutate(undefined, {
+      onSuccess: () => {
+        // Only move to confirmation step after successful creation
+        setStep("confirm");
+        
+        toast({
+          title: "Gift Created Successfully!",
+          description: `Your ${selectedStyle.name} gift has been sent to ${recipientData.name}`,
+        });
+      }
+    });
   };
 
   // Function to handle gift creation confirmation
