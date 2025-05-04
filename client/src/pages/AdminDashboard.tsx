@@ -10,7 +10,7 @@ import { Link } from 'wouter';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
-import InviteCompleteStatus from "@/components/dashboard/InviteCompleteStatus";
+import InviteCompleteStatus, { Invitation as InviteStatusInvitation } from "@/components/dashboard/InviteCompleteStatus";
 import { SvgVisualizer } from "@/components/visualization/SvgVisualizer";
 import { VisualizationSelector } from "@/components/visualization/VisualizationSelector";
 import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
@@ -863,6 +863,9 @@ export default function AdminDashboard() {
                   inviteCount={invitations.filter(invite => 
                     invite.status === 'complete' || invite.status === 'accepted'
                   ).length} 
+                  invitations={invitations.filter(invite => 
+                    invite.status === 'complete' || invite.status === 'accepted'
+                  )}
                   showTitle={true}
                 />
               </div>
