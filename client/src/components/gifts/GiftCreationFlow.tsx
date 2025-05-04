@@ -323,94 +323,52 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
                 <span className="ml-2 text-gray-600">Loading salon services...</span>
               </div>
-            ) : servicesError ? (
-              <div className="p-4">
-                <VmbStyleOptions 
-                  salonId={useSalonId} 
-                  clientId={clientId}
-                  services={[
-                    {
-                      id: 1,
-                      name: "French Tips",
-                      description: "Classic French manicure with white tips",
-                      price: 35,
-                      duration: 45,
-                      gifUrl: "/assets/french-tips.png"
-                    },
-                    {
-                      id: 2,
-                      name: "Gel Manicure",
-                      description: "Long-lasting gel polish in your choice of color",
-                      price: 40,
-                      duration: 60,
-                      gifUrl: "/assets/gel-manicure.png"
-                    },
-                    {
-                      id: 3,
-                      name: "Sculpted Acrylics",
-                      description: "Full set of sculpted acrylic nails",
-                      price: 55,
-                      duration: 90,
-                      gifUrl: "/assets/sculpted-acrylics.png",
-                      featured: true
-                    },
-                    {
-                      id: 4,
-                      name: "Nail Art Design",
-                      description: "Custom nail art and design",
-                      price: 50,
-                      duration: 75,
-                      gifUrl: "/assets/glam-design.png"
-                    }
-                  ]}
-                />
-              </div>
-            ) : services?.length === 0 ? (
-              <div className="p-4">
-                <VmbStyleOptions 
-                  salonId={useSalonId} 
-                  clientId={clientId}
-                  services={[
-                    {
-                      id: 1,
-                      name: "French Tips",
-                      description: "Classic French manicure with white tips",
-                      price: 35,
-                      duration: 45,
-                      gifUrl: "/assets/french-tips.png"
-                    },
-                    {
-                      id: 2,
-                      name: "Gel Manicure",
-                      description: "Long-lasting gel polish in your choice of color",
-                      price: 40,
-                      duration: 60,
-                      gifUrl: "/assets/gel-manicure.png"
-                    },
-                    {
-                      id: 3,
-                      name: "Sculpted Acrylics",
-                      description: "Full set of sculpted acrylic nails",
-                      price: 55,
-                      duration: 90,
-                      gifUrl: "/assets/sculpted-acrylics.png",
-                      featured: true
-                    },
-                    {
-                      id: 4,
-                      name: "Nail Art Design",
-                      description: "Custom nail art and design",
-                      price: 50,
-                      duration: 75,
-                      gifUrl: "/assets/glam-design.png"
-                    }
-                  ]}
-                />
-              </div>
+            ) : servicesError || services?.length === 0 ? (
+              <VmbStyleOptions 
+                salonId={useSalonId} 
+                clientId={clientId}
+                isIntegrated={true} /* Add this prop to indicate it's used in GiftCreationFlow */
+                services={[
+                  {
+                    id: 1,
+                    name: "French Tips",
+                    description: "Classic French manicure with white tips",
+                    price: 35,
+                    duration: 45,
+                    gifUrl: "/assets/french-tips.png"
+                  },
+                  {
+                    id: 2,
+                    name: "Gel Manicure",
+                    description: "Long-lasting gel polish in your choice of color",
+                    price: 40,
+                    duration: 60,
+                    gifUrl: "/assets/gel-manicure.png"
+                  },
+                  {
+                    id: 3,
+                    name: "Sculpted Acrylics",
+                    description: "Full set of sculpted acrylic nails",
+                    price: 55,
+                    duration: 90,
+                    gifUrl: "/assets/sculpted-acrylics.png",
+                    featured: true
+                  },
+                  {
+                    id: 4,
+                    name: "Nail Art Design",
+                    description: "Custom nail art and design",
+                    price: 50,
+                    duration: 75,
+                    gifUrl: "/assets/glam-design.png"
+                  }
+                ]}
+              />
             ) : (
               <VmbStyleOptions 
                 salonId={useSalonId} 
                 clientId={clientId}
+                isIntegrated={true}
                 services={services}
               />
             )}

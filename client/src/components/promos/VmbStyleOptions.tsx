@@ -97,6 +97,7 @@ interface VmbStyleOptionsProps {
   isPreviewMode?: boolean; // When viewing an existing invitation
   shouldPrefill?: boolean; // Whether to prefill form data
   prefilledServices?: string[]; // List of favorite services
+  isIntegrated?: boolean; // Used when component is embedded in another component that provides its own STEP headings
 }
 
 export function VmbStyleOptions({ 
