@@ -9,14 +9,27 @@ import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { Loader2 } from "lucide-react";
 import { 
   CheckCircleIcon, 
   ChevronRightIcon, 
   UserIcon,
   UserPlusIcon, 
   CreditCardIcon, 
-  CalendarIcon 
+  CalendarIcon,
+  AlertTriangle 
 } from "lucide-react";
+
+interface StyleOption {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  duration: number;
+  gifUrl?: string;
+  featured?: boolean;
+}
 
 interface GiftCreationFlowProps {
   clientId: number;
@@ -34,17 +47,118 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   });
   const [selectedStyleId, setSelectedStyleId] = useState<number | null>(null);
   const [personalMessage, setPersonalMessage] = useState("");
+  const [invitationId, setInvitationId] = useState<number | null>(null);
 
   // If salonId is not provided, we need to fetch the salon associated with the client
   // or default to Tiffany's salon (ID: 2) which is the sponsor
   const useSalonId = salonId || 2; // Default to Tiffany's salon if none specified
 
-  // Function to handle style selection
-  const handleStyleSelect = (styleId: number) => {
-    console.log(`Selected style ID: ${styleId}`);
-    setSelectedStyleId(styleId);
-    setStep("recipient");
-  };
+  // Fetch salon services
+  const { data: services, isLoading: isLoadingServices, error: servicesError } = useQuery({
+    queryKey: [`/api/salons/${useSalonId}/services`],
+    queryFn: async () => {
+      try {
+        const response = await fetch(`/api/salons/${useSalonId}/services`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch salon services: ${response.status}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching salon services:', error);
+        throw error;
+      }
+    },
+    enabled: !!useSalonId // Only fetch if we have a salonId
+  });
+
+  // Fetch client details
+  const { data: client, isLoading: isLoadingClient } = useQuery({
+    queryKey: [`/api/clients/${clientId}`],
+    queryFn: async () => {
+      try {
+        const response = await fetch(`/api/clients/${clientId}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch client: ${response.status}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching client:', error);
+        throw error;
+      }
+    },
+    enabled: !!clientId
+  });
+
+  // Create Invitation Mutation
+  const createInvitationMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await fetch("/api/invitations", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      console.log("Invitation created successfully:", data);
+      setInvitationId(data.id);
+      
+      // Invalidate relevant queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/invitations'] });
+      
+      // Move to confirmation step
+      setStep("confirm");
+      
+      toast({
+        title: "Gift Created!",
+        description: "Your gift invitation has been created successfully.",
+      });
+    },
+    onError: (error: any) => {
+      console.error("Error creating invitation:", error);
+      toast({
+        title: "Error",
+        description: `Failed to create invitation: ${error.message}`,
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Handle style selection - now watches for DOM changes to detect selection from VmbStyleOptions
+  useEffect(() => {
+    // Watch for changes in the DOM to detect style selection from VmbStyleOptions
+    const styleSelectionObserver = new MutationObserver((mutations) => {
+      // Check if we have a style selection form value
+      const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
+      if (styleOptionsElement && styleOptionsElement.value) {
+        try {
+          const styleData = JSON.parse(styleOptionsElement.value);
+          if (styleData && styleData.styleId) {
+            console.log(`Selected style ID: ${styleData.styleId}`);
+            setSelectedStyleId(styleData.styleId);
+            setStep("recipient");
+          }
+        } catch (error) {
+          console.error("Error parsing style selection data:", error);
+        }
+      }
+    });
+
+    // Start observing the document for changes
+    styleSelectionObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['value']
+    });
+
+    // Clean up observer on component unmount
+    return () => {
+      styleSelectionObserver.disconnect();
+    };
+  }, []);
 
   // Function to handle recipient data submission
   const handleRecipientSubmit = (e: React.FormEvent) => {
@@ -61,15 +175,50 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     setStep("payment");
   };
 
-  // Function to handle payment
+  // Function to handle payment and create the invitation
   const handlePayment = () => {
-    toast({
-      title: "Payment Processing",
-      description: "This will be connected to Stripe payment processing",
-    });
+    if (!selectedStyleId || !client) {
+      toast({
+        title: "Missing Information",
+        description: "Please complete all required steps first",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    // For now, we'll just proceed to the confirmation
-    setStep("confirm");
+    // Find the selected style to get details
+    const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
+    if (!selectedStyle) {
+      toast({
+        title: "Error",
+        description: "Selected style not found",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Create invitation data
+    const invitationData = {
+      name: recipientData.name,
+      phone: recipientData.phone,
+      email: recipientData.email || null,
+      message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. Will you Ven Me, Baby! ❤️`,
+      styleId: selectedStyleId,
+      stylePrice: selectedStyle.price,
+      styleName: selectedStyle.name,
+      clientId: clientId,
+      salonId: useSalonId,
+      status: "pending",
+      senderName: client.name
+    };
+    
+    // Call the mutation to create the invitation
+    createInvitationMutation.mutate(invitationData);
+    
+    toast({
+      title: "Processing Gift",
+      description: "Creating your gift invitation...",
+    });
   };
 
   // Function to handle gift creation confirmation
@@ -77,11 +226,6 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     if (onComplete) {
       onComplete();
     }
-    
-    toast({
-      title: "Gift Created!",
-      description: "Your gift has been successfully created",
-    });
   };
 
   return (
@@ -105,11 +249,114 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
           </AccordionTrigger>
           <AccordionContent>
             <div className="p-4">
-              <VmbStyleOptions 
-                salonId={useSalonId} 
-                onStyleSelect={handleStyleSelect}
-                clientId={clientId}
-              />
+              {isLoadingServices ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
+                  <span className="ml-2 text-gray-600">Loading salon services...</span>
+                </div>
+              ) : servicesError ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <AlertTriangle className="h-10 w-10 text-red-500 mb-2" />
+                  <h3 className="text-lg font-semibold text-red-800">Error Loading Services</h3>
+                  <p className="text-sm text-gray-600 max-w-md mt-1">
+                    We couldn't load the salon services. Using default services instead.
+                  </p>
+                  
+                  <VmbStyleOptions 
+                    salonId={useSalonId} 
+                    clientId={clientId}
+                    services={[
+                      {
+                        id: 1,
+                        name: "French Tips",
+                        description: "Classic French manicure with white tips",
+                        price: 35,
+                        duration: 45,
+                        gifUrl: "/assets/french-tips.png"
+                      },
+                      {
+                        id: 2,
+                        name: "Gel Manicure",
+                        description: "Long-lasting gel polish in your choice of color",
+                        price: 40,
+                        duration: 60,
+                        gifUrl: "/assets/gel-manicure.png"
+                      },
+                      {
+                        id: 3,
+                        name: "Sculpted Acrylics",
+                        description: "Full set of sculpted acrylic nails",
+                        price: 55,
+                        duration: 90,
+                        gifUrl: "/assets/sculpted-acrylics.png",
+                        featured: true
+                      },
+                      {
+                        id: 4,
+                        name: "Nail Art Design",
+                        description: "Custom nail art and design",
+                        price: 50,
+                        duration: 75,
+                        gifUrl: "/assets/glam-design.png"
+                      }
+                    ]}
+                  />
+                </div>
+              ) : services?.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <AlertTriangle className="h-10 w-10 text-amber-500 mb-2" />
+                  <h3 className="text-lg font-semibold text-amber-800">No Services Found</h3>
+                  <p className="text-sm text-gray-600 max-w-md mt-1">
+                    This salon has no services available. Using default services instead.
+                  </p>
+                  
+                  <VmbStyleOptions 
+                    salonId={useSalonId} 
+                    clientId={clientId}
+                    services={[
+                      {
+                        id: 1,
+                        name: "French Tips",
+                        description: "Classic French manicure with white tips",
+                        price: 35,
+                        duration: 45,
+                        gifUrl: "/assets/french-tips.png"
+                      },
+                      {
+                        id: 2,
+                        name: "Gel Manicure",
+                        description: "Long-lasting gel polish in your choice of color",
+                        price: 40,
+                        duration: 60,
+                        gifUrl: "/assets/gel-manicure.png"
+                      },
+                      {
+                        id: 3,
+                        name: "Sculpted Acrylics",
+                        description: "Full set of sculpted acrylic nails",
+                        price: 55,
+                        duration: 90,
+                        gifUrl: "/assets/sculpted-acrylics.png",
+                        featured: true
+                      },
+                      {
+                        id: 4,
+                        name: "Nail Art Design",
+                        description: "Custom nail art and design",
+                        price: 50,
+                        duration: 75,
+                        gifUrl: "/assets/glam-design.png"
+                      }
+                    ]}
+                  />
+                </div>
+              ) : (
+                <VmbStyleOptions 
+                  salonId={useSalonId} 
+                  clientId={clientId}
+                  services={services}
+                />
+              )}
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -220,18 +467,50 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   <CardTitle className="text-lg">Gift Summary</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Style ID:</span>
-                      <span className="font-medium">{selectedStyleId}</span>
+                  <div className="space-y-3">
+                    {/* Selected Style Info */}
+                    {selectedStyleId && services && (
+                      <div className="flex flex-col space-y-1 border-b pb-3">
+                        <div className="font-medium text-lg text-pink-700">
+                          {services.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Selected Style"}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {services.find((s: StyleOption) => s.id === selectedStyleId)?.description || "Custom nail service"}
+                        </div>
+                        <div className="flex justify-between mt-1">
+                          <span className="text-gray-600">Duration:</span>
+                          <span className="font-medium">
+                            {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration || 60} min
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Recipient Info */}
+                    <div className="flex flex-col space-y-2 border-b pb-3">
+                      <div className="font-medium">Recipient Details</div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Name:</span>
+                        <span className="font-medium">{recipientData.name}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Phone:</span>
+                        <span className="font-medium">{recipientData.phone}</span>
+                      </div>
+                      {recipientData.email && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Email:</span>
+                          <span className="font-medium">{recipientData.email}</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Recipient:</span>
-                      <span className="font-medium">{recipientData.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Total:</span>
-                      <span className="font-medium">$50.00</span>
+                    
+                    {/* Price Info */}
+                    <div className="flex justify-between pt-2 font-semibold text-lg">
+                      <span className="text-gray-700">Total:</span>
+                      <span className="text-pink-700">
+                        ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.price?.toFixed(2) || "50.00"}
+                      </span>
                     </div>
                   </div>
                   
