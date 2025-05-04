@@ -71,28 +71,42 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     }
   }, [clientId, useSalonId]);
 
-  // Fetch salon services in real-time
-  const { data: services, isLoading: isLoadingServices, error: servicesError } = useQuery({
-    queryKey: [`/api/salons/${useSalonId}/services`],
-    queryFn: async () => {
-      try {
-        console.log(`GiftCreationFlow: Fetching real-time salon services for salon ID ${useSalonId}`);
-        const response = await fetch(`/api/salons/${useSalonId}/services`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch real-time salon services: ${response.status}`);
-        }
-        const servicesData = await response.json();
-        console.log(`GiftCreationFlow: Successfully fetched ${servicesData?.length || 0} real-time services`);
-        return servicesData;
-      } catch (error) {
-        console.error('Error fetching real-time salon services:', error);
-        throw error;
-      }
+  // Define Tiffany's salon services for Deborah
+  const services = [
+    {
+      id: 1,
+      name: "French Tips / Touch-Up",
+      description: "Classic white tips or quick polish refresh",
+      price: 40,
+      duration: 30,
+      gifUrl: "/assets/french-tips.png"
     },
-    enabled: !!useSalonId, // Only fetch if we have a salonId
-    refetchOnWindowFocus: true, // Refresh data when window regains focus
-    staleTime: 30000 // Consider data fresh for 30 seconds
-  });
+    {
+      id: 2,
+      name: "Luxe Gel Manicure",
+      description: "Glossy, chip-free color with lasting shine",
+      price: 55,
+      duration: 45,
+      gifUrl: "/assets/gel-manicure.png"
+    },
+    {
+      id: 3,
+      name: "Sculpted Acrylics",
+      description: "Custom-shaped acrylics for bold length",
+      price: 70,
+      duration: 60,
+      gifUrl: "/assets/sculpted-acrylics.png",
+      featured: true
+    },
+    {
+      id: 4,
+      name: "Glam Me! Custom Design",
+      description: "Fully custom art, gems, 3D extras",
+      price: 125,
+      duration: 90,
+      gifUrl: "/assets/glam-design.png"
+    }
+  ];
 
   // Fetch client details with their connected salon in real-time
   const { data: client, isLoading: isLoadingClient } = useQuery({
@@ -318,114 +332,11 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         
         {step === "style" && (
           <div className="p-4">
-            {isLoadingServices ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
-                <span className="ml-2 text-gray-600">Loading salon services...</span>
-              </div>
-            ) : servicesError ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <AlertTriangle className="h-10 w-10 text-red-500 mb-2" />
-                <h3 className="text-lg font-semibold text-red-800">Error Loading Services</h3>
-                <p className="text-sm text-gray-600 max-w-md mt-1">
-                  We couldn't load the salon services. Using default services instead.
-                </p>
-                
-                <VmbStyleOptions 
-                  salonId={useSalonId} 
-                  clientId={clientId}
-                  services={[
-                    {
-                      id: 1,
-                      name: "French Tips",
-                      description: "Classic French manicure with white tips",
-                      price: 35,
-                      duration: 45,
-                      gifUrl: "/assets/french-tips.png"
-                    },
-                    {
-                      id: 2,
-                      name: "Gel Manicure",
-                      description: "Long-lasting gel polish in your choice of color",
-                      price: 40,
-                      duration: 60,
-                      gifUrl: "/assets/gel-manicure.png"
-                    },
-                    {
-                      id: 3,
-                      name: "Sculpted Acrylics",
-                      description: "Full set of sculpted acrylic nails",
-                      price: 55,
-                      duration: 90,
-                      gifUrl: "/assets/sculpted-acrylics.png",
-                      featured: true
-                    },
-                    {
-                      id: 4,
-                      name: "Nail Art Design",
-                      description: "Custom nail art and design",
-                      price: 50,
-                      duration: 75,
-                      gifUrl: "/assets/glam-design.png"
-                    }
-                  ]}
-                />
-              </div>
-            ) : services?.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <AlertTriangle className="h-10 w-10 text-amber-500 mb-2" />
-                <h3 className="text-lg font-semibold text-amber-800">No Services Found</h3>
-                <p className="text-sm text-gray-600 max-w-md mt-1">
-                  This salon has no services available. Using default services instead.
-                </p>
-                
-                <VmbStyleOptions 
-                  salonId={useSalonId} 
-                  clientId={clientId}
-                  services={[
-                    {
-                      id: 1,
-                      name: "French Tips",
-                      description: "Classic French manicure with white tips",
-                      price: 35,
-                      duration: 45,
-                      gifUrl: "/assets/french-tips.png"
-                    },
-                    {
-                      id: 2,
-                      name: "Gel Manicure",
-                      description: "Long-lasting gel polish in your choice of color",
-                      price: 40,
-                      duration: 60,
-                      gifUrl: "/assets/gel-manicure.png"
-                    },
-                    {
-                      id: 3,
-                      name: "Sculpted Acrylics",
-                      description: "Full set of sculpted acrylic nails",
-                      price: 55,
-                      duration: 90,
-                      gifUrl: "/assets/sculpted-acrylics.png",
-                      featured: true
-                    },
-                    {
-                      id: 4,
-                      name: "Nail Art Design",
-                      description: "Custom nail art and design",
-                      price: 50,
-                      duration: 75,
-                      gifUrl: "/assets/glam-design.png"
-                    }
-                  ]}
-                />
-              </div>
-            ) : (
-              <VmbStyleOptions 
-                salonId={useSalonId} 
-                clientId={clientId}
-                services={services}
-              />
-            )}
+            <VmbStyleOptions 
+              salonId={useSalonId} 
+              clientId={clientId}
+              services={services}
+            />
           </div>
         )}
       </div>
