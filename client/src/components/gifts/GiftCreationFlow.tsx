@@ -332,11 +332,45 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         
         {step === "style" && (
           <div className="p-4">
-            <VmbStyleOptions 
-              salonId={useSalonId} 
-              clientId={clientId}
-              services={services}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {services.map((service) => (
+                <div 
+                  key={service.id}
+                  className={`bg-white rounded-md border p-4 cursor-pointer hover:border-pink-400 transition-colors flex justify-between ${selectedStyleId === service.id ? 'border-pink-500 ring-1 ring-pink-500' : 'border-gray-200'}`}
+                  onClick={() => {
+                    // Set hidden field value for VmbStyleOptions compatibility
+                    const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
+                    if (styleOptionsElement) {
+                      styleOptionsElement.value = JSON.stringify({
+                        styleId: service.id,
+                        clientId: clientId,
+                        salonId: useSalonId
+                      });
+                      
+                      // Create and dispatch change event
+                      const event = new Event('change', { bubbles: true });
+                      styleOptionsElement.dispatchEvent(event);
+                    }
+                  }}
+                >
+                  <div>
+                    <h4 className="font-medium text-gray-900">{service.name}</h4>
+                    <p className="text-sm text-gray-600 mt-1">{service.description}</p>
+                    <div className="mt-2 text-pink-600 font-medium flex items-center">
+                      <span className="mr-3">${service.price}</span>
+                      <span className="text-xs text-gray-500">{service.duration} min</span>
+                    </div>
+                  </div>
+                  <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-pink-50">
+                    <img 
+                      src={service.gifUrl} 
+                      alt={service.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
