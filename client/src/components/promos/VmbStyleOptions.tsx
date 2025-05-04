@@ -97,7 +97,6 @@ interface VmbStyleOptionsProps {
   isPreviewMode?: boolean; // When viewing an existing invitation
   shouldPrefill?: boolean; // Whether to prefill form data
   prefilledServices?: string[]; // List of favorite services
-  isIntegrated?: boolean; // Used when component is embedded in another component that provides its own STEP headings
 }
 
 export function VmbStyleOptions({ 
@@ -111,8 +110,7 @@ export function VmbStyleOptions({
   initialStyleId,
   isPreviewMode = false,
   shouldPrefill = false,
-  prefilledServices = [],
-  isIntegrated = false // Whether this component is integrated in another component
+  prefilledServices = []
 }: VmbStyleOptionsProps) {
   // States for handling selection and popups
   const [selectedStyle, setSelectedStyle] = useState<StyleOption | null>(null);
@@ -655,27 +653,24 @@ export function VmbStyleOptions({
             <input type="hidden" name="method" value="POST" />
             
             <div className="vmb-style-options">
-              {/* STEP 1 - With Collapsible behavior (hidden when integrated) */}
+              {/* STEP 1 - With Collapsible behavior */}
               {showStep1 && (
                 <div className="rounded-md overflow-hidden mb-3">
-                  <Collapsible open={isIntegrated ? true : isStep1Open} onOpenChange={setIsStep1Open}>
-                    {/* Only show the STEP 1 heading if not integrated */}
-                    {!isIntegrated && (
-                      <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-t-md">
-                        <CollapsibleTrigger className="flex w-full items-center justify-between pb-2 pt-2 px-3">
-                          <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 1 Pick your style...</h2>
-                          <div className="h-6 w-6 flex items-center justify-center text-pink-700">
-                            {isStep1Open ? (
-                              <ChevronUpIcon className="h-5 w-5" />
-                            ) : (
-                              <ChevronDownIcon className="h-5 w-5" />
-                            )}
-                          </div>
-                        </CollapsibleTrigger>
-                      </div>
-                    )}
+                  <Collapsible open={isStep1Open} onOpenChange={setIsStep1Open}>
+                    <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-t-md">
+                      <CollapsibleTrigger className="flex w-full items-center justify-between pb-2 pt-2 px-3">
+                        <h2 className="font-medium text-sm sm:text-base text-pink-700">STEP 1 Pick your style...</h2>
+                        <div className="h-6 w-6 flex items-center justify-center text-pink-700">
+                          {isStep1Open ? (
+                            <ChevronUpIcon className="h-5 w-5" />
+                          ) : (
+                            <ChevronDownIcon className="h-5 w-5" />
+                          )}
+                        </div>
+                      </CollapsibleTrigger>
+                    </div>
                     
-                    <CollapsibleContent className={`bg-white ${!isIntegrated ? 'border border-pink-100 rounded-b-md' : ''} p-3`}>
+                    <CollapsibleContent className="bg-white border border-pink-100 rounded-b-md p-3">
                       <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'} gap-4`}>
                         {services.map((service) => (
                           <div 
@@ -719,8 +714,8 @@ export function VmbStyleOptions({
               {/* Add 6px spacing */}
               <div className="h-[6px]"></div>
               
-              {/* STEP 2 - With Collapsible behavior (hidden when integrated) */}
-              {showStep2 && !isIntegrated && (
+              {/* STEP 2 - With Collapsible behavior */}
+              {showStep2 && (
                 <div className="rounded-md overflow-hidden mb-3">
                   <Collapsible open={isStep2Open} onOpenChange={setIsStep2Open}>
                     <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-t-md">
@@ -995,7 +990,7 @@ export function VmbStyleOptions({
               {/* Step 3 rendering logic is based on showStep3 and confirmedStyle */}
               
               {/* STEP 3 - With Collapsible behavior - Always show in preview mode */}
-              {(showStep3 && confirmedStyle && !isIntegrated) && (
+              {(showStep3 && confirmedStyle) && (
                 <div className="rounded-md overflow-hidden mb-3">
                   <Collapsible open={isStep3Open} onOpenChange={setIsStep3Open}>
                     <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-t-md">

@@ -21,7 +21,6 @@ import {
   Calendar as CalendarIcon,
   AlertTriangle 
 } from "lucide-react";
-import { FaMoneyBillWave } from "react-icons/fa";
 
 interface StyleOption {
   id: number;
@@ -304,7 +303,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       {/* Hidden field for style selection data */}
       <input type="hidden" name="styleOptions" id="styleOptions" />
       
-      {/* Style Selection Section - STEP 1 */}
+      {/* Style Selection Step */}
       <div className="rounded-lg bg-pink-50 mb-6">
         <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
              onClick={() => step === "style" ? setStep("") : setStep("style")}>
@@ -324,52 +323,106 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <Loader2 className="h-8 w-8 animate-spin text-pink-600" />
                 <span className="ml-2 text-gray-600">Loading salon services...</span>
               </div>
-            ) : servicesError || services?.length === 0 ? (
-              <VmbStyleOptions 
-                salonId={useSalonId} 
-                clientId={clientId}
-                isIntegrated={true} /* Add this prop to indicate it's used in GiftCreationFlow */
-                services={[
-                  {
-                    id: 1,
-                    name: "French Tips",
-                    description: "Classic French manicure with white tips",
-                    price: 35,
-                    duration: 45,
-                    gifUrl: "/assets/french-tips.png"
-                  },
-                  {
-                    id: 2,
-                    name: "Gel Manicure",
-                    description: "Long-lasting gel polish in your choice of color",
-                    price: 40,
-                    duration: 60,
-                    gifUrl: "/assets/gel-manicure.png"
-                  },
-                  {
-                    id: 3,
-                    name: "Sculpted Acrylics",
-                    description: "Full set of sculpted acrylic nails",
-                    price: 55,
-                    duration: 90,
-                    gifUrl: "/assets/sculpted-acrylics.png",
-                    featured: true
-                  },
-                  {
-                    id: 4,
-                    name: "Nail Art Design",
-                    description: "Custom nail art and design",
-                    price: 50,
-                    duration: 75,
-                    gifUrl: "/assets/glam-design.png"
-                  }
-                ]}
-              />
+            ) : servicesError ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <AlertTriangle className="h-10 w-10 text-red-500 mb-2" />
+                <h3 className="text-lg font-semibold text-red-800">Error Loading Services</h3>
+                <p className="text-sm text-gray-600 max-w-md mt-1">
+                  We couldn't load the salon services. Using default services instead.
+                </p>
+                
+                <VmbStyleOptions 
+                  salonId={useSalonId} 
+                  clientId={clientId}
+                  services={[
+                    {
+                      id: 1,
+                      name: "French Tips",
+                      description: "Classic French manicure with white tips",
+                      price: 35,
+                      duration: 45,
+                      gifUrl: "/assets/french-tips.png"
+                    },
+                    {
+                      id: 2,
+                      name: "Gel Manicure",
+                      description: "Long-lasting gel polish in your choice of color",
+                      price: 40,
+                      duration: 60,
+                      gifUrl: "/assets/gel-manicure.png"
+                    },
+                    {
+                      id: 3,
+                      name: "Sculpted Acrylics",
+                      description: "Full set of sculpted acrylic nails",
+                      price: 55,
+                      duration: 90,
+                      gifUrl: "/assets/sculpted-acrylics.png",
+                      featured: true
+                    },
+                    {
+                      id: 4,
+                      name: "Nail Art Design",
+                      description: "Custom nail art and design",
+                      price: 50,
+                      duration: 75,
+                      gifUrl: "/assets/glam-design.png"
+                    }
+                  ]}
+                />
+              </div>
+            ) : services?.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <AlertTriangle className="h-10 w-10 text-amber-500 mb-2" />
+                <h3 className="text-lg font-semibold text-amber-800">No Services Found</h3>
+                <p className="text-sm text-gray-600 max-w-md mt-1">
+                  This salon has no services available. Using default services instead.
+                </p>
+                
+                <VmbStyleOptions 
+                  salonId={useSalonId} 
+                  clientId={clientId}
+                  services={[
+                    {
+                      id: 1,
+                      name: "French Tips",
+                      description: "Classic French manicure with white tips",
+                      price: 35,
+                      duration: 45,
+                      gifUrl: "/assets/french-tips.png"
+                    },
+                    {
+                      id: 2,
+                      name: "Gel Manicure",
+                      description: "Long-lasting gel polish in your choice of color",
+                      price: 40,
+                      duration: 60,
+                      gifUrl: "/assets/gel-manicure.png"
+                    },
+                    {
+                      id: 3,
+                      name: "Sculpted Acrylics",
+                      description: "Full set of sculpted acrylic nails",
+                      price: 55,
+                      duration: 90,
+                      gifUrl: "/assets/sculpted-acrylics.png",
+                      featured: true
+                    },
+                    {
+                      id: 4,
+                      name: "Nail Art Design",
+                      description: "Custom nail art and design",
+                      price: 50,
+                      duration: 75,
+                      gifUrl: "/assets/glam-design.png"
+                    }
+                  ]}
+                />
+              </div>
             ) : (
               <VmbStyleOptions 
                 salonId={useSalonId} 
                 clientId={clientId}
-                isIntegrated={true}
                 services={services}
               />
             )}
@@ -395,81 +448,58 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
           <div className="p-4">
             <form onSubmit={handleRecipientSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left column - "Your Invitation Design" */}
-                <div>
-                  <div className="bg-pink-50 p-4 rounded-md">
-                    <div className="font-medium text-center mb-3">Your Invitation Design</div>
-                    <div className="space-y-3">
-                      <div>
+                <div className="space-y-5">
+                  <div className="rounded-md border bg-white p-4">
+                    <div className="font-medium mb-2">Your Invitation Design</div>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
                         <Input 
                           id="recipientName" 
-                          placeholder="Who is your Ven Me, Baby!: Enter name" 
+                          placeholder="Recipient Name" 
                           value={recipientData.name}
                           onChange={(e) => setRecipientData({...recipientData, name: e.target.value})}
                           required
-                          className="border-pink-100 focus:border-pink-400 text-xs py-1.5 h-8"
+                          className="border-pink-200 focus:border-pink-400"
                         />
                       </div>
-                      <div>
+                      <div className="space-y-2">
                         <Input 
                           id="recipientPhone" 
-                          placeholder="Phone: 555-555-5555 OR Email: you@example.com" 
+                          placeholder="Recipient Phone" 
                           value={recipientData.phone}
                           onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
                           required
-                          className="border-pink-100 focus:border-pink-400 text-xs py-1.5 h-8"
+                          className="border-pink-200 focus:border-pink-400"
                         />
                       </div>
-                      <div className="hidden">
+                      <div className="space-y-2">
                         <Input 
                           id="recipientEmail" 
                           placeholder="Recipient Email (Optional)" 
                           value={recipientData.email}
                           onChange={(e) => setRecipientData({...recipientData, email: e.target.value})}
-                          className="border-pink-100 focus:border-pink-400 text-xs py-1.5 h-8"
+                          className="border-pink-200 focus:border-pink-400"
                         />
-                      </div>
-                      <div>
-                        <Input 
-                          id="senderName" 
-                          placeholder="SIGN HERE!" 
-                          value={client?.name || ""}
-                          className="border-pink-100 focus:border-pink-400 text-xs py-1.5 h-8"
-                          readOnly
-                        />
-                      </div>
-                      
-                      <div className="space-y-3 mt-4">
-                        <Button 
-                          type="button"
-                          className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-md py-1.5 h-9"
-                          onClick={() => setStep("payment")}
-                        >
-                          PREVIEW DESIGN
-                        </Button>
-                        <Button 
-                          type="button"
-                          className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-300 rounded-md py-1.5 h-9"
-                        >
-                          NEXT STEP
-                        </Button>
                       </div>
                     </div>
                   </div>
                 </div>
                 
-                {/* Right column - "Message Preview" */}
-                <div>
-                  <div className="bg-pink-50 p-4 rounded-md">
-                    <div className="font-medium text-center mb-3">Message Preview</div>
-                    <div className="border border-gray-200 rounded-lg p-3 bg-blue-50 text-xs relative">
-                      <div>
-                        Hi {recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! <span className="text-red-500">❤️ ❤️ ❤️</span> {client?.name || ""}
-                      </div>
+                <div className="space-y-5">
+                  <div className="rounded-md border bg-white p-4">
+                    <div className="font-medium mb-2">Message Preview</div>
+                    <div className="space-y-4">
+                      <Textarea 
+                        id="message" 
+                        placeholder={`Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! ❤️❤️❤️`}
+                        className="min-h-[120px] border-pink-200 focus:border-pink-400"
+                        value={personalMessage}
+                        onChange={(e) => setPersonalMessage(e.target.value)}
+                      />
                       
                       {selectedStyleId && services && (
-                        <div className="flex items-center my-3 p-2 bg-white rounded-md border border-gray-200 shadow-sm">
-                          <div className="flex-shrink-0 h-14 w-14 rounded-md overflow-hidden bg-gray-100">
+                        <div className="flex items-center p-2 rounded-md bg-pink-50 border border-pink-100">
+                          <div className="flex-shrink-0 h-12 w-12 rounded-md overflow-hidden bg-pink-200">
                             <img 
                               src={services.find((s: StyleOption) => s.id === selectedStyleId)?.gifUrl || '/assets/default-nail.png'} 
                               alt="Selected style"
@@ -477,43 +507,24 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                             />
                           </div>
                           <div className="ml-3">
-                            <div className="text-sm font-medium text-gray-800">
-                              {services.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Sculpted Acrylics"}
+                            <div className="text-sm font-medium text-pink-800">
+                              {services.find((s: StyleOption) => s.id === selectedStyleId)?.name}
                             </div>
-                            <div className="text-xs text-gray-600">
-                              ${services.find((s: StyleOption) => s.id === selectedStyleId)?.price || "70"} • {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration || "60"} min
+                            <div className="text-xs text-pink-600">
+                              ${services.find((s: StyleOption) => s.id === selectedStyleId)?.price} • {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration} min
                             </div>
                           </div>
                         </div>
                       )}
-                      
-                      <div className="text-center text-xs text-gray-400 my-2">
-                        VMB-6UVQYI
-                      </div>
-                      
-                      <div className="flex justify-center space-x-3 mt-3">
-                        <button className="bg-[#3D95CE] hover:bg-[#3272A0] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm">
-                          <FaMoneyBillWave className="h-3 w-3 mr-1" />
-                          Z
-                        </button>
-                        <button className="bg-[#008CFF] hover:bg-[#0070CC] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm">
-                          <FaMoneyBillWave className="h-3 w-3 mr-1" />
-                          V
-                        </button>
-                        <button className="bg-[#00D632] hover:bg-[#00B82D] text-white flex items-center px-3 py-1 h-7 text-xs rounded-full shadow-sm">
-                          <FaMoneyBillWave className="h-3 w-3 mr-1" />
-                          CA
-                        </button>
-                      </div>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div className="flex justify-center mt-4">
+              <div className="flex justify-end mt-4">
                 <Button 
                   type="submit" 
-                  className="bg-pink-600 hover:bg-pink-700 text-white px-6 rounded-full"
+                  className="bg-pink-600 hover:bg-pink-700 text-white px-6"
                 >
                   Continue
                   <ChevronRightIcon className="ml-2 h-4 w-4" />
