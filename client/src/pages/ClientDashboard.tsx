@@ -606,7 +606,7 @@ export default function ClientDashboard() {
               
               {/* Gifts Page Component */}
               <div className="bg-white rounded-xl shadow-md p-4 border border-pink-200 bg-gradient-to-b from-pink-50/50 to-white">
-                <GiftsPage clientId={client?.id} />
+                <GiftsPage />
               </div>
             </TabsContent>
             
