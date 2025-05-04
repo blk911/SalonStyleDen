@@ -80,8 +80,19 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     staleTime: 30000 // Consider data fresh for 30 seconds
   });
 
+  // Define client interface for type safety
+  interface Client {
+    id: number;
+    name: string;
+    phone: string;
+    email?: string;
+    salonName?: string;
+    salonId?: number;
+    [key: string]: any; // For other properties
+  }
+
   // Fetch client details using the query client, matching salon dashboard pattern
-  const { data: client, isLoading: isLoadingClient } = useQuery({
+  const { data: client, isLoading: isLoadingClient } = useQuery<Client>({
     queryKey: [`/api/clients/${clientId}`],
     // Use the queryClient's default fetcher instead of custom fetch
     enabled: !!clientId,
@@ -89,7 +100,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     staleTime: 60000 // Consider data fresh for 1 minute
   });
 
-  // Create Client-Driven Invitation Mutation
+  // Create Client-Driven Invitation Mutation - using apiRequest from queryClient
   const createInvitationMutation = useMutation({
     mutationFn: async (data: any) => {
       console.log("GiftCreationFlow: Creating client-driven invitation with data:", data);
@@ -101,20 +112,13 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         clientDriven: true // Explicit flag for client-driven invitations
       };
       
-      const response = await fetch("/api/invitations", {
+      // Use apiRequest from queryClient instead of direct fetch
+      const response = await apiRequest("/api/invitations", {
         method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(invitationWithSource)
+        data: invitationWithSource
       });
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to create invitation: ${response.status} - ${errorText}`);
-      }
-      
-      return await response.json();
+      return response;
     },
     onSuccess: (data) => {
       console.log("GiftCreationFlow: Client invitation created successfully:", data);
@@ -395,7 +399,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               <VmbStyleOptions 
                 salonId={useSalonId} 
                 clientId={clientId}
-                services={services}
+                services={services || []}
               />
             )}
           </div>
