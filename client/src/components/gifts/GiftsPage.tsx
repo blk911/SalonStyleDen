@@ -28,6 +28,7 @@ interface Invitation {
 
 export default function GiftsPage({ clientId = 10 }: GiftsPageProps) {
   const [showGiftCreation, setShowGiftCreation] = useState(false);
+  const { toast } = useToast();
   
   // Fetch gifts received by this client
   const { data: receivedGifts, isLoading } = useQuery({
@@ -52,6 +53,82 @@ export default function GiftsPage({ clientId = 10 }: GiftsPageProps) {
       return response.json() as Promise<Invitation[]>;
     },
   });
+  
+  // Mutation to accept a gift
+  const acceptGiftMutation = useMutation({
+    mutationFn: async (invitationId: number) => {
+      const response = await fetch(`/api/invitations/${invitationId}/accept`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ clientId })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to accept gift");
+      }
+      
+      return await response.json();
+    },
+    onSuccess: () => {
+      // Invalidate both received and sent gifts queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/received-gifts`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/sent-gifts`] });
+      
+      toast({
+        title: "Gift Accepted!",
+        description: "You've successfully accepted the gift",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error Accepting Gift",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+  
+  // Mutation to complete payment for a gift
+  const completePaymentMutation = useMutation({
+    mutationFn: async (invitationId: number) => {
+      const response = await fetch(`/api/invitations/${invitationId}/payment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          clientId,
+          paymentStatus: "paid" 
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to process payment");
+      }
+      
+      return await response.json();
+    },
+    onSuccess: () => {
+      // Only need to invalidate the sent gifts query since we're updating gifts sent by this client
+      queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/sent-gifts`] });
+      
+      toast({
+        title: "Payment Completed!",
+        description: "Your gift payment has been processed successfully",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Payment Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
 
   // Function to render gift status badge
   const renderStatusBadge = (status: string) => {
@@ -70,6 +147,27 @@ export default function GiftsPage({ clientId = 10 }: GiftsPageProps) {
     return (
       <span className={`text-xs font-medium px-2 py-1 rounded ${badgeColor}`}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
+  };
+  
+  // Function to render payment status badge, if available
+  const renderPaymentBadge = (paymentStatus?: string) => {
+    if (!paymentStatus) return null;
+    
+    let badgeColor = "bg-gray-200 text-gray-800";
+    
+    if (paymentStatus === "pending") {
+      badgeColor = "bg-yellow-100 text-yellow-800";
+    } else if (paymentStatus === "paid") {
+      badgeColor = "bg-green-100 text-green-800";
+    } else if (paymentStatus === "failed") {
+      badgeColor = "bg-red-100 text-red-800";
+    }
+    
+    return (
+      <span className={`text-xs font-medium px-2 py-1 rounded ${badgeColor} mt-1`}>
+        Payment: {paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}
       </span>
     );
   };
@@ -149,8 +247,18 @@ export default function GiftsPage({ clientId = 10 }: GiftsPageProps) {
                   </div>
                   <div className="flex flex-col items-end space-y-2">
                     {renderStatusBadge(gift.status)}
+                    {renderPaymentBadge(gift.paymentStatus)}
                     {gift.status === "pending" && (
-                      <Button size="sm" variant="outline" className="text-xs h-7">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-xs h-7"
+                        onClick={() => acceptGiftMutation.mutate(gift.id)}
+                        disabled={acceptGiftMutation.isPending}
+                      >
+                        {acceptGiftMutation.isPending && acceptGiftMutation.variables === gift.id ? (
+                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        ) : null}
                         Accept Gift
                       </Button>
                     )}
@@ -183,8 +291,23 @@ export default function GiftsPage({ clientId = 10 }: GiftsPageProps) {
                       {new Date(gift.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <div>
+                  <div className="flex flex-col items-end space-y-2">
                     {renderStatusBadge(gift.status)}
+                    {renderPaymentBadge(gift.paymentStatus)}
+                    {gift.status === "pending" && gift.paymentStatus !== "paid" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-7"
+                        onClick={() => completePaymentMutation.mutate(gift.id)}
+                        disabled={completePaymentMutation.isPending}
+                      >
+                        {completePaymentMutation.isPending && completePaymentMutation.variables === gift.id ? (
+                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        ) : null}
+                        Complete Payment
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
