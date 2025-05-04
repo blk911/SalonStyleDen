@@ -335,9 +335,12 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {services.map((service) => (
                 <div 
-                  key={service.id}
-                  className={`bg-white rounded-md border p-4 cursor-pointer hover:border-pink-400 transition-colors flex justify-between ${selectedStyleId === service.id ? 'border-pink-500 ring-1 ring-pink-500' : 'border-gray-200'}`}
+                  key={service.id} 
+                  className={`border rounded px-2 py-2 ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'} cursor-pointer hover:border-pink-400 transition-colors duration-200 ${selectedStyleId === service.id ? 'border-pink-500 ring-1 ring-pink-500 bg-white' : 'bg-white'}`}
                   onClick={() => {
+                    // Set selectedStyleId for UI
+                    setSelectedStyleId(service.id);
+                    
                     // Set hidden field value for VmbStyleOptions compatibility
                     const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
                     if (styleOptionsElement) {
@@ -353,20 +356,30 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     }
                   }}
                 >
-                  <div>
-                    <h4 className="font-medium text-gray-900">{service.name}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{service.description}</p>
-                    <div className="mt-2 text-pink-600 font-medium flex items-center">
-                      <span className="mr-3">${service.price}</span>
-                      <span className="text-xs text-gray-500">{service.duration} min</span>
+                  <div className="flex">
+                    {/* Left side - Text (2/3) */}
+                    <div className="w-2/3 text-left pr-2">
+                      <h3 className="font-medium text-compact">{service.name}</h3>
+                      <p className="text-mini text-gray-600">{service.description}</p>
+                      
+                      <div className="mt-1 flex items-center gap-2">
+                        <span className="font-bold text-compact">${Math.round(service.price)}</span>
+                        <span className="text-micro">{service.duration} min</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-pink-50">
-                    <img 
-                      src={service.gifUrl} 
-                      alt={service.name}
-                      className="w-full h-full object-cover"
-                    />
+                    
+                    {/* Right side - Image (1/3) */}
+                    <div className="w-1/3 flex items-center justify-end pl-2">
+                      <img 
+                        src={service.gifUrl} 
+                        alt={service.name}
+                        className="h-20 w-20 object-cover rounded-md"
+                        onError={(e) => {
+                          // Fallback to default image
+                          e.currentTarget.src = '/assets/LOGO1.png';
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
