@@ -44,6 +44,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     email: ""
   });
   const [selectedStyleId, setSelectedStyleId] = useState<number | null>(null);
+  const [selectedStyle, setSelectedStyle] = useState<StyleOption | null>(null);
   const [personalMessage, setPersonalMessage] = useState("");
 
   // If salonId is not provided, we need to fetch the salon associated with the client
@@ -62,6 +63,16 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     },
     enabled: !!useSalonId, // Only fetch if we have a salonId
   });
+  
+  // When services are loaded, find the selected style by ID
+  useEffect(() => {
+    if (salonServices && selectedStyleId) {
+      const style = salonServices.find(service => service.id === selectedStyleId);
+      if (style) {
+        setSelectedStyle(style);
+      }
+    }
+  }, [salonServices, selectedStyleId]);
 
   // Function to handle style selection
   const handleStyleSelect = (styleId: number) => {
@@ -85,12 +96,53 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     setStep("payment");
   };
 
+  // Function to create a new gift (invitation)
+  const createGiftMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedStyleId || !selectedStyle) {
+        throw new Error("No style selected");
+      }
+      
+      const giftData = {
+        name: recipientData.name,
+        phone: recipientData.phone,
+        email: recipientData.email || null,
+        salonId: useSalonId,
+        sponsor: `Client:${clientId}`, // This indicates the gift was sent by a client, not a salon
+        message: personalMessage,
+        styleId: selectedStyleId,
+        status: "pending", // Status will be updated when recipient accepts
+        paymentStatus: "paid" // In a real implementation, this would be set after Stripe confirms payment
+      };
+      
+      // apiRequest already handles response processing and error throwing
+      return await apiRequest("/api/invitations", {
+        method: "POST",
+        data: giftData
+      });
+    },
+    onSuccess: () => {
+      // Invalidate any queries that fetch invitations to ensure the UI is updated
+      queryClient.invalidateQueries({ queryKey: ["/api/invitations"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error Creating Gift",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+
   // Function to handle payment
   const handlePayment = () => {
     toast({
       title: "Payment Processing",
       description: "This will be connected to Stripe payment processing",
     });
+    
+    // Create the gift in the database
+    createGiftMutation.mutate();
     
     // For now, we'll just proceed to the confirmation
     setStep("confirm");
@@ -254,8 +306,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <CardContent>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Style ID:</span>
-                      <span className="font-medium">{selectedStyleId}</span>
+                      <span className="text-gray-600">Service:</span>
+                      <span className="font-medium">{selectedStyle?.name || 'Selected Service'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Recipient:</span>
@@ -263,7 +315,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Total:</span>
-                      <span className="font-medium">$50.00</span>
+                      <span className="font-medium">${selectedStyle?.price.toFixed(2) || '0.00'}</span>
                     </div>
                   </div>
                   
@@ -275,9 +327,19 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     <Button 
                       onClick={handlePayment}
                       className="w-full bg-pink-600 hover:bg-pink-700 text-white"
+                      disabled={createGiftMutation.isPending}
                     >
-                      <CreditCardIcon className="mr-2 h-4 w-4" />
-                      Process Payment
+                      {createGiftMutation.isPending ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CreditCardIcon className="mr-2 h-4 w-4" />
+                          Process Payment
+                        </>
+                      )}
                     </Button>
                   </div>
                 </CardContent>
@@ -309,9 +371,27 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               <div className="text-center p-6 bg-green-50 rounded-lg">
                 <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-green-800 mb-2">Gift Creation Successful!</h3>
-                <p className="text-green-700 mb-6">
-                  Your gift has been created and will be sent to {recipientData.name}.
-                </p>
+                <div className="text-green-700 mb-6 space-y-2">
+                  <p>
+                    Your gift of <span className="font-medium">{selectedStyle?.name}</span> has been created and will be sent to {recipientData.name}.
+                  </p>
+                  <div className="mx-auto max-w-sm mt-4 bg-white border border-green-200 rounded-lg p-4 text-left">
+                    <h4 className="font-semibold text-green-800 mb-2 text-sm">Gift Summary</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <span className="text-gray-600">Service:</span>
+                      <span className="font-medium">{selectedStyle?.name}</span>
+                      
+                      <span className="text-gray-600">Recipient:</span>
+                      <span className="font-medium">{recipientData.name}</span>
+                      
+                      <span className="text-gray-600">Phone:</span>
+                      <span className="font-medium">{recipientData.phone}</span>
+                      
+                      <span className="text-gray-600">Amount Paid:</span>
+                      <span className="font-medium">${selectedStyle?.price.toFixed(2) || '0.00'}</span>
+                    </div>
+                  </div>
+                </div>
                 
                 <Button 
                   onClick={handleConfirm}
