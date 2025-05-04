@@ -672,7 +672,7 @@ export function VmbStyleOptions({
                     
                     <CollapsibleContent className="bg-white border border-pink-100 rounded-b-md p-3">
                       <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'} gap-4`}>
-                        {Array.isArray(services) && services.map((service) => (
+                        {services.map((service) => (
                           <div 
                             key={service.id} 
                             className={`border rounded ${isMobile ? 'px-2 py-1' : 'px-2 py-2'} ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'} cursor-pointer hover:border-pink-400 transition-colors duration-200`}

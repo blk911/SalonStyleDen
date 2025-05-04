@@ -71,36 +71,53 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     }
   }, [clientId, useSalonId]);
 
-  // Fetch salon services using the query client, matching the salon dashboard pattern
-  const { data: services, isLoading: isLoadingServices, error: servicesError } = useQuery<StyleOption[]>({
+  // Fetch salon services in real-time
+  const { data: services, isLoading: isLoadingServices, error: servicesError } = useQuery({
     queryKey: [`/api/salons/${useSalonId}/services`],
-    // Use the queryClient's default fetcher instead of custom fetch
+    queryFn: async () => {
+      try {
+        console.log(`GiftCreationFlow: Fetching real-time salon services for salon ID ${useSalonId}`);
+        const response = await fetch(`/api/salons/${useSalonId}/services`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch real-time salon services: ${response.status}`);
+        }
+        const servicesData = await response.json();
+        console.log(`GiftCreationFlow: Successfully fetched ${servicesData?.length || 0} real-time services`);
+        return servicesData;
+      } catch (error) {
+        console.error('Error fetching real-time salon services:', error);
+        throw error;
+      }
+    },
     enabled: !!useSalonId, // Only fetch if we have a salonId
     refetchOnWindowFocus: true, // Refresh data when window regains focus
     staleTime: 30000 // Consider data fresh for 30 seconds
   });
 
-  // Define client interface for type safety
-  interface Client {
-    id: number;
-    name: string;
-    phone: string;
-    email?: string;
-    salonName?: string;
-    salonId?: number;
-    [key: string]: any; // For other properties
-  }
-
-  // Fetch client details using the query client, matching salon dashboard pattern
-  const { data: client, isLoading: isLoadingClient } = useQuery<Client>({
+  // Fetch client details with their connected salon in real-time
+  const { data: client, isLoading: isLoadingClient } = useQuery({
     queryKey: [`/api/clients/${clientId}`],
-    // Use the queryClient's default fetcher instead of custom fetch
+    queryFn: async () => {
+      try {
+        console.log(`GiftCreationFlow: Fetching real-time client data for client ID ${clientId}`);
+        const response = await fetch(`/api/clients/${clientId}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch client data: ${response.status}`);
+        }
+        const clientData = await response.json();
+        console.log(`GiftCreationFlow: Client connected to salon: ${clientData?.salonName || 'None'}`);
+        return clientData;
+      } catch (error) {
+        console.error('Error fetching client data:', error);
+        throw error;
+      }
+    },
     enabled: !!clientId,
     refetchOnWindowFocus: true, // Refresh data when window regains focus
     staleTime: 60000 // Consider data fresh for 1 minute
   });
 
-  // Create Client-Driven Invitation Mutation - using apiRequest from queryClient
+  // Create Client-Driven Invitation Mutation
   const createInvitationMutation = useMutation({
     mutationFn: async (data: any) => {
       console.log("GiftCreationFlow: Creating client-driven invitation with data:", data);
@@ -112,13 +129,20 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         clientDriven: true // Explicit flag for client-driven invitations
       };
       
-      // Use apiRequest from queryClient instead of direct fetch
-      const response = await apiRequest("/api/invitations", {
+      const response = await fetch("/api/invitations", {
         method: "POST",
-        data: invitationWithSource
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(invitationWithSource)
       });
       
-      return response;
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to create invitation: ${response.status} - ${errorText}`);
+      }
+      
+      return await response.json();
     },
     onSuccess: (data) => {
       console.log("GiftCreationFlow: Client invitation created successfully:", data);
@@ -399,7 +423,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               <VmbStyleOptions 
                 salonId={useSalonId} 
                 clientId={clientId}
-                services={Array.isArray(services) ? services : []}
+                services={services}
               />
             )}
           </div>
@@ -467,13 +491,13 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     <div className="space-y-4">
                       <Textarea 
                         id="message" 
-                        placeholder={`Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${Array.isArray(services) && services.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! ❤️❤️❤️`}
+                        placeholder={`Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! ❤️❤️❤️`}
                         className="min-h-[120px] border-pink-200 focus:border-pink-400"
                         value={personalMessage}
                         onChange={(e) => setPersonalMessage(e.target.value)}
                       />
                       
-                      {selectedStyleId && Array.isArray(services) && (
+                      {selectedStyleId && services && (
                         <div className="flex items-center p-2 rounded-md bg-pink-50 border border-pink-100">
                           <div className="flex-shrink-0 h-12 w-12 rounded-md overflow-hidden bg-pink-200">
                             <img 
@@ -534,7 +558,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               <CardContent>
                 <div className="space-y-3">
                   {/* Selected Style Info */}
-                  {selectedStyleId && Array.isArray(services) && (
+                  {selectedStyleId && services && (
                     <div className="flex flex-col space-y-1 border-b pb-3">
                       <div className="font-medium text-lg text-pink-700">
                         {services.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Selected Style"}
