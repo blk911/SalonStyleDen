@@ -44,7 +44,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   const [recipientData, setRecipientData] = useState({
     name: "",
     phone: "",
-    email: ""
+    email: "",
+    signature: ""
   });
   const [selectedStyleId, setSelectedStyleId] = useState<number | null>(null);
   const [personalMessage, setPersonalMessage] = useState("");
@@ -404,76 +405,123 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         
         {step === "recipient" && (
           <div className="p-4">
-            <form onSubmit={handleRecipientSubmit} className="space-y-4">
+            <form onSubmit={handleRecipientSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-5">
-                  <div className="rounded-md border bg-white p-4">
-                    <div className="font-medium mb-2">Your Invitation Design</div>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Input 
-                          id="recipientName" 
-                          placeholder="Recipient Name" 
-                          value={recipientData.name}
-                          onChange={(e) => setRecipientData({...recipientData, name: e.target.value})}
-                          required
-                          className="border-pink-200 focus:border-pink-400"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Input 
-                          id="recipientPhone" 
-                          placeholder="Recipient Phone" 
-                          value={recipientData.phone}
-                          onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
-                          required
-                          className="border-pink-200 focus:border-pink-400"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Input 
-                          id="recipientEmail" 
-                          placeholder="Recipient Email (Optional)" 
-                          value={recipientData.email}
-                          onChange={(e) => setRecipientData({...recipientData, email: e.target.value})}
-                          className="border-pink-200 focus:border-pink-400"
-                        />
-                      </div>
+                {/* Left column - Invitation Design */}
+                <div>
+                  <div className="text-center mb-2 font-medium">Your Invitation Design</div>
+                  <div className="space-y-2 p-2 border border-dashed border-pink-200 rounded-md">
+                    <input 
+                      type="text"
+                      placeholder="Who is your Ven Me, Baby!: Enter name"
+                      className="w-full p-1.5 text-sm border border-pink-100 rounded"
+                      value={recipientData.name}
+                      onChange={(e) => {
+                        setRecipientData({...recipientData, name: e.target.value});
+                        
+                        // Update message by replacing [NAME] with the actual name
+                        const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
+                        const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
+                        
+                        // Create message with placeholders filled
+                        const updatedMessage = `Hi ${e.target.value || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.signature || "[SIGNED]"}`;
+                        setPersonalMessage(updatedMessage);
+                      }}
+                      required
+                    />
+                    
+                    <input 
+                      type="text"
+                      placeholder="Phone: 555-555-5555 OR Email: you@example.com"
+                      className="w-full p-1.5 text-sm border border-pink-100 rounded"
+                      value={recipientData.phone}
+                      onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
+                      required
+                    />
+                    
+                    <input 
+                      type="text"
+                      placeholder="SIGN HERE!"
+                      className="w-full p-1.5 text-sm border border-pink-100 rounded"
+                      value={recipientData.signature || ""}
+                      onChange={(e) => {
+                        setRecipientData({...recipientData, signature: e.target.value});
+                        
+                        // Update message signature
+                        const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
+                        const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
+                        
+                        // Create message with updated signature
+                        const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || "[SIGNED]"}`;
+                        setPersonalMessage(updatedMessage);
+                      }}
+                    />
+                    
+                    <div className="flex justify-center mt-3">
+                      <button 
+                        type="button"
+                        className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-1.5 px-4 rounded"
+                        onClick={() => {
+                          toast({
+                            title: "Design Preview",
+                            description: "Invitation preview being prepared...",
+                            variant: "default"
+                          });
+                        }}
+                      >
+                        PREVIEW DESIGN
+                      </button>
                     </div>
                   </div>
                 </div>
                 
-                <div className="space-y-5">
-                  <div className="rounded-md border bg-white p-4">
-                    <div className="font-medium mb-2">Message Preview</div>
-                    <div className="space-y-4">
-                      <Textarea 
-                        id="message" 
-                        placeholder={`Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! ❤️❤️❤️`}
-                        className="min-h-[120px] border-pink-200 focus:border-pink-400"
-                        value={personalMessage}
-                        onChange={(e) => setPersonalMessage(e.target.value)}
-                      />
-                      
-                      {selectedStyleId && services && (
-                        <div className="flex items-center p-2 rounded-md bg-pink-50 border border-pink-100">
-                          <div className="flex-shrink-0 h-12 w-12 rounded-md overflow-hidden bg-pink-200">
-                            <img 
-                              src={services.find((s: StyleOption) => s.id === selectedStyleId)?.gifUrl || '/assets/default-nail.png'} 
-                              alt="Selected style"
-                              className="h-full w-full object-cover"
-                            />
+                {/* Right column - Message Preview */}
+                <div>
+                  <div className="text-center mb-2 font-medium">Message Preview</div>
+                  <div className="border border-dashed border-pink-200 rounded-md p-2">
+                    {/* Message preview */}
+                    <div className="rounded-lg p-2 bg-blue-50 border border-blue-100 mb-2">
+                      {personalMessage}
+                    </div>
+                    
+                    {/* Style card preview */}
+                    {selectedStyleId && services && (
+                      <div className="flex items-center gap-2 border border-gray-200 rounded-lg p-2 my-2 bg-white">
+                        <img 
+                          src={services.find((s: StyleOption) => s.id === selectedStyleId)?.gifUrl || '/assets/default-nail.png'} 
+                          alt="Selected style"
+                          className="h-14 w-14 object-cover rounded-md"
+                        />
+                        <div>
+                          <div className="font-medium text-xs">
+                            {services.find((s: StyleOption) => s.id === selectedStyleId)?.name}
                           </div>
-                          <div className="ml-3">
-                            <div className="text-sm font-medium text-pink-800">
-                              {services.find((s: StyleOption) => s.id === selectedStyleId)?.name}
-                            </div>
-                            <div className="text-xs text-pink-600">
-                              ${services.find((s: StyleOption) => s.id === selectedStyleId)?.price} • {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration} min
-                            </div>
+                          <div className="text-xs text-gray-600">
+                            ${services.find((s: StyleOption) => s.id === selectedStyleId)?.price} • {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration} min
                           </div>
                         </div>
-                      )}
+                      </div>
+                    )}
+                    
+                    {/* Unique ID */}
+                    <div className="mb-2 text-center">
+                      <div className="text-xs text-gray-500">Your VMB gift has a unique ID:</div>
+                      <div className="text-xs font-mono bg-gray-50 p-1 rounded border border-gray-100">
+                        VMB-{Math.random().toString(36).substring(2, 7).toUpperCase()}
+                      </div>
+                    </div>
+                    
+                    {/* Payment icons */}
+                    <div className="flex gap-2 items-center justify-center mt-3">
+                      <div className="h-7 w-7 rounded-full bg-blue-500 text-white shadow-sm flex items-center justify-center hover:bg-blue-600 cursor-pointer">
+                        <span className="text-xs font-bold">Z</span>
+                      </div>
+                      <div className="h-7 w-7 rounded-full bg-teal-500 text-white shadow-sm flex items-center justify-center hover:bg-teal-600 cursor-pointer">
+                        <span className="text-xs font-bold">V</span>
+                      </div>
+                      <div className="h-7 w-7 rounded-full bg-green-500 text-white shadow-sm flex items-center justify-center hover:bg-green-600 cursor-pointer">
+                        <span className="text-xs font-bold">CA</span>
+                      </div>
                     </div>
                   </div>
                 </div>
