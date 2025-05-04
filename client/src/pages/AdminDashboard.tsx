@@ -223,14 +223,23 @@ export default function AdminDashboard() {
 
   // Helper function to find client ID for an invitation
   const findClientIdForInvitation = (invitation: Invitation, clientsList: Client[] | undefined): number | null => {
-    if (!clientsList || clientsList.length === 0) return null;
+    if (!clientsList || clientsList.length === 0) {
+      console.log(`No clients available to match with invitation ID ${invitation.id}`);
+      return null;
+    }
     
     // Match by phone number (most reliable identifier)
     const matchingClient = clientsList.find(client => 
       client.phone === invitation.phone
     );
     
-    return matchingClient ? matchingClient.id : null;
+    if (matchingClient) {
+      console.log(`Found matching client ID ${matchingClient.id} for invitation ID ${invitation.id} via phone number`);
+      return matchingClient.id;
+    }
+    
+    console.log(`No matching client found for invitation ID ${invitation.id} with phone ${invitation.phone}`);
+    return null;
   };
 
   const { data: clients, error: clientError, isLoading: clientIsLoading } = useQuery<Client[]>({
@@ -724,7 +733,7 @@ export default function AdminDashboard() {
                                 </div>
                                 <div className="flex">
                                   <dt className="w-32 font-medium text-gray-500">Clients:</dt>
-                                  <dd>{clients?.filter(c => c.salonId === salon.id).length || 0} clients</dd>
+                                  <dd>{clients?.filter(c => c.salonId === salon.id || c.sponsorSalonId === salon.id).length || 0} clients</dd>
                                 </div>
                               </dl>
                             </div>
