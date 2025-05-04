@@ -394,54 +394,59 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
           <div className="p-4">
             <form onSubmit={handleRecipientSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-5">
-                  <div className="rounded-md border bg-white p-4">
-                    <div className="font-medium mb-2">Your Invitation Design</div>
-                    <div className="space-y-4">
+                {/* Left column - "Your Invitation Design" */}
+                <div>
+                  <div className="rounded-md border border-pink-100 bg-white p-4">
+                    <div className="font-medium text-center">Your Invitation Design</div>
+                    <div className="space-y-3 mt-2">
                       <div className="space-y-2">
                         <Input 
                           id="recipientName" 
-                          placeholder="Recipient Name" 
+                          placeholder="Who is your Ven Me, Baby!: Enter name" 
                           value={recipientData.name}
                           onChange={(e) => setRecipientData({...recipientData, name: e.target.value})}
                           required
-                          className="border-pink-200 focus:border-pink-400"
+                          className="border-pink-100 focus:border-pink-400 text-xs"
                         />
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-1">
                         <Input 
                           id="recipientPhone" 
-                          placeholder="Recipient Phone" 
+                          placeholder="Phone: 555-555-5555 OR Email: you@example.com" 
                           value={recipientData.phone}
                           onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
                           required
-                          className="border-pink-200 focus:border-pink-400"
+                          className="border-pink-100 focus:border-pink-400 text-xs"
                         />
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y-1 hidden">
                         <Input 
                           id="recipientEmail" 
                           placeholder="Recipient Email (Optional)" 
                           value={recipientData.email}
                           onChange={(e) => setRecipientData({...recipientData, email: e.target.value})}
-                          className="border-pink-200 focus:border-pink-400"
+                          className="border-pink-100 focus:border-pink-400 text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Input 
+                          id="senderName" 
+                          placeholder="SIGN HERE!" 
+                          value={client?.name || ""}
+                          className="border-pink-100 focus:border-pink-400 text-xs"
+                          readOnly
                         />
                       </div>
                     </div>
                   </div>
                 </div>
                 
-                <div className="space-y-5">
-                  <div className="rounded-md border bg-white p-4">
-                    <div className="font-medium mb-2">Message Preview</div>
-                    <div className="space-y-4">
-                      <Textarea 
-                        id="message" 
-                        placeholder={`Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! ❤️❤️❤️`}
-                        className="min-h-[120px] border-pink-200 focus:border-pink-400"
-                        value={personalMessage}
-                        onChange={(e) => setPersonalMessage(e.target.value)}
-                      />
+                {/* Right column - "Message Preview" */}
+                <div>
+                  <div className="rounded-md border border-pink-100 bg-white p-4">
+                    <div className="font-medium text-center">Message Preview</div>
+                    <div className="border border-dashed border-pink-200 rounded-md p-2 mt-2 bg-blue-50 text-xs">
+                      Hi {recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || '[STYLE]'}. Will you Ven Me, Baby! ❤️❤️❤️ {client?.name || ""}
                       
                       {selectedStyleId && services && (
                         <div className="flex items-center p-2 rounded-md bg-pink-50 border border-pink-100">
@@ -467,10 +472,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 </div>
               </div>
               
-              <div className="flex justify-end mt-4">
+              <div className="flex justify-center mt-4">
                 <Button 
                   type="submit" 
-                  className="bg-pink-600 hover:bg-pink-700 text-white px-6"
+                  className="bg-pink-600 hover:bg-pink-700 text-white px-6 rounded-full"
                 >
                   Continue
                   <ChevronRightIcon className="ml-2 h-4 w-4" />
