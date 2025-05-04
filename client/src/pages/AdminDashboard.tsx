@@ -69,7 +69,10 @@ interface Client {
   phone: string;
   salonName?: string;
   isCurrentClient: boolean;
-  salonId?: number; // Added salonId to Client interface
+  salonId?: number; // Direct salon association
+  sponsor?: string; // Sponsor name
+  sponsorName?: string; // Alternative sponsor name field
+  sponsorSalonId?: number; // Sponsor salon ID for relationship tracking
 }
 
 interface Service {
@@ -114,6 +117,7 @@ interface Invitation {
   salonName?: string;
   status?: string;
   sponsor?: string;
+  sponsorSalonId?: number;
   firstServiceDate?: string;
   createdAt: string;
   inviteHash?: string;
@@ -1091,7 +1095,7 @@ export default function AdminDashboard() {
                         <TableHead className="max-h-[30px] py-1">Name</TableHead>
                         <TableHead className="max-h-[30px] py-1">Email</TableHead>
                         <TableHead className="max-h-[30px] py-1">Phone</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Salon</TableHead>
+                        <TableHead className="max-h-[30px] py-1">Salon/Sponsor</TableHead>
                         <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -1157,24 +1161,43 @@ export default function AdminDashboard() {
                             </TooltipProvider>
                           </TableCell>
                           
-                          {/* Salon name with truncation */}
+                          {/* Salon/Sponsor display with invitation data integration */}
                           <TableCell className="py-0">
-                            {client.salonName && client.salonName.length > 10 ? (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="cursor-help">
-                                      Salon: {client.salonName.substring(0, 8)}...
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Salon: {client.salonName}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
-                              <>Salon: {client.salonName || 'N/A'}</>
-                            )}
+                            {/* Find client's sponsor from invitations first */}
+                            {(() => {
+                              // Look for a matching invitation by phone number to get the sponsor name
+                              const matchingInvitation = invitations?.find(
+                                inv => inv.phone === client.phone.replace(/\D/g, '')
+                              );
+                              
+                              const sponsorName = matchingInvitation?.salonName || 
+                                                 matchingInvitation?.sponsor || 
+                                                 client.salonName || 
+                                                 client.sponsor || 
+                                                 'Unknown';
+                              
+                              // Log for debugging
+                              if (matchingInvitation) {
+                                console.log(`Found invitation match for client ${client.name}: Salon=${matchingInvitation.salonName}, Sponsor=${matchingInvitation.sponsor}`);
+                              }
+                              
+                              return sponsorName.length > 10 ? (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="cursor-help">
+                                        Sponsor: {sponsorName.substring(0, 8)}...
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Sponsor: {sponsorName}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              ) : (
+                                <>Sponsor: {sponsorName}</>
+                              );
+                            })()}
                           </TableCell>
                           
                           {/* Actions */}
