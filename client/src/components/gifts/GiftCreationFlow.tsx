@@ -333,139 +333,43 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         {step === "style" && (
           <div className="p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div 
-                className={`bg-white rounded-md border p-4 cursor-pointer hover:border-pink-400 transition-colors flex justify-between ${selectedStyleId === 1 ? 'border-pink-500 ring-1 ring-pink-500' : 'border-gray-200'}`}
-                onClick={() => {
-                  // Set hidden field value for VmbStyleOptions compatibility
-                  const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
-                  if (styleOptionsElement) {
-                    styleOptionsElement.value = JSON.stringify({
-                      styleId: 1,
-                      clientId: clientId,
-                      salonId: useSalonId
-                    });
-                    
-                    // Create and dispatch change event
-                    const event = new Event('change', { bubbles: true });
-                    styleOptionsElement.dispatchEvent(event);
-                  }
-                }}
-              >
-                <div>
-                  <div className="font-medium text-gray-900">French Tips / Touch-Up</div>
-                  <div className="text-sm text-gray-600 mt-1">Classic white tips or quick polish refresh</div>
-                  <div className="mt-2">
-                    <span className="text-pink-600 font-medium">$40</span>
-                    <span className="text-gray-500 text-xs ml-2">30 min</span>
+              {services.map((service) => (
+                <div 
+                  key={service.id}
+                  className={`bg-white rounded-md border p-4 cursor-pointer hover:border-pink-400 transition-colors flex justify-between ${selectedStyleId === service.id ? 'border-pink-500 ring-1 ring-pink-500' : 'border-gray-200'}`}
+                  onClick={() => {
+                    // Set hidden field value for VmbStyleOptions compatibility
+                    const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
+                    if (styleOptionsElement) {
+                      styleOptionsElement.value = JSON.stringify({
+                        styleId: service.id,
+                        clientId: clientId,
+                        salonId: useSalonId
+                      });
+                      
+                      // Create and dispatch change event
+                      const event = new Event('change', { bubbles: true });
+                      styleOptionsElement.dispatchEvent(event);
+                    }
+                  }}
+                >
+                  <div>
+                    <h4 className="font-medium text-gray-900">{service.name}</h4>
+                    <p className="text-sm text-gray-600 mt-1">{service.description}</p>
+                    <div className="mt-2 text-pink-600 font-medium flex items-center">
+                      <span className="mr-3">${service.price}</span>
+                      <span className="text-xs text-gray-500">{service.duration} min</span>
+                    </div>
+                  </div>
+                  <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-pink-50">
+                    <img 
+                      src={service.gifUrl} 
+                      alt={service.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 </div>
-                <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
-                  <img 
-                    src="/assets/french-tips.png" 
-                    alt="French Tips"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-
-              <div 
-                className={`bg-white rounded-md border p-4 cursor-pointer hover:border-pink-400 transition-colors flex justify-between ${selectedStyleId === 2 ? 'border-pink-500 ring-1 ring-pink-500' : 'border-gray-200'}`}
-                onClick={() => {
-                  const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
-                  if (styleOptionsElement) {
-                    styleOptionsElement.value = JSON.stringify({
-                      styleId: 2,
-                      clientId: clientId,
-                      salonId: useSalonId
-                    });
-                    
-                    const event = new Event('change', { bubbles: true });
-                    styleOptionsElement.dispatchEvent(event);
-                  }
-                }}
-              >
-                <div>
-                  <div className="font-medium text-gray-900">Luxe Gel Manicure</div>
-                  <div className="text-sm text-gray-600 mt-1">Glossy, chip-free color with lasting shine</div>
-                  <div className="mt-2">
-                    <span className="text-pink-600 font-medium">$55</span>
-                    <span className="text-gray-500 text-xs ml-2">45 min</span>
-                  </div>
-                </div>
-                <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
-                  <img 
-                    src="/assets/gel-manicure.png" 
-                    alt="Luxe Gel Manicure"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-
-              <div 
-                className={`bg-white rounded-md border p-4 cursor-pointer hover:border-pink-400 transition-colors flex justify-between ${selectedStyleId === 3 ? 'border-pink-500 ring-1 ring-pink-500' : 'border-gray-200'}`}
-                onClick={() => {
-                  const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
-                  if (styleOptionsElement) {
-                    styleOptionsElement.value = JSON.stringify({
-                      styleId: 3,
-                      clientId: clientId,
-                      salonId: useSalonId
-                    });
-                    
-                    const event = new Event('change', { bubbles: true });
-                    styleOptionsElement.dispatchEvent(event);
-                  }
-                }}
-              >
-                <div>
-                  <div className="font-medium text-gray-900">Sculpted Acrylics</div>
-                  <div className="text-sm text-gray-600 mt-1">Custom-shaped acrylics for bold length</div>
-                  <div className="mt-2">
-                    <span className="text-pink-600 font-medium">$70</span>
-                    <span className="text-gray-500 text-xs ml-2">60 min</span>
-                  </div>
-                </div>
-                <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
-                  <img 
-                    src="/assets/sculpted-acrylics.png" 
-                    alt="Sculpted Acrylics"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-
-              <div 
-                className={`bg-white rounded-md border p-4 cursor-pointer hover:border-pink-400 transition-colors flex justify-between ${selectedStyleId === 4 ? 'border-pink-500 ring-1 ring-pink-500' : 'border-gray-200'}`}
-                onClick={() => {
-                  const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
-                  if (styleOptionsElement) {
-                    styleOptionsElement.value = JSON.stringify({
-                      styleId: 4,
-                      clientId: clientId,
-                      salonId: useSalonId
-                    });
-                    
-                    const event = new Event('change', { bubbles: true });
-                    styleOptionsElement.dispatchEvent(event);
-                  }
-                }}
-              >
-                <div>
-                  <div className="font-medium text-gray-900">Glam Me! Custom Design</div>
-                  <div className="text-sm text-gray-600 mt-1">Fully custom art, gems, 3D extras</div>
-                  <div className="mt-2">
-                    <span className="text-pink-600 font-medium">$125</span>
-                    <span className="text-gray-500 text-xs ml-2">90 min</span>
-                  </div>
-                </div>
-                <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0">
-                  <img 
-                    src="/assets/glam-design.png" 
-                    alt="Glam Me! Custom Design"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         )}
