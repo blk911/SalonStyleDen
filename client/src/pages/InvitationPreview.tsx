@@ -74,16 +74,30 @@ export default function InvitationPreview() {
   const urlParams = new URLSearchParams(window.location.search);
   const sourceDashboard = urlParams.get('source');
   
-  // Fetch invitation by hash
+  // Determine if hash is a numeric ID or a hash string
+  const isNumericId = hash && !isNaN(Number(hash));
+  
+  // Fetch invitation by hash or ID
   const { 
     data: invitation,
     isLoading: invitationLoading,
     error: invitationError
   } = useQuery<Invitation>({
-    queryKey: ['/api/invitations/by-hash', hash],
+    queryKey: isNumericId ? ['/api/invitations', hash] : ['/api/invitations/by-hash', hash],
     queryFn: async () => {
-      const response = await fetch(`/api/invitations/by-hash/${hash}`);
+      // Use the appropriate endpoint based on whether hash is numeric (ID) or a string (hash)
+      const endpoint = isNumericId ? `/api/invitations/${hash}` : `/api/invitations/by-hash/${hash}`;
+      const response = await fetch(endpoint);
+      
       if (!response.ok) {
+        // If numeric ID fails, try as hash as fallback
+        if (isNumericId) {
+          console.log(`Trying hash endpoint as fallback for ID ${hash}`);
+          const hashResponse = await fetch(`/api/invitations/by-hash/${hash}`);
+          if (hashResponse.ok) {
+            return hashResponse.json();
+          }
+        }
         throw new Error(`Failed to fetch invitation: ${response.status}`);
       }
       return response.json();

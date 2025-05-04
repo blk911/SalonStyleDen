@@ -49,6 +49,7 @@ function Router() {
       <Route path="/invitation/:hash" component={InvitationPage} />
       <Route path="/invitation-preview/:hash" component={InvitationPreview} />
       <Route path="/invitations/by-hash/:hash" component={InvitationPage} />
+      <Route path="/invitations/:id" component={InvitationPreview} />
       <Route path="/complete-invitation/:id" component={CompleteInvitationPage} />
       {/* Unhiding all routes as requested */}
       <Route path="/promos" component={PromosPage} />
