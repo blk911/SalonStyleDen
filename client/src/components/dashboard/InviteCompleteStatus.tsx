@@ -3,7 +3,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { format } from "date-fns";
-import { Invitation } from "@/types/invitation";
+
+export interface Invitation {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  notes?: string;
+  status: string;
+  createdAt: string;
+  inviteHash?: string;
+  firstServiceDate?: string;
+  favoriteServices?: string[];
+  salonId?: number;
+  salonName?: string;
+  sponsor?: string;
+}
 
 interface InviteCompleteStatusProps {
   inviteCount?: number;
