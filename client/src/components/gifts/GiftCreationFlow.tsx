@@ -336,37 +336,28 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               {services.map((service) => (
                 <div 
                   key={service.id}
-                  className={`bg-white rounded-md border p-4 cursor-pointer hover:border-pink-400 transition-colors flex justify-between ${selectedStyleId === service.id ? 'border-pink-500 bg-pink-50' : 'border-gray-200'}`}
+                  className={`bg-white rounded-md border p-4 cursor-pointer hover:border-pink-400 transition-colors flex justify-between ${selectedStyleId === service.id ? 'border-pink-500 ring-1 ring-pink-500' : 'border-gray-200'}`}
                   onClick={() => {
-                    // Directly set the selected style ID
-                    setSelectedStyleId(service.id);
-                    
-                    // Set hidden field value for compatibility with existing code
+                    // Set hidden field value for VmbStyleOptions compatibility
                     const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
                     if (styleOptionsElement) {
-                      const selectionData = {
+                      styleOptionsElement.value = JSON.stringify({
                         styleId: service.id,
                         clientId: clientId,
                         salonId: useSalonId
-                      };
+                      });
                       
-                      // Update field and trigger change event to ensure event listeners catch it
-                      styleOptionsElement.value = JSON.stringify(selectionData);
+                      // Create and dispatch change event
                       const event = new Event('change', { bubbles: true });
                       styleOptionsElement.dispatchEvent(event);
-                      
-                      // Progress to next step after a short delay for visual feedback
-                      setTimeout(() => {
-                        setStep("recipient");
-                      }, 300);
                     }
                   }}
                 >
                   <div>
                     <h4 className="font-medium text-gray-900">{service.name}</h4>
                     <p className="text-sm text-gray-600 mt-1">{service.description}</p>
-                    <div className="mt-2">
-                      <span className="font-medium text-pink-600 mr-3">${service.price}</span>
+                    <div className="mt-2 text-pink-600 font-medium flex items-center">
+                      <span className="mr-3">${service.price}</span>
                       <span className="text-xs text-gray-500">{service.duration} min</span>
                     </div>
                   </div>
