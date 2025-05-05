@@ -591,7 +591,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                         // Update message with name when Enter is pressed
                         const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
                         const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
-                        const updatedMessage = `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.signature || ""}`;
+                        const updatedMessage = `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.signature || "[SIGNED]"}`;
                         setPersonalMessage(updatedMessage);
                         
                         // Move to next field
@@ -656,10 +656,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
                       
                       // Create message with updated signature
-                      const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || ""}`;
+                      const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || "[SIGNED]"}`;
                       setPersonalMessage(updatedMessage);
                     }}
-                    className="flex-1 font-semibold"
+                    className="flex-1"
                     onKeyDown={(e) => {
                       // Move to preview button on Enter
                       if (e.key === 'Enter' && recipientData.signature.trim().length > 0) {
@@ -689,7 +689,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <div className="border-dotted border border-pink-200 rounded-md p-3">
                   {/* Message preview is in the blue box */}
                   <div className="rounded-md p-3 bg-blue-100 mb-3">
-                    Hi {recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "French Tips / Touch-Up"}, will you Ven Me, Baby! <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> <span className="font-semibold">{recipientData.signature ? recipientData.signature : <span className="text-gray-400 italic">Your signature will appear here</span>}</span>
+                    Hi {recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "French Tips / Touch-Up"}, will you Ven Me, Baby! <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> {recipientData.signature || "[SIGNED]"}
                   </div>
                   
                   {/* Style card preview */}
