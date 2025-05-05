@@ -660,6 +660,20 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       setPersonalMessage(updatedMessage);
                     }}
                     className="flex-1"
+                    onFocus={() => {
+                      // Auto-fill with client name if signature is empty
+                      if (!recipientData.signature && client?.name) {
+                        console.log(`GiftCreationFlow: Auto-filling signature with client name on focus: ${client.name}`);
+                        const updatedSignature = client.name;
+                        setRecipientData({...recipientData, signature: updatedSignature});
+                        
+                        // Also update the message preview with new signature
+                        const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
+                        const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
+                        const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${updatedSignature}`;
+                        setPersonalMessage(updatedMessage);
+                      }
+                    }}
                     onKeyDown={(e) => {
                       // Move to preview button on Enter
                       if (e.key === 'Enter' && recipientData.signature.trim().length > 0) {
@@ -689,7 +703,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <div className="border-dotted border border-pink-200 rounded-md p-3">
                   {/* Message preview is in the blue box */}
                   <div className="rounded-md p-3 bg-blue-100 mb-3">
-                    Hi {recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "French Tips / Touch-Up"}, will you Ven Me, Baby! <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> {recipientData.signature || "[SIGNED]"}
+                    Hi {recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "French Tips / Touch-Up"}, will you Ven Me, Baby! <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> {recipientData.signature || client?.name || "[SIGNED]"}
                   </div>
                   
                   {/* Style card preview */}
