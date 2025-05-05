@@ -133,24 +133,38 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         }
         const clientData = await response.json();
         console.log(`GiftCreationFlow: Client connected to salon: ${clientData?.salonName || 'None'}`);
+        console.log(`GiftCreationFlow: CRITICAL - Client name: ${clientData.name}`);
         
-        // Auto-fill signature with client name (site-wide standard) - ALWAYS use client's name
+        // FORCE update both signature and message with client name immediately
         if (clientData?.name) {
-          console.log(`GiftCreationFlow: Setting signature to client name: ${clientData.name}`);
+          console.log(`GiftCreationFlow: FORCE Setting signature to client name: ${clientData.name}`);
+          
+          // Set signature directly from client name
           setRecipientData(prev => ({
             ...prev,
             signature: clientData.name
           }));
           
-          // Also update the message if it exists
-          if (selectedStyleId) {
-            const selectedStyle = services?.find((s) => s.id === selectedStyleId);
-            const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
+          // Update SIGN HERE field immediately after render
+          setTimeout(() => {
+            const signatureInput = document.querySelector('input[placeholder="SIGN HERE!"]') as HTMLInputElement;
+            if (signatureInput && !signatureInput.value) {
+              signatureInput.value = clientData.name;
+              console.log(`GiftCreationFlow: FORCE Updated SIGN HERE field with: ${clientData.name}`);
+              
+              // Fire change event to update React state
+              const event = new Event('input', { bubbles: true });
+              signatureInput.dispatchEvent(event);
+            }
             
-            // Create message with client name in signature
-            const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${clientData.name}`;
-            setPersonalMessage(updatedMessage);
-          }
+            // Update message preview
+            const messagePreview = document.querySelector('.rounded-md.p-3.bg-blue-100.mb-3');
+            if (messagePreview) {
+              const messageText = messagePreview.innerHTML;
+              const updatedText = messageText.replace('[SIGNED]', clientData.name);
+              console.log(`GiftCreationFlow: FORCE Updated message preview with client name: ${clientData.name}`);
+            }
+          }, 500);
         }
         
         return clientData;
@@ -273,6 +287,51 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     }
   });
 
+  // CRITICAL: Force update of client name in both SIGN HERE field and message preview
+  useEffect(() => {
+    if (client?.name) {
+      console.log("CRITICAL: Forcing client name update after client data loaded:", client.name);
+      
+      // Update React state with client name
+      setRecipientData(prev => ({
+        ...prev,
+        signature: client.name
+      }));
+      
+      // Force update DOM elements after a delay to ensure they're rendered
+      const updateElements = () => {
+        console.log("DIRECT FORCE UPDATE: Running DOM element updates for client:", client.name);
+        
+        // 1. Update SIGN HERE input field
+        const signatureInput = document.querySelector('input[placeholder="SIGN HERE!"]') as HTMLInputElement;
+        if (signatureInput) {
+          signatureInput.value = client.name;
+          
+          // Trigger React state update via input event
+          const inputEvent = new Event('input', { bubbles: true });
+          signatureInput.dispatchEvent(inputEvent);
+          
+          console.log("DIRECT UPDATE: Set SIGN HERE field to:", client.name);
+        }
+        
+        // 2. Update message preview text
+        const messagePreview = document.querySelector('.rounded-md.p-3.bg-blue-100.mb-3');
+        if (messagePreview) {
+          let content = messagePreview.innerHTML;
+          if (content.includes('[SIGNED]')) {
+            content = content.replace('[SIGNED]', client.name);
+            messagePreview.innerHTML = content;
+            console.log("DIRECT UPDATE: Updated message preview with client name");
+          }
+        }
+      };
+      
+      // Run once immediately and then again after a delay
+      updateElements();
+      setTimeout(updateElements, 1000);
+    }
+  }, [client]);
+
   // Handle style selection - watches for DOM changes to detect selection from VmbStyleOptions
   useEffect(() => {
     // Watch for changes in the DOM to detect style selection from VmbStyleOptions
@@ -307,6 +366,17 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               if (recipientSection) {
                 recipientSection.scrollIntoView({ behavior: 'smooth' });
               }
+              
+              // Force client name update in SIGN HERE field after style selection
+              if (client?.name) {
+                const signatureInput = document.querySelector('input[placeholder="SIGN HERE!"]') as HTMLInputElement;
+                if (signatureInput) {
+                  signatureInput.value = client.name;
+                  const inputEvent = new Event('input', { bubbles: true });
+                  signatureInput.dispatchEvent(inputEvent);
+                  console.log("STYLE SELECTION: Forced client name update in SIGN HERE field after style selection");
+                }
+              }
             }, 300);
           }
         } catch (error) {
@@ -327,7 +397,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     return () => {
       styleSelectionObserver.disconnect();
     };
-  }, [services]); // Add services as dependency to ensure proper validation
+  }, [services, client]); // Add services and client as dependencies
 
   // Function to handle recipient data submission
   const handleRecipientSubmit = (e: React.FormEvent) => {
@@ -471,6 +541,56 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       onComplete();
     }
   };
+
+  // CRITICAL: Additional check to make sure client name is set
+  useEffect(() => {
+    // Set signature from client name directly when component mounts
+    if (clientId) {
+      console.log("DIRECT CLIENT ID LINK: Attempting to fetch and set client name for ID:", clientId);
+      
+      // Direct API call to ensure we have the latest client data
+      fetch(`/api/clients/${clientId}`)
+        .then(res => res.json())
+        .then(clientData => {
+          if (clientData?.name) {
+            console.log("DIRECT CLIENT ID LINK: Got client name:", clientData.name);
+            
+            // Force update React state
+            setRecipientData(prev => ({
+              ...prev,
+              signature: clientData.name
+            }));
+            
+            // Set a trigger to update DOM after render
+            setTimeout(() => {
+              // Update SIGN HERE field
+              const signatureField = document.querySelector('input[placeholder="SIGN HERE!"]') as HTMLInputElement;
+              if (signatureField) {
+                signatureField.value = clientData.name;
+                console.log("DIRECT CLIENT ID LINK: Updated SIGN HERE field with:", clientData.name);
+                
+                // Trigger input event
+                const event = new Event('input', { bubbles: true });
+                signatureField.dispatchEvent(event);
+              }
+              
+              // Update message preview
+              const messagePreview = document.querySelector('.rounded-md.p-3.bg-blue-100.mb-3');
+              if (messagePreview) {
+                const html = messagePreview.innerHTML;
+                if (html.includes('[SIGNED]')) {
+                  messagePreview.innerHTML = html.replace('[SIGNED]', clientData.name);
+                  console.log("DIRECT CLIENT ID LINK: Updated message preview with client name");
+                }
+              }
+            }, 1500);
+          }
+        })
+        .catch(err => {
+          console.error("Error in direct client data fetch:", err);
+        });
+    }
+  }, [clientId]);
 
   return (
     <div className="space-y-4">
