@@ -54,10 +54,16 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                 </Button>
               </div>
               
-              <GiftCreationFlow 
-                clientId={clientId} 
-                onComplete={() => setShowGiftCreation(false)}
-              />
+              {clientId ? (
+                <GiftCreationFlow 
+                  clientId={clientId as number} 
+                  onComplete={() => setShowGiftCreation(false)}
+                />
+              ) : (
+                <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
+                  <p className="text-gray-500">Unable to create a gift - no client ID available</p>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
