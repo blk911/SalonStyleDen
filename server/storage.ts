@@ -665,6 +665,21 @@ export class DatabaseStorage implements IStorage {
         }
       }
       
+      // Get all style selections for this client
+      const clientStyleSelections = await this.getClientStyleSelections(id);
+      console.log(`DatabaseStorage.deleteClient - Found ${clientStyleSelections.length} style selections to delete first`);
+      
+      // Delete all style selections for this client
+      for (const styleSelection of clientStyleSelections) {
+        try {
+          await db.delete(styleSelections).where(eq(styleSelections.id, styleSelection.id));
+          console.log(`DatabaseStorage.deleteClient - Deleted style selection ID ${styleSelection.id}`);
+        } catch (styleSelectionError) {
+          console.error(`DatabaseStorage.deleteClient - Error deleting style selection ${styleSelection.id}:`, styleSelectionError);
+          // Continue with deletion of other style selections
+        }
+      }
+      
       // Delete the client
       const result = await db
         .delete(clients)
@@ -1611,6 +1626,34 @@ export class DatabaseStorage implements IStorage {
         } catch (appointmentError) {
           console.error(`DatabaseStorage.deleteInvitation - Error deleting appointment ${appointment.id}:`, appointmentError);
           // Continue with deletion of other appointments
+        }
+      }
+      
+      // Check if there are associated style selections through the client
+      // First try to find a client with the same phone number
+      const clientsWithSamePhone = await db
+        .select()
+        .from(clients)
+        .where(sql`regexp_replace(${clients.phone}, '[^0-9]', '', 'g') = regexp_replace(${invitation.phone}, '[^0-9]', '', 'g')`);
+      
+      if (clientsWithSamePhone.length > 0) {
+        console.log(`DatabaseStorage.deleteInvitation - Found ${clientsWithSamePhone.length} clients with the same phone number`);
+        
+        // For each matched client, delete their style selections
+        for (const matchedClient of clientsWithSamePhone) {
+          const clientStyleSelections = await this.getClientStyleSelections(matchedClient.id);
+          console.log(`DatabaseStorage.deleteInvitation - Found ${clientStyleSelections.length} style selections for client ${matchedClient.id}`);
+          
+          // Delete all style selections for this client
+          for (const styleSelection of clientStyleSelections) {
+            try {
+              await db.delete(styleSelections).where(eq(styleSelections.id, styleSelection.id));
+              console.log(`DatabaseStorage.deleteInvitation - Deleted style selection ID ${styleSelection.id}`);
+            } catch (styleSelectionError) {
+              console.error(`DatabaseStorage.deleteInvitation - Error deleting style selection ${styleSelection.id}:`, styleSelectionError);
+              // Continue with deletion of other style selections
+            }
+          }
         }
       }
       
