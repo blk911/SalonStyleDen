@@ -410,10 +410,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               <div>
                 <h3 className="text-center mb-3 font-medium">Your Invitation Design</h3>
                 <div className="space-y-2 border-dotted border border-pink-200 rounded-md p-3">
-                  <input 
-                    type="text"
-                    placeholder="Who is your Ven Me, Baby!: Enter name"
-                    className="w-full p-2 text-sm border border-gray-200 rounded"
+                  <Input 
+                    placeholder="Client Name"
                     value={recipientData.name}
                     onChange={(e) => {
                       setRecipientData({...recipientData, name: e.target.value});
@@ -427,21 +425,46 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       setPersonalMessage(updatedMessage);
                     }}
                     required
+                    className="flex-1"
+                    onKeyDown={(e) => {
+                      // Update message with name when Enter is pressed
+                      if (e.key === 'Enter' && recipientData.name.trim().length > 0) {
+                        e.preventDefault();
+                        
+                        // Update message with name when Enter is pressed
+                        const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
+                        const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
+                        const updatedMessage = `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.signature || "[SIGNED]"}`;
+                        setPersonalMessage(updatedMessage);
+                        
+                        // Move to next field
+                        const phoneInput = document.querySelector('input[placeholder="Phone Number"]') as HTMLInputElement;
+                        if (phoneInput) phoneInput.focus();
+                      }
+                    }}
                   />
                   
-                  <input 
-                    type="text"
-                    placeholder="Phone: 555-555-5555 OR Email: you@example.com"
-                    className="w-full p-2 text-sm border border-gray-200 rounded"
+                  <Input
+                    placeholder="Phone Number"
+                    type="tel"
                     value={recipientData.phone}
                     onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
                     required
+                    className="flex-1"
+                    onKeyDown={(e) => {
+                      // Move to next field on Enter when phone is complete
+                      if (e.key === 'Enter' && recipientData.phone.replace(/\D/g, '').length >= 10) {
+                        e.preventDefault();
+                        
+                        // Move to signature field
+                        const signatureInput = document.querySelector('input[placeholder="SIGN HERE!"]') as HTMLInputElement;
+                        if (signatureInput) signatureInput.focus();
+                      }
+                    }}
                   />
                   
-                  <input 
-                    type="text"
+                  <Input 
                     placeholder="SIGN HERE!"
-                    className="w-full p-2 text-sm border border-gray-200 rounded"
                     value={recipientData.signature || ""}
                     onChange={(e) => {
                       setRecipientData({...recipientData, signature: e.target.value});
@@ -454,22 +477,62 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || "[SIGNED]"}`;
                       setPersonalMessage(updatedMessage);
                     }}
+                    className="flex-1"
+                    onKeyDown={(e) => {
+                      // Move to preview button on Enter
+                      if (e.key === 'Enter' && recipientData.signature.trim().length > 0) {
+                        e.preventDefault();
+                        
+                        // Focus on the preview button
+                        const previewButton = document.querySelector('button.bg-blue-500') as HTMLButtonElement;
+                        if (previewButton) previewButton.focus();
+                      }
+                    }}
                   />
                   
                   <div className="flex justify-center mt-4">
-                    <button 
-                      type="button"
-                      className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-2 px-8 rounded"
+                    <Button 
+                      type="button" 
                       onClick={() => {
                         toast({
                           title: "Design Preview",
                           description: "Invitation preview being prepared...",
-                          variant: "default"
                         });
+                        
+                        if (!recipientData.name || !recipientData.phone) {
+                          toast({
+                            title: "Missing Information",
+                            description: "Please provide recipient name and phone",
+                            variant: "destructive"
+                          });
+                          return;
+                        }
+                        
+                        // Update hidden field to select styleId for Preview
+                        const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
+                        if (styleOptionsElement) {
+                          styleOptionsElement.value = JSON.stringify({
+                            styleId: selectedStyleId,
+                            clientId: clientId,
+                            salonId: useSalonId,
+                            name: recipientData.name,
+                            phone: recipientData.phone,
+                            email: recipientData.email,
+                            signature: recipientData.signature
+                          });
+                          
+                          // Create and dispatch change event
+                          const event = new Event('change', { bubbles: true });
+                          styleOptionsElement.dispatchEvent(event);
+                        }
+                        
+                        // Move to next step
+                        handleRecipientSubmit({preventDefault: () => {}} as React.FormEvent);
                       }}
+                      className="w-full bg-pink-500 hover:bg-pink-600 text-white"
                     >
-                      PREVIEW DESIGN
-                    </button>
+                      Preview Invitation
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -528,7 +591,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
             <div className="flex justify-end mt-6">
               <Button 
                 onClick={handleRecipientSubmit}
-                className="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 px-8 rounded"
+                className="bg-pink-600 hover:bg-pink-700 text-white"
               >
                 Continue
                 <ChevronRightIcon className="ml-2 h-4 w-4" />
