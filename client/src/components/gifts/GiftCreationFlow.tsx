@@ -173,8 +173,22 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       });
       
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to create invitation: ${response.status} - ${errorText}`);
+        // Try to parse the error response as JSON
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          // If it's not JSON, use the raw text
+          const errorText = await response.text();
+          throw new Error(`Failed to create invitation: ${response.status} - ${errorText}`);
+        }
+        
+        if (errorData.error === "Invitation limit reached") {
+          console.error("[FLOW][ERROR] Server response error:", errorData);
+          throw new Error(errorData.message || "Salon invitation limit reached");
+        }
+        
+        throw new Error(errorData.message || `Failed to create invitation: ${response.status}`);
       }
       
       return await response.json();
@@ -191,19 +205,35 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/invitations`] });
       }
       
+      // Make sure the preview modal is closed
+      setShowFinalInvitationModal(false);
+      
       // Move to confirmation step
       setStep("confirm");
       
       toast({
         title: "Gift Invitation Sent!",
-        description: "Your personal gift invitation has been created successfully.",
+        description: `Your invitation to ${recipientData.name} has been sent successfully.`,
       });
     },
     onError: (error: any) => {
-      console.error("GiftCreationFlow: Error creating client invitation:", error);
+      const errorMsg = error.message || "An unexpected error occurred";
+      console.error("[ERROR][GiftCreationFlow] Error creating client invitation:", error);
+      
+      // Format user-friendly error messages based on error types
+      let userMessage = "There was a problem sending your invitation. Please try again.";
+      
+      if (errorMsg.includes("limit reached")) {
+        userMessage = "Your salon has reached the invitation limit. Please contact your salon owner.";
+      } else if (errorMsg.includes("already invited")) {
+        userMessage = "This recipient has already been invited. Please try a different contact.";
+      } else if (errorMsg.includes("500")) {
+        userMessage = "Server error. Please try again in a few moments.";
+      }
+      
       toast({
-        title: "Error",
-        description: `Failed to create invitation: ${error.message}`,
+        title: "Failed to Send Invitation",
+        description: userMessage,
         variant: "destructive"
       });
     }
@@ -302,6 +332,9 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       return;
     }
     
+    // Close the preview modal first
+    setShowFinalInvitationModal(false);
+    
     // Create invitation data
     const invitationData = {
       name: recipientData.name,
@@ -315,16 +348,21 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       clientId: clientId,
       salonId: useSalonId,
       status: "pending",
-      senderName: client?.name || "Client"
+      senderName: client?.name || "Client",
+      invitationType: "client_to_friend",
+      styleImageUrl: selectedStyle.gifUrl
     };
     
-    // Call the mutation to create the invitation
-    createInvitationMutation.mutate(invitationData);
+    // Log the invitation data being sent
+    console.log("Creating client invitation with data:", invitationData);
     
     toast({
       title: "Processing Gift",
       description: "Creating your gift invitation...",
     });
+    
+    // Call the mutation to create the invitation
+    createInvitationMutation.mutate(invitationData);
   };
 
   // Function to handle gift creation confirmation
@@ -655,7 +693,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
              onClick={() => step === "payment" ? setStep("") : setStep("payment")}
              style={{opacity: (step === "payment" || step === "confirm") ? 1 : 0.5, pointerEvents: (step === "payment" || step === "confirm") ? 'auto' : 'none'}}>
           <h3 className="text-pink-800 font-semibold flex items-center">
-            STEP 3 Preview
+            STEP 3: Preview and Send
           </h3>
           <div className="flex items-center">
             {step === "confirm" && <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />}
@@ -723,11 +761,14 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   </p>
                   
                   <Button 
-                    onClick={handlePayment}
+                    onClick={() => setShowFinalInvitationModal(true)}
                     className="w-full bg-pink-600 hover:bg-pink-700 text-white"
                   >
-                    <CreditCardIcon className="mr-2 h-4 w-4" />
-                    Send Gift Invitation
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-4 w-4">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    Preview and Send
                   </Button>
                 </div>
               </CardContent>
@@ -798,12 +839,20 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
             )}
           </div>
           
-          <DialogFooter>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
             <Button 
               onClick={() => setShowFinalInvitationModal(false)}
-              className="bg-pink-600 hover:bg-pink-700 text-white"
+              variant="outline"
+              className="flex-1"
             >
-              Continue to Payment
+              Back to Salon
+            </Button>
+            
+            <Button 
+              onClick={handlePayment}
+              className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium"
+            >
+              CONFIRM TO SEND
             </Button>
           </DialogFooter>
         </DialogContent>
