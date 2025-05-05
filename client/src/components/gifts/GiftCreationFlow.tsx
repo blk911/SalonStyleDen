@@ -367,6 +367,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
 
   // Function to handle gift creation confirmation
   const handleConfirm = () => {
+    // Navigate back to client dashboard after completing the flow
+    window.location.href = '/client/' + clientId;
+    
+    // Also call onComplete if provided
     if (onComplete) {
       onComplete();
     }
