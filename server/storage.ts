@@ -1599,6 +1599,21 @@ export class DatabaseStorage implements IStorage {
         return false;
       }
       
+      // First check for any related appointments
+      const relatedAppointments = await this.getInvitationAppointments(id);
+      console.log(`DatabaseStorage.deleteInvitation - Found ${relatedAppointments.length} appointments to delete first`);
+      
+      // Delete all related appointments
+      for (const appointment of relatedAppointments) {
+        try {
+          await db.delete(appointments).where(eq(appointments.id, appointment.id));
+          console.log(`DatabaseStorage.deleteInvitation - Deleted appointment ID ${appointment.id}`);
+        } catch (appointmentError) {
+          console.error(`DatabaseStorage.deleteInvitation - Error deleting appointment ${appointment.id}:`, appointmentError);
+          // Continue with deletion of other appointments
+        }
+      }
+      
       // Delete the invitation
       const result = await db.delete(invitations).where(eq(invitations.id, id)).returning();
       
