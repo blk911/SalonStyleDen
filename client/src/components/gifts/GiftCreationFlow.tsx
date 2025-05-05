@@ -50,11 +50,12 @@ interface GiftCreationFlowProps {
 export default function GiftCreationFlow({ clientId, salonId, onComplete }: GiftCreationFlowProps) {
   const { toast } = useToast();
   const [step, setStep] = useState<string>("style");
+  // Initialize recipientData state (without client name yet)
   const [recipientData, setRecipientData] = useState({
     name: "",
     phone: "",
     email: "",
-    signature: ""
+    signature: "" // Will be populated with client name when client data loads
   });
   const [selectedStyleId, setSelectedStyleId] = useState<number | null>(null);
   const [personalMessage, setPersonalMessage] = useState("");
@@ -658,7 +659,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   
                   <Input 
                     placeholder="SIGN HERE!"
-                    value={recipientData.signature || ""}
+                    value={recipientData.signature || (client?.name || "")}
                     onChange={(e) => {
                       setRecipientData({...recipientData, signature: e.target.value});
                       
@@ -679,6 +680,15 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                         // Focus on the preview button
                         const previewButton = document.querySelector('button.bg-pink-500') as HTMLButtonElement;
                         if (previewButton) previewButton.focus();
+                      }
+                    }}
+                    // Set default value from client name when input is first shown
+                    onFocus={(e) => {
+                      if (!recipientData.signature && client?.name) {
+                        setRecipientData(prev => ({
+                          ...prev,
+                          signature: client.name
+                        }));
                       }
                     }}
                   />
