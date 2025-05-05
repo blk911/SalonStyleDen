@@ -42,7 +42,7 @@ export default function GiftsPage({ clientId = 10 }: GiftsPageProps) {
           ) : (
             <div className="border rounded-lg p-6 shadow-sm">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-pink-800">Create a New Gift</h3>
+                <h3 className="text-lg font-medium text-pink-800">Create a New Request</h3>
                 <Button 
                   variant="ghost" 
                   size="sm"

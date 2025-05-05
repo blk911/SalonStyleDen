@@ -529,9 +529,9 @@ export default function ClientDashboard() {
                 <div className="w-full text-center py-2">
                   <div className="font-semibold text-gray-800">Invitations</div>
                   <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
-                    <span>Sent</span>
-                    <span className="text-muted-foreground/30 px-1">/</span>
-                    <span>Status</span>
+                    <span>Friends</span>
+                    <span className="text-muted-foreground/30 px-1">|</span>
+                    <span>Owners</span>
                   </div>
                 </div>
               </TabsTrigger>
