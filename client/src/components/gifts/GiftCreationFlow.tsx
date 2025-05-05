@@ -593,7 +593,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <div className="space-y-2 border-dotted border border-pink-200 rounded-md p-3">
                   <Input 
                     placeholder="Client Name"
-                    value={recipientData.name}
+                    value={client?.name || recipientData.name}
                     onChange={(e) => {
                       setRecipientData({...recipientData, name: e.target.value});
                       
@@ -607,6 +607,19 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     }}
                     required
                     className="flex-1"
+                    onFocus={(e) => {
+                      // Auto-fill with client name if empty
+                      if (!e.target.value && client?.name) {
+                        const clientName = client.name;
+                        setRecipientData(prev => ({...prev, name: clientName}));
+                        
+                        // Update message with client name
+                        const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
+                        const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
+                        const updatedMessage = `Hi ${clientName}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.signature || clientName}`;
+                        setPersonalMessage(updatedMessage);
+                      }
+                    }}
                     onKeyDown={(e) => {
                       // Update message with name when Enter is pressed
                       if (e.key === 'Enter' && recipientData.name.trim().length > 0) {
