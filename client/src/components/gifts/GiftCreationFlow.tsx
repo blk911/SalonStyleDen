@@ -67,7 +67,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   // or default to Tiffany's salon (ID: 2) which is the sponsor
   const useSalonId = salonId || 2; // Default to Tiffany's salon if none specified
   
-  // Initialize hidden input with default values and client name
+  // Initialize hidden input with default values
   useEffect(() => {
     // Set initial value for styleOptions hidden field
     const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
@@ -82,18 +82,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       styleOptionsElement.value = JSON.stringify(styleOptionsData);
       console.log(`GiftCreationFlow: Initialized styleOptions with clientId=${clientId}, salonId=${useSalonId}`);
     }
-
-    // Check if client data is available to initialize the form
-    if (client?.name) {
-      console.log(`GiftCreationFlow: Initializing form with client name: ${client.name}`);
-      // Set both the name and signature at once
-      setRecipientData(prevData => ({
-        ...prevData,
-        name: client.name,
-        signature: client.name
-      }));
-    }
-  }, [clientId, useSalonId, client]);
+  }, [clientId, useSalonId]);
 
   // Define Tiffany's salon services for Deborah
   const services = [
@@ -145,22 +134,9 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         const clientData = await response.json();
         console.log(`GiftCreationFlow: Client connected to salon: ${clientData?.salonName || 'None'}`);
         
-        // Auto-fill recipient name and signature with client name (site-wide standard)
+        // Log that we have client data (form initialization happens in useEffect)
         if (clientData?.name) {
-          console.log(`GiftCreationFlow: Setting name and signature to client name: ${clientData.name}`);
-          // Set both the client name and signature at once to ensure consistency
-          setRecipientData(prev => ({
-            ...prev,
-            name: clientData.name,
-            signature: clientData.name
-          }));
-          
-          // Also update message preview with name and signature
-          const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
-          const styleName = selectedStyle ? selectedStyle.name : "French Tips / Touch-Up";
-          
-          // Create message with client name in both places
-          setPersonalMessage(`Hi ${clientData.name}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${clientData.name}`);
+          console.log(`GiftCreationFlow: Client data fetched successfully: ${clientData.name}`);
         }
         
         return clientData;
@@ -282,6 +258,25 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       setStep("recipient");
     }
   });
+
+  // Initialize form fields when client data becomes available
+  useEffect(() => {
+    if (client?.name) {
+      console.log(`GiftCreationFlow: Client data loaded, initializing form fields with name: ${client.name}`);
+      setRecipientData(prevData => ({
+        ...prevData,
+        name: client.name,
+        signature: client.name
+      }));
+
+      // Update message if we have a selected style
+      if (selectedStyleId) {
+        const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
+        const styleName = selectedStyle ? selectedStyle.name : "French Tips / Touch-Up";
+        setPersonalMessage(`Hi ${client.name}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${client.name}`);
+      }
+    }
+  }, [client, selectedStyleId]);
 
   // Handle style selection - watches for DOM changes to detect selection from VmbStyleOptions
   useEffect(() => {
