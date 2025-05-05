@@ -259,21 +259,17 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     }
   });
 
-  // Initialize form fields when client data becomes available
+  // Initialize form fields when client data becomes available - but don't prefill with client name
   useEffect(() => {
     if (client?.name) {
-      console.log(`GiftCreationFlow: Client data loaded, initializing form fields with name: ${client.name}`);
-      setRecipientData(prevData => ({
-        ...prevData,
-        name: client.name,
-        signature: client.name
-      }));
-
-      // Update message if we have a selected style
+      console.log(`GiftCreationFlow: Client data loaded, but NOT auto-filling form fields with name`);
+      
+      // Only update message if we have a selected style, but DON'T prefill with client name
       if (selectedStyleId) {
         const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
         const styleName = selectedStyle ? selectedStyle.name : "French Tips / Touch-Up";
-        setPersonalMessage(`Hi ${client.name}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${client.name}`);
+        // Use placeholders instead of client name
+        setPersonalMessage(`Hi [NAME], I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ [SIGNED]`);
       }
     }
   }, [client, selectedStyleId]);
@@ -429,14 +425,14 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       phone: recipientData.phone,
       email: recipientData.email || null,
       message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️ ${recipientData.signature || ""}`,
-      signature: recipientData.signature || client?.name || "",
+      signature: recipientData.signature || "",
       styleId: selectedStyleId,
       stylePrice: selectedStyle.price,
       styleName: selectedStyle.name,
       clientId: clientId,
       salonId: useSalonId,
       status: "pending",
-      senderName: client?.name || "Client",
+      senderName: recipientData.signature || "Friend",
       invitationType: "client_to_friend",
       styleImageUrl: selectedStyle.gifUrl
     };
