@@ -180,7 +180,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       return await response.json();
     },
     onSuccess: (data) => {
-      console.log("GiftCreationFlow: Client invitation created successfully:", data);
+      console.log("[FLOW][GiftCreationFlow] Client invitation created successfully:", data);
       setInvitationId(data.id);
       
       // Invalidate relevant queries to refresh data
@@ -191,19 +191,51 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/invitations`] });
       }
       
+      // Close the preview modal if it's still open
+      if (showFinalInvitationModal) {
+        setShowFinalInvitationModal(false);
+      }
+      
       // Move to confirmation step
       setStep("confirm");
       
       toast({
         title: "Gift Invitation Sent!",
-        description: "Your personal gift invitation has been created successfully.",
+        description: `Your gift invitation for ${recipientData.name} has been successfully created and sent.`,
+        variant: "default"
       });
+      
+      // Log success for auditing
+      console.log(`[FLOW][GiftCreationFlow] Gift invitation #${data.id} successfully sent from client ${clientId} to ${recipientData.name}`);
     },
     onError: (error: any) => {
-      console.error("GiftCreationFlow: Error creating client invitation:", error);
+      console.error("[ERROR][GiftCreationFlow] Error creating client invitation:", error);
+      
+      // Format a more user-friendly error message
+      let errorMessage = "Something went wrong when sending the invitation.";
+      
+      if (error.message) {
+        if (error.message.includes("salon reached invitation limit")) {
+          errorMessage = "This salon has reached its invitation limit. Please contact your salon owner.";
+        } else if (error.message.includes("phone") || error.message.includes("number")) {
+          errorMessage = "There was a problem with the recipient's phone number. Please verify it and try again.";
+        } else if (error.message.includes("style")) {
+          errorMessage = "The selected style is no longer available. Please select a different style.";
+        } else if (error.message.includes("already exists")) {
+          errorMessage = "An invitation for this recipient already exists. Please try with a different recipient.";
+        } else {
+          errorMessage = `Failed to create invitation: ${error.message}`;
+        }
+      }
+      
+      // Close the modal if it's open
+      if (showFinalInvitationModal) {
+        setShowFinalInvitationModal(false);
+      }
+      
       toast({
-        title: "Error",
-        description: `Failed to create invitation: ${error.message}`,
+        title: "Invitation Failed",
+        description: errorMessage,
         variant: "destructive"
       });
     }
@@ -302,6 +334,9 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       return;
     }
     
+    // Close the modal first
+    setShowFinalInvitationModal(false);
+    
     // Create invitation data
     const invitationData = {
       name: recipientData.name,
@@ -315,16 +350,23 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       clientId: clientId,
       salonId: useSalonId,
       status: "pending",
-      senderName: client?.name || "Client"
+      senderName: client?.name || "Client",
+      source: "client", // Identify source as client-initiated
+      clientDriven: true, // Explicit flag for client-driven invitations
+      invitationType: "client_to_friend", // Specify invitation type
+      styleImageUrl: selectedStyle.gifUrl // Include the style image URL
     };
+    
+    console.log("[FLOW][GiftCreationFlow] Sending invitation to API:", invitationData);
+    
+    // Show processing toast
+    toast({
+      title: "Sending Gift",
+      description: "Creating your gift invitation...",
+    });
     
     // Call the mutation to create the invitation
     createInvitationMutation.mutate(invitationData);
-    
-    toast({
-      title: "Processing Gift",
-      description: "Creating your gift invitation...",
-    });
   };
 
   // Function to handle gift creation confirmation
@@ -655,7 +697,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
              onClick={() => step === "payment" ? setStep("") : setStep("payment")}
              style={{opacity: (step === "payment" || step === "confirm") ? 1 : 0.5, pointerEvents: (step === "payment" || step === "confirm") ? 'auto' : 'none'}}>
           <h3 className="text-pink-800 font-semibold flex items-center">
-            STEP 3 Preview
+            STEP 3: Preview and Send
           </h3>
           <div className="flex items-center">
             {step === "confirm" && <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />}
@@ -723,11 +765,25 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   </p>
                   
                   <Button 
-                    onClick={handlePayment}
+                    onClick={() => {
+                      // Show the final invitation preview before sending
+                      setShowFinalInvitationModal(true);
+                      
+                      // Log the preview action for tracking
+                      console.log("[FLOW][GiftCreationFlow] Opening final invitation preview for sending", {
+                        recipientName: recipientData.name,
+                        recipientContact: recipientData.phone,
+                        styleId: selectedStyleId,
+                        salonId: useSalonId
+                      });
+                    }}
                     className="w-full bg-pink-600 hover:bg-pink-700 text-white"
                   >
-                    <CreditCardIcon className="mr-2 h-4 w-4" />
-                    Send Gift Invitation
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    Preview and Send
                   </Button>
                 </div>
               </CardContent>
@@ -798,12 +854,18 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
             )}
           </div>
           
-          <DialogFooter>
+          <DialogFooter className="flex justify-between sm:justify-between">
             <Button 
               onClick={() => setShowFinalInvitationModal(false)}
-              className="bg-pink-600 hover:bg-pink-700 text-white"
+              className="bg-gray-200 hover:bg-gray-300 text-gray-800"
             >
-              Continue to Payment
+              Back to Salon
+            </Button>
+            <Button 
+              onClick={handlePayment}
+              className="bg-pink-500 hover:bg-pink-600 text-white font-medium"
+            >
+              CONFIRM TO SEND
             </Button>
           </DialogFooter>
         </DialogContent>
