@@ -85,6 +85,7 @@ export interface IStorage {
   getAppointment(id: number): Promise<Appointment | undefined>;
   getClientAppointments(clientId: number): Promise<Appointment[]>;
   getSalonAppointments(salonId: number): Promise<Appointment[]>;
+  getInvitationAppointments(invitationId: number): Promise<Appointment[]>;
   updateAppointmentStatus(id: number, status: string): Promise<Appointment>;
 }
 
@@ -648,6 +649,21 @@ export class DatabaseStorage implements IStorage {
         description: `Client ${client.name} (ID: ${id}) was permanently deleted`,
         timestamp: new Date()
       });
+      
+      // Get all appointments for this client
+      const clientAppointments = await this.getClientAppointments(id);
+      console.log(`DatabaseStorage.deleteClient - Found ${clientAppointments.length} appointments to delete first`);
+      
+      // Delete all appointments for this client
+      for (const appointment of clientAppointments) {
+        try {
+          await db.delete(appointments).where(eq(appointments.id, appointment.id));
+          console.log(`DatabaseStorage.deleteClient - Deleted appointment ID ${appointment.id}`);
+        } catch (appointmentError) {
+          console.error(`DatabaseStorage.deleteClient - Error deleting appointment ${appointment.id}:`, appointmentError);
+          // Continue with deletion of other appointments
+        }
+      }
       
       // Delete the client
       const result = await db
@@ -1654,6 +1670,20 @@ export class DatabaseStorage implements IStorage {
       return results;
     } catch (error) {
       console.error('DatabaseStorage.getClientAppointments - Error fetching client appointments:', error);
+      throw error;
+    }
+  }
+  
+  async getInvitationAppointments(invitationId: number): Promise<Appointment[]> {
+    console.log(`DatabaseStorage.getInvitationAppointments - Fetching appointments for invitation ${invitationId}`);
+    
+    try {
+      const results = await db.select().from(appointments).where(eq(appointments.invitationId, invitationId));
+      
+      console.log(`DatabaseStorage.getInvitationAppointments - Retrieved ${results.length} appointments for invitation ${invitationId}`);
+      return results;
+    } catch (error) {
+      console.error('DatabaseStorage.getInvitationAppointments - Error fetching invitation appointments:', error);
       throw error;
     }
   }
