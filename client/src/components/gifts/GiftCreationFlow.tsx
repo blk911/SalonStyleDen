@@ -131,6 +131,17 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     refetchOnWindowFocus: true, // Refresh data when window regains focus
     staleTime: 60000 // Consider data fresh for 1 minute
   });
+  
+  // Initialize signature with client's name when client data is loaded
+  useEffect(() => {
+    if (client && client.name && !recipientData.signature) {
+      console.log(`GiftCreationFlow: Setting signature to client name: ${client.name}`);
+      setRecipientData(prev => ({
+        ...prev,
+        signature: client.name
+      }));
+    }
+  }, [client]);
 
   // Create Client-Driven Invitation Mutation
   const createInvitationMutation = useMutation({
