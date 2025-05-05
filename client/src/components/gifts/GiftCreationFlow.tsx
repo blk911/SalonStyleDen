@@ -647,7 +647,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   
                   <Input 
                     placeholder="SIGN HERE!"
-                    value={recipientData.signature || ""}
+                    value={recipientData.signature || client?.name || ""}
                     onChange={(e) => {
                       setRecipientData({...recipientData, signature: e.target.value});
                       
@@ -656,7 +656,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
                       
                       // Create message with updated signature
-                      const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || "[SIGNED]"}`;
+                      const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || client?.name || "[SIGNED]"}`;
                       setPersonalMessage(updatedMessage);
                     }}
                     className="flex-1"
@@ -689,7 +689,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <div className="border-dotted border border-pink-200 rounded-md p-3">
                   {/* Message preview is in the blue box */}
                   <div className="rounded-md p-3 bg-blue-100 mb-3">
-                    Hi {recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "French Tips / Touch-Up"}, will you Ven Me, Baby! <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> {recipientData.signature || "[SIGNED]"}
+                    Hi {recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "French Tips / Touch-Up"}, will you Ven Me, Baby! <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> {recipientData.signature || client?.name || "[SIGNED]"}
                   </div>
                   
                   {/* Style card preview */}
