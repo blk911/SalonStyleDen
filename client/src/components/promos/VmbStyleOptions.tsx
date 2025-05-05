@@ -816,11 +816,11 @@ export function VmbStyleOptions({
                                   setRecipientContact(formattedInput);
                                 }}
                                 onKeyDown={(e) => {
-                                  // If Enter is pressed, move to next field (Deborah)
+                                  // If Enter is pressed, move to next field (SIGN HERE)
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
                                     // Find the next input which is the signature field
-                                    const nextField = e.currentTarget.parentElement?.querySelector('input[placeholder="Deborah"]');
+                                    const nextField = e.currentTarget.parentElement?.querySelector('input[placeholder="SIGN HERE!"]');
                                     if (nextField instanceof HTMLElement) {
                                       nextField.focus();
                                     }
@@ -830,9 +830,9 @@ export function VmbStyleOptions({
                               
                               <input 
                                 type="text"
-                                placeholder="Deborah"
+                                placeholder="SIGN HERE!"
                                 className="w-full p-1.5 text-[10px] border border-pink-100 rounded"
-                                value={signature || "Deborah"}
+                                value={signature}
                                 onKeyDown={(e) => {
                                   // If Enter is pressed, set invitation confirmed to show the Preview button
                                   if (e.key === 'Enter') {
