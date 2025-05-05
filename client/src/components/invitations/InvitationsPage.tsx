@@ -32,8 +32,8 @@ export default function InvitationsPage() {
               <div className="p-3 bg-white rounded-full mb-3">
                 <UserPlusIcon className="h-8 w-8 text-pink-500" />
               </div>
-              <h3 className="text-lg font-medium text-pink-800">Send Invitation</h3>
-              <p className="text-sm text-pink-700 mt-1">Invite others to your salon</p>
+              <h3 className="text-lg font-medium text-pink-800">Share Ven Me, Baby!!</h3>
+              <p className="text-sm text-pink-700 mt-1">Invite your friends to join VMB</p>
             </div>
 
             {/* Invite a Friend Card (moved from GiftsPage) */}
@@ -41,8 +41,8 @@ export default function InvitationsPage() {
               <div className="p-3 bg-white rounded-full mb-3">
                 <UserPlusIcon className="h-8 w-8 text-indigo-500" />
               </div>
-              <h3 className="text-lg font-medium text-indigo-800">Invite a Friend</h3>
-              <p className="text-sm text-indigo-700 mt-1">Share your favorite salon with friends</p>
+              <h3 className="text-lg font-medium text-indigo-800">Register New VMB Salons</h3>
+              <p className="text-sm text-indigo-700 mt-1">Sign-up Your Favorite Salons</p>
             </div>
           </div>
         </CardContent>
@@ -53,7 +53,7 @@ export default function InvitationsPage() {
         <CardHeader className="bg-pink-50 pb-2 pt-2">
           <CardTitle className="text-base flex items-center gap-2 text-pink-700">
             <UserPlusIcon className="h-4 w-4" />
-            Send Invitation
+            Share Ven Me, Baby!
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
@@ -88,7 +88,7 @@ export default function InvitationsPage() {
                 type="submit" 
                 className="bg-pink-600 hover:bg-pink-700 text-white"
               >
-                Send Invitation
+                Share VMB
               </Button>
             </div>
           </form>
