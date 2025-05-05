@@ -353,14 +353,42 @@ export default function ClientDashboard() {
   }
 
   if (clientError || !client) {
+    // Extract error message to provide more context
+    const errorMessage = clientError instanceof Error 
+      ? clientError.message
+      : "Unknown error occurred";
+    
+    // Check if it's a "not found" error
+    const isNotFoundError = errorMessage.includes("404") || errorMessage.includes("not found");
+    
     return (
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow flex items-center justify-center">
           <Card className="w-full max-w-md mx-4">
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-bold text-red-500">Error</h2>
-              <p className="mt-2">There was a problem loading your dashboard. Please try again later.</p>
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-red-500">Error</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <h2 className="text-lg font-medium mb-2">
+                {isNotFoundError ? "Client Not Found" : "Dashboard Error"}
+              </h2>
+              <p className="mb-4">
+                {isNotFoundError 
+                  ? `We couldn't find client with ID ${numericId}. This client may not exist or may have been removed.`
+                  : "There was a problem loading your dashboard. Please try again later."}
+              </p>
+              <div className="flex justify-between">
+                <Button 
+                  variant="outline" 
+                  onClick={() => window.location.href = "/"}>
+                  Go Home
+                </Button>
+                <Button 
+                  onClick={() => window.location.href = `/client/${isNotFoundError ? "11" : numericId}`}>
+                  {isNotFoundError ? "Try Existing Client" : "Retry"}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </main>
