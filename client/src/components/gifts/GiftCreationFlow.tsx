@@ -726,13 +726,14 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
           <div className="my-4">
             <div className="bg-white rounded-lg shadow-md p-5 mb-5">
               <RenderedInvitation 
+                inviteId="preview"
+                recipientName={recipientData.name}
                 styleOption={services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Selected Style"}
                 price={`$${services?.find((s: StyleOption) => s.id === selectedStyleId)?.price || "45"}`}
                 time={`${services?.find((s: StyleOption) => s.id === selectedStyleId)?.duration || "30"} min`}
-                recipient={recipientData.name}
-                message={personalMessage}
                 imageUrl={services?.find((s: StyleOption) => s.id === selectedStyleId)?.gifUrl || "/assets/french-tips.png"}
-                sender={recipientData.signature || client?.name || "You"}
+                senderName={recipientData.signature || client?.name || "You"}
+                status="pending"
               />
             </div>
           </div>
