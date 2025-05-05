@@ -121,6 +121,16 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         }
         const clientData = await response.json();
         console.log(`GiftCreationFlow: Client connected to salon: ${clientData?.salonName || 'None'}`);
+        
+        // Auto-fill signature with client name (site-wide standard)
+        if (clientData?.name && !recipientData.signature) {
+          console.log(`GiftCreationFlow: Setting signature to client name: ${clientData.name}`);
+          setRecipientData(prev => ({
+            ...prev,
+            signature: clientData.name
+          }));
+        }
+        
         return clientData;
       } catch (error) {
         console.error('Error fetching client data:', error);
@@ -448,12 +458,37 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     placeholder="Phone Number"
                     type="tel"
                     value={recipientData.phone}
-                    onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
+                    onChange={(e) => {
+                      // Apply phone formatting rules from site-wide standard
+                      let phoneValue = e.target.value;
+                      const digits = phoneValue.replace(/\D/g, '');
+                      
+                      // Format the phone number as user types
+                      if (digits.length <= 3) {
+                        phoneValue = digits;
+                      } else if (digits.length <= 6) {
+                        phoneValue = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                      } else {
+                        phoneValue = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+                      }
+                      
+                      setRecipientData({...recipientData, phone: phoneValue});
+                    }}
                     required
                     className="flex-1"
+                    onBlur={() => {
+                      // Validate phone on blur (site-wide standard)
+                      const cleanPhone = recipientData.phone.replace(/\D/g, '');
+                      if (cleanPhone.length === 10) {
+                        // Format consistently when field loses focus
+                        const formattedPhone = `(${cleanPhone.slice(0, 3)}) ${cleanPhone.slice(3, 6)}-${cleanPhone.slice(6, 10)}`;
+                        setRecipientData({...recipientData, phone: formattedPhone});
+                      }
+                    }}
                     onKeyDown={(e) => {
                       // Move to next field on Enter when phone is complete
-                      if (e.key === 'Enter' && recipientData.phone.replace(/\D/g, '').length >= 10) {
+                      const cleanPhone = recipientData.phone.replace(/\D/g, '');
+                      if (e.key === 'Enter' && cleanPhone.length >= 10) {
                         e.preventDefault();
                         
                         // Move to signature field
