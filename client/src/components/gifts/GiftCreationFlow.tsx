@@ -135,7 +135,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         console.log(`GiftCreationFlow: Client connected to salon: ${clientData?.salonName || 'None'}`);
         
         // Auto-fill signature with client name (site-wide standard)
-        if (clientData?.name && !recipientData.signature) {
+        if (clientData?.name) {
           console.log(`GiftCreationFlow: Setting signature to client name: ${clientData.name}`);
           setRecipientData(prev => ({
             ...prev,
@@ -262,6 +262,17 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       setStep("recipient");
     }
   });
+
+  // Add a useEffect to ensure client name is set as signature when client data is loaded
+  useEffect(() => {
+    if (client?.name && !recipientData.signature) {
+      console.log(`GiftCreationFlow: useEffect setting signature to client name: ${client.name}`);
+      setRecipientData(prev => ({
+        ...prev,
+        signature: client.name
+      }));
+    }
+  }, [client, recipientData.signature]);
 
   // Handle style selection - watches for DOM changes to detect selection from VmbStyleOptions
   useEffect(() => {
