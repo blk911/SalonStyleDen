@@ -643,11 +643,13 @@ export class DatabaseStorage implements IStorage {
         throw new Error(`Client with ID ${id} not found`);
       }
       
-      // Log the action to activity logs before deleting
+      // Create a record of this action but set clientId to null to avoid the circular dependency
       await this.createActivityLog({
         type: 'client_deleted',
         description: `Client ${client.name} (ID: ${id}) was permanently deleted`,
-        timestamp: new Date()
+        timestamp: new Date(),
+        // Explicitly set clientId to null for this log to avoid circular reference
+        clientId: null
       });
       
       // Get all appointments for this client
@@ -678,6 +680,17 @@ export class DatabaseStorage implements IStorage {
           console.error(`DatabaseStorage.deleteClient - Error deleting style selection ${styleSelection.id}:`, styleSelectionError);
           // Continue with deletion of other style selections
         }
+      }
+      
+      // Clear clientId from any activity logs referencing this client
+      try {
+        await db.update(activityLogs)
+          .set({ clientId: null })
+          .where(eq(activityLogs.clientId, id));
+        console.log(`DatabaseStorage.deleteClient - Cleared client ID from associated activity logs`);
+      } catch (activityLogError) {
+        console.error(`DatabaseStorage.deleteClient - Error clearing client ID from activity logs:`, activityLogError);
+        // Continue with client deletion anyway
       }
       
       // Delete the client
@@ -1657,6 +1670,21 @@ export class DatabaseStorage implements IStorage {
         }
       }
       
+      // Clear any activity logs that reference this invitation  
+      try {
+        // We need to use a different approach since there's no invitationId in activityLogs
+        // Instead, filter for logs that might mention this invitation (based on description)
+        await db.update(activityLogs)
+          .set({ 
+            description: sql`REPLACE(description, ${`invitation for ${invitation.name}`}, ${`deleted invitation (ID ${id})`})` 
+          })
+          .where(sql`description LIKE ${`%invitation for ${invitation.name}%`}`);
+        console.log(`DatabaseStorage.deleteInvitation - Updated activity logs mentioning this invitation`);
+      } catch (activityLogError) {
+        console.error(`DatabaseStorage.deleteInvitation - Error updating activity logs:`, activityLogError);
+        // Continue with invitation deletion anyway
+      }
+      
       // Delete the invitation
       const result = await db.delete(invitations).where(eq(invitations.id, id)).returning();
       
@@ -1667,11 +1695,14 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`DatabaseStorage.deleteInvitation - Successfully deleted invitation ID ${id}`);
       
-      // Log this action
+      // Log this action with null for related entities that were just deleted
       await this.createActivityLog({
         type: 'invitation_deleted',
-        description: `Admin deleted invitation for ${invitation.name}`,
+        description: `Admin deleted invitation for ${invitation.name} (ID: ${id})`,
         timestamp: new Date(),
+        // No specific related entities to reference
+        clientId: null,
+        salonId: null
       });
       
       return true;
