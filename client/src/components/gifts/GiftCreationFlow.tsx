@@ -445,7 +445,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   />
                   
                   <Input
-                    placeholder=""
+                    placeholder="Phone Number"
                     type="tel"
                     value={recipientData.phone}
                     onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
@@ -477,14 +477,14 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || "[SIGNED]"}`;
                       setPersonalMessage(updatedMessage);
                     }}
-                    className="flex-1 text-gray-600"
+                    className="flex-1"
                     onKeyDown={(e) => {
                       // Move to preview button on Enter
                       if (e.key === 'Enter' && recipientData.signature.trim().length > 0) {
                         e.preventDefault();
                         
                         // Focus on the preview button
-                        const previewButton = document.querySelector('button.w-full.bg-pink-500') as HTMLButtonElement;
+                        const previewButton = document.querySelector('button.bg-blue-500') as HTMLButtonElement;
                         if (previewButton) previewButton.focus();
                       }
                     }}
@@ -574,15 +574,15 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   
                   {/* Payment icons */}
                   <div className="flex gap-3 items-center justify-center">
-                    <div className="h-8 w-8 rounded-full bg-blue-500 text-white shadow-sm flex items-center justify-center">
+                    <button className="h-8 w-8 rounded-full bg-blue-500 text-white shadow-sm flex items-center justify-center hover:bg-blue-600 transition-colors">
                       <span className="text-xs font-bold">Z</span>
-                    </div>
-                    <div className="h-8 w-8 rounded-full bg-teal-500 text-white shadow-sm flex items-center justify-center">
+                    </button>
+                    <button className="h-8 w-8 rounded-full bg-teal-500 text-white shadow-sm flex items-center justify-center hover:bg-teal-600 transition-colors">
                       <span className="text-xs font-bold">V</span>
-                    </div>
-                    <div className="h-8 w-8 rounded-full bg-green-500 text-white shadow-sm flex items-center justify-center">
+                    </button>
+                    <button className="h-8 w-8 rounded-full bg-green-500 text-white shadow-sm flex items-center justify-center hover:bg-green-600 transition-colors">
                       <span className="text-xs font-bold">CA</span>
-                    </div>
+                    </button>
                   </div>
                 </div>
               </div>
