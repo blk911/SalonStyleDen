@@ -4,6 +4,7 @@ import { UserIcon, UserPlusIcon, ClipboardListIcon, HeartIcon } from "lucide-rea
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Link } from "wouter";
 
 export default function InvitationsPage() {
   return (
@@ -27,23 +28,27 @@ export default function InvitationsPage() {
       <Card className="rounded-xl shadow-sm overflow-hidden">
         <CardContent className="pt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Send Invitation Card */}
-            <div className="border rounded-lg p-4 bg-gradient-to-r from-pink-50 to-pink-100 shadow-sm flex flex-col items-center justify-center text-center min-h-[180px] transition-all hover:shadow-md cursor-pointer">
-              <div className="p-3 bg-white rounded-full mb-3">
-                <UserPlusIcon className="h-8 w-8 text-pink-500" />
+            {/* Share VMB Card - links to client registration */}
+            <Link href="/client-registration" className="block">
+              <div className="border rounded-lg p-4 bg-gradient-to-r from-pink-50 to-pink-100 shadow-sm flex flex-col items-center justify-center text-center min-h-[180px] transition-all hover:shadow-md cursor-pointer">
+                <div className="p-3 bg-white rounded-full mb-3">
+                  <UserPlusIcon className="h-8 w-8 text-pink-500" />
+                </div>
+                <h3 className="text-lg font-medium text-pink-800">Share Ven Me, Baby!!</h3>
+                <p className="text-sm text-pink-700 mt-1">Invite your friends to join VMB</p>
               </div>
-              <h3 className="text-lg font-medium text-pink-800">Share Ven Me, Baby!!</h3>
-              <p className="text-sm text-pink-700 mt-1">Invite your friends to join VMB</p>
-            </div>
+            </Link>
 
-            {/* Invite a Friend Card (moved from GiftsPage) */}
-            <div className="border rounded-lg p-4 bg-gradient-to-r from-indigo-50 to-indigo-100 shadow-sm flex flex-col items-center justify-center text-center min-h-[180px] transition-all hover:shadow-md cursor-pointer">
-              <div className="p-3 bg-white rounded-full mb-3">
-                <UserPlusIcon className="h-8 w-8 text-indigo-500" />
+            {/* Register New VMB Salons Card - links to salon registration */}
+            <Link href="/salon-registration" className="block">
+              <div className="border rounded-lg p-4 bg-gradient-to-r from-indigo-50 to-indigo-100 shadow-sm flex flex-col items-center justify-center text-center min-h-[180px] transition-all hover:shadow-md cursor-pointer">
+                <div className="p-3 bg-white rounded-full mb-3">
+                  <UserPlusIcon className="h-8 w-8 text-indigo-500" />
+                </div>
+                <h3 className="text-lg font-medium text-indigo-800">Register New VMB Salons</h3>
+                <p className="text-sm text-indigo-700 mt-1">Sign-up Your Favorite Salons</p>
               </div>
-              <h3 className="text-lg font-medium text-indigo-800">Register New VMB Salons</h3>
-              <p className="text-sm text-indigo-700 mt-1">Sign-up Your Favorite Salons</p>
-            </div>
+            </Link>
           </div>
         </CardContent>
       </Card>
