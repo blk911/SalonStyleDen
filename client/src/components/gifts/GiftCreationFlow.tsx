@@ -134,14 +134,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         const clientData = await response.json();
         console.log(`GiftCreationFlow: Client connected to salon: ${clientData?.salonName || 'None'}`);
         
-        // Auto-fill signature with client name (site-wide standard)
-        if (clientData?.name && !recipientData.signature) {
-          console.log(`GiftCreationFlow: Setting signature to client name: ${clientData.name}`);
-          setRecipientData(prev => ({
-            ...prev,
-            signature: clientData.name
-          }));
-        }
+        // Do not auto-fill signature field - let users enter their own signature
+        // Previously this was auto-filling with client name, but that was causing confusion
         
         return clientData;
       } catch (error) {
