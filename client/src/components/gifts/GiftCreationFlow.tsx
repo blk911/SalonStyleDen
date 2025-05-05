@@ -411,7 +411,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <h3 className="text-center mb-3 font-medium">Your Invitation Design</h3>
                 <div className="space-y-2 border-dotted border border-pink-200 rounded-md p-3">
                   <Input 
-                    placeholder="Client Name"
+                    placeholder="sdfsa"
                     value={recipientData.name}
                     onChange={(e) => {
                       setRecipientData({...recipientData, name: e.target.value});
@@ -445,7 +445,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   />
                   
                   <Input
-                    placeholder="Phone Number"
+                    placeholder="3242342342342342"
                     type="tel"
                     value={recipientData.phone}
                     onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
@@ -465,7 +465,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   
                   <Input 
                     placeholder="SIGN HERE!"
-                    value={recipientData.signature || ""}
+                    value={recipientData.signature || client?.name || ""}
                     onChange={(e) => {
                       setRecipientData({...recipientData, signature: e.target.value});
                       
@@ -474,7 +474,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
                       
                       // Create message with updated signature
-                      const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || "[SIGNED]"}`;
+                      // For client dashboard, the signature should be the client's name
+                      const updatedMessage = `Hi ${recipientData.name || "sdfsa"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || client?.name || "[SIGNED]"}`;
                       setPersonalMessage(updatedMessage);
                     }}
                     className="flex-1"
@@ -542,7 +543,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <div className="border-dotted border border-pink-200 rounded-md p-3">
                   {/* Message preview is in the blue box */}
                   <div className="rounded-md p-3 bg-blue-100 mb-3">
-                    Hi {recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "French Tips / Touch-Up"}, will you Ven Me, Baby! <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> {recipientData.signature || "[SIGNED]"}
+                    Hi {recipientData.name || "sdfsa"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Sculpted Acrylics"}, will you Ven Me, Baby! <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> {recipientData.signature || client?.name || "[SIGNED]"}
                   </div>
                   
                   {/* Style card preview */}
