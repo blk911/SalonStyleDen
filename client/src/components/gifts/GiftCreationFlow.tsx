@@ -792,23 +792,40 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         
         {step === "confirm" && (
           <div className="p-4">
-            <div className="text-center p-6 bg-green-50 rounded-lg">
-              <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-green-800 mb-2">Gift Invitation Sent!</h3>
-              <p className="text-green-700 mb-4">
-                Your personal gift invitation has been created and sent to {recipientData.name}.
-              </p>
-              <p className="text-sm text-green-600 mb-6">
-                They'll receive your invitation for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'salon service'} at {client?.salonName || "your connected salon"}.
-              </p>
-              
-              <Button 
-                onClick={handleConfirm}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                Return to Gifts
-              </Button>
-            </div>
+            <Dialog open={step === "confirm"} onOpenChange={() => handleConfirm()}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-center">
+                    Your Gift Request Is Ready!
+                  </DialogTitle>
+                  <DialogDescription className="text-center">
+                    This is your final gift request with unique ID. It can't be modified once sent.
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div className="py-6">
+                  <div className="text-center">
+                    <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-green-800 mb-2">Gift Invitation Sent!</h3>
+                    <p className="text-green-700 mb-4">
+                      Your personal gift invitation has been created and sent to {recipientData.name}.
+                    </p>
+                    <p className="text-sm text-green-600 mb-6">
+                      They'll receive your invitation for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'salon service'} at {client?.salonName || "your connected salon"}.
+                    </p>
+                  </div>
+                </div>
+                
+                <DialogFooter>
+                  <Button 
+                    onClick={handleConfirm}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Close
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </div>
