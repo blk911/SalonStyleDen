@@ -59,6 +59,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   const [selectedStyleId, setSelectedStyleId] = useState<number | null>(null);
   const [personalMessage, setPersonalMessage] = useState("");
   const [invitationId, setInvitationId] = useState<number | null>(null);
+  const [showFinalInvitationModal, setShowFinalInvitationModal] = useState(false);
 
   // If salonId is not provided, we need to fetch the salon associated with the client
   // or default to Tiffany's salon (ID: 2) which is the sponsor
@@ -540,7 +541,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       onClick={() => {
                         toast({
                           title: "Design Preview",
-                          description: "Invitation preview being prepared...",
+                          description: "Opening invitation preview...",
                         });
                         
                         if (!recipientData.name || !recipientData.phone) {
@@ -569,6 +570,17 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                           const event = new Event('change', { bubbles: true });
                           styleOptionsElement.dispatchEvent(event);
                         }
+                        
+                        // Show the final rendered invitation modal
+                        setShowFinalInvitationModal(true);
+                        
+                        // Log the preview action
+                        console.log("[FLOW][GiftCreationFlow] Opening invitation preview", {
+                          recipientName: recipientData.name,
+                          recipientContact: recipientData.phone,
+                          styleId: selectedStyleId,
+                          salonId: useSalonId
+                        });
                         
                         // Move directly to Step 3 (Preview)
                         setStep("payment");
@@ -759,6 +771,43 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
           </div>
         )}
       </div>
+      
+      {/* Rendered Invitation Preview Dialog */}
+      <Dialog open={showFinalInvitationModal} onOpenChange={setShowFinalInvitationModal}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Gift Invitation Preview</DialogTitle>
+            <DialogDescription>
+              This is how your gift invitation will appear to {recipientData.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            {selectedStyleId && (
+              <RenderedInvitation
+                inviteId={`preview-${clientId}-${Date.now()}`}
+                recipientName={recipientData.name || "Recipient"}
+                styleOption={services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Selected Style"}
+                price={`$${services?.find((s: StyleOption) => s.id === selectedStyleId)?.price || "45"}`}
+                time={`${services?.find((s: StyleOption) => s.id === selectedStyleId)?.duration || "30"} min`}
+                senderName={client?.name || "You"}
+                salonName={client?.salonName || "Tiffany 5280 Nails Studio"}
+                imageUrl={services?.find((s: StyleOption) => s.id === selectedStyleId)?.gifUrl || "/assets/french-tips.png"}
+                salonInitiated={false} // client-initiated invitation
+              />
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              onClick={() => setShowFinalInvitationModal(false)}
+              className="bg-pink-600 hover:bg-pink-700 text-white"
+            >
+              Continue to Payment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
