@@ -298,14 +298,14 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       phone: recipientData.phone,
       email: recipientData.email || null,
       message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️ ${recipientData.signature || ""}`,
-      signature: recipientData.signature || "",
+      signature: recipientData.signature || client?.name || "",
       styleId: selectedStyleId,
       stylePrice: selectedStyle.price,
       styleName: selectedStyle.name,
       clientId: clientId,
       salonId: useSalonId,
       status: "pending",
-      senderName: client.name
+      senderName: client?.name || "Client"
     };
     
     // Call the mutation to create the invitation
@@ -561,8 +561,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                           styleOptionsElement.dispatchEvent(event);
                         }
                         
-                        // Move to next step
-                        handleRecipientSubmit({preventDefault: () => {}} as React.FormEvent);
+                        // Move directly to Step 3 (Preview)
+                        setStep("payment");
                       }}
                       className="w-full bg-pink-500 hover:bg-pink-600 text-white"
                     >
@@ -623,15 +623,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               </div>
             </div>
             
-            <div className="flex justify-end mt-6">
-              <Button 
-                onClick={handleRecipientSubmit}
-                className="bg-pink-600 hover:bg-pink-700 text-white"
-              >
-                Continue
-                <ChevronRightIcon className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            {/* No continue button here - the Preview Invitation button above handles transition */}
           </div>
         )}
       </div>
@@ -642,7 +634,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
              onClick={() => step === "payment" ? setStep("") : setStep("payment")}
              style={{opacity: (step === "payment" || step === "confirm") ? 1 : 0.5, pointerEvents: (step === "payment" || step === "confirm") ? 'auto' : 'none'}}>
           <h3 className="text-pink-800 font-semibold flex items-center">
-            STEP 3 Payment
+            STEP 3 Preview
           </h3>
           <div className="flex items-center">
             {step === "confirm" && <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />}
@@ -729,7 +721,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
              onClick={() => step === "confirm" ? setStep("") : setStep("confirm")}
              style={{opacity: step === "confirm" ? 1 : 0.5, pointerEvents: step === "confirm" ? 'auto' : 'none'}}>
           <h3 className="text-pink-800 font-semibold flex items-center">
-            STEP 4 Confirmation
+            STEP 4 Payment
           </h3>
           <div className="flex items-center">
             <ChevronDownIcon className={`h-5 w-5 text-pink-800 transition-transform ${step === "confirm" ? "transform rotate-180" : ""}`} />
