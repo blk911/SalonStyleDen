@@ -11,6 +11,15 @@ import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Loader2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
 import { 
   CheckCircleIcon, 
   ChevronRight as ChevronRightIcon, 
