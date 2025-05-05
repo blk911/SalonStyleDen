@@ -9,7 +9,7 @@ interface GiftsPageProps {
   salonId?: number;
 }
 
-export default function GiftsPage({ clientId = 10 }: GiftsPageProps) {
+export default function GiftsPage({ clientId }: GiftsPageProps) {
   const [showGiftCreation, setShowGiftCreation] = useState(false);
   
   return (

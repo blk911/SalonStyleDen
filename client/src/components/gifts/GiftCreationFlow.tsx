@@ -468,12 +468,21 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
 
   // Function to handle gift creation confirmation
   const handleConfirm = () => {
-    // Navigate back to client dashboard after completing the flow
-    window.location.href = '/client/' + clientId;
-    
-    // Also call onComplete if provided
+    // Call onComplete first to close the dialog
     if (onComplete) {
       onComplete();
+    }
+    
+    // Navigate back to client dashboard after completing the flow
+    // Only redirect if we have a valid clientId
+    if (clientId && clientId > 0) {
+      console.log(`GiftCreationFlow: Redirecting to client dashboard for ID ${clientId}`);
+      // Use a slight delay to ensure UI updates first
+      setTimeout(() => {
+        window.location.href = `/client/${clientId}`;
+      }, 100);
+    } else {
+      console.error("GiftCreationFlow: Cannot redirect - invalid clientId", clientId);
     }
   };
 
