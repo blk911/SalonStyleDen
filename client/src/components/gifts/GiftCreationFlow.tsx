@@ -11,7 +11,6 @@ import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Loader2 } from "lucide-react";
-import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
 import { 
   CheckCircleIcon, 
   ChevronRight as ChevronRightIcon, 
@@ -645,95 +644,73 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         
         {step === "payment" && (
           <div className="p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Gift Summary</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {/* Selected Style Info */}
-                    {selectedStyleId && services && (
-                      <div className="flex flex-col space-y-1 border-b pb-3">
-                        <div className="font-medium text-lg text-pink-700">
-                          {services.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Selected Style"}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {services.find((s: StyleOption) => s.id === selectedStyleId)?.description || "Custom nail service"}
-                        </div>
-                        <div className="flex justify-between mt-1">
-                          <span className="text-gray-600">Duration:</span>
-                          <span className="font-medium">
-                            {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration || 60} min
-                          </span>
-                        </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Gift Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {/* Selected Style Info */}
+                  {selectedStyleId && services && (
+                    <div className="flex flex-col space-y-1 border-b pb-3">
+                      <div className="font-medium text-lg text-pink-700">
+                        {services.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Selected Style"}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {services.find((s: StyleOption) => s.id === selectedStyleId)?.description || "Custom nail service"}
+                      </div>
+                      <div className="flex justify-between mt-1">
+                        <span className="text-gray-600">Duration:</span>
+                        <span className="font-medium">
+                          {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration || 60} min
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Recipient Info */}
+                  <div className="flex flex-col space-y-2 border-b pb-3">
+                    <div className="font-medium">Recipient Details</div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Name:</span>
+                      <span className="font-medium">{recipientData.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Phone:</span>
+                      <span className="font-medium">{recipientData.phone}</span>
+                    </div>
+                    {recipientData.email && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Email:</span>
+                        <span className="font-medium">{recipientData.email}</span>
                       </div>
                     )}
-                    
-                    {/* Recipient Info */}
-                    <div className="flex flex-col space-y-2 border-b pb-3">
-                      <div className="font-medium">Recipient Details</div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Name:</span>
-                        <span className="font-medium">{recipientData.name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Phone:</span>
-                        <span className="font-medium">{recipientData.phone}</span>
-                      </div>
-                      {recipientData.email && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Email:</span>
-                          <span className="font-medium">{recipientData.email}</span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Price Info */}
-                    <div className="flex justify-between pt-2 font-semibold text-lg">
-                      <span className="text-gray-700">Total:</span>
-                      <span className="text-pink-700">
-                        ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.price?.toFixed(2) || "50.00"}
-                      </span>
-                    </div>
                   </div>
                   
-                  <div className="mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                    <p className="text-sm text-gray-600 mb-4">
-                      By sending this gift, you're inviting {recipientData.name} to enjoy a salon service at {client?.salonName || "your salon"}. They'll receive your invitation and can schedule their appointment directly.
-                    </p>
-                    
-                    <Button 
-                      onClick={handlePayment}
-                      className="w-full bg-pink-600 hover:bg-pink-700 text-white"
-                    >
-                      <CreditCardIcon className="mr-2 h-4 w-4" />
-                      Send Gift Invitation
-                    </Button>
+                  {/* Price Info */}
+                  <div className="flex justify-between pt-2 font-semibold text-lg">
+                    <span className="text-gray-700">Total:</span>
+                    <span className="text-pink-700">
+                      ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.price?.toFixed(2) || "50.00"}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
-              
-              {/* Rendered Invitation Preview */}
-              <div className="flex flex-col">
-                <h3 className="text-lg font-medium mb-4 text-pink-700">Invitation Preview</h3>
-                <div className="border border-gray-200 rounded-md overflow-hidden">
-                  {selectedStyleId && services && (
-                    <RenderedInvitation 
-                      inviteId="PREVIEW"
-                      recipientName={recipientData.name}
-                      styleOption={services.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Nail Service"}
-                      price={`$${services.find((s: StyleOption) => s.id === selectedStyleId)?.price?.toFixed(2) || "50.00"}`}
-                      time={`${services.find((s: StyleOption) => s.id === selectedStyleId)?.duration || "60"} min`}
-                      senderName={client?.name || recipientData.signature || ""}
-                      salonName={client?.salonName || "Tiffany 5280 Nails Studio"}
-                      imageUrl={services.find((s: StyleOption) => s.id === selectedStyleId)?.gifUrl || "/assets/french-tips.png"}
-                      salonInitiated={false}
-                    />
-                  )}
                 </div>
-              </div>
-            </div>
+                
+                <div className="mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                  <p className="text-sm text-gray-600 mb-4">
+                    By sending this gift, you're inviting {recipientData.name} to enjoy a salon service at {client?.salonName || "your salon"}. They'll receive your invitation and can schedule their appointment directly.
+                  </p>
+                  
+                  <Button 
+                    onClick={handlePayment}
+                    className="w-full bg-pink-600 hover:bg-pink-700 text-white"
+                  >
+                    <CreditCardIcon className="mr-2 h-4 w-4" />
+                    Send Gift Invitation
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
