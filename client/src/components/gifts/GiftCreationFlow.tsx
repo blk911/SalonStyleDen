@@ -135,12 +135,18 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         console.log(`GiftCreationFlow: Client connected to salon: ${clientData?.salonName || 'None'}`);
         
         // Auto-fill signature with client name (site-wide standard)
-        if (clientData?.name && !recipientData.signature) {
+        if (clientData?.name) {
           console.log(`GiftCreationFlow: Setting signature to client name: ${clientData.name}`);
           setRecipientData(prev => ({
             ...prev,
             signature: clientData.name
           }));
+          
+          // Also update the personal message to include the client's name as the signature
+          const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
+          const styleName = selectedStyle ? selectedStyle.name : "French Tips / Touch-Up";
+          const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${clientData.name}`;
+          setPersonalMessage(updatedMessage);
         }
         
         return clientData;
