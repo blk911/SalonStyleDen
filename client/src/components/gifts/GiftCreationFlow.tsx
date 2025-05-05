@@ -663,14 +663,14 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                         e.preventDefault();
                         
                         // Move to signature field
-                        const signatureInput = document.querySelector('input[placeholder="SIGN HERE!"]') as HTMLInputElement;
+                        const signatureInput = document.querySelector('input[value="' + (recipientData.signature || '') + '"]') as HTMLInputElement;
                         if (signatureInput) signatureInput.focus();
                       }
                     }}
                   />
                   
                   <Input 
-                    placeholder="SIGN HERE!"
+                    placeholder={client?.name || "SIGN HERE!"}
                     value={recipientData.signature || ""}
                     onChange={(e) => {
                       setRecipientData({...recipientData, signature: e.target.value});
