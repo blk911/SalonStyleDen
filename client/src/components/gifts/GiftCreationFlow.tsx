@@ -291,6 +291,21 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
             // Move to recipient step
             setStep("recipient");
             
+            // Auto-fill signature with client name if it's empty
+            if (!recipientData.signature && client?.name) {
+              console.log(`GiftCreationFlow: Auto-filling signature with client name when moving to recipient step: ${client.name}`);
+              setRecipientData(prev => ({
+                ...prev,
+                signature: client.name
+              }));
+              
+              // Also update the message preview with new signature
+              const selectedStyle = services?.find((s: StyleOption) => s.id === styleData.styleId);
+              const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
+              const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${client.name}`;
+              setPersonalMessage(updatedMessage);
+            }
+            
             // Add a small delay to allow for visual confirmation before transitioning
             setTimeout(() => {
               const recipientSection = document.querySelector('[value="recipient"]');
@@ -413,7 +428,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       name: recipientData.name,
       phone: recipientData.phone,
       email: recipientData.email || null,
-      message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️ ${recipientData.signature || ""}`,
+      message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️ ${recipientData.signature || client?.name || ""}`,
       signature: recipientData.signature || client?.name || "",
       styleId: selectedStyleId,
       stylePrice: selectedStyle.price,
@@ -490,6 +505,15 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   onClick={() => {
                     // Set selectedStyleId for UI
                     setSelectedStyleId(service.id);
+                    
+                    // Auto-fill signature with client name if empty
+                    if (!recipientData.signature && client?.name) {
+                      console.log(`GiftCreationFlow: Auto-filling signature with client name on style selection: ${client.name}`);
+                      setRecipientData(prev => ({
+                        ...prev,
+                        signature: client.name
+                      }));
+                    }
                     
                     // Set hidden field value for VmbStyleOptions compatibility
                     const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
