@@ -10,7 +10,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Loader2 } from "lucide-react";
+import { Loader2, SendIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -61,6 +61,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   const [invitationId, setInvitationId] = useState<number | null>(null);
   const [showFinalInvitationModal, setShowFinalInvitationModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // If salonId is not provided, we need to fetch the salon associated with the client
   // or default to Tiffany's salon (ID: 2) which is the sponsor
@@ -206,11 +207,11 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/invitations`] });
       }
       
-      // Make sure the preview modal is closed
+      // Close the preview modal
       setShowFinalInvitationModal(false);
       
-      // Move to confirmation step
-      setStep("confirm");
+      // Show the confirmation dialog
+      setShowConfirmDialog(true);
       
       toast({
         title: "Gift Invitation Sent!",
@@ -323,7 +324,52 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       return;
     }
     
-    setStep("payment");
+    // Show the preview dialog instead of going to a new step
+    showPreviewDialog();
+  };
+
+  // Function to show the preview dialog
+  const showPreviewDialog = () => {
+    // Clear any previous errors
+    setError(null);
+    
+    if (!recipientData.name || !recipientData.phone) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide recipient name and phone",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Update hidden field to select styleId for Preview
+    const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
+    if (styleOptionsElement) {
+      styleOptionsElement.value = JSON.stringify({
+        styleId: selectedStyleId,
+        clientId: clientId,
+        salonId: useSalonId,
+        name: recipientData.name,
+        phone: recipientData.phone,
+        email: recipientData.email,
+        signature: recipientData.signature
+      });
+      
+      // Create and dispatch change event
+      const event = new Event('change', { bubbles: true });
+      styleOptionsElement.dispatchEvent(event);
+    }
+    
+    // Show the final rendered invitation modal
+    setShowFinalInvitationModal(true);
+    
+    // Log the preview action
+    console.log("[FLOW][GiftCreationFlow] Opening invitation preview", {
+      recipientName: recipientData.name,
+      recipientContact: recipientData.phone,
+      styleId: selectedStyleId,
+      salonId: useSalonId
+    });
   };
 
   // Function to handle payment and create the invitation
@@ -350,9 +396,6 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       });
       return;
     }
-    
-    // Close the preview modal first
-    setShowFinalInvitationModal(false);
     
     // Create invitation data
     const invitationData = {
@@ -480,7 +523,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
             STEP 2 Style Your Invitation...
           </h3>
           <div className="flex items-center">
-            {step === "payment" && <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />}
+            {selectedStyleId && <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />}
             <ChevronDownIcon className={`h-5 w-5 text-pink-800 transition-transform ${step === "recipient" ? "transform rotate-180" : ""}`} />
           </div>
         </div>
@@ -599,7 +642,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                         e.preventDefault();
                         
                         // Focus on the preview button
-                        const previewButton = document.querySelector('button.bg-blue-500') as HTMLButtonElement;
+                        const previewButton = document.querySelector('button.bg-pink-500') as HTMLButtonElement;
                         if (previewButton) previewButton.focus();
                       }
                     }}
@@ -608,53 +651,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   <div className="flex justify-center mt-4">
                     <Button 
                       type="button" 
-                      onClick={() => {
-                        toast({
-                          title: "Design Preview",
-                          description: "Opening invitation preview...",
-                        });
-                        
-                        if (!recipientData.name || !recipientData.phone) {
-                          toast({
-                            title: "Missing Information",
-                            description: "Please provide recipient name and phone",
-                            variant: "destructive"
-                          });
-                          return;
-                        }
-                        
-                        // Update hidden field to select styleId for Preview
-                        const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
-                        if (styleOptionsElement) {
-                          styleOptionsElement.value = JSON.stringify({
-                            styleId: selectedStyleId,
-                            clientId: clientId,
-                            salonId: useSalonId,
-                            name: recipientData.name,
-                            phone: recipientData.phone,
-                            email: recipientData.email,
-                            signature: recipientData.signature
-                          });
-                          
-                          // Create and dispatch change event
-                          const event = new Event('change', { bubbles: true });
-                          styleOptionsElement.dispatchEvent(event);
-                        }
-                        
-                        // Show the final rendered invitation modal
-                        setShowFinalInvitationModal(true);
-                        
-                        // Log the preview action
-                        console.log("[FLOW][GiftCreationFlow] Opening invitation preview", {
-                          recipientName: recipientData.name,
-                          recipientContact: recipientData.phone,
-                          styleId: selectedStyleId,
-                          salonId: useSalonId
-                        });
-                        
-                        // Move directly to Step 3 (Preview)
-                        setStep("payment");
-                      }}
+                      onClick={showPreviewDialog}
                       className="w-full bg-pink-500 hover:bg-pink-600 text-white"
                     >
                       Preview Invitation
@@ -703,205 +700,120 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     <button className="h-8 w-8 rounded-full bg-blue-500 text-white shadow-sm flex items-center justify-center hover:bg-blue-600 transition-colors">
                       <span className="text-xs font-bold">Z</span>
                     </button>
-                    <button className="h-8 w-8 rounded-full bg-teal-500 text-white shadow-sm flex items-center justify-center hover:bg-teal-600 transition-colors">
+                    <button className="h-8 w-8 rounded-full bg-green-500 text-white shadow-sm flex items-center justify-center hover:bg-green-600 transition-colors">
                       <span className="text-xs font-bold">V</span>
                     </button>
-                    <button className="h-8 w-8 rounded-full bg-green-500 text-white shadow-sm flex items-center justify-center hover:bg-green-600 transition-colors">
+                    <button className="h-8 w-8 rounded-full bg-pink-500 text-white shadow-sm flex items-center justify-center hover:bg-pink-600 transition-colors">
                       <span className="text-xs font-bold">CA</span>
                     </button>
                   </div>
                 </div>
               </div>
             </div>
-            
-            {/* No continue button here - the Preview Invitation button above handles transition */}
-          </div>
-        )}
-      </div>
-
-      {/* Payment Step */}
-      <div className="rounded-lg bg-pink-50 mb-6">
-        <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
-             onClick={() => step === "payment" ? setStep("") : setStep("payment")}
-             style={{opacity: (step === "payment" || step === "confirm") ? 1 : 0.5, pointerEvents: (step === "payment" || step === "confirm") ? 'auto' : 'none'}}>
-          <h3 className="text-pink-800 font-semibold flex items-center">
-            STEP 3: Preview and Send
-          </h3>
-          <div className="flex items-center">
-            {step === "confirm" && <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />}
-            <ChevronDownIcon className={`h-5 w-5 text-pink-800 transition-transform ${step === "payment" ? "transform rotate-180" : ""}`} />
-          </div>
-        </div>
-        
-        {step === "payment" && (
-          <div className="p-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Gift Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {/* Selected Style Info */}
-                  {selectedStyleId && services && (
-                    <div className="flex flex-col space-y-1 border-b pb-3">
-                      <div className="font-medium text-lg text-pink-700">
-                        {services.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Selected Style"}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {services.find((s: StyleOption) => s.id === selectedStyleId)?.description || "Custom nail service"}
-                      </div>
-                      <div className="flex justify-between mt-1">
-                        <span className="text-gray-600">Duration:</span>
-                        <span className="font-medium">
-                          {services.find((s: StyleOption) => s.id === selectedStyleId)?.duration || 60} min
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Recipient Info */}
-                  <div className="flex flex-col space-y-2 border-b pb-3">
-                    <div className="font-medium">Recipient Details</div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Name:</span>
-                      <span className="font-medium">{recipientData.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Phone:</span>
-                      <span className="font-medium">{recipientData.phone}</span>
-                    </div>
-                    {recipientData.email && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Email:</span>
-                        <span className="font-medium">{recipientData.email}</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Price Info */}
-                  <div className="flex justify-between pt-2 font-semibold text-lg">
-                    <span className="text-gray-700">Total:</span>
-                    <span className="text-pink-700">
-                      ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.price?.toFixed(2) || "50.00"}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                  <p className="text-sm text-gray-600 mb-4">
-                    By sending this gift, you're inviting {recipientData.name} to enjoy a salon service at {client?.salonName || "your salon"}. They'll receive your invitation and can schedule their appointment directly.
-                  </p>
-                  
-                  <Button 
-                    onClick={() => setShowFinalInvitationModal(true)}
-                    className="w-full bg-pink-600 hover:bg-pink-700 text-white"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 h-4 w-4">
-                      <line x1="22" y1="2" x2="11" y2="13"></line>
-                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                    </svg>
-                    Preview and Send
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </div>
-
-      {/* Confirmation Step */}
-      <div className="rounded-lg bg-pink-50 mb-6">
-        <div className="bg-pink-100 rounded-t-lg px-4 py-2 flex items-center justify-between cursor-pointer"
-             onClick={() => step === "confirm" ? setStep("") : setStep("confirm")}
-             style={{opacity: step === "confirm" ? 1 : 0.5, pointerEvents: step === "confirm" ? 'auto' : 'none'}}>
-          <h3 className="text-pink-800 font-semibold flex items-center">
-            STEP 4 Payment
-          </h3>
-          <div className="flex items-center">
-            <ChevronDownIcon className={`h-5 w-5 text-pink-800 transition-transform ${step === "confirm" ? "transform rotate-180" : ""}`} />
-          </div>
-        </div>
-        
-        {step === "confirm" && (
-          <div className="p-4">
-            <Dialog open={step === "confirm"} onOpenChange={() => handleConfirm()}>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="text-center">
-                    Your Gift Request Is Ready!
-                  </DialogTitle>
-                  <DialogDescription className="text-center">
-                    This is your final gift request with unique ID. It can't be modified once sent.
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <div className="py-6">
-                  <div className="text-center">
-                    <CheckCircleIcon className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-green-800 mb-2">Gift Invitation Sent!</h3>
-                    <p className="text-green-700 mb-4">
-                      Your personal gift invitation has been created and sent to {recipientData.name}.
-                    </p>
-                    <p className="text-sm text-green-600 mb-6">
-                      They'll receive your invitation for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'salon service'} at {client?.salonName || "your connected salon"}.
-                    </p>
-                  </div>
-                </div>
-                
-                <DialogFooter>
-                  <Button 
-                    onClick={handleConfirm}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    Close
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
           </div>
         )}
       </div>
       
-      {/* Rendered Invitation Preview Dialog */}
+      {/* Preview Modal - Final rendered invitation */}
       <Dialog open={showFinalInvitationModal} onOpenChange={setShowFinalInvitationModal}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Gift Invitation Preview</DialogTitle>
-            <DialogDescription>
-              This is how your gift invitation will appear to {recipientData.name}
-            </DialogDescription>
+            <DialogTitle className="text-center text-xl">
+              Invitation Preview
+            </DialogTitle>
           </DialogHeader>
           
-          <div className="py-4">
-            {selectedStyleId && (
-              <RenderedInvitation
-                inviteId={`preview-${clientId}-${Date.now()}`}
-                recipientName={recipientData.name || "Recipient"}
+          <div className="my-4">
+            <div className="bg-white rounded-lg shadow-md p-5 mb-5">
+              <RenderedInvitation 
                 styleOption={services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Selected Style"}
                 price={`$${services?.find((s: StyleOption) => s.id === selectedStyleId)?.price || "45"}`}
                 time={`${services?.find((s: StyleOption) => s.id === selectedStyleId)?.duration || "30"} min`}
-                senderName={client?.name || "You"}
-                salonName={client?.salonName || "Tiffany 5280 Nails Studio"}
+                recipient={recipientData.name}
+                message={personalMessage}
                 imageUrl={services?.find((s: StyleOption) => s.id === selectedStyleId)?.gifUrl || "/assets/french-tips.png"}
-                salonInitiated={false} // client-initiated invitation
+                sender={recipientData.signature || client?.name || "You"}
               />
-            )}
+            </div>
           </div>
           
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
+          <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button 
-              onClick={() => setShowFinalInvitationModal(false)}
+              type="button" 
               variant="outline"
               className="flex-1"
+              onClick={() => {
+                setShowFinalInvitationModal(false);
+              }}
             >
               Back to Salon
             </Button>
             
             <Button 
-              onClick={handlePayment}
+              type="button"
               className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium"
+              disabled={createInvitationMutation.isPending}
+              onClick={handlePayment}
             >
-              CONFIRM TO SEND
+              {createInvitationMutation.isPending ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Processing...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <SendIcon className="h-4 w-4" />
+                  <span>CONFIRM TO SEND</span>
+                </div>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Confirmation Dialog - Success message with one Close button */}
+      <Dialog open={showConfirmDialog} onOpenChange={(open) => {
+        if (!open) {
+          // Redirect to client dashboard when modal is closed
+          window.location.href = '/client/' + clientId;
+        }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl flex items-center justify-center gap-2">
+              <CheckCircleIcon className="h-6 w-6 text-green-500" />
+              Invitation Sent!
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="my-4 text-center">
+            <p className="mb-4">
+              Your invitation has been sent successfully to {recipientData.name}.
+            </p>
+            
+            <div className="border rounded shadow-sm p-4 bg-gray-50 mb-4">
+              <div className="grid grid-cols-2 gap-y-2 text-sm text-left">
+                <div className="text-gray-600">Recipient:</div>
+                <div>{recipientData.name}</div>
+                
+                <div className="text-gray-600">Style:</div>
+                <div>{services?.find((s: StyleOption) => s.id === selectedStyleId)?.name}</div>
+                
+                <div className="text-gray-600">Price:</div>
+                <div>${services?.find((s: StyleOption) => s.id === selectedStyleId)?.price}</div>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              className="w-full"
+              onClick={() => {
+                // Redirect to client dashboard
+                window.location.href = '/client/' + clientId;
+              }}
+            >
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
