@@ -181,8 +181,18 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/invitations`] });
       }
       
-      // Move to confirmation step
+      // CRITICAL: Complete the flow to Step 4
       setStep("confirm");
+      
+      // Force Step 4 to be open
+      setTimeout(() => {
+        const allHeaders = document.querySelectorAll('h3.text-pink-800');
+        allHeaders.forEach(header => {
+          if (header.textContent?.includes("STEP 4")) {
+            (header.parentElement as HTMLElement).click();
+          }
+        });
+      }, 50);
       
       toast({
         title: "Gift Invitation Sent!",
@@ -196,6 +206,23 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         description: `Failed to create invitation: ${error.message}`,
         variant: "destructive"
       });
+      
+      // Even on error, try to advance to step 4 to complete the flow
+      setTimeout(() => {
+        if (step !== "confirm") {
+          setStep("confirm");
+          
+          // Force Step 4 to be open
+          setTimeout(() => {
+            const allHeaders = document.querySelectorAll('h3.text-pink-800');
+            allHeaders.forEach(header => {
+              if (header.textContent?.includes("STEP 4")) {
+                (header.parentElement as HTMLElement).click();
+              }
+            });
+          }, 50);
+        }
+      }, 1000);
     }
   });
 
@@ -308,6 +335,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       senderName: client?.name || "Client"
     };
     
+    console.log("SENDING INVITATION DATA:", invitationData);
+    
     // Call the mutation to create the invitation
     createInvitationMutation.mutate(invitationData);
     
@@ -315,6 +344,24 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       title: "Processing Gift",
       description: "Creating your gift invitation...",
     });
+    
+    // When we call the mutation, we need to ensure the flow continues to completion
+    // Set a timeout to move to confirmation step in case the mutation takes too long
+    setTimeout(() => {
+      if (step !== "confirm") {
+        setStep("confirm");
+        
+        // Force expansion of step 4
+        setTimeout(() => {
+          const allHeaders = document.querySelectorAll('h3.text-pink-800');
+          allHeaders.forEach(header => {
+            if (header.textContent?.includes("STEP 4")) {
+              (header.parentElement as HTMLElement).click();
+            }
+          });
+        }, 100);
+      }
+    }, 1500);
   };
 
   // Function to handle gift creation confirmation
@@ -561,8 +608,18 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                           styleOptionsElement.dispatchEvent(event);
                         }
                         
-                        // Move directly to Step 3 (Preview)
+                        // CRITICAL: Explicitly open Step 3 (Preview)
                         setStep("payment");
+                        
+                        // Force expansion of step 3
+                        setTimeout(() => {
+                          const allHeaders = document.querySelectorAll('h3.text-pink-800');
+                          allHeaders.forEach(header => {
+                            if (header.textContent?.includes("STEP 3")) {
+                              (header.parentElement as HTMLElement).click();
+                            }
+                          });
+                        }, 100);
                       }}
                       className="w-full bg-pink-500 hover:bg-pink-600 text-white"
                     >
