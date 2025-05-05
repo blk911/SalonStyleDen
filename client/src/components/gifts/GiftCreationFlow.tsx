@@ -131,17 +131,6 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     refetchOnWindowFocus: true, // Refresh data when window regains focus
     staleTime: 60000 // Consider data fresh for 1 minute
   });
-  
-  // Initialize signature with client's name when client data is loaded
-  useEffect(() => {
-    if (client && client.name && !recipientData.signature) {
-      console.log(`GiftCreationFlow: Setting signature to client name: ${client.name}`);
-      setRecipientData(prev => ({
-        ...prev,
-        signature: client.name
-      }));
-    }
-  }, [client]);
 
   // Create Client-Driven Invitation Mutation
   const createInvitationMutation = useMutation({
@@ -422,7 +411,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <h3 className="text-center mb-3 font-medium">Your Invitation Design</h3>
                 <div className="space-y-2 border-dotted border border-pink-200 rounded-md p-3">
                   <Input 
-                    placeholder="sdfsa"
+                    placeholder="Client Name"
                     value={recipientData.name}
                     onChange={(e) => {
                       setRecipientData({...recipientData, name: e.target.value});
@@ -456,7 +445,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   />
                   
                   <Input
-                    placeholder="3242342342342342"
+                    placeholder="Phone Number"
                     type="tel"
                     value={recipientData.phone}
                     onChange={(e) => setRecipientData({...recipientData, phone: e.target.value})}
@@ -476,7 +465,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   
                   <Input 
                     placeholder="SIGN HERE!"
-                    value={recipientData.signature || client?.name || ""}
+                    value={recipientData.signature || ""}
                     onChange={(e) => {
                       setRecipientData({...recipientData, signature: e.target.value});
                       
@@ -485,8 +474,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
                       
                       // Create message with updated signature
-                      // For client dashboard, the signature should be the client's name
-                      const updatedMessage = `Hi ${recipientData.name || "sdfsa"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || client?.name || "[SIGNED]"}`;
+                      const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || "[SIGNED]"}`;
                       setPersonalMessage(updatedMessage);
                     }}
                     className="flex-1"
@@ -554,7 +542,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <div className="border-dotted border border-pink-200 rounded-md p-3">
                   {/* Message preview is in the blue box */}
                   <div className="rounded-md p-3 bg-blue-100 mb-3">
-                    Hi {recipientData.name || "sdfsa"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "Sculpted Acrylics"}, will you Ven Me, Baby! <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> {recipientData.signature || client?.name || "[SIGNED]"}
+                    Hi {recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "French Tips / Touch-Up"}, will you Ven Me, Baby! <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> {recipientData.signature || "[SIGNED]"}
                   </div>
                   
                   {/* Style card preview */}
