@@ -36,7 +36,7 @@ export default function GiftsPage({ clientId = 10 }: GiftsPageProps) {
               <div className="p-3 bg-white rounded-full mb-3">
                 <PlusCircleIcon className="h-8 w-8 text-pink-500" />
               </div>
-              <h3 className="text-lg font-medium text-pink-800">Create New Gift</h3>
+              <h3 className="text-lg font-medium text-pink-800">Create New Request</h3>
               <p className="text-sm text-pink-700 mt-1">Send someone special a salon treatment</p>
             </div>
           ) : (

@@ -506,7 +506,7 @@ export default function ClientDashboard() {
                            data-[state=active]:border-r data-[state=active]:border-r-pink-200"
               >
                 <div className="w-full text-center py-2">
-                  <div className="font-semibold text-gray-800">Gifts</div>
+                  <div className="font-semibold text-gray-800">Gift Request</div>
                   <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
                     <span>New</span>
                     <span className="text-muted-foreground/30 px-1">|</span>
@@ -529,8 +529,8 @@ export default function ClientDashboard() {
                 <div className="w-full text-center py-2">
                   <div className="font-semibold text-gray-800">Invitations</div>
                   <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
-                    <span>Send</span>
-                    <span className="text-muted-foreground/30 px-1">|</span>
+                    <span>Sent</span>
+                    <span className="text-muted-foreground/30 px-1">/</span>
                     <span>Status</span>
                   </div>
                 </div>
