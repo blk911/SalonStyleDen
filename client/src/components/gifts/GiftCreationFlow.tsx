@@ -224,20 +224,31 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       
       // Format user-friendly error messages based on error types
       let userMessage = "There was a problem sending your invitation. Please try again.";
+      let errorDetails = "";
       
-      if (errorMsg.includes("limit reached")) {
+      // Check for specific error types
+      if (errorMsg.includes("limit reached") || (error.response && error.response.data && error.response.data.error === "Invitation limit reached")) {
         userMessage = "Your salon has reached the invitation limit. Please contact your salon owner.";
+        errorDetails = "Salon license verification is required to send more invitations. The current limit is 2 invitations for unverified salons.";
+        
+        // Log the specific error for debugging
+        console.error("[FLOW][ERROR] Invitation limit reached:", error.response?.data || errorMsg);
       } else if (errorMsg.includes("already invited")) {
         userMessage = "This recipient has already been invited. Please try a different contact.";
       } else if (errorMsg.includes("500")) {
         userMessage = "Server error. Please try again in a few moments.";
       }
       
+      // For debugging: log all details of the error
+      if (error.response) {
+        console.error("[FLOW][ERROR] Server response details:", error.response);
+      }
+      
       // Close the modal
       setShowFinalInvitationModal(false);
       
-      // Set error state
-      setError(userMessage);
+      // Set detailed error state with additional information if available
+      setError(errorDetails ? `${userMessage} ${errorDetails}` : userMessage);
       
       // Show toast alert
       toast({
@@ -373,7 +384,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   };
 
   // Function to handle payment and create the invitation
-  const handlePayment = () => {
+  const handlePayment = async () => {
     // Clear any previous errors
     setError(null);
     
@@ -418,13 +429,26 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     // Log the invitation data being sent
     console.log("Creating client invitation with data:", invitationData);
     
-    toast({
-      title: "Processing Gift",
-      description: "Creating your gift invitation...",
-    });
-    
-    // Call the mutation to create the invitation
-    createInvitationMutation.mutate(invitationData);
+    // Instead of directly calling the mutation, better handle the error scenarios
+    try {
+      toast({
+        title: "Processing Gift",
+        description: "Creating your gift invitation...",
+      });
+      
+      // Call the mutation to create the invitation
+      createInvitationMutation.mutate(invitationData);
+    } catch (error) {
+      console.error("Error initiating invitation creation:", error);
+      
+      toast({
+        title: "Error",
+        description: "Failed to process your invitation. Please try again.",
+        variant: "destructive"
+      });
+      
+      setError("There was a problem sending your invitation. Please try again later.");
+    }
   };
 
   // Function to handle gift creation confirmation
@@ -721,6 +745,9 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
             <DialogTitle className="text-center text-xl">
               Invitation Preview
             </DialogTitle>
+            <DialogDescription className="text-center text-sm text-gray-500">
+              This is how your invitation will appear to the recipient. Click "Confirm to Send" when ready.
+            </DialogDescription>
           </DialogHeader>
           
           <div className="my-4">
@@ -785,6 +812,9 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               <CheckCircleIcon className="h-6 w-6 text-green-500" />
               Invitation Sent!
             </DialogTitle>
+            <DialogDescription className="text-center text-sm text-gray-500">
+              Your gift invitation has been sent successfully. Click "Close" to return to your dashboard.
+            </DialogDescription>
           </DialogHeader>
           
           <div className="my-4 text-center">
