@@ -60,6 +60,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   const [personalMessage, setPersonalMessage] = useState("");
   const [invitationId, setInvitationId] = useState<number | null>(null);
   const [showFinalInvitationModal, setShowFinalInvitationModal] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // If salonId is not provided, we need to fetch the salon associated with the client
   // or default to Tiffany's salon (ID: 2) which is the sponsor
@@ -231,11 +232,22 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         userMessage = "Server error. Please try again in a few moments.";
       }
       
+      // Close the modal
+      setShowFinalInvitationModal(false);
+      
+      // Set error state
+      setError(userMessage);
+      
+      // Show toast alert
       toast({
         title: "Failed to Send Invitation",
         description: userMessage,
-        variant: "destructive"
+        variant: "destructive",
+        duration: 5000
       });
+      
+      // Go back to the recipient step to fix the issue
+      setStep("recipient");
     }
   });
 
@@ -298,6 +310,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   // Function to handle recipient data submission
   const handleRecipientSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Clear any previous errors
+    setError(null);
+    
     if (!recipientData.name || !recipientData.phone) {
       toast({
         title: "Missing information",
@@ -312,6 +328,9 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
 
   // Function to handle payment and create the invitation
   const handlePayment = () => {
+    // Clear any previous errors
+    setError(null);
+    
     if (!selectedStyleId || !client) {
       toast({
         title: "Missing Information",
@@ -468,6 +487,15 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         
         {step === "recipient" && (
           <div className="p-4">
+            {error && (
+              <div className="mb-4 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded flex items-start">
+                <AlertTriangle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="font-medium">Error Sending Invitation</h4>
+                  <p className="text-sm">{error}</p>
+                </div>
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <h3 className="text-center mb-3 font-medium">Your Invitation Design</h3>
