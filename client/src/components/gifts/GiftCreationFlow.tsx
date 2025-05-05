@@ -135,9 +135,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         console.log(`GiftCreationFlow: Client connected to salon: ${clientData?.salonName || 'None'}`);
         
         // Auto-fill signature with client name (site-wide standard)
-        if (clientData?.name) {
+        if (clientData?.name && !recipientData.signature) {
           console.log(`GiftCreationFlow: Setting signature to client name: ${clientData.name}`);
-          // IMPORTANT: Always set the signature field with client name
           setRecipientData(prev => ({
             ...prev,
             signature: clientData.name
