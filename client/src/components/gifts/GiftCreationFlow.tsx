@@ -259,17 +259,21 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     }
   });
 
-  // Initialize form fields when client data becomes available - but don't prefill with client name
+  // Initialize form fields when client data becomes available
   useEffect(() => {
     if (client?.name) {
-      console.log(`GiftCreationFlow: Client data loaded, but NOT auto-filling form fields with name`);
-      
-      // Only update message if we have a selected style, but DON'T prefill with client name
+      console.log(`GiftCreationFlow: Client data loaded, initializing form fields with name: ${client.name}`);
+      setRecipientData(prevData => ({
+        ...prevData,
+        name: client.name,
+        signature: client.name
+      }));
+
+      // Update message if we have a selected style
       if (selectedStyleId) {
         const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
         const styleName = selectedStyle ? selectedStyle.name : "French Tips / Touch-Up";
-        // Use placeholders instead of client name
-        setPersonalMessage(`Hi [NAME], I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ [SIGNED]`);
+        setPersonalMessage(`Hi ${client.name}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${client.name}`);
       }
     }
   }, [client, selectedStyleId]);
@@ -425,14 +429,14 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       phone: recipientData.phone,
       email: recipientData.email || null,
       message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️ ${recipientData.signature || ""}`,
-      signature: recipientData.signature || "",
+      signature: recipientData.signature || client?.name || "",
       styleId: selectedStyleId,
       stylePrice: selectedStyle.price,
       styleName: selectedStyle.name,
       clientId: clientId,
       salonId: useSalonId,
       status: "pending",
-      senderName: recipientData.signature || "Friend",
+      senderName: client?.name || "Client",
       invitationType: "client_to_friend",
       styleImageUrl: selectedStyle.gifUrl
     };
@@ -589,7 +593,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <div className="space-y-2 border-dotted border border-pink-200 rounded-md p-3">
                   <Input 
                     placeholder="Client Name"
-                    value={recipientData.name}
+                    value={client?.name || recipientData.name}
                     onChange={(e) => {
                       setRecipientData({...recipientData, name: e.target.value});
                       
@@ -603,6 +607,19 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     }}
                     required
                     className="flex-1"
+                    onFocus={(e) => {
+                      // Auto-fill with client name if empty
+                      if (!e.target.value && client?.name) {
+                        const clientName = client.name;
+                        setRecipientData(prev => ({...prev, name: clientName}));
+                        
+                        // Update message with client name
+                        const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
+                        const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
+                        const updatedMessage = `Hi ${clientName}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.signature || clientName}`;
+                        setPersonalMessage(updatedMessage);
+                      }
+                    }}
                     onKeyDown={(e) => {
                       // Update message with name when Enter is pressed
                       if (e.key === 'Enter' && recipientData.name.trim().length > 0) {
@@ -667,7 +684,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   
                   <Input 
                     placeholder="SIGN HERE!"
-                    value={recipientData.signature || ""}
+                    value={client?.name || recipientData.signature || ""}
                     onChange={(e) => {
                       setRecipientData({...recipientData, signature: e.target.value});
                       
@@ -680,6 +697,19 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       setPersonalMessage(updatedMessage);
                     }}
                     className="flex-1"
+                    onFocus={(e) => {
+                      // Auto-fill with client name if empty
+                      if (!e.target.value && client?.name) {
+                        const clientName = client.name;
+                        setRecipientData(prev => ({...prev, signature: clientName}));
+                        
+                        // Update message with client name too
+                        const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
+                        const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
+                        const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${clientName}`;
+                        setPersonalMessage(updatedMessage);
+                      }
+                    }}
                     onKeyDown={(e) => {
                       // Move to preview button on Enter
                       if (e.key === 'Enter' && recipientData.signature.trim().length > 0) {
@@ -779,7 +809,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 price={`$${services?.find((s: StyleOption) => s.id === selectedStyleId)?.price || "45"}`}
                 time={`${services?.find((s: StyleOption) => s.id === selectedStyleId)?.duration || "30"} min`}
                 imageUrl={services?.find((s: StyleOption) => s.id === selectedStyleId)?.gifUrl || "/assets/french-tips.png"}
-                senderName={recipientData.signature || "You"}
+                senderName={recipientData.signature || client?.name || "You"}
                 status="pending"
               />
             </div>
