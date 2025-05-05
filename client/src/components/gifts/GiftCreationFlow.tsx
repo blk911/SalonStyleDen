@@ -134,8 +134,14 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         const clientData = await response.json();
         console.log(`GiftCreationFlow: Client connected to salon: ${clientData?.salonName || 'None'}`);
         
-        // Always using "Deborah" as signature
-        console.log(`GiftCreationFlow: Using fixed signature "Deborah" regardless of client name`);
+        // Auto-set signature with client name
+        if (clientData?.name) {
+          console.log(`GiftCreationFlow: Setting signature to client name: ${clientData.name}`);
+          setRecipientData(prev => ({
+            ...prev,
+            signature: clientData.name
+          }));
+        }
         
         return clientData;
       } catch (error) {
@@ -408,7 +414,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       phone: recipientData.phone,
       email: recipientData.email || null,
       message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️ ${recipientData.signature || ""}`,
-      signature: "Deborah", // Always use "Deborah" as signature
+      signature: recipientData.signature || client?.name || "", // Use the client's name as signature
       styleId: selectedStyleId,
       stylePrice: selectedStyle.price,
       styleName: selectedStyle.name,
@@ -641,7 +647,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   
                   <Input 
                     placeholder="SIGN HERE"
-                    value="Deborah"
+                    value={recipientData.signature || ""}
                     onChange={() => {}} // No change allowed
                     disabled={true}
                     className="flex-1 opacity-75 cursor-not-allowed"
@@ -734,7 +740,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 price={`$${services?.find((s: StyleOption) => s.id === selectedStyleId)?.price || "45"}`}
                 time={`${services?.find((s: StyleOption) => s.id === selectedStyleId)?.duration || "30"} min`}
                 imageUrl={services?.find((s: StyleOption) => s.id === selectedStyleId)?.gifUrl || "/assets/french-tips.png"}
-                senderName="Deborah"
+                senderName={client?.name || ""}
                 status="pending"
               />
             </div>
