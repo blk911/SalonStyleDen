@@ -263,9 +263,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   useEffect(() => {
     if (client?.name) {
       console.log(`GiftCreationFlow: Client data loaded, initializing form fields with name: ${client.name}`);
+      // Only set the signature field with client name, leave recipient name blank for user input
       setRecipientData(prevData => ({
         ...prevData,
-        name: client.name,
+        // Don't set the recipient name field - leave it blank for user input
         signature: client.name
       }));
 
@@ -273,10 +274,11 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       if (selectedStyleId) {
         const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
         const styleName = selectedStyle ? selectedStyle.name : "French Tips / Touch-Up";
-        setPersonalMessage(`Hi ${client.name}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${client.name}`);
+        // Use placeholder text in message until user enters a recipient name
+        setPersonalMessage(`Hi ${recipientData.name || "[recipient]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${client.name}`);
       }
     }
-  }, [client, selectedStyleId]);
+  }, [client, selectedStyleId, recipientData.name]);
 
   // Handle style selection - watches for DOM changes to detect selection from VmbStyleOptions
   useEffect(() => {
@@ -592,8 +594,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <h3 className="text-center mb-3 font-medium">Your Invitation Design</h3>
                 <div className="space-y-2 border-dotted border border-pink-200 rounded-md p-3">
                   <Input 
-                    placeholder="Client Name"
-                    value={client?.name || recipientData.name}
+                    placeholder="Recipient Name"
+                    value={recipientData.name}
                     onChange={(e) => {
                       setRecipientData({...recipientData, name: e.target.value});
                       
@@ -602,21 +604,18 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
                       
                       // Create message with placeholders filled
-                      const updatedMessage = `Hi ${e.target.value || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.signature || "[SIGNED]"}`;
+                      const updatedMessage = `Hi ${e.target.value || "[recipient]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.signature || client?.name || "[SIGNED]"}`;
                       setPersonalMessage(updatedMessage);
                     }}
                     required
                     className="flex-1"
                     onFocus={(e) => {
-                      // Auto-fill with client name if empty
-                      if (!e.target.value && client?.name) {
-                        const clientName = client.name;
-                        setRecipientData(prev => ({...prev, name: clientName}));
-                        
-                        // Update message with client name
-                        const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
-                        const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
-                        const updatedMessage = `Hi ${clientName}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.signature || clientName}`;
+                      // Don't auto-fill recipient name field - leave it blank for user input
+                      // Just make sure message has proper placeholders
+                      const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
+                      const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
+                      if (!personalMessage) {
+                        const updatedMessage = `Hi ${recipientData.name || "[recipient]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.signature || client?.name || "[SIGNED]"}`;
                         setPersonalMessage(updatedMessage);
                       }
                     }}
