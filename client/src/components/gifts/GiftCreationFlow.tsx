@@ -54,7 +54,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     name: "",
     phone: "",
     email: "",
-    signature: ""
+    signature: "Deborah" // Always set to Deborah
   });
   const [selectedStyleId, setSelectedStyleId] = useState<number | null>(null);
   const [personalMessage, setPersonalMessage] = useState("");
@@ -134,14 +134,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         const clientData = await response.json();
         console.log(`GiftCreationFlow: Client connected to salon: ${clientData?.salonName || 'None'}`);
         
-        // Auto-fill signature with client name (site-wide standard)
-        if (clientData?.name && !recipientData.signature) {
-          console.log(`GiftCreationFlow: Setting signature to client name: ${clientData.name}`);
-          setRecipientData(prev => ({
-            ...prev,
-            signature: clientData.name
-          }));
-        }
+        // We're always using "Deborah" as the signature regardless of client name
+        console.log(`GiftCreationFlow: Using fixed signature "Deborah" instead of client name`);
         
         return clientData;
       } catch (error) {
@@ -646,30 +640,11 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                   />
                   
                   <Input 
-                    placeholder="SIGN HERE!"
-                    value={recipientData.signature || ""}
-                    onChange={(e) => {
-                      setRecipientData({...recipientData, signature: e.target.value});
-                      
-                      // Update message signature
-                      const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
-                      const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
-                      
-                      // Create message with updated signature
-                      const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || "[SIGNED]"}`;
-                      setPersonalMessage(updatedMessage);
-                    }}
-                    className="flex-1"
-                    onKeyDown={(e) => {
-                      // Move to preview button on Enter
-                      if (e.key === 'Enter' && recipientData.signature.trim().length > 0) {
-                        e.preventDefault();
-                        
-                        // Focus on the preview button
-                        const previewButton = document.querySelector('button.bg-pink-500') as HTMLButtonElement;
-                        if (previewButton) previewButton.focus();
-                      }
-                    }}
+                    placeholder="From Deborah"
+                    value="Deborah"
+                    onChange={() => {}} // No change allowed
+                    disabled={true}
+                    className="flex-1 opacity-75 cursor-not-allowed"
                   />
                   
                   <div className="flex justify-center mt-4">
