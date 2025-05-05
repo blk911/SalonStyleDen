@@ -816,11 +816,11 @@ export function VmbStyleOptions({
                                   setRecipientContact(formattedInput);
                                 }}
                                 onKeyDown={(e) => {
-                                  // If Enter is pressed, move to next field (SIGN HERE)
+                                  // If Enter is pressed, move to next field (signature)
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
                                     // Find the next input which is the signature field
-                                    const nextField = e.currentTarget.parentElement?.querySelector('input[placeholder="SIGN HERE!"]');
+                                    const nextField = e.currentTarget.parentElement?.querySelector('input[placeholder="Invite a friend or salon owner"]');
                                     if (nextField instanceof HTMLElement) {
                                       nextField.focus();
                                     }
@@ -830,7 +830,7 @@ export function VmbStyleOptions({
                               
                               <input 
                                 type="text"
-                                placeholder="SIGN HERE!"
+                                placeholder="Invite a friend or salon owner"
                                 className="w-full p-1.5 text-[10px] border border-pink-100 rounded"
                                 value={signature}
                                 onKeyDown={(e) => {
