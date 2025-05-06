@@ -196,18 +196,12 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       console.log("GiftCreationFlow: Client invitation created successfully:", data);
       setInvitationId(data.id);
       
-      // Invalidate ALL relevant queries to refresh data
+      // Invalidate relevant queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['/api/invitations'] });
-      
-      // Invalidate the specific queries used in GiftsPage
-      queryClient.invalidateQueries({ queryKey: ['/api/invitations/all', clientId] });
-      queryClient.invalidateQueries({ queryKey: ['/api/invitations/received', clientId] });
-      queryClient.invalidateQueries({ queryKey: ['/api/invitations/sent', clientId] }); // For backward compatibility
       
       // Also invalidate client-specific queries to ensure dashboard updates
       if (clientId) {
         queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/invitations`] });
-        queryClient.invalidateQueries({ queryKey: [`/api/clients/data`, clientId] });
       }
       
       // Close the preview modal
@@ -447,8 +441,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       status: "pending",
       senderName: client?.name || "Client",
       invitationType: "client_to_friend",
-      styleImageUrl: selectedStyle.gifUrl,
-      senderId: clientId // CRITICAL: Add this to properly track who sent the invitation
+      styleImageUrl: selectedStyle.gifUrl
     };
     
     // Log the invitation data being sent
