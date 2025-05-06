@@ -342,6 +342,61 @@ export function RenderedInvitation({
                   Hi <span className="font-semibold">{recipientName}</span>, I would love a fresh set. 
                   My stylist has an opening for <span className="font-semibold">{styleOption}</span>, {price} ({time}) 
                   will you Ven Me, Baby! ❤️❤️❤️ <span className="font-semibold">{senderName}</span>
+
+                  {/* Display status indicators and buttons for client-initiated invitations too */}
+                  <div className="flex justify-center mt-3 mb-2">
+                    {localStatus === 'sent' || localStatus === 'accepted' || localStatus === 'redeemed' || localStatus === 'completed' ? (
+                      <div className="flex flex-col gap-2 w-full">
+                        <div className="px-3 py-0.5 text-xs text-green-600 bg-green-50 border border-green-200 rounded flex items-center">
+                          <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-1.5"></span>
+                          {localStatus === 'sent' ? 'GIFT SENT' : 
+                           localStatus === 'accepted' ? 'GIFT ACCEPTED' : 
+                           localStatus === 'redeemed' ? 'GIFT REDEEMED' : 
+                           'COMPLETED'}
+                        </div>
+                        
+                        {/* For completed invitations, show a Schedule button if viewing from client dashboard */}
+                        {(localStatus === 'completed' || localStatus === 'redeemed') && 
+                         sourceDashboard === 'client' && 
+                         !isInPreviewMode && (
+                          <Button 
+                            className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
+                            onClick={() => {
+                              setLocation('/client-dashboard?tab=appointments');
+                            }}
+                          >
+                            <Calendar className="h-4 w-4" />
+                            Schedule Appointment
+                          </Button>
+                        )}
+                      </div>
+                    ) : (
+                      <>
+                        {/* SPECIAL CASE: Show ACCEPT GIFT or PAY/SET APPT button based on invitation type */}
+                        {showPayButton ? (
+                          <Button 
+                            className="h-10 px-4 py-2 w-full bg-pink-500 hover:bg-pink-600 text-white font-medium"
+                            onClick={handlePayClick}
+                            disabled={isProcessing}
+                          >
+                            {isProcessing ? 'Processing...' : 'ACCEPT GIFT'}
+                          </Button>
+                        ) : showButton ? (
+                          <Button 
+                            className="h-10 px-4 py-2 w-full bg-green-500 hover:bg-green-600 text-white font-medium"
+                            onClick={onSendGift}
+                          >
+                            SEND GIFT
+                          </Button>
+                        ) : (
+                          <div className="h-10 px-4 py-2 w-full flex items-center justify-center text-sm font-medium rounded-md bg-gray-200 text-gray-600">
+                            <span className="inline-block w-2 h-2 bg-gray-400 rounded-full mr-1.5"></span>
+                            GIFT UNAVAILABLE
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </>
               )}
             </div>
