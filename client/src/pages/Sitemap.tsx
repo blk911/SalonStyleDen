@@ -68,7 +68,7 @@ export default function Sitemap() {
               <li><Link href="/register-salon" className="text-pink-600 hover:underline">Salon Registration (Alt Path)</Link></li>
               <li className="mt-4 pt-2 border-t border-pink-100"><span className="text-gray-700 font-medium">Invitation Routes:</span></li>
               <li><Link href="/invitation/:hash" className="text-pink-600 hover:underline">Invitation View</Link> <span className="text-gray-500 text-sm">(Requires invitation hash)</span></li>
-              <li><Link href="/invitation-preview/:hash" className="text-pink-600 hover:underline">Invitation Preview</Link> <span className="text-gray-500 text-sm">(Requires invitation hash)</span></li>
+              <li><Link href="/invitation-preview/:hash" className="text-pink-600 hover:underline">Invitation Preview</Link> <span className="text-gray-500 text-sm">(Legacy - use Client Dashboard instead)</span></li>
               <li><Link href="/invitations/by-hash/:hash" className="text-pink-600 hover:underline">Invitation View (Alt Path)</Link> <span className="text-gray-500 text-sm">(Requires invitation hash)</span></li>
               <li><Link href="/complete-invitation/:id" className="text-pink-600 hover:underline">Complete Invitation</Link> <span className="text-gray-500 text-sm">(Requires invitation ID)</span></li>
             </ul>
