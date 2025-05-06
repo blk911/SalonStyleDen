@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { ExternalLinkIcon } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { findClientId } from "@/lib/clientLookup";
 
 interface Invitation {
   id: number;
@@ -138,60 +139,23 @@ export default function RecentVmbInvitations({
                             console.log(`Navigating to client dashboard for sender ID: ${invitation.senderId}`);
                             setLocation(`/client/${invitation.senderId}`);
                           } else {
-                            // Fallback to checking if the invitation is associated with a client
-                            console.log(`Checking client by invitation ID: ${invitation.id}`);
-                            fetch(`/api/clients/by-invitation/${invitation.id}`)
-                              .then(res => {
-                                if (res.ok) {
-                                  // If client exists, go to their dashboard
-                                  return res.json().then(client => {
-                                    console.log(`Found client ID: ${client.id} for invitation: ${invitation.id}`);
-                                    setLocation(`/client/${client.id}`);
-                                  });
-                                } else {
-                                  // Try by phone number first
-                                  console.log(`No client found by invitation ID: ${invitation.id}, trying by phone: ${invitation.phone}`);
-                                  
-                                  // Clean phone number (remove non-digits)
-                                  const cleanPhone = invitation.phone.replace(/\D/g, '');
-                                  
-                                  fetch(`/api/clients/by-phone/${cleanPhone}`)
-                                    .then(phoneRes => {
-                                      if (phoneRes.ok) {
-                                        return phoneRes.json().then(client => {
-                                          console.log(`Found client by phone: ${client.id}`);
-                                          setLocation(`/client/${client.id}`);
-                                        });
-                                      } else {
-                                        // Last resort - if no client exists by phone, try navigating by name
-                                        console.log(`No client found by phone: ${cleanPhone}, trying by name: ${invitation.name}`);
-                                        fetch(`/api/clients/by-name/${encodeURIComponent(invitation.name)}`)
-                                          .then(nameRes => {
-                                            if (nameRes.ok) {
-                                              return nameRes.json().then(client => {
-                                                console.log(`Found client by name: ${client.id}`);
-                                                setLocation(`/client/${client.id}`);
-                                              });
-                                            } else {
-                                              console.error("No client found for this invitation.");
-                                              // No client found at all, stay on current page
-                                              toast({
-                                                title: "Client not found",
-                                                description: "Cannot locate this client's dashboard.",
-                                                variant: "destructive"
-                                              });
-                                            }
-                                          });
-                                      }
-                                    })
-                                    .catch(err => {
-                                      console.error("Error finding client by name:", err);
-                                    });
-                                }
-                              })
-                              .catch(err => {
-                                console.error("Error checking client:", err);
-                              });
+                            // Use our cascading client lookup utility
+                            findClientId(
+                              invitation.id, 
+                              invitation.phone, 
+                              invitation.name,
+                              // Success callback
+                              (clientId) => {
+                                setLocation(`/client/${clientId}`);
+                              },
+                              // Error callback
+                              () => {
+                                // No client found, stay on current page
+                                console.error("Failed to find client through all lookup methods");
+                              },
+                              // Pass the toast function
+                              toast
+                            );
                           }
                         }}
                         className="inline-flex items-center text-pink-600 font-medium gap-1 text-xs sm:text-sm hover:text-pink-800 cursor-pointer whitespace-nowrap"

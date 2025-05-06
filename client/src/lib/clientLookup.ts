@@ -1,5 +1,4 @@
 // Utility for looking up clients through multiple methods
-import { useToast } from "@/hooks/use-toast";
 
 /**
  * Attempts to find a client ID using multiple lookup methods in sequence
@@ -12,16 +11,16 @@ import { useToast } from "@/hooks/use-toast";
  * @param name The name to lookup
  * @param onSuccess Callback when client is found with the client ID
  * @param onError Callback when no client is found through any method
+ * @param showToast Function to show toast notifications (we pass this from the component)
  */
 export const findClientId = async (
   invitationId: number,
   phone: string,
   name: string,
   onSuccess: (clientId: number) => void,
-  onError: () => void
+  onError: () => void,
+  showToast: (message: { title: string; description: string; variant: "default" | "destructive" }) => void
 ) => {
-  const { toast } = useToast();
-  
   try {
     // First try by invitation ID
     console.log(`Looking up client by invitation ID: ${invitationId}`);
@@ -61,7 +60,7 @@ export const findClientId = async (
     
     // If we got here, no client was found
     console.error("No client found for this invitation via any method.");
-    toast({
+    showToast({
       title: "Client not found",
       description: "Cannot locate this client's dashboard.",
       variant: "destructive"
@@ -69,7 +68,7 @@ export const findClientId = async (
     onError();
   } catch (err) {
     console.error("Error finding client:", err);
-    toast({
+    showToast({
       title: "Error",
       description: "An error occurred while looking up the client.",
       variant: "destructive"
