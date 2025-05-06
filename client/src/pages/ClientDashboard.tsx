@@ -520,10 +520,10 @@ export default function ClientDashboard() {
         {/* REDUCED SPACE - No space between hero and tabs */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Tabs for different dashboard sections */}
-          <Tabs defaultValue="profile" className="w-full mb-2">
+          <Tabs defaultValue="gifts" className="w-full mb-2">
             <TabsList className="grid w-full grid-cols-3 bg-transparent shadow-none gap-3 px-1 py-1 mb-1">
               <TabsTrigger 
-                value="profile" 
+                value="gifts" 
                 className="bg-white shadow-md rounded-md transition-all duration-200 
                            border border-gray-100
                            hover:bg-gradient-to-r hover:from-pink-50 hover:to-pink-100
@@ -587,7 +587,7 @@ export default function ClientDashboard() {
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="profile" className="mt-12 transition-all duration-300 animate-in fade-in-50">
+            <TabsContent value="gifts" className="mt-12 transition-all duration-300 animate-in fade-in-50">
               {/* Add dialog for editing client profile */}
               <Dialog open={isEditing} onOpenChange={setIsEditing}>
                 <DialogContent className="max-w-4xl" aria-describedby="edit-profile-description">
