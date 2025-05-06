@@ -94,14 +94,16 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         <CardContent className="pt-4">
           {!showGiftCreation ? (
             <div 
-              className="border rounded-lg p-4 bg-gradient-to-r from-pink-50 to-pink-100 shadow-sm flex flex-col items-center justify-center text-center min-h-[180px] transition-all hover:shadow-md cursor-pointer"
+              className="border rounded-lg p-4 bg-gradient-to-r from-pink-50 to-pink-100 shadow-sm flex items-center justify-between transition-all hover:shadow-md cursor-pointer"
               onClick={() => setShowGiftCreation(true)}
             >
-              <div className="p-3 bg-white rounded-full mb-3">
-                <PlusCircleIcon className="h-8 w-8 text-pink-500" />
+              <div className="p-2 bg-white rounded-full">
+                <PlusCircleIcon className="h-6 w-6 text-pink-500" />
               </div>
-              <h3 className="text-lg font-medium text-pink-800">Create New Request</h3>
-              <p className="text-sm text-pink-700 mt-1">Send someone special a salon treatment</p>
+              <div className="flex-1 text-center">
+                <h3 className="text-lg font-medium text-pink-800">Create New Request</h3>
+                <p className="text-sm text-pink-700">Send someone special a salon treatment</p>
+              </div>
             </div>
           ) : (
             <div className="border rounded-lg p-6 shadow-sm">
