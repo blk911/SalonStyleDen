@@ -116,7 +116,20 @@ export default function InvitationPreview() {
     setLoading(invitationLoading || salonLoading);
   }, [invitationLoading, salonLoading]);
   
-  // Check if the current client is Tom when invitation data loads
+  // Redirect to client dashboard when invitation data loads
+  useEffect(() => {
+    if (invitation) {
+      // When an invitation is loaded, redirect to the client dashboard using the invitation ID
+      console.log(`[FLOW] Redirecting from invitation preview to client dashboard for invitation ID: ${invitation.id}`);
+      
+      // Use setTimeout to ensure the redirection happens after the component has rendered
+      setTimeout(() => {
+        setLocation(`/client/${invitation.id}?fromInvitation=true&hash=${hash}`);
+      }, 100);
+    }
+  }, [invitation, hash, setLocation]);
+  
+  // Check if the current client is Tom when invitation data loads (legacy code)
   useEffect(() => {
     if (invitation) {
       // IMPORTANT FIX: In preview mode, we explicitly set currentClientId to null

@@ -165,7 +165,38 @@ export default function ClientDashboard() {
   // Add debugging information to trace API calls
   console.log(`ClientDashboard - Fetching client with ID: ${numericId || 'INVALID'}`);
 
-  // Fetch client data
+  // Check if we're coming from an invitation page
+  const urlParams = new URLSearchParams(window.location.search);
+  const fromInvitation = urlParams.get('fromInvitation') === 'true';
+  const invitationHash = urlParams.get('hash');
+  
+  // Fetch invitation data if we're viewing from an invitation
+  const { 
+    data: invitation,
+    isLoading: invitationLoading
+  } = useQuery<any>({
+    queryKey: ['/api/invitations/id', numericId],
+    queryFn: async () => {
+      // If we have a hash, fetch by hash instead of ID
+      if (invitationHash) {
+        const response = await fetch(`/api/invitations/by-hash/${invitationHash}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch invitation by hash: ${response.status}`);
+        }
+        return response.json();
+      }
+      
+      // Otherwise fetch by ID
+      const response = await fetch(`/api/invitations/${numericId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch invitation: ${response.status}`);
+      }
+      return response.json();
+    },
+    enabled: fromInvitation && !!numericId,
+  });
+  
+  // Fetch client data - try client ID first, but if that fails, we'll handle it
   const { data: client, isLoading: clientLoading, error: clientError } = useQuery<ClientData>({
     queryKey: ['/api/clients', numericId],
     queryFn: async () => {
@@ -186,6 +217,24 @@ export default function ClientDashboard() {
         return data;
       } catch (error) {
         console.error(`ClientDashboard - Error fetching client ${numericId || 'INVALID'}:`, error);
+        
+        // If we have invitation data, we can create a temporary client view
+        if (invitation) {
+          // Return a synthetic client object based on the invitation data
+          // This doesn't persist to the database but lets us render the dashboard
+          console.log('Using invitation data to create temporary client view');
+          return {
+            id: invitation.id,
+            name: invitation.name,
+            phone: invitation.phone,
+            email: invitation.email,
+            notes: invitation.notes,
+            salonId: invitation.salonId,
+            invitationPending: true, // Flag to indicate this isn't a real client record yet
+            fromInvitation: true
+          };
+        }
+        
         throw error;
       }
     },
@@ -337,7 +386,8 @@ export default function ClientDashboard() {
     }
   };
 
-  const isLoading = clientLoading || (client?.salonId && salonLoading);
+  // Update loading state to include invitation loading
+  const isLoading = clientLoading || (client?.salonId && salonLoading) || (fromInvitation && invitationLoading);
 
   if (isLoading) {
     return (
@@ -352,7 +402,7 @@ export default function ClientDashboard() {
       </div>
     );
   }
-
+  
   if (clientError || !client) {
     // Extract error message to provide more context
     const errorMessage = clientError instanceof Error 
@@ -362,6 +412,91 @@ export default function ClientDashboard() {
     // Check if it's a "not found" error
     const isNotFoundError = errorMessage.includes("404") || errorMessage.includes("not found");
     
+    // Check if we need to fetch invitation data
+    if (isNotFoundError && fromInvitation && !invitationLoading) {
+      // If invitation is still loading, show a loading message
+      if (invitationLoading) {
+        return (
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow flex items-center justify-center">
+              <div className="text-center">
+                <p className="text-lg">Loading invitation details...</p>
+              </div>
+            </main>
+            <Footer />
+          </div>
+        );
+      }
+      
+      // If we have the invitation data, show a simplified client dashboard for registration
+      if (invitation) {
+        return (
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow pt-6 pb-12 px-4">
+              <div className="container mx-auto">
+                <Card className="mb-8 overflow-hidden">
+                  <CardHeader className="bg-pink-50 pb-4">
+                    <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                      <div>
+                        <CardTitle className="text-2xl font-bold text-pink-700">Welcome, {invitation.name}!</CardTitle>
+                        <CardDescription className="text-pink-600">
+                          Complete your registration to access your dashboard
+                        </CardDescription>
+                      </div>
+                      <Button
+                        onClick={() => setLocation(`/client/register?invitationId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&phone=${encodeURIComponent(invitation.phone)}`)}
+                        className="bg-pink-600 hover:bg-pink-700 text-white"
+                      >
+                        Complete Registration
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div>
+                        <h3 className="text-lg font-medium mb-4">Your Invitation</h3>
+                        <div className="space-y-4">
+                          <div>
+                            <p className="text-sm text-gray-500">From:</p>
+                            <p className="font-medium">{invitation.sponsor || "Tiffany 5280 Nails Studio"}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500">Message:</p>
+                            <p className="italic text-gray-700 border-l-2 border-pink-200 pl-3 py-1">{invitation.message}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500">Status:</p>
+                            <Badge className="bg-yellow-100 text-yellow-800 mt-1">{invitation.status || "pending"}</Badge>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex justify-center items-center">
+                        <RenderedInvitation
+                          inviteId={invitation.inviteHash || `inv-${invitation.id}`}
+                          recipientName={invitation.name}
+                          styleOption={invitation.favoriteServices?.[0] || ""}
+                          senderName={invitation.sponsor || "Your Stylist"}
+                          salonName={invitation.salonName}
+                          imageUrl={"/assets/french-tips.png"}
+                          salonInitiated={!invitation.senderId}
+                          status={invitation.status}
+                          onSendGift={() => setLocation(`/client/register?invitationId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&phone=${encodeURIComponent(invitation.phone)}`)}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </main>
+            <Footer />
+          </div>
+        );
+      }
+    }
+
+    // If invitation is not available or we're not from invitation page, show error
     return (
       <div className="flex flex-col min-h-screen">
         <Navbar />
@@ -386,7 +521,7 @@ export default function ClientDashboard() {
                   Go Home
                 </Button>
                 <Button 
-                  onClick={() => setLocation(`/client/${isNotFoundError ? "11" : numericId}`)}>
+                  onClick={() => setLocation(`/client/${isNotFoundError ? "14" : numericId}`)}>
                   {isNotFoundError ? "Try Existing Client" : "Retry"}
                 </Button>
               </div>
