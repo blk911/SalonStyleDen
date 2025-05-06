@@ -628,6 +628,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get client by invitation ID - route must be before the /:id route to avoid conflicts
+  apiRouter.get("/clients/by-invitation/:invitationId", async (req: Request, res: Response) => {
+    try {
+      const invitationId = parseInt(req.params.invitationId);
+      if (isNaN(invitationId)) {
+        return res.status(400).json({ error: "Invalid invitation ID format" });
+      }
+      
+      const invitation = await storage.getInvitation(invitationId);
+      if (!invitation) {
+        return res.status(404).json({ error: "Invitation not found" });
+      }
+      
+      // Get all clients to match by phone number
+      const allClients = await storage.getAllClients();
+      
+      // Match by phone number (most reliable identifier)
+      // Normalize phone numbers by removing non-digits for comparison
+      const normalizePhone = (phone: string) => phone.replace(/\D/g, '');
+      
+      // Find a client with matching phone number
+      const matchingClient = allClients.find(client => 
+        client.phone && normalizePhone(client.phone) === normalizePhone(invitation.phone)
+      );
+      
+      if (matchingClient) {
+        console.log(`Found matching client ID ${matchingClient.id} for invitation ID ${invitationId} via phone number`);
+        return res.json(matchingClient);
+      }
+      
+      console.log(`No matching client found for invitation ID ${invitationId} with phone ${invitation.phone}`);
+      return res.status(404).json({ error: "No client found for this invitation" });
+    } catch (error) {
+      console.error('Error finding client by invitation:', error);
+      res.status(500).json({ error: "Failed to find client by invitation" });
+    }
+  });
+
   apiRouter.get("/clients/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
