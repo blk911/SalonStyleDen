@@ -109,27 +109,13 @@ export default function InlineVmbInvitations({
           return;
         }
       }
-      
-      // If no client found with this phone, try to look up an existing client
-      // Or use a safer fallback than just using the invitation ID
-      console.log(`No client found with phone ${invitation.phone} for invitation ${invitation.id}, checking for existing client`);
-      
-      // In this case, we'll try to see if there's a recipient client
-      if (invitation.senderId) {
-        console.log(`This is a client-initiated invitation (sender: ${invitation.senderId}), using correct routing`);
-        // This is a client-initiated invitation, so we create a proper route
-        // We'll use the invitation hash as an identifier
-        setLocation(`/invitation/${invitation.inviteHash || invitation.id}`);
-        return;
-      }
-      
-      // Last fallback - go to invitation by ID (but don't use hardcoded client ID)
-      console.log(`No suitable client found for invitation ${invitation.id}, using invitation route`);
-      setLocation(`/invitation/${invitation.id}`);
+      // If no client found, default to invitation ID as before
+      console.log(`No client found for invitation ${invitation.id}, using invitation ID`);
+      setLocation(`/client/${invitation.id}`);
     } catch (error) {
       console.error("Error finding client for invitation:", error);
       // Fallback to invitation ID
-      setLocation(`/invitation/${invitation.id}`);
+      setLocation(`/client/${invitation.id}`);
     }
   };
 
@@ -190,7 +176,7 @@ export default function InlineVmbInvitations({
                     onClick={async (e) => {
                       e.stopPropagation(); // Prevent card click
                       
-                      // Use the same client lookup logic as goToInvitationPage - with improvements
+                      // Use the same client lookup logic as goToInvitationPage
                       try {
                         const response = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
                         if (response.ok) {
@@ -201,25 +187,12 @@ export default function InlineVmbInvitations({
                             return;
                           }
                         }
-                        
-                        // If no client found with this phone, try to look up an existing client
-                        console.log(`View Dashboard: No client found with phone ${invitation.phone} for invitation ${invitation.id}`);
-                        
-                        // In this case, we'll try to see if there's a recipient client
-                        if (invitation.senderId) {
-                          console.log(`This is a client-initiated invitation (sender: ${invitation.senderId}), using correct routing`);
-                          // This is a client-initiated invitation, navigate to invitation page
-                          setLocation(`/invitation/${invitation.inviteHash || invitation.id}`);
-                          return;
-                        }
-                        
-                        // Last fallback - go to invitation by ID (but don't use hardcoded client ID)
-                        console.log(`No suitable client found for invitation ${invitation.id}, using invitation route`);
-                        setLocation(`/invitation/${invitation.id}`);
+                        // Fallback to invitation ID
+                        console.log(`View Dashboard: No client found for invitation ${invitation.id}, using invitation ID`);
+                        setLocation(`/client/${invitation.id}`);
                       } catch (error) {
                         console.error("Error finding client for dashboard view:", error);
-                        // Fallback to invitation route
-                        setLocation(`/invitation/${invitation.id}`);
+                        setLocation(`/client/${invitation.id}`);
                       }
                     }}
                     className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center gap-1 cursor-pointer"
