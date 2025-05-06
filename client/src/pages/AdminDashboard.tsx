@@ -1246,10 +1246,9 @@ export default function AdminDashboard() {
                                   // Use programmatic navigation
                                   window.location.href = `/client/${client.id}?adminView=true`;
                                 }}
-                                className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92] cursor-pointer flex items-center gap-1"
+                                className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92] cursor-pointer"
                               >
-                                <UserIcon className="h-3 w-3" />
-                                <span>Client</span>
+                                Client
                               </a>
                               {client.salonId && (
                                 <Link 
