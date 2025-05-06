@@ -123,7 +123,11 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
               {clientId ? (
                 <GiftCreationFlow 
                   clientId={clientId as number} 
-                  onComplete={() => setShowGiftCreation(false)}
+                  onComplete={() => {
+                    setShowGiftCreation(false);
+                    // Force refresh of the sent gifts query after closing
+                    window.location.reload();
+                  }}
                 />
               ) : (
                 <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
@@ -139,8 +143,8 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       {/* Single line display of sent gifts */}
       {sentGifts && sentGifts.length > 0 && (
         <div className="mt-4 border rounded-lg p-4 bg-green-50">
-          <h3 className="text-sm font-medium text-green-800 mb-2">Gift Status:</h3>
-          {sentGifts.map(gift => (
+          <h3 className="text-sm font-medium text-green-800 mb-2">Gifts Sent ({sentGifts.length}):</h3>
+          {sentGifts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(gift => (
             <div key={gift.id} className="flex items-center justify-between py-2 border-b border-green-100 last:border-0">
               <div className="flex-1">
                 <p className="text-sm">
