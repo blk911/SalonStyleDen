@@ -98,11 +98,15 @@ export default function InvitationPreview() {
   } = useQuery<Salon>({
     queryKey: ['/api/salons', invitation?.salonId],
     queryFn: async () => {
+      console.log(`[FLOW] Fetching salon data for ID: ${invitation?.salonId}`);
       const response = await fetch(`/api/salons/${invitation?.salonId}`);
       if (!response.ok) {
+        console.error(`[FLOW] Failed to fetch salon: ${response.status}`);
         throw new Error(`Failed to fetch salon: ${response.status}`);
       }
-      return response.json();
+      const data = await response.json();
+      console.log(`[FLOW] Successfully fetched salon data:`, data);
+      return data;
     },
     enabled: !!invitation?.salonId,
   });
@@ -374,26 +378,20 @@ export default function InvitationPreview() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  // CRITICAL FIX: Button MUST go back to client dashboard as per user requirement
-                  console.log(`[FLOW] Back button clicked. Going back to the previous page`);
+                  // CRITICAL FIX: Button MUST go to the salon page that the invitation is linked to
+                  const salonId = invitation?.salonId || salon?.id;
                   
-                  // Instead of hardcoded IDs, use the sender ID when available,
-                  // or use client search API to find the client by name
-                  if (sourceDashboard === 'client' && invitation?.senderId) {
-                    console.log(`[FLOW] Returning to client dashboard for sender ID: ${invitation.senderId}`);
-                    setLocation(`/client/${invitation.senderId}`);
-                  }
-                  // Otherwise let the user find the clients from the home page or client list
-                  else {
-                    console.log(`[FLOW] Returning to client list page`);
+                  if (salonId) {
+                    console.log(`[FLOW] Navigating to salon page: ${invitation?.salonName || salon?.name} (ID: ${salonId})`);
+                    setLocation(`/salon/${salonId}`);
+                  } else {
+                    // Fallback if no salon info is available
+                    console.log(`[FLOW] No salon ID found, returning to salon directory`);
+                    setLocation('/salons');
                     
-                    // Go to clients list page where they can select the appropriate client
-                    setLocation('/clients');
-                    
-                    // Show a toast notification for user guidance
                     toast({
-                      title: 'Returned to client list',
-                      description: 'Select a client to view their dashboard.',
+                      title: 'Returned to salon directory',
+                      description: 'Please select a salon from the directory.',
                       duration: 3000
                     });
                   }
@@ -403,7 +401,7 @@ export default function InvitationPreview() {
                   "border-pink-200 text-pink-700 hover:bg-pink-50"}
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                To Deborah Dash
+                To {invitation?.salonName || salon?.name || "Salon Page"}
               </Button>
             </div>
           </CardFooter>
