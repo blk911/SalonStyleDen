@@ -300,7 +300,6 @@ export function RenderedInvitation({
                             <Button 
                               className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
                               onClick={() => {
-                                const [, setLocation] = useLocation();
                                 setLocation('/client-dashboard?tab=appointments');
                               }}
                             >
