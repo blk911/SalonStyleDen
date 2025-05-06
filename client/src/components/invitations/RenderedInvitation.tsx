@@ -31,7 +31,6 @@ import { useLocation } from "wouter";
 declare global {
   interface Window {
     _currentClientId?: string | number | null;
-    _currentClientName?: string | null;
   }
 }
 
@@ -196,11 +195,7 @@ export function RenderedInvitation({
   // 5. The client is viewing their own invitation (sourceDashboard === 'client')
   
   const isInPreviewMode = !currentClientId;
-  // Improved client identification logic - check against both ID and name
-  const isClientViewingOwnInvitation = 
-    currentClientId === recipientName || 
-    window._currentClientName === recipientName || 
-    sourceDashboard === 'client';
+  const isClientViewingOwnInvitation = currentClientId === recipientName || sourceDashboard === 'client';
   const hasValidSendGiftHandler = Boolean(onSendGift);
   const isPendingStatus = status === 'pending';
   
@@ -209,10 +204,8 @@ export function RenderedInvitation({
   
   // NEW CASE: Detect when a client is viewing their OWN salon invitation (recipient is self)
   // This is the special case where we show the PAY / SET APPT button
-  // Use phone number matching or name matching for more reliable identification
   const isRecipientViewingSelfInvitation = currentClientId && 
-                                         (recipientName === currentClientId || 
-                                          recipientName === window._currentClientName) && 
+                                         recipientName === currentClientId && 
                                          isPendingLocalStatus; // Use localStatus here
   
   // CRITICAL RULE: Only show the SEND GIFT button when the invitation recipient
