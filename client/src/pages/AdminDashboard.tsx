@@ -234,8 +234,11 @@ export default function AdminDashboard() {
     }
     
     // Match by phone number (most reliable identifier)
+    // Normalize phone numbers by removing non-digits for comparison
+    const normalizePhone = (phone: string) => phone.replace(/\D/g, '');
+    
     const matchingClient = clientsList.find(client => 
-      client.phone === invitation.phone
+      normalizePhone(client.phone) === normalizePhone(invitation.phone)
     );
     
     if (matchingClient) {
