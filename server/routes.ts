@@ -628,23 +628,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  apiRouter.get("/clients/:id", async (req: Request, res: Response) => {
+  // Find client by phone number
+  apiRouter.get("/clients/by-phone/:phone", async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ error: "Invalid ID format" });
+      const phone = req.params.phone;
+      if (!phone) {
+        return res.status(400).json({ error: "Phone number is required" });
       }
-
-      const client = await storage.getClient(id);
-
-      if (!client) {
-        return res.status(404).json({ error: "Client not found" });
+      
+      // Clean the phone number (remove non-digits)
+      const cleanedPhone = phone.replace(/\D/g, '');
+      
+      // Get all clients and find the one with matching phone
+      const clients = await storage.getAllClients();
+      
+      // First try exact match (after cleaning both)
+      const exactMatch = clients.find(client => 
+        client.phone && client.phone.replace(/\D/g, '') === cleanedPhone
+      );
+      
+      if (exactMatch) {
+        console.log(`Found client ID ${exactMatch.id} with exact phone match: ${cleanedPhone}`);
+        return res.json(exactMatch);
       }
-
-      res.json(client);
+      
+      // If no exact match, try matching just the last 4 digits
+      if (cleanedPhone.length >= 4) {
+        const last4Digits = cleanedPhone.slice(-4);
+        const partialMatch = clients.find(client => 
+          client.phone && client.phone.replace(/\D/g, '').slice(-4) === last4Digits
+        );
+        
+        if (partialMatch) {
+          console.log(`Found client ID ${partialMatch.id} with partial phone match (last 4 digits): ${last4Digits}`);
+          return res.json(partialMatch);
+        }
+      }
+      
+      console.log(`No client found with phone number: ${cleanedPhone}`);
+      return res.status(404).json({ error: "No client found with this phone number" });
     } catch (error) {
-      console.error('Error retrieving client:', error);
-      res.status(500).json({ error: "Failed to retrieve client" });
+      console.error("Error fetching client by phone:", error);
+      return res.status(500).json({ error: "Failed to fetch client by phone" });
+    }
+  });
+  
+  // Find client by name
+  apiRouter.get("/clients/by-name/:name", async (req: Request, res: Response) => {
+    try {
+      const name = req.params.name;
+      if (!name) {
+        return res.status(400).json({ error: "Client name is required" });
+      }
+      
+      // Get all clients and find one with matching name
+      const clients = await storage.getAllClients();
+      
+      // Try to find an exact match first (case insensitive)
+      const exactMatch = clients.find(client => 
+        client.name && client.name.toLowerCase() === name.toLowerCase()
+      );
+      
+      if (exactMatch) {
+        console.log(`Found client ID ${exactMatch.id} with exact name match: ${name}`);
+        return res.json(exactMatch);
+      }
+      
+      // If no exact match, try partial matching
+      const partialMatch = clients.find(client => 
+        client.name && client.name.toLowerCase().includes(name.toLowerCase())
+      );
+      
+      if (partialMatch) {
+        console.log(`Found client ID ${partialMatch.id} with partial name match: ${name}`);
+        return res.json(partialMatch);
+      }
+      
+      console.log(`No client found with name: ${name}`);
+      return res.status(404).json({ error: "No client found with this name" });
+    } catch (error) {
+      console.error("Error fetching client by name:", error);
+      return res.status(500).json({ error: "Failed to fetch client by name" });
+    }
+  });
+  
+  // Endpoint to fetch a client by invitation ID
+  apiRouter.get("/clients/by-invitation/:invitationId", async (req: Request, res: Response) => {
+    try {
+      const invitationId = parseInt(req.params.invitationId);
+      if (isNaN(invitationId)) {
+        return res.status(400).json({ error: "Invalid invitation ID" });
+      }
+      
+      const invitation = await storage.getInvitationById(invitationId);
+      if (!invitation) {
+        return res.status(404).json({ error: "Invitation not found" });
+      }
+      
+      // Check if a client exists with this phone number
+      const clients = await storage.getAllClients();
+      const matchingClient = clients.find(client => client.phone === invitation.phone);
+      
+      if (!matchingClient) {
+        console.log(`No matching client found for invitation ID ${invitationId} with phone ${invitation.phone}`);
+        return res.status(404).json({ error: "No client found for this invitation" });
+      }
+      
+      console.log(`Found matching client ID ${matchingClient.id} for invitation ID ${invitationId} via phone number`);
+      return res.json(matchingClient);
+    } catch (error) {
+      console.error("Error fetching client by invitation:", error);
+      return res.status(500).json({ error: "Failed to fetch client by invitation" });
     }
   });
   
