@@ -250,7 +250,7 @@ export default function PendingSalonInvitations({
                   // If client is registered, allow sending gift
                   setShowInvitationDialog(false);
                   if (selectedInvitation) {
-                    setLocation(`/invitation-preview/${selectedInvitation.inviteHash}`);
+                    setLocation(`/client/${selectedInvitation.id}`);
                   }
                 } : undefined} // Will show the button only if client is registered
               />
@@ -290,9 +290,9 @@ export default function PendingSalonInvitations({
                 onClick={() => {
                   setShowInvitationDialog(false);
                   
-                  // Navigate to the full invitation page with preview mode
+                  // Navigate to client dashboard
                   if (selectedInvitation) {
-                    setLocation(`/invitation-preview/${selectedInvitation.inviteHash}`);
+                    setLocation(`/client/${selectedInvitation.id}`);
                   }
                 }}
                 className={selectedInvitation?.senderId ? 
@@ -300,8 +300,8 @@ export default function PendingSalonInvitations({
                   "bg-amber-600 hover:bg-amber-700 text-white"}
               >
                 {selectedInvitation?.senderId ? 
-                  "View Complete Gift Request" : 
-                  "View Complete Invitation"}
+                  "View Client Dashboard" : 
+                  "View Client Dashboard"}
               </Button>
             ) : (
               // Close button if client is not registered
