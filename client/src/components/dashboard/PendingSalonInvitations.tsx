@@ -254,11 +254,28 @@ export default function PendingSalonInvitations({
                 salonInitiated={!selectedInvitation.senderId} // salonInitiated = true when no senderId (salon sent it)
                 status={selectedInvitation.status} // Pass the invitation status
                 onSendGift={isClientRegistered && 
-                  selectedInvitation.status === 'pending' ? () => {
+                  selectedInvitation.status === 'pending' ? async () => {
                   // If client is registered and status allows sending gift, allow sending gift
                   setShowInvitationDialog(false);
                   if (selectedInvitation) {
-                    setLocation(`/client/${selectedInvitation.id}`);
+                    try {
+                      // First try to find client by phone
+                      const response = await fetch(`/api/clients?phone=${encodeURIComponent(selectedInvitation.phone)}`);
+                      if (response.ok) {
+                        const clients = await response.json();
+                        if (clients && clients.length > 0) {
+                          console.log(`onSendGift: Found client ID ${clients[0].id} for invitation ${selectedInvitation.id}`);
+                          setLocation(`/client/${clients[0].id}`);
+                          return;
+                        }
+                      }
+                      // Fall back to invitation ID
+                      console.log(`onSendGift: No client found for invitation ${selectedInvitation.id}, using invitation ID`);
+                      setLocation(`/client/${selectedInvitation.id}`);
+                    } catch (error) {
+                      console.error("Error finding client for onSendGift:", error);
+                      setLocation(`/client/${selectedInvitation.id}`);
+                    }
                   }
                 } : undefined} // Will show the button only if client is registered and invitation status allows gift sending
               />
@@ -295,12 +312,29 @@ export default function PendingSalonInvitations({
             {isClientRegistered ? (
               // Show this button only if client is registered
               <Button 
-                onClick={() => {
+                onClick={async () => {
                   setShowInvitationDialog(false);
                   
-                  // Navigate to the client dashboard
+                  // Navigate to the client dashboard using the client ID if possible
                   if (selectedInvitation) {
-                    setLocation(`/client/${selectedInvitation.id}`);
+                    try {
+                      // First try to find client by phone
+                      const response = await fetch(`/api/clients?phone=${encodeURIComponent(selectedInvitation.phone)}`);
+                      if (response.ok) {
+                        const clients = await response.json();
+                        if (clients && clients.length > 0) {
+                          console.log(`PendingSalonInvitations: Found client ID ${clients[0].id} for invitation ${selectedInvitation.id}`);
+                          setLocation(`/client/${clients[0].id}`);
+                          return;
+                        }
+                      }
+                      // Fall back to invitation ID
+                      console.log(`PendingSalonInvitations: No client found for invitation ${selectedInvitation.id}, using invitation ID`);
+                      setLocation(`/client/${selectedInvitation.id}`);
+                    } catch (error) {
+                      console.error("Error finding client for invitation:", error);
+                      setLocation(`/client/${selectedInvitation.id}`);
+                    }
                   }
                 }}
                 className={selectedInvitation?.senderId ? 

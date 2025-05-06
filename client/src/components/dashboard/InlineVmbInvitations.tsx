@@ -95,10 +95,28 @@ export default function InlineVmbInvitations({
     }
   };
 
-  // Navigate to invitation detail page
-  const goToInvitationPage = (invitation: Invitation) => {
-    // Always navigate to client dashboard with invitation ID
-    setLocation(`/client/${invitation.id}`);
+  // Navigate to client dashboard page by finding the associated client
+  const goToInvitationPage = async (invitation: Invitation) => {
+    try {
+      // First, try to find a client with this phone number
+      const response = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
+      if (response.ok) {
+        const clients = await response.json();
+        if (clients && clients.length > 0) {
+          // Found a client with this phone number
+          console.log(`Found client ID ${clients[0].id} matching invitation ${invitation.id} by phone`);
+          setLocation(`/client/${clients[0].id}`);
+          return;
+        }
+      }
+      // If no client found, default to invitation ID as before
+      console.log(`No client found for invitation ${invitation.id}, using invitation ID`);
+      setLocation(`/client/${invitation.id}`);
+    } catch (error) {
+      console.error("Error finding client for invitation:", error);
+      // Fallback to invitation ID
+      setLocation(`/client/${invitation.id}`);
+    }
   };
 
   // Count completed invitations
@@ -155,10 +173,27 @@ export default function InlineVmbInvitations({
               {(invitation.status === 'complete' || invitation.status === 'accepted') && (
                 <div className="mt-2 flex justify-end">
                   <div 
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.stopPropagation(); // Prevent card click
-                      // Go to the CompleteInvitationPage with the invitation ID
-                      setLocation(`/client/${invitation.id}`);
+                      
+                      // Use the same client lookup logic as goToInvitationPage
+                      try {
+                        const response = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
+                        if (response.ok) {
+                          const clients = await response.json();
+                          if (clients && clients.length > 0) {
+                            console.log(`View Dashboard: Found client ID ${clients[0].id} matching invitation ${invitation.id}`);
+                            setLocation(`/client/${clients[0].id}`);
+                            return;
+                          }
+                        }
+                        // Fallback to invitation ID
+                        console.log(`View Dashboard: No client found for invitation ${invitation.id}, using invitation ID`);
+                        setLocation(`/client/${invitation.id}`);
+                      } catch (error) {
+                        console.error("Error finding client for dashboard view:", error);
+                        setLocation(`/client/${invitation.id}`);
+                      }
                     }}
                     className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center gap-1 cursor-pointer"
                   >
