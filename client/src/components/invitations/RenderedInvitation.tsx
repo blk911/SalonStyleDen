@@ -196,7 +196,11 @@ export function RenderedInvitation({
   // 5. The client is viewing their own invitation (sourceDashboard === 'client')
   
   const isInPreviewMode = !currentClientId;
-  const isClientViewingOwnInvitation = currentClientId === recipientName || sourceDashboard === 'client';
+  // Improved client identification logic - check against both ID and name
+  const isClientViewingOwnInvitation = 
+    currentClientId === recipientName || 
+    window._currentClientName === recipientName || 
+    sourceDashboard === 'client';
   const hasValidSendGiftHandler = Boolean(onSendGift);
   const isPendingStatus = status === 'pending';
   

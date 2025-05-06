@@ -284,15 +284,17 @@ export default function ClientDashboard() {
   // This allows the RenderedInvitation component to properly determine who is viewing invitations
   useEffect(() => {
     if (client?.id) {
-      // Set the client ID in the global window object for invitation context
-      window._currentClientId = client.name; // We store client name to match the recipientName in invitations
-      console.log(`[FLOW] ClientDashboard - Setting global client ID context: ${client.name} (ID: ${client.id})`);
+      // Set both client ID and name in the global window object for invitation context
+      window._currentClientId = client.id; // Store actual numeric ID
+      window._currentClientName = client.name; // Store the name for matching recipient names
+      console.log(`[FLOW] ClientDashboard - Setting global client context: ${client.name} (ID: ${client.id})`);
     }
     
     // Clean up when component unmounts
     return () => {
-      console.log('[FLOW] ClientDashboard - Clearing global client ID context');
+      console.log('[FLOW] ClientDashboard - Clearing global client context');
       window._currentClientId = null;
+      window._currentClientName = null;
     };
   }, [client]);
 
