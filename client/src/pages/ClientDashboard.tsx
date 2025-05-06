@@ -171,7 +171,7 @@ export default function ClientDashboard() {
   const fromInvitation = urlParams.get('fromInvitation') === 'true';
   const invitationHash = urlParams.get('hash');
   
-  // Fetch invitation data if we're viewing from an invitation
+  // Fetch invitation data if we're viewing from an invitation or if viewing a client by ID
   const { 
     data: invitation,
     isLoading: invitationLoading
@@ -187,14 +187,16 @@ export default function ClientDashboard() {
         return response.json();
       }
       
-      // Otherwise fetch by ID
+      // Otherwise fetch by ID - this might be either a client ID or an invitation ID
       const response = await fetch(`/api/invitations/${numericId}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch invitation: ${response.status}`);
       }
       return response.json();
     },
-    enabled: fromInvitation && !!numericId,
+    // Enable this query either when coming from invitation page or when we have a numeric ID
+    // This allows us to handle cases where we access a dashboard directly via invitation ID
+    enabled: !!numericId,
   });
   
   // Fetch client data - try client ID first, but if that fails, we'll handle it
@@ -413,75 +415,71 @@ export default function ClientDashboard() {
     // Check if it's a "not found" error
     const isNotFoundError = errorMessage.includes("404") || errorMessage.includes("not found");
     
-    // Check if we need to fetch invitation data
-    if (isNotFoundError && fromInvitation) {
-      // If invitation data is available, display that
-      
-      // If we have the invitation data, show a simplified client dashboard for registration
-      if (invitation) {
-        return (
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-grow pt-6 pb-12 px-4">
-              <div className="container mx-auto">
-                <Card className="mb-8 overflow-hidden">
-                  <CardHeader className="bg-pink-50 pb-4">
-                    <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                      <div>
-                        <CardTitle className="text-2xl font-bold text-pink-700">Welcome, {invitation.name}!</CardTitle>
-                        <CardDescription className="text-pink-600">
-                          Complete your registration to access your dashboard
-                        </CardDescription>
-                      </div>
-                      <Button
-                        onClick={() => setLocation(`/client/register?invitationId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&phone=${encodeURIComponent(invitation.phone)}`)}
-                        className="bg-pink-600 hover:bg-pink-700 text-white"
-                      >
-                        Complete Registration
-                      </Button>
+    // Check if we have invitation data available (either from fromInvitation or direct access)
+    if (isNotFoundError && invitation) {
+      // If invitation data is available, display a simplified client dashboard for registration
+      return (
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <main className="flex-grow pt-6 pb-12 px-4">
+            <div className="container mx-auto">
+              <Card className="mb-8 overflow-hidden">
+                <CardHeader className="bg-pink-50 pb-4">
+                  <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                    <div>
+                      <CardTitle className="text-2xl font-bold text-pink-700">Welcome, {invitation.name}!</CardTitle>
+                      <CardDescription className="text-pink-600">
+                        Complete your registration to access your dashboard
+                      </CardDescription>
                     </div>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div>
-                        <h3 className="text-lg font-medium mb-4">Your Invitation</h3>
-                        <div className="space-y-4">
-                          <div>
-                            <p className="text-sm text-gray-500">From:</p>
-                            <p className="font-medium">{invitation.sponsor || "Tiffany 5280 Nails Studio"}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">Message:</p>
-                            <p className="italic text-gray-700 border-l-2 border-pink-200 pl-3 py-1">{invitation.message}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-500">Status:</p>
-                            <Badge className="bg-yellow-100 text-yellow-800 mt-1">{invitation.status || "pending"}</Badge>
-                          </div>
+                    <Button
+                      onClick={() => setLocation(`/client/register?invitationId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&phone=${encodeURIComponent(invitation.phone)}`)}
+                      className="bg-pink-600 hover:bg-pink-700 text-white"
+                    >
+                      Complete Registration
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                      <h3 className="text-lg font-medium mb-4">Your Invitation</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <p className="text-sm text-gray-500">From:</p>
+                          <p className="font-medium">{invitation.sponsor || "Tiffany 5280 Nails Studio"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Message:</p>
+                          <p className="italic text-gray-700 border-l-2 border-pink-200 pl-3 py-1">{invitation.message}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Status:</p>
+                          <Badge className="bg-yellow-100 text-yellow-800 mt-1">{invitation.status || "pending"}</Badge>
                         </div>
                       </div>
-                      <div className="flex justify-center items-center">
-                        <RenderedInvitation
-                          inviteId={invitation.inviteHash || `inv-${invitation.id}`}
-                          recipientName={invitation.name}
-                          styleOption={invitation.favoriteServices?.[0] || ""}
-                          senderName={invitation.sponsor || "Your Stylist"}
-                          salonName={invitation.salonName}
-                          imageUrl={"/assets/french-tips.png"}
-                          salonInitiated={!invitation.senderId}
-                          status={invitation.status}
-                          onSendGift={() => setLocation(`/client/register?invitationId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&phone=${encodeURIComponent(invitation.phone)}`)}
-                        />
-                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </main>
-            <Footer />
-          </div>
-        );
-      }
+                    <div className="flex justify-center items-center">
+                      <RenderedInvitation
+                        inviteId={invitation.inviteHash || `inv-${invitation.id}`}
+                        recipientName={invitation.name}
+                        styleOption={invitation.favoriteServices?.[0] || ""}
+                        senderName={invitation.sponsor || "Your Stylist"}
+                        salonName={invitation.salonName}
+                        imageUrl={"/assets/french-tips.png"}
+                        salonInitiated={!invitation.senderId}
+                        status={invitation.status}
+                        onSendGift={() => setLocation(`/client/register?invitationId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&phone=${encodeURIComponent(invitation.phone)}`)}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </main>
+          <Footer />
+        </div>
+      );
     }
 
     // If invitation is not available or we're not from invitation page, show error
