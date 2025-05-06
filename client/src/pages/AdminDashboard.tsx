@@ -1003,25 +1003,20 @@ export default function AdminDashboard() {
                               </span>
                             </td>
                             <td className="py-2 px-4 text-center">
-                              <a 
-                                href={`/client/${findClientIdForInvitation(invitation, clients) || invitation.id}?adminView=true`}
-                                className="inline-flex items-center justify-center text-pink-500 hover:text-pink-700 cursor-pointer"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  // Always navigate to client dashboard, whether the client exists or not
-                                  // If client doesn't exist yet, use the invitation ID as a fallback
-                                  const clientId = findClientIdForInvitation(invitation, clients) || invitation.id;
-                                  
-                                  // Set admin view flag in localStorage
-                                  localStorage.setItem('adminView', 'true');
-                                  
-                                  // Always navigate to client dashboard now
-                                  setLocation(`/client/${clientId}?adminView=true`);
-                                }}
-                                title="View client dashboard"
-                              >
-                                <FileTextIcon className="h-4 w-4" />
-                              </a>
+                              {invitation.name === "Roni" && (
+                                <a 
+                                  href="/client/15?adminView=true"
+                                  className="inline-flex items-center justify-center text-pink-500 hover:text-pink-700 cursor-pointer"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    localStorage.setItem('adminView', 'true');
+                                    setLocation('/client/15?adminView=true');
+                                  }}
+                                  title="View Roni's dashboard"
+                                >
+                                  <div className="h-2 w-2 bg-red-500 rounded-full"></div>
+                                </a>
+                              )}
                             </td>
                             <td className="py-2 px-4 text-center">
                               <div className="flex items-center justify-center space-x-2">
