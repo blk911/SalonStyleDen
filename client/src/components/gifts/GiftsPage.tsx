@@ -101,14 +101,14 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                 <PlusCircleIcon className="h-6 w-6 text-pink-500" />
               </div>
               <div className="flex-1 text-center">
-                <h3 className="text-lg font-medium text-pink-800">Create New Request</h3>
-                <p className="text-sm text-pink-700">Send someone special a salon treatment</p>
+                <h3 className="text-lg font-medium text-pink-800">Create Gift Request</h3>
+                <p className="text-sm text-pink-700">Send an Invitation for Connection</p>
               </div>
             </div>
           ) : (
             <div className="border rounded-lg p-6 shadow-sm">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-pink-800">Create a New Request</h3>
+                <h3 className="text-lg font-medium text-pink-800">Create Gift Request</h3>
                 <Button 
                   variant="ghost" 
                   size="sm"
