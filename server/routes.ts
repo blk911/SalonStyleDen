@@ -1068,49 +1068,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
             throw new Error("Either Salon ID or Sender ID is required for invitations");
           }
           
-          // First validate that the senderId (clientId) exists in the database if provided
-          let senderClient = null;
+          // Check for salon invitation limits if this is a salon-created invitation
+          if (validatedData.salonId && !validatedData.senderId) {
+            // This is a salon-created invitation
+            console.log(`[API] POST /invitations - Checking invitation limits for salon ${validatedData.salonId}`);
+            
+            // Check if salon has reached its invitation limit
+            const limitCheck = await storage.hasSalonReachedInvitationLimit(validatedData.salonId);
+            
+            if (limitCheck.hasReachedLimit) {
+              console.log(`[API] POST /invitations - Salon ${validatedData.salonId} has reached invitation limit`);
+              console.log(`[API] Current count: ${limitCheck.currentCount}, Limit: ${limitCheck.limit}`);
+              
+              return res.status(403).json({
+                error: 'Invitation limit reached',
+                message: 'Your salon has reached the maximum number of client invitations allowed.',
+                details: 'Salon license verification is required to send more invitations.',
+                currentCount: limitCheck.currentCount,
+                limit: limitCheck.limit
+              });
+            }
+            
+            console.log(`[API] POST /invitations - Salon ${validatedData.salonId} has not reached invitation limit`);
+            console.log(`[API] Current count: ${limitCheck.currentCount}, Limit: ${limitCheck.limit}`);
+          }
+          
+          // Validate that the senderId (clientId) exists in the database
           if (validatedData.senderId) {
-            senderClient = await storage.getClient(validatedData.senderId);
+            const senderClient = await storage.getClient(validatedData.senderId);
             if (!senderClient) {
               console.log(`[API] POST /invitations - Invalid senderId: ${validatedData.senderId} - Client does not exist`);
               throw new Error("Invalid sender ID. Client does not exist in the database.");
             }
             console.log(`[API] POST /invitations - Valid senderId: ${validatedData.senderId} - Client exists: ${senderClient.name}`);
-            
-            // Mark explicitly this as a client-driven invitation if it has a valid sender
-            validatedData.clientDriven = true;
-          }
-          
-          // Check for salon invitation limits
-          if (validatedData.salonId) {
-            // Check if salon needs invitation limits (based on whether it's salon-created or client-created)
-            const isSalonCreated = !validatedData.senderId || validatedData.source === 'salon';
-            
-            if (isSalonCreated) {
-              console.log(`[API] POST /invitations - Checking invitation limits for salon ${validatedData.salonId}`);
-              
-              // Check if salon has reached its invitation limit
-              const limitCheck = await storage.hasSalonReachedInvitationLimit(validatedData.salonId);
-              
-              if (limitCheck.hasReachedLimit) {
-                console.log(`[API] POST /invitations - Salon ${validatedData.salonId} has reached invitation limit`);
-                console.log(`[API] Current count: ${limitCheck.currentCount}, Limit: ${limitCheck.limit}`);
-                
-                return res.status(403).json({
-                  error: 'Invitation limit reached',
-                  message: 'Your salon has reached the maximum number of client invitations allowed.',
-                  details: 'Salon license verification is required to send more invitations.',
-                  currentCount: limitCheck.currentCount,
-                  limit: limitCheck.limit
-                });
-              }
-              
-              console.log(`[API] POST /invitations - Salon ${validatedData.salonId} has not reached invitation limit`);
-              console.log(`[API] Current count: ${limitCheck.currentCount}, Limit: ${limitCheck.limit}`);
-            } else {
-              console.log(`[API] POST /invitations - Client-driven invitation, skipping salon limits check`);
-            }
           }
           
           // Create the invitation in database
