@@ -112,10 +112,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  onClick={() => {
-                    // Simply close the gift creation form
-                    setShowGiftCreation(false);
-                  }}
+                  onClick={() => setShowGiftCreation(false)}
                   className="h-8 w-8 p-0"
                 >
                   <XIcon className="h-5 w-5" />
