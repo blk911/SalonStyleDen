@@ -720,7 +720,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid invitation ID" });
       }
       
-      const invitation = await storage.getInvitationById(invitationId);
+      // Use the getInvitation method instead of getInvitationById
+      const invitation = await storage.getInvitation(invitationId);
       if (!invitation) {
         return res.status(404).json({ error: "Invitation not found" });
       }
@@ -830,7 +831,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Endpoint to update profilePromptShown status
+  // Generic client lookup by ID
+  apiRouter.get("/clients/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+
+      const client = await storage.getClient(id);
+
+      if (!client) {
+        return res.status(404).json({ error: "Client not found" });
+      }
+
+      res.json(client);
+    } catch (error) {
+      console.error('Error retrieving client:', error);
+      res.status(500).json({ error: "Failed to retrieve client" });
+    }
+  });
+  
   apiRouter.post("/clients/:id/profile-prompt-shown", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
