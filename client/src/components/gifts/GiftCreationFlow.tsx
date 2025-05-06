@@ -204,6 +204,12 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/invitations`] });
       }
       
+      // Dispatch a custom event that will trigger any listeners to refresh their data
+      // This helps components like GiftsPage to immediately update their view
+      window.dispatchEvent(new CustomEvent('vmb:gift:created', { 
+        detail: { invitationId: data.id, recipientName: recipientData.name } 
+      }));
+      
       // Close the preview modal
       setShowFinalInvitationModal(false);
       
