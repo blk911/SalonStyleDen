@@ -196,8 +196,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       console.log("GiftCreationFlow: Client invitation created successfully:", data);
       setInvitationId(data.id);
       
-      // Invalidate relevant queries to refresh data
+      // Invalidate all relevant queries to refresh data everywhere
       queryClient.invalidateQueries({ queryKey: ['/api/invitations'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/invitations/all', clientId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/invitations/received', clientId] });
       
       // Also invalidate client-specific queries to ensure dashboard updates
       if (clientId) {
@@ -469,12 +471,18 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     }
   };
 
-  // Import useLocation from wouter at the top of your file if not already imported
   const [, setLocation] = useLocation();
   
   // Function to handle gift creation confirmation
   const handleConfirm = () => {
-    // Call onComplete first to close the dialog
+    // Make sure to update the query cache
+    if (clientId) {
+      queryClient.invalidateQueries({ queryKey: ['/api/invitations/all', clientId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/invitations/received', clientId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/invitations'] });
+    }
+    
+    // Call onComplete to close the dialog
     if (onComplete) {
       onComplete();
     }
