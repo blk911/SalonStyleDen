@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExternalLinkIcon, HeartIcon, PlusCircleIcon, UserPlusIcon, XIcon } from "lucide-react";
 import GiftCreationFlow from "./GiftCreationFlow";
@@ -46,7 +46,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
   });
 
   // Query for received gifts (where this client is the recipient - by phone number matching)
-  const { data: receivedGifts, isLoading: isLoadingReceived, refetch: refetchReceivedGifts } = useQuery({
+  const { data: receivedGifts, isLoading: isLoadingReceived } = useQuery({
     queryKey: ['/api/invitations/received', clientId, clientData?.name],
     queryFn: async () => {
       if (!clientId || !clientData?.name) return [];
@@ -60,7 +60,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
   });
   
   // Query for sent gifts (where this client is the sender)
-  const { data: allClientInvitations, isLoading: isLoadingSent, refetch: refetchSentGifts } = useQuery({
+  const { data: allClientInvitations, isLoading: isLoadingSent } = useQuery({
     queryKey: ['/api/invitations/all', clientId],
     queryFn: async () => {
       if (!clientId) return [];
@@ -70,31 +70,11 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       if (!response.ok) throw new Error('Failed to fetch invitations');
       return response.json() as Promise<Invitation[]>;
     },
-    enabled: !!clientId,
-    refetchInterval: 5000, // Poll every 5 seconds for new invitations
-    refetchOnWindowFocus: true // Refetch when window regains focus
+    enabled: !!clientId
   });
   
   // Filter the gifts that were actually sent BY this client (where senderId matches clientId)
   const sentGifts = allClientInvitations?.filter(gift => gift.senderId === clientId) || [];
-  
-  // Set up an effect to listen for the "vmb:gift:created" event which will be triggered after gift creation
-  useEffect(() => {
-    const handleGiftCreated = () => {
-      console.log("[GiftsPage] Received gift created event, refreshing data");
-      // Force refresh all invitation data
-      refetchSentGifts();
-      refetchReceivedGifts();
-    };
-    
-    // Listen for the custom event
-    window.addEventListener('vmb:gift:created', handleGiftCreated);
-    
-    // Cleanup
-    return () => {
-      window.removeEventListener('vmb:gift:created', handleGiftCreated);
-    };
-  }, [refetchSentGifts, refetchReceivedGifts]);
   
   return (
     <div className="space-y-4 w-full">
