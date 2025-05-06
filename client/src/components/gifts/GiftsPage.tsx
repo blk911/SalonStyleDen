@@ -30,6 +30,7 @@ interface GiftsPageProps {
 export default function GiftsPage({ clientId }: GiftsPageProps) {
   const [showGiftCreation, setShowGiftCreation] = useState(false);
   const [showSentGifts, setShowSentGifts] = useState(true);
+  const [newInvitation, setNewInvitation] = useState<Invitation | null>(null);
   const [, setLocation] = useLocation();
   
   // Query for the current client's name to use in filters
@@ -59,7 +60,13 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
   });
   
   // Filter the gifts that were actually sent BY this client (where senderId matches clientId)
-  const sentGifts = allClientInvitations?.filter(gift => gift.senderId === clientId) || [];
+  let sentGifts = [...(allClientInvitations?.filter(gift => gift.senderId === clientId) || [])];
+  
+  // If we have a new invitation, add it to the top of the list
+  // This ensures immediate feedback even before the query refreshes
+  if (newInvitation && !sentGifts.some(gift => gift.id === newInvitation.id)) {
+    sentGifts = [newInvitation, ...sentGifts];
+  }
   
   return (
     <div className="space-y-4 w-full">
@@ -109,6 +116,11 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                 <GiftCreationFlow 
                   clientId={clientId as number} 
                   onComplete={() => setShowGiftCreation(false)}
+                  onNewInvitation={(invitation) => {
+                    setNewInvitation(invitation);
+                    // Ensure the section is expanded to show the newly created gift
+                    setShowSentGifts(true);
+                  }}
                 />
               ) : (
                 <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">

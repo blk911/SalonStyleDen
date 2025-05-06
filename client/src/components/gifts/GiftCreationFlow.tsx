@@ -46,9 +46,10 @@ interface GiftCreationFlowProps {
   clientId: number;
   salonId?: number;
   onComplete?: () => void;
+  onNewInvitation?: (invitation: any) => void;
 }
 
-export default function GiftCreationFlow({ clientId, salonId, onComplete }: GiftCreationFlowProps) {
+export default function GiftCreationFlow({ clientId, salonId, onComplete, onNewInvitation }: GiftCreationFlowProps) {
   const { toast } = useToast();
   const [step, setStep] = useState<string>("style");
   const [recipientData, setRecipientData] = useState({
@@ -63,6 +64,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   const [showFinalInvitationModal, setShowFinalInvitationModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [newlyCreatedInvitation, setNewlyCreatedInvitation] = useState<any>(null);
 
   // If salonId is not provided, we need to fetch the salon associated with the client
   // or default to Tiffany's salon (ID: 2) which is the sponsor
@@ -197,11 +199,36 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       console.log("GiftCreationFlow: Client invitation created successfully:", data);
       setInvitationId(data.id);
       
+      // Create the invitation data object with all required fields
+      const newInvitation = {
+        id: data.id,
+        name: recipientData.name,
+        phone: recipientData.phone,
+        email: recipientData.email,
+        message: personalMessage,
+        status: "pending",
+        salonId: useSalonId,
+        clientId: clientId,
+        senderId: clientId,
+        inviteHash: data.inviteHash,
+        createdAt: new Date().toISOString(),
+        type: "client_to_friend"
+      };
+      
+      // Store it locally
+      setNewlyCreatedInvitation(newInvitation);
+      
+      // Also pass it to parent component via callback
+      if (onNewInvitation) {
+        onNewInvitation(newInvitation);
+      }
+      
       // Invalidate relevant queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['/api/invitations'] });
       
       // Also invalidate client-specific queries to ensure dashboard updates
       if (clientId) {
+        queryClient.invalidateQueries({ queryKey: ['/api/invitations/all', clientId] });
         queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/invitations`] });
       }
       
