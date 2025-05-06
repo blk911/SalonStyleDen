@@ -1012,11 +1012,11 @@ export default function AdminDashboard() {
                                   if (clientId) {
                                     // Set admin view flag in localStorage
                                     localStorage.setItem('adminView', 'true');
-                                    // Use programmatic navigation
-                                    window.location.href = `/client/${clientId}?adminView=true`;
+                                    // Use setLocation from wouter instead of direct window.location
+                                    setLocation(`/client/${clientId}?adminView=true`);
                                   } else {
                                     // Navigate to invitation preview
-                                    window.location.href = `/invitation-preview/${invitation.inviteHash}?adminView=true`;
+                                    setLocation(`/invitation-preview/${invitation.inviteHash}?adminView=true`);
                                   }
                                 }}
                                 title={findClientIdForInvitation(invitation, clients) ? "View client dashboard" : "View invitation"}
@@ -1041,8 +1041,8 @@ export default function AdminDashboard() {
                                           e.preventDefault();
                                           // Set admin view flag in localStorage to persist through navigation
                                           localStorage.setItem('adminView', 'true');
-                                          // Use programmatic navigation
-                                          window.location.href = `/client/${clientId}?adminView=true`;
+                                          // Use wouter navigation
+                                          setLocation(`/client/${clientId}?adminView=true`);
                                         }}
                                       >
                                         <ExternalLinkIcon className="h-4 w-4" />
@@ -1057,8 +1057,8 @@ export default function AdminDashboard() {
                                         onClick={(e) => {
                                           e.preventDefault();
                                           e.stopPropagation(); // Prevent triggering the parent click
-                                          // Use programmatic navigation
-                                          window.location.href = `/invitation-preview/${invitation.inviteHash}?adminView=true`;
+                                          // Use wouter navigation
+                                          setLocation(`/invitation-preview/${invitation.inviteHash}?adminView=true`);
                                         }}
                                       >
                                         <ExternalLinkIcon className="h-4 w-4" />
@@ -1268,8 +1268,8 @@ export default function AdminDashboard() {
                                   e.preventDefault();
                                   // Set admin view flag in localStorage to persist through navigation
                                   localStorage.setItem('adminView', 'true');
-                                  // Use programmatic navigation
-                                  window.location.href = `/client/${client.id}?adminView=true`;
+                                  // Use wouter navigation
+                                  setLocation(`/client/${client.id}?adminView=true`);
                                 }}
                                 className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92] cursor-pointer"
                               >
