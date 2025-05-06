@@ -152,7 +152,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                 </p>
               </div>
               <Link 
-                to={`/client/${gift.id}`}
+                to={`/invitation-preview/${gift.inviteHash}`}
                 className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1"
               >
                 <ExternalLinkIcon className="h-3 w-3" />
