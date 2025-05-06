@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link, useLocation } from "wouter";
-import { queryClient } from "@/lib/queryClient";
 
 interface Invitation {
   id: number;
@@ -124,14 +123,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
               {clientId ? (
                 <GiftCreationFlow 
                   clientId={clientId as number} 
-                  onComplete={() => {
-                    // Close the creation UI
-                    setShowGiftCreation(false);
-                    
-                    // Refresh both gift lists by invalidating the queries
-                    queryClient.invalidateQueries({ queryKey: ['/api/invitations/all', clientId] });
-                    queryClient.invalidateQueries({ queryKey: ['/api/invitations/received', clientId] });
-                  }}
+                  onComplete={() => setShowGiftCreation(false)}
                 />
               ) : (
                 <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
