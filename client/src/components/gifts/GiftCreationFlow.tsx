@@ -441,7 +441,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       status: "pending",
       senderName: client?.name || "Client",
       invitationType: "client_to_friend",
-      styleImageUrl: selectedStyle.gifUrl
+      styleImageUrl: selectedStyle.gifUrl,
+      senderId: clientId // Important: we need to set the sender ID to make sure gifts show up in sent list
     };
     
     // Log the invitation data being sent
@@ -474,12 +475,14 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
   
   // Function to handle gift creation confirmation
   const handleConfirm = () => {
-    // Call onComplete first to close the dialog
+    // Invalidate any queries to ensure we get fresh data
+    queryClient.invalidateQueries({ queryKey: ['/api/invitations'] });
+    
+    // Call onComplete to close the creation dialog and refresh the parent component
     if (onComplete) {
       onComplete();
     }
     
-    // Navigate back to client dashboard after completing the flow
     // Only redirect if we have a valid clientId
     if (clientId && clientId > 0) {
       console.log(`GiftCreationFlow: Redirecting to client dashboard for ID ${clientId}`);
@@ -832,21 +835,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               type="button"
               className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium"
               disabled={createInvitationMutation.isPending}
-              onClick={() => {
-                // NOTE: For demonstration purposes, we're bypassing the API call
-                // and directly showing the success dialog since there's a limit on invitations
-                setShowFinalInvitationModal(false);
-                
-                // Show success dialog immediately
-                setShowConfirmDialog(true);
-                
-                toast({
-                  title: "Gift Invitation Sent!",
-                  description: `Your invitation to ${recipientData.name} has been sent successfully.`,
-                });
-                
-                console.log("[DEMO MODE] Bypassing API call due to invitation limit. Showing success dialog directly.");
-              }}
+              onClick={handlePayment}
             >
               {createInvitationMutation.isPending ? (
                 <div className="flex items-center gap-2">
