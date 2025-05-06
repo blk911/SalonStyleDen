@@ -175,7 +175,9 @@ export default function ClientDashboard() {
         }
         
         console.log(`ClientDashboard - Making API request to fetch client ${numericId}`);
-        const response = await fetch(`/api/clients/${numericId}`);
+        // Add cache buster to prevent browser caching
+        const cacheBuster = new Date().getTime();
+        const response = await fetch(`/api/clients/${numericId}?_cb=${cacheBuster}`);
         if (!response.ok) {
           const errorText = await response.text();
           console.error(`ClientDashboard - API error: ${response.status} ${errorText}`);
@@ -189,8 +191,11 @@ export default function ClientDashboard() {
         throw error;
       }
     },
-    refetchOnMount: true,
-    enabled: !!numericId, // Only run the query if we have a valid numeric ID
+    refetchOnMount: true, // Always refetch when the component mounts
+    refetchOnWindowFocus: true, // Refetch when window gets focus
+    staleTime: 0, // Consider data stale immediately so it will refetch
+    gcTime: 0, // Don't cache the data at all (formerly cacheTime)
+    enabled: !!numericId // Only run the query if we have a valid numeric ID
   });
 
   // Fetch linked salon data if salonId exists
