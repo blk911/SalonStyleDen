@@ -56,6 +56,7 @@ import {
   AtSign as AtSignIcon,
   Phone as PhoneIcon,
   Calendar as CalendarIcon,
+  FileText as FileTextIcon,
   Gift as GiftIcon,
   Trash2 as TrashIcon
 } from "lucide-react";
@@ -950,7 +951,7 @@ export default function AdminDashboard() {
                           <th className="py-2 px-4 text-center"><AtSignIcon className="h-4 w-4 inline" /></th>
                           <th className="py-2 px-4 text-center"><PhoneIcon className="h-4 w-4 inline" /></th>
                           <th className="py-2 px-4">Status</th>
-                          <th className="py-2 px-4 text-center"><CalendarIcon className="h-4 w-4 inline" /></th>
+                          <th className="py-2 px-4 text-center"><FileTextIcon className="h-4 w-4 inline" /></th>
                           <th className="py-2 px-4 text-center">Actions</th>
                         </tr>
                       </thead>
@@ -998,7 +999,39 @@ export default function AdminDashboard() {
                                 {invitation.status || 'pending'}
                               </span>
                             </td>
-                            <td className="py-2 px-4 text-center">...</td>
+                            <td className="py-2 px-4 text-center">
+                              {(() => {
+                                // Find the client ID for this invitation
+                                const clientId = findClientIdForInvitation(invitation, clients);
+                                
+                                if (clientId) {
+                                  // If client exists, render page icon that links to client dashboard
+                                  return (
+                                    <a 
+                                      href={`/client/${clientId}?adminView=true`}
+                                      className="inline-flex items-center justify-center text-pink-500 hover:text-pink-700 cursor-pointer"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        // Set admin view flag in localStorage
+                                        localStorage.setItem('adminView', 'true');
+                                        // Use programmatic navigation
+                                        window.location.href = `/client/${clientId}?adminView=true`;
+                                      }}
+                                      title="View client dashboard"
+                                    >
+                                      <FileTextIcon className="h-4 w-4" />
+                                    </a>
+                                  );
+                                } else {
+                                  // If no matching client, show disabled icon
+                                  return (
+                                    <span className="text-gray-300">
+                                      <FileTextIcon className="h-4 w-4" />
+                                    </span>
+                                  );
+                                }
+                              })()}
+                            </td>
                             <td className="py-2 px-4 text-center">
                               <div className="flex items-center justify-center space-x-2">
                                 {/* View invitation/client button */}
