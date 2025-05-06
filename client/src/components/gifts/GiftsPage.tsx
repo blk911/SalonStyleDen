@@ -150,77 +150,78 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       {receivedGifts && receivedGifts.length > 0 && (
         <div className="mt-4 border rounded-lg p-4 bg-yellow-50">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-amber-800">Gift Rcv</h3>
+            <h3 className="text-sm font-medium text-amber-800">Gifts Received</h3>
+            <div className="flex items-center gap-8">
+              <span className="text-sm font-medium text-amber-800">GIFT</span>
+              <span className="text-sm font-medium text-amber-800">STATUS</span>
+            </div>
           </div>
           <div className="space-y-2">
             {receivedGifts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(gift => (
               <div key={gift.id} className="flex items-center justify-between py-2 px-4 bg-white rounded-lg border border-yellow-200 shadow-sm">
                 <div className="flex items-center gap-2 flex-grow">
                   <HeartIcon className="h-4 w-4 text-yellow-600" />
-                  <p className="text-sm truncate">
-                    <span className="font-medium">Gift from {gift.sponsor || "Unknown"}</span>
-                    <span className="mx-1 text-gray-400">•</span>
-                    <span className="text-xs text-gray-500">
-                      {new Date(gift.createdAt).toLocaleDateString('en-US', {
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <p className="text-sm font-medium">
+                        Gift from <span className="font-semibold text-amber-700">{gift.sponsor || "Unknown"}</span>
+                      </p>
+                      <span className="text-xs text-gray-400">•</span>
+                      <p className="text-xs text-gray-500">{new Date(gift.createdAt).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric'
-                      })}
-                    </span>
-                  </p>
+                      })}</p>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-0.5">{gift.message || "Personal gift invitation"}</p>
+                  </div>
                 </div>
                 
-                <div className="flex items-center gap-3 ml-2">
-                  <div className="flex flex-col items-center">
-                    <div className="text-[10px] font-medium text-amber-800 text-center mb-1">GIFT</div>
-                    <Link
-                      to={`/invitation-preview/${gift.inviteHash}`}
-                      className="text-xs text-amber-600 font-medium hover:text-amber-800 flex items-center gap-1 whitespace-nowrap"
-                    >
-                      <ExternalLinkIcon className="h-3 w-3" />
-                      View
-                    </Link>
-                  </div>
+                <div className="flex items-center gap-8 ml-2">
+                  <Link
+                    to={`/invitation-preview/${gift.inviteHash}`}
+                    className="text-xs text-amber-600 font-medium hover:text-amber-800 flex items-center gap-1 whitespace-nowrap"
+                  >
+                    <ExternalLinkIcon className="h-3 w-3" />
+                    View
+                  </Link>
                   
-                  <div className="flex flex-col items-center">
-                    <div className="text-[10px] font-medium text-amber-800 text-center mb-1">STATUS</div>
-                    {gift.status.toLowerCase() === 'pending' ? (
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        className="h-7 py-0 px-3 whitespace-nowrap bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200 text-xs"
-                        onClick={async () => {
-                          try {
-                            // Update the invitation status to accepted
-                            const response = await fetch(`/api/invitations/${gift.id}/status`, {
-                              method: 'PUT',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ status: 'accepted' })
-                            });
-                            
-                            if (!response.ok) throw new Error('Failed to update status');
-                            
-                            // Navigate to the invitation preview page
-                            setLocation(`/invitation-preview/${gift.inviteHash}`);
-                          } catch (error) {
-                            console.error('Error accepting gift:', error);
-                            // Navigate anyway as fallback
-                            setLocation(`/invitation-preview/${gift.inviteHash}`);
-                          }
-                        }}
-                      >
-                        Accept
-                      </Button>
-                    ) : (
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                        gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
-                        gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' : 
-                        'bg-gray-100 text-gray-700'
-                      }`}>
-                        {gift.status.charAt(0).toUpperCase() + gift.status.slice(1).toLowerCase()}
-                      </span>
-                    )}
-                  </div>
+                  {gift.status.toLowerCase() === 'pending' ? (
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="h-7 py-0 px-3 whitespace-nowrap bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200 text-xs"
+                      onClick={async () => {
+                        try {
+                          // Update the invitation status to accepted
+                          const response = await fetch(`/api/invitations/${gift.id}/status`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: 'accepted' })
+                          });
+                          
+                          if (!response.ok) throw new Error('Failed to update status');
+                          
+                          // Navigate to the invitation preview page
+                          setLocation(`/invitation-preview/${gift.inviteHash}`);
+                        } catch (error) {
+                          console.error('Error accepting gift:', error);
+                          // Navigate anyway as fallback
+                          setLocation(`/invitation-preview/${gift.inviteHash}`);
+                        }
+                      }}
+                    >
+                      Accept
+                    </Button>
+                  ) : (
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                      gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
+                      gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' : 
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      {gift.status.charAt(0).toUpperCase() + gift.status.slice(1).toLowerCase()}
+                    </span>
+                  )}
                 </div>
               </div>
             ))}
