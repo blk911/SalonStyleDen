@@ -4,6 +4,7 @@ import { ExternalLinkIcon, HeartIcon, PlusCircleIcon, UserPlusIcon, XIcon } from
 import GiftCreationFlow from "./GiftCreationFlow";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link, useLocation } from "wouter";
 
@@ -125,8 +126,9 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                   clientId={clientId as number} 
                   onComplete={() => {
                     setShowGiftCreation(false);
-                    // Force refresh of the sent gifts query after closing
-                    window.location.reload();
+                    // Invalidate queries to refresh gift data
+                    queryClient.invalidateQueries({ queryKey: ['/api/invitations/all', clientId] });
+                    queryClient.invalidateQueries({ queryKey: ['/api/invitations/received', clientId] });
                   }}
                 />
               ) : (
