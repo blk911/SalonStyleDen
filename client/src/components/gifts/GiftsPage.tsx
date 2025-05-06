@@ -72,7 +72,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       {/* Gift Status Card */}
       <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
         <CardHeader className="bg-pink-50 pb-2 pt-2">
-          <CardTitle className="text-base text-pink-700">Your Gift Status</CardTitle>
+          <CardTitle className="text-base text-pink-700">Gifts</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
           <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
