@@ -148,7 +148,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       </Card>
   
 
-      {/* Single line header for received gifts */}
+      {/* Only show Gifts Received section if there are actual gifts to display */}
       {receivedGifts && receivedGifts.length > 0 && (
         <div className="mt-4 border rounded-lg p-4 bg-yellow-50">
           <div className="flex items-center justify-between mb-2">
