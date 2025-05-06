@@ -1265,19 +1265,16 @@ export default function AdminDashboard() {
                           {/* Actions */}
                           <TableCell className="py-0 text-center">
                             <div className="flex justify-center gap-1">
-                              <a 
-                                href={`/client/${client.id}?adminView=true`}
-                                onClick={(e) => {
-                                  e.preventDefault();
+                              <Link 
+                                to={`/client/${client.id}?adminView=true`}
+                                onClick={() => {
                                   // Set admin view flag in localStorage to persist through navigation
                                   localStorage.setItem('adminView', 'true');
-                                  // Use wouter navigation
-                                  setLocation(`/client/${client.id}?adminView=true`);
                                 }}
-                                className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92] cursor-pointer"
+                                className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92] cursor-pointer inline-block"
                               >
                                 Client
-                              </a>
+                              </Link>
                               {client.salonId && (
                                 <Link 
                                   to={`/salon/${client.salonId}`}
