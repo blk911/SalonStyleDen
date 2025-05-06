@@ -437,7 +437,6 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       stylePrice: selectedStyle.price,
       styleName: selectedStyle.name,
       clientId: clientId,
-      senderId: clientId, // CRITICAL: This is the missing link - set senderId to clientId
       salonId: useSalonId,
       status: "pending",
       senderName: client?.name || "Client",
