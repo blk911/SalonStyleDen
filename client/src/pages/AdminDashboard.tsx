@@ -1005,16 +1005,16 @@ export default function AdminDashboard() {
                             <td className="py-2 px-4 text-center">
                               {invitation.name === "Roni" && (
                                 <a 
-                                  href="/client/15?adminView=true"
+                                  href={`/invitation-preview/${invitation.inviteHash}?adminView=true`}
                                   className="inline-flex items-center justify-center text-pink-500 hover:text-pink-700 cursor-pointer"
                                   onClick={(e) => {
                                     e.preventDefault();
                                     localStorage.setItem('adminView', 'true');
-                                    setLocation('/client/15?adminView=true');
+                                    setLocation(`/invitation-preview/${invitation.inviteHash}?adminView=true`);
                                   }}
-                                  title="View Roni's dashboard"
+                                  title="View Roni's invitation preview"
                                 >
-                                  <div className="h-2 w-2 bg-red-500 rounded-full"></div>
+                                  <div className="h-2 w-2 bg-green-500 rounded-full"></div>
                                 </a>
                               )}
                             </td>
