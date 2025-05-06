@@ -967,7 +967,7 @@ export default function AdminDashboard() {
                                   return (
                                     <a 
                                       href={`/client/${clientId}?adminView=true`}
-                                      className="text-pink-700 hover:text-pink-900 hover:underline cursor-pointer flex items-center"
+                                      className="text-pink-700 hover:text-pink-900 hover:underline cursor-pointer"
                                       onClick={(e) => {
                                         e.preventDefault();
                                         // Set admin view flag in localStorage
@@ -978,9 +978,6 @@ export default function AdminDashboard() {
                                       title="View client dashboard"
                                     >
                                       {invitation.name}
-                                      <span className="ml-1 inline-flex items-center justify-center bg-pink-100 text-pink-700 rounded-full p-0.5">
-                                        <ExternalLinkIcon className="h-3 w-3" />
-                                      </span>
                                     </a>
                                   );
                                 } else {
@@ -1001,29 +998,7 @@ export default function AdminDashboard() {
                                 {invitation.status || 'pending'}
                               </span>
                             </td>
-                            <td className="py-2 px-4 text-center">
-                              {(() => {
-                                const clientId = findClientIdForInvitation(invitation, clients);
-                                if (clientId) {
-                                  return (
-                                    <a 
-                                      href={`/client/${clientId}?adminView=true`}
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        localStorage.setItem('adminView', 'true');
-                                        window.location.href = `/client/${clientId}?adminView=true`;
-                                      }}
-                                      title="View client calendar"
-                                      className="inline-flex items-center justify-center text-pink-600 hover:text-pink-800"
-                                    >
-                                      <CalendarIcon className="h-4 w-4" />
-                                    </a>
-                                  );
-                                } else {
-                                  return "...";
-                                }
-                              })()}
-                            </td>
+                            <td className="py-2 px-4 text-center">...</td>
                             <td className="py-2 px-4 text-center">
                               <div className="flex items-center justify-center space-x-2">
                                 {/* View invitation/client button */}
@@ -1170,22 +1145,9 @@ export default function AdminDashboard() {
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <a 
-                                      href={`/client/${client.id}?adminView=true`}
-                                      className="text-pink-700 hover:text-pink-900 hover:underline cursor-pointer flex items-center"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        localStorage.setItem('adminView', 'true');
-                                        window.location.href = `/client/${client.id}?adminView=true`;
-                                      }}
-                                    >
-                                      <span>
-                                        {client.name.substring(0, 10)}...
-                                      </span>
-                                      <span className="ml-1 inline-flex items-center justify-center bg-pink-100 text-pink-700 rounded-full p-0.5">
-                                        <ExternalLinkIcon className="h-3 w-3" />
-                                      </span>
-                                    </a>
+                                    <span className="cursor-help">
+                                      {client.name.substring(0, 10)}...
+                                    </span>
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p>{client.name}</p>
@@ -1193,20 +1155,7 @@ export default function AdminDashboard() {
                                 </Tooltip>
                               </TooltipProvider>
                             ) : (
-                              <a 
-                                href={`/client/${client.id}?adminView=true`}
-                                className="text-pink-700 hover:text-pink-900 hover:underline cursor-pointer flex items-center"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  localStorage.setItem('adminView', 'true');
-                                  window.location.href = `/client/${client.id}?adminView=true`;
-                                }}
-                              >
-                                {client.name}
-                                <span className="ml-1 inline-flex items-center justify-center bg-pink-100 text-pink-700 rounded-full p-0.5">
-                                  <ExternalLinkIcon className="h-3 w-3" />
-                                </span>
-                              </a>
+                              client.name
                             )}
                           </TableCell>
                           
@@ -1302,19 +1251,15 @@ export default function AdminDashboard() {
                                 Client
                               </a>
                               {client.salonId && (
-                                <a 
-                                  href={`/salon/${client.salonId}`}
-                                  className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200 cursor-pointer"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    window.location.href = `/salon/${client.salonId}`;
-                                  }}
+                                <Link 
+                                  to={`/salon/${client.salonId}`}
+                                  className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200"
                                 >
                                   Salon
-                                </a>
+                                </Link>
                               )}
-                              <a
-                                href="#"
+                              <Link
+                                to="#"
                                 onClick={(e) => {
                                   e.preventDefault();
                                   toast({
@@ -1322,10 +1267,10 @@ export default function AdminDashboard() {
                                     description: "This feature will allow sending a gift invitation",
                                   });
                                 }}
-                                className="px-2 py-1 text-[10px] bg-gray-100 text-gray-700 rounded hover:bg-gray-200 cursor-pointer"
+                                className="px-2 py-1 text-[10px] bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
                               >
                                 <GiftIcon className="h-3 w-3" />
-                              </a>
+                              </Link>
                               
                               {/* Suspend Client Button with Alert Dialog */}
                               <AlertDialog open={clientToSuspend?.id === client.id} onOpenChange={(open) => !open && setClientToSuspend(null)}>
@@ -1416,18 +1361,14 @@ export default function AdminDashboard() {
               isOpen={networkVisualizationOpen}
               onToggle={() => setNetworkVisualizationOpen(!networkVisualizationOpen)}
               action={
-                <a 
-                  href="/network-visualization"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    window.location.href = `/network-visualization`;
-                  }}
+                <Link 
+                  to="/network-visualization"
                 >
                   <Button size="sm" variant="outline">
                     <ExternalLinkIcon className="h-4 w-4 mr-1" />
                     Open Full View
                   </Button>
-                </a>
+                </Link>
               }
             >
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
