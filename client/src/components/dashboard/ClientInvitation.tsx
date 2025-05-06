@@ -5,7 +5,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useLocation } from "wouter";
 import { 
   AlertCircle, 
   ChevronDown, 
@@ -68,7 +67,6 @@ interface ClientInvite {
   favoriteServices: string[];
   createdAt: string;
   salonId?: number;
-  senderId?: number; // Added senderId for proper client routing
   status?: string;
   sponsor?: string;
   firstServiceDate?: string;
@@ -108,7 +106,6 @@ function formatDate(dateString: string | undefined) {
 
 export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -912,76 +909,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
 
                         {/* View button with icon - now links to client dashboard */}
                         <TableCell className="py-1 text-center">
-                          <Link 
-                            to={`/client/${invite.senderId || ''}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              // If we have a senderId, use it to navigate to the client's dashboard
-                              if (invite.senderId) {
-                                console.log(`Navigating to client dashboard for sender ID: ${invite.senderId}`);
-                                setLocation(`/client/${invite.senderId}`);
-                              } else {
-                                console.log(`No sender ID found for invitation ${invite.id}, trying to find client...`);
-                                
-                                // First try by the invitation ID
-                                fetch(`/api/clients/by-invitation/${invite.id}`)
-                                  .then(res => {
-                                    if (res.ok) {
-                                      return res.json().then(client => {
-                                        console.log(`Found client ID: ${client.id} for invitation: ${invite.id}`);
-                                        setLocation(`/client/${client.id}`);
-                                      });
-                                    } else {
-                                      // Next, try by phone number
-                                      console.log(`No client found by invitation ID, trying by phone: ${invite.phone}`);
-                                      
-                                      // Clean phone number (remove non-digits)
-                                      const cleanPhone = invite.phone.replace(/\D/g, '');
-                                      
-                                      fetch(`/api/clients/by-phone/${cleanPhone}`)
-                                        .then(phoneRes => {
-                                          if (phoneRes.ok) {
-                                            return phoneRes.json().then(client => {
-                                              console.log(`Found client by phone: ${client.id}`);
-                                              setLocation(`/client/${client.id}`);
-                                            });
-                                          } else {
-                                            // Last resort - try by name
-                                            console.log(`No client found by phone, trying by name: ${invite.name}`);
-                                            
-                                            fetch(`/api/clients/by-name/${encodeURIComponent(invite.name)}`)
-                                              .then(nameRes => {
-                                                if (nameRes.ok) {
-                                                  return nameRes.json().then(client => {
-                                                    console.log(`Found client by name: ${client.id}`);
-                                                    setLocation(`/client/${client.id}`);
-                                                  });
-                                                } else {
-                                                  console.error("No client found for this invitation via any method.");
-                                                  toast({
-                                                    title: "Client not found",
-                                                    description: "Cannot locate this client's dashboard.",
-                                                    variant: "destructive"
-                                                  });
-                                                }
-                                              })
-                                              .catch(err => {
-                                                console.error("Error checking client:", err);
-                                              });
-                                          }
-                                        })
-                                        .catch(err => {
-                                          console.error("Error finding client by phone:", err);
-                                        });
-                                    }
-                                  })
-                                  .catch(err => {
-                                    console.error("Error finding client by invitation:", err);
-                                  });
-                              }
-                            }}
-                            className="inline-block"
-                          >
+                          <Link to={`/client/${invite.id}`} className="inline-block">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -1139,76 +1067,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                       </div>
                       <div className="col-span-1 sm:col-span-2 flex items-center mt-1">
                         <LinkIcon className="h-3.5 w-3.5 mr-1.5 text-emerald-500" />
-                        <Link 
-                          to={`/client/${invite.senderId || ''}`} 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            // If we have a senderId, use it to navigate to the client's dashboard
-                            if (invite.senderId) {
-                              console.log(`Navigating to client dashboard for sender ID: ${invite.senderId}`);
-                              setLocation(`/client/${invite.senderId}`);
-                            } else {
-                              console.log(`No sender ID found for invitation ${invite.id}, trying to find client...`);
-                              
-                              // Try to find the client by invitation ID first
-                              fetch(`/api/clients/by-invitation/${invite.id}`)
-                                .then(res => {
-                                  if (res.ok) {
-                                    return res.json().then(client => {
-                                      console.log(`Found client ID: ${client.id} for invitation: ${invite.id}`);
-                                      setLocation(`/client/${client.id}`);
-                                    });
-                                  } else {
-                                    // Next try by phone number
-                                    console.log(`No client found by invitation ID, trying by phone: ${invite.phone}`);
-                                    
-                                    // Clean phone number (remove non-digits)
-                                    const cleanPhone = invite.phone.replace(/\D/g, '');
-                                    
-                                    fetch(`/api/clients/by-phone/${cleanPhone}`)
-                                      .then(phoneRes => {
-                                        if (phoneRes.ok) {
-                                          return phoneRes.json().then(client => {
-                                            console.log(`Found client by phone: ${client.id}`);
-                                            setLocation(`/client/${client.id}`);
-                                          });
-                                        } else {
-                                          // Last resort - try by name
-                                          console.log(`No client found by phone, trying by name: ${invite.name}`);
-                                          
-                                          fetch(`/api/clients/by-name/${encodeURIComponent(invite.name)}`)
-                                            .then(nameRes => {
-                                              if (nameRes.ok) {
-                                                return nameRes.json().then(client => {
-                                                  console.log(`Found client by name: ${client.id}`);
-                                                  setLocation(`/client/${client.id}`);
-                                                });
-                                              } else {
-                                                console.error("No client found for this invitation via any method.");
-                                                toast({
-                                                  title: "Client not found",
-                                                  description: "Cannot locate this client's dashboard.",
-                                                  variant: "destructive"
-                                                });
-                                              }
-                                            })
-                                            .catch(err => {
-                                              console.error("Error finding client by name:", err);
-                                            });
-                                        }
-                                      })
-                                      .catch(err => {
-                                        console.error("Error finding client by phone:", err);
-                                      });
-                                  }
-                                })
-                                .catch(err => {
-                                  console.error("Error checking client by invitation:", err);
-                                });
-                            }
-                          }}
-                          className="text-emerald-600 hover:underline"
-                        >
+                        <Link to={`/client/${invite.id}`} className="text-emerald-600 hover:underline">
                           View Client Dashboard
                         </Link>
                       </div>

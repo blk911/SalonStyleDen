@@ -3,8 +3,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { ExternalLinkIcon } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { useToast } from "@/hooks/use-toast";
-import { findClientId } from "@/lib/clientLookup";
 
 interface Invitation {
   id: number;
@@ -33,7 +31,6 @@ export default function RecentVmbInvitations({
   limit = 10
 }: RecentVmbInvitationsProps) {
   const [, setLocation] = useLocation();
-  const { toast } = useToast();
   const filterParams = new URLSearchParams();
   if (limit) filterParams.set('limit', limit.toString());
   if (clientId) filterParams.set('clientId', clientId.toString());
@@ -131,32 +128,27 @@ export default function RecentVmbInvitations({
                     </td>
                     <td className="py-2 px-2 sm:px-4 text-right text-xs sm:text-sm">
                       <Link 
-                        to={`/client/${invitation.senderId || ''}`}
+                        to={`/client/${invitation.id}`}
                         onClick={(e) => {
                           e.preventDefault();
-                          // If we have a senderId, use it to navigate to the client's dashboard
-                          if (invitation.senderId) {
-                            console.log(`Navigating to client dashboard for sender ID: ${invitation.senderId}`);
-                            setLocation(`/client/${invitation.senderId}`);
-                          } else {
-                            // Use our cascading client lookup utility
-                            findClientId(
-                              invitation.id, 
-                              invitation.phone, 
-                              invitation.name,
-                              // Success callback
-                              (clientId) => {
-                                setLocation(`/client/${clientId}`);
-                              },
-                              // Error callback
-                              () => {
-                                // No client found, stay on current page
-                                console.error("Failed to find client through all lookup methods");
-                              },
-                              // Pass the toast function
-                              toast
-                            );
-                          }
+                          // Check if the invitation is associated with an existing client
+                          fetch(`/api/clients/by-invitation/${invitation.id}`)
+                            .then(res => {
+                              if (res.ok) {
+                                // If client exists, go to their dashboard
+                                return res.json().then(client => {
+                                  setLocation(`/client/${client.id}`);
+                                });
+                              } else {
+                                // If no client exists, go directly to invitation-based dashboard
+                                setLocation(`/client/${invitation.id}`); 
+                              }
+                            })
+                            .catch(err => {
+                              console.error("Error checking client:", err);
+                              // Fallback to invitation-based dashboard
+                              setLocation(`/client/${invitation.id}`);
+                            });
                         }}
                         className="inline-flex items-center text-pink-600 font-medium gap-1 text-xs sm:text-sm hover:text-pink-800 cursor-pointer whitespace-nowrap"
                       >
