@@ -3,7 +3,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { ExternalLinkIcon } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { useToast } from "@/hooks/use-toast";
 
 interface Invitation {
   id: number;
@@ -32,7 +31,6 @@ export default function RecentVmbInvitations({
   limit = 10
 }: RecentVmbInvitationsProps) {
   const [, setLocation] = useLocation();
-  const { toast } = useToast();
   const filterParams = new URLSearchParams();
   if (limit) filterParams.set('limit', limit.toString());
   if (clientId) filterParams.set('clientId', clientId.toString());
@@ -130,53 +128,27 @@ export default function RecentVmbInvitations({
                     </td>
                     <td className="py-2 px-2 sm:px-4 text-right text-xs sm:text-sm">
                       <Link 
-                        to={`/client/${invitation.senderId || ''}`}
+                        to={`/client/${invitation.id}`}
                         onClick={(e) => {
                           e.preventDefault();
-                          // If we have a senderId, use it to navigate to the client's dashboard
-                          if (invitation.senderId) {
-                            console.log(`Navigating to client dashboard for sender ID: ${invitation.senderId}`);
-                            setLocation(`/client/${invitation.senderId}`);
-                          } else {
-                            // Fallback to checking if the invitation is associated with a client
-                            console.log(`Checking client by invitation ID: ${invitation.id}`);
-                            fetch(`/api/clients/by-invitation/${invitation.id}`)
-                              .then(res => {
-                                if (res.ok) {
-                                  // If client exists, go to their dashboard
-                                  return res.json().then(client => {
-                                    console.log(`Found client ID: ${client.id} for invitation: ${invitation.id}`);
-                                    setLocation(`/client/${client.id}`);
-                                  });
-                                } else {
-                                  // Last resort - if no client exists, try navigating by name
-                                  console.log(`No client found for invitation: ${invitation.id}, trying by name: ${invitation.name}`);
-                                  fetch(`/api/clients/by-name/${encodeURIComponent(invitation.name)}`)
-                                    .then(nameRes => {
-                                      if (nameRes.ok) {
-                                        return nameRes.json().then(client => {
-                                          console.log(`Found client by name: ${client.id}`);
-                                          setLocation(`/client/${client.id}`);
-                                        });
-                                      } else {
-                                        console.error("No client found for this invitation.");
-                                        // No client found at all, stay on current page
-                                        toast({
-                                          title: "Client not found",
-                                          description: "Cannot locate this client's dashboard.",
-                                          variant: "destructive"
-                                        });
-                                      }
-                                    })
-                                    .catch(err => {
-                                      console.error("Error finding client by name:", err);
-                                    });
-                                }
-                              })
-                              .catch(err => {
-                                console.error("Error checking client:", err);
-                              });
-                          }
+                          // Check if the invitation is associated with an existing client
+                          fetch(`/api/clients/by-invitation/${invitation.id}`)
+                            .then(res => {
+                              if (res.ok) {
+                                // If client exists, go to their dashboard
+                                return res.json().then(client => {
+                                  setLocation(`/client/${client.id}`);
+                                });
+                              } else {
+                                // If no client exists, go directly to invitation-based dashboard
+                                setLocation(`/client/${invitation.id}`); 
+                              }
+                            })
+                            .catch(err => {
+                              console.error("Error checking client:", err);
+                              // Fallback to invitation-based dashboard
+                              setLocation(`/client/${invitation.id}`);
+                            });
                         }}
                         className="inline-flex items-center text-pink-600 font-medium gap-1 text-xs sm:text-sm hover:text-pink-800 cursor-pointer whitespace-nowrap"
                       >
