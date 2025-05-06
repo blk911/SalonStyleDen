@@ -947,18 +947,18 @@ export default function AdminDashboard() {
                     <table className="w-full text-left text-xs">
                       <thead className="bg-gray-50 text-gray-600">
                         <tr>
-                          <th className="py-2 px-4">Name</th>
-                          <th className="py-2 px-4 text-center"><AtSignIcon className="h-4 w-4 inline" /></th>
-                          <th className="py-2 px-4 text-center"><PhoneIcon className="h-4 w-4 inline" /></th>
-                          <th className="py-2 px-4">Status</th>
-                          <th className="py-2 px-4 text-center"><FileTextIcon className="h-4 w-4 inline" /></th>
+                          <th className="py-2 px-4 text-center">Name</th>
+                          <th className="py-2 px-4 text-center">Email</th>
+                          <th className="py-2 px-4 text-center">Phone</th>
+                          <th className="py-2 px-4 text-center">Status</th>
+                          <th className="py-2 px-4 text-center">Dashboard</th>
                           <th className="py-2 px-4 text-center">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y text-xs">
                         {salonInvites.map((invitation) => (
                           <tr key={invitation.id} className="hover:bg-gray-50">
-                            <td className="py-2 px-4 font-medium">
+                            <td className="py-2 px-4 font-medium text-center">
                               {(() => {
                                 // Find the client ID for this invitation
                                 const clientId = findClientIdForInvitation(invitation, clients);
@@ -989,8 +989,8 @@ export default function AdminDashboard() {
                             </td>
                             <td className="py-2 px-4 text-center">{invitation.email}</td>
                             <td className="py-2 px-4 text-center">{formatPhoneNumber(invitation.phone)}</td>
-                            <td className="py-2 px-4">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium
+                            <td className="py-2 px-4 text-center">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium inline-block
                                 ${invitation.status === 'pending' ? 'bg-yellow-50 text-yellow-700' : ''}
                                 ${invitation.status === 'style_selected' ? 'bg-green-50 text-green-700' : ''}
                                 ${invitation.status === 'completed' ? 'bg-blue-50 text-blue-700' : ''}
@@ -1159,11 +1159,11 @@ export default function AdminDashboard() {
                   <Table>
                     <TableHeader>
                       <TableRow className="max-h-[30px]">
-                        <TableHead className="max-h-[30px] py-1">Name</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Email</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Phone</TableHead>
-                        <TableHead className="max-h-[30px] py-1">Salon/Sponsor</TableHead>
-                        <TableHead className="max-h-[30px] py-1 text-right">Actions</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-center">Name</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-center">Email</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-center">Phone</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-center">Salon/Sponsor</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-center">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1173,7 +1173,7 @@ export default function AdminDashboard() {
                           className="hover:bg-gray-50 h-[28px]"
                         >
                           {/* Name with truncation */}
-                          <TableCell className="py-0">
+                          <TableCell className="py-0 text-center">
                             {client.name.length > 12 ? (
                               <TooltipProvider>
                                 <Tooltip>
@@ -1193,7 +1193,7 @@ export default function AdminDashboard() {
                           </TableCell>
                           
                           {/* Email with truncation */}
-                          <TableCell className="py-0">
+                          <TableCell className="py-0 text-center">
                             {client.email && client.email.length > 15 ? (
                               <TooltipProvider>
                                 <Tooltip>
@@ -1213,7 +1213,7 @@ export default function AdminDashboard() {
                           </TableCell>
                           
                           {/* Phone with truncation */}
-                          <TableCell className="py-0">
+                          <TableCell className="py-0 text-center">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -1229,7 +1229,7 @@ export default function AdminDashboard() {
                           </TableCell>
                           
                           {/* Salon/Sponsor display with invitation data integration */}
-                          <TableCell className="py-0">
+                          <TableCell className="py-0 text-center">
                             {/* Find client's sponsor from invitations first */}
                             {(() => {
                               // Look for a matching invitation by phone number to get the sponsor name
@@ -1268,8 +1268,8 @@ export default function AdminDashboard() {
                           </TableCell>
                           
                           {/* Actions */}
-                          <TableCell className="py-0 text-right">
-                            <div className="flex justify-end gap-1">
+                          <TableCell className="py-0 text-center">
+                            <div className="flex justify-center gap-1">
                               <a 
                                 href={`/client/${client.id}?adminView=true`}
                                 onClick={(e) => {
