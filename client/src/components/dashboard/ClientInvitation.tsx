@@ -910,51 +910,39 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                           </TooltipProvider>
                         </TableCell>
 
-                        {/* View button with icon - properly links to client dashboard by client ID */}
+                        {/* View button with icon - now links to client dashboard */}
                         <TableCell className="py-1 text-center">
                           <Link 
-                            to="#"
+                            to={`/client/${invite.senderId || ''}`}
                             onClick={(e) => {
                               e.preventDefault();
-                              
-                              // Always try to find a client by phone number
-                              const cleanPhone = invite.phone.replace(/\D/g, '');
-                              
-                              // Request all clients to find one with matching phone
-                              fetch(`/api/clients?phone=${cleanPhone}`)
-                                .then(res => res.json())
-                                .then(clients => {
-                                  if (clients && clients.length > 0) {
-                                    // We found a matching client
-                                    const clientId = clients[0].id;
-                                    console.log(`Found client ID: ${clientId} for invitation with phone: ${invite.phone}`);
-                                    setLocation(`/client/${clientId}`);
-                                  } else {
-                                    // Fallback to the API endpoint if no client found
-                                    fetch(`/api/clients/by-invitation/${invite.id}`)
-                                      .then(res => {
-                                        if (res.ok) {
-                                          return res.json().then(client => {
-                                            console.log(`Found client ID: ${client.id} for invitation: ${invite.id}`);
-                                            setLocation(`/client/${client.id}`);
-                                          });
-                                        } else {
-                                          console.error("No client found for this invitation.");
-                                          toast({
-                                            title: "Client not found",
-                                            description: "Cannot locate this client's dashboard.",
-                                            variant: "destructive"
-                                          });
-                                        }
-                                      })
-                                      .catch(err => {
-                                        console.error("Error checking client:", err);
+                              // If we have a senderId, use it to navigate to the client's dashboard
+                              if (invite.senderId) {
+                                console.log(`Navigating to client dashboard for sender ID: ${invite.senderId}`);
+                                setLocation(`/client/${invite.senderId}`);
+                              } else {
+                                console.log(`No sender ID found for invitation ${invite.id}, trying to find client...`);
+                                // Try to find the client by invitation ID
+                                fetch(`/api/clients/by-invitation/${invite.id}`)
+                                  .then(res => {
+                                    if (res.ok) {
+                                      return res.json().then(client => {
+                                        console.log(`Found client ID: ${client.id} for invitation: ${invite.id}`);
+                                        setLocation(`/client/${client.id}`);
                                       });
-                                  }
-                                })
-                                .catch(err => {
-                                  console.error("Error finding client by phone:", err);
-                                });
+                                    } else {
+                                      console.error("No client found for this invitation.");
+                                      toast({
+                                        title: "Client not found",
+                                        description: "Cannot locate this client's dashboard.",
+                                        variant: "destructive"
+                                      });
+                                    }
+                                  })
+                                  .catch(err => {
+                                    console.error("Error checking client:", err);
+                                  });
+                              }
                             }}
                             className="inline-block"
                           >
@@ -1116,48 +1104,36 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                       <div className="col-span-1 sm:col-span-2 flex items-center mt-1">
                         <LinkIcon className="h-3.5 w-3.5 mr-1.5 text-emerald-500" />
                         <Link 
-                          to="#"
+                          to={`/client/${invite.senderId || ''}`} 
                           onClick={(e) => {
                             e.preventDefault();
-                            
-                            // Always try to find a client by phone number
-                            const cleanPhone = invite.phone.replace(/\D/g, '');
-                            
-                            // Request all clients to find one with matching phone
-                            fetch(`/api/clients?phone=${cleanPhone}`)
-                              .then(res => res.json())
-                              .then(clients => {
-                                if (clients && clients.length > 0) {
-                                  // We found a matching client
-                                  const clientId = clients[0].id;
-                                  console.log(`Found client ID: ${clientId} for invitation with phone: ${invite.phone}`);
-                                  setLocation(`/client/${clientId}`);
-                                } else {
-                                  // Fallback to the API endpoint if no client found
-                                  fetch(`/api/clients/by-invitation/${invite.id}`)
-                                    .then(res => {
-                                      if (res.ok) {
-                                        return res.json().then(client => {
-                                          console.log(`Found client ID: ${client.id} for invitation: ${invite.id}`);
-                                          setLocation(`/client/${client.id}`);
-                                        });
-                                      } else {
-                                        console.error("No client found for this invitation.");
-                                        toast({
-                                          title: "Client not found",
-                                          description: "Cannot locate this client's dashboard.",
-                                          variant: "destructive"
-                                        });
-                                      }
-                                    })
-                                    .catch(err => {
-                                      console.error("Error checking client:", err);
+                            // If we have a senderId, use it to navigate to the client's dashboard
+                            if (invite.senderId) {
+                              console.log(`Navigating to client dashboard for sender ID: ${invite.senderId}`);
+                              setLocation(`/client/${invite.senderId}`);
+                            } else {
+                              console.log(`No sender ID found for invitation ${invite.id}, trying to find client...`);
+                              // Try to find the client by invitation ID
+                              fetch(`/api/clients/by-invitation/${invite.id}`)
+                                .then(res => {
+                                  if (res.ok) {
+                                    return res.json().then(client => {
+                                      console.log(`Found client ID: ${client.id} for invitation: ${invite.id}`);
+                                      setLocation(`/client/${client.id}`);
                                     });
-                                }
-                              })
-                              .catch(err => {
-                                console.error("Error finding client by phone:", err);
-                              });
+                                  } else {
+                                    console.error("No client found for this invitation.");
+                                    toast({
+                                      title: "Client not found",
+                                      description: "Cannot locate this client's dashboard.",
+                                      variant: "destructive"
+                                    });
+                                  }
+                                })
+                                .catch(err => {
+                                  console.error("Error checking client:", err);
+                                });
+                            }
                           }}
                           className="text-emerald-600 hover:underline"
                         >
