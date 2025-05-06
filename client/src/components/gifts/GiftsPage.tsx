@@ -45,21 +45,23 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
     enabled: !!clientId
   });
 
-  // Query for received gifts (where this client is the recipient - by phone number matching)
+  // Query for received gifts (where this client is the recipient - but NOT the sender)
   const { data: receivedGifts, isLoading: isLoadingReceived } = useQuery({
     queryKey: ['/api/invitations/received', clientId, clientData?.name],
     queryFn: async () => {
       if (!clientId || !clientData?.name) return [];
-      const params = new URLSearchParams();
-      params.set('name', clientData.name);
-      const response = await fetch(`/api/invitations?${params}`);
+      
+      // Get all invitations
+      const response = await fetch(`/api/invitations`);
       if (!response.ok) throw new Error('Failed to fetch received gifts');
       const allInvitations = await response.json() as Invitation[];
       
-      // Filter out self-gifts (where sender ID matches this client's ID)
+      // Only include invitations where:
+      // 1. This client is NOT the sender
+      // 2. This client's phone matches the recipient's phone
       return allInvitations.filter(invitation => 
         invitation.senderId !== clientId && 
-        invitation.senderId !== undefined
+        invitation.phone === clientData.phone
       );
     },
     enabled: !!clientId && !!clientData?.name
