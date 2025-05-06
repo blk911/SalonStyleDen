@@ -1225,7 +1225,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Update invitation status (PATCH endpoint kept for backward compatibility)
+  // Update invitation status and/or clientId
   apiRouter.patch("/invitations/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
@@ -1233,11 +1233,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid ID format" });
       }
       
-      // Get status from request body
+      // Get status and clientId from request body
       const { status, clientId } = req.body;
       
-      if (!status) {
-        return res.status(400).json({ error: "Status is required" });
+      if (!status && clientId === undefined) {
+        return res.status(400).json({ error: "At least one field (status or clientId) is required" });
       }
       
       // Get the invitation to make sure it exists
@@ -1246,13 +1246,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Invitation not found" });
       }
       
-      // Update invitation status
-      const updatedInvitation = await storage.updateInvitationStatus(id, status);
+      // Prepare update data
+      const updateData: { status?: string; clientId?: number } = {};
+      if (status) updateData.status = status;
+      if (clientId !== undefined) updateData.clientId = clientId;
+      
+      console.log(`[API] PATCH /invitations/:id - Updating invitation ${id} with:`, updateData);
+      
+      // Update invitation with both status and clientId if provided
+      const updatedInvitation = await storage.updateInvitation(id, updateData);
       
       res.json(updatedInvitation);
     } catch (error) {
-      console.error('Error updating invitation status:', error);
-      res.status(500).json({ error: "Failed to update invitation status" });
+      console.error('Error updating invitation:', error);
+      res.status(500).json({ error: "Failed to update invitation" });
     }
   });
   

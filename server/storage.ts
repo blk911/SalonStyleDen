@@ -47,6 +47,7 @@ export interface IStorage {
   getSalonInvitations(salonId: number): Promise<Invitation[]>;
   getClientInvitations(clientId: number, status?: string, limit?: number): Promise<Invitation[]>;
   updateInvitationStatus(id: number, status: string): Promise<Invitation>;
+  updateInvitation(id: number, data: { status?: string, clientId?: number }): Promise<Invitation>;
   getInvitationsByPhone(phone: string, partialMatch?: boolean): Promise<Invitation[]>;
   getInvitationByHash(hash: string): Promise<Invitation | undefined>;
   deleteInvitation(id: number): Promise<boolean>;
@@ -1059,6 +1060,41 @@ export class DatabaseStorage implements IStorage {
       return result[0];
     } catch (error) {
       console.error(`DatabaseStorage.updateInvitationStatus - Error updating invitation ${id}:`, error);
+      throw error;
+    }
+  }
+  
+  async updateInvitation(id: number, data: { status?: string, clientId?: number }): Promise<Invitation> {
+    try {
+      console.log(`DatabaseStorage.updateInvitation - Updating invitation ${id} with:`, data);
+      
+      const updateData: any = {};
+      if (data.status) updateData.status = data.status;
+      if (data.clientId !== undefined) updateData.clientId = data.clientId;
+      
+      if (Object.keys(updateData).length === 0) {
+        throw new Error('No valid fields provided for invitation update');
+      }
+      
+      const result = await db
+        .update(invitations)
+        .set(updateData)
+        .where(eq(invitations.id, id))
+        .returning();
+      
+      if (result.length === 0) {
+        throw new Error(`Invitation with ID ${id} not found`);
+      }
+      
+      console.log(`DatabaseStorage.updateInvitation - Update successful:`, {
+        id: result[0].id,
+        status: result[0].status,
+        clientId: result[0].clientId
+      });
+      
+      return result[0];
+    } catch (error) {
+      console.error(`DatabaseStorage.updateInvitation - Error updating invitation ${id}:`, error);
       throw error;
     }
   }
