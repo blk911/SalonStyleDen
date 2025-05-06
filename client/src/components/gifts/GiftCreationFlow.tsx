@@ -160,7 +160,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       const invitationWithSource = {
         ...data,
         source: "client", // Add source field to differentiate from salon-driven invitations
-        clientDriven: true // Explicit flag for client-driven invitations
+        clientDriven: true, // Explicit flag for client-driven invitations
+        senderId: clientId // Explicitly mark this client as the sender
       };
       
       const response = await fetch("/api/invitations", {
@@ -477,6 +478,19 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     // Call onComplete first to close the dialog
     if (onComplete) {
       onComplete();
+    }
+    
+    // Make sure we invalidate all relevant queries to refresh the UI
+    if (clientId) {
+      // Invalidate the specific /api/invitations?clientId=X query to refresh the sent gifts list
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/invitations/all', clientId] 
+      });
+      
+      // Also invalidate the general invitation queries
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/invitations'] 
+      });
     }
     
     // Navigate back to client dashboard after completing the flow
