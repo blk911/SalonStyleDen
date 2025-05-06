@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { ShoppingBag, Calendar, CheckCircle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 // Extend the Window interface to add our client ID context
 declare global {
@@ -68,6 +69,7 @@ export function RenderedInvitation({
   const [isProcessing, setIsProcessing] = useState(false);
   const [localStatus, setLocalStatus] = useState(status);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   
   // Check URL for source parameter
   const urlParams = new URLSearchParams(window.location.search);
@@ -99,9 +101,18 @@ export function RenderedInvitation({
     setIsProcessing(true);
     
     try {
-      // Instead of trying to parse the ID from the hash, just use 9 which is Deborah's invitation ID
-      // In a real production environment we would properly extract this from the hash
-      const numericId = 9; // Hardcode to ID 9 for testing purposes
+      // Extract invitation ID from URL
+      const urlParts = window.location.pathname.split('/');
+      const invitationHash = urlParts[urlParts.length - 1];
+      
+      // First, get the numeric ID from the hash
+      const inviteResponse = await fetch(`/api/invitations/by-hash/${invitationHash}`);
+      if (!inviteResponse.ok) {
+        throw new Error('Failed to find invitation');
+      }
+      
+      const inviteData = await inviteResponse.json();
+      const numericId = inviteData.id;
       
       // FUTURE ENHANCEMENT: This is where Stripe payment processing will be integrated
       // 1. Create a payment intent with Stripe
@@ -109,7 +120,6 @@ export function RenderedInvitation({
       // 3. On successful payment, update the invitation status
       
       // For now, just update the invitation status to "completed" 
-      // (using completed instead of redeemed until Stripe integration)
       const response = await fetch(`/api/invitations/${numericId}/status`, {
         method: 'PUT',
         headers: {
@@ -124,16 +134,20 @@ export function RenderedInvitation({
         
         // Log the completion for analytics
         try {
+          // Get the client ID from context or invitation data
+          // Extract the salon ID from the invitation data
           await fetch('/api/activity-logs', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              type: 'gift_redeemed',
-              description: `Gift invitation #${numericId} redeemed by ${recipientName}`,
-              clientId: 10, // Hardcoded for Deborah as a test
-              salonId: 2, // Hardcoded for Tiffany salon
+              type: salonInitiated ? 'payment_completed' : 'gift_accepted',
+              description: salonInitiated 
+                ? `Payment for invitation #${numericId} completed by ${recipientName}`
+                : `Gift invitation #${numericId} accepted by ${recipientName}`,
+              clientId: inviteData.clientId, // Use actual client ID from invitation data
+              salonId: inviteData.salonId, // Use actual salon ID from invitation data
               timestamp: new Date()
             }),
           });
@@ -142,13 +156,15 @@ export function RenderedInvitation({
         }
         
         toast({
-          title: "Payment Confirmed",
-          description: "Your gift has been redeemed! Now you can schedule your appointment."
+          title: salonInitiated ? "Payment Confirmed" : "Gift Accepted",
+          description: salonInitiated 
+            ? "Your payment has been processed! Now you can schedule your appointment."
+            : "You've accepted the gift! Now you can schedule your appointment."
         });
         
         // Navigate to client dashboard after a short delay to show the toast
         setTimeout(() => {
-          window.location.href = '/client-dashboard?tab=appointments';
+          setLocation('/client-dashboard?tab=appointments');
         }, 1500);
       } else {
         toast({
@@ -284,7 +300,8 @@ export function RenderedInvitation({
                             <Button 
                               className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
                               onClick={() => {
-                                window.location.href = '/client-dashboard?tab=appointments';
+                                const [, setLocation] = useLocation();
+                                setLocation('/client-dashboard?tab=appointments');
                               }}
                             >
                               <Calendar className="h-4 w-4" />
