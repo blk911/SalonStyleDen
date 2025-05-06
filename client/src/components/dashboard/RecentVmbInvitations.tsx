@@ -129,11 +129,31 @@ export default function RecentVmbInvitations({
                     <td className="py-2 px-2 sm:px-4 text-right text-xs sm:text-sm">
                       <Link 
                         to={`/client/${invitation.id}`}
-                        onClick={() => setLocation(`/client/${invitation.id}`)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          // Check if the invitation is associated with an existing client
+                          fetch(`/api/clients/by-invitation/${invitation.id}`)
+                            .then(res => {
+                              if (res.ok) {
+                                // If client exists, go to their dashboard
+                                return res.json().then(client => {
+                                  setLocation(`/client/${client.id}`);
+                                });
+                              } else {
+                                // If no client exists, go directly to invitation-based dashboard
+                                setLocation(`/client/${invitation.id}`); 
+                              }
+                            })
+                            .catch(err => {
+                              console.error("Error checking client:", err);
+                              // Fallback to invitation-based dashboard
+                              setLocation(`/client/${invitation.id}`);
+                            });
+                        }}
                         className="inline-flex items-center text-pink-600 font-medium gap-1 text-xs sm:text-sm hover:text-pink-800 cursor-pointer whitespace-nowrap"
                       >
                         <ExternalLinkIcon className="h-3 w-3 sm:h-4 sm:w-4" />
-                        {invitation.status.toLowerCase() === 'complete' ? `View #${invitation.id}` : 'View Invite'}
+                        {invitation.status.toLowerCase() === 'complete' ? `View Client` : 'View Dashboard'}
                       </Link>
                     </td>
                   </tr>
