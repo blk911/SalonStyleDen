@@ -140,6 +140,50 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       </Card>
   
 
+      {/* Single line display of received gifts - placed before sent gifts */}
+      {receivedGifts && receivedGifts.length > 0 && (
+        <div className="mt-4 border rounded-lg p-4 bg-yellow-50">
+          <h3 className="text-sm font-medium text-amber-800 mb-2">Gifts Received:</h3>
+          <div className="flex flex-wrap items-center gap-4">
+            {receivedGifts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(gift => (
+              <div key={gift.id} className="flex-grow flex items-center justify-between py-2 px-3 bg-white rounded-lg border border-yellow-200 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="bg-yellow-100 p-1.5 rounded-full">
+                    <HeartIcon className="h-4 w-4 text-yellow-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">
+                      Gift from <span className="font-semibold text-amber-700">{gift.sponsor || "Unknown"}</span>
+                    </p>
+                    <p className="text-xs text-gray-500">{new Date(gift.createdAt).toLocaleDateString()}</p>
+                  </div>
+                </div>
+                <div>
+                  {gift.status.toLowerCase() === 'pending' ? (
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      className="h-8 bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200"
+                      onClick={() => setLocation(`/invitation-preview/${gift.inviteHash}`)}
+                    >
+                      Accept Gift
+                    </Button>
+                  ) : (
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
+                      gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' : 
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      {gift.status}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Single line display of sent gifts */}
       {sentGifts && sentGifts.length > 0 && (
         <div className="mt-4 border rounded-lg p-4 bg-green-50">
