@@ -1003,10 +1003,9 @@ export default function AdminDashboard() {
                               </span>
                             </td>
                             <td className="py-2 px-4 text-center">
-                              {/* Dashboard column - now without icon */}
                               <a 
                                 href={`/client/${findClientIdForInvitation(invitation, clients) || invitation.id}?adminView=true`}
-                                className="text-blue-500 hover:text-blue-700 cursor-pointer"
+                                className="inline-flex items-center justify-center text-pink-500 hover:text-pink-700 cursor-pointer"
                                 onClick={(e) => {
                                   e.preventDefault();
                                   // Always navigate to client dashboard, whether the client exists or not
@@ -1021,7 +1020,7 @@ export default function AdminDashboard() {
                                 }}
                                 title="View client dashboard"
                               >
-                                Dashboard
+                                <FileTextIcon className="h-4 w-4" />
                               </a>
                             </td>
                             <td className="py-2 px-4 text-center">
