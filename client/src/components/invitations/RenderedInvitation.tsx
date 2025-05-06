@@ -189,9 +189,7 @@ export function RenderedInvitation({
   // NEW CASE: Detect when a client is viewing their OWN salon invitation (recipient is self)
   // This is the special case where we show the PAY / SET APPT button
   const isRecipientViewingSelfInvitation = currentClientId && 
-                                         recipientName === "Deborah" && 
-                                         currentClientId === "Deborah" && 
-                                         salonInitiated && 
+                                         recipientName === currentClientId && 
                                          isPendingLocalStatus; // Use localStatus here
   
   // CRITICAL RULE: Only show the SEND GIFT button when the invitation recipient
@@ -203,10 +201,10 @@ export function RenderedInvitation({
                      !salonInitiated &&
                      sourceDashboard === 'client'; // Only show when viewed from client dashboard
   
-  // NEW CASE: Determine if we should show the PAY / SET APPT button
+  // NEW CASE: Determine if we should show the ACCEPT GIFT button for client 
+  // or PAY/SET APPT for salon-initiated invitations
   const showPayButton = !isInPreviewMode && 
                        isPendingLocalStatus && // Use localStatus here
-                       salonInitiated && 
                        isRecipientViewingSelfInvitation;
   
   console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Local Status: ${localStatus} - Client ID: ${currentClientId || 'NOT SET'} - Source: ${sourceDashboard || 'none'} - Is client: ${isClientViewingOwnInvitation} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'} - Pay button will ${showPayButton ? 'SHOW' : 'HIDE'}`);
@@ -296,14 +294,14 @@ export function RenderedInvitation({
                         </div>
                       ) : (
                         <>
-                          {/* SPECIAL CASE: Show PAY / SET APPT button for Deborah's own salon invitation */}
+                          {/* SPECIAL CASE: Show ACCEPT GIFT or PAY/SET APPT button based on invitation type */}
                           {showPayButton ? (
                             <Button 
                               className="h-10 px-4 py-2 w-full bg-amber-500 hover:bg-amber-600 text-white font-medium"
                               onClick={handlePayClick}
                               disabled={isProcessing}
                             >
-                              {isProcessing ? 'Processing...' : 'PAY / SET APPT'}
+                              {isProcessing ? 'Processing...' : salonInitiated ? 'PAY / SET APPT' : 'ACCEPT GIFT'}
                             </Button>
                           ) : showButton ? (
                             <Button 
@@ -339,25 +337,36 @@ export function RenderedInvitation({
         </CardFooter>
       </Card>
       
-      {/* Payment Confirmation Dialog */}
+      {/* Confirmation Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-amber-500" />
-              Confirm Your Appointment
+              {salonInitiated ? (
+                <>
+                  <Calendar className="h-5 w-5 text-amber-500" />
+                  Confirm Your Appointment
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="h-5 w-5 text-pink-500" />
+                  Accept Gift Invitation
+                </>
+              )}
             </DialogTitle>
             <DialogDescription>
-              You're about to confirm your booking for {styleOption || "a service"} at {salonName}.
+              {salonInitiated ? 
+                `You're about to confirm your booking for ${styleOption || "a service"} at ${salonName}.` : 
+                `You're about to accept a gift for ${styleOption || "a service"} from ${senderName}.`}
             </DialogDescription>
           </DialogHeader>
           
           <div className="py-4">
             <div className="space-y-4">
-              <div className="bg-amber-50 p-3 rounded-md border border-amber-200">
-                <h4 className="font-medium text-amber-800 flex items-center gap-2">
+              <div className={`${salonInitiated ? 'bg-amber-50 border-amber-200' : 'bg-pink-50 border-pink-200'} p-3 rounded-md border`}>
+                <h4 className={`font-medium ${salonInitiated ? 'text-amber-800' : 'text-pink-800'} flex items-center gap-2`}>
                   <ShoppingBag className="h-4 w-4" />
-                  Appointment Details
+                  {salonInitiated ? 'Appointment Details' : 'Gift Details'}
                 </h4>
                 <ul className="mt-2 space-y-1 text-sm">
                   <li className="flex justify-between">
@@ -376,7 +385,9 @@ export function RenderedInvitation({
               </div>
               
               <p className="text-sm text-gray-500">
-                By clicking confirm, you agree to pay for this service at your scheduled appointment time.
+                {salonInitiated ? 
+                  'By clicking confirm, you agree to pay for this service at your scheduled appointment time.' : 
+                  'By accepting this gift, you will be able to schedule an appointment for this service at the salon.'}
               </p>
             </div>
           </div>
@@ -391,7 +402,7 @@ export function RenderedInvitation({
             </Button>
             <Button 
               onClick={handleConfirmPayment}
-              className="bg-amber-500 hover:bg-amber-600 text-white"
+              className={`${salonInitiated ? 'bg-amber-500 hover:bg-amber-600' : 'bg-pink-500 hover:bg-pink-600'} text-white`}
               disabled={isProcessing}
             >
               {isProcessing ? (
@@ -402,7 +413,7 @@ export function RenderedInvitation({
               ) : (
                 <>
                   <CheckCircle className="mr-2 h-4 w-4" />
-                  Confirm Payment
+                  {salonInitiated ? 'Confirm Payment' : 'Accept Gift'}
                 </>
               )}
             </Button>
