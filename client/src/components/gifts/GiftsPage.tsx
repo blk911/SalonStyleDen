@@ -138,7 +138,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       {/* Gifts Sent Card */}
       <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
         <CardHeader className="bg-pink-50 pb-2 pt-2 flex flex-row items-center justify-between">
-          <CardTitle className="text-base text-pink-700">GIFTS</CardTitle>
+          <CardTitle className="text-base text-pink-700">GIFTS SENT</CardTitle>
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setShowSentGifts(!showSentGifts)}>
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
