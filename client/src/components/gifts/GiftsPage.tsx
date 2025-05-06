@@ -136,6 +136,28 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       </Card>
   
 
+      {/* Single line display of sent gifts */}
+      {sentGifts && sentGifts.length > 0 && (
+        <div className="mt-4 border rounded-lg p-4 bg-green-50">
+          <h3 className="text-sm font-medium text-green-800 mb-2">Gift Status:</h3>
+          {sentGifts.map(gift => (
+            <div key={gift.id} className="flex items-center justify-between py-2 border-b border-green-100 last:border-0">
+              <div className="flex-1">
+                <p className="text-sm">
+                  You sent a gift to <span className="font-medium">{gift.name}</span> • <span className="text-gray-500 text-xs">{new Date(gift.createdAt).toLocaleDateString()}</span>
+                </p>
+              </div>
+              <Link 
+                to={`/invitation-preview/${gift.inviteHash}`}
+                className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1"
+              >
+                <ExternalLinkIcon className="h-3 w-3" />
+                View
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
