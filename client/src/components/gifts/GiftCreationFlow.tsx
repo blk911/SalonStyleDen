@@ -441,8 +441,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       status: "pending",
       senderName: client?.name || "Client",
       invitationType: "client_to_friend",
-      styleImageUrl: selectedStyle.gifUrl,
-      senderId: clientId // Add the senderId to make gifts appear in GIFTS SENT section
+      styleImageUrl: selectedStyle.gifUrl
     };
     
     // Log the invitation data being sent
