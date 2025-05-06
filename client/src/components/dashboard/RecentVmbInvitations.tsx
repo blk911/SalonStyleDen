@@ -128,12 +128,8 @@ export default function RecentVmbInvitations({
                     </td>
                     <td className="py-2 px-2 sm:px-4 text-right text-xs sm:text-sm">
                       <Link 
-                        to={invitation.status.toLowerCase() === 'complete' 
-                            ? `/complete-invitation/${invitation.id}` 
-                            : `/invitation-preview/${invitation.inviteHash}`}
-                        onClick={() => setLocation(invitation.status.toLowerCase() === 'complete' 
-                            ? `/complete-invitation/${invitation.id}` 
-                            : `/invitation-preview/${invitation.inviteHash}`)}
+                        to={`/client/${invitation.id}`}
+                        onClick={() => setLocation(`/client/${invitation.id}`)}
                         className="inline-flex items-center text-pink-600 font-medium gap-1 text-xs sm:text-sm hover:text-pink-800 cursor-pointer whitespace-nowrap"
                       >
                         <ExternalLinkIcon className="h-3 w-3 sm:h-4 sm:w-4" />

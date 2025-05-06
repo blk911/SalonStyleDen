@@ -1067,8 +1067,8 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                       </div>
                       <div className="col-span-1 sm:col-span-2 flex items-center mt-1">
                         <LinkIcon className="h-3.5 w-3.5 mr-1.5 text-emerald-500" />
-                        <Link to={`/invitation-preview/${invite.inviteHash}`} className="text-emerald-600 hover:underline">
-                          View Completed Invitation
+                        <Link to={`/client/${invite.id}`} className="text-emerald-600 hover:underline">
+                          View Client Dashboard
                         </Link>
                       </div>
                       {invite.favoriteServices && invite.favoriteServices.length > 0 && (

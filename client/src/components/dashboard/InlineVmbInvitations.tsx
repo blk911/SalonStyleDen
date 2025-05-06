@@ -97,13 +97,8 @@ export default function InlineVmbInvitations({
 
   // Navigate to invitation detail page
   const goToInvitationPage = (invitation: Invitation) => {
-    // If invitation is complete, go to the complete invitation page with ID
-    // Otherwise go to the regular invitation page with hash and set preview mode
-    if (invitation.status.toLowerCase() === 'complete') {
-      setLocation(`/complete-invitation/${invitation.id}`);
-    } else {
-      setLocation(`/invitation-preview/${invitation.inviteHash}`);
-    }
+    // Always navigate to client dashboard with invitation ID
+    setLocation(`/client/${invitation.id}`);
   };
 
   // Count completed invitations
@@ -163,14 +158,12 @@ export default function InlineVmbInvitations({
                     onClick={(e) => {
                       e.stopPropagation(); // Prevent card click
                       // Go to the CompleteInvitationPage with the invitation ID
-                      setLocation(invitation.status.toLowerCase() === 'complete' 
-                        ? `/complete-invitation/${invitation.id}` 
-                        : `/invitation-preview/${invitation.inviteHash}`);
+                      setLocation(`/client/${invitation.id}`);
                     }}
                     className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center gap-1 cursor-pointer"
                   >
                     <ExternalLinkIcon className="h-3 w-3" />
-                    <span>View Invite</span>
+                    <span>View Dashboard</span>
                   </div>
                 </div>
               )}
