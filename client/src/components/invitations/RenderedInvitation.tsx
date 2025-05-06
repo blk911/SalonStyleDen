@@ -31,6 +31,7 @@ import { useLocation } from "wouter";
 declare global {
   interface Window {
     _currentClientId?: string | number | null;
+    _currentClientName?: string | null;
   }
 }
 
@@ -204,8 +205,10 @@ export function RenderedInvitation({
   
   // NEW CASE: Detect when a client is viewing their OWN salon invitation (recipient is self)
   // This is the special case where we show the PAY / SET APPT button
+  // Use phone number matching or name matching for more reliable identification
   const isRecipientViewingSelfInvitation = currentClientId && 
-                                         recipientName === currentClientId && 
+                                         (recipientName === currentClientId || 
+                                          recipientName === window._currentClientName) && 
                                          isPendingLocalStatus; // Use localStatus here
   
   // CRITICAL RULE: Only show the SEND GIFT button when the invitation recipient

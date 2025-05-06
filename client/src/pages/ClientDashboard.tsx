@@ -2,6 +2,7 @@
 declare global {
   interface Window {
     _currentClientId?: string | number | null;
+    _currentClientName?: string | null;
   }
 }
 
