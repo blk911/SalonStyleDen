@@ -907,9 +907,9 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                           </TooltipProvider>
                         </TableCell>
 
-                        {/* View button with icon */}
+                        {/* View button with icon - now links to client dashboard */}
                         <TableCell className="py-1 text-center">
-                          <Link to={`/invitation-preview/${invite.inviteHash}`} className="inline-block">
+                          <Link to={`/client/${invite.id}`} className="inline-block">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>

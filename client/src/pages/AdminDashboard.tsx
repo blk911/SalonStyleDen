@@ -1004,25 +1004,21 @@ export default function AdminDashboard() {
                             </td>
                             <td className="py-2 px-4 text-center">
                               <a 
-                                href={findClientIdForInvitation(invitation, clients) ? 
-                                  `/client/${findClientIdForInvitation(invitation, clients)}?adminView=true` : 
-                                  `/invitation-preview/${invitation.inviteHash}?adminView=true`
-                                }
+                                href={`/client/${findClientIdForInvitation(invitation, clients) || invitation.id}?adminView=true`}
                                 className="inline-flex items-center justify-center text-pink-500 hover:text-pink-700 cursor-pointer"
                                 onClick={(e) => {
                                   e.preventDefault();
-                                  const clientId = findClientIdForInvitation(invitation, clients);
-                                  if (clientId) {
-                                    // Set admin view flag in localStorage
-                                    localStorage.setItem('adminView', 'true');
-                                    // Use setLocation from wouter instead of direct window.location
-                                    setLocation(`/client/${clientId}?adminView=true`);
-                                  } else {
-                                    // Navigate to invitation preview
-                                    setLocation(`/invitation-preview/${invitation.inviteHash}?adminView=true`);
-                                  }
+                                  // Always navigate to client dashboard, whether the client exists or not
+                                  // If client doesn't exist yet, use the invitation ID as a fallback
+                                  const clientId = findClientIdForInvitation(invitation, clients) || invitation.id;
+                                  
+                                  // Set admin view flag in localStorage
+                                  localStorage.setItem('adminView', 'true');
+                                  
+                                  // Always navigate to client dashboard now
+                                  setLocation(`/client/${clientId}?adminView=true`);
                                 }}
-                                title={findClientIdForInvitation(invitation, clients) ? "View client dashboard" : "View invitation"}
+                                title="View client dashboard"
                               >
                                 <FileTextIcon className="h-4 w-4" />
                               </a>
@@ -1030,45 +1026,24 @@ export default function AdminDashboard() {
                             <td className="py-2 px-4 text-center">
                               <div className="flex items-center justify-center space-x-2">
                                 {/* View invitation/client button */}
-                                {(() => {
-                                  // Try to find matching client
-                                  const clientId = findClientIdForInvitation(invitation, clients);
-                                  
-                                  if (clientId) {
-                                    // Client exists - link to client dashboard
-                                    return (
-                                      <a 
-                                        href={`/client/${clientId}?adminView=true`}
-                                        className="inline-flex items-center justify-center text-pink-600 font-medium hover:text-pink-800 cursor-pointer px-2 py-1"
-                                        onClick={(e) => {
-                                          e.preventDefault();
-                                          // Set admin view flag in localStorage to persist through navigation
-                                          localStorage.setItem('adminView', 'true');
-                                          // Use wouter navigation
-                                          setLocation(`/client/${clientId}?adminView=true`);
-                                        }}
-                                      >
-                                        <ExternalLinkIcon className="h-4 w-4" />
-                                      </a>
-                                    );
-                                  } else {
-                                    // No matching client - link to invitation
-                                    return (
-                                      <a 
-                                        href={`/invitation-preview/${invitation.inviteHash}?adminView=true`}
-                                        className="inline-flex items-center justify-center text-gray-500 font-medium hover:text-gray-700 cursor-pointer px-2 py-1"
-                                        onClick={(e) => {
-                                          e.preventDefault();
-                                          e.stopPropagation(); // Prevent triggering the parent click
-                                          // Use wouter navigation
-                                          setLocation(`/invitation-preview/${invitation.inviteHash}?adminView=true`);
-                                        }}
-                                      >
-                                        <ExternalLinkIcon className="h-4 w-4" />
-                                      </a>
-                                    );
-                                  }
-                                })()}
+                                {/* Always link to client dashboard now */}
+                                <a 
+                                  href={`/client/${findClientIdForInvitation(invitation, clients) || invitation.id}?adminView=true`}
+                                  className="inline-flex items-center justify-center text-pink-600 font-medium hover:text-pink-800 cursor-pointer px-2 py-1"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    // Always navigate to client dashboard, whether the client exists or not
+                                    const clientId = findClientIdForInvitation(invitation, clients) || invitation.id;
+                                    
+                                    // Set admin view flag in localStorage
+                                    localStorage.setItem('adminView', 'true');
+                                    
+                                    // Always navigate to client dashboard now
+                                    setLocation(`/client/${clientId}?adminView=true`);
+                                  }}
+                                >
+                                  <ExternalLinkIcon className="h-4 w-4" />
+                                </a>
                                 
                                 {/* Delete invitation button */}
                                 <AlertDialog>
