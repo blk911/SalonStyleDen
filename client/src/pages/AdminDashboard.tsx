@@ -915,7 +915,7 @@ export default function AdminDashboard() {
                       // Find the salon ID from the first invitation in group
                       const firstInvite = salonInvites[0];
                       if (firstInvite && firstInvite.salonId) {
-                        // Use Link component navigation instead of direct setLocation
+                        // Navigate to salon page
                         window.location.href = `/salon/${firstInvite.salonId}`;
                       }
                     }}
@@ -925,17 +925,19 @@ export default function AdminDashboard() {
                       <Badge className="mr-2 bg-pink-100 text-pink-700 border-pink-200">
                         {salonInvites.length} Invitations
                       </Badge>
-                      <Link 
-                        to={`/salon/${salonInvites[0]?.salonId}`}
+                      <a 
+                        href={`/salon/${salonInvites[0]?.salonId}`}
                         className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded hover:bg-pink-200 flex items-center"
                         onClick={(e) => {
                           e.stopPropagation(); // Prevent triggering the salon header click
-                          // Remove the setLocation call as it's redundant with the Link's "to" property
+                          e.preventDefault();
+                          // Use programmatic navigation
+                          window.location.href = `/salon/${salonInvites[0]?.salonId}`;
                         }}
                       >
                         <span className="hidden md:inline mr-1">View Salon</span>
                         <ExternalLinkIcon className="h-3 w-3" />
-                      </Link>
+                      </a>
                     </div>
                   </div>
                   
@@ -963,17 +965,20 @@ export default function AdminDashboard() {
                                 if (clientId) {
                                   // If client exists, make the name clickable
                                   return (
-                                    <Link 
-                                      to={`/client/${clientId}?adminView=true`}
+                                    <a 
+                                      href={`/client/${clientId}?adminView=true`}
                                       className="text-pink-700 hover:text-pink-900 hover:underline cursor-pointer"
-                                      onClick={() => {
+                                      onClick={(e) => {
+                                        e.preventDefault();
                                         // Set admin view flag in localStorage
                                         localStorage.setItem('adminView', 'true');
+                                        // Use programmatic navigation
+                                        window.location.href = `/client/${clientId}?adminView=true`;
                                       }}
                                       title="View client dashboard"
                                     >
                                       {invitation.name}
-                                    </Link>
+                                    </a>
                                   );
                                 } else {
                                   // If no matching client yet, just show the name
@@ -1004,31 +1009,35 @@ export default function AdminDashboard() {
                                   if (clientId) {
                                     // Client exists - link to client dashboard
                                     return (
-                                      <Link 
-                                        to={`/client/${clientId}?adminView=true`}
+                                      <a 
+                                        href={`/client/${clientId}?adminView=true`}
                                         className="inline-flex items-center justify-center text-pink-600 font-medium hover:text-pink-800 cursor-pointer px-2 py-1"
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                          e.preventDefault();
                                           // Set admin view flag in localStorage to persist through navigation
                                           localStorage.setItem('adminView', 'true');
-                                          // Link's "to" property will handle navigation
+                                          // Use programmatic navigation
+                                          window.location.href = `/client/${clientId}?adminView=true`;
                                         }}
                                       >
                                         <ExternalLinkIcon className="h-4 w-4" />
-                                      </Link>
+                                      </a>
                                     );
                                   } else {
                                     // No matching client - link to invitation
                                     return (
-                                      <Link 
-                                        to={`/invitation-preview/${invitation.inviteHash}?adminView=true`}
+                                      <a 
+                                        href={`/invitation-preview/${invitation.inviteHash}?adminView=true`}
                                         className="inline-flex items-center justify-center text-gray-500 font-medium hover:text-gray-700 cursor-pointer px-2 py-1"
                                         onClick={(e) => {
+                                          e.preventDefault();
                                           e.stopPropagation(); // Prevent triggering the parent click
-                                          // Link's "to" property will handle navigation
+                                          // Use programmatic navigation
+                                          window.location.href = `/invitation-preview/${invitation.inviteHash}?adminView=true`;
                                         }}
                                       >
                                         <ExternalLinkIcon className="h-4 w-4" />
-                                      </Link>
+                                      </a>
                                     );
                                   }
                                 })()}
@@ -1228,17 +1237,19 @@ export default function AdminDashboard() {
                           {/* Actions */}
                           <TableCell className="py-0 text-right">
                             <div className="flex justify-end gap-1">
-                              <Link 
-                                to={`/client/${client.id}?adminView=true`}
-                                onClick={() => {
+                              <a 
+                                href={`/client/${client.id}?adminView=true`}
+                                onClick={(e) => {
+                                  e.preventDefault();
                                   // Set admin view flag in localStorage to persist through navigation
                                   localStorage.setItem('adminView', 'true');
-                                  // Link's "to" property will handle navigation
+                                  // Use programmatic navigation
+                                  window.location.href = `/client/${client.id}?adminView=true`;
                                 }}
-                                className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92]"
+                                className="px-2 py-1 text-[10px] bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92] cursor-pointer"
                               >
                                 Client
-                              </Link>
+                              </a>
                               {client.salonId && (
                                 <Link 
                                   to={`/salon/${client.salonId}`}
