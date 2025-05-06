@@ -11,6 +11,7 @@ interface GiftsPageProps {
 
 export default function GiftsPage({ clientId }: GiftsPageProps) {
   const [showGiftCreation, setShowGiftCreation] = useState(false);
+  const [showReceivedGifts, setShowReceivedGifts] = useState(false);
   
   return (
     <div className="space-y-4 w-full">
@@ -69,16 +70,47 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         </CardContent>
       </Card>
   
-      {/* Gift Status Card */}
+      {/* Gifts Sent Card */}
       <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
         <CardHeader className="bg-pink-50 pb-2 pt-2">
-          <CardTitle className="text-base text-pink-700">Gifts</CardTitle>
+          <CardTitle className="text-base text-pink-700">GIFTS SENT</CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
           <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
-            <p className="text-gray-500">You have no active gifts at the moment</p>
+            <p className="text-gray-500">You have no sent gifts at the moment</p>
           </div>
         </CardContent>
+      </Card>
+
+      {/* Gifts Received Card */}
+      <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
+        <CardHeader className="bg-pink-50 pb-2 pt-2 flex flex-row items-center justify-between">
+          <CardTitle className="text-base text-pink-700">GIFTS RECEIVED</CardTitle>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setShowReceivedGifts(!showReceivedGifts)}>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className={`h-4 w-4 transition-transform ${showReceivedGifts ? 'rotate-180' : ''}`}
+            >
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+            <span className="sr-only">{showReceivedGifts ? 'Hide' : 'Show'} received gifts</span>
+          </Button>
+        </CardHeader>
+        {showReceivedGifts && (
+          <CardContent className="pt-4">
+            <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
+              <p className="text-gray-500">You have no received gifts at the moment</p>
+            </div>
+          </CardContent>
+        )}
       </Card>
     </div>
   );
