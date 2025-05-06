@@ -254,9 +254,7 @@ export default function AdminDashboard() {
     queryKey: ['/api/clients'],
     queryFn: async () => {
       try {
-        // Add cache buster to prevent browser caching
-        const cacheBuster = new Date().getTime();
-        const response = await fetch(`/api/clients?_cb=${cacheBuster}`);
+        const response = await fetch('/api/clients');
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch clients: ${response.status} ${response.statusText}. Details: ${errorText}`);
@@ -268,9 +266,6 @@ export default function AdminDashboard() {
         return [];
       }
     },
-    refetchOnMount: true, // Always refetch when component mounts
-    refetchOnWindowFocus: true, // Refetch when window gets focus
-    staleTime: 0, // Consider data stale immediately
   });
 
   const { data: salons, error: salonError, isLoading: salonIsLoading, refetch: refetchSalons } = useQuery<Salon[]>({
@@ -297,9 +292,7 @@ export default function AdminDashboard() {
     queryKey: ['/api/invitations'],
     queryFn: async () => {
       try {
-        // Add cache buster to prevent browser caching
-        const cacheBuster = new Date().getTime();
-        const response = await fetch(`/api/invitations?limit=50&_cb=${cacheBuster}`); // Get more invitations for admin view
+        const response = await fetch('/api/invitations?limit=50'); // Get more invitations for admin view
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch invitations: ${response.status} ${response.statusText}. Details: ${errorText}`);
@@ -311,9 +304,6 @@ export default function AdminDashboard() {
         return [];
       }
     },
-    refetchOnMount: true, // Always refetch when component mounts
-    refetchOnWindowFocus: true, // Refetch when window gets focus
-    staleTime: 0, // Consider data stale immediately
   });
   
   const { data: activityLogs, error: logsError, isLoading: logsIsLoading } = useQuery<ActivityLog[]>({

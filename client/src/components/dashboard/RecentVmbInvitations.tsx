@@ -39,15 +39,10 @@ export default function RecentVmbInvitations({
   const { data: invitations, isLoading } = useQuery({
     queryKey: ['/api/invitations', clientId, salonId, limit],
     queryFn: async () => {
-      // Add cache-busting parameter to avoid browser caching
-      const cacheBuster = new Date().getTime();
-      const response = await fetch(`/api/invitations?${filterParams}&_cb=${cacheBuster}`);
+      const response = await fetch(`/api/invitations?${filterParams}`);
       if (!response.ok) throw new Error('Network response was not ok');
       return response.json() as Promise<Invitation[]>;
-    },
-    refetchOnMount: true,  // Always refetch when component mounts
-    refetchOnWindowFocus: true, // Refetch when window gets focus
-    staleTime: 0  // Consider data immediately stale to force refetch
+    }
   });
 
   if (isLoading) {
