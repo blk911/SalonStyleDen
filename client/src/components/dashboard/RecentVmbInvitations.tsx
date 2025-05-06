@@ -149,23 +149,39 @@ export default function RecentVmbInvitations({
                                     setLocation(`/client/${client.id}`);
                                   });
                                 } else {
-                                  // Last resort - if no client exists, try navigating by name
-                                  console.log(`No client found for invitation: ${invitation.id}, trying by name: ${invitation.name}`);
-                                  fetch(`/api/clients/by-name/${encodeURIComponent(invitation.name)}`)
-                                    .then(nameRes => {
-                                      if (nameRes.ok) {
-                                        return nameRes.json().then(client => {
-                                          console.log(`Found client by name: ${client.id}`);
+                                  // Try by phone number first
+                                  console.log(`No client found by invitation ID: ${invitation.id}, trying by phone: ${invitation.phone}`);
+                                  
+                                  // Clean phone number (remove non-digits)
+                                  const cleanPhone = invitation.phone.replace(/\D/g, '');
+                                  
+                                  fetch(`/api/clients/by-phone/${cleanPhone}`)
+                                    .then(phoneRes => {
+                                      if (phoneRes.ok) {
+                                        return phoneRes.json().then(client => {
+                                          console.log(`Found client by phone: ${client.id}`);
                                           setLocation(`/client/${client.id}`);
                                         });
                                       } else {
-                                        console.error("No client found for this invitation.");
-                                        // No client found at all, stay on current page
-                                        toast({
-                                          title: "Client not found",
-                                          description: "Cannot locate this client's dashboard.",
-                                          variant: "destructive"
-                                        });
+                                        // Last resort - if no client exists by phone, try navigating by name
+                                        console.log(`No client found by phone: ${cleanPhone}, trying by name: ${invitation.name}`);
+                                        fetch(`/api/clients/by-name/${encodeURIComponent(invitation.name)}`)
+                                          .then(nameRes => {
+                                            if (nameRes.ok) {
+                                              return nameRes.json().then(client => {
+                                                console.log(`Found client by name: ${client.id}`);
+                                                setLocation(`/client/${client.id}`);
+                                              });
+                                            } else {
+                                              console.error("No client found for this invitation.");
+                                              // No client found at all, stay on current page
+                                              toast({
+                                                title: "Client not found",
+                                                description: "Cannot locate this client's dashboard.",
+                                                variant: "destructive"
+                                              });
+                                            }
+                                          });
                                       }
                                     })
                                     .catch(err => {
