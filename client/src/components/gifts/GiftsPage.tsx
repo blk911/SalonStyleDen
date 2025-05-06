@@ -54,7 +54,13 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       params.set('name', clientData.name);
       const response = await fetch(`/api/invitations?${params}`);
       if (!response.ok) throw new Error('Failed to fetch received gifts');
-      return response.json() as Promise<Invitation[]>;
+      const allInvitations = await response.json() as Invitation[];
+      
+      // Filter out self-gifts (where sender ID matches this client's ID)
+      return allInvitations.filter(invitation => 
+        invitation.senderId !== clientId && 
+        invitation.senderId !== undefined
+      );
     },
     enabled: !!clientId && !!clientData?.name
   });
