@@ -33,31 +33,48 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
   const [showReceivedGifts, setShowReceivedGifts] = useState(true);
   const [, setLocation] = useLocation();
   
-  // Query for received gifts (where Randy is the recipient)
-  const { data: receivedGifts, isLoading: isLoadingReceived } = useQuery({
-    queryKey: ['/api/invitations/received', clientId],
+  // Query for the current client's name to use in filters
+  const { data: clientData } = useQuery({
+    queryKey: ['/api/clients/data', clientId],
     queryFn: async () => {
-      if (!clientId) return [];
+      if (!clientId) return null;
+      const response = await fetch(`/api/clients/${clientId}`);
+      if (!response.ok) throw new Error('Failed to fetch client data');
+      return response.json();
+    },
+    enabled: !!clientId
+  });
+
+  // Query for received gifts (where this client is the recipient - by phone number matching)
+  const { data: receivedGifts, isLoading: isLoadingReceived } = useQuery({
+    queryKey: ['/api/invitations/received', clientId, clientData?.name],
+    queryFn: async () => {
+      if (!clientId || !clientData?.name) return [];
       const params = new URLSearchParams();
-      params.set('name', 'Randy');
+      params.set('name', clientData.name);
       const response = await fetch(`/api/invitations?${params}`);
       if (!response.ok) throw new Error('Failed to fetch received gifts');
       return response.json() as Promise<Invitation[]>;
-    }
+    },
+    enabled: !!clientId && !!clientData?.name
   });
   
-  // Query for sent gifts (where Randy is the sender)
-  const { data: sentGifts, isLoading: isLoadingSent } = useQuery({
-    queryKey: ['/api/invitations/sent', clientId],
+  // Query for sent gifts (where this client is the sender)
+  const { data: allClientInvitations, isLoading: isLoadingSent } = useQuery({
+    queryKey: ['/api/invitations/all', clientId],
     queryFn: async () => {
       if (!clientId) return [];
       const params = new URLSearchParams();
       params.set('clientId', clientId.toString());
       const response = await fetch(`/api/invitations?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch sent gifts');
+      if (!response.ok) throw new Error('Failed to fetch invitations');
       return response.json() as Promise<Invitation[]>;
-    }
+    },
+    enabled: !!clientId
   });
+  
+  // Filter the gifts that were actually sent BY this client (where senderId matches clientId)
+  const sentGifts = allClientInvitations?.filter(gift => gift.senderId === clientId) || [];
   
   return (
     <div className="space-y-4 w-full">
