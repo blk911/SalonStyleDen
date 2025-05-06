@@ -80,7 +80,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
     <div className="space-y-4 w-full">
       {/* SHARE VMB Card - Always shown whether client has a salon or not */}
       <Card className="rounded-xl shadow-sm overflow-hidden">
-        <div className="bg-pink-50 pt-2 pb-1 flex justify-center items-center">
+        <div className="bg-pink-50 pt-5 pb-2.5 flex justify-center items-center">
           <div className="flex items-center gap-1.5 text-sm">
             <HeartIcon className="h-3.5 w-3.5 text-red-500" />
             <span>
@@ -91,45 +91,46 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
             <HeartIcon className="h-3.5 w-3.5 text-red-500" />
           </div>
         </div>
-        <CardHeader className="bg-pink-50 pb-2 pt-0 flex flex-row items-center justify-between">
-          <CardTitle className="text-base text-pink-700">CREATE NEW REQUEST</CardTitle>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 w-8 p-0" 
-            onClick={() => setShowGiftCreation(!showGiftCreation)}
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              className={`h-4 w-4 transition-transform ${showGiftCreation ? 'rotate-0' : 'rotate-180'}`}
+        <CardContent className="pt-4">
+          {!showGiftCreation ? (
+            <div 
+              className="border rounded-lg p-4 bg-gradient-to-r from-pink-50 to-pink-100 shadow-sm flex flex-col items-center justify-center text-center min-h-[180px] transition-all hover:shadow-md cursor-pointer"
+              onClick={() => setShowGiftCreation(true)}
             >
-              <path d="m6 9 6 6 6-6"/>
-            </svg>
-            <span className="sr-only">{showGiftCreation ? 'Hide' : 'Show'} gift creation</span>
-          </Button>
-        </CardHeader>
-        {showGiftCreation && (
-          <CardContent className="pt-4">
-            {clientId ? (
-              <GiftCreationFlow 
-                clientId={clientId as number} 
-                onComplete={() => setShowGiftCreation(false)}
-              />
-            ) : (
-              <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
-                <p className="text-gray-500">Unable to create a gift - no client ID available</p>
+              <div className="p-3 bg-white rounded-full mb-3">
+                <PlusCircleIcon className="h-8 w-8 text-pink-500" />
               </div>
-            )}
-          </CardContent>
-        )}
+              <h3 className="text-lg font-medium text-pink-800">Create New Request</h3>
+              <p className="text-sm text-pink-700 mt-1">Send someone special a salon treatment</p>
+            </div>
+          ) : (
+            <div className="border rounded-lg p-6 shadow-sm">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium text-pink-800">Create a New Request</h3>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setShowGiftCreation(false)}
+                  className="h-8 w-8 p-0"
+                >
+                  <XIcon className="h-5 w-5" />
+                  <span className="sr-only">Close</span>
+                </Button>
+              </div>
+              
+              {clientId ? (
+                <GiftCreationFlow 
+                  clientId={clientId as number} 
+                  onComplete={() => setShowGiftCreation(false)}
+                />
+              ) : (
+                <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
+                  <p className="text-gray-500">Unable to create a gift - no client ID available</p>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
       </Card>
   
       {/* Gifts Sent Card */}
