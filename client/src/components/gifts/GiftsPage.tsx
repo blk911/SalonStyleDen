@@ -30,7 +30,7 @@ interface GiftsPageProps {
 export default function GiftsPage({ clientId }: GiftsPageProps) {
   const [showGiftCreation, setShowGiftCreation] = useState(false);
   const [showSentGifts, setShowSentGifts] = useState(true);
-  const [newInvitation, setNewInvitation] = useState<Invitation | null>(null);
+  const [showReceivedGifts, setShowReceivedGifts] = useState(true);
   const [, setLocation] = useLocation();
   
   // Query for the current client's name to use in filters
@@ -45,6 +45,20 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
     enabled: !!clientId
   });
 
+  // Query for received gifts (where this client is the recipient - by phone number matching)
+  const { data: receivedGifts, isLoading: isLoadingReceived } = useQuery({
+    queryKey: ['/api/invitations/received', clientId, clientData?.name],
+    queryFn: async () => {
+      if (!clientId || !clientData?.name) return [];
+      const params = new URLSearchParams();
+      params.set('name', clientData.name);
+      const response = await fetch(`/api/invitations?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch received gifts');
+      return response.json() as Promise<Invitation[]>;
+    },
+    enabled: !!clientId && !!clientData?.name
+  });
+  
   // Query for sent gifts (where this client is the sender)
   const { data: allClientInvitations, isLoading: isLoadingSent } = useQuery({
     queryKey: ['/api/invitations/all', clientId],
@@ -60,13 +74,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
   });
   
   // Filter the gifts that were actually sent BY this client (where senderId matches clientId)
-  let sentGifts = [...(allClientInvitations?.filter(gift => gift.senderId === clientId) || [])];
-  
-  // If we have a new invitation, add it to the top of the list
-  // This ensures immediate feedback even before the query refreshes
-  if (newInvitation && !sentGifts.some(gift => gift.id === newInvitation.id)) {
-    sentGifts = [newInvitation, ...sentGifts];
-  }
+  const sentGifts = allClientInvitations?.filter(gift => gift.senderId === clientId) || [];
   
   return (
     <div className="space-y-4 w-full">
@@ -116,11 +124,6 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                 <GiftCreationFlow 
                   clientId={clientId as number} 
                   onComplete={() => setShowGiftCreation(false)}
-                  onNewInvitation={(invitation) => {
-                    setNewInvitation(invitation);
-                    // Ensure the section is expanded to show the newly created gift
-                    setShowSentGifts(true);
-                  }}
                 />
               ) : (
                 <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
@@ -131,7 +134,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
           )}
         </CardContent>
       </Card>
-
+  
       {/* Gifts Sent Card */}
       <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
         <CardHeader className="bg-pink-50 pb-2 pt-2 flex flex-row items-center justify-between">
@@ -211,6 +214,91 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
             ) : (
               <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
                 <p className="text-gray-500">You have no sent gifts at the moment</p>
+              </div>
+            )}
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Gifts Received Card */}
+      <Card className="rounded-xl shadow-sm overflow-hidden mt-4">
+        <CardHeader className="bg-pink-50 pb-2 pt-2 flex flex-row items-center justify-between">
+          <CardTitle className="text-base text-pink-700">GIFTS RECEIVED</CardTitle>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setShowReceivedGifts(!showReceivedGifts)}>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className={`h-4 w-4 transition-transform ${showReceivedGifts ? 'rotate-180' : ''}`}
+            >
+              <path d="m6 9 6 6 6-6"/>
+            </svg>
+            <span className="sr-only">{showReceivedGifts ? 'Hide' : 'Show'} received gifts</span>
+          </Button>
+        </CardHeader>
+        {showReceivedGifts && (
+          <CardContent className="pt-4">
+            {isLoadingReceived ? (
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-16 w-full" />
+              </div>
+            ) : receivedGifts && receivedGifts.length > 0 ? (
+              <div className="w-full border rounded-md overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="text-left border-b">
+                      <th className="py-2 px-2 sm:px-4 font-medium text-xs sm:text-sm">From</th>
+                      <th className="py-2 px-2 sm:px-4 font-medium text-xs sm:text-sm">Status</th>
+                      <th className="py-2 px-2 sm:px-4 font-medium text-xs sm:text-sm">Date</th>
+                      <th className="py-2 px-2 sm:px-4 font-medium text-right text-xs sm:text-sm">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {receivedGifts.map(gift => (
+                      <tr key={gift.id} className="border-b">
+                        <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm">{gift.sponsor || 'Unknown Sender'}</td>
+                        <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm">
+                          <span className={`px-1 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap
+                            ${gift.status.toLowerCase() === 'completed' ? 'bg-emerald-100 text-emerald-700' : 
+                              gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
+                              gift.status.toLowerCase() === 'pending' ? 'bg-yellow-50 text-yellow-700' : 
+                              'bg-gray-100 text-gray-700'}`
+                          }>
+                            {gift.status.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">
+                          {new Date(gift.createdAt).toLocaleDateString('en-US', { 
+                            month: 'numeric', 
+                            day: 'numeric',
+                            year: '2-digit'
+                          })}
+                        </td>
+                        <td className="py-2 px-2 sm:px-4 text-right text-xs sm:text-sm">
+                          <Link 
+                            to={`/invitation-preview/${gift.inviteHash}`}
+                            onClick={() => setLocation(`/invitation-preview/${gift.inviteHash}`)}
+                            className="inline-flex items-center text-pink-600 font-medium gap-1 text-xs sm:text-sm hover:text-pink-800 cursor-pointer whitespace-nowrap"
+                          >
+                            <ExternalLinkIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                            {gift.status.toLowerCase() === 'pending' ? 'Accept Gift' : 'View Gift'}
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg">
+                <p className="text-gray-500">You have no received gifts at the moment</p>
               </div>
             )}
           </CardContent>
