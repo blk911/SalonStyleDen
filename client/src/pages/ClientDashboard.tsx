@@ -26,6 +26,7 @@ import ClientInviteForm from "@/components/dashboard/ClientInviteForm";
 import ClientAppointments from "@/components/appointments/ClientAppointments";
 import GiftsPage from "@/components/gifts/GiftsPage";
 import InvitationsPage from "@/components/invitations/InvitationsPage";
+import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
 import { getImageUrl } from "@/lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -413,21 +414,8 @@ export default function ClientDashboard() {
     const isNotFoundError = errorMessage.includes("404") || errorMessage.includes("not found");
     
     // Check if we need to fetch invitation data
-    if (isNotFoundError && fromInvitation && !invitationLoading) {
-      // If invitation is still loading, show a loading message
-      if (invitationLoading) {
-        return (
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-grow flex items-center justify-center">
-              <div className="text-center">
-                <p className="text-lg">Loading invitation details...</p>
-              </div>
-            </main>
-            <Footer />
-          </div>
-        );
-      }
+    if (isNotFoundError && fromInvitation) {
+      // If invitation data is available, display that
       
       // If we have the invitation data, show a simplified client dashboard for registration
       if (invitation) {
