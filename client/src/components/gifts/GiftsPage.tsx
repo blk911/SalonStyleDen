@@ -232,23 +232,56 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       {/* Single line display of sent gifts */}
       {sentGifts && sentGifts.length > 0 && (
         <div className="mt-4 border rounded-lg p-4 bg-green-50">
-          <h3 className="text-sm font-medium text-green-800 mb-2">Gifts Sent ({sentGifts.length}):</h3>
-          {sentGifts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(gift => (
-            <div key={gift.id} className="flex items-center justify-between py-2 border-b border-green-100 last:border-0">
-              <div className="flex-1">
-                <p className="text-sm">
-                  You sent a gift to <span className="font-medium">{gift.name}</span> • <span className="text-gray-500 text-xs">{new Date(gift.createdAt).toLocaleDateString()}</span>
-                </p>
-              </div>
-              <Link 
-                to={`/invitation-preview/${gift.inviteHash}`}
-                className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1"
-              >
-                <ExternalLinkIcon className="h-3 w-3" />
-                View
-              </Link>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-green-800">Gifts Sent ({sentGifts.length})</h3>
+            <div className="flex items-center gap-8">
+              <span className="text-sm font-medium text-green-800">GIFT</span>
+              <span className="text-sm font-medium text-green-800">STATUS</span>
             </div>
-          ))}
+          </div>
+          
+          <div className="space-y-2">
+            {sentGifts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(gift => (
+              <div key={gift.id} className="flex items-center justify-between py-2 px-4 bg-white rounded-lg border border-green-200 shadow-sm">
+                <div className="flex items-center gap-2 flex-grow">
+                  <UserPlusIcon className="h-4 w-4 text-green-600" />
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <p className="text-sm font-medium">
+                        Gift to <span className="font-semibold text-green-700">{gift.name}</span>
+                      </p>
+                      <span className="text-xs text-gray-400">•</span>
+                      <p className="text-xs text-gray-500">{new Date(gift.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}</p>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-0.5">{gift.message || "Personal gift invitation"}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-8 ml-2">
+                  <Link
+                    to={`/invitation-preview/${gift.inviteHash}`}
+                    className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1 whitespace-nowrap"
+                  >
+                    <ExternalLinkIcon className="h-3 w-3" />
+                    View
+                  </Link>
+                  
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                    gift.status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
+                    gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
+                    gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' : 
+                    'bg-gray-100 text-gray-700'
+                  }`}>
+                    {gift.status.charAt(0).toUpperCase() + gift.status.slice(1).toLowerCase()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
