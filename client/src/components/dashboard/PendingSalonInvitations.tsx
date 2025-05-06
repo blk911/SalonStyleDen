@@ -269,12 +269,25 @@ export default function PendingSalonInvitations({
                           return;
                         }
                       }
-                      // Fall back to invitation ID
-                      console.log(`onSendGift: No client found for invitation ${selectedInvitation.id}, using invitation ID`);
-                      setLocation(`/client/${selectedInvitation.id}`);
+                      
+                      // If no client found with this phone number
+                      console.log(`onSendGift: No client found with phone ${selectedInvitation.phone} for invitation ${selectedInvitation.id}`);
+                      
+                      // Check if this is a client-initiated invitation
+                      if (selectedInvitation.senderId) {
+                        console.log(`This is a client-initiated invitation (sender: ${selectedInvitation.senderId}), using invitation route`);
+                        // This is a client-initiated invitation, navigate to invitation page
+                        setLocation(`/invitation/${selectedInvitation.inviteHash || selectedInvitation.id}`);
+                        return;
+                      }
+                      
+                      // Last fallback - go to invitation by ID (but don't use hardcoded client ID)
+                      console.log(`No suitable client found for invitation ${selectedInvitation.id}, using invitation route`);
+                      setLocation(`/invitation/${selectedInvitation.id}`);
                     } catch (error) {
                       console.error("Error finding client for onSendGift:", error);
-                      setLocation(`/client/${selectedInvitation.id}`);
+                      // Fallback to invitation route
+                      setLocation(`/invitation/${selectedInvitation.id}`);
                     }
                   }
                 } : undefined} // Will show the button only if client is registered and invitation status allows gift sending
@@ -328,12 +341,24 @@ export default function PendingSalonInvitations({
                           return;
                         }
                       }
-                      // Fall back to invitation ID
-                      console.log(`PendingSalonInvitations: No client found for invitation ${selectedInvitation.id}, using invitation ID`);
-                      setLocation(`/client/${selectedInvitation.id}`);
+                      // If no client found with this phone number
+                      console.log(`PendingSalonInvitations: No client found with phone ${selectedInvitation.phone} for invitation ${selectedInvitation.id}`);
+                      
+                      // Check if this is a client-initiated invitation
+                      if (selectedInvitation.senderId) {
+                        console.log(`This is a client-initiated invitation (sender: ${selectedInvitation.senderId}), using invitation route`);
+                        // This is a client-initiated invitation, navigate to invitation page
+                        setLocation(`/invitation/${selectedInvitation.inviteHash || selectedInvitation.id}`);
+                        return;
+                      }
+                      
+                      // Last fallback - go to invitation by ID (but don't use hardcoded client ID)
+                      console.log(`No suitable client found for invitation ${selectedInvitation.id}, using invitation route`);
+                      setLocation(`/invitation/${selectedInvitation.id}`);
                     } catch (error) {
                       console.error("Error finding client for invitation:", error);
-                      setLocation(`/client/${selectedInvitation.id}`);
+                      // Fallback to invitation route
+                      setLocation(`/invitation/${selectedInvitation.id}`);
                     }
                   }
                 }}
