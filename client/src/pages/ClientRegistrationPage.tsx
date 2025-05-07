@@ -32,6 +32,7 @@ import {
   CheckCheck,
   Scissors,
   Sparkles,
+  Gift,
 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -798,7 +799,7 @@ export default function ClientRegistrationPage() {
                         {(hasUnredeemedGift || hasUnredeemedGiftParam) && (
                           <li className="flex items-start">
                             <Gift className="h-5 w-5 text-pink-500 mt-0.5 mr-2 flex-shrink-0" />
-                            <span className="text-gray-600">Your gift has been redeemed and will be sent to {data?.address ? `${data?.city}, ${data?.state}` : 'your address'}</span>
+                            <span className="text-gray-600">Your gift has been redeemed successfully</span>
                           </li>
                         )}
                         <li className="flex items-start">
