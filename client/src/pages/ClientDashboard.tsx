@@ -61,6 +61,7 @@ interface ClientData {
   salonId?: number;
   salonName?: string;
   sponsor?: string;
+  sponsorName?: string;
   type: string;
   address?: string;
   city?: string;

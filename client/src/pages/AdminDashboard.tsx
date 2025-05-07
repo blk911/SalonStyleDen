@@ -1210,6 +1210,7 @@ export default function AdminDashboard() {
                               const sponsorName = matchingInvitation?.salonName || 
                                                  matchingInvitation?.sponsor || 
                                                  client.salonName || 
+                                                 client.sponsorName || // Added the sponsorName field
                                                  client.sponsor || 
                                                  'Unknown';
                               
@@ -1217,6 +1218,14 @@ export default function AdminDashboard() {
                               if (matchingInvitation) {
                                 console.log(`Found invitation match for client ${client.name}: Salon=${matchingInvitation.salonName}, Sponsor=${matchingInvitation.sponsor}`);
                               }
+                              
+                              // Debug to identify sponsor information sources
+                              console.log(`[SPONSOR-DEBUG] Client ${client.name} sponsor info:`, {
+                                salonName: client.salonName || 'MISSING',
+                                sponsorName: client.sponsorName || 'MISSING',
+                                sponsor: client.sponsor || 'MISSING',
+                                finalValue: sponsorName
+                              });
                               
                               return sponsorName.length > 10 ? (
                                 <TooltipProvider>
