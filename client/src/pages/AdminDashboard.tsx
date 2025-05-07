@@ -1209,6 +1209,7 @@ export default function AdminDashboard() {
                               
                               const sponsorName = matchingInvitation?.salonName || 
                                                  matchingInvitation?.sponsor || 
+                                                 client.sponsorName ||  // Added sponsorName check
                                                  client.salonName || 
                                                  client.sponsor || 
                                                  'Unknown';
