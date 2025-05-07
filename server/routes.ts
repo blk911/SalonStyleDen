@@ -2088,7 +2088,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.post("/gifts", async (req: Request, res: Response) => {
     try {
       console.log(`[API] POST /gifts - Creating new gift`);
-      const giftData = giftInputSchema.parse(req.body);
+      const validatedData = giftInputSchema.parse(req.body);
+      
+      // Transform the validated data to match the required schema
+      const giftData = {
+        senderId: validatedData.senderId,
+        recipientPhone: validatedData.recipientPhone,
+        recipientEmail: validatedData.recipientEmail || null,
+        recipientId: validatedData.recipientId || null,
+        amount: validatedData.value || 5000, // Default amount if not specified
+        status: validatedData.status || 'sent',
+        message: validatedData.message || null,
+        giftType: 'style_card' // Default gift type
+      };
       
       // Create the gift
       const gift = await storage.createGift(giftData);
@@ -2152,13 +2164,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       console.log(`[API] GET /gifts/check-phone/${phone} - Checking for unredeemed gifts`);
-      const gift = await storage.checkUnredeemedGiftByPhone(phone);
+      const giftResult = await storage.checkUnredeemedGiftByPhone(phone);
       
-      if (gift) {
-        console.log(`[API] GET /gifts/check-phone/${phone} - Found unredeemed gift with ID ${gift.id}`);
+      if (giftResult.hasUnredeemedGift && giftResult.gift) {
+        console.log(`[API] GET /gifts/check-phone/${phone} - Found unredeemed gift with ID ${giftResult.gift.id}`);
         return res.json({
           hasUnredeemedGift: true,
-          gift
+          gift: giftResult.gift
         });
       }
       
