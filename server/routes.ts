@@ -74,9 +74,9 @@ const invitationInputSchema = z.object({
   message: z.string().optional(), // Optional message for client-to-client invitations
   notes: z.string().optional(),
   favoriteServices: z.array(z.string()).optional(),
-  salonId: z.number().optional(),
+  salonId: z.number().default(1), // Default to VMB LTD (ID: 1) if not provided
   salonName: z.string().optional(),
-  sponsor: z.string().optional(), // Add sponsor field
+  sponsor: z.string().default("VMB LTD"), // Default sponsor field
   inviteHash: z.string().optional(), // Unique hash identifier
   firstServiceDate: z.string().optional(), // Add firstServiceDate field
   status: z.string().optional(),
@@ -1169,11 +1169,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log(`[API] POST /invitations - Valid senderId: ${validatedData.senderId} - Client exists: ${senderClient.name}`);
           }
           
-          // Ensure salonId is never undefined before creating the invitation
-          if (!validatedData.salonId) {
-            // Default to VMB LTD (ID: 1) if no salon specified
-            validatedData.salonId = 1;
-          }
+          // salonId must be defined since it's a required field in the database
+          // If not already set by earlier code, set it to VMB LTD (ID: 1)
+          validatedData.salonId = validatedData.salonId || 1;
           
           // Create the invitation in database
           const createdInvitation = await storage.createInvitation(validatedData);
