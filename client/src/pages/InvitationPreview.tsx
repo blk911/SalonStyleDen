@@ -74,19 +74,54 @@ export default function InvitationPreview() {
   const urlParams = new URLSearchParams(window.location.search);
   const sourceDashboard = urlParams.get('source');
   
-  // Fetch invitation by hash
+  // Check if this is a gift hash
+  const isGiftHash = hash?.startsWith('gift-') || false;
+  const giftId = (isGiftHash && hash) ? hash.replace('gift-', '') : null;
+  
+  // Fetch invitation or gift by hash
   const { 
     data: invitation,
     isLoading: invitationLoading,
     error: invitationError
   } = useQuery<Invitation>({
-    queryKey: ['/api/invitations/by-hash', hash],
+    queryKey: isGiftHash ? ['/api/gifts', giftId] : ['/api/invitations/by-hash', hash],
     queryFn: async () => {
-      const response = await fetch(`/api/invitations/by-hash/${hash}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch invitation: ${response.status}`);
+      let response;
+      
+      // Use different endpoints based on hash format
+      if (isGiftHash) {
+        console.log(`[FLOW] Fetching gift with ID: ${giftId}`);
+        response = await fetch(`/api/gifts/${giftId}`);
+      } else {
+        console.log(`[FLOW] Fetching invitation with hash: ${hash}`);
+        response = await fetch(`/api/invitations/by-hash/${hash}`);
       }
-      return response.json();
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${isGiftHash ? 'gift' : 'invitation'}: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // If this is a gift, format it to match invitation structure for rendering
+      if (isGiftHash && data) {
+        return {
+          id: data.id,
+          name: data.recipientName || '',
+          phone: data.recipientPhone || '',
+          email: data.recipientEmail || '',
+          message: data.message,
+          status: data.status,
+          salonId: null,
+          senderId: data.senderId,
+          sponsor: 'Ven Me, Baby! Gift',
+          favoriteServices: data.styleName ? [data.styleName] : [],
+          createdAt: data.createdAt,
+          inviteHash: `gift-${data.id}`
+        };
+      }
+      
+      return data;
     },
     enabled: !!hash,
   });
@@ -187,8 +222,14 @@ export default function InvitationPreview() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-red-500 mb-2">Invitation Not Found</h2>
-                <p>The invitation you're looking for doesn't exist or has expired.</p>
+                <h2 className="text-2xl font-bold text-red-500 mb-2">
+                  {isGiftHash ? "Gift Not Found" : "Invitation Not Found"}
+                </h2>
+                <p>
+                  {isGiftHash 
+                    ? "The gift you're looking for doesn't exist or has expired." 
+                    : "The invitation you're looking for doesn't exist or has expired."}
+                </p>
                 <Button 
                   className="mt-6"
                   onClick={() => setLocation("/")}
