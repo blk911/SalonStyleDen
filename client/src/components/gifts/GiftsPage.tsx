@@ -20,6 +20,9 @@ interface Invitation {
   status: string;
   inviteHash: string;
   createdAt: string;
+  styleOption?: string | null;
+  stylePrice?: number | null;
+  styleDuration?: number | null;
 }
 
 interface GiftsPageProps {
@@ -260,6 +263,13 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                       })}</p>
                     </div>
                     <p className="text-xs text-gray-600 mt-0.5">{gift.message || "Personal gift invitation"}</p>
+                    {gift.styleOption && (
+                      <p className="text-xs text-pink-600 mt-0.5 font-medium">
+                        {gift.styleOption}
+                        {gift.stylePrice && ` • $${(gift.stylePrice / 100).toFixed(2)}`}
+                        {gift.styleDuration && ` • ${gift.styleDuration} min`}
+                      </p>
+                    )}
                   </div>
                 </div>
                 

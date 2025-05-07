@@ -434,8 +434,9 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️ ${recipientData.signature || ""}`,
       signature: recipientData.signature || client?.name || "",
       styleId: selectedStyleId,
-      stylePrice: selectedStyle.price,
-      styleName: selectedStyle.name,
+      styleOption: selectedStyle.name,
+      stylePrice: selectedStyle.price * 100, // Convert to cents for database
+      styleDuration: selectedStyle.duration,
       clientId: clientId,
       salonId: useSalonId,
       status: "pending",
