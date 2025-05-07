@@ -111,9 +111,20 @@ export default function InvitationPreview() {
         // Keep track of whether this gift was sent by the current client
         const isClientSentGift = true; // For gifts, we assume it's a client-sent gift
         
+        // Extract recipient name from message if available (format: "Hi Name, ...")
+        let recipientName = '';
+        if (data.message && data.message.startsWith('Hi ')) {
+          const nameEndIndex = data.message.indexOf(',');
+          if (nameEndIndex > 3) { // "Hi " is 3 characters
+            recipientName = data.message.substring(3, nameEndIndex);
+          }
+        }
+        
+        console.log(`[FLOW] Extracted recipient name from message: "${recipientName}"`);
+        
         return {
           id: data.id,
-          name: data.recipientName || '',
+          name: recipientName || data.recipientName || 'Recipient',
           phone: data.recipientPhone || '',
           email: data.recipientEmail || '',
           message: data.message,
