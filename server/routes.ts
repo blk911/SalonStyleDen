@@ -1372,7 +1372,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // If status is not already "sent", update it with the styleId if available
       if (invitation.status !== "sent") {
-        await storage.updateGiftStatus(id, "sent", styleId ? Number(styleId) : undefined);
+        await storage.updateInvitationGiftStatus(id, "sent", styleId ? Number(styleId) : undefined);
       }
       
       // Post to client dashboard if there's a sender

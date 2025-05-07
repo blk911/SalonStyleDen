@@ -76,7 +76,7 @@ export interface IStorage {
   getSalonsTable(): typeof salons;
   
   // Gift tracking methods for invitation lifecycle
-  updateGiftStatus(invitationId: number, status: string, styleId?: number): Promise<Invitation>;
+  updateInvitationGiftStatus(invitationId: number, status: string, styleId?: number): Promise<Invitation>;
   trackGiftRedemption(invitationId: number, clientId: number, salonId: number): Promise<ActivityLog>;
   postToClientDashboard(invitationId: number): Promise<boolean>;
   postToSalonDashboard(invitationId: number): Promise<boolean>;
@@ -1514,7 +1514,7 @@ export class DatabaseStorage implements IStorage {
 
   
   // Gift tracking methods for invitation lifecycle
-  async updateGiftStatus(invitationId: number, status: string, styleId?: number): Promise<Invitation> {
+  async updateInvitationGiftStatus(invitationId: number, status: string, styleId?: number): Promise<Invitation> {
     try {
       // Get the current invitation
       const invitation = await this.getInvitation(invitationId);
@@ -1563,7 +1563,7 @@ export class DatabaseStorage implements IStorage {
       }
       
       // Update the invitation status to redeemed
-      await this.updateGiftStatus(invitationId, 'redeemed');
+      await this.updateInvitationGiftStatus(invitationId, 'redeemed');
       
       // Create a detailed activity log for the redemption
       const log = {
