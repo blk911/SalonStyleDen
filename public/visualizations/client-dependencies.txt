@@ -1,0 +1,35 @@
+# Client Dependencies
+
+## Key Components
+
+- client/src/components/forms/ClientForm.tsx
+  - Critical component for client registration
+  - Contains salon selection logic which prioritizes VMB LTD (ID: 1)
+  - Connects to contact validation hooks
+
+- client/src/hooks/use-contact-validation.tsx
+  - Used to validate client phone numbers and emails
+  - Prevents duplicate registrations across the platform
+
+- client/src/pages/ClientDashboard.tsx
+  - Shows client information and sponsor relationships
+  - Connects to gifts and invitations components
+
+## Salon ID References
+
+1. VMB LTD (ID: 1)
+   - Referenced directly in ClientForm.tsx to prioritize as default salon
+   - Used in SponsorHierarchyData.tsx for visualization
+
+2. Fallback Salon Selection Order:
+   1. Direct match to VMB LTD (ID: 1)
+   2. Name contains "VMB"
+   3. Name contains "Ven Me"
+   4. Name contains "Lux"
+   5. Last resort: Tiffany's salon
+
+## Recommendations
+
+- Maintain consistent salon selection order across all components
+- Ensure all salon selection logic prioritizes VMB LTD
+- Review all hardcoded salon ID references periodically

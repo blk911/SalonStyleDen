@@ -1,0 +1,34 @@
+# Shared Schema Dependencies
+
+## Core Schema Files
+
+- shared/schema.ts
+  - Central schema definition file
+  - Contains all data models including salons, clients, and invitations
+  - Referenced by both client and server components
+
+## Key Models
+
+1. Salon Model
+   - Contains ID, name, ownerName, and other salon properties
+   - Has sponsorId field to create hierarchical relationships
+
+2. Client Model
+   - Linked to salons through salonId foreign key
+   - Contains contact information and validation fields
+
+3. Invitation Model
+   - Links clients to salons through foreign keys
+   - Tracks invitation status for gift redemption
+
+## Field Relationships
+
+- salons.id → clients.salonId (One-to-many)
+- salons.id → invitations.salonId (One-to-many)
+- salons.id → salons.sponsorId (Self-referential for hierarchies)
+
+## Recommendations
+
+- Maintain consistency in primary key usage (numeric IDs)
+- Enforce NOT NULL constraints on critical fields like salonId
+- Validate all foreign key relations

@@ -1,0 +1,40 @@
+# Salon ID Dependencies
+
+## Critical ID References
+
+- VMB LTD: ID 1
+  - Primary corporate entity in the system
+  - Default sponsor for all salons
+  - Priority selection in all fallback chains
+
+- Tiffany 5280 Nails Studio: ID 2
+  - Secondary salon in the platform
+  - Used as lower priority fallback in selection chains
+
+## Key Files with Salon ID References
+
+1. server/middleware/sponsor-validator.ts
+   - Line 87: `item.salonId = 1; // Default to VMB LTD salon ID`
+   - Used to ensure all entities have a valid sponsor
+
+2. server/routes.ts
+   - Line 1128: `validatedData.salonId = 1;`
+   - Line 1132: `validatedData.salonId = 1;`
+   - Line 1174: `validatedData.salonId = 1;`
+   - Default values in data validation processes
+
+3. client/src/components/forms/ClientForm.tsx
+   - Line 233: `salon.id === 1 || salon.name === "VMB LTD"`
+   - Line 369: `salon.id === 1 || salon.name === "VMB LTD"`
+   - Used for salon selection priority logic
+
+4. client/src/components/visualization/SponsorHierarchyData.tsx
+   - Line 95: `const vmbLtd = salons.find(s => s.id === 1);`
+   - Used for relationship visualization
+
+## Recommendations
+
+- Avoid hardcoded IDs when possible
+- Create constants or configuration for salon IDs
+- Add robust validation to ensure salon existence before reference
+- Document all salon ID references for easier maintenance

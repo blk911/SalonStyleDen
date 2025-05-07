@@ -1,0 +1,31 @@
+# Server Dependencies
+
+## Key Dependencies
+
+- server/routes.ts → shared/schema.ts
+  - The routes file heavily depends on schema definitions from the shared folder
+  - This is critical for data validation and proper typing
+
+- server/storage.ts → shared/schema.ts
+  - Storage implementation depends on schema types
+  - Ensures consistent data structures between client and server
+
+- server/middleware/sponsor-validator.ts → server/storage.ts
+  - Sponsor validation middleware depends on storage functionality
+  - Critical for validating salon IDs and sponsor relationships
+
+## Salon ID References
+
+1. Primary Reference: VMB LTD (ID: 1)
+   - Used as the default sponsor in sponsor-validator.ts
+   - Reference point for all other salons in the platform
+
+2. Secondary Reference: Tiffany's Salon (ID: 2)
+   - Used as a fallback in some processes
+   - Lower priority than VMB LTD in selection chains
+
+## Recommendations
+
+- Ensure all hard-coded salon ID references use VMB LTD (ID: 1)
+- Review middleware to confirm sponsor validation handling
+- Validate client-side forms always prioritize VMB LTD as the default salon
