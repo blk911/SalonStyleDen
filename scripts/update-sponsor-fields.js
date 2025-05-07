@@ -5,9 +5,9 @@
  * are set before adding database constraints.
  */
 
-import { db } from '../server/db.js';
-import { clients, salons, invitations } from '../shared/schema.js';
-import { eq, isNull } from 'drizzle-orm';
+const { db } = require('../server/db');
+const { clients, salons, invitations } = require('../shared/schema');
+const { eq, isNull } = require('drizzle-orm');
 
 async function main() {
   console.log('Starting data migration for sponsor fields...');
