@@ -286,27 +286,38 @@ export default function ClientRegistrationPage() {
       try {
         // Call validateContact with context=registration to check for unredeemed gifts
         const result = await validateContact(phoneNumber);
+        logFlow(`Phone validation result: ${result}`);
         
         // If this phone has an unredeemed gift, show appropriate dialog
         if (result === 'has_unredeemed_gift') {
-          logFlow('Phone has unredeemed gift');
+          logFlow('Phone has unredeemed gift - showing gift message');
           
+          // Show gift notification
           toast({
             title: 'Gift Available!',
             description: 'You have an unredeemed gift. Complete registration to redeem it.',
             variant: 'default',
           });
           
+          // Log unredeemed gift state
+          logFlow('Gift validation state:', {
+            hasUnredeemedGift,
+            requiresAddress
+          });
+          
           // Check if we need to show the address dialog
           if (requiresAddress) {
-            logFlow('Gift requires address information');
+            logFlow('Gift requires address information - showing dialog immediately');
             // Show the address dialog with updated title and description
             setShowAddressDialog(true);
             setAddressDialogShown(true);
           }
+        } else {
+          logFlow('No unredeemed gift found or validation returned a different result:', result);
         }
       } catch (error) {
         console.error('Error validating phone for gifts:', error);
+        logFlow('Error in gift validation:', error);
       }
     }
   };

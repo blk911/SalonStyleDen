@@ -67,9 +67,15 @@ export function useContactValidation(): UseContactValidationResult {
       const result = await validateClientContact(contact);
       console.log('Contact validation result:', result);
       
+      // Enhanced debugging for gift validation
+      console.log('Checking for unredeemed gift:', {
+        hasUnredeemedGift: result.hasUnredeemedGift,
+        requiresAddress: result.requiresAddress
+      });
+      
       // Handle unredeemed gift case
       if (result.hasUnredeemedGift) {
-        console.log('Contact has unredeemed gift');
+        console.log('Contact has unredeemed gift - setting validation state');
         setValidationState({ 
           result: 'has_unredeemed_gift',
           hasUnredeemedGift: true,
