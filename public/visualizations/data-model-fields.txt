@@ -1,0 +1,187 @@
+# VMB LTD Platform - Data Model and Business Rules
+
+## Core Data Models
+
+### Salon
+
+| Field | Type | Rules | Description |
+|-------|------|-------|-------------|
+| id | number | Primary key, auto-increment | Unique identifier |
+| name | string | Required | Salon business name |
+| ownerName | string | Required | Name of salon owner |
+| email | string | Valid email format | Contact email |
+| phone | string | Formatted as [XXX] XXX-XXXX | Contact phone |
+| address | string | Optional | Physical address |
+| city | string | Optional | City location |
+| state | string | Optional | State/province |
+| zipCode | string | Optional | Postal code |
+| bio | string | Optional | Salon description |
+| imageUrl | string | Optional | Logo or image URL |
+| sponsorId | number | Foreign key to Salon.id, nullable | Reference to sponsor salon (if any) |
+| createdAt | Date | Auto-generated | Record creation date |
+
+**Business Rules:**
+- VMB LTD is salon ID 1 and serves as the default sponsor
+- Salon names must be unique in the system
+- Salons can form hierarchical sponsor relationships
+
+### Client
+
+| Field | Type | Rules | Description |
+|-------|------|-------|-------------|
+| id | number | Primary key, auto-increment | Unique identifier |
+| name | string | Required | Client name |
+| phone | string | Required, formatted as [XXX] XXX-XXXX | Contact phone |
+| email | string | Optional, valid email format | Contact email |
+| salonId | number | Required, foreign key to Salon.id | Associated salon |
+| status | string | Default "active" | Client status |
+| notes | string | Optional | Additional client notes |
+| address | string | Optional | Client address |
+| city | string | Optional | City |
+| state | string | Optional | State/province |
+| zipCode | string | Optional | Postal code |
+| createdAt | Date | Auto-generated | Record creation date |
+
+**Business Rules:**
+- Phone numbers must be unique per salon
+- New clients default to VMB LTD (salonId = 1) if no salon specified
+- Client records cannot be deleted, only deactivated (status change)
+
+### Invitation
+
+| Field | Type | Rules | Description |
+|-------|------|-------|-------------|
+| id | number | Primary key, auto-increment | Unique identifier |
+| clientId | number | Required, foreign key to Client.id | Client receiving invitation |
+| salonId | number | Required, foreign key to Salon.id | Salon sending invitation |
+| message | string | Optional | Custom message |
+| status | string | Default "pending" | Status (pending, accepted, rejected) |
+| type | string | Required | Type (gift, promotion, etc.) |
+| amount | number | Optional | Monetary value (if applicable) |
+| expiresAt | Date | Optional | Expiration date |
+| createdAt | Date | Auto-generated | Record creation date |
+| redeemedAt | Date | Optional | When invitation was redeemed |
+
+**Business Rules:**
+- Invitations default to VMB LTD (salonId = 1) if no salon specified
+- Invitations cannot be deleted once sent
+- Expiration dates are enforced for gift redemptions
+- Clients can have multiple invitations
+
+### Gift
+
+| Field | Type | Rules | Description |
+|-------|------|-------|-------------|
+| id | number | Primary key, auto-increment | Unique identifier |
+| invitationId | number | Required, foreign key to Invitation.id | Associated invitation |
+| clientId | number | Required, foreign key to Client.id | Client receiving gift |
+| salonId | number | Required, foreign key to Salon.id | Salon sending gift |
+| amount | number | Required, positive | Monetary value |
+| status | string | Default "active" | Status (active, redeemed, expired) |
+| code | string | Auto-generated, unique | Redemption code |
+| redeemedAt | Date | Optional | When gift was redeemed |
+| createdAt | Date | Auto-generated | Record creation date |
+
+**Business Rules:**
+- Gift codes must be unique in the system
+- Gifts are linked to invitations
+- Gifts cannot be redeemed after expiration
+- A client can only have one unredeemed gift at a time
+
+## UI Components and Validation Rules
+
+### ClientForm Component
+
+| Field | Component | Validation Rules |
+|-------|-----------|------------------|
+| name | Input | Required, min 2 chars |
+| phone | PhoneInput | Required, valid phone format |
+| email | Input | Optional, valid email format |
+| address | Input | Optional |
+| city | Input | Optional |
+| state | Select | Optional |
+| zipCode | Input | Optional, valid postal code format |
+| notes | Textarea | Optional |
+| inviteType | RadioGroup | Required, one of: "client", "friend", "family" |
+| acceptTerms | Checkbox | Required, must be true |
+
+**Component Rules:**
+- Phone validation uses specialized formatter for consistent [XXX] XXX-XXXX format
+- Address fields can be optionally skipped with checkbox
+- Shows different prompts based on unredeemed gift status
+- VMB LTD (ID 1) is prioritized in salon selection logic
+
+### SalonDashboard Component
+
+| Section | Subcomponents | Features |
+|---------|---------------|----------|
+| ClientList | Table, SearchInput, Pagination | Filter, sort, pagination of clients |
+| InvitationForm | Form, RecipientSelect, MessageInput | Create and send invitations |
+| GiftManager | Table, StatusFilter | Track sent gifts and status |
+| Analytics | Charts, DateRangePicker | Display salon performance metrics |
+
+**Component Rules:**
+- Only shows clients belonging to the current salon (or sponsored salons)
+- Invitation sending has contact validation and confirmation
+- Gift tracking shows redemption status and expiration dates
+
+### GiftsPage Component
+
+| Section | Subcomponents | Features |
+|---------|---------------|----------|
+| ActiveGifts | GiftCard, RedeemButton | Shows available gifts for redemption |
+| RedeemedGifts | GiftCard, HistoryDetails | Shows redemption history |
+| ExpiredGifts | GiftCard | Shows expired gift history |
+
+**Component Rules:**
+- Gifts are grouped by status (active, redeemed, expired)
+- Redemption process includes verification steps
+- Gift cards display salon info, amount, expiration
+
+### RenderedInvitation Component
+
+| Section | Subcomponents | Features |
+|---------|---------------|----------|
+| SalonInfo | Logo, Details | Displays sending salon info |
+| InvitationMessage | MessageDisplay | Shows custom or template message |
+| ActionButtons | AcceptButton, RejectButton | Response actions for recipient |
+| GiftDetails | AmountDisplay, CodeDisplay | Shows gift details if included |
+
+**Component Rules:**
+- Dynamic display based on invitation type
+- Different call-to-action based on status
+- Gift redemption process starts here for gift invitations
+
+## Key Business Logic
+
+### Phone Validation (use-contact-validation.tsx)
+
+- Enforces standardized [XXX] XXX-XXXX format
+- Auto-formats input during entry
+- Validates area code and length
+- Normalizes formats for database comparison
+
+### Sponsor Validation (sponsor-validator.ts)
+
+- Ensures all entities have valid salon connections
+- Defaults to VMB LTD (ID 1) when no salon specified
+- Validates hierarchical relationships between salons
+- Prevents circular sponsor relationships
+
+### Gift Redemption Flow
+
+1. Client receives invitation with gift
+2. Client creates account or logs in
+3. System checks for existing unredeemed gifts
+4. Client views gift on dashboard
+5. Client initiates redemption
+6. (Future) Stripe payment integration processes transaction
+7. Gift status updates to "redeemed"
+8. Both client and salon receive confirmation
+
+### Salon Priority Rules
+
+1. Always use specified salon if provided
+2. For new clients with no salon, default to VMB LTD (ID 1)
+3. For existing clients, use their currently associated salon
+4. If client has invitation, use the salon from that invitation

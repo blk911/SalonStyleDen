@@ -1,0 +1,81 @@
+# Stripe Payment Integration for VMB LTD
+
+## Required Components
+
+### Client-Side Components
+
+| Component | Purpose | Location |
+|-----------|---------|----------|
+| CheckoutForm | Handle payment submission | client/src/components/payments/CheckoutForm.tsx |
+| PaymentElement | Stripe UI component | Imported from @stripe/react-stripe-js |
+| PaymentSuccessPage | Display confirmation | client/src/pages/PaymentSuccessPage.tsx |
+| PaymentErrorPage | Handle payment failures | client/src/pages/PaymentErrorPage.tsx |
+
+### Server-Side Components
+
+| Component | Purpose | Location |
+|-----------|---------|----------|
+| Payment Routes | API endpoints for Stripe | server/routes.ts |
+| Payment Controller | Business logic for payments | server/controllers/payments.ts |
+| Payment Service | Stripe API interactions | server/services/stripe.ts |
+
+## Required Environment Variables
+
+| Variable | Purpose | Location |
+|----------|---------|----------|
+| STRIPE_SECRET_KEY | Server-side API authentication | .env (server) |
+| VITE_STRIPE_PUBLIC_KEY | Client-side API authentication | .env (client) |
+
+## Payment Flow
+
+1. **Gift Redemption Initiation**
+   - Client selects "Redeem Gift" on GiftsPage
+   - System creates payment intent for gift amount
+   - Client is redirected to checkout form
+
+2. **Payment Processing**
+   - Client enters payment details in Stripe Elements
+   - Card is validated client-side
+   - Payment is submitted to Stripe via API
+   - Server confirms payment success
+
+3. **Post-Payment Actions**
+   - Gift status updated to "redeemed"
+   - Transaction record created
+   - Client receives confirmation
+   - Salon receives notification
+   - Client is redirected to success page
+
+## API Endpoints to Implement
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| /api/create-payment-intent | POST | Initialize payment process |
+| /api/confirm-payment | POST | Verify payment completion |
+| /api/payment-webhook | POST | Handle Stripe events |
+| /api/redeem-gift/:id | POST | Complete gift redemption |
+
+## Database Schema Updates
+
+| Table | Field Additions | Purpose |
+|-------|----------------|---------|
+| Client | stripeCustomerId | Link client to Stripe customer |
+| Gift | paymentIntentId | Link gift to Stripe payment |
+| Gift | paymentStatus | Track payment process |
+| Transaction | New table | Store payment records |
+
+## Security Considerations
+
+- PCI compliance handled via Stripe Elements
+- API keys stored securely in environment variables
+- Webhook verification using Stripe signatures
+- HTTPS required for all payment operations
+- Idempotency keys for payment operation safety
+
+## Testing Requirements
+
+- Test card numbers for various scenarios
+- Webhook testing with Stripe CLI
+- Subscription billing test scenarios
+- Error handling and recovery testing
+- Refund process testing
