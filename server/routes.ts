@@ -85,7 +85,7 @@ const invitationInputSchema = z.object({
 const giftInputSchema = z.object({
   senderId: z.number(),
   senderName: z.string().optional(),
-  recipientName: z.string().optional().default("Recipient"),
+  recipientName: z.string(),
   recipientPhone: z.string().min(10),
   recipientEmail: z.union([
     z.string().email(),
@@ -2087,7 +2087,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new gift
   apiRouter.post("/gifts", async (req: Request, res: Response) => {
     try {
-      console.log(`[API] POST /gifts - Creating new gift`, req.body);
+      console.log(`[API] POST /gifts - Creating new gift`);
       const validatedData = giftInputSchema.parse(req.body);
       
       // Transform the validated data to match the required schema
@@ -2096,13 +2096,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recipientPhone: validatedData.recipientPhone,
         recipientEmail: validatedData.recipientEmail || null,
         recipientId: validatedData.recipientId || null,
-        amount: validatedData.value !== undefined ? validatedData.value : 5000, // Default amount if not specified
+        amount: validatedData.value || 5000, // Default amount if not specified
         status: validatedData.status || 'sent',
         message: validatedData.message || null,
         giftType: 'style_card' // Default gift type
       };
-      
-      console.log(`[API] POST /gifts - Transformed gift data:`, giftData);
       
       // Create the gift
       const gift = await storage.createGift(giftData);
