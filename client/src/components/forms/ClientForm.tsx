@@ -21,7 +21,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/utils";
 import { useContactValidation } from "@/hooks/use-contact-validation";
 import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
 import VerificationModal from "@/components/shared/VerificationModal";
@@ -511,7 +511,7 @@ export default function ClientForm({
                           }}
                           onBlur={async (e) => {
                             field.onBlur();
-                            const cleaned = field.value.replace(/\D/g, '');
+                            const cleaned = cleanPhoneNumber(field.value);
                             if (cleaned.length === 10) {
                               console.log("Special test case detected on blur for phone:", cleaned);
                               setValidatedContact(field.value);
