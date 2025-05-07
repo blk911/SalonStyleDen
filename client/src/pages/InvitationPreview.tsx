@@ -116,8 +116,17 @@ export default function InvitationPreview() {
     setLoading(invitationLoading || salonLoading);
   }, [invitationLoading, salonLoading]);
   
-  // Redirect to client dashboard when invitation data loads
+  // Check if we should stay on the preview page
+  const stayOnPreview = urlParams.get('stayOnPreview') === 'true';
+  
+  // Redirect to client dashboard when invitation data loads (unless stayOnPreview is true)
   useEffect(() => {
+    // Skip redirection if stayOnPreview param is set
+    if (stayOnPreview) {
+      console.log(`[FLOW] Showing invitation preview without redirection - stayOnPreview=true`);
+      return;
+    }
+    
     if (invitation) {
       // When an invitation is loaded, redirect to the client dashboard using the invitation ID
       console.log(`[FLOW] Redirecting from invitation preview to client dashboard for invitation ID: ${invitation.id}`);
@@ -127,7 +136,7 @@ export default function InvitationPreview() {
         setLocation(`/client/${invitation.id}?fromInvitation=true&hash=${hash}`);
       }, 100);
     }
-  }, [invitation, hash, setLocation]);
+  }, [invitation, hash, setLocation, stayOnPreview]);
   
   // Check if the current client is Tom when invitation data loads (legacy code)
   useEffect(() => {

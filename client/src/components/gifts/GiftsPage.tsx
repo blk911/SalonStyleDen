@@ -184,7 +184,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                 
                 <div className="flex items-center gap-8 ml-2">
                   <Link
-                    to={`/invitation-preview/${gift.inviteHash}`}
+                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
                     className="text-xs text-amber-600 font-medium hover:text-amber-800 flex items-center gap-1 whitespace-nowrap"
                   >
                     <ExternalLinkIcon className="h-3 w-3" />
@@ -208,11 +208,11 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                           if (!response.ok) throw new Error('Failed to update status');
                           
                           // Navigate to the invitation preview page
-                          setLocation(`/invitation-preview/${gift.inviteHash}`);
+                          setLocation(`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`);
                         } catch (error) {
                           console.error('Error accepting gift:', error);
                           // Navigate anyway as fallback
-                          setLocation(`/invitation-preview/${gift.inviteHash}`);
+                          setLocation(`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`);
                         }
                       }}
                     >
@@ -275,7 +275,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                 
                 <div className="flex items-center gap-8 ml-2">
                   <Link
-                    to={`/invitation-preview/${gift.inviteHash}`}
+                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
                     className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1 whitespace-nowrap"
                   >
                     <ExternalLinkIcon className="h-3 w-3" />
