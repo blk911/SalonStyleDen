@@ -538,8 +538,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Handle sponsor logic before creating client
         // Default sponsor if none is provided
-        let sponsorName = req.body.sponsor || "Ven Me, Baby! LTD";
-        let sponsorSalonId = null;
+        let sponsorName = req.body.sponsor || "VMB LTD";
+        let sponsorSalonId = 1; // Default to VMB LTD's ID (1)
 
         // 1. If salonId is provided, use that salon as sponsor
         if (validatedData.salonId) {
@@ -549,10 +549,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             sponsorName = sponsorSalon.name;
             sponsorSalonId = sponsorSalon.id;
           }
-        } 
-        // 2. Default is Ven Me, Baby! LTD (ID: 12) if no salon selected
-        else if (sponsorName === "Ven Me, Baby! LTD") {
-          sponsorSalonId = 12; // VMB Ltd ID
         }
 
         // Add sponsor info to validatedData
@@ -1120,10 +1116,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             validatedData.inviteHash = generateInviteHash();
           }
           
-          // For client-to-client invitations, we don't require salonId upfront
-          // The storage.createInvitation method will handle assigning appropriate salon
-          if (!validatedData.salonId && !validatedData.senderId) {
-            throw new Error("Either Salon ID or Sender ID is required for invitations");
+          // For client-to-client invitations, assign the default salon (VMB LTD) if not specified
+          if (!validatedData.salonId) {
+            if (validatedData.senderId) {
+              // For client-to-client invitations, use the sender's sponsorSalonId
+              const senderClient = await storage.getClient(validatedData.senderId);
+              if (senderClient && senderClient.sponsorSalonId) {
+                validatedData.salonId = senderClient.sponsorSalonId;
+              } else {
+                // Default to VMB LTD if sender's salon is unknown
+                validatedData.salonId = 1;
+              }
+            } else {
+              // Default to VMB LTD if no sender and no salon specified
+              validatedData.salonId = 1;
+            }
           }
           
           // Check for salon invitation limits if this is a salon-created invitation
@@ -1618,8 +1625,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             matchingClient = clientsWithInvitationPhone[0];
             
             // Get sponsor information from the client
-            const sponsorName = matchingClient.sponsor || "Ven Me, Baby! LTD";
-            const sponsorSalonId = matchingClient.sponsorSalonId || 12;
+            const sponsorName = matchingClient.sponsor || "VMB LTD";
+            const sponsorSalonId = matchingClient.sponsorSalonId || 1;
             
             return res.status(200).json({ 
               success: true,
@@ -1635,8 +1642,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // No client found, but invitation is valid - return invitation details for registration
             
             // Get sponsor information from the invitation
-            const sponsorName = invitation.sponsor || "Ven Me, Baby! LTD";
-            const sponsorSalonId = invitation.salonId || 12;
+            const sponsorName = invitation.sponsor || "VMB LTD";
+            const sponsorSalonId = invitation.salonId || 1;
             
             return res.status(200).json({ 
               success: true,
@@ -1669,8 +1676,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             
             // Get sponsor information from the client (should match the salon we found)
             const sponsorSalon = salonsWithMatchingPhone[0];
-            const sponsorName = sponsorSalon.name || "Ven Me, Baby! LTD";
-            const sponsorSalonId = sponsorSalon.id || 12;
+            const sponsorName = sponsorSalon.name || "VMB LTD";
+            const sponsorSalonId = sponsorSalon.id || 1;
             
             return res.status(200).json({
               success: true,
@@ -1771,15 +1778,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check sponsorship and update client if needed
       if (!client.sponsorSalonId) {
-        // Get the Ven Me, Baby! LTD salon ID
-        const vmbSalon = await storage.getSalonByName("Ven Me, Baby! LTD");
-        const vmbSalonId = vmbSalon ? vmbSalon.id : 43; // Fallback to ID 43 if not found
+        // Get the VMB LTD salon ID
+        const vmbSalon = await storage.getSalonByName("VMB LTD");
+        const vmbSalonId = vmbSalon ? vmbSalon.id : 1; // Fallback to ID 1 if not found
         
         // Update client with default sponsor
         try {
           await db.update(clients)
             .set({ 
-              sponsor: "Ven Me, Baby! LTD",
+              sponsor: "VMB LTD",
               sponsorSalonId: vmbSalonId
             })
             .where(eq(clients.id, Number(clientId)));
