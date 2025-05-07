@@ -42,6 +42,9 @@ interface Invitation {
   firstServiceDate?: string;
   createdAt: string;
   inviteHash: string;
+  // New properties for gift support
+  isClientSentGift?: boolean;
+  senderClientId?: number;
 }
 
 interface Salon {
@@ -105,6 +108,9 @@ export default function InvitationPreview() {
       
       // If this is a gift, format it to match invitation structure for rendering
       if (isGiftHash && data) {
+        // Keep track of whether this gift was sent by the current client
+        const isClientSentGift = true; // For gifts, we assume it's a client-sent gift
+        
         return {
           id: data.id,
           name: data.recipientName || '',
@@ -112,12 +118,14 @@ export default function InvitationPreview() {
           email: data.recipientEmail || '',
           message: data.message,
           status: data.status,
-          salonId: null,
+          salonId: null, // No salon ID for client-sent gifts
           senderId: data.senderId,
           sponsor: 'Ven Me, Baby! Gift',
           favoriteServices: data.styleName ? [data.styleName] : [],
           createdAt: data.createdAt,
-          inviteHash: `gift-${data.id}`
+          inviteHash: `gift-${data.id}`,
+          isClientSentGift: isClientSentGift, // New flag to identify client-sent gifts
+          senderClientId: data.senderId // Add the sender's client ID for client-sent gifts
         };
       }
       
@@ -257,6 +265,9 @@ export default function InvitationPreview() {
 
   // Determine if this is a salon or client invitation
   const isSalonInvitation = !invitation.senderId;
+  
+  // Make sure isGiftHash is available in this scope
+  const isGiftFormatted = hash?.startsWith('gift-') || false;
   
   // Show confirmation dialog for pending invitations
   const promptAcceptInvitation = () => {
@@ -441,15 +452,34 @@ export default function InvitationPreview() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  // CRITICAL FIX: Button MUST go to the salon page that the invitation is linked to
+                  // CRITICAL FIX: Button logic based on gift type
+                  // 1. For client-sent gifts (has isClientSentGift flag): go to sender's client dashboard
+                  // 2. For salon invitations (has salonId): go to salon page
+                  // 3. Fallback: go to salon directory
+                  
+                  // Check if this is a client-sent gift (from our new flag)
+                  if (isGiftHash && invitation.isClientSentGift && invitation.senderClientId) {
+                    // This is a client-sent gift, go back to sender's client dashboard
+                    console.log(`[FLOW] CLIENT GIFT: Navigating to client dashboard for sender ID: ${invitation.senderClientId}`);
+                    setLocation(`/client/${invitation.senderClientId}`);
+                    
+                    toast({
+                      title: 'Returned to client dashboard',
+                      description: 'Viewing gift sender profile',
+                      duration: 2000
+                    });
+                    return;
+                  }
+                  
+                  // For salon invitations, use salonId
                   const salonId = invitation?.salonId || salon?.id;
                   
                   if (salonId) {
-                    console.log(`[FLOW] Navigating to salon page: ${invitation?.salonName || salon?.name} (ID: ${salonId})`);
+                    console.log(`[FLOW] SALON INVITE: Navigating to salon page: ${invitation?.salonName || salon?.name} (ID: ${salonId})`);
                     setLocation(`/salon/${salonId}`);
                   } else {
                     // Fallback if no salon info is available
-                    console.log(`[FLOW] No salon ID found, returning to salon directory`);
+                    console.log(`[FLOW] No salon or client ID found, returning to salon directory`);
                     setLocation('/salons');
                     
                     toast({
@@ -464,7 +494,10 @@ export default function InvitationPreview() {
                   "border-pink-200 text-pink-700 hover:bg-pink-50"}
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                To {invitation?.salonName || salon?.name || "Salon Page"}
+                {/* Customize button label based on gift type */}
+                {isGiftHash && invitation.isClientSentGift 
+                  ? `Back to Sender's Dashboard` 
+                  : `To ${invitation?.salonName || salon?.name || "Salon Page"}`}
               </Button>
             </div>
           </CardFooter>
