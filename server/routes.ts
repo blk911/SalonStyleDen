@@ -15,6 +15,7 @@ import { errorMonitor } from './error-monitor';
 import licenseRoutes from './routes/license';
 import appointmentRoutes from './routes/appointments';
 import createTimestampedBackup from './utils/create-backup';
+import { sponsorValidator } from './middleware/sponsor-validator';
 
 // Set up multer for file uploads
 const uploadDir = path.join(process.cwd(), 'client/public/uploads');
@@ -109,6 +110,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // API endpoints prefix
   const apiRouter = express.Router();
+  
+  // Apply sponsor validation middleware to all API responses
+  apiRouter.use(sponsorValidator);
   
   // Health check endpoint
   apiRouter.get("/health", (req: Request, res: Response) => {

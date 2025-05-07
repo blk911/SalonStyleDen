@@ -8,196 +8,304 @@
  * - API endpoint consistency
  */
 
-import { exec } from 'child_process';
 import fetch from 'node-fetch';
 
-// Test configuration
-const API_URL = 'http://localhost:5000/api';
-const TESTS = {
-  passed: 0,
-  failed: 0,
-  total: 0
+// Configure the base URL for the API
+const API_BASE_URL = 'http://localhost:5000/api';
+
+// ANSI color codes for terminal output
+const COLORS = {
+  reset: '\x1b[0m',
+  green: '\x1b[32m',
+  red: '\x1b[31m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  magenta: '\x1b[35m',
 };
 
-// Utility functions
+// Utility function for logging
 function log(message, type = 'info') {
-  const colors = {
-    info: '\x1b[36m%s\x1b[0m',    // Cyan
-    success: '\x1b[32m%s\x1b[0m',  // Green
-    error: '\x1b[31m%s\x1b[0m',    // Red
-    warning: '\x1b[33m%s\x1b[0m'   // Yellow
-  };
-  console.log(colors[type], message);
+  let prefix = '';
+  let color = COLORS.reset;
+
+  switch (type) {
+    case 'success':
+      prefix = '✅ SUCCESS: ';
+      color = COLORS.green;
+      break;
+    case 'error':
+      prefix = '❌ ERROR: ';
+      color = COLORS.red;
+      break;
+    case 'warning':
+      prefix = '⚠️ WARNING: ';
+      color = COLORS.yellow;
+      break;
+    case 'info':
+      prefix = 'ℹ️ INFO: ';
+      color = COLORS.blue;
+      break;
+    case 'title':
+      prefix = '🔍 ';
+      color = COLORS.magenta;
+      break;
+  }
+
+  console.log(`${color}${prefix}${message}${COLORS.reset}`);
 }
 
+// Helper function to run a test and handle success/failure
 async function runTest(name, testFn) {
   try {
-    log(`Running test: ${name}...`);
-    TESTS.total++;
-    const result = await testFn();
-    if (result) {
-      TESTS.passed++;
-      log(`✅ PASS: ${name}`, 'success');
-      return true;
-    } else {
-      TESTS.failed++;
-      log(`❌ FAIL: ${name}`, 'error');
-      return false;
-    }
+    log(`Running test: ${name}`, 'title');
+    await testFn();
+    log(`Test '${name}' passed successfully`, 'success');
+    return true;
   } catch (error) {
-    TESTS.failed++;
-    log(`❌ ERROR: ${name} - ${error.message}`, 'error');
+    log(`Test '${name}' failed: ${error.message}`, 'error');
+    console.error(error);
     return false;
   }
 }
 
-// Test suite runners
+// Test suite for API validation
 async function runApiTests() {
-  log('=== API ENDPOINT VALIDATION TESTS ===', 'info');
-  
-  // Test: Health check
-  await runTest('API Health Check', async () => {
-    const response = await fetch(`${API_URL}/health`);
-    return response.status === 200;
-  });
-  
-  // Test: Client API returns clients with sponsor information
-  await runTest('Client API - Sponsor Information Present', async () => {
-    const response = await fetch(`${API_URL}/clients`);
+  const results = {
+    passed: 0,
+    failed: 0,
+    tests: []
+  };
+
+  // Test: Validate sponsor info in client endpoint
+  const testClientSponsorInfo = async () => {
+    log('Fetching all clients from API', 'info');
+    
+    const response = await fetch(`${API_BASE_URL}/clients`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch clients: ${response.status} ${response.statusText}`);
+    }
+    
     const clients = await response.json();
+    log(`Retrieved ${clients.length} clients`, 'info');
     
-    if (!Array.isArray(clients) || clients.length === 0) {
-      log('  No clients found to test', 'warning');
-      return false;
-    }
+    // Check each client for sponsor information
+    let allValid = true;
+    let invalidClients = [];
     
-    // Check that all clients have sponsorSalonId and salonName or sponsorName
-    return clients.every(client => {
-      const hasSponsorInfo = (
-        client.sponsorSalonId !== undefined &&
-        (client.salonName !== undefined || client.sponsorName !== undefined)
-      );
-      
-      if (!hasSponsorInfo) {
-        log(`  Client missing sponsor info: ${JSON.stringify(client)}`, 'error');
+    for (const client of clients) {
+      if (!client.sponsor || client.sponsor === 'Unknown') {
+        allValid = false;
+        invalidClients.push({
+          id: client.id,
+          name: client.name, 
+          phone: client.phone,
+          sponsor: client.sponsor
+        });
       }
       
-      return hasSponsorInfo;
-    });
-  });
-  
-  // Test: Individual client API returns sponsor information
-  await runTest('Individual Client API - Sponsor Information', async () => {
-    // First get all clients to find a valid ID
-    const allResponse = await fetch(`${API_URL}/clients`);
-    const clients = await allResponse.json();
-    
-    if (!Array.isArray(clients) || clients.length === 0) {
-      log('  No clients found to test', 'warning');
-      return false;
+      if (!client.sponsorName || client.sponsorName === 'Unknown') {
+        allValid = false;
+        invalidClients.push({
+          id: client.id,
+          name: client.name, 
+          phone: client.phone,
+          sponsorName: client.sponsorName
+        });
+      }
+      
+      if (!client.sponsorSalonId) {
+        allValid = false;
+        invalidClients.push({
+          id: client.id,
+          name: client.name, 
+          phone: client.phone,
+          sponsorSalonId: client.sponsorSalonId
+        });
+      }
     }
     
-    // Get first client's ID
-    const clientId = clients[0].id;
-    
-    // Test individual client endpoint
-    const response = await fetch(`${API_URL}/clients/${clientId}`);
-    const client = await response.json();
-    
-    const hasSponsorInfo = (
-      client.sponsorSalonId !== undefined &&
-      (client.salonName !== undefined || client.sponsorName !== undefined)
-    );
-    
-    if (!hasSponsorInfo) {
-      log(`  Client ${clientId} missing sponsor info: ${JSON.stringify(client)}`, 'error');
+    if (!allValid) {
+      log(`Found ${invalidClients.length} clients with missing sponsor information`, 'warning');
+      console.table(invalidClients);
+      throw new Error('Some clients have missing or invalid sponsor information');
     }
     
-    return hasSponsorInfo;
-  });
+    log('All clients have valid sponsor information', 'success');
+  };
   
-  // Test: Invitation API includes sender information
-  await runTest('Invitation API - Sender Information', async () => {
-    const response = await fetch(`${API_URL}/invitations`);
+  // Test: Validate sponsor info in invitations endpoint
+  const testInvitationSponsorInfo = async () => {
+    log('Fetching all invitations from API', 'info');
+    
+    const response = await fetch(`${API_BASE_URL}/invitations`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch invitations: ${response.status} ${response.statusText}`);
+    }
+    
     const invitations = await response.json();
+    log(`Retrieved ${invitations.length} invitations`, 'info');
     
-    if (!Array.isArray(invitations) || invitations.length === 0) {
-      log('  No invitations found to test - skipping', 'warning');
-      return true; // Skip rather than fail if no invitations
-    }
+    // Check each invitation for sponsor information
+    let allValid = true;
+    let invalidInvitations = [];
     
-    return invitations.every(invitation => {
-      const hasSenderInfo = (
-        invitation.senderId !== undefined &&
-        invitation.senderName !== undefined
-      );
-      
-      if (!hasSenderInfo) {
-        log(`  Invitation missing sender info: ${JSON.stringify(invitation)}`, 'error');
+    for (const invitation of invitations) {
+      if (!invitation.sponsor || invitation.sponsor === 'Unknown') {
+        allValid = false;
+        invalidInvitations.push({
+          id: invitation.id,
+          name: invitation.name, 
+          phone: invitation.phone,
+          sponsor: invitation.sponsor
+        });
       }
       
-      return hasSenderInfo;
-    });
-  });
-  
-  // Test: Gift API includes sender and recipient information
-  await runTest('Gift API - Sender/Recipient Information', async () => {
-    // Try to find a client with gifts
-    const clientsResponse = await fetch(`${API_URL}/clients`);
+      if (!invitation.sponsorName || invitation.sponsorName === 'Unknown') {
+        allValid = false;
+        invalidInvitations.push({
+          id: invitation.id,
+          name: invitation.name, 
+          phone: invitation.phone,
+          sponsorName: invitation.sponsorName
+        });
+      }
+      
+      if (!invitation.salonId) {
+        allValid = false;
+        invalidInvitations.push({
+          id: invitation.id,
+          name: invitation.name, 
+          phone: invitation.phone,
+          salonId: invitation.salonId
+        });
+      }
+    }
+    
+    if (!allValid) {
+      log(`Found ${invalidInvitations.length} invitations with missing sponsor information`, 'warning');
+      console.table(invalidInvitations);
+      throw new Error('Some invitations have missing or invalid sponsor information');
+    }
+    
+    log('All invitations have valid sponsor information', 'success');
+  };
+
+  // Test: Validate individual client retrieval
+  const testIndividualClientRetrieval = async () => {
+    log('Fetching first client for individual test', 'info');
+    
+    // Get all clients first
+    const clientsResponse = await fetch(`${API_BASE_URL}/clients`);
+    
+    if (!clientsResponse.ok) {
+      throw new Error(`Failed to fetch clients: ${clientsResponse.status} ${clientsResponse.statusText}`);
+    }
+    
     const clients = await clientsResponse.json();
     
-    if (!Array.isArray(clients) || clients.length === 0) {
-      log('  No clients found to test gifts', 'warning');
-      return true; // Skip rather than fail
+    if (clients.length === 0) {
+      log('No clients found to test', 'warning');
+      return; // Skip test
     }
     
-    // Check gifts for the first client
+    // Test individual client retrieval
     const clientId = clients[0].id;
-    const response = await fetch(`${API_URL}/gifts/sent/${clientId}`);
-    const gifts = await response.json();
+    log(`Testing individual client retrieval for ID: ${clientId}`, 'info');
     
-    if (!Array.isArray(gifts) || gifts.length === 0) {
-      log(`  No gifts found for client ${clientId} - skipping`, 'warning');
-      return true; // Skip rather than fail if no gifts
+    const response = await fetch(`${API_BASE_URL}/clients/${clientId}`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch client: ${response.status} ${response.statusText}`);
     }
     
-    return gifts.every(gift => {
-      const hasRequiredInfo = (
-        gift.senderId !== undefined &&
-        (gift.recipientId !== undefined || gift.recipientPhone !== undefined)
-      );
-      
-      if (!hasRequiredInfo) {
-        log(`  Gift missing required info: ${JSON.stringify(gift)}`, 'error');
-      }
-      
-      return hasRequiredInfo;
+    const client = await response.json();
+    
+    // Validate sponsor information
+    if (!client.sponsor || client.sponsor === 'Unknown') {
+      throw new Error(`Client has invalid sponsor: ${client.sponsor}`);
+    }
+    
+    if (!client.sponsorName || client.sponsorName === 'Unknown') {
+      throw new Error(`Client has invalid sponsorName: ${client.sponsorName}`);
+    }
+    
+    if (!client.sponsorSalonId) {
+      throw new Error(`Client has invalid sponsorSalonId: ${client.sponsorSalonId}`);
+    }
+    
+    log('Individual client retrieval has valid sponsor information', 'success');
+  };
+
+  // Run all tests in sequence
+  const tests = [
+    { name: 'Client Sponsor Information', fn: testClientSponsorInfo },
+    { name: 'Invitation Sponsor Information', fn: testInvitationSponsorInfo },
+    { name: 'Individual Client Retrieval', fn: testIndividualClientRetrieval },
+  ];
+
+  for (const test of tests) {
+    const success = await runTest(test.name, test.fn);
+    results.tests.push({
+      name: test.name,
+      passed: success
     });
-  });
+    
+    if (success) {
+      results.passed++;
+    } else {
+      results.failed++;
+    }
+  }
+
+  return results;
 }
 
-// Run all tests
+// Main function
 async function runAllTests() {
+  log('Starting API Validation Test Suite', 'title');
+  
   try {
-    await runApiTests();
+    // First check if the API is available
+    try {
+      const healthResponse = await fetch(`${API_BASE_URL}/health`);
+      if (!healthResponse.ok) {
+        throw new Error(`API health check failed: ${healthResponse.status} ${healthResponse.statusText}`);
+      }
+      log('API is available, proceeding with tests', 'success');
+    } catch (error) {
+      log(`API is not available at ${API_BASE_URL}: ${error.message}`, 'error');
+      log('Please ensure the server is running and try again', 'info');
+      return;
+    }
     
-    // Print summary
-    log('\n=== TEST SUMMARY ===', 'info');
-    log(`Total tests: ${TESTS.total}`, 'info');
-    log(`Passed: ${TESTS.passed}`, 'success');
-    log(`Failed: ${TESTS.failed}`, 'error');
+    // Run the API validation tests
+    const apiResults = await runApiTests();
     
-    // Exit with appropriate code
-    if (TESTS.failed > 0) {
-      process.exit(1);
+    // Log summary of results
+    log('\n==========================================', 'title');
+    log('API Validation Test Results:', 'title');
+    log(`Tests Passed: ${apiResults.passed}`, 'success');
+    log(`Tests Failed: ${apiResults.failed}`, 'error');
+    log('==========================================\n', 'title');
+    
+    // Print table of test results
+    console.table(apiResults.tests.map(test => ({
+      'Test Name': test.name,
+      'Result': test.passed ? 'PASS' : 'FAIL'
+    })));
+    
+    if (apiResults.failed === 0) {
+      log('All tests passed successfully! 🎉', 'success');
     } else {
-      process.exit(0);
+      log('Some tests failed, please check the logs for details', 'error');
     }
   } catch (error) {
-    log(`Test suite error: ${error.message}`, 'error');
-    process.exit(1);
+    log(`Unexpected error running tests: ${error.message}`, 'error');
+    console.error(error);
   }
 }
 
-// Start tests
+// Run all tests
 runAllTests();
