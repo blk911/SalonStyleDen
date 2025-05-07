@@ -610,7 +610,7 @@ export class DatabaseStorage implements IStorage {
           zipCode: result.rows[0].zip_code,
           type: result.rows[0].type,
           salonId: result.rows[0].salon_id,
-          sponsorId: result.rows[0].sponsor_id,
+          // Sponsor data is already included as sponsor field
           sponsorName: result.rows[0].sponsor_name,
           sponsorSalonId: result.rows[0].sponsor_salon_id,
           notes: result.rows[0].notes,
@@ -865,6 +865,10 @@ export class DatabaseStorage implements IStorage {
           firstServiceDate: row.first_service_date,
           createdAt: row.created_at,
           favoriteServices: row.favorite_services,
+          // Required fields from schema
+          styleOption: row.style_option || null,
+          stylePrice: row.style_price || null,
+          styleDuration: row.style_duration || null,
           // Add the senderId property, using row value if column exists or provided value
           senderId: (senderIdColumnExists && row.sender_id) ? row.sender_id : invitationData.senderId || null
         };

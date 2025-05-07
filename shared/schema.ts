@@ -51,7 +51,7 @@ export const clients = pgTable("clients", {
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
   salonId: integer("salon_id"), // Reference to salon if client belongs to one
   salonName: text("salon_name"), // Name of the salon for display purposes
-  sponsor: text("sponsor").default("Ven Me, Baby! LTD"), // Sponsor name with default
+  sponsor: text("sponsor").default("VMB, LTD"), // Sponsor name with default
   sponsorName: text("sponsor_name"), // Name of the sponsor (client who invited)
   sponsorSalonId: integer("sponsor_salon_id"), // Reference to the salon that sponsored this client
   type: text("type").notNull().default("client"),
@@ -76,7 +76,7 @@ export const invitations = pgTable("invitations", {
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
   salonId: integer("salon_id"), // Reference to salon sending the invitation
   senderId: integer("sender_id"), // Reference to the client who sent the invitation
-  sponsor: text("sponsor"),
+  sponsor: text("sponsor").default("VMB, LTD"),
   inviteHash: text("invite_hash").unique(), // Unique hash identifier for tracking invitations
   status: text("status").notNull().default("pending"), // pending, accepted, declined
   firstServiceDate: text("first_service_date"), // Date of first service (if scheduled)
