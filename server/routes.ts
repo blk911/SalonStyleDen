@@ -2006,6 +2006,174 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Gift management endpoints
+  // Get gifts sent by a client
+  apiRouter.get("/gifts/sent/:clientId", async (req: Request, res: Response) => {
+    try {
+      const { clientId } = req.params;
+      
+      if (!clientId || isNaN(Number(clientId))) {
+        return res.status(400).json({
+          error: "Invalid client ID"
+        });
+      }
+      
+      console.log(`[API] GET /gifts/sent/${clientId} - Fetching gifts sent by client ID ${clientId}`);
+      const sentGifts = await storage.getSentGifts(Number(clientId));
+      console.log(`[API] GET /gifts/sent/${clientId} - Found ${sentGifts.length} gifts`);
+      
+      return res.json(sentGifts);
+    } catch (error) {
+      console.error("Error fetching sent gifts:", error);
+      return res.status(500).json({
+        error: "Server error while fetching sent gifts"
+      });
+    }
+  });
+
+  // Get gifts received by a client
+  apiRouter.get("/gifts/received/:clientId", async (req: Request, res: Response) => {
+    try {
+      const { clientId } = req.params;
+      
+      if (!clientId || isNaN(Number(clientId))) {
+        return res.status(400).json({
+          error: "Invalid client ID"
+        });
+      }
+      
+      console.log(`[API] GET /gifts/received/${clientId} - Fetching gifts received by client ID ${clientId}`);
+      const receivedGifts = await storage.getReceivedGifts(Number(clientId));
+      console.log(`[API] GET /gifts/received/${clientId} - Found ${receivedGifts.length} gifts`);
+      
+      return res.json(receivedGifts);
+    } catch (error) {
+      console.error("Error fetching received gifts:", error);
+      return res.status(500).json({
+        error: "Server error while fetching received gifts"
+      });
+    }
+  });
+
+  // Get a specific gift by ID
+  apiRouter.get("/gifts/:id", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      if (!id || isNaN(Number(id))) {
+        return res.status(400).json({
+          error: "Invalid gift ID"
+        });
+      }
+      
+      console.log(`[API] GET /gifts/${id} - Fetching gift details`);
+      const gift = await storage.getGift(Number(id));
+      
+      if (!gift) {
+        return res.status(404).json({
+          error: "Gift not found"
+        });
+      }
+      
+      return res.json(gift);
+    } catch (error) {
+      console.error("Error fetching gift:", error);
+      return res.status(500).json({
+        error: "Server error while fetching gift"
+      });
+    }
+  });
+
+  // Create a new gift
+  apiRouter.post("/gifts", async (req: Request, res: Response) => {
+    try {
+      console.log(`[API] POST /gifts - Creating new gift`);
+      const giftData = giftInputSchema.parse(req.body);
+      
+      // Create the gift
+      const gift = await storage.createGift(giftData);
+      console.log(`[API] POST /gifts - Gift created successfully with ID ${gift.id}`);
+      
+      return res.status(201).json(gift);
+    } catch (error) {
+      console.error("Error creating gift:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          error: "Invalid gift data",
+          details: error.errors
+        });
+      }
+      return res.status(500).json({
+        error: "Server error while creating gift"
+      });
+    }
+  });
+
+  // Update gift status
+  apiRouter.patch("/gifts/:id/status", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      if (!id || isNaN(Number(id))) {
+        return res.status(400).json({
+          error: "Invalid gift ID"
+        });
+      }
+      
+      if (!status || typeof status !== 'string') {
+        return res.status(400).json({
+          error: "Status is required and must be a string"
+        });
+      }
+      
+      console.log(`[API] PATCH /gifts/${id}/status - Updating gift status to ${status}`);
+      const updatedGift = await storage.updateGiftStatus(Number(id), status);
+      console.log(`[API] PATCH /gifts/${id}/status - Gift status updated successfully`);
+      
+      return res.json(updatedGift);
+    } catch (error) {
+      console.error("Error updating gift status:", error);
+      return res.status(500).json({
+        error: "Server error while updating gift status"
+      });
+    }
+  });
+
+  // Check if a phone number has any unredeemed gifts
+  apiRouter.get("/gifts/check-phone/:phone", async (req: Request, res: Response) => {
+    try {
+      const { phone } = req.params;
+      
+      if (!phone) {
+        return res.status(400).json({
+          error: "Phone number is required"
+        });
+      }
+      
+      console.log(`[API] GET /gifts/check-phone/${phone} - Checking for unredeemed gifts`);
+      const gift = await storage.checkUnredeemedGiftByPhone(phone);
+      
+      if (gift) {
+        console.log(`[API] GET /gifts/check-phone/${phone} - Found unredeemed gift with ID ${gift.id}`);
+        return res.json({
+          hasUnredeemedGift: true,
+          gift
+        });
+      }
+      
+      console.log(`[API] GET /gifts/check-phone/${phone} - No unredeemed gifts found`);
+      return res.json({
+        hasUnredeemedGift: false
+      });
+    } catch (error) {
+      console.error("Error checking for unredeemed gifts:", error);
+      return res.status(500).json({
+        error: "Server error while checking for unredeemed gifts"
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
