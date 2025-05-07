@@ -110,6 +110,7 @@ interface Invitation {
   salonId: number;
   salonName?: string;
   sponsor?: string;
+  sponsorName?: string;
   status: string;
   firstServiceDate?: string;
   createdAt: string;
@@ -448,7 +449,7 @@ export default function ClientDashboard() {
                       <div className="space-y-4">
                         <div>
                           <p className="text-sm text-gray-500">From:</p>
-                          <p className="font-medium">{invitation.sponsor || "Tiffany 5280 Nails Studio"}</p>
+                          <p className="font-medium">{invitation.sponsorName || invitation.sponsor || "Tiffany 5280 Nails Studio"}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-500">Message:</p>
@@ -465,7 +466,7 @@ export default function ClientDashboard() {
                         inviteId={invitation.inviteHash || `inv-${invitation.id}`}
                         recipientName={invitation.name}
                         styleOption={invitation.favoriteServices?.[0] || ""}
-                        senderName={invitation.sponsor || "Your Stylist"}
+                        senderName={invitation.sponsorName || invitation.sponsor || "Your Stylist"}
                         salonName={invitation.salonName}
                         imageUrl={"/assets/french-tips.png"}
                         salonInitiated={!invitation.senderId}

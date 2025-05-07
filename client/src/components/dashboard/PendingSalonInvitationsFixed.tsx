@@ -27,6 +27,7 @@ interface Invitation {
   salonId: number | null;
   senderId?: number | null;
   sponsor: string | null;
+  sponsorName?: string | null;
   status: string;
   inviteHash: string;
   createdAt: string;
@@ -204,9 +205,9 @@ export default function PendingSalonInvitations({
               )}
             </div>
             
-            {invitation.sponsor && (
+            {(invitation.sponsorName || invitation.sponsor) && (
               <div className="text-xs text-gray-500 mt-1">
-                <span>From: {invitation.sponsor}</span>
+                <span>From: {invitation.sponsorName || invitation.sponsor}</span>
               </div>
             )}
             
@@ -231,7 +232,7 @@ export default function PendingSalonInvitations({
             <DialogDescription>
               {selectedInvitation?.senderId ?
                 `You created this gift request for ${selectedInvitation?.name}` :
-                `${selectedInvitation?.sponsor} has sent you a Ven Me, Baby! invitation`}
+                `${selectedInvitation?.sponsorName || selectedInvitation?.sponsor || "Your Stylist"} has sent you a Ven Me, Baby! invitation`}
             </DialogDescription>
           </DialogHeader>
           
@@ -243,7 +244,7 @@ export default function PendingSalonInvitations({
                 styleOption={selectedInvitation.styleOption || "Selected Style"}
                 price={selectedInvitation.stylePrice ? `$${selectedInvitation.stylePrice}` : "$45"}
                 time={selectedInvitation.styleDuration ? `${selectedInvitation.styleDuration} min` : "30 min"}
-                senderName={selectedInvitation.sponsor || "Your Stylist"}
+                senderName={selectedInvitation.sponsorName || selectedInvitation.sponsor || "Your Stylist"}
                 imageUrl={selectedInvitation.styleImageUrl || "/assets/french-tips.png"}
                 salonInitiated={!selectedInvitation.senderId} // salonInitiated = true when no senderId (salon sent it)
                 onSendGift={isClientRegistered ? () => {

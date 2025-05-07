@@ -77,6 +77,7 @@ export const invitations = pgTable("invitations", {
   salonId: integer("salon_id"), // Reference to salon sending the invitation
   senderId: integer("sender_id"), // Reference to the client who sent the invitation
   sponsor: text("sponsor").default("VMB LTD"),
+  sponsorName: text("sponsor_name"), // Name of the sponsor (client or salon who invited)
   inviteHash: text("invite_hash").unique(), // Unique hash identifier for tracking invitations
   status: text("status").notNull().default("pending"), // pending, accepted, declined
   firstServiceDate: text("first_service_date"), // Date of first service (if scheduled)
