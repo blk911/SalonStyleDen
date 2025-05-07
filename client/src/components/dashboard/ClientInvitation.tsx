@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/utils";
 import { 
   AlertCircle, 
   ChevronDown, 
@@ -84,15 +85,7 @@ interface ClientInvitationProps {
   salonId?: number;
 }
 
-// Helper function to format phone numbers
-function formatPhoneNumber(phoneNumberString: string) {
-  const cleaned = phoneNumberString.replace(/\D/g, '');
-  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-  if (match) {
-    return `(${match[1]}) ${match[2]}-${match[3]}`;
-  }
-  return phoneNumberString;
-}
+// We now use the standardized formatPhoneNumber and cleanPhoneNumber utilities from @/lib/utils
 
 // Helper function to format dates
 function formatDate(dateString: string | undefined) {
@@ -156,19 +149,10 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const [phoneExists, setPhoneExists] = useState(false);
   const [emailExists, setEmailExists] = useState(false);
   
-  // Format a phone number with common US format
+  // Format a phone number using the standard utility
   const formatContactPhone = (input: string) => {
-    // Keep only digits
-    const cleaned = input.replace(/\D/g, '');
-    
-    // Format as (XXX) XXX-XXXX
-    if (cleaned.length <= 3) {
-      return cleaned;
-    } else if (cleaned.length <= 6) {
-      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
-    } else {
-      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
-    }
+    // Use the standardized utility for consistent formatting across the app
+    return formatPhoneNumber(input);
   };
   
   // Validate contact info against API
@@ -297,7 +281,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     setPhone(formatted);
     
     // Validate if the phone number is complete
-    const cleanPhone = formatted.replace(/\D/g, '');
+    const cleanPhone = cleanPhoneNumber(formatted);
     if (cleanPhone.length === 10) {
       // Small delay to prevent too many API calls
       setTimeout(() => {
@@ -332,7 +316,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         return;
       }
       
-      const cleanPhone = phone.replace(/\D/g, '');
+      const cleanPhone = cleanPhoneNumber(phone);
       if (cleanPhone.length !== 10) {
         throw new Error('Phone number must be 10 digits');
       }
@@ -584,7 +568,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                     value={phone}
                     onChange={handlePhoneChange}
                     onBlur={() => {
-                      const cleanPhone = phone.replace(/\D/g, '');
+                      const cleanPhone = cleanPhoneNumber(phone);
                       if (cleanPhone.length === 10) {
                         validateContact('phone', cleanPhone);
                       }
