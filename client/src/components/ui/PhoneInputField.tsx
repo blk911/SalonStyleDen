@@ -203,7 +203,7 @@ export function PhoneInputField({
     return () => {
       resetValidation();
     };
-  }, [resetValidation]);
+  }, []); // Empty dependency array to prevent unnecessary re-renders
 
   return (
     <>

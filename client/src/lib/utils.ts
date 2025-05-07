@@ -117,7 +117,8 @@ export async function validateClientContact(contact: string): Promise<{
     const payload = {
       phone: contactType === 'phone' ? cleanedContact : '',
       email: contactType === 'email' ? cleanedContact : '',
-      type: 'client'
+      type: 'client',
+      context: 'registration' // Add context parameter for gift validation
     };
     
     const response = await fetch('/api/validate-contact', {
