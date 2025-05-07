@@ -112,13 +112,12 @@ export default function ClientRegistrationPage() {
     
   const salonId = salonIdParam ? parseInt(salonIdParam, 10) : undefined;
   
-  // State management for address dialog and form submission
-  const [showAddressDialog, setShowAddressDialog] = useState(false);
-  const [addressDialogShown, setAddressDialogShown] = useState(false);
+  // State management for form submission
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [registeredClientId, setRegisteredClientId] = useState<number | null>(null);
   const [isExistingClient, setIsExistingClient] = useState(false);
+  // Note: Address dialog state variables removed
   
   // We'll use a direct approach to the terms checkbox element
   const focusTermsCheckbox = () => {
@@ -300,9 +299,13 @@ export default function ClientRegistrationPage() {
           // Check if we need to show the address dialog
           if (requiresAddress) {
             logFlow('Gift requires address information');
-            // Show the address dialog with updated title and description
-            setShowAddressDialog(true);
-            setAddressDialogShown(true);
+            // Address dialog functionality removed
+            // Show toast notification instead
+            toast({
+              title: 'Gift Available!',
+              description: 'Complete registration to view your gift in your dashboard.',
+              variant: 'default',
+            });
           }
         }
       } catch (error) {
@@ -311,31 +314,7 @@ export default function ClientRegistrationPage() {
     }
   };
   
-  // Function to handle Later button click in address dialog
-  const handleLaterClick = () => {
-    logFlow('Later button clicked in address dialog');
-    
-    // Close the dialog
-    setShowAddressDialog(false);
-    setAddressDialogShown(true);
-    
-    // Set data attribute on body to indicate dialog was shown
-    document.body.setAttribute('data-address-shown', 'true');
-    logFlow('Dialog closed, data-address-shown attribute set to true');
-    
-    // CRITICAL FIX: Manually continue form submission after dialog is closed
-    setTimeout(() => {
-      logFlow('CRITICAL FIX: Manually continuing form submission after address dialog');
-      const formData = form.getValues();
-      console.log('Form data for manual submission:', formData);
-      
-      // Manually submit the form with the current values
-      form.handleSubmit(onSubmit)();
-    }, 100);
-    
-    // Focus directly on terms checkbox in case manual submission doesn't work
-    focusTermsCheckbox();
-  };
+  // Address dialog handling removed as requested
   
   // Handle form submission - IMPROVED with better error handling and debugging
   const onSubmit = async (data: ClientFormValues) => {
@@ -358,56 +337,25 @@ export default function ClientRegistrationPage() {
         hasAddress: Boolean(data.address || data.city || data.state || data.zipCode)
       });
       
-      // First, reset the dialog state on each form submission attempt 
-      // to ensure consistent behavior even after multiple form submissions
+      // Clean up any leftover address state attributes
       if (document.body.hasAttribute('data-address-shown')) {
-        logFlow('Resetting address dialog state for new submission');
+        logFlow('Cleaning up address state attributes');
         document.body.removeAttribute('data-address-shown');
-        setAddressDialogShown(false);
       }
       
-      // Check if address fields should be prompted but are empty
-      const hasNoAddress = !data.address && !data.city && !data.state && !data.zipCode;
+      // Skip address popup dialog as requested
+      logFlow('Address dialog skipped per client request');
       
-      // If client has an unredeemed gift, they MUST provide address information
-      if (hasUnredeemedGift && hasNoAddress) {
-        logFlow('Client has unredeemed gift but no address provided - showing gift address dialog');
+      // If client has an unredeemed gift, inform them they can add address in dashboard
+      if (hasUnredeemedGift) {
+        logFlow('Client has unredeemed gift - showing notification about adding address in dashboard');
         
-        // Show toast to inform user they need to add address
+        // Show toast to inform user they need to add address later
         toast({
-          title: 'Address Required for Gift',
-          description: 'Please provide your address information to redeem your gift.',
-          variant: 'destructive',
+          title: 'Complete Your Gift Profile',
+          description: 'You can add your address later from your dashboard to receive your gift.',
+          variant: 'default',
         });
-        
-        // Show address dialog with gift redemption context
-        setShowAddressDialog(true);
-        setAddressDialogShown(true);
-        document.body.setAttribute('data-address-shown', 'true');
-        
-        logFlow('Gift address dialog opened, submission halted until address provided');
-        return; // Don't proceed with form submission until address is provided
-      }
-      
-      // For non-gift clients, still show address dialog if address is empty (but they can skip)
-      const shouldShowAddressPrompt = hasNoAddress && !addressDialogShown && !hasUnredeemedGift;
-      
-      // If address is empty and dialog hasn't been shown yet, show the address dialog and halt submission
-      if (shouldShowAddressPrompt) {
-        logFlow('Address fields empty, showing standard address dialog');
-        logFlow('Address dialog state', {
-          hasNoAddress,
-          addressDialogShown,
-          shouldShowAddressPrompt,
-          hasUnredeemedGift
-        });
-        
-        setShowAddressDialog(true);
-        setAddressDialogShown(true);
-        document.body.setAttribute('data-address-shown', 'true');
-        
-        logFlow('Address dialog opened, submission halted until address provided or skipped');
-        return; // Don't proceed with form submission until address is provided or skipped
       }
       
       logFlow('Address validation passed, continuing with form submission');
@@ -1004,217 +952,7 @@ export default function ClientRegistrationPage() {
       </main>
       
       {/* Address Collection Dialog */}
-      <Dialog 
-        open={showAddressDialog} 
-        onOpenChange={(open) => {
-          // Only allow closing via the buttons if there's an unredeemed gift
-          if (!open && hasUnredeemedGift) {
-            // Prevent dialog from closing if client has an unredeemed gift
-            toast({
-              title: "Address Required",
-              description: "Your address is required to redeem your gift.",
-              variant: "destructive"
-            });
-            return;
-          }
-          setShowAddressDialog(open);
-        }}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {hasUnredeemedGift 
-                ? "Add Your Address to Redeem Your Gift" 
-                : "Add Your Address"}
-            </DialogTitle>
-            <DialogDescription>
-              {hasUnredeemedGift 
-                ? "Your address is required to deliver your gift. Please complete all fields."
-                : "Adding your address helps us provide more personalized service recommendations."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Street Address</FormLabel>
-                  <FormControl>
-                    <Input 
-                      {...field} 
-                      placeholder="123 Main St" 
-                      onClick={(e) => {
-                        // Stop event propagation to prevent dialog from closing
-                        e.stopPropagation();
-                      }}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            
-            <div className="grid grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem className="col-span-1">
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        placeholder="City" 
-                        onClick={(e) => {
-                          // Stop event propagation to prevent dialog from closing
-                          e.stopPropagation();
-                        }}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="state"
-                render={({ field }) => (
-                  <FormItem className="col-span-1">
-                    <FormLabel>State</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        placeholder="State" 
-                        maxLength={2} 
-                        onClick={(e) => {
-                          // Stop event propagation to prevent dialog from closing
-                          e.stopPropagation();
-                        }}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="zipCode"
-                render={({ field }) => (
-                  <FormItem className="col-span-1">
-                    <FormLabel>Zip Code</FormLabel>
-                    <FormControl>
-                      <Input 
-                        {...field} 
-                        placeholder="Zip" 
-                        maxLength={10}
-                        onClick={(e) => {
-                          // Stop event propagation to prevent dialog from closing
-                          e.stopPropagation();
-                        }}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          // Allow only numbers and hyphens
-                          if (/^[\d-]*$/.test(value)) {
-                            field.onChange(value);
-                          }
-                        }}
-                        onBlur={(e) => {
-                          const value = e.target.value;
-                          // Validate zip code format on blur
-                          if (value && !/^\d{5}(-\d{4})?$/.test(value)) {
-                            toast({
-                              title: "Invalid ZIP Code",
-                              description: "Please use format 12345 or 12345-6789",
-                              variant: "destructive"
-                            });
-                          }
-                          field.onBlur();
-                        }}
-                      />
-                    </FormControl>
-                    <FormDescription className="text-xs">
-                      Format: 12345 or 12345-6789
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Additional Notes</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      {...field} 
-                      placeholder="Any special requests or information you'd like to share" 
-                      className="min-h-[80px]"
-                      onClick={(e) => {
-                        // Stop event propagation to prevent dialog from closing
-                        e.stopPropagation();
-                      }}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
-          <DialogFooter className="flex justify-between">
-            {/* Only show Later button if there's no unredeemed gift */}
-            {!hasUnredeemedGift && (
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={handleLaterClick}
-              >
-                Later
-              </Button>
-            )}
-            {/* If there is an unredeemed gift, show a disabled button as a spacer */}
-            {hasUnredeemedGift && (
-              <div className="text-sm text-red-600 font-medium flex items-center">
-                <span>* Address required for gift</span>
-              </div>
-            )}
-            <Button 
-              type="button"
-              variant={hasUnredeemedGift ? "default" : "default"}
-              onClick={() => {
-                try {
-                  // Get the current form values
-                  const formValues = form.getValues();
-                  
-                  // First, close the dialog and update state
-                  setShowAddressDialog(false);
-                  setAddressDialogShown(true);
-                  document.body.setAttribute('data-address-shown', 'true');
-                  
-                  // Log that we're about to continue with form submission
-                  logFlow('Address saved, continuing with form submission');
-                  
-                  // Give the dialog time to close before submitting
-                  // This prevents UI glitches during form submission
-                  setTimeout(() => {
-                    form.handleSubmit(onSubmit)();
-                  }, 100);
-                } catch (error) {
-                  console.error('Error in Save & Continue handler:', error);
-                  toast({
-                    title: 'Form Error',
-                    description: 'There was a problem continuing with registration. Please try again.',
-                    variant: 'destructive',
-                  });
-                }
-              }}
-            >
-              {hasUnredeemedGift ? "Save Address & Redeem Gift" : "Save & Continue"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Address dialog removed as requested */}
       
       <Footer />
     </div>
