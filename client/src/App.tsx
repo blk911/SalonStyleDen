@@ -21,6 +21,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import TestImagePage from "@/pages/TestImagePage";
 import NetworkVisualization from "@/pages/NetworkVisualization";
 import MadgeVisualizationPage from "@/pages/MadgeVisualizationPage";
+import DependencyVisualizer from "@/pages/DependencyVisualizer";
 import InvitationPage from "@/pages/InvitationPage";
 import InvitationPreview from "@/pages/InvitationPreview";
 import ClientRegistrationPage from "@/pages/ClientRegistrationPage";
@@ -57,6 +58,7 @@ function Router() {
       <Route path="/test-image/:id" component={TestImagePage} />
       <Route path="/network-visualization" component={NetworkVisualization} />
       <Route path="/madge-visualization" component={MadgeVisualizationPage} />
+      <Route path="/dependencies" component={DependencyVisualizer} />
       <Route path="/testfinalstep3" component={TestFinalStep3} />
       <Route component={NotFound} />
     </Switch>

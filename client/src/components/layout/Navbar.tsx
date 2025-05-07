@@ -91,6 +91,9 @@ export default function Navbar() {
               <Link href="/home">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">TEMP-A</div>
               </Link>
+              <Link href="/dependencies">
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Dependencies</div>
+              </Link>
               <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
             </div>
             <LoadingIndicator />
@@ -125,6 +128,9 @@ export default function Navbar() {
           {/* TEMP-A LINK ADDED PER USER REQUEST */}
           <Link href="/home">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">TEMP-A</div>
+          </Link>
+          <Link href="/dependencies">
+            <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Dependencies</div>
           </Link>
           <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
         </div>
