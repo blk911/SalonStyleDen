@@ -209,10 +209,41 @@ export const appointmentsRelations = relations(appointments, ({ one }) => ({
   })
 }));
 
+// Gifts schema
+export const gifts = pgTable("gifts", {
+  id: serial("id").primaryKey(),
+  senderId: integer("sender_id").notNull().references(() => clients.id),
+  recipientId: integer("recipient_id").references(() => clients.id),
+  recipientPhone: text("recipient_phone"),
+  recipientEmail: text("recipient_email"),
+  giftType: text("gift_type").notNull().default("style_card"),
+  styleId: integer("style_id"),
+  styleName: text("style_name"),
+  amount: integer("amount").notNull(), // Amount in cents
+  message: text("message"),
+  status: text("status").notNull().default("created"), // created, sent, redeemed
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  redeemedAt: timestamp("redeemed_at"),
+});
+
+// Add relations for gifts
+export const giftsRelations = relations(gifts, ({ one }) => ({
+  sender: one(clients, {
+    fields: [gifts.senderId],
+    references: [clients.id]
+  }),
+  recipient: one(clients, {
+    fields: [gifts.recipientId],
+    references: [clients.id]
+  })
+}));
+
 // Insert schemas for new tables
 export const insertStyleSelectionSchema = createInsertSchema(styleSelections).omit({ id: true });
 export const insertActivityLogSchema = createInsertSchema(activityLogs).omit({ id: true });
 export const insertAppointmentSchema = createInsertSchema(appointments).omit({ id: true });
+export const insertGiftSchema = createInsertSchema(gifts).omit({ id: true });
 
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -235,3 +266,6 @@ export type ActivityLog = typeof activityLogs.$inferSelect;
 
 export type InsertAppointment = z.infer<typeof insertAppointmentSchema>;
 export type Appointment = typeof appointments.$inferSelect;
+
+export type InsertGift = z.infer<typeof insertGiftSchema>;
+export type Gift = typeof gifts.$inferSelect;
