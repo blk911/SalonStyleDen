@@ -5,7 +5,8 @@ import {
   invitations, type Invitation, type InsertInvitation,
   styleSelections, type StyleSelection, type InsertStyleSelection,
   activityLogs, type ActivityLog, type InsertActivityLog,
-  appointments, type Appointment, type InsertAppointment
+  appointments, type Appointment, type InsertAppointment,
+  gifts, type Gift, type InsertGift
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, sql } from "drizzle-orm";
@@ -87,6 +88,15 @@ export interface IStorage {
   getSalonAppointments(salonId: number): Promise<Appointment[]>;
   getInvitationAppointments(invitationId: number): Promise<Appointment[]>;
   updateAppointmentStatus(id: number, status: string): Promise<Appointment>;
+  
+  // Gift methods
+  createGift(gift: InsertGift): Promise<Gift>;
+  getGift(id: number): Promise<Gift | undefined>;
+  getGiftByRecipientPhone(phone: string): Promise<Gift | undefined>;
+  getSentGifts(senderId: number): Promise<Gift[]>;
+  getReceivedGifts(recipientId: number): Promise<Gift[]>;
+  updateGiftStatus(id: number, status: string): Promise<Gift>;
+  checkUnredeemedGiftByPhone(phone: string): Promise<{hasUnredeemedGift: boolean, gift?: Gift}>;
 }
 
 // Copy over all the implementation from old storage.ts then add getSalonsTable method at the end
@@ -1353,7 +1363,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
   
-  async validateRegistration(phone: string, email: string, excludeId?: number): Promise<{isValid: boolean, message?: string}> {
+  async validateRegistration(phone: string, email: string, excludeId?: number): Promise<{isValid: boolean, message?: string, hasUnredeemedGift?: boolean, requiresAddress?: boolean}> {
     try {
       // For registration, we want to be strict about duplicates
       const duplicateCheck = await this.isDuplicateContact(phone, email, undefined, excludeId);
@@ -1362,6 +1372,18 @@ export class DatabaseStorage implements IStorage {
         return { 
           isValid: false, 
           message: `This ${duplicateCheck.field} is already registered` 
+        };
+      }
+      
+      // Check if phone number has an unredeemed gift
+      const giftCheck = await this.checkUnredeemedGiftByPhone(phone);
+      
+      if (giftCheck.hasUnredeemedGift) {
+        console.log(`DatabaseStorage.validateRegistration - Found unredeemed gift for phone ${phone}`);
+        return { 
+          isValid: true,
+          hasUnredeemedGift: true,
+          requiresAddress: true  // Require address for gift redemption
         };
       }
       
@@ -1826,6 +1848,156 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('DatabaseStorage.updateAppointmentStatus - Error updating appointment status:', error);
       throw error;
+    }
+  }
+  // Gift methods implementation
+  async createGift(insertGift: InsertGift): Promise<Gift> {
+    try {
+      console.log(`DatabaseStorage.createGift - Creating new gift`);
+      const giftData = {
+        ...insertGift,
+        createdAt: new Date()
+      };
+
+      const result = await db.insert(gifts).values(giftData).returning();
+      
+      console.log(`DatabaseStorage.createGift - Gift created with ID ${result[0].id}`);
+      return result[0];
+    } catch (error) {
+      console.error('Error creating gift:', error);
+      throw error;
+    }
+  }
+
+  async getGift(id: number): Promise<Gift | undefined> {
+    try {
+      console.log(`DatabaseStorage.getGift - Fetching gift with ID ${id}`);
+      const results = await db.select().from(gifts).where(eq(gifts.id, id));
+      return results.length > 0 ? results[0] : undefined;
+    } catch (error) {
+      console.error(`Error getting gift ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async getGiftByRecipientPhone(phone: string): Promise<Gift | undefined> {
+    try {
+      // Standardize phone format - get only digits for comparison
+      const cleanPhone = phone.replace(/\D/g, '');
+      console.log(`DatabaseStorage.getGiftByRecipientPhone - Looking for gift with recipient phone ${cleanPhone} (digits only)`);
+      
+      // Query using regex to match phone numbers regardless of format
+      const results = await db
+        .select()
+        .from(gifts)
+        .where(sql`regexp_replace(${gifts.recipientPhone}, '[^0-9]', '', 'g') = ${cleanPhone}`);
+      
+      console.log(`DatabaseStorage.getGiftByRecipientPhone - Found ${results.length} matching gifts`);
+      
+      return results.length > 0 ? results[0] : undefined;
+    } catch (error) {
+      console.error(`Error getting gift by recipient phone:`, error);
+      throw error;
+    }
+  }
+
+  async getSentGifts(senderId: number): Promise<Gift[]> {
+    try {
+      console.log(`DatabaseStorage.getSentGifts - Fetching gifts sent by client ID ${senderId}`);
+      const results = await db
+        .select()
+        .from(gifts)
+        .where(eq(gifts.senderId, senderId))
+        .orderBy(sql`${gifts.createdAt} DESC`);
+      
+      console.log(`DatabaseStorage.getSentGifts - Found ${results.length} gifts`);
+      return results;
+    } catch (error) {
+      console.error(`Error getting sent gifts:`, error);
+      throw error;
+    }
+  }
+
+  async getReceivedGifts(recipientId: number): Promise<Gift[]> {
+    try {
+      console.log(`DatabaseStorage.getReceivedGifts - Fetching gifts received by client ID ${recipientId}`);
+      const results = await db
+        .select()
+        .from(gifts)
+        .where(eq(gifts.recipientId, recipientId))
+        .orderBy(sql`${gifts.createdAt} DESC`);
+      
+      console.log(`DatabaseStorage.getReceivedGifts - Found ${results.length} gifts`);
+      return results;
+    } catch (error) {
+      console.error(`Error getting received gifts:`, error);
+      throw error;
+    }
+  }
+
+  async updateGiftStatus(id: number, status: string): Promise<Gift> {
+    try {
+      console.log(`DatabaseStorage.updateGiftStatus - Updating gift ID ${id} status to ${status}`);
+      
+      // Get current gift to ensure it exists
+      const currentGift = await this.getGift(id);
+      if (!currentGift) {
+        throw new Error(`Gift with ID ${id} not found`);
+      }
+      
+      // Prepare update data
+      const updateData: Partial<Gift> = {
+        status: status
+      };
+      
+      // Add redeemedAt timestamp if status is being set to 'redeemed'
+      if (status === 'redeemed') {
+        updateData.redeemedAt = new Date();
+      }
+      
+      // Update the gift status in the database
+      const result = await db
+        .update(gifts)
+        .set(updateData)
+        .where(eq(gifts.id, id))
+        .returning();
+      
+      if (result.length === 0) {
+        throw new Error(`Failed to update gift status for ID ${id}`);
+      }
+      
+      console.log(`DatabaseStorage.updateGiftStatus - Gift status updated successfully`);
+      return result[0];
+    } catch (error) {
+      console.error(`Error updating gift status:`, error);
+      throw error;
+    }
+  }
+
+  async checkUnredeemedGiftByPhone(phone: string): Promise<{hasUnredeemedGift: boolean, gift?: Gift}> {
+    try {
+      // Standardize phone format - get only digits for comparison
+      const cleanPhone = phone.replace(/\D/g, '');
+      console.log(`DatabaseStorage.checkUnredeemedGiftByPhone - Checking for unredeemed gift for phone ${cleanPhone}`);
+      
+      // Query for unredeemed gifts with this phone number
+      const results = await db
+        .select()
+        .from(gifts)
+        .where(sql`regexp_replace(${gifts.recipientPhone}, '[^0-9]', '', 'g') = ${cleanPhone}`)
+        .where(eq(gifts.status, 'sent')); // Only check for 'sent' gifts that haven't been redeemed yet
+      
+      const hasUnredeemedGift = results.length > 0;
+      
+      console.log(`DatabaseStorage.checkUnredeemedGiftByPhone - Found ${results.length} unredeemed gifts`);
+      
+      return {
+        hasUnredeemedGift,
+        gift: hasUnredeemedGift ? results[0] : undefined
+      };
+    } catch (error) {
+      console.error(`Error checking unredeemed gift by phone:`, error);
+      return { hasUnredeemedGift: false };
     }
   }
 }
