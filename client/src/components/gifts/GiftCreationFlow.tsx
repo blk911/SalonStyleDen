@@ -11,6 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/utils";
 import { Loader2, SendIcon } from "lucide-react";
 import {
   Dialog,
@@ -648,35 +649,24 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                     type="tel"
                     value={recipientData.phone}
                     onChange={(e) => {
-                      // Apply phone formatting rules from site-wide standard
-                      let phoneValue = e.target.value;
-                      const digits = phoneValue.replace(/\D/g, '');
-                      
-                      // Format the phone number as user types
-                      if (digits.length <= 3) {
-                        phoneValue = digits;
-                      } else if (digits.length <= 6) {
-                        phoneValue = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-                      } else {
-                        phoneValue = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
-                      }
-                      
+                      // Apply phone formatting rules from site-wide standard using the formatPhoneNumber utility
+                      const phoneValue = formatPhoneNumber(e.target.value);
                       setRecipientData({...recipientData, phone: phoneValue});
                     }}
                     required
                     className="flex-1"
                     onBlur={() => {
                       // Validate phone on blur (site-wide standard)
-                      const cleanPhone = recipientData.phone.replace(/\D/g, '');
+                      const cleanPhone = cleanPhoneNumber(recipientData.phone);
                       if (cleanPhone.length === 10) {
-                        // Format consistently when field loses focus
-                        const formattedPhone = `(${cleanPhone.slice(0, 3)}) ${cleanPhone.slice(3, 6)}-${cleanPhone.slice(6, 10)}`;
+                        // Format consistently using the site-wide utility function
+                        const formattedPhone = formatPhoneNumber(cleanPhone);
                         setRecipientData({...recipientData, phone: formattedPhone});
                       }
                     }}
                     onKeyDown={(e) => {
                       // Move to next field on Enter when phone is complete
-                      const cleanPhone = recipientData.phone.replace(/\D/g, '');
+                      const cleanPhone = cleanPhoneNumber(recipientData.phone);
                       if (e.key === 'Enter' && cleanPhone.length >= 10) {
                         e.preventDefault();
                         
