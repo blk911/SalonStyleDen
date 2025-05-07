@@ -598,7 +598,7 @@ export class DatabaseStorage implements IStorage {
         
         console.log(`DatabaseStorage.suspendClient - Client ${id} suspended successfully`);
         
-        // Convert row to Client object
+        // Convert row to Client object with all required fields
         const updatedClient: Client = {
           id: result.rows[0].id,
           name: result.rows[0].name,
@@ -608,6 +608,11 @@ export class DatabaseStorage implements IStorage {
           city: result.rows[0].city,
           state: result.rows[0].state,
           zipCode: result.rows[0].zip_code,
+          // Required fields from schema
+          sponsor: result.rows[0].sponsor || 'VMB LTD',
+          isCurrentClient: result.rows[0].is_current_client || false,
+          acceptedTerms: result.rows[0].accepted_terms || false,
+          salonName: result.rows[0].salon_name || '',
           type: result.rows[0].type,
           salonId: result.rows[0].salon_id,
           // Sponsor data is already included as sponsor field
@@ -730,7 +735,7 @@ export class DatabaseStorage implements IStorage {
     
     // Determine sponsor based on context
     // If this is a client-sent invitation (senderId is set), the sender is the sponsor
-    let sponsorName = insertInvitation.sponsor || 'Ven Me, Baby! LTD';
+    let sponsorName = insertInvitation.sponsor || 'VMB LTD';
     
     if (senderInfo) {
       // Client is sending invitation, they become the sponsor
@@ -762,7 +767,7 @@ export class DatabaseStorage implements IStorage {
     // Set default values for any missing fields
     const invitationData = {
       ...insertInvitation,
-      sponsor: sponsorName || 'Ven Me, Baby! LTD',
+      sponsor: sponsorName || 'VMB LTD',
       status: insertInvitation.status || 'pending',
       createdAt: new Date()
     };
