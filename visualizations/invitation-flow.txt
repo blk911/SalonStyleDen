@@ -1,0 +1,7 @@
+server/routes.ts → server/db.ts
+server/routes.ts → server/routes/appointments.ts
+server/routes.ts → server/routes/license.ts
+server/routes.ts → server/storage.ts
+server/routes/appointments.ts → server/storage.ts
+server/storage.ts → server/db.ts
+server/routes/license.ts → server/storage.ts

@@ -66,9 +66,9 @@ function validateItem(item: any): any {
       item.salonName = item.sponsorName;
     }
     
-    // Ensure sponsorSalonId is set to at least 2 (default salon) if missing
+    // Ensure sponsorSalonId is set to VMB LTD (ID 1) if missing
     if (!item.sponsorSalonId) {
-      item.sponsorSalonId = 2; // Default to Tiffany salon ID
+      item.sponsorSalonId = 1; // Default to VMB LTD salon ID
     }
   }
   
@@ -82,9 +82,9 @@ function validateItem(item: any): any {
       item.sponsorName = 'VMB LTD';
     }
     
-    // Ensure salonId is set to at least 2 (default salon) if missing
+    // Ensure salonId is set to VMB LTD (ID 1) if missing
     if (!item.salonId) {
-      item.salonId = 2; // Default to Tiffany salon ID
+      item.salonId = 1; // Default to VMB LTD salon ID
     }
   }
   
