@@ -51,9 +51,9 @@ export const clients = pgTable("clients", {
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
   salonId: integer("salon_id"), // Reference to salon if client belongs to one
   salonName: text("salon_name"), // Name of the salon for display purposes
-  sponsor: text("sponsor").default("VMB LTD"), // Sponsor name with default
-  sponsorName: text("sponsor_name"), // Name of the sponsor (client who invited)
-  sponsorSalonId: integer("sponsor_salon_id"), // Reference to the salon that sponsored this client
+  sponsor: text("sponsor").notNull().default("VMB LTD"), // Sponsor name with default
+  sponsorName: text("sponsor_name").notNull().default("VMB LTD"), // Name of the sponsor (client who invited)
+  sponsorSalonId: integer("sponsor_salon_id").notNull().references(() => salons.id), // Reference to the salon that sponsored this client
   type: text("type").notNull().default("client"),
   address: text("address"), // Street address
   city: text("city"),
@@ -74,10 +74,10 @@ export const invitations = pgTable("invitations", {
   message: text("message"), // Custom message from the sender
   type: text("type"), // Type of invitation (e.g., "client_invitation")
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
-  salonId: integer("salon_id"), // Reference to salon sending the invitation
+  salonId: integer("salon_id").notNull().references(() => salons.id), // Reference to salon sending the invitation
   senderId: integer("sender_id"), // Reference to the client who sent the invitation
-  sponsor: text("sponsor").default("VMB LTD"),
-  sponsorName: text("sponsor_name"), // Name of the sponsor (client or salon who invited)
+  sponsor: text("sponsor").notNull().default("VMB LTD"),
+  sponsorName: text("sponsor_name").notNull().default("VMB LTD"), // Name of the sponsor (client or salon who invited)
   inviteHash: text("invite_hash").unique(), // Unique hash identifier for tracking invitations
   status: text("status").notNull().default("pending"), // pending, accepted, declined
   firstServiceDate: text("first_service_date"), // Date of first service (if scheduled)
