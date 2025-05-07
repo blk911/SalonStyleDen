@@ -16,6 +16,7 @@ import licenseRoutes from './routes/license';
 import appointmentRoutes from './routes/appointments';
 import createTimestampedBackup from './utils/create-backup';
 import { sponsorValidator } from './middleware/sponsor-validator';
+import { cleanPhoneNumber, isValidPhone, phonesMatch, phoneEndsWithDigits } from './utils';
 
 // Set up multer for file uploads
 const uploadDir = path.join(process.cwd(), 'client/public/uploads');
