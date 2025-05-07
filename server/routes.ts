@@ -7,7 +7,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { db } from "./db";
-import { clients, invitations, type Invitation } from "../shared/schema";
+import { clients, invitations, gifts, type Invitation, type Gift } from "../shared/schema";
 import { eq } from "drizzle-orm";
 import { registerVisualizationRoutes } from "./visualization";
 import { registerMadgeRoutes } from "./madge-api";
@@ -80,6 +80,24 @@ const invitationInputSchema = z.object({
   status: z.string().optional(),
   senderId: z.number().optional(), // Add senderId for client-to-client invitations
   type: z.string().optional() // Type of invitation (e.g., "client_invitation")
+});
+
+const giftInputSchema = z.object({
+  senderId: z.number(),
+  senderName: z.string().optional(),
+  recipientName: z.string(),
+  recipientPhone: z.string().min(10),
+  recipientEmail: z.union([
+    z.string().email(),
+    z.string().length(0),  // Allow empty string
+    z.null()  // Also allow null
+  ]).optional(),
+  message: z.string().optional(),
+  status: z.string().default("sent"),
+  recipientId: z.number().optional(),
+  value: z.number().optional(),
+  expiresAt: z.date().optional(),
+  redeemedAt: z.date().optional()
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
