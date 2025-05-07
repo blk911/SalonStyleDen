@@ -401,7 +401,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Registration context - check for unredeemed gifts first if context is registration
       if (context === 'registration' && phone) {
         // Check if the phone number has an unredeemed gift
-        console.log(`[GIFT CHECK] Checking if phone number ${phone} has unredeemed gifts - context=${context}`);
+        console.log(`Checking if phone number ${phone} has unredeemed gifts`);
         try {
           const giftCheck = await storage.checkUnredeemedGiftByPhone(phone);
           

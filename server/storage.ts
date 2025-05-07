@@ -697,31 +697,6 @@ export class DatabaseStorage implements IStorage {
         }
       }
       
-      // Delete any gifts sent by this client (senderId = id)
-      try {
-        const sentGifts = await db.select().from(gifts).where(eq(gifts.senderId, id));
-        console.log(`DatabaseStorage.deleteClient - Found ${sentGifts.length} gifts to delete first (where client is sender)`);
-        
-        for (const gift of sentGifts) {
-          await db.delete(gifts).where(eq(gifts.id, gift.id));
-          console.log(`DatabaseStorage.deleteClient - Deleted gift ID ${gift.id}`);
-        }
-      } catch (giftError) {
-        console.error(`DatabaseStorage.deleteClient - Error deleting client's sent gifts:`, giftError);
-        // Continue with client deletion anyway
-      }
-      
-      // Update any gifts received by this client (recipientId = id)
-      try {
-        await db.update(gifts)
-          .set({ recipientId: null })
-          .where(eq(gifts.recipientId, id));
-        console.log(`DatabaseStorage.deleteClient - Updated recipient ID for gifts received by client ${id}`);
-      } catch (giftError) {
-        console.error(`DatabaseStorage.deleteClient - Error updating client's received gifts:`, giftError);
-        // Continue with client deletion anyway
-      }
-      
       // Clear clientId from any activity logs referencing this client
       try {
         await db.update(activityLogs)
@@ -2003,16 +1978,7 @@ export class DatabaseStorage implements IStorage {
     try {
       // Standardize phone format - get only digits for comparison
       const cleanPhone = phone.replace(/\D/g, '');
-      console.log(`[GIFT CHECK] DatabaseStorage.checkUnredeemedGiftByPhone - Checking for unredeemed gift for phone ${cleanPhone} (original: ${phone})`);
-      
-      // Debug query - show all gifts in the database
-      const allGifts = await db.select().from(gifts);
-      console.log(`[GIFT CHECK] All gifts in database:`, allGifts.map(g => ({
-        id: g.id,
-        recipientPhone: g.recipientPhone,
-        status: g.status,
-        cleanRecipientPhone: g.recipientPhone ? g.recipientPhone.replace(/\D/g, '') : 'none'
-      })));
+      console.log(`DatabaseStorage.checkUnredeemedGiftByPhone - Checking for unredeemed gift for phone ${cleanPhone}`);
       
       // Query for unredeemed gifts with this phone number
       const results = await db
@@ -2027,10 +1993,7 @@ export class DatabaseStorage implements IStorage {
       
       const hasUnredeemedGift = results.length > 0;
       
-      console.log(`[GIFT CHECK] DatabaseStorage.checkUnredeemedGiftByPhone - Found ${results.length} unredeemed gifts for ${cleanPhone}`);
-      if (hasUnredeemedGift) {
-        console.log(`[GIFT CHECK] Gift found:`, results[0]);
-      }
+      console.log(`DatabaseStorage.checkUnredeemedGiftByPhone - Found ${results.length} unredeemed gifts`);
       
       return {
         hasUnredeemedGift,
