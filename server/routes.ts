@@ -492,7 +492,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             
             if (validatedData.phone) {
               // Standardize phone format for comparison
-              const cleanPhone = validatedData.phone.replace(/\D/g, '');
+              const cleanPhone = cleanPhoneNumber(validatedData.phone);
               
               existingClient = allClients.find(c => 
                 c.phone && c.phone.replace(/\D/g, '') === cleanPhone
@@ -657,14 +657,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Apply phone filter if provided
       if (phoneFilter) {
         // Clean the phone number for comparison
-        const cleanPhoneFilter = phoneFilter.replace(/\D/g, '');
+        const cleanPhoneFilter = cleanPhoneNumber(phoneFilter);
         const isPartialPhone = cleanPhoneFilter.length <= 4;
         
         // Filter clients based on phone number (full or partial)
         clients = clients.filter(client => {
           if (!client.phone) return false;
           
-          const clientPhone = client.phone.replace(/\D/g, '');
+          const clientPhone = cleanPhoneNumber(client.phone);
           
           // If it's a short partial number (4 or fewer digits), match by last digits
           if (isPartialPhone) {
@@ -1476,7 +1476,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // PHONE VALIDATION MODE (simplified flow)
       if (validationMode === 'phone' && phone) {
         // Clean and normalize the phone number
-        const cleanPhone = phone.replace(/\D/g, '');
+        const cleanPhone = cleanPhoneNumber(phone);
         
         // If we have less than 4 digits, we can't validate
         if (cleanPhone.length < 4) {
@@ -1494,7 +1494,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // First try to find exact matches
         const exactMatches = allClients.filter(client => 
-          client.phone && client.phone.replace(/\D/g, '') === cleanPhone
+          phonesMatch(client.phone, cleanPhone)
         );
         
         if (exactMatches.length > 0) {
@@ -1513,7 +1513,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // If no exact match, try last 4 digits
         const partialMatches = allClients.filter(client => 
-          client.phone && client.phone.replace(/\D/g, '').slice(-4) === last4Digits
+          phoneEndsWithDigits(client.phone, last4Digits)
         );
         
         if (partialMatches.length > 0) {
@@ -1561,7 +1561,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Check if a client already exists with this invitation's phone
           if (invitationByHash.phone) {
             const matchingClients = allClients.filter(client => 
-              client.phone && client.phone.replace(/\D/g, '') === invitationByHash.phone.replace(/\D/g, '')
+              client.phone && phonesMatch(client.phone, invitationByHash.phone)
             );
             
             if (matchingClients.length > 0) {
@@ -1625,7 +1625,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Check if there's already a client with this phone
           const clientsWithInvitationPhone = allClients.filter(client => {
             if (!client.phone || !invitation.phone) return false;
-            return client.phone.replace(/\D/g, '') === invitation.phone.replace(/\D/g, '');
+            return phonesMatch(client.phone, invitation.phone);
           });
           
           if (clientsWithInvitationPhone.length > 0) {
