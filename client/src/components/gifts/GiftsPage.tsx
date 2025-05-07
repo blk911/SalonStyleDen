@@ -47,7 +47,7 @@ interface GiftsPageProps {
   salonId?: number;
 }
 
-export default function GiftsPage({ clientId, salonId }: GiftsPageProps) {
+export default function GiftsPage({ clientId }: GiftsPageProps) {
   const [showGiftCreation, setShowGiftCreation] = useState(false);
   const [showSentGifts, setShowSentGifts] = useState(true);
   const [showReceivedGifts, setShowReceivedGifts] = useState(true);
@@ -233,7 +233,7 @@ export default function GiftsPage({ clientId, salonId }: GiftsPageProps) {
                 
                 <div className="flex items-center gap-8 ml-2">
                   <Link
-                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true&source=${salonId ? 'salon' : 'client'}`}
+                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
                     className="text-xs text-amber-600 font-medium hover:text-amber-800 flex items-center gap-1 whitespace-nowrap"
                   >
                     <ExternalLinkIcon className="h-3 w-3" />
@@ -270,8 +270,8 @@ export default function GiftsPage({ clientId, salonId }: GiftsPageProps) {
                             
                             if (!response.ok) throw new Error('Failed to update status');
                             
-                            // Navigate to the invitation preview page with source context
-                            setLocation(`/invitation-preview/${gift.inviteHash}?stayOnPreview=true&source=${salonId ? 'salon' : 'client'}`);
+                            // Navigate to the invitation preview page
+                            setLocation(`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`);
                           }
                         } catch (error) {
                           console.error('Error accepting gift:', error);
@@ -339,7 +339,7 @@ export default function GiftsPage({ clientId, salonId }: GiftsPageProps) {
                 
                 <div className="flex items-center gap-8 ml-2">
                   <Link
-                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true&source=${salonId ? 'salon' : 'client'}`}
+                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
                     className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1 whitespace-nowrap"
                   >
                     <ExternalLinkIcon className="h-3 w-3" />

@@ -737,6 +737,24 @@ export class DatabaseStorage implements IStorage {
         throw giftError; // This is important as we can't proceed if gifts can't be handled
       }
       
+      // Delete or handle gifts where client is the recipient
+      try {
+        // First, check if there are any gifts received by this client
+        const receivedGifts = await this.getReceivedGifts(id);
+        console.log(`DatabaseStorage.deleteClient - Found ${receivedGifts.length} gifts received by this client to handle`);
+        
+        // Update each gift received by this client to clear the recipientId
+        for (const gift of receivedGifts) {
+          await db.update(gifts)
+            .set({ recipientId: null })
+            .where(eq(gifts.id, gift.id));
+          console.log(`DatabaseStorage.deleteClient - Updated gift ID ${gift.id} to clear recipient reference`);
+        }
+      } catch (giftError) {
+        console.error(`DatabaseStorage.deleteClient - Error handling gifts received by client:`, giftError);
+        throw giftError; // This is important as we can't proceed if gifts can't be handled
+      }
+      
       // Delete the client
       const result = await db
         .delete(clients)
