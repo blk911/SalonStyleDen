@@ -48,7 +48,7 @@ const clientFormSchema = z.object({
   favoriteServices: z.array(z.string()).optional(),
   salonId: z.string().optional(),
   salonName: z.string().optional(), // Added for verification display purposes
-  sponsor: z.string().default("Ven Me, Baby! LTD"), // Sponsor with default
+  sponsor: z.string().default("VMB LTD"), // Default sponsor is VMB LTD
 });
 
 type ClientFormValues = z.infer<typeof clientFormSchema>;
@@ -154,7 +154,7 @@ export default function ClientForm({
       salonId: initialData?.salonId ? String(initialData.salonId) : 
                (propSalonId ? String(propSalonId) : "loading"), // Use prop salonId or initialData salonId if available
       salonName: initialData?.salonName || "",
-      sponsor: initialData?.sponsor || "Ven Me, Baby! LTD", // Default sponsor
+      sponsor: initialData?.sponsor || "VMB LTD", // Default sponsor is VMB LTD
     },
   });
 
@@ -228,14 +228,19 @@ export default function ClientForm({
 
     // If not a current client, set default salon to Ven Me, Baby! LTD
     if (isCurrentClient === "no" && salons && salons.length > 0) {
-      // First try to find a salon with "Ven Me" in the name - highest priority
-      const venMeSalon = salons.find(salon => 
-        salon.name.includes("Ven Me")
+      // First try to find VMB LTD (ID 1) salon directly - highest priority
+      const vmbLtdSalon = salons.find(salon => 
+        salon.id === 1 || salon.name === "VMB LTD"
       );
-
+      
       // Then try to find a salon with "VMB" in the name
       const vmbSalon = salons.find(salon => 
         salon.name.includes("VMB")
+      );
+      
+      // Then try to find a salon with "Ven Me" in the name
+      const venMeSalon = salons.find(salon => 
+        salon.name.includes("Ven Me")
       );
 
       // Then try to find a salon with both "Ven Me" and "Lux" in the name
@@ -246,13 +251,13 @@ export default function ClientForm({
       // Then try to find any salon with "Lux" in the name
       const luxSalon = salons.find(salon => salon.name.includes("Lux"));
 
-      // Finally, fall back to the first salon or Tiffany's salon if available
+      // Finally, fall back to Tiffany's salon only if all others fail
       const tiffanySalon = salons.find(salon => 
         salon.name.includes("Tiffany") || salon.ownerName.includes("Tiffany")
       );
 
-      // Choose the most appropriate default salon - ensure Ven Me, Baby! LTD is top priority
-      const defaultSalon = venMeSalon || vmbSalon || venMeLuxSalon || luxSalon || tiffanySalon || salons[0];
+      // Choose the most appropriate default salon - ensure VMB LTD is top priority
+      const defaultSalon = vmbLtdSalon || vmbSalon || venMeSalon || venMeLuxSalon || luxSalon || tiffanySalon || salons[0];
 
       if (defaultSalon) {
         form.setValue("salonId", String(defaultSalon.id));
@@ -359,21 +364,36 @@ export default function ClientForm({
 
       // If no salon selected or invalid salon ID or is still loading, use default salon
       if (!salonId || salonId === "loading" || !salons?.some(salon => String(salon.id) === salonId)) {
-        // Find the most appropriate default salon - prioritize Ven Me, Baby! LTD
-        const venMeSalon = salons?.find(salon => 
-          salon.name.includes("Ven Me")
+        // First try to find VMB LTD (ID 1) salon directly - highest priority
+        const vmbLtdSalon = salons?.find(salon => 
+          salon.id === 1 || salon.name === "VMB LTD"
         );
+        
+        // Then try to find a salon with "VMB" in the name
         const vmbSalon = salons?.find(salon => 
           salon.name.includes("VMB")
         );
+        
+        // Then try to find a salon with "Ven Me" in the name
+        const venMeSalon = salons?.find(salon => 
+          salon.name.includes("Ven Me")
+        );
+
+        // Then try to find a salon with both "Ven Me" and "Lux" in the name
         const venMeLuxSalon = salons?.find(salon => 
           salon.name.includes("Ven Me") && salon.name.includes("Lux")
         );
+
+        // Then try to find any salon with "Lux" in the name
         const luxSalon = salons?.find(salon => salon.name.includes("Lux"));
+
+        // Finally, fall back to Tiffany's salon only if all others fail
         const tiffanySalon = salons?.find(salon => 
           salon.name.includes("Tiffany") || salon.ownerName.includes("Tiffany")
         );
-        const defaultSalon = venMeSalon || vmbSalon || venMeLuxSalon || luxSalon || tiffanySalon || salons?.[0];
+
+        // Choose the most appropriate default salon - ensure VMB LTD is top priority
+        const defaultSalon = vmbLtdSalon || vmbSalon || venMeSalon || venMeLuxSalon || luxSalon || tiffanySalon || salons?.[0];
 
         if (defaultSalon) {
           salonId = String(defaultSalon.id);
@@ -399,7 +419,7 @@ export default function ClientForm({
         // Make sure we don't try to parse "loading" as an integer
         salonId: salonId && salonId !== "loading" ? parseInt(salonId) : undefined,
         salonName: salonName,
-        sponsor: data.sponsor || "Ven Me, Baby! LTD", // Use form data or default
+        sponsor: data.sponsor || "VMB LTD", // Use form data or default to VMB LTD
         type: "client",
       };
 

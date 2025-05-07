@@ -1168,6 +1168,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log(`[API] POST /invitations - Valid senderId: ${validatedData.senderId} - Client exists: ${senderClient.name}`);
           }
           
+          // Ensure salonId is never undefined before creating the invitation
+          if (!validatedData.salonId) {
+            // Default to VMB LTD (ID: 1) if no salon specified
+            validatedData.salonId = 1;
+          }
+          
           // Create the invitation in database
           const createdInvitation = await storage.createInvitation(validatedData);
         
