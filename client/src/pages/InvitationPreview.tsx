@@ -42,9 +42,15 @@ interface Invitation {
   firstServiceDate?: string;
   createdAt: string;
   inviteHash: string;
-  // New properties for gift support
+  // Gift-specific properties
   isClientSentGift?: boolean;
   senderClientId?: number;
+  giftType?: string;
+  giftAmount?: number;
+  recipientId?: number | null;
+  recipientPhone?: string;
+  recipientEmail?: string | null;
+  styleName?: string | null;
 }
 
 interface Salon {
@@ -77,11 +83,13 @@ export default function InvitationPreview() {
   const urlParams = new URLSearchParams(window.location.search);
   const sourceDashboard = urlParams.get('source');
   
-  // Check if this is a gift hash
+  // Enhanced gift hash validation - more robust detection
   const isGiftHash = hash?.startsWith('gift-') || false;
   const giftId = (isGiftHash && hash) ? hash.replace('gift-', '') : null;
   
-  // Fetch invitation or gift by hash
+  console.log(`[GIFT VALIDATION] Hash: ${hash}, isGiftHash: ${isGiftHash}, giftId: ${giftId}`);
+  
+  // Fetch invitation or gift by hash with improved error handling
   const { 
     data: invitation,
     isLoading: invitationLoading,
@@ -91,20 +99,35 @@ export default function InvitationPreview() {
     queryFn: async () => {
       let response;
       
-      // Use different endpoints based on hash format
-      if (isGiftHash) {
-        console.log(`[FLOW] Fetching gift with ID: ${giftId}`);
-        response = await fetch(`/api/gifts/${giftId}`);
-      } else {
-        console.log(`[FLOW] Fetching invitation with hash: ${hash}`);
-        response = await fetch(`/api/invitations/by-hash/${hash}`);
-      }
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ${isGiftHash ? 'gift' : 'invitation'}: ${response.status}`);
+      // Enhanced error handling for gift hashes
+      try {
+        // Use different endpoints based on hash format
+        if (isGiftHash) {
+          console.log(`[GIFT VALIDATION] Fetching gift with ID: ${giftId}`);
+          
+          if (!giftId || isNaN(Number(giftId))) {
+            console.error(`[GIFT VALIDATION] Invalid gift ID format: ${giftId}`);
+            throw new Error(`Invalid gift hash format`);
+          }
+          
+          response = await fetch(`/api/gifts/${giftId}`);
+        } else {
+          console.log(`[GIFT VALIDATION] Fetching invitation with hash: ${hash}`);
+          response = await fetch(`/api/invitations/by-hash/${hash}`);
+        }
+        
+        if (!response.ok) {
+          const statusText = response.statusText || response.status;
+          console.error(`[GIFT VALIDATION] Failed API request: ${response.status} ${statusText}`);
+          throw new Error(`Failed to fetch ${isGiftHash ? 'gift' : 'invitation'}: ${response.status}`);
+        }
+      } catch (error) {
+        console.error(`[GIFT VALIDATION] Error in fetch: ${error instanceof Error ? error.message : String(error)}`);
+        throw error;
       }
       
       const data = await response.json();
+      console.log(`[GIFT VALIDATION] Successfully retrieved data:`, data);
       
       // If this is a gift, format it to match invitation structure for rendering
       if (isGiftHash && data) {
@@ -120,8 +143,9 @@ export default function InvitationPreview() {
           }
         }
         
-        console.log(`[FLOW] Extracted recipient name from message: "${recipientName}"`);
+        console.log(`[GIFT VALIDATION] Extracted recipient name from message: "${recipientName}"`);
         
+        // Create a normalized invitation object from gift data
         return {
           id: data.id,
           name: recipientName || data.recipientName || 'Recipient',
@@ -134,15 +158,22 @@ export default function InvitationPreview() {
           sponsor: 'Ven Me, Baby! Gift',
           favoriteServices: data.styleName ? [data.styleName] : [],
           createdAt: data.createdAt,
-          inviteHash: `gift-${data.id}`,
-          isClientSentGift: isClientSentGift, // New flag to identify client-sent gifts
-          senderClientId: data.senderId // Add the sender's client ID for client-sent gifts
+          inviteHash: `gift-${data.id}`, // Preserve the gift- prefix
+          isClientSentGift: isClientSentGift, // Flag to identify client-sent gifts
+          senderClientId: data.senderId, // Add the sender's client ID for gift tracking
+          // Additional gift-specific properties
+          giftType: data.giftType || 'style_card',
+          giftAmount: data.amount || 0,
+          recipientId: data.recipientId,
+          recipientPhone: data.recipientPhone,
+          recipientEmail: data.recipientEmail
         };
       }
       
       return data;
     },
     enabled: !!hash,
+    retry: 1, // Only retry once for gift hash validation to avoid excessive retries on invalid hashes
   });
 
   // Fetch salon if invitation has a salonId
@@ -289,7 +320,7 @@ export default function InvitationPreview() {
     }
   };
 
-  // Handle accept invitation or view dashboard
+  // Handle accept invitation or view dashboard with enhanced gift support
   const handleAcceptInvitation = async () => {
     setShowConfirmDialog(false);
     setAcceptingInvitation(true);
@@ -297,7 +328,7 @@ export default function InvitationPreview() {
     if (!invitation || !invitation.id) {
       toast({
         title: "Error",
-        description: "There was a problem with this invitation.",
+        description: "There was a problem processing this request.",
         variant: "destructive"
       });
       setAcceptingInvitation(false);
@@ -305,48 +336,86 @@ export default function InvitationPreview() {
     }
     
     try {
-      // If the invitation is still pending, update its status to accepted
-      if (invitation.status === 'pending') {
-        const updateResponse = await fetch(`/api/invitations/${invitation.id}/status`, {
-          method: 'PUT',
+      // Handle differently based on whether this is a gift or invitation
+      if (isGiftHash) {
+        console.log(`[GIFT VALIDATION] Processing gift acceptance with ID: ${invitation.id}`);
+        
+        // For gift requests, update the gift status
+        const updateGiftResponse = await fetch(`/api/gifts/${invitation.id}/status`, {
+          method: 'PATCH',  // PATCH is used for gift status updates
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ status: 'accepted' })
         });
         
-        if (!updateResponse.ok) {
-          throw new Error('Failed to update invitation status');
+        if (!updateGiftResponse.ok) {
+          console.error(`[GIFT VALIDATION] Failed to update gift status: ${updateGiftResponse.status}`);
+          throw new Error('Failed to update gift status');
         }
         
-        // Show toast notification
+        // Show gift-specific toast notification
         toast({
-          title: "Invitation Accepted",
-          description: "Your invitation has been accepted. Please complete your registration.",
+          title: "Gift Request Accepted",
+          description: "The gift request has been accepted. Please complete your registration to claim it.",
           variant: "default"
         });
-      }
-      
-      // Direct to registration page with the invitation data
-      // For salon invitations, pass basic client info
-      if (!invitation.senderId) {
+        
+        // Direct to special gift registration page with gift information
         setLocation(
-          `/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&email=${encodeURIComponent(invitation.email)}&phone=${encodeURIComponent(invitation.phone)}`
+          `/client/register?giftId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&email=${encodeURIComponent(invitation.email || '')}&phone=${encodeURIComponent(invitation.phone || invitation.recipientPhone || '')}&requiresAddress=true&hasUnredeemedGift=true`
         );
       } else {
-        setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+        // Regular invitation flow
+        console.log(`[INVITATION] Processing invitation acceptance with ID: ${invitation.id}`);
+        
+        // If the invitation is still pending, update its status to accepted
+        if (invitation.status === 'pending') {
+          const updateResponse = await fetch(`/api/invitations/${invitation.id}/status`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: 'accepted' })
+          });
+          
+          if (!updateResponse.ok) {
+            console.error(`[INVITATION] Failed to update invitation status: ${updateResponse.status}`);
+            throw new Error('Failed to update invitation status');
+          }
+          
+          // Show invitation-specific toast notification
+          toast({
+            title: "Invitation Accepted",
+            description: "Your invitation has been accepted. Please complete your registration.",
+            variant: "default"
+          });
+        }
+        
+        // Direct to registration page with the invitation data
+        // For salon invitations, pass basic client info
+        if (!invitation.senderId) {
+          setLocation(
+            `/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&email=${encodeURIComponent(invitation.email)}&phone=${encodeURIComponent(invitation.phone)}`
+          );
+        } else {
+          setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+        }
       }
-      
     } catch (error) {
-      console.error('Error in invitation acceptance flow:', error);
+      console.error(`[ERROR] Error in acceptance flow:`, error);
       toast({
         title: "Error",
-        description: "There was a problem processing your invitation. Please try again.",
+        description: `There was a problem processing your ${isGiftHash ? 'gift' : 'invitation'}. Please try again.`,
         variant: "destructive"
       });
       
-      // Go to registration as fallback
-      setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+      // Go to appropriate registration route as fallback
+      if (isGiftHash) {
+        setLocation(`/client/register?hasGift=true`);
+      } else {
+        setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+      }
     } finally {
       setAcceptingInvitation(false);
     }
