@@ -9,7 +9,7 @@ import {
   gifts, type Gift, type InsertGift
 } from "@shared/schema";
 import { db, pool } from "./db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 
 export interface IStorage {
   // User methods

@@ -206,8 +206,13 @@ export default function ClientRegistrationPage() {
     }
   }, []);
   
-  // Contact validation hook for phone validation
-  const { validateContact } = useContactValidation();
+  // Contact validation hook for phone validation and gift checking
+  const { 
+    validateContact, 
+    hasUnredeemedGift, 
+    requiresAddress,
+    validationResult
+  } = useContactValidation();
   
   // Load invitation data if invite hash is present
   const { 
@@ -260,8 +265,8 @@ export default function ClientRegistrationPage() {
     }
   }, [invitation, form, salonId]);
   
-  // Function to handle phone validation - tracks validation state but doesn't affect form flow
-  const handlePhoneValidation = (isValid: boolean) => {
+  // Function to handle phone validation - checks if phone is valid and if it has unredeemed gifts
+  const handlePhoneValidation = async (isValid: boolean, phoneNumber?: string) => {
     logFlow(`Phone validation ${isValid ? 'passed' : 'failed'}`);
     
     // Only show a toast for invalid phone numbers to help user correct them immediately
@@ -271,6 +276,38 @@ export default function ClientRegistrationPage() {
         description: 'Please enter a valid 10-digit phone number',
         variant: 'destructive',
       });
+      return;
+    }
+    
+    // If phone is valid, check for unredeemed gifts
+    if (isValid && phoneNumber) {
+      logFlow('Phone is valid, validating with server');
+      
+      try {
+        // Call validateContact with context=registration to check for unredeemed gifts
+        const result = await validateContact(phoneNumber);
+        
+        // If this phone has an unredeemed gift, show appropriate dialog
+        if (result === 'has_unredeemed_gift') {
+          logFlow('Phone has unredeemed gift');
+          
+          toast({
+            title: 'Gift Available!',
+            description: 'You have an unredeemed gift. Complete registration to redeem it.',
+            variant: 'default',
+          });
+          
+          // Check if we need to show the address dialog
+          if (requiresAddress) {
+            logFlow('Gift requires address information');
+            // Show the address dialog with updated title and description
+            setShowAddressDialog(true);
+            setAddressDialogShown(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error validating phone for gifts:', error);
+      }
     }
   };
   
