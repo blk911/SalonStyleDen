@@ -152,24 +152,32 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     staleTime: 60000 // Consider data fresh for 1 minute
   });
 
-  // Create Client-Driven Invitation Mutation
-  const createInvitationMutation = useMutation({
+  // Create Gift Mutation - Updated to use the gift API endpoints
+  const createGiftMutation = useMutation({
     mutationFn: async (data: any) => {
-      console.log("GiftCreationFlow: Creating client-driven invitation with data:", data);
+      console.log("GiftCreationFlow: Creating gift with data:", data);
       
-      // Mark this invitation as client-driven by adding a source field
-      const invitationWithSource = {
-        ...data,
-        source: "client", // Add source field to differentiate from salon-driven invitations
-        clientDriven: true // Explicit flag for client-driven invitations
+      // Transform the data to match the gift API format
+      const giftData = {
+        senderId: data.senderId,
+        recipientName: data.name,
+        recipientPhone: data.phone,
+        recipientEmail: data.email || null,
+        message: data.message,
+        value: data.stylePrice, // Used instead of amount in the UI
+        status: 'sent',
+        styleId: data.styleId,
+        styleName: data.styleOption
       };
       
-      const response = await fetch("/api/invitations", {
+      console.log("GiftCreationFlow: Transformed gift data:", giftData);
+      
+      const response = await fetch("/api/gifts", {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(invitationWithSource)
+        body: JSON.stringify(giftData)
       });
       
       if (!response.ok) {
@@ -180,29 +188,25 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         } catch (e) {
           // If it's not JSON, use the raw text
           const errorText = await response.text();
-          throw new Error(`Failed to create invitation: ${response.status} - ${errorText}`);
+          throw new Error(`Failed to create gift: ${response.status} - ${errorText}`);
         }
         
-        if (errorData.error === "Invitation limit reached") {
-          console.error("[FLOW][ERROR] Server response error:", errorData);
-          throw new Error(errorData.message || "Salon invitation limit reached");
-        }
-        
-        throw new Error(errorData.message || `Failed to create invitation: ${response.status}`);
+        throw new Error(errorData.error || errorData.message || `Failed to create gift: ${response.status}`);
       }
       
       return await response.json();
     },
     onSuccess: (data) => {
-      console.log("GiftCreationFlow: Client invitation created successfully:", data);
+      console.log("GiftCreationFlow: Gift created successfully:", data);
       setInvitationId(data.id);
       
       // Invalidate relevant queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['/api/invitations'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/gifts/sent'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/gifts/received'] });
       
       // Also invalidate client-specific queries to ensure dashboard updates
       if (clientId) {
-        queryClient.invalidateQueries({ queryKey: [`/api/clients/${clientId}/invitations`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/gifts/sent/${clientId}`] });
       }
       
       // Close the preview modal
@@ -212,34 +216,21 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       setShowConfirmDialog(true);
       
       toast({
-        title: "Gift Invitation Sent!",
-        description: `Your invitation to ${recipientData.name} has been sent successfully.`,
+        title: "Gift Sent!",
+        description: `Your gift to ${recipientData.name} has been sent successfully.`,
       });
     },
     onError: (error: any) => {
       const errorMsg = error.message || "An unexpected error occurred";
-      console.error("[ERROR][GiftCreationFlow] Error creating client invitation:", error);
+      console.error("[ERROR][GiftCreationFlow] Error creating gift:", error);
       
       // Format user-friendly error messages based on error types
-      let userMessage = "There was a problem sending your invitation. Please try again.";
+      let userMessage = "There was a problem sending your gift. Please try again.";
       let errorDetails = "";
       
       // Check for specific error types
-      if (errorMsg.includes("limit reached") || (error.response && error.response.data && error.response.data.error === "Invitation limit reached")) {
-        userMessage = "Your salon has reached the invitation limit. Please contact your salon owner.";
-        errorDetails = "Salon license verification is required to send more invitations. The current limit is 2 invitations for unverified salons.";
-        
-        // Log the specific error for debugging
-        console.error("[FLOW][ERROR] Invitation limit reached:", error.response?.data || errorMsg);
-      } else if (errorMsg.includes("already invited")) {
-        userMessage = "This recipient has already been invited. Please try a different contact.";
-      } else if (errorMsg.includes("500")) {
+      if (errorMsg.includes("500")) {
         userMessage = "Server error. Please try again in a few moments.";
-      }
-      
-      // For debugging: log all details of the error
-      if (error.response) {
-        console.error("[FLOW][ERROR] Server response details:", error.response);
       }
       
       // Close the modal
@@ -250,7 +241,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       
       // Show toast alert
       toast({
-        title: "Failed to Send Invitation",
+        title: "Failed to Send Gift",
         description: userMessage,
         variant: "destructive",
         duration: 5000
@@ -402,7 +393,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     });
   };
 
-  // Function to handle payment and create the invitation
+  // Function to handle payment and create the gift
   const handlePayment = async () => {
     // Clear any previous errors
     setError(null);
@@ -427,8 +418,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       return;
     }
     
-    // Create invitation data
-    const invitationData = {
+    // Create gift data
+    const giftData = {
       name: recipientData.name,
       phone: recipientData.phone,
       email: recipientData.email || null,
@@ -440,35 +431,35 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       styleDuration: selectedStyle.duration,
       clientId: clientId,
       salonId: useSalonId,
-      status: "pending",
+      status: "sent",
       senderName: client?.name || "Client",
       invitationType: "client_to_friend",
       styleImageUrl: selectedStyle.gifUrl,
       senderId: clientId // Important: we need to set the sender ID to make sure gifts show up in sent list
     };
     
-    // Log the invitation data being sent
-    console.log("Creating client invitation with data:", invitationData);
+    // Log the gift data being sent
+    console.log("Creating gift with data:", giftData);
     
     // Instead of directly calling the mutation, better handle the error scenarios
     try {
       toast({
         title: "Processing Gift",
-        description: "Creating your gift invitation...",
+        description: "Creating your gift...",
       });
       
-      // Call the mutation to create the invitation
-      createInvitationMutation.mutate(invitationData);
+      // Call the mutation to create the gift
+      createGiftMutation.mutate(giftData);
     } catch (error) {
-      console.error("Error initiating invitation creation:", error);
+      console.error("Error initiating gift creation:", error);
       
       toast({
         title: "Error",
-        description: "Failed to process your invitation. Please try again.",
+        description: "Failed to process your gift. Please try again.",
         variant: "destructive"
       });
       
-      setError("There was a problem sending your invitation. Please try again later.");
+      setError("There was a problem sending your gift. Please try again later.");
     }
   };
 
@@ -825,10 +816,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
             <Button 
               type="button"
               className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium"
-              disabled={createInvitationMutation.isPending}
+              disabled={createGiftMutation.isPending}
               onClick={handlePayment}
             >
-              {createInvitationMutation.isPending ? (
+              {createGiftMutation.isPending ? (
                 <div className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   <span>Processing...</span>
@@ -855,16 +846,16 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
           <DialogHeader>
             <DialogTitle className="text-center text-xl flex items-center justify-center gap-2">
               <CheckCircleIcon className="h-6 w-6 text-green-500" />
-              Invitation Sent!
+              Gift Sent!
             </DialogTitle>
             <DialogDescription className="text-center text-sm text-gray-500">
-              Your gift invitation has been sent successfully. Click "Close" to return to your dashboard.
+              Your gift has been sent successfully. Click "Close" to return to your dashboard.
             </DialogDescription>
           </DialogHeader>
           
           <div className="my-4 text-center">
             <p className="mb-4">
-              Your invitation has been sent successfully to {recipientData.name}.
+              Your gift has been sent successfully to {recipientData.name}.
             </p>
             
             <div className="border rounded shadow-sm p-4 bg-gray-50 mb-4">
