@@ -13,6 +13,7 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import ClientForm from "@/components/forms/ClientForm";
+import { cleanPhoneNumber } from "@/lib/utils";
 
 // Define the type for the client data returned from the invitation validation
 export interface ClientData {
@@ -40,8 +41,8 @@ export function PromoCodeDialog({
   onSuccess,
   phoneValidation,
 }: PromoCodeDialogProps) {
-  // Extract last 4 digits of phone if provided (for promo code)
-  const lastFourDigits = phone ? phone.replace(/\D/g, '').slice(-4) : "";
+  // Extract last 4 digits of phone if provided (for promo code) using our standardized utility
+  const lastFourDigits = phone ? cleanPhoneNumber(phone).slice(-4) : "";
   
   // Initialize promo code with last 4 digits if phone is provided
   const [promoCode, setPromoCode] = useState(lastFourDigits);
@@ -161,8 +162,8 @@ export function PromoCodeDialog({
       // This allows the server to check for matches between promo code and phone
       console.log("Making API request to /api/invitations/validate", "POST");
       
-      // Clean the phone number (ensure digits only)
-      const cleanedPhone = (phoneNumber || phone || "").replace(/\D/g, '');
+      // Clean the phone number using our standardized phone utility
+      const cleanedPhone = cleanPhoneNumber(phoneNumber || phone || "");
       
       const requestOptions = {
         method: "POST",
