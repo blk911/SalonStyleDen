@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
+import { formatPhonePartial } from "@/lib/utils";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
 
 interface Invitation {
@@ -136,14 +137,7 @@ export default function PendingSalonInvitations({
     }).format(date);
   };
 
-  // Format phone for display (partial hiding)
-  const formatPhonePartial = (phone: string) => {
-    const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length === 10) {
-      return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-****`;
-    }
-    return phone;
-  };
+  // Using the site-wide standardized phone formatter from utils.ts
 
   return (
     <div className="grid grid-cols-1 gap-3">

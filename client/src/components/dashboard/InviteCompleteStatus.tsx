@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { format } from "date-fns";
+import { formatPhoneNumber } from "@/lib/utils";
 
 interface Invitation {
   id: number;
@@ -24,15 +25,7 @@ interface InviteCompleteStatusProps {
   invitations?: Invitation[];
 }
 
-// Helper function to format phone numbers
-function formatPhoneNumber(phoneNumberString: string) {
-  const cleaned = phoneNumberString.replace(/\D/g, '');
-  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-  if (match) {
-    return `(${match[1]}) ${match[2]}-${match[3]}`;
-  }
-  return phoneNumberString;
-}
+// Using the site-wide standardized phone formatter from utils.ts
 
 // Helper function to format dates
 function formatDate(dateString: string | undefined) {
