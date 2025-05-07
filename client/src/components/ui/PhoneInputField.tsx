@@ -15,7 +15,7 @@ const logFlowStep = (step: string, data?: any) => {
 interface PhoneInputFieldProps extends Omit<InputProps, 'onChange'> {
   value: string;
   onChange: (value: string) => void;
-  onValidationComplete?: (isValid: boolean, isRegistered: boolean) => void;
+  onValidationComplete?: (isValid: boolean, phoneNumber?: string) => void;
   onEnterPress?: () => void;
   clearField?: () => void;
 }
@@ -73,7 +73,7 @@ export function PhoneInputField({
     if (!value || !isValidPhone(value)) {
       logFlowStep('Phone validation failed - invalid format', value);
       if (onValidationComplete) {
-        onValidationComplete(false, false);
+        onValidationComplete(false, undefined);
       }
       return;
     }
@@ -87,22 +87,20 @@ export function PhoneInputField({
         // Phone is already registered - show registered dialog
         logFlowStep('Phone already registered - showing registered dialog', value);
         setShowRegisteredDialog(true);
-      } else if (result === 'not_registered') {
-        // For valid phone numbers, skip showing any dialog
+      } else if (result === 'not_registered' || result === 'has_unredeemed_gift') {
+        // For valid phone numbers and phones with gifts, skip showing any dialog
         // Set the data attribute to prevent dialogs from showing again
         document.body.setAttribute('data-address-shown', 'true');
-        logFlowStep('Phone is valid and not registered - setting data-address-shown attribute');
+        logFlowStep('Phone is valid or has unredeemed gift - setting data-address-shown attribute');
         
         // Move directly to terms checkbox
         logFlowStep('Moving directly to terms checkbox');
         moveToTermsCheckbox();
       }
       
+      // Pass phone validation status and the phone number to the callback
       if (onValidationComplete) {
-        onValidationComplete(
-          result !== 'invalid', 
-          result === 'registered'
-        );
+        onValidationComplete(result !== 'invalid', value);
       }
     } catch (error) {
       console.error('Error validating phone:', error);
@@ -128,7 +126,7 @@ export function PhoneInputField({
         validateContact(value).then(result => {
           logFlowStep('Background validation complete', result);
           if (onValidationComplete) {
-            onValidationComplete(result !== 'invalid', result === 'registered');
+            onValidationComplete(result !== 'invalid', value);
           }
         }).catch(error => {
           console.error('Background validation error:', error);

@@ -368,15 +368,38 @@ export default function ClientRegistrationPage() {
       
       // Check if address fields should be prompted but are empty
       const hasNoAddress = !data.address && !data.city && !data.state && !data.zipCode;
-      const shouldShowAddressPrompt = hasNoAddress && !addressDialogShown;
+      
+      // If client has an unredeemed gift, they MUST provide address information
+      if (hasUnredeemedGift && hasNoAddress) {
+        logFlow('Client has unredeemed gift but no address provided - showing gift address dialog');
+        
+        // Show toast to inform user they need to add address
+        toast({
+          title: 'Address Required for Gift',
+          description: 'Please provide your address information to redeem your gift.',
+          variant: 'destructive',
+        });
+        
+        // Show address dialog with gift redemption context
+        setShowAddressDialog(true);
+        setAddressDialogShown(true);
+        document.body.setAttribute('data-address-shown', 'true');
+        
+        logFlow('Gift address dialog opened, submission halted until address provided');
+        return; // Don't proceed with form submission until address is provided
+      }
+      
+      // For non-gift clients, still show address dialog if address is empty (but they can skip)
+      const shouldShowAddressPrompt = hasNoAddress && !addressDialogShown && !hasUnredeemedGift;
       
       // If address is empty and dialog hasn't been shown yet, show the address dialog and halt submission
       if (shouldShowAddressPrompt) {
-        logFlow('Address fields empty, showing address dialog');
+        logFlow('Address fields empty, showing standard address dialog');
         logFlow('Address dialog state', {
           hasNoAddress,
           addressDialogShown,
-          shouldShowAddressPrompt
+          shouldShowAddressPrompt,
+          hasUnredeemedGift
         });
         
         setShowAddressDialog(true);
