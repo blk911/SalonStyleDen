@@ -159,7 +159,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const validateContact = async (type: 'phone' | 'email', value: string) => {
     try {
       // Basic validation
-      if (type === 'phone' && value.replace(/\D/g, '').length !== 10) {
+      if (type === 'phone' && cleanPhoneNumber(value).length !== 10) {
         setErrorField('phone');
         setErrorMessage('Phone number must be 10 digits');
         setShowErrorDialog(true);
@@ -577,7 +577,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                     className={`w-full ${phoneExists ? 'border-red-500 focus:ring-red-500' : ''}`}
                     onKeyDown={(e) => {
                       // Move to next field on Enter when phone is complete
-                      const cleanPhone = phone.replace(/\D/g, '');
+                      const cleanPhone = cleanPhoneNumber(phone);
                       if (e.key === 'Enter' && cleanPhone.length === 10) {
                         e.preventDefault();
                         const emailInput = document.querySelector('input[placeholder="Email Address"]') as HTMLInputElement;
@@ -719,7 +719,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                   }
 
                   // Validate fields first
-                  const cleanPhone = phone.replace(/\D/g, '');
+                  const cleanPhone = cleanPhoneNumber(phone);
                   if (!name || cleanPhone.length !== 10) {
                     toast({
                       title: "Missing Information",
