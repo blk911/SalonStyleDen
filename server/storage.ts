@@ -901,8 +901,53 @@ export class DatabaseStorage implements IStorage {
 
   async getInvitation(id: number): Promise<Invitation | undefined> {
     try {
-      const results = await db.select().from(invitations).where(eq(invitations.id, id));
-      return results.length > 0 ? results[0] : undefined;
+      // Use raw SQL to get the invitation by ID to avoid schema mismatch issues
+      const sqlQuery = `
+        SELECT 
+            id, name, phone, email, notes, message, type,
+            salon_id, sponsor, invite_hash, status, 
+            first_service_date, created_at, 
+            favorite_services, sender_id,
+            style_option, style_price, style_duration
+        FROM invitations 
+        WHERE id = $1
+      `;
+      
+      const client = await pool.connect();
+      try {
+        const result = await client.query(sqlQuery, [id]);
+        
+        if (result.rows.length === 0) {
+          return undefined;
+        }
+        
+        const row = result.rows[0];
+        
+        // Map to our expected format
+        return {
+          id: row.id,
+          name: row.name,
+          phone: row.phone,
+          email: row.email,
+          notes: row.notes,
+          message: row.message || null,
+          type: row.type || null,
+          salonId: row.salon_id,
+          sponsor: row.sponsor,
+          inviteHash: row.invite_hash,
+          status: row.status,
+          firstServiceDate: row.first_service_date,
+          createdAt: row.created_at,
+          favoriteServices: row.favorite_services,
+          styleOption: row.style_option || null,
+          stylePrice: row.style_price || null,
+          styleDuration: row.style_duration || null,
+          sponsorName: null,
+          senderId: row.sender_id || null
+        };
+      } finally {
+        client.release();
+      }
     } catch (error) {
       console.error(`DatabaseStorage.getInvitation - Error getting invitation ${id}:`, error);
       throw error;
@@ -913,13 +958,55 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DatabaseStorage.getRecentInvitations - Fetching ${limit} recent invitations`);
       
-      const result = await db.select()
-        .from(invitations)
-        .orderBy(sql`${invitations.createdAt} DESC`)
-        .limit(limit);
+      // Use a raw SQL query that only selects columns we know exist
+      const sqlQuery = `
+        SELECT 
+            id, name, phone, email, notes, message, type,
+            salon_id, sponsor, invite_hash, status, 
+            first_service_date, created_at, 
+            favorite_services, sender_id,
+            style_option, style_price, style_duration
+        FROM invitations 
+        ORDER BY created_at DESC
+        LIMIT $1
+      `;
       
-      console.log(`DatabaseStorage.getRecentInvitations - Retrieved ${result.length} invitations`);
-      return result;
+      const client = await pool.connect();
+      try {
+        const result = await client.query(sqlQuery, [limit]);
+        const rows = result.rows;
+        console.log(`DatabaseStorage.getRecentInvitations - Retrieved ${rows.length} invitations`);
+        
+        // Map the result to our expected format with all fields
+        const invitationList: Invitation[] = rows.map(row => ({
+          id: row.id,
+          name: row.name,
+          phone: row.phone,
+          email: row.email,
+          notes: row.notes,
+          message: row.message || null,
+          type: row.type || null,
+          salonId: row.salon_id,
+          sponsor: row.sponsor,
+          inviteHash: row.invite_hash,
+          status: row.status,
+          firstServiceDate: row.first_service_date,
+          createdAt: row.created_at,
+          favoriteServices: row.favorite_services,
+          // Required fields from schema
+          styleOption: row.style_option || null,
+          stylePrice: row.style_price || null,
+          styleDuration: row.style_duration || null,
+          // Set sponsorName to null (it's a new field)
+          sponsorName: null,
+          // Use sender_id from query if available, otherwise null
+          senderId: row.sender_id || null
+        }));
+        
+        return invitationList;
+      } finally {
+        client.release();
+      }
     } catch (error) {
       console.error('DatabaseStorage.getRecentInvitations - Error fetching invitations:', error);
       throw error;
@@ -970,6 +1057,8 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
+          // Set sponsorName to null (it's a new field)
+          sponsorName: null,
           // Use sender_id from query if available, otherwise null
           senderId: row.sender_id || null
         }));
@@ -1061,6 +1150,8 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
+          // Set sponsorName to null (it's a new field)
+          sponsorName: null,
           senderId: row.sender_id || null
         }));
         
@@ -1078,14 +1169,57 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DatabaseStorage.updateInvitationStatus - Updating invitation ${id} status to ${status}`);
       
-      const result = await db
-        .update(invitations)
-        .set({ status })
-        .where(eq(invitations.id, id))
-        .returning();
+      // Update using raw SQL to avoid schema mismatch issues
+      const updateQuery = `
+        UPDATE invitations 
+        SET status = $1 
+        WHERE id = $2
+        RETURNING 
+            id, name, phone, email, notes, message, type,
+            salon_id, sponsor, invite_hash, status, 
+            first_service_date, created_at, 
+            favorite_services, sender_id,
+            style_option, style_price, style_duration
+      `;
       
-      console.log(`DatabaseStorage.updateInvitationStatus - Update successful`);
-      return result[0];
+      const client = await pool.connect();
+      try {
+        const result = await client.query(updateQuery, [status, id]);
+        
+        if (result.rows.length === 0) {
+          throw new Error(`Invitation with ID ${id} not found`);
+        }
+        
+        const row = result.rows[0];
+        
+        // Map to our expected format
+        const updatedInvitation = {
+          id: row.id,
+          name: row.name,
+          phone: row.phone,
+          email: row.email,
+          notes: row.notes,
+          message: row.message || null,
+          type: row.type || null,
+          salonId: row.salon_id,
+          sponsor: row.sponsor,
+          inviteHash: row.invite_hash,
+          status: row.status,
+          firstServiceDate: row.first_service_date,
+          createdAt: row.created_at,
+          favoriteServices: row.favorite_services,
+          styleOption: row.style_option || null,
+          stylePrice: row.style_price || null,
+          styleDuration: row.style_duration || null,
+          sponsorName: null,
+          senderId: row.sender_id || null
+        };
+        
+        console.log(`DatabaseStorage.updateInvitationStatus - Update successful`);
+        return updatedInvitation;
+      } finally {
+        client.release();
+      }
     } catch (error) {
       console.error(`DatabaseStorage.updateInvitationStatus - Error updating invitation ${id}:`, error);
       throw error;
@@ -1094,13 +1228,53 @@ export class DatabaseStorage implements IStorage {
 
   async getInvitationByHash(hash: string): Promise<Invitation | undefined> {
     try {
-      // Get invitation with matching hash
-      const [invitation] = await db
-        .select()
-        .from(invitations)
-        .where(eq(invitations.inviteHash, hash));
+      // Use raw SQL to get the invitation by hash to avoid schema mismatch issues
+      const sqlQuery = `
+        SELECT 
+            id, name, phone, email, notes, message, type,
+            salon_id, sponsor, invite_hash, status, 
+            first_service_date, created_at, 
+            favorite_services, sender_id,
+            style_option, style_price, style_duration
+        FROM invitations 
+        WHERE invite_hash = $1
+      `;
       
-      return invitation;
+      const client = await pool.connect();
+      try {
+        const result = await client.query(sqlQuery, [hash]);
+        
+        if (result.rows.length === 0) {
+          return undefined;
+        }
+        
+        const row = result.rows[0];
+        
+        // Map to our expected format
+        return {
+          id: row.id,
+          name: row.name,
+          phone: row.phone,
+          email: row.email,
+          notes: row.notes,
+          message: row.message || null,
+          type: row.type || null,
+          salonId: row.salon_id,
+          sponsor: row.sponsor,
+          inviteHash: row.invite_hash,
+          status: row.status,
+          firstServiceDate: row.first_service_date,
+          createdAt: row.created_at,
+          favoriteServices: row.favorite_services,
+          styleOption: row.style_option || null,
+          stylePrice: row.style_price || null,
+          styleDuration: row.style_duration || null,
+          sponsorName: null,
+          senderId: row.sender_id || null
+        };
+      } finally {
+        client.release();
+      }
     } catch (error) {
       console.error(`Error fetching invitation by hash:`, error);
       throw error;
@@ -1176,33 +1350,72 @@ export class DatabaseStorage implements IStorage {
       // Clean phone number to digits only for comparison
       const cleanPhone = phone.replace(/\D/g, '');
       
-      // Get all invitations
-      const allInvitations = await db.select().from(invitations);
+      // Use raw SQL to get all invitations - this ensures we don't have schema mismatch issues
+      const sqlQuery = `
+        SELECT 
+            id, name, phone, email, notes, message, type,
+            salon_id, sponsor, invite_hash, status, 
+            first_service_date, created_at, 
+            favorite_services, sender_id,
+            style_option, style_price, style_duration
+        FROM invitations
+      `;
       
-      // Filter based on matching criteria
-      let result: Invitation[] = [];
-      
-      if (partialMatch) {
-        // For partial match, check if invitation phone ends with the given digits
-        result = allInvitations.filter(invitation => {
-          if (!invitation.phone) return false;
-          const invitePhone = invitation.phone.replace(/\D/g, '');
-          
-          // Match if the last N digits match our search
-          if (cleanPhone.length <= invitePhone.length) {
-            const lastDigits = invitePhone.slice(-cleanPhone.length);
-            return lastDigits === cleanPhone;
-          }
-          return false;
-        });
-      } else {
-        // For exact match, require full phone number match
-        result = allInvitations.filter(invitation => 
-          invitation.phone && invitation.phone.replace(/\D/g, '') === cleanPhone
-        );
+      const client = await pool.connect();
+      try {
+        const queryResult = await client.query(sqlQuery);
+        const rows = queryResult.rows;
+        
+        // Map results to our expected format
+        const allInvitations = rows.map(row => ({
+          id: row.id,
+          name: row.name,
+          phone: row.phone,
+          email: row.email,
+          notes: row.notes,
+          message: row.message || null,
+          type: row.type || null,
+          salonId: row.salon_id,
+          sponsor: row.sponsor,
+          inviteHash: row.invite_hash,
+          status: row.status,
+          firstServiceDate: row.first_service_date,
+          createdAt: row.created_at,
+          favoriteServices: row.favorite_services,
+          styleOption: row.style_option || null,
+          stylePrice: row.style_price || null,
+          styleDuration: row.style_duration || null,
+          sponsorName: null,
+          senderId: row.sender_id || null
+        }));
+        
+        // Filter based on matching criteria
+        let filteredInvitations: Invitation[] = [];
+        
+        if (partialMatch) {
+          // For partial match, check if invitation phone ends with the given digits
+          filteredInvitations = allInvitations.filter(invitation => {
+            if (!invitation.phone) return false;
+            const invitePhone = invitation.phone.replace(/\D/g, '');
+            
+            // Match if the last N digits match our search
+            if (cleanPhone.length <= invitePhone.length) {
+              const lastDigits = invitePhone.slice(-cleanPhone.length);
+              return lastDigits === cleanPhone;
+            }
+            return false;
+          });
+        } else {
+          // For exact match, require full phone number match
+          filteredInvitations = allInvitations.filter(invitation => 
+            invitation.phone && invitation.phone.replace(/\D/g, '') === cleanPhone
+          );
+        }
+        
+        return filteredInvitations;
+      } finally {
+        client.release();
       }
-      
-      return result;
     } catch (error) {
       console.error(`Error fetching invitations by phone:`, error);
       throw error;
