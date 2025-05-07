@@ -515,12 +515,6 @@ export class DatabaseStorage implements IStorage {
       }
     }
     
-    // Ensure sponsor information is set for all clients
-    if (!insertClient.sponsor && !insertClient.sponsorName) {
-      console.log(`DatabaseStorage.createClient - Setting default sponsor 'Unknown' for direct registration`);
-      insertClient.sponsor = 'Unknown';
-    }
-    
     // Proceed with creating the client
     const result = await db.insert(clients).values({
       ...insertClient,
@@ -531,7 +525,7 @@ export class DatabaseStorage implements IStorage {
     if (result[0].sponsorName || result[0].sponsorSalonId) {
       console.log(`DatabaseStorage.createClient - Created client with ID ${result[0].id} and sponsor: ${result[0].sponsorName || 'none'}, sponsorSalonId: ${result[0].sponsorSalonId || 'none'}`);
     } else {
-      console.log(`DatabaseStorage.createClient - Created client with ID ${result[0].id} with default sponsor: ${result[0].sponsor || 'Unknown'}`);
+      console.log(`DatabaseStorage.createClient - Created client with ID ${result[0].id} (no sponsor information)`);
     }
     
     return result[0];
