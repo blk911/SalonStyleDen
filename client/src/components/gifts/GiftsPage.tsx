@@ -25,6 +25,23 @@ interface Invitation {
   styleDuration?: number | null;
 }
 
+interface Gift {
+  id: number;
+  senderId: number;
+  recipientId: number | null;
+  recipientPhone: string | null;
+  recipientEmail: string | null;
+  giftType: string;
+  styleId: number | null;
+  styleName: string | null;
+  amount: number;
+  message: string | null;
+  status: string;
+  expiresAt: string | null;
+  createdAt: string;
+  redeemedAt: string | null;
+}
+
 interface GiftsPageProps {
   clientId?: number;
   salonId?: number;
@@ -48,44 +65,76 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
     enabled: !!clientId
   });
 
-  // Query for received gifts (where this client is the recipient - but NOT the sender)
+  // Query for received gifts (where this client is the recipient)
   const { data: receivedGifts, isLoading: isLoadingReceived } = useQuery({
-    queryKey: ['/api/invitations/received', clientId, clientData?.name],
-    queryFn: async () => {
-      if (!clientId || !clientData?.name) return [];
-      
-      // Get all invitations
-      const response = await fetch(`/api/invitations`);
-      if (!response.ok) throw new Error('Failed to fetch received gifts');
-      const allInvitations = await response.json() as Invitation[];
-      
-      // Only include invitations where:
-      // 1. This client is NOT the sender
-      // 2. This client's phone matches the recipient's phone
-      return allInvitations.filter(invitation => 
-        invitation.senderId !== clientId && 
-        invitation.phone === clientData.phone
-      );
-    },
-    enabled: !!clientId && !!clientData?.name
-  });
-  
-  // Query for sent gifts (where this client is the sender)
-  const { data: allClientInvitations, isLoading: isLoadingSent } = useQuery({
-    queryKey: ['/api/invitations/all', clientId],
+    queryKey: ['/api/gifts/received', clientId],
     queryFn: async () => {
       if (!clientId) return [];
-      const params = new URLSearchParams();
-      params.set('clientId', clientId.toString());
-      const response = await fetch(`/api/invitations?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch invitations');
-      return response.json() as Promise<Invitation[]>;
+      
+      // Get gifts received by this client
+      const response = await fetch(`/api/gifts/received/${clientId}`);
+      if (!response.ok) throw new Error('Failed to fetch received gifts');
+      
+      const gifts = await response.json() as Gift[];
+      console.log("Received gifts:", gifts);
+      
+      // Transform gift data to match the format expected by the UI
+      return gifts.map(gift => ({
+        id: gift.id,
+        name: "", // We don't have this from gift data
+        phone: gift.recipientPhone || "",
+        email: gift.recipientEmail || "",
+        message: gift.message,
+        salonId: null,
+        senderId: gift.senderId,
+        sponsor: "Gift Sender", // Need to fetch sender name in the future
+        status: gift.status,
+        inviteHash: `gift-${gift.id}`, // Placeholder for routing
+        createdAt: gift.createdAt,
+        amount: gift.amount,
+        styleOption: gift.styleName,
+        stylePrice: gift.amount
+      })) as Invitation[];
     },
     enabled: !!clientId
   });
   
-  // Filter the gifts that were actually sent BY this client (where senderId matches clientId)
-  const sentGifts = allClientInvitations?.filter(gift => gift.senderId === clientId) || [];
+  // Query for sent gifts (where this client is the sender)
+  const { data: sentGiftsData, isLoading: isLoadingSent } = useQuery({
+    queryKey: ['/api/gifts/sent', clientId],
+    queryFn: async () => {
+      if (!clientId) return [];
+      
+      // Get gifts sent by this client
+      const response = await fetch(`/api/gifts/sent/${clientId}`);
+      if (!response.ok) throw new Error('Failed to fetch sent gifts');
+      
+      const gifts = await response.json() as Gift[];
+      console.log("Sent gifts:", gifts);
+      
+      // Transform gift data to match the format expected by the UI
+      return gifts.map(gift => ({
+        id: gift.id,
+        name: "Gift Recipient", // Placeholder, we should fetch recipient name if available
+        phone: gift.recipientPhone || "",
+        email: gift.recipientEmail || "",
+        message: gift.message,
+        salonId: null,
+        senderId: gift.senderId,
+        sponsor: null,
+        status: gift.status,
+        inviteHash: `gift-${gift.id}`, // Placeholder for routing
+        createdAt: gift.createdAt,
+        amount: gift.amount,
+        styleOption: gift.styleName,
+        stylePrice: gift.amount
+      })) as Invitation[];
+    },
+    enabled: !!clientId
+  });
+  
+  // Use the transformed sent gifts data
+  const sentGifts = sentGiftsData || [];
   
   return (
     <div className="space-y-4 w-full">
@@ -191,32 +240,47 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                     View
                   </Link>
                   
-                  {gift.status.toLowerCase() === 'pending' ? (
+                  {gift.status.toLowerCase() === 'pending' || gift.status.toLowerCase() === 'sent' ? (
                     <Button 
                       variant="outline"
                       size="sm"
                       className="h-7 py-0 px-3 whitespace-nowrap bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200 text-xs"
                       onClick={async () => {
                         try {
-                          // Update the invitation status to accepted
-                          const response = await fetch(`/api/invitations/${gift.id}/status`, {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ status: 'accepted' })
-                          });
-                          
-                          if (!response.ok) throw new Error('Failed to update status');
-                          
-                          // Navigate to the invitation preview page
-                          setLocation(`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`);
+                          // If it's a gift (not an invitation), use the gifts API
+                          if (gift.inviteHash.startsWith('gift-')) {
+                            const giftId = gift.inviteHash.split('-')[1];
+                            const response = await fetch(`/api/gifts/${giftId}/status`, {
+                              method: 'PATCH',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ status: 'redeemed' })
+                            });
+                            
+                            if (!response.ok) throw new Error('Failed to update gift status');
+                            
+                            // Refresh the component
+                            window.location.reload();
+                          } else {
+                            // For legacy invitations
+                            const response = await fetch(`/api/invitations/${gift.id}/status`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ status: 'accepted' })
+                            });
+                            
+                            if (!response.ok) throw new Error('Failed to update status');
+                            
+                            // Navigate to the invitation preview page
+                            setLocation(`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`);
+                          }
                         } catch (error) {
                           console.error('Error accepting gift:', error);
-                          // Navigate anyway as fallback
-                          setLocation(`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`);
+                          // Refresh anyway
+                          window.location.reload();
                         }
                       }}
                     >
-                      Accept
+                      {gift.inviteHash.startsWith('gift-') ? 'Redeem' : 'Accept'}
                     </Button>
                   ) : (
                     <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
