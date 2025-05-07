@@ -437,6 +437,7 @@ export default function InvitationPreview() {
                   salonInitiated={isSalonInvitation}
                   status={invitation.status}
                   onSendGift={promptAcceptInvitation}
+                  message={invitation.message || ""} // Pass the gift message
                 />
               </div>
             </div>

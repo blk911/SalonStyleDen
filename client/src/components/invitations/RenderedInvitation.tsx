@@ -47,6 +47,7 @@ interface RenderedInvitationProps {
   salonInitiated?: boolean; // To identify salon-initiated invitations
   onSendGift?: () => void; // Handler for the SEND GIFT button click
   status?: string; // Invitation status: pending, sent, accepted, etc.
+  message?: string; // The gift message content
 }
 
 export function RenderedInvitation({
@@ -61,7 +62,8 @@ export function RenderedInvitation({
   className = "",
   salonInitiated = false,
   onSendGift,
-  status = "pending"
+  status = "pending",
+  message
 }: RenderedInvitationProps) {
   const formattedInviteId = inviteId.startsWith('INV-FINAL-') ? inviteId : `INV-FINAL-${inviteId}`;
   const [currentClientId, setCurrentClientId] = useState<string | number | null>(null);
@@ -275,7 +277,11 @@ export function RenderedInvitation({
           
           <div className="space-y-4">
             <div className={`text-center italic text-gray-700 px-4 ${salonInitiated ? 'text-sm' : ''}`}>
-              {salonInitiated ? (
+              {message ? (
+                /* For client-sent gifts, show the actual message */
+                <div className="whitespace-pre-line">{message}</div>
+              ) : salonInitiated ? (
+                /* For salon-initiated invitations, show the default salon message */
                 <>
                   Hi <span className="font-semibold">{recipientName}</span>, We are joining Ven Me, Baby! VMB fits today's lifestyle. It's direct, it's easy. You choose your {styleOption ? <span className="font-semibold">{styleOption}</span> : "style"}, send your gift request. It's a powerful way to connect on a personal level. Check out the samples, and REGISTER!! Become a Ven Me, Baby!
                   
