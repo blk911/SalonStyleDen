@@ -464,12 +464,35 @@ export default function InvitationPreview() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  // CRITICAL FIX: Button logic based on gift type
-                  // 1. For client-sent gifts (has isClientSentGift flag): go to sender's client dashboard
-                  // 2. For salon invitations (has salonId): go to salon page
-                  // 3. Fallback: go to salon directory
+                  // IMPROVED FLOW: Use the source parameter to determine return path
+                  // 1. If source=salon - go to salon dashboard
+                  // 2. If source=client - go to client dashboard  
+                  // 3. For client-sent gifts - go to sender's client dashboard
+                  // 4. For salon invitations - go to salon page
+                  // 5. Fallback - go to salon directory
                   
-                  // Check if this is a client-sent gift (from our new flag)
+                  // First check if we have a source parameter from URL
+                  if (sourceDashboard === 'salon' && invitation?.salonId) {
+                    console.log(`[FLOW] SOURCE=SALON: Navigating to salon dashboard ID: ${invitation.salonId}`);
+                    setLocation(`/salon/${invitation.salonId}`);
+                    toast({
+                      title: 'Returned to salon dashboard',
+                      description: 'Viewing salon profile',
+                      duration: 2000
+                    });
+                    return;
+                  } else if (sourceDashboard === 'client' && currentClientId) {
+                    console.log(`[FLOW] SOURCE=CLIENT: Navigating to client dashboard ID: ${currentClientId}`);
+                    setLocation(`/client/${currentClientId}`);
+                    toast({
+                      title: 'Returned to client dashboard',
+                      description: 'Viewing client profile',
+                      duration: 2000
+                    });
+                    return;
+                  }
+                  
+                  // If no source parameter, use legacy logic
                   if (isGiftHash && invitation.isClientSentGift && invitation.senderClientId) {
                     // This is a client-sent gift, go back to sender's client dashboard
                     console.log(`[FLOW] CLIENT GIFT: Navigating to client dashboard for sender ID: ${invitation.senderClientId}`);
@@ -506,10 +529,14 @@ export default function InvitationPreview() {
                   "border-pink-200 text-pink-700 hover:bg-pink-50"}
               >
                 <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                {/* Customize button label based on gift type */}
-                {isGiftHash && invitation.isClientSentGift 
-                  ? `Back to Sender's Dashboard` 
-                  : `To ${invitation?.salonName || salon?.name || "Salon Page"}`}
+                {/* Customize button label based on source context */}
+                {sourceDashboard === 'salon' 
+                  ? `Back to Salon Dashboard` 
+                  : sourceDashboard === 'client'
+                    ? `Back to Client Dashboard`
+                    : isGiftHash && invitation.isClientSentGift 
+                      ? `Back to Sender's Dashboard` 
+                      : `To ${invitation?.salonName || salon?.name || "Salon Page"}`}
               </Button>
             </div>
           </CardFooter>
