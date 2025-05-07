@@ -708,6 +708,53 @@ export class DatabaseStorage implements IStorage {
         // Continue with client deletion anyway
       }
       
+      // Delete or handle gifts where client is the sender or recipient
+      try {
+        // First, check if there are any gifts sent by this client
+        const sentGifts = await this.getSentGifts(id);
+        console.log(`DatabaseStorage.deleteClient - Found ${sentGifts.length} gifts sent by this client to handle`);
+        
+        // Delete each gift sent by this client
+        for (const gift of sentGifts) {
+          await db.delete(gifts).where(eq(gifts.id, gift.id));
+          console.log(`DatabaseStorage.deleteClient - Deleted gift ID ${gift.id} (client was sender)`);
+        }
+        
+        // Also check for gifts received by this client
+        const receivedGifts = await this.getReceivedGifts(id);
+        console.log(`DatabaseStorage.deleteClient - Found ${receivedGifts.length} gifts received by this client to handle`);
+        
+        // For received gifts, we have options:
+        // 1. Delete them (if we want to completely remove all trace of the client)
+        // 2. Set recipientId to null (if we want to preserve gift history)
+        // We'll go with option 1 for consistency
+        for (const gift of receivedGifts) {
+          await db.delete(gifts).where(eq(gifts.id, gift.id));
+          console.log(`DatabaseStorage.deleteClient - Deleted gift ID ${gift.id} (client was recipient)`);
+        }
+      } catch (giftError) {
+        console.error(`DatabaseStorage.deleteClient - Error handling gifts related to client:`, giftError);
+        throw giftError; // This is important as we can't proceed if gifts can't be handled
+      }
+      
+      // Delete or handle gifts where client is the recipient
+      try {
+        // First, check if there are any gifts received by this client
+        const receivedGifts = await this.getReceivedGifts(id);
+        console.log(`DatabaseStorage.deleteClient - Found ${receivedGifts.length} gifts received by this client to handle`);
+        
+        // Update each gift received by this client to clear the recipientId
+        for (const gift of receivedGifts) {
+          await db.update(gifts)
+            .set({ recipientId: null })
+            .where(eq(gifts.id, gift.id));
+          console.log(`DatabaseStorage.deleteClient - Updated gift ID ${gift.id} to clear recipient reference`);
+        }
+      } catch (giftError) {
+        console.error(`DatabaseStorage.deleteClient - Error handling gifts received by client:`, giftError);
+        throw giftError; // This is important as we can't proceed if gifts can't be handled
+      }
+      
       // Delete the client
       const result = await db
         .delete(clients)
