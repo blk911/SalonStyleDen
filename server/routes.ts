@@ -1569,8 +1569,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               matchingClient = matchingClients[0];
               
               // Get sponsor information from the invitation
-              const sponsorName = invitationByHash.sponsor || "Ven Me, Baby! LTD";
-              const sponsorSalonId = invitationByHash.salonId || 12;
+              const sponsorName = invitationByHash.sponsor || "VMB LTD";
+              const sponsorSalonId = invitationByHash.salonId || 1;
               
               return res.status(200).json({ 
                 success: true,
@@ -1589,16 +1589,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // 3. Check for clients with phone numbers ending with this code
         const clientsWithMatchingPhone = allClients.filter(client => {
           if (!client.phone) return false;
-          const clientPhone = client.phone.replace(/\D/g, '');
-          return clientPhone.slice(-4) === code;
+          return phoneEndsWithDigits(client.phone, code);
         });
         
         if (clientsWithMatchingPhone.length > 0) {
           matchingClient = clientsWithMatchingPhone[0];
           
           // Get sponsor information for client
-          const sponsorName = matchingClient.sponsor || "Ven Me, Baby! LTD";
-          const sponsorSalonId = matchingClient.sponsorSalonId || 12;
+          const sponsorName = matchingClient.sponsor || "VMB LTD";
+          const sponsorSalonId = matchingClient.sponsorSalonId || 1;
           
           return res.status(200).json({ 
             success: true,
@@ -1615,8 +1614,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // 4. Check for invitations with phone numbers ending with this code
         const invitationsWithMatchingPhone = allInvitations.filter(invitation => {
           if (!invitation.phone) return false;
-          const invitationPhone = invitation.phone.replace(/\D/g, '');
-          return invitationPhone.slice(-4) === code;
+          return phoneEndsWithDigits(invitation.phone, code);
         });
         
         if (invitationsWithMatchingPhone.length > 0) {
@@ -1668,8 +1666,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // 5. Compare with salons data as fallback
         const salonsWithMatchingPhone = allSalons.filter(salon => {
           if (!salon.phone) return false;
-          const salonPhone = salon.phone.replace(/\D/g, '');
-          return salonPhone.slice(-4) === code;
+          return phoneEndsWithDigits(salon.phone, code);
         });
         
         if (salonsWithMatchingPhone.length > 0) {
