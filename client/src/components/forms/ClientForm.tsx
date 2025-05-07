@@ -123,12 +123,12 @@ export default function ClientForm({
         // Return default fallback salons
         return [
           {
-            id: 12,
-            name: "Ven Me, Baby! LTD",
+            id: 1,
+            name: "VMB LTD",
             ownerName: "Admin"
           },
           {
-            id: 1, 
+            id: 2, 
             name: "Tiffany 5280 Nails Studio",
             ownerName: "Tiffany"
           }
@@ -190,14 +190,14 @@ export default function ClientForm({
   // When salons are loaded, set default salon
   useEffect(() => {
     if (salons && salons.length > 0 && form.getValues("salonId") === "loading") {
-      // First try to find a salon with "Ven Me" in the name
-      const venMeSalon = salons.find(salon => 
-        salon.name.includes("Ven Me")
-      );
-
-      // Then try to find a salon with "VMB" in the name
+      // First try to find a salon with "VMB" in the name
       const vmbSalon = salons.find(salon => 
         salon.name.includes("VMB")
+      );
+
+      // Then try to find a salon with "Ven Me" in the name
+      const venMeSalon = salons.find(salon => 
+        salon.name.includes("Ven Me")
       );
 
       // Then try to find any salon with "Lux" in the name
@@ -210,8 +210,8 @@ export default function ClientForm({
         salon.name.includes("Tiffany") || salon.ownerName.includes("Tiffany")
       );
 
-      // Choose the most appropriate default salon - prioritize Ven Me, Baby! LTD
-      const defaultSalon = venMeSalon || vmbSalon || luxSalon || tiffanySalon || salons[0];
+      // Choose the most appropriate default salon - prioritize VMB LTD
+      const defaultSalon = vmbSalon || venMeSalon || luxSalon || tiffanySalon || salons[0];
 
       if (defaultSalon) {
         form.setValue("salonId", String(defaultSalon.id));
@@ -226,7 +226,7 @@ export default function ClientForm({
     // Update the visibility flag for the UI (now always visible but conditionally disabled)
     setShowSalonSelector(isCurrentClient === "yes");
 
-    // If not a current client, set default salon to Ven Me, Baby! LTD
+    // If not a current client, set default salon to VMB LTD
     if (isCurrentClient === "no" && salons && salons.length > 0) {
       // First try to find VMB LTD (ID 1) salon directly - highest priority
       const vmbLtdSalon = salons.find(salon => 
@@ -338,9 +338,9 @@ export default function ClientForm({
         console.log(`Added salon name to form data: ${selectedSalon.name}`);
       }
     } else if (salons && salons.length > 0) {
-      // Default salon selection - prioritize Ven Me, Baby! LTD
-      const defaultSalon = salons.find(salon => salon.name.includes("Ven Me")) || 
-                          salons.find(salon => salon.name.includes("VMB")) || 
+      // Default salon selection - prioritize VMB LTD
+      const defaultSalon = salons.find(salon => salon.name.includes("VMB")) || 
+                          salons.find(salon => salon.name.includes("Ven Me")) || 
                           salons.find(salon => salon.name.includes("Lux")) || 
                           salons[0];
       if (defaultSalon) {
@@ -403,7 +403,7 @@ export default function ClientForm({
 
       // Find salon name for display
       const selectedSalon = salons?.find(salon => String(salon.id) === salonId);
-      const salonName = selectedSalon?.name || "Ven Me, Baby! Lux";
+      const salonName = selectedSalon?.name || "VMB LTD";
 
       console.log(`Client will be associated with salon: ${salonName} (ID: ${salonId})`);
 
@@ -607,7 +607,7 @@ export default function ClientForm({
                         <FormLabel 
                           className={`font-semibold text-sm ${field.value === "yes" ? "text-pink-600" : "text-gray-600"}`}
                         >
-                          Yes! My Ven Me, Baby! Salon is:
+                          Yes! My VMB LTD Salon is:
                         </FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-2">
@@ -673,13 +673,13 @@ export default function ClientForm({
                                 Loading salon list...
                               </SelectItem>
                             ) : salons && salons.length > 0 ? (
-                              // Prioritize "Ven Me, Baby! LTD" at the top of the list
+                              // Prioritize "VMB LTD" at the top of the list
                               [
-                                // First display any Ven Me, Baby! salons
+                                // First display any VMB salons
                                 ...salons
                                   .filter(salon => 
-                                    salon.name.includes("Ven Me") || 
-                                    salon.name.includes("VMB"))
+                                    salon.name.includes("VMB") || 
+                                    salon.name.includes("Ven Me"))
                                   .map((salon) => (
                                     <SelectItem 
                                       key={salon.id} 
@@ -797,7 +797,7 @@ export default function ClientForm({
             
             <div className="pt-4">
               <Button type="submit" className="w-full bg-[#FF92A5] hover:bg-[#E57C8E]">
-                Sign me up! Ven Me, Baby!
+                Sign me up! VMB LTD
               </Button>
             </div>
           </form>
