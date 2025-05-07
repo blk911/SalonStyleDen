@@ -1041,80 +1041,104 @@ export default function ClientRegistrationPage() {
                 <FormItem>
                   <FormLabel>Street Address</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="123 Main St" />
+                    <Input 
+                      {...field} 
+                      placeholder="123 Main St" 
+                      onClick={(e) => {
+                        // Stop event propagation to prevent dialog from closing
+                        e.stopPropagation();
+                      }}
+                    />
                   </FormControl>
                 </FormItem>
               )}
             />
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="city"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="col-span-1">
                     <FormLabel>City</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="City" />
+                      <Input 
+                        {...field} 
+                        placeholder="City" 
+                        onClick={(e) => {
+                          // Stop event propagation to prevent dialog from closing
+                          e.stopPropagation();
+                        }}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
               />
               
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>State</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="State" maxLength={2} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="zipCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Zip Code</FormLabel>
-                      <FormControl>
-                        <Input 
-                          {...field} 
-                          placeholder="Zip" 
-                          maxLength={10} 
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            // Allow only numbers and hyphens
-                            if (/^[\d-]*$/.test(value)) {
-                              field.onChange(value);
-                            }
-                          }}
-                          onBlur={(e) => {
-                            const value = e.target.value;
-                            // Validate zip code format on blur
-                            if (value && !/^\d{5}(-\d{4})?$/.test(value)) {
-                              toast({
-                                title: "Invalid ZIP Code",
-                                description: "Please use format 12345 or 12345-6789",
-                                variant: "destructive"
-                              });
-                            }
-                            field.onBlur();
-                          }}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        Format: 12345 or 12345-6789
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem className="col-span-1">
+                    <FormLabel>State</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        placeholder="State" 
+                        maxLength={2} 
+                        onClick={(e) => {
+                          // Stop event propagation to prevent dialog from closing
+                          e.stopPropagation();
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="zipCode"
+                render={({ field }) => (
+                  <FormItem className="col-span-1">
+                    <FormLabel>Zip Code</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field} 
+                        placeholder="Zip" 
+                        maxLength={10}
+                        onClick={(e) => {
+                          // Stop event propagation to prevent dialog from closing
+                          e.stopPropagation();
+                        }}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Allow only numbers and hyphens
+                          if (/^[\d-]*$/.test(value)) {
+                            field.onChange(value);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const value = e.target.value;
+                          // Validate zip code format on blur
+                          if (value && !/^\d{5}(-\d{4})?$/.test(value)) {
+                            toast({
+                              title: "Invalid ZIP Code",
+                              description: "Please use format 12345 or 12345-6789",
+                              variant: "destructive"
+                            });
+                          }
+                          field.onBlur();
+                        }}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      Format: 12345 or 12345-6789
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
             
             <FormField
@@ -1128,6 +1152,10 @@ export default function ClientRegistrationPage() {
                       {...field} 
                       placeholder="Any special requests or information you'd like to share" 
                       className="min-h-[80px]"
+                      onClick={(e) => {
+                        // Stop event propagation to prevent dialog from closing
+                        e.stopPropagation();
+                      }}
                     />
                   </FormControl>
                 </FormItem>
