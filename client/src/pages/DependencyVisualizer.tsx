@@ -12,7 +12,7 @@ const visualizations = [
 
 export default function DependencyVisualizer() {
   const [activeTab, setActiveTab] = useState<string>("server");
-  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
+  const [imageLoaded, setImageLoaded] = useState<boolean>(false);
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
 
   useEffect(() => {
@@ -64,19 +64,20 @@ export default function DependencyVisualizer() {
                 >
                   {activeTab === vis.id && (
                     <>
-                      {!loadedImages[vis.id] && (
+                      {!imageLoaded && (
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
                         </div>
                       )}
-                      <img 
+                      <iframe 
                         src={vis.path}
                         style={{ 
                           width: "100%", 
-                          objectFit: "contain",
-                          display: loadedImages[vis.id] ? "block" : "none"
+                          height: "100%", 
+                          border: "none",
+                          display: imageLoaded ? "block" : "none"
                         }}
-                        onLoad={() => setLoadedImages(prev => ({ ...prev, [vis.id]: true }))}
+                        onLoad={() => setImageLoaded(true)}
                       />
                     </>
                   )}
