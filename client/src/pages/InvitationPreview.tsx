@@ -328,13 +328,16 @@ export default function InvitationPreview() {
       }
       
       // Direct to registration page with the invitation data
+      // Also preserve source dashboard context in the URL
+      const sourceParam = sourceDashboard ? `&source=${sourceDashboard}` : '';
+      
       // For salon invitations, pass basic client info
       if (!invitation.senderId) {
         setLocation(
-          `/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&email=${encodeURIComponent(invitation.email)}&phone=${encodeURIComponent(invitation.phone)}`
+          `/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&email=${encodeURIComponent(invitation.email)}&phone=${encodeURIComponent(invitation.phone)}${sourceParam}`
         );
       } else {
-        setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+        setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}${sourceParam}`);
       }
       
     } catch (error) {
@@ -345,8 +348,8 @@ export default function InvitationPreview() {
         variant: "destructive"
       });
       
-      // Go to registration as fallback
-      setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}`);
+      // Go to registration as fallback, preserving source context
+      setLocation(`/client/register?salonId=${invitation.salonId}&invitationId=${invitation.id}${sourceParam}`);
     } finally {
       setAcceptingInvitation(false);
     }
