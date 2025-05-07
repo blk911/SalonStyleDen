@@ -465,115 +465,57 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         
         {sendFormOpen && (
           <CardContent className="p-4">
-            {/* License Verification Status - Enhanced UI */}
+            {/* License Verification Status */}
             {licenseInfo && (
-              <div className={`mb-6 rounded-md text-sm shadow-sm ${
+              <div className={`mb-4 rounded-md text-sm ${
                 licenseInfo.licenseVerified 
                   ? 'bg-green-50 text-green-800 border border-green-200' 
-                  : hasReachedLimit ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-amber-50 text-amber-800 border border-amber-200'
+                  : 'bg-amber-50 text-amber-800 border border-amber-200'
               }`}>
                 <div 
-                  className="p-4 flex items-center justify-between cursor-pointer"
+                  className="p-3 flex items-center justify-between cursor-pointer"
                   onClick={() => setSendFormOpen(!sendFormOpen)}
                 >
                   <div className="flex items-center space-x-2">
                     {licenseInfo.licenseVerified ? (
                       <CheckCircle className="h-5 w-5 text-green-600" />
-                    ) : hasReachedLimit ? (
-                      <AlertTriangle className="h-5 w-5 text-red-600" />
                     ) : (
                       <Clock className="h-5 w-5 text-amber-600" />
                     )}
                     <span className="font-medium">
                       {licenseInfo.licenseVerified 
                         ? 'License Verified' 
-                        : hasReachedLimit 
-                          ? 'Invitation Limit Reached' 
-                          : 'License Verification Pending'}
+                        : 'License Verification Pending'}
                     </span>
-                    
-                    {/* Show count badge when not at limit */}
-                    {!licenseInfo.licenseVerified && !hasReachedLimit && (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Badge className="ml-2 bg-amber-100 text-amber-800 border-amber-200">
-                              {licenseInfo.currentInvitationCount} of {licenseInfo.invitationLimit}
-                            </Badge>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Invitations used</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    )}
-                    
-                    {/* Limit Reached Badge */}
-                    {hasReachedLimit && !licenseInfo.licenseVerified && (
-                      <Badge className="ml-2 bg-red-100 text-red-800 border-red-200 animate-pulse">
-                        Action Required
+                    {hasReachedLimit && !licenseInfo.licenseVerified && !sendFormOpen && (
+                      <Badge className="ml-2 bg-red-100 text-red-800 border-red-200">
+                        Limit Reached
                       </Badge>
                     )}
                   </div>
                   <ChevronDown 
-                    className={`h-4 w-4 transition-transform ${sendFormOpen ? 'transform rotate-180' : ''}`} 
+                    className={`h-4 w-4 text-amber-800 transition-transform ${sendFormOpen ? 'transform rotate-180' : ''}`} 
                   />
                 </div>
                 
-                {/* Expandable content showing license details */}
                 {sendFormOpen && (
-                  <div className="px-4 pb-4">
-                    <div className="mt-2">
-                      {licenseInfo.licenseVerified ? (
-                        <div className="flex items-center">
-                          <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
-                          <span>Your salon license is verified. You can send unlimited client invitations.</span>
-                        </div>
-                      ) : (
-                        <div>
-                          {/* Progress bar for invitation usage */}
-                          <div className="mb-3">
-                            <div className="flex justify-between text-xs mb-1">
-                              <span>Invitation Usage</span>
-                              <span>{licenseInfo.currentInvitationCount} of {licenseInfo.invitationLimit}</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2.5">
-                              <div 
-                                className={`h-2.5 rounded-full ${hasReachedLimit ? 'bg-red-600' : 'bg-amber-500'}`} 
-                                style={{width: `${Math.min(100, (licenseInfo.currentInvitationCount / licenseInfo.invitationLimit) * 100)}%`}}
-                              ></div>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-start">
-                            <AlertCircle className="h-4 w-4 text-amber-600 mr-2 mt-0.5" />
-                            <span>
-                              Unverified salons can send a maximum of <strong>{licenseInfo.invitationLimit}</strong> client invitations. 
-                              Verify your license to remove this limit.
-                            </span>
-                          </div>
-                        </div>
-                      )}
+                  <div className="px-3 pb-3">
+                    <div className="mt-1">
+                      {licenseInfo.licenseVerified 
+                        ? 'Your salon license is verified. You can send unlimited client invitations.' 
+                        : `Unverified salons can send a maximum of ${licenseInfo.invitationLimit} client invitations. You have used ${licenseInfo.currentInvitationCount} so far.`}
                     </div>
-                    
-                    {/* Action required message when limit reached */}
                     {hasReachedLimit && !licenseInfo.licenseVerified && (
-                      <div className="mt-4 mb-2 p-3 bg-red-100 rounded-md border border-red-200">
-                        <div className="text-red-800 font-medium mb-2 flex items-center">
-                          <AlertTriangle className="h-4 w-4 mr-2" />
-                          You've reached your invitation limit
+                      <div className="mt-2">
+                        <div className="text-red-600 font-medium mb-2">
+                          You have reached your invitation limit. Once your license is verified, you'll have unlimited invitations.
                         </div>
-                        <p className="text-red-700 text-sm mb-4">
-                          To continue sending invitations, please verify your salon license. 
-                          License verification is free and typically takes 1-2 business days.
-                        </p>
-                        <div className="flex space-x-2 mt-2">
+                        <div className="flex space-x-2 mt-4">
                           <Button 
                             variant="outline" 
-                            className="flex-1 border-red-300 text-red-700 hover:bg-red-50"
+                            className="flex-1"
                             onClick={() => setSendFormOpen(false)}
                           >
-                            <X className="mr-2 h-4 w-4" />
                             Close
                           </Button>
                           <Link to="/salon-license" className="flex-1">
@@ -581,7 +523,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
                               className="w-full bg-pink-500 hover:bg-pink-600"
                             >
                               <FileText className="mr-2 h-4 w-4" />
-                              Verify License Now
+                              Update License Information
                             </Button>
                           </Link>
                         </div>

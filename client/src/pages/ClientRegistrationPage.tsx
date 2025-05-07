@@ -32,7 +32,6 @@ import {
   CheckCheck,
   Scissors,
   Sparkles,
-  Gift,
 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -101,48 +100,17 @@ interface Salon {
 export default function ClientRegistrationPage() {
   const [location, navigate] = useLocation();
   
-  // Extract URL parameters using URLSearchParams for maximum compatibility
-  const urlParams = new URLSearchParams(window.location.search);
-  
-  // Extract invite hash from URL if present (support both path formats and query param)
-  const inviteHashFromPath = location.includes('/invite/') 
+  // Extract invite hash from URL if present
+  const inviteHash = location.includes('/invite/') 
     ? location.split('/invite/')[1]
     : null;
-  const inviteHashFromParam = urlParams.get('inviteHash') || urlParams.get('hash');
-  const inviteHash = inviteHashFromPath || inviteHashFromParam;
-  
-  // Extract salon ID from URL if present (support both path formats and query param)
-  const salonIdFromPath = location.includes('/salon/') 
+    
+  // Extract salon ID from URL if present
+  const salonIdParam = location.includes('/salon/') 
     ? location.split('/salon/')[1]
     : null;
-  const salonIdFromParam = urlParams.get('salonId');
-  const salonIdRaw = salonIdFromPath || salonIdFromParam;
-  const salonId = salonIdRaw ? parseInt(salonIdRaw, 10) : undefined;
-  
-  // Extract invitation ID from URL if present
-  const invitationId = urlParams.get('invitationId') ? parseInt(urlParams.get('invitationId')!, 10) : undefined;
-  
-  // Extract gift-specific parameters
-  const giftId = urlParams.get('giftId') ? parseInt(urlParams.get('giftId')!, 10) : undefined;
-  const hasUnredeemedGiftParam = urlParams.get('hasUnredeemedGift') === 'true';
-  const requiresAddressParam = urlParams.get('requiresAddress') === 'true';
-  
-  // Prefill data from URL parameters
-  const nameParam = urlParams.get('name');
-  const phoneParam = urlParams.get('phone');
-  const emailParam = urlParams.get('email');
-  
-  console.log(`[URL PARAMS] Extracted parameters:`, {
-    inviteHash,
-    salonId,
-    invitationId,
-    giftId,
-    hasUnredeemedGiftParam,
-    requiresAddressParam,
-    nameParam,
-    phoneParam,
-    emailParam
-  });
+    
+  const salonId = salonIdParam ? parseInt(salonIdParam, 10) : undefined;
   
   // State management for address dialog and form submission
   const [showAddressDialog, setShowAddressDialog] = useState(false);
@@ -282,78 +250,20 @@ export default function ClientRegistrationPage() {
     enabled: !!salonId,
   });
   
-  // Enhanced useEffect to prefill form data from multiple sources (invitation, URL params, etc)
+  // If invitation data is loaded, prefill the form
   useEffect(() => {
-    // Get current form values
-    const currentValues = form.getValues();
-    
-    // Determine values to use (prioritize URL params over invitation data for most fields)
-    const nameToUse = nameParam || (invitation?.name || currentValues.name || '');
-    const phoneToUse = phoneParam || (invitation?.phone || currentValues.phone || '');
-    const emailToUse = emailParam || (invitation?.email || currentValues.email || '');
-    const notesToUse = invitation?.notes || currentValues.notes || '';
-    const favoriteServicesToUse = invitation?.favoriteServices || currentValues.favoriteServices || [];
-    const sponsorSalonIdToUse = salonId || invitation?.salonId || currentValues.sponsorSalonId;
-    
-    // Set gift-related flags based on URL parameters and hook state
-    const needsToShowAddressDialog = (hasUnredeemedGiftParam || hasUnredeemedGift) && requiresAddressParam;
-    
-    // Log the pre-population logic
-    console.log('[FORM PREFILL] Determining form values:', {
-      nameToUse, 
-      phoneToUse, 
-      emailToUse,
-      sponsorSalonIdToUse,
-      hasUnredeemedGiftParam,
-      requiresAddressParam,
-      needsToShowAddressDialog
-    });
-    
-    // Reset form with combined values
-    form.reset({
-      ...currentValues,
-      name: nameToUse,
-      phone: phoneToUse,
-      email: emailToUse,
-      notes: notesToUse,
-      favoriteServices: favoriteServicesToUse,
-      sponsorSalonId: sponsorSalonIdToUse,
-    });
-    
-    // Trigger address dialog if needed based on URL parameters
-    if (needsToShowAddressDialog && !addressDialogShown) {
-      console.log('[FORM PREFILL] Opening address dialog based on URL parameters');
-      setShowAddressDialog(true);
-      
-      // Show toast to explain to the user
-      toast({
-        title: 'Address Required for Gift',
-        description: 'Please provide your address information to redeem your gift.',
-        variant: 'default',
+    if (invitation) {
+      form.reset({
+        ...form.getValues(),
+        name: invitation.name || '',
+        phone: invitation.phone || '',
+        email: invitation.email || '',
+        notes: invitation.notes || '',
+        favoriteServices: invitation.favoriteServices || [],
+        sponsorSalonId: invitation.salonId || salonId,
       });
     }
-    
-    // If explicit phone parameter is provided, validate it immediately for gift checking
-    if (phoneToUse && phoneParam) {
-      console.log('[FORM PREFILL] Validating phone from URL parameter:', phoneToUse);
-      
-      // Use setTimeout to ensure form is fully rendered before validation
-      setTimeout(() => {
-        handlePhoneValidation(true, phoneToUse);
-      }, 500);
-    }
-  }, [
-    invitation, 
-    form, 
-    salonId, 
-    nameParam, 
-    phoneParam, 
-    emailParam, 
-    hasUnredeemedGiftParam, 
-    requiresAddressParam,
-    addressDialogShown,
-    hasUnredeemedGift
-  ]);
+  }, [invitation, form, salonId]);
   
   // Function to handle phone validation - checks if phone is valid and if it has unredeemed gifts
   const handlePhoneValidation = async (isValid: boolean, phoneNumber?: string) => {
@@ -504,7 +414,7 @@ export default function ClientRegistrationPage() {
       
       setIsSubmitting(true);
       
-      // Enhanced payload with gift redemption support
+      // Add sponsor information
       const clientData = {
         ...data,
         type: 'client',
@@ -512,20 +422,8 @@ export default function ClientRegistrationPage() {
         sponsorSalonId: data.sponsorSalonId || salonId || invitation?.salonId,
         isCurrentClient: true,
         accepted_terms: data.acceptTerms || false, // Use snake_case to match database
-        invitationId: invitation?.id, // Add invitation ID for linking
-        // Add gift redemption information if applicable
-        hasUnredeemedGift: hasUnredeemedGiftParam || hasUnredeemedGift || false,
-        requiresAddress: requiresAddressParam || requiresAddress || false,
-        giftId: giftId || undefined, // Add gift ID if available from URL
+        invitationId: invitation?.id // Add invitation ID for linking
       };
-      
-      // Log the payload for debugging
-      console.log('[GIFT TRACKING] Client registration payload:', {
-        hasGift: hasUnredeemedGiftParam || hasUnredeemedGift,
-        requiresAddress: requiresAddressParam || requiresAddress,
-        giftId,
-        hasProvidedAddress: Boolean(data.address && data.city && data.state && data.zipCode)
-      });
       
       console.log('Submitting client data:', clientData);
       
@@ -779,12 +677,6 @@ export default function ClientRegistrationPage() {
                           <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                           <span className="text-gray-600">Your invitation has been linked to your account</span>
                         </li>
-                        {(hasUnredeemedGift || hasUnredeemedGiftParam) && (
-                          <li className="flex items-start">
-                            <Gift className="h-5 w-5 text-pink-500 mt-0.5 mr-2 flex-shrink-0" />
-                            <span className="text-gray-600">Your gift has been applied to your account</span>
-                          </li>
-                        )}
                         <li className="flex items-start">
                           <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                           <span className="text-gray-600">Continue enjoying all member benefits</span>
@@ -796,12 +688,6 @@ export default function ClientRegistrationPage() {
                           <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                           <span className="text-gray-600">You'll be redirected to your new dashboard</span>
                         </li>
-                        {(hasUnredeemedGift || hasUnredeemedGiftParam) && (
-                          <li className="flex items-start">
-                            <Gift className="h-5 w-5 text-pink-500 mt-0.5 mr-2 flex-shrink-0" />
-                            <span className="text-gray-600">Your gift has been redeemed successfully</span>
-                          </li>
-                        )}
                         <li className="flex items-start">
                           <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                           <span className="text-gray-600">Browse services from your sponsoring salon</span>

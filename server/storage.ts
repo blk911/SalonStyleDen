@@ -875,7 +875,6 @@ export class DatabaseStorage implements IStorage {
           type: row.type || null,
           salonId: row.salon_id,
           sponsor: row.sponsor,
-          sponsorName: row.sponsor_name || row.sponsor || null,
           inviteHash: row.invite_hash,
           status: row.status,
           firstServiceDate: row.first_service_date,
