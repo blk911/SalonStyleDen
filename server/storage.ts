@@ -616,7 +616,7 @@ export class DatabaseStorage implements IStorage {
           notes: result.rows[0].notes,
           socialMedia: result.rows[0].social_media,
           favoriteServices: result.rows[0].favorite_services,
-          profileComplete: result.rows[0].profile_complete,
+          // profileComplete field is not in the schema
           profilePromptShown: result.rows[0].profile_prompt_shown,
           photoUrl: result.rows[0].photo_url,
           status: result.rows[0].status,
@@ -915,14 +915,15 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DatabaseStorage.getSalonInvitations - Fetching invitations for salon ${salonId}`);
       
-      // Use a raw SQL query that only selects columns we know exist
+      // Use a raw SQL query that only selects columns we know exist, including style fields
       // This is safer than using the Drizzle model which may include fields not yet in DB
       const sqlQuery = `
         SELECT 
             id, name, phone, email, notes, message, type,
             salon_id, sponsor, invite_hash, status, 
             first_service_date, created_at, 
-            favorite_services, sender_id
+            favorite_services, sender_id,
+            style_option, style_price, style_duration
         FROM invitations 
         WHERE salon_id = $1
         ORDER BY created_at DESC
@@ -950,6 +951,10 @@ export class DatabaseStorage implements IStorage {
           firstServiceDate: row.first_service_date,
           createdAt: row.created_at,
           favoriteServices: row.favorite_services,
+          // Required fields from schema
+          styleOption: row.style_option || null,
+          stylePrice: row.style_price || null,
+          styleDuration: row.style_duration || null,
           // Use sender_id from query if available, otherwise null
           senderId: row.sender_id || null
         }));
@@ -1001,13 +1006,14 @@ export class DatabaseStorage implements IStorage {
       const limitClause = limit ? `LIMIT $${values.length + 1}` : '';
       if (limit) values.push(limit);
       
-      // Use a raw SQL query that only selects columns we know exist
+      // Use a raw SQL query that only selects columns we know exist, including style fields
       const sqlQuery = `
         SELECT 
             id, name, phone, email, notes, message, type,
             salon_id, sponsor, invite_hash, status, 
             first_service_date, created_at, 
-            favorite_services, sender_id
+            favorite_services, sender_id,
+            style_option, style_price, style_duration
         FROM invitations 
         ${whereClause}
         ORDER BY created_at DESC
@@ -1036,6 +1042,10 @@ export class DatabaseStorage implements IStorage {
           firstServiceDate: row.first_service_date,
           createdAt: row.created_at,
           favoriteServices: row.favorite_services,
+          // Required fields from schema
+          styleOption: row.style_option || null,
+          stylePrice: row.style_price || null,
+          styleDuration: row.style_duration || null,
           senderId: row.sender_id || null
         }));
         
