@@ -104,12 +104,12 @@ export default function ClientForm({
           // Return default fallback salons instead of throwing
           return [
             {
-              id: 12,
-              name: "Ven Me, Baby! LTD",
+              id: 1,
+              name: "VMB LTD",
               ownerName: "Admin"
             },
             {
-              id: 1, 
+              id: 2, 
               name: "Tiffany 5280 Nails Studio",
               ownerName: "Tiffany"
             }
