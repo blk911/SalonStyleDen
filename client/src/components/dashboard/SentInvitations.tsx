@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ExternalLinkIcon, PhoneIcon, CalendarIcon, ClockIcon, GiftIcon, UserIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
+import { formatPhonePartial } from "@/lib/utils";
 
 interface Invitation {
   id: number;
@@ -102,14 +103,7 @@ export default function SentInvitations({
     }).format(date);
   };
 
-  // Format phone for display (partial hiding)
-  const formatPhonePartial = (phone: string) => {
-    const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length === 10) {
-      return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-****`;
-    }
-    return phone;
-  };
+  // Using the site-wide standardized phone formatter from utils.ts
 
   return (
     <div className="grid grid-cols-1 gap-3">

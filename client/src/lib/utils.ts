@@ -19,9 +19,14 @@ export function validateResponse<T>(response: T | null): T {
   return response;
 }
 
+/**
+ * SITE-WIDE STANDARD: Formats a phone number into (XXX) XXX-XXXX format
+ * @param value The input phone number string (can contain non-digit characters)
+ * @returns Formatted phone number in (XXX) XXX-XXXX format
+ */
 export function formatPhoneNumber(value: string): string {
   // Remove non-digit characters
-  const digits = value.replace(/\D/g, '');
+  const digits = cleanPhoneNumber(value);
 
   // Format as (XXX) XXX-XXXX - site-wide standard
   if (digits.length === 0) {
@@ -36,12 +41,36 @@ export function formatPhoneNumber(value: string): string {
 }
 
 /**
- * Clean phone number by removing all non-digit characters
+ * SITE-WIDE STANDARD: Clean phone number by removing all non-digit characters
  * @param phoneNumber The phone number to clean
  * @returns Only the digits of the phone number
  */
 export function cleanPhoneNumber(phoneNumber: string): string {
+  if (!phoneNumber) return '';
   return phoneNumber.replace(/\D/g, '');
+}
+
+/**
+ * SITE-WIDE STANDARD: Formats a phone number for display with partial masking
+ * for privacy/security (e.g., (123) 456-****).
+ * @param phone The phone number to format with masking
+ * @returns Partially masked phone number
+ */
+export function formatPhonePartial(phone: string): string {
+  const cleaned = cleanPhoneNumber(phone);
+  if (cleaned.length === 10) {
+    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-****`;
+  }
+  return formatPhoneNumber(phone);
+}
+
+/**
+ * SITE-WIDE STANDARD: Normalize a phone number for database storage (10 digits only)
+ * @param phone The phone number to normalize
+ * @returns Normalized 10-digit phone number
+ */
+export function normalizePhoneForStorage(phone: string): string {
+  return cleanPhoneNumber(phone).slice(0, 10);
 }
 
 /**
@@ -55,7 +84,7 @@ export function isValidEmail(email: string): boolean {
 }
 
 /**
- * Validates phone number format (10 digits for US numbers)
+ * SITE-WIDE STANDARD: Validates phone number format (10 digits for US numbers)
  * @param phone The phone number to validate
  * @returns True if phone format is valid
  */
