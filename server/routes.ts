@@ -398,6 +398,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Registration context - check for unredeemed gifts first if context is registration
+      if (context === 'registration' && phone) {
+        // Check if the phone number has an unredeemed gift
+        console.log(`Checking if phone number ${phone} has unredeemed gifts`);
+        try {
+          const giftCheck = await storage.checkUnredeemedGiftByPhone(phone);
+          
+          if (giftCheck.hasUnredeemedGift) {
+            console.log(`Phone ${phone} has an unredeemed gift`);
+            
+            // If there's an unredeemed gift, check for duplicate first
+            const dupeResult = await storage.isDuplicateContact(phone || "", email || "");
+            
+            if (dupeResult.isDuplicate) {
+              // If duplicate, return that info with priority
+              return res.json({
+                exists: dupeResult.isDuplicate,
+                field: dupeResult.field
+              });
+            }
+            
+            // Otherwise return gift info
+            return res.json({
+              exists: false, // Not a duplicate contact
+              field: '',
+              hasUnredeemedGift: true,
+              requiresAddress: true, // Address required for gift redemption
+              giftInfo: giftCheck.gift
+            });
+          }
+        } catch (giftError) {
+          console.error("Error checking for unredeemed gifts:", giftError);
+          // Continue with normal duplicate check if gift check fails
+        }
+      }
+      
       // For all other cases, use the standard duplicate check
       const result = await storage.isDuplicateContact(
         phone || "", 

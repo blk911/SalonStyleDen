@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { validateClientContact, detectInputType, cleanPhoneNumber, isValidEmail, isValidPhone } from '@/lib/utils';
 
-export type ValidationResult = 'loading' | 'registered' | 'not_registered' | 'invalid' | null;
+export type ValidationResult = 'loading' | 'registered' | 'not_registered' | 'invalid' | 'has_unredeemed_gift' | null;
+
+interface ValidationState {
+  result: ValidationResult;
+  hasUnredeemedGift?: boolean;
+  requiresAddress?: boolean;
+}
 
 interface UseContactValidationResult {
   validationResult: ValidationResult;
@@ -9,21 +15,23 @@ interface UseContactValidationResult {
   isValidating: boolean;
   validatedContactType: 'email' | 'phone' | 'unknown';
   resetValidation: () => void;
+  hasUnredeemedGift: boolean;
+  requiresAddress: boolean;
 }
 
 /**
  * Hook for validating contact information (phone/email) against the database
- * to check if a client is registered
+ * to check if a client is registered and if they have unredeemed gifts
  */
 export function useContactValidation(): UseContactValidationResult {
-  const [validationResult, setValidationResult] = useState<ValidationResult>(null);
+  const [validationState, setValidationState] = useState<ValidationState>({ result: null });
   const [isValidating, setIsValidating] = useState(false);
   const [validatedContactType, setValidatedContactType] = useState<'email' | 'phone' | 'unknown'>('unknown');
 
   const validateContact = async (contact: string): Promise<ValidationResult> => {
     // Don't proceed if empty
     if (!contact || contact.trim() === '') {
-      setValidationResult('invalid');
+      setValidationState({ result: 'invalid' });
       return 'invalid';
     }
 
@@ -32,20 +40,20 @@ export function useContactValidation(): UseContactValidationResult {
 
     // Validate format based on type
     if (contactType === 'email' && !isValidEmail(contact)) {
-      setValidationResult('invalid');
+      setValidationState({ result: 'invalid' });
       return 'invalid';
     } else if (contactType === 'phone' && !isValidPhone(contact)) {
-      setValidationResult('invalid');
+      setValidationState({ result: 'invalid' });
       return 'invalid';
     } else if (contactType === 'unknown') {
-      setValidationResult('invalid');
+      setValidationState({ result: 'invalid' });
       return 'invalid';
     }
 
     try {
       // Start validation
       setIsValidating(true);
-      setValidationResult('loading');
+      setValidationState({ result: 'loading' });
       
       // Format the contact for logging
       const cleanedContact = contactType === 'phone' 
@@ -57,18 +65,30 @@ export function useContactValidation(): UseContactValidationResult {
       
       // Call the validation function
       const result = await validateClientContact(contact);
+      console.log('Contact validation result:', result);
       
-      // Update the result
+      // Handle unredeemed gift case
+      if (result.hasUnredeemedGift) {
+        console.log('Contact has unredeemed gift');
+        setValidationState({ 
+          result: 'has_unredeemed_gift',
+          hasUnredeemedGift: true,
+          requiresAddress: result.requiresAddress || false
+        });
+        return 'has_unredeemed_gift';
+      }
+      
+      // Handle normal cases
       if (result.exists) {
-        setValidationResult('registered');
+        setValidationState({ result: 'registered' });
         return 'registered';
       } else {
-        setValidationResult('not_registered');
+        setValidationState({ result: 'not_registered' });
         return 'not_registered';
       }
     } catch (error) {
       console.error('Error in useContactValidation:', error);
-      setValidationResult('invalid');
+      setValidationState({ result: 'invalid' });
       return 'invalid';
     } finally {
       setIsValidating(false);
@@ -76,15 +96,17 @@ export function useContactValidation(): UseContactValidationResult {
   };
 
   const resetValidation = () => {
-    setValidationResult(null);
+    setValidationState({ result: null });
     setValidatedContactType('unknown');
   };
 
   return {
-    validationResult,
+    validationResult: validationState.result,
     validateContact,
     isValidating,
     validatedContactType,
-    resetValidation
+    resetValidation,
+    hasUnredeemedGift: validationState.hasUnredeemedGift || false,
+    requiresAddress: validationState.requiresAddress || false
   };
 }

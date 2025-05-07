@@ -84,10 +84,16 @@ export function detectInputType(input: string): 'email' | 'phone' | 'unknown' {
 
 /**
  * Validates if a client exists in the database using their phone or email
+ * Also checks for unredeemed gifts associated with the contact
  * @param contact The contact information (phone or email)
- * @returns Promise resolving to {exists: boolean, field: string}
+ * @returns Promise resolving to {exists: boolean, field: string, hasUnredeemedGift?: boolean, requiresAddress?: boolean}
  */
-export async function validateClientContact(contact: string): Promise<{exists: boolean, field: string}> {
+export async function validateClientContact(contact: string): Promise<{
+  exists: boolean, 
+  field: string, 
+  hasUnredeemedGift?: boolean, 
+  requiresAddress?: boolean
+}> {
   try {
     const contactType = detectInputType(contact);
     const cleanedContact = contactType === 'phone' ? cleanPhoneNumber(contact) : contact.toLowerCase();
@@ -104,6 +110,8 @@ export async function validateClientContact(contact: string): Promise<{exists: b
       console.log(`Special test case detected for ${contactType}: ${cleanedContact}`);
       return { exists: true, field: contactType };
     }
+    
+    console.log(`Validating contact: ${contactType} = ${cleanedContact}`);
     
     // For production use with API
     const payload = {
@@ -124,7 +132,16 @@ export async function validateClientContact(contact: string): Promise<{exists: b
       throw new Error(`Validation request failed: ${response.status}`);
     }
     
-    return await response.json();
+    const result = await response.json();
+    console.log('Validation response:', result);
+    
+    // Return additional fields from validation response if they exist
+    return {
+      exists: result.exists,
+      field: result.field,
+      hasUnredeemedGift: result.hasUnredeemedGift,
+      requiresAddress: result.requiresAddress
+    };
   } catch (error) {
     console.error('Error validating client contact:', error);
     return { exists: false, field: '' };

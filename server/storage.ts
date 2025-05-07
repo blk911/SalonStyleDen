@@ -1984,8 +1984,12 @@ export class DatabaseStorage implements IStorage {
       const results = await db
         .select()
         .from(gifts)
-        .where(sql`regexp_replace(${gifts.recipientPhone}, '[^0-9]', '', 'g') = ${cleanPhone}`)
-        .where(eq(gifts.status, 'sent')); // Only check for 'sent' gifts that haven't been redeemed yet
+        .where(
+          and(
+            sql`regexp_replace(${gifts.recipientPhone}, '[^0-9]', '', 'g') = ${cleanPhone}`,
+            eq(gifts.status, 'sent')
+          )
+        ); // Only check for 'sent' gifts that haven't been redeemed yet
       
       const hasUnredeemedGift = results.length > 0;
       
