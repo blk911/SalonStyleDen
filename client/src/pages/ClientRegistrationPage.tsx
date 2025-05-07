@@ -1006,13 +1006,31 @@ export default function ClientRegistrationPage() {
       {/* Address Collection Dialog */}
       <Dialog 
         open={showAddressDialog} 
-        onOpenChange={setShowAddressDialog}
+        onOpenChange={(open) => {
+          // Only allow closing via the buttons if there's an unredeemed gift
+          if (!open && hasUnredeemedGift) {
+            // Prevent dialog from closing if client has an unredeemed gift
+            toast({
+              title: "Address Required",
+              description: "Your address is required to redeem your gift.",
+              variant: "destructive"
+            });
+            return;
+          }
+          setShowAddressDialog(open);
+        }}
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Your Address</DialogTitle>
+            <DialogTitle>
+              {hasUnredeemedGift 
+                ? "Add Your Address to Redeem Your Gift" 
+                : "Add Your Address"}
+            </DialogTitle>
             <DialogDescription>
-              Adding your address helps us provide more personalized service recommendations.
+              {hasUnredeemedGift 
+                ? "Your address is required to deliver your gift. Please complete all fields."
+                : "Adding your address helps us provide more personalized service recommendations."}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -1117,15 +1135,25 @@ export default function ClientRegistrationPage() {
             />
           </div>
           <DialogFooter className="flex justify-between">
+            {/* Only show Later button if there's no unredeemed gift */}
+            {!hasUnredeemedGift && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleLaterClick}
+              >
+                Later
+              </Button>
+            )}
+            {/* If there is an unredeemed gift, show a disabled button as a spacer */}
+            {hasUnredeemedGift && (
+              <div className="text-sm text-red-600 font-medium flex items-center">
+                <span>* Address required for gift</span>
+              </div>
+            )}
             <Button 
-              type="button" 
-              variant="outline" 
-              onClick={handleLaterClick}
-            >
-              Later
-            </Button>
-            <Button 
-              type="button" 
+              type="button"
+              variant={hasUnredeemedGift ? "default" : "default"}
               onClick={() => {
                 try {
                   // Get the current form values
@@ -1154,7 +1182,7 @@ export default function ClientRegistrationPage() {
                 }
               }}
             >
-              Save & Continue
+              {hasUnredeemedGift ? "Save Address & Redeem Gift" : "Save & Continue"}
             </Button>
           </DialogFooter>
         </DialogContent>
