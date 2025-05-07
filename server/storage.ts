@@ -619,7 +619,7 @@ export class DatabaseStorage implements IStorage {
           // profileComplete field is not in the schema
           profilePromptShown: result.rows[0].profile_prompt_shown,
           photoUrl: result.rows[0].photo_url,
-          status: result.rows[0].status,
+          // status field is not in the schema
           createdAt: result.rows[0].created_at
         };
         
