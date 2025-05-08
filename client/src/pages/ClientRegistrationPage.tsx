@@ -165,45 +165,7 @@ export default function ClientRegistrationPage() {
     mode: 'onChange', // Validate fields as they change for better user feedback
   });
   
-  // Add an effect to monitor form state for debugging critical issues
-  useEffect(() => {
-    // Attach a direct submit event listener to the form element as a fallback
-    const formElement = document.querySelector('form');
-    if (formElement) {
-      console.log("[CRITICAL DEBUG] Adding direct form submit listener");
-      
-      const handleDirectSubmit = (e: Event) => {
-        e.preventDefault(); // Prevent default form submission
-        console.log("[CRITICAL DEBUG] Direct form submit triggered");
-        
-        // Get form values
-        const formValues = form.getValues();
-        console.log("[CRITICAL DEBUG] Current form values:", formValues);
-        
-        // Check if terms are accepted
-        if (!formValues.acceptTerms) {
-          console.log("[CRITICAL DEBUG] Terms not accepted, focusing checkbox");
-          toast({
-            title: "Please Accept Terms",
-            description: "You must accept the terms and conditions to continue",
-            variant: "destructive",
-          });
-          focusTermsCheckbox();
-          return;
-        }
-        
-        // Manually trigger the onSubmit handler
-        onSubmit(formValues);
-      };
-      
-      formElement.addEventListener('submit', handleDirectSubmit);
-      
-      return () => {
-        // Clean up event listener
-        formElement.removeEventListener('submit', handleDirectSubmit);
-      };
-    }
-  }, []);
+  // Removed redundant direct submit event listener to fix duplicate submissions
   
   // Contact validation hook for phone validation and gift checking
   const { 
@@ -821,63 +783,7 @@ export default function ClientRegistrationPage() {
                         className="w-full"
                         disabled={isSubmitting}
                         variant={isSubmitting ? "outline" : "default"}
-                        onClick={(e) => {
-                          // Enhanced submit button handler
-                          console.log("[CRITICAL DEBUG] Registration submit button clicked directly");
-                          
-                          try {
-                            // Get current form values
-                            const values = form.getValues();
-                            
-                            // Log form state
-                            console.log("[CRITICAL DEBUG] Current form state:", {
-                              values,
-                              errors: form.formState.errors,
-                              isValid: form.formState.isValid,
-                              isSubmitting: form.formState.isSubmitting,
-                              submitCount: form.formState.submitCount
-                            });
-                            
-                            // Check for critical error conditions
-                            if (!values.acceptTerms) {
-                              console.warn("[CRITICAL DEBUG] Terms not accepted, focusing checkbox");
-                              focusTermsCheckbox();
-                              
-                              // Show clear message to user
-                              toast({
-                                title: "Please Accept Terms",
-                                description: "You must accept the terms and conditions to continue",
-                                variant: "destructive",
-                              });
-                              
-                              // Don't prevent default - let form validation handle this
-                              return;
-                            }
-                            
-                            // Force validation
-                            const isFormValid = form.trigger();
-                            console.log("[CRITICAL DEBUG] Form validation triggered, result promise:", isFormValid);
-                            
-                            // Don't prevent default - let the form's onSubmit handler work
-                            // This is just for extra monitoring and error recovery
-                          } catch (err) {
-                            console.error("[CRITICAL DEBUG] Error in submit button handler:", err);
-                            
-                            // Recovery attempt - try direct submission
-                            try {
-                              // Don't prevent default here - let normal submission continue
-                              console.log("[CRITICAL DEBUG] Attempting recovery via direct onSubmit call");
-                              setTimeout(() => {
-                                const values = form.getValues();
-                                if (values.name && values.phone) {
-                                  onSubmit(values);
-                                }
-                              }, 10);
-                            } catch (recoveryError) {
-                              console.error("[CRITICAL DEBUG] Recovery failed:", recoveryError);
-                            }
-                          }
-                        }}
+                        // Removed onClick handler to prevent duplicate submissions
                       >
                         {isSubmitting ? (
                           <>
