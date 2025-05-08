@@ -176,22 +176,9 @@ export default function ClientRegistrationPage() {
         e.preventDefault(); // Prevent default form submission
         console.log("[CRITICAL DEBUG] Direct form submit triggered");
         
-        // CRITICAL FIX: Prevent double form submission via direct handler
-        if (isSubmitting) {
-          console.log('[CRITICAL DEBUG] Prevented duplicate form submission from direct handler!');
-          logFlow('CRITICAL FIX: Prevented duplicate direct form submission');
-          return; // Stop processing if already submitting
-        }
-        
         // Get form values
         const formValues = form.getValues();
         console.log("[CRITICAL DEBUG] Current form values:", formValues);
-        
-        // Check if submission is already completed
-        if (registrationComplete) {
-          console.log('[CRITICAL DEBUG] Registration already complete, preventing resubmission');
-          return; // Don't allow resubmitting if already complete
-        }
         
         // Check if terms are accepted
         if (!formValues.acceptTerms) {
@@ -330,36 +317,13 @@ export default function ClientRegistrationPage() {
     // Critical Debug: Show form submission occurred in browser console
     console.log('[CRITICAL DEBUG] CLIENT REGISTRATION FORM SUBMITTED', data);
 
-    // CRITICAL FIX: Prevent double form submission
-    if (isSubmitting) {
-      console.log('[CRITICAL DEBUG] Prevented duplicate form submission!');
-      logFlow('CRITICAL FIX: Prevented duplicate form submission attempt');
-      toast({
-        title: 'Processing in Progress',
-        description: 'Your registration is already being processed. Please wait...',
-        variant: 'default',
-      });
-      return;
-    }
-
     try {
-      // Immediately set submitting flag to prevent double submissions
-      setIsSubmitting(true);
-      
       // Show a toast immediately so user knows form was submitted
       toast({
         title: 'Processing Registration',
         description: 'Please wait while we process your information...',
         variant: 'default',
       });
-
-      // Disable form controls during submission
-      const formElement = document.querySelector('form');
-      if (formElement) {
-        formElement.setAttribute('data-submitting', 'true');
-        // Add visual indication that form is being submitted
-        formElement.classList.add('opacity-70', 'pointer-events-none');
-      }
 
       logFlow('Form submission initiated');
       logFlow('Form data', {
@@ -387,6 +351,8 @@ export default function ClientRegistrationPage() {
       }
       
       logFlow('Address validation passed, continuing with form submission');
+      
+      setIsSubmitting(true);
       
       // Add sponsor information
       const clientData = {
@@ -589,18 +555,7 @@ export default function ClientRegistrationPage() {
         variant: 'destructive',
       });
     } finally {
-      // Only reset submitting state if there was an error or we're not redirecting
-      // This helps prevent the form from being re-enabled before redirect occurs
-      if (!registrationComplete) {
-        setIsSubmitting(false);
-        
-        // Remove visual indication that form is being submitted if there was an error
-        const formElement = document.querySelector('form');
-        if (formElement) {
-          formElement.removeAttribute('data-submitting');
-          formElement.classList.remove('opacity-70', 'pointer-events-none');
-        }
-      }
+      setIsSubmitting(false);
     }
   };
 
