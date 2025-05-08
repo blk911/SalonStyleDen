@@ -296,13 +296,17 @@ export default function ClientRegistrationPage() {
             variant: 'default',
           });
           
-          // Show notification about gift availability
-          logFlow('Gift requires address information - will notify user');
-          toast({
-            title: 'Gift Available!',
-            description: 'Complete registration to view your gift in your dashboard.',
-            variant: 'default',
-          });
+          // Check if we need to show the address dialog
+          if (requiresAddress) {
+            logFlow('Gift requires address information');
+            // Address dialog functionality removed
+            // Show toast notification instead
+            toast({
+              title: 'Gift Available!',
+              description: 'Complete registration to view your gift in your dashboard.',
+              variant: 'default',
+            });
+          }
         }
       } catch (error) {
         console.error('Error validating phone for gifts:', error);
@@ -333,7 +337,11 @@ export default function ClientRegistrationPage() {
         hasAddress: Boolean(data.address || data.city || data.state || data.zipCode)
       });
       
-      // Removed: Address dialog cleanup is no longer needed
+      // Clean up any leftover address state attributes
+      if (document.body.hasAttribute('data-address-shown')) {
+        logFlow('Cleaning up address state attributes');
+        document.body.removeAttribute('data-address-shown');
+      }
       
       // Skip address popup dialog as requested
       logFlow('Address dialog skipped per client request');
