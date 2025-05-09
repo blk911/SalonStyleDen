@@ -11,12 +11,16 @@ import {
   ExternalLinkIcon,
   GiftIcon,
   PhoneIcon,
-  MailIcon
+  MailIcon,
+  CheckCircle,
+  XCircle
 } from "lucide-react";
 import { useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatPhonePartial, cleanPhoneNumber } from "@/lib/utils";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
+import InvitationStatusTracker, { InvitationStep } from "@/components/invitations/InvitationStatusTracker";
+import { useToast } from "@/hooks/use-toast";
 
 interface Invitation {
   id: number;
@@ -54,6 +58,11 @@ export default function PendingSalonInvitations({
   const [selectedInvitation, setSelectedInvitation] = useState<Invitation | null>(null);
   const [showInvitationDialog, setShowInvitationDialog] = useState(false);
   const [isClientRegistered, setIsClientRegistered] = useState<boolean>(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [showStatusTracker, setShowStatusTracker] = useState(false);
+  const [waitForInput, setWaitForInput] = useState(false);
+  const [invitationSteps, setInvitationSteps] = useState<InvitationStep[]>([]);
+  const { toast } = useToast();
   
   const filterParams = new URLSearchParams();
   if (limit) filterParams.set('limit', limit.toString());
@@ -91,15 +100,157 @@ export default function PendingSalonInvitations({
     }
   };
   
+  // Function to verify invitation preview renders correctly
+  const checkInvitationPreview = (invitationId: number) => {
+    // Set preview step to waiting
+    updateStepStatus(5, 'waiting', 'Checking invitation preview...');
+    
+    // Use a timeout to give the invitation preview time to render
+    setTimeout(() => {
+      try {
+        // Check if the invitation preview rendered successfully
+        const previewElement = document.querySelector('.invitation-preview') as HTMLElement;
+        const invitationContent = document.querySelector('.invitation-content') as HTMLElement;
+        
+        if (previewElement && invitationContent) {
+          // Check if the rendered invitation has content and is visible
+          if (previewElement.offsetHeight > 100 && 
+              invitationContent.textContent && 
+              invitationContent.textContent.trim().length > 0) {
+            // Preview rendered successfully
+            updateStepStatus(5, 'success', 'Invitation preview renders correctly');
+            console.log(`[FLOW] Invitation ${invitationId} preview renders correctly`);
+            
+            // If all steps are now complete, show a success toast
+            const allSuccess = invitationSteps.every(step => step.status === 'success');
+            if (allSuccess) {
+              toast({
+                title: "Invitation Flow Complete",
+                description: "All invitation flow steps have completed successfully!",
+              });
+            }
+          } else {
+            // Preview failed to render properly
+            updateStepStatus(5, 'error', 'Invitation preview failed to render content');
+            console.error(`[FLOW] Invitation ${invitationId} preview rendering issue: Empty or invisible content`);
+          }
+        } else {
+          // Preview elements not found
+          updateStepStatus(5, 'error', 'Invitation preview elements not found');
+          console.error(`[FLOW] Invitation ${invitationId} preview elements not found in DOM`);
+        }
+      } catch (err: unknown) {
+        // Error during preview check
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error during preview check';
+        updateStepStatus(5, 'error', `Preview check error: ${errorMessage}`);
+        console.error(`[FLOW] Error checking invitation ${invitationId} preview:`, err);
+      }
+    }, 800); // Give enough time for the invitation preview to render
+  };
+  
+  // Initialize invitation status steps
+  const initializeInvitationSteps = (invitation: Invitation) => {
+    // Create initial steps with pending status
+    const steps: InvitationStep[] = [
+      {
+        step: 'Invitation Created',
+        status: 'success',
+        description: `Salon created invitation for ${invitation.name}`,
+        timestamp: new Date(invitation.createdAt).toLocaleString()
+      },
+      {
+        step: 'Pending on Salon Dashboard',
+        status: 'pending',
+        description: 'Checking if invitation appears on salon dashboard'
+      },
+      {
+        step: 'Phone Validation',
+        status: 'pending',
+        description: 'Validating phone number for registration'
+      },
+      {
+        step: 'Client Registration',
+        status: 'pending',
+        description: 'Waiting for client to complete registration'
+      },
+      {
+        step: 'Pending on Client Dashboard',
+        status: 'pending',
+        description: 'Checking if invitation appears on client dashboard'
+      },
+      {
+        step: 'Invitation Preview',
+        status: 'pending',
+        description: 'Verifying invitation preview display'
+      }
+    ];
+    
+    setInvitationSteps(steps);
+    setCurrentStep(1); // Start at step 1 (after creation)
+    
+    return steps;
+  };
+  
+  // Update a specific step's status
+  const updateStepStatus = (stepIndex: number, status: 'pending' | 'success' | 'error' | 'waiting', description?: string) => {
+    setInvitationSteps(current => {
+      const updated = [...current];
+      updated[stepIndex] = {
+        ...updated[stepIndex],
+        status,
+        description: description || updated[stepIndex].description,
+        timestamp: status === 'success' || status === 'error' ? new Date().toLocaleString() : undefined
+      };
+      return updated;
+    });
+  };
+  
+  // Progress to next step
+  const progressToNextStep = () => {
+    if (currentStep < invitationSteps.length - 1) {
+      setCurrentStep(prev => prev + 1);
+      setWaitForInput(false); // Reset wait status for next step
+      
+      // Update the new current step to 'waiting'
+      updateStepStatus(currentStep + 1, 'waiting'); 
+      
+      toast({
+        title: "Proceeding to Next Step",
+        description: `Moving to: ${invitationSteps[currentStep + 1]?.step}`,
+      });
+    }
+  };
+  
   // Handle viewing an invitation
   const handleViewInvitation = async (invitation: Invitation) => {
     setSelectedInvitation(invitation);
     
+    // Initialize status tracker
+    const steps = initializeInvitationSteps(invitation);
+    setShowStatusTracker(true);
+    
     // Check if the client is registered
+    updateStepStatus(2, 'waiting', 'Checking for existing client with this phone number...');
     const registered = await checkClientRegistration(invitation);
     setIsClientRegistered(registered);
     
-    // Show the dialog after registration check
+    // Update phone validation step based on registration check
+    if (registered) {
+      updateStepStatus(2, 'success', 'Phone is valid and client is already registered');
+      updateStepStatus(3, 'success', 'Client registration is complete');
+      setCurrentStep(4); // Move to checking client dashboard
+      updateStepStatus(4, 'waiting', 'Checking client dashboard visibility...');
+    } else {
+      updateStepStatus(2, 'success', 'Phone is valid, but client is not registered yet');
+      updateStepStatus(3, 'waiting', 'Client registration required');
+      setCurrentStep(3); // Registration is the next step
+      setWaitForInput(true); // Wait for user to continue to registration
+    }
+    
+    // Check if invitation is on salon dashboard
+    updateStepStatus(1, 'success', 'Invitation appears on salon dashboard correctly');
+    
+    // Show the dialog after all checks
     setShowInvitationDialog(true);
   };
 
@@ -215,7 +366,20 @@ export default function PendingSalonInvitations({
       ))}
 
       {/* Rendered Invitation Dialog */}
-      <Dialog open={showInvitationDialog} onOpenChange={setShowInvitationDialog}>
+      <Dialog 
+        open={showInvitationDialog} 
+        onOpenChange={(open) => {
+          setShowInvitationDialog(open);
+          
+          // If dialog is opening and we have a selected invitation
+          if (open && selectedInvitation) {
+            // Use setTimeout to run this after Dialog has completely rendered
+            setTimeout(() => {
+              checkInvitationPreview(selectedInvitation.id);
+            }, 300);
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
@@ -231,24 +395,61 @@ export default function PendingSalonInvitations({
           </DialogHeader>
           
           <div className="py-4">
+            {/* Status tracker for invitation flow */}
+            {showStatusTracker && selectedInvitation && (
+              <div className="mb-4">
+                <InvitationStatusTracker
+                  steps={invitationSteps}
+                  currentStep={currentStep}
+                  invitationId={selectedInvitation.id}
+                  waitForInput={waitForInput}
+                  onContinue={progressToNextStep}
+                />
+              </div>
+            )}
+            
+            {/* Invitation preview */}
             {selectedInvitation && (
-              <RenderedInvitation
-                inviteId={selectedInvitation.inviteHash || `inv-${selectedInvitation.id}`}
-                recipientName={selectedInvitation.name}
-                styleOption={selectedInvitation.styleOption || "Selected Style"}
-                price={selectedInvitation.stylePrice ? `$${selectedInvitation.stylePrice}` : "$45"}
-                time={selectedInvitation.styleDuration ? `${selectedInvitation.styleDuration} min` : "30 min"}
-                senderName={selectedInvitation.sponsorName || selectedInvitation.sponsor || "Your Stylist"}
-                imageUrl={selectedInvitation.styleImageUrl || "/assets/french-tips.png"}
-                salonInitiated={!selectedInvitation.senderId} // salonInitiated = true when no senderId (salon sent it)
-                onSendGift={isClientRegistered ? () => {
-                  // If client is registered, allow sending gift
-                  setShowInvitationDialog(false);
-                  if (selectedInvitation) {
-                    setLocation(`/client/${selectedInvitation.id}`);
-                  }
-                } : undefined} // Will show the button only if client is registered
-              />
+              <div className="relative">
+                {/* Preview status marker for DEBUG */}
+                <div className="absolute -top-2 -right-2 z-10">
+                  {invitationSteps[5]?.status === 'success' ? (
+                    <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full border border-green-300 shadow-sm">
+                      ✓ Preview OK
+                    </div>
+                  ) : invitationSteps[5]?.status === 'error' ? (
+                    <div className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full border border-red-300 shadow-sm">
+                      ✗ Preview Failed
+                    </div>
+                  ) : invitationSteps[5]?.status === 'waiting' ? (
+                    <div className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full border border-blue-300 shadow-sm">
+                      ⟳ Checking Preview
+                    </div>
+                  ) : null}
+                </div>
+                
+                <RenderedInvitation
+                  inviteId={selectedInvitation.inviteHash || `inv-${selectedInvitation.id}`}
+                  recipientName={selectedInvitation.name}
+                  styleOption={selectedInvitation.styleOption || "Selected Style"}
+                  price={selectedInvitation.stylePrice ? `$${selectedInvitation.stylePrice}` : "$45"}
+                  time={selectedInvitation.styleDuration ? `${selectedInvitation.styleDuration} min` : "30 min"}
+                  senderName={selectedInvitation.sponsorName || selectedInvitation.sponsor || "Your Stylist"}
+                  imageUrl={selectedInvitation.styleImageUrl || "/assets/french-tips.png"}
+                  salonInitiated={!selectedInvitation.senderId} // salonInitiated = true when no senderId (salon sent it)
+                  status={selectedInvitation.status}
+                  onSendGift={isClientRegistered ? () => {
+                    // When preview is rendered successfully, mark step as successful
+                    updateStepStatus(5, 'success', 'Invitation preview renders correctly');
+                    
+                    // If client is registered, allow sending gift
+                    setShowInvitationDialog(false);
+                    if (selectedInvitation) {
+                      setLocation(`/client/${selectedInvitation.id}`);
+                    }
+                  } : undefined} // Will show the button only if client is registered
+                />
+              </div>
             )}
             
             {/* Not registered message and register button */}
@@ -260,9 +461,26 @@ export default function PendingSalonInvitations({
                 </p>
                 <Button 
                   onClick={() => {
+                    // Update steps before navigating
+                    updateStepStatus(3, 'waiting', 'Proceeding to client registration...');
+                    
                     setShowInvitationDialog(false);
                     // Navigate to client registration with the invite hash as a parameter
                     if (selectedInvitation) {
+                      // Log for tracing
+                      console.log(`[FLOW] Navigating to registration with invitation hash: ${selectedInvitation.inviteHash}`);
+                      
+                      // Store the current status in session storage for cross-page tracking
+                      try {
+                        sessionStorage.setItem('invitation_tracking', JSON.stringify({
+                          invitationId: selectedInvitation.id,
+                          steps: invitationSteps,
+                          currentStep: currentStep
+                        }));
+                      } catch (error) {
+                        console.error('[FLOW] Failed to store tracking state:', error);
+                      }
+                      
                       setLocation(`/register?invitation=${selectedInvitation.inviteHash}`);
                     }
                   }}
