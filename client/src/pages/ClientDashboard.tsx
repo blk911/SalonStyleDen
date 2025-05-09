@@ -20,12 +20,13 @@ import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import EditableClientInfo from "@/components/dashboard/EditableClientInfo";
 import RecentVmbInvitations from "@/components/dashboard/RecentVmbInvitations";
 import InlineVmbInvitations from "@/components/dashboard/InlineVmbInvitations";
-import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitations";
+import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitationsFixed";
 import SentInvitations from "@/components/dashboard/SentInvitations";
 import ClientInviteForm from "@/components/dashboard/ClientInviteForm";
 import ClientAppointments from "@/components/appointments/ClientAppointments";
 import GiftsPage from "@/components/gifts/GiftsPage";
 import InvitationsPage from "@/components/invitations/InvitationsPage";
+import ClientInvitationsSection from "@/components/dashboard/ClientInvitationsSection";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
 import { getImageUrl } from "@/lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -765,7 +766,13 @@ export default function ClientDashboard() {
             <TabsContent value="invitations" className="mt-12 transition-all duration-300 animate-in fade-in-50">
               {/* Invitations Page Component */}
               <div className="bg-white rounded-xl shadow-md p-4 border border-indigo-200 bg-gradient-to-b from-indigo-50/50 to-white">
-                <InvitationsPage />
+                <div className="space-y-6">
+                  {/* Pending Salon Invitations Section */}
+                  <ClientInvitationsSection clientId={client.id} />
+                  
+                  {/* General Invitations Page */}
+                  <InvitationsPage />
+                </div>
               </div>
             </TabsContent>
             

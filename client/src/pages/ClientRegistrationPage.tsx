@@ -100,10 +100,24 @@ interface Salon {
 export default function ClientRegistrationPage() {
   const [location, navigate] = useLocation();
   
-  // Extract invite hash from URL if present
-  const inviteHash = location.includes('/invite/') 
-    ? location.split('/invite/')[1]
-    : null;
+  // Extract invite hash from URL if present - support multiple formats
+  let inviteHash = null;
+  
+  // Check for /invite/{hash} format
+  if (location.includes('/invite/')) {
+    inviteHash = location.split('/invite/')[1];
+    console.log('[FLOW DEBUG] Found invite hash in path:', inviteHash);
+  }
+  
+  // Check for ?invitation={hash} format in query parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryInviteHash = urlParams.get('invitation');
+  if (queryInviteHash) {
+    inviteHash = queryInviteHash;
+    console.log('[FLOW DEBUG] Found invite hash in query param:', inviteHash);
+  }
+  
+  console.log('[FLOW DEBUG] Final invite hash value:', inviteHash);
     
   // Extract salon ID from URL if present
   const salonIdParam = location.includes('/salon/') 
@@ -180,15 +194,57 @@ export default function ClientRegistrationPage() {
     data: invitation,
     isLoading: invitationLoading,
   } = useQuery<Invitation>({
-    queryKey: ['/api/invitations/hash', inviteHash],
+    queryKey: ['/api/invitations/by-hash', inviteHash],
     queryFn: async () => {
       if (!inviteHash) return null;
       
-      const response = await fetch(`/api/invitations/hash/${inviteHash}`);
-      if (!response.ok) {
-        throw new Error('Failed to load invitation');
+      // Log additional debugging info about the invitation hash
+      console.log('[FLOW DEBUG] Fetching invitation by hash:', inviteHash);
+      console.log('[FLOW DEBUG] Hash type:', typeof inviteHash);
+      console.log('[FLOW DEBUG] Hash length:', inviteHash.length);
+      
+      try {
+        // Handle fallback invitation IDs
+        if (inviteHash.startsWith('fallback-')) {
+          const fallbackId = inviteHash.split('fallback-')[1];
+          console.log('[FLOW DEBUG] Using fallback ID format, extracted ID:', fallbackId);
+          
+          // Try to fetch the invitation by ID instead
+          const fallbackResponse = await fetch(`/api/invitations/${fallbackId}`);
+          if (!fallbackResponse.ok) {
+            console.error('[FLOW DEBUG] Failed to load invitation by fallback ID, status:', fallbackResponse.status);
+            throw new Error('Failed to load invitation by fallback ID');
+          }
+          const fallbackData = await fallbackResponse.json();
+          console.log('[FLOW DEBUG] Successfully loaded invitation by fallback ID:', fallbackData);
+          return fallbackData;
+        }
+        
+        // Standard invitation hash lookup
+        const response = await fetch(`/api/invitations/by-hash/${inviteHash}`);
+        if (!response.ok) {
+          console.error('[FLOW DEBUG] Failed to load invitation by hash, status:', response.status);
+          
+          // If this fails, try the old format just to be sure
+          console.log('[FLOW DEBUG] Trying alternate format - hash/${inviteHash}');
+          const altResponse = await fetch(`/api/invitations/hash/${inviteHash}`);
+          if (!altResponse.ok) {
+            console.error('[FLOW DEBUG] Also failed with alternate format:', altResponse.status);
+            throw new Error('Failed to load invitation with both formats');
+          }
+          
+          const altData = await altResponse.json();
+          console.log('[FLOW DEBUG] Successfully loaded invitation with alternate format:', altData);
+          return altData;
+        }
+        
+        const data = await response.json();
+        console.log('[FLOW DEBUG] Successfully loaded invitation by hash:', data);
+        return data;
+      } catch (error) {
+        console.error('[FLOW DEBUG] Error loading invitation:', error);
+        throw error;
       }
-      return response.json();
     },
     enabled: !!inviteHash,
   });
@@ -456,6 +512,9 @@ export default function ClientRegistrationPage() {
         // Update invitation status if we have an invitation ID
         if (invitation?.id) {
           try {
+            console.log('[FLOW DEBUG] Updating invitation status and completing invitation process for ID:', invitation.id);
+            
+            // First, update the invitation status to 'accepted'
             const inviteResponse = await fetch(`/api/invitations/${invitation.id}`, {
               method: 'PATCH',
               headers: {
@@ -469,9 +528,31 @@ export default function ClientRegistrationPage() {
             
             if (!inviteResponse.ok) {
               console.warn('Failed to update invitation status, but client was created');
+            } else {
+              console.log('[FLOW DEBUG] Successfully updated invitation status to accepted');
+              
+              // Second, complete the invitation process to post to dashboards
+              const completeResponse = await fetch(`/api/invitations/${invitation.id}/complete`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                  clientId: createdClient.id
+                }),
+              });
+              
+              if (!completeResponse.ok) {
+                console.warn('[FLOW DEBUG] Failed to complete invitation process, status:', completeResponse.status);
+                const errorData = await completeResponse.json().catch(() => ({}));
+                console.warn('[FLOW DEBUG] Complete invitation error details:', errorData);
+              } else {
+                const completeResult = await completeResponse.json().catch(() => ({}));
+                console.log('[FLOW DEBUG] Successfully completed invitation process:', completeResult);
+              }
             }
           } catch (inviteError) {
-            console.warn('Error updating invitation after client creation:', inviteError);
+            console.warn('[FLOW DEBUG] Error updating/completing invitation after client creation:', inviteError);
           }
         }
         

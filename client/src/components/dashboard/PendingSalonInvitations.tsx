@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
-import { formatPhonePartial, cleanPhoneNumber } from "@/lib/utils";
+import { formatPhonePartial } from "@/lib/utils";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
 
 interface Invitation {
@@ -28,7 +28,6 @@ interface Invitation {
   salonId: number | null;
   senderId?: number | null;
   sponsor: string | null;
-  sponsorName?: string | null;
   status: string;
   inviteHash: string;
   createdAt: string;
@@ -60,17 +59,26 @@ export default function PendingSalonInvitations({
   if (clientId) filterParams.set('clientId', clientId.toString());
   filterParams.set('status', 'pending'); // Only get pending invitations
   
-  const { data: invitations, isLoading } = useQuery({
-    queryKey: ['/api/invitations/pending', clientId, limit],
+  const { data: allInvitations, isLoading, isError, error } = useQuery({
+    queryKey: ['/api/invitations', clientId, limit, 'pending'],
     queryFn: async () => {
+      console.log('[FLOW] Fetching pending invitations with params:', filterParams.toString());
       const response = await fetch(`/api/invitations?${filterParams}`);
-      if (!response.ok) throw new Error('Network response was not ok');
-      const allInvitations = await response.json() as Invitation[];
-      
-      // CRITICAL FIX: Filter to only include invitations sent TO this client (not FROM them)
-      return allInvitations.filter(invitation => invitation.senderId !== clientId);
+      if (!response.ok) {
+        console.error('[FLOW] Failed to fetch invitations:', response.status, response.statusText);
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      console.log('[FLOW] Fetched invitations data:', data);
+      return data as Invitation[];
     }
   });
+  
+  // Filter to only include invitations sent TO this client (not FROM them)
+  const invitations = allInvitations ? allInvitations.filter(invitation => 
+    // Include only invitations where this client is NOT the sender
+    invitation.senderId !== clientId
+  ) : [];
 
   // Function to check if a client is registered based on invitation data
   const checkClientRegistration = async (invitation: Invitation): Promise<boolean> => {
@@ -202,9 +210,9 @@ export default function PendingSalonInvitations({
               )}
             </div>
             
-            {(invitation.sponsorName || invitation.sponsor) && (
+            {invitation.sponsor && (
               <div className="text-xs text-gray-500 mt-1">
-                <span>From: {invitation.sponsorName || invitation.sponsor}</span>
+                <span>From: {invitation.sponsor}</span>
               </div>
             )}
             
@@ -229,7 +237,7 @@ export default function PendingSalonInvitations({
             <DialogDescription>
               {selectedInvitation?.senderId ?
                 `You created this gift request for ${selectedInvitation?.name}` :
-                `${selectedInvitation?.sponsorName || selectedInvitation?.sponsor || "Your Stylist"} has sent you a Ven Me, Baby! invitation`}
+                `${selectedInvitation?.sponsor} has sent you a Ven Me, Baby! invitation`}
             </DialogDescription>
           </DialogHeader>
           
@@ -238,10 +246,10 @@ export default function PendingSalonInvitations({
               <RenderedInvitation
                 inviteId={selectedInvitation.inviteHash || `inv-${selectedInvitation.id}`}
                 recipientName={selectedInvitation.name}
-                styleOption={selectedInvitation.styleOption || "Selected Style"}
+                styleOption={selectedInvitation.styleOption || ""}
                 price={selectedInvitation.stylePrice ? `$${selectedInvitation.stylePrice}` : "$45"}
                 time={selectedInvitation.styleDuration ? `${selectedInvitation.styleDuration} min` : "30 min"}
-                senderName={selectedInvitation.sponsorName || selectedInvitation.sponsor || "Your Stylist"}
+                senderName={selectedInvitation.sponsor || "Your Stylist"}
                 imageUrl={selectedInvitation.styleImageUrl || "/assets/french-tips.png"}
                 salonInitiated={!selectedInvitation.senderId} // salonInitiated = true when no senderId (salon sent it)
                 status={selectedInvitation.status} // Pass the invitation status
