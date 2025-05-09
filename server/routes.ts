@@ -1146,8 +1146,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Invitation routes
+  // [RULE: InvitationCreationRoute] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
   apiRouter.post("/invitations", async (req: Request, res: Response) => {
     try {
+      // [RULE: PhoneNumberStandard] Guard clause for phone number format
+      if (req.body.phone) {
+        // Normalize phone to digits-only for validation
+        const cleanPhone = cleanPhoneNumber(req.body.phone);
+        if (cleanPhone.length < 10) {
+          console.error(`[RULE VIOLATION] Invalid phone number format: ${req.body.phone}`);
+          return res.status(400).json({
+            error: "Phone number must contain at least 10 digits",
+            field: "phone"
+          });
+        }
+        // Reformat phone to standard format
+        req.body.phone = cleanPhone;
+      }
+
       // Extract the validation flag if present
       const isValidationOnly = req.body._validateOnly === true;
       if (isValidationOnly) {
@@ -1156,6 +1172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const { phone, email, senderId } = req.body;
           
           if (!senderId) {
+            console.warn('[RULE ENFORCEMENT] Missing sender ID for invitation validation');
             return res.status(400).json({ error: 'Missing sender ID for validation' });
           }
           
@@ -1167,12 +1184,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           );
           
           if (!validation.isValid) {
+            console.warn(`[RULE ENFORCEMENT] Invitation validation failed: ${validation.message}`);
             return res.status(400).json({ error: validation.message });
           }
           
           return res.status(200).json({ valid: true });
         } catch (error) {
-          console.error('Validation error:', error);
+          console.error('[RULE VIOLATION] Validation error:', error);
           return res.status(500).json({ error: 'Validation failed' });
         }
       }
@@ -1183,27 +1201,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const validatedData = invitationInputSchema.parse(req.body);
           
-          // Generate a unique hash for this invitation if not provided
+          // [RULE: UniqueInvitationID] Generate a unique hash for this invitation if not provided
           if (!validatedData.inviteHash) {
             // Import the generateInviteHash function from client utils
             const { generateInviteHash } = await import('../client/src/lib/utils');
             validatedData.inviteHash = generateInviteHash();
+            console.log(`[RULE ENFORCEMENT] Generated unique invitation hash: ${validatedData.inviteHash}`);
           }
           
-          // For client-to-client invitations, assign the default salon (VMB LTD) if not specified
+          // [RULE: SponsorClientRelationship] Ensure salon relationship for all invitations
           if (!validatedData.salonId) {
             if (validatedData.senderId) {
               // For client-to-client invitations, use the sender's sponsorSalonId
               const senderClient = await storage.getClient(validatedData.senderId);
               if (senderClient && senderClient.sponsorSalonId) {
                 validatedData.salonId = senderClient.sponsorSalonId;
+                console.log(`[RULE ENFORCEMENT] Using sender's sponsor salon: ${validatedData.salonId}`);
               } else {
                 // Default to VMB LTD if sender's salon is unknown
                 validatedData.salonId = 1;
+                console.warn('[RULE ENFORCEMENT] Sender has no sponsor salon, defaulting to VMB LTD');
               }
             } else {
               // Default to VMB LTD if no sender and no salon specified
               validatedData.salonId = 1;
+              console.warn('[RULE ENFORCEMENT] No sender or salon specified, defaulting to VMB LTD');
             }
           }
           

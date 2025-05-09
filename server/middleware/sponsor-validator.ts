@@ -1,8 +1,15 @@
 /**
  * Sponsor Validation Middleware
  * 
- * This middleware ensures that sponsor information is always included in responses
- * for client and invitation endpoints. If missing, it adds default values.
+ * [RULE: SponsorClientRelationship] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
+ * 
+ * This middleware enforces the VMB sponsor relationship rule:
+ * - Every client MUST have a sponsor in their record
+ * - Every invitation MUST have a salon relationship
+ * - If missing, the default is VMB LTD (ID: 1)
+ * 
+ * This is a critical system component that maintains data integrity by
+ * ensuring no object leaves the API without proper relationship tracking.
  */
 import { Request, Response, NextFunction } from 'express';
 
@@ -42,7 +49,7 @@ export const sponsorValidator = (req: Request, res: Response, next: NextFunction
   next();
 };
 
-// Helper function to validate and fix a single item
+// [RULE: SponsorValidation] Helper function to validate and fix a single item
 function validateItem(item: any): any {
   // Skip if not an object or null
   if (!item || typeof item !== 'object') return item;
@@ -52,8 +59,9 @@ function validateItem(item: any): any {
   const isInvitation = 'name' in item && 'phone' in item && 'status' in item;
   
   if (isClient) {
-    // Ensure sponsor information is present for clients
+    // [RULE: SponsorClientRelationship] Ensure sponsor information is present for clients
     if (!item.sponsor || item.sponsor === 'Unknown') {
+      console.warn(`[RULE ENFORCEMENT] Applying default sponsor 'VMB LTD' to client ${item.name}`);
       item.sponsor = 'VMB LTD';
     }
     
@@ -66,15 +74,17 @@ function validateItem(item: any): any {
       item.salonName = item.sponsorName;
     }
     
-    // Ensure sponsorSalonId is set to VMB LTD (ID 1) if missing
+    // [RULE: SponsorClientRelationship] Ensure sponsorSalonId is set to VMB LTD (ID 1) if missing
     if (!item.sponsorSalonId) {
+      console.warn(`[RULE ENFORCEMENT] Applying default sponsorSalonId (1) to client ${item.name}`);
       item.sponsorSalonId = 1; // Default to VMB LTD salon ID
     }
   }
   
   if (isInvitation) {
-    // Ensure sponsor information is present for invitations
+    // [RULE: SponsorClientRelationship] Ensure sponsor information is present for invitations
     if (!item.sponsor || item.sponsor === 'Unknown') {
+      console.warn(`[RULE ENFORCEMENT] Applying default sponsor 'VMB LTD' to invitation for ${item.name}`);
       item.sponsor = 'VMB LTD';
     }
     
@@ -82,9 +92,17 @@ function validateItem(item: any): any {
       item.sponsorName = 'VMB LTD';
     }
     
-    // Ensure salonId is set to VMB LTD (ID 1) if missing
+    // [RULE: SponsorClientRelationship] Ensure salonId is set to VMB LTD (ID 1) if missing
     if (!item.salonId) {
+      console.warn(`[RULE ENFORCEMENT] Applying default salonId (1) to invitation for ${item.name}`);
       item.salonId = 1; // Default to VMB LTD salon ID
+    }
+    
+    // [RULE: UniqueInvitationID] Ensure inviteHash exists - this should not typically happen
+    // as invitations should always have a hash from creation, but adding as safeguard
+    if (!item.inviteHash) {
+      console.error(`[RULE VIOLATION] Invitation for ${item.name} missing inviteHash`);
+      // We can't create a valid hash here, but we'll at least log the issue
     }
   }
   

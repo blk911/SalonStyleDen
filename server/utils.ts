@@ -1,5 +1,11 @@
 /**
  * Server-side utility functions for handling phone numbers, standardized across the application
+ * 
+ * [RULE: PhoneNumberStandard] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
+ * These functions implement VMB's phone number handling standard:
+ * 1. All phone numbers must be stored as 10 digits without formatting
+ * 2. All phone numbers must be displayed as (xxx) xxx-xxxx
+ * 3. Each phone number can be associated with only ONE client
  */
 
 /**
@@ -10,6 +16,21 @@
 export function cleanPhoneNumber(phoneNumber: string | null | undefined): string {
   if (!phoneNumber) return '';
   return phoneNumber.replace(/\D/g, '');
+}
+
+/**
+ * SERVER-WIDE STANDARD: Format a phone number for display as (xxx) xxx-xxxx
+ * @param phoneNumber The phone number to format
+ * @returns Formatted phone number, or empty string if invalid
+ */
+export function formatPhoneForDisplay(phoneNumber: string | null | undefined): string {
+  const digits = cleanPhoneNumber(phoneNumber);
+  
+  // Validate to make sure we have enough digits
+  if (digits.length < 10) return digits; // Return as-is if not enough digits
+  
+  // Format as (xxx) xxx-xxxx
+  return `(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6, 10)}`;
 }
 
 /**
