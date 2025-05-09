@@ -421,8 +421,37 @@ export default function PendingSalonInvitations({
                     setShowInvitationDialog(false);
                     // Navigate to client registration with the invite hash as a parameter
                     if (selectedInvitation) {
-                      const registrationUrl = `/register?invitation=${selectedInvitation.inviteHash}`;
-                      console.log('[FLOW-DEBUG] Navigating to registration:', registrationUrl);
+                      // Check if we have a valid invitation hash
+                      const inviteHash = selectedInvitation.inviteHash;
+                      if (!inviteHash) {
+                        console.error('[FLOW-DEBUG] Missing invitation hash, using fallback');
+                        toast({
+                          title: "Warning",
+                          description: "Using a fallback invitation ID - registration may be incomplete",
+                          variant: "default"
+                        });
+                        // Use ID as fallback
+                        const fallbackRegistrationUrl = `/register?invitation=fallback-${selectedInvitation.id}`;
+                        console.log('[FLOW-DEBUG] Using fallback registration URL:', fallbackRegistrationUrl);
+                        setLocation(fallbackRegistrationUrl);
+                        return;
+                      }
+                      
+                      // Use the query parameter format for better compatibility
+                      const registrationUrl = `/register?invitation=${inviteHash}`;
+                      console.log('[FLOW-DEBUG] Navigating to registration with hash:', inviteHash);
+                      console.log('[FLOW-DEBUG] Full registration URL:', registrationUrl);
+                      
+                      // Log invitation details for debugging
+                      console.log('[FLOW-DEBUG] Full invitation data:', {
+                        id: selectedInvitation.id,
+                        name: selectedInvitation.name,
+                        phone: selectedInvitation.phone,
+                        inviteHash: selectedInvitation.inviteHash,
+                        sponsor: selectedInvitation.sponsor
+                      });
+                      
+                      // Navigate to registration page with the invitation hash
                       setLocation(registrationUrl);
                     }
                   }}

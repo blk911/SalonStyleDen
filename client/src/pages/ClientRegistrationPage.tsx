@@ -194,15 +194,57 @@ export default function ClientRegistrationPage() {
     data: invitation,
     isLoading: invitationLoading,
   } = useQuery<Invitation>({
-    queryKey: ['/api/invitations/hash', inviteHash],
+    queryKey: ['/api/invitations/by-hash', inviteHash],
     queryFn: async () => {
       if (!inviteHash) return null;
       
-      const response = await fetch(`/api/invitations/hash/${inviteHash}`);
-      if (!response.ok) {
-        throw new Error('Failed to load invitation');
+      // Log additional debugging info about the invitation hash
+      console.log('[FLOW DEBUG] Fetching invitation by hash:', inviteHash);
+      console.log('[FLOW DEBUG] Hash type:', typeof inviteHash);
+      console.log('[FLOW DEBUG] Hash length:', inviteHash.length);
+      
+      try {
+        // Handle fallback invitation IDs
+        if (inviteHash.startsWith('fallback-')) {
+          const fallbackId = inviteHash.split('fallback-')[1];
+          console.log('[FLOW DEBUG] Using fallback ID format, extracted ID:', fallbackId);
+          
+          // Try to fetch the invitation by ID instead
+          const fallbackResponse = await fetch(`/api/invitations/${fallbackId}`);
+          if (!fallbackResponse.ok) {
+            console.error('[FLOW DEBUG] Failed to load invitation by fallback ID, status:', fallbackResponse.status);
+            throw new Error('Failed to load invitation by fallback ID');
+          }
+          const fallbackData = await fallbackResponse.json();
+          console.log('[FLOW DEBUG] Successfully loaded invitation by fallback ID:', fallbackData);
+          return fallbackData;
+        }
+        
+        // Standard invitation hash lookup
+        const response = await fetch(`/api/invitations/by-hash/${inviteHash}`);
+        if (!response.ok) {
+          console.error('[FLOW DEBUG] Failed to load invitation by hash, status:', response.status);
+          
+          // If this fails, try the old format just to be sure
+          console.log('[FLOW DEBUG] Trying alternate format - hash/${inviteHash}');
+          const altResponse = await fetch(`/api/invitations/hash/${inviteHash}`);
+          if (!altResponse.ok) {
+            console.error('[FLOW DEBUG] Also failed with alternate format:', altResponse.status);
+            throw new Error('Failed to load invitation with both formats');
+          }
+          
+          const altData = await altResponse.json();
+          console.log('[FLOW DEBUG] Successfully loaded invitation with alternate format:', altData);
+          return altData;
+        }
+        
+        const data = await response.json();
+        console.log('[FLOW DEBUG] Successfully loaded invitation by hash:', data);
+        return data;
+      } catch (error) {
+        console.error('[FLOW DEBUG] Error loading invitation:', error);
+        throw error;
       }
-      return response.json();
     },
     enabled: !!inviteHash,
   });
