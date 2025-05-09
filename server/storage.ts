@@ -1365,8 +1365,8 @@ export class DatabaseStorage implements IStorage {
       
       // Determine invitation limit based on license verification status
       // If license is verified, there is no limit (use a high number)
-      // If license is not verified, limit is 5 (increased from 2)
-      const invitationLimit = salon.licenseVerified ? Number.MAX_SAFE_INTEGER : 5;
+      // If license is not verified, limit is 2
+      const invitationLimit = salon.licenseVerified ? Number.MAX_SAFE_INTEGER : 2;
       
       console.log(`DatabaseStorage.hasSalonReachedInvitationLimit - Salon ${salonId}:`);
       console.log(`  - License verified: ${salon.licenseVerified ? 'Yes' : 'No'}`);
