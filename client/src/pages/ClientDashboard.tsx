@@ -765,7 +765,13 @@ export default function ClientDashboard() {
             <TabsContent value="invitations" className="mt-12 transition-all duration-300 animate-in fade-in-50">
               {/* Invitations Page Component */}
               <div className="bg-white rounded-xl shadow-md p-4 border border-indigo-200 bg-gradient-to-b from-indigo-50/50 to-white">
-                <InvitationsPage />
+                <div className="space-y-6">
+                  {/* Pending Salon Invitations Section */}
+                  <ClientInvitationsSection clientId={client.id} />
+                  
+                  {/* General Invitations Page */}
+                  <InvitationsPage />
+                </div>
               </div>
             </TabsContent>
             

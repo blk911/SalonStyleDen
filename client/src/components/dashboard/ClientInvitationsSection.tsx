@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StarIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
-import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitations";
+import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitationsFixed";
 
 interface ClientInvitationsSectionProps {
   clientId: number;
