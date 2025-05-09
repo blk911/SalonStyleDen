@@ -51,21 +51,44 @@ const salonInputSchema = z.object({
   type: z.literal("salon")
 });
 
+// [RULE: ClientValidation] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
+// This schema enforces core rules for client creation:
+// 1. Every client must have a name and valid phone number
+// 2. Phone numbers must be properly formatted
+// 3. Every client must have a sponsor
 const clientInputSchema = z.object({
-  name: z.string().min(2),
-  phone: z.string().min(10),
-  email: z.string().email().optional().or(z.literal('')),
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  phone: z.string()
+    .min(10, { message: "Phone must be at least 10 digits" })
+    .refine(val => /^\d{10,}$/.test(val.replace(/\D/g, '')), { 
+      message: "Phone must contain at least 10 digits"
+    }),
+  email: z.string().email({ message: "Must be a valid email" }).optional().or(z.literal('')),
   isCurrentClient: z.boolean(),
   notes: z.string().optional(),
   favoriteServices: z.array(z.string()).optional(),
+  // [RULE: SponsorClientRelationship] Every client MUST have a sponsor
+  sponsorSalonId: z.number({ 
+    required_error: "Every client must have a sponsor salon",
+    invalid_type_error: "Sponsor salon ID must be a number"
+  }).default(1), // Default to VMB LTD (ID: 1)
   salonId: z.number().optional(),
   salonName: z.string().optional(),
   type: z.literal("client")
 });
 
+// [RULE: InvitationValidation] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
+// This schema enforces core rules for invitation creation:
+// 1. Every invitation must have a recipient name and valid phone
+// 2. Every invitation must have a salon ID (default to VMB LTD)
+// 3. Every invitation must have a unique hash for immutable tracking
 const invitationInputSchema = z.object({
-  name: z.string().min(2),
-  phone: z.string().min(10),
+  name: z.string().min(2, { message: "Recipient name must be at least 2 characters" }),
+  phone: z.string()
+    .min(10, { message: "Phone must be at least 10 digits" })
+    .refine(val => /^\d{10,}$/.test(val.replace(/\D/g, '')), { 
+      message: "Phone must contain at least 10 digits"
+    }),
   email: z.union([
     z.string().email(),
     z.string().length(0),  // Allow empty string
@@ -74,21 +97,43 @@ const invitationInputSchema = z.object({
   message: z.string().optional(), // Optional message for client-to-client invitations
   notes: z.string().optional(),
   favoriteServices: z.array(z.string()).optional(),
-  salonId: z.number().default(1), // Default to VMB LTD (ID: 1) if not provided
+  // [RULE: SponsorClientRelationship] All invitations need a salon link
+  salonId: z.number({ 
+    required_error: "Every invitation must be linked to a salon",
+    invalid_type_error: "Salon ID must be a number"
+  }).default(1), // Default to VMB LTD (ID: 1) if not provided
   salonName: z.string().optional(),
   sponsor: z.string().default("VMB LTD"), // Default sponsor field
-  inviteHash: z.string().optional(), // Unique hash identifier
-  firstServiceDate: z.string().optional(), // Add firstServiceDate field
-  status: z.string().optional(),
-  senderId: z.number().optional(), // Add senderId for client-to-client invitations
-  type: z.string().optional() // Type of invitation (e.g., "client_invitation")
+  // [RULE: UniqueInvitationID] Invitations must have unique hash identifiers
+  inviteHash: z.string().optional(), // Generated server-side if not provided
+  firstServiceDate: z.string().optional(),
+  status: z.string().default("pending"),
+  senderId: z.number().optional(), // Sender ID for client-to-client invitations
+  type: z.string().default("client_invitation") // Type of invitation
 });
 
+// [RULE: GiftValidation] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
+// This schema enforces core rules for gift creation:
+// 1. Every gift must have a sender and recipient
+// 2. Recipient phone numbers must be properly formatted 
+// 3. Every gift must maintain a link to the original user relationships
 const giftInputSchema = z.object({
-  senderId: z.number(),
+  // [RULE: SponsorClientRelationship] All gifts must have a valid sender
+  senderId: z.number({
+    required_error: "Sender ID is required",
+    invalid_type_error: "Sender ID must be a number"
+  }),
   senderName: z.string().optional(),
-  recipientName: z.string(),
-  recipientPhone: z.string().min(10),
+  recipientName: z.string({
+    required_error: "Recipient name is required",
+    invalid_type_error: "Recipient name must be a string"
+  }),
+  // [RULE: PhoneNumberStandard] Standard phone validation
+  recipientPhone: z.string()
+    .min(10, { message: "Phone must be at least 10 digits" })
+    .refine(val => /^\d{10,}$/.test(val.replace(/\D/g, '')), { 
+      message: "Phone must contain at least 10 digits"
+    }),
   recipientEmail: z.union([
     z.string().email(),
     z.string().length(0),  // Allow empty string
@@ -477,10 +522,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Client routes
+  // [RULE: ClientRegistrationRoute] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
   apiRouter.post("/clients", async (req: Request, res: Response) => {
     try {
+      // [RULE: PhoneNumberStandard] Guard clause for phone number format
+      if (req.body.phone) {
+        // Normalize phone to digits-only for validation
+        const cleanPhone = cleanPhoneNumber(req.body.phone);
+        if (cleanPhone.length < 10) {
+          console.error(`[RULE VIOLATION] Invalid phone number format: ${req.body.phone}`);
+          return res.status(400).json({
+            error: "Phone number must contain at least 10 digits",
+            field: "phone"
+          });
+        }
+        // Reformat phone to standard format
+        req.body.phone = cleanPhone;
+      }
+
       // Validate and parse client input data
       const validatedData = clientInputSchema.parse(req.body);
+
+      // [RULE: SponsorClientRelationship] Guard clause for sponsor relationship
+      if (!validatedData.sponsorSalonId && !req.body.salonId) {
+        console.warn(`[RULE ENFORCEMENT] Default sponsor used: client ${validatedData.name} assigned to VMB LTD`);
+        validatedData.sponsorSalonId = 1; // Default to VMB LTD (ID: 1)
+      }
 
       try {
         // Check for existing client first
@@ -505,6 +572,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
 
             if (existingClient) {
+              console.log(`[CLIENT CREATION] Found existing client with ${validatedData.phone ? 'phone ' + validatedData.phone : 'email ' + validatedData.email}`);
               // Return the existing client data with a 200 status (not an error)
               return res.status(200).json({
                 ...existingClient,
@@ -520,6 +588,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             );
             
             if (!validationResult.isValid) {
+              console.warn(`[REGISTRATION VALIDATION] Failed: ${validationResult.message}`);
               // Return a more user-friendly response with form pre-fill data
               return res.status(409).json({ 
                 status: 'duplicate',
@@ -532,15 +601,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
               });
             }
           } catch (error) {
-            console.error('Error checking for duplicates:', error);
+            console.error('[RULE ENFORCEMENT] Error checking for duplicates:', error);
             // Continue to client creation if error in duplicate check
           }
         }
         
-        // Handle sponsor logic before creating client
+        // [RULE: SponsorClientRelationship] Handle sponsor logic before creating client
         // Default sponsor if none is provided
         let sponsorName = req.body.sponsor || "VMB LTD";
-        let sponsorSalonId = 1; // Default to VMB LTD's ID (1)
+        let sponsorSalonId = validatedData.sponsorSalonId || 1; // Default to VMB LTD's ID (1)
 
         // 1. If salonId is provided, use that salon as sponsor
         if (validatedData.salonId) {
@@ -549,6 +618,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (sponsorSalon) {
             sponsorName = sponsorSalon.name;
             sponsorSalonId = sponsorSalon.id;
+          } else {
+            console.warn(`[RULE ENFORCEMENT] Salon ID ${validatedData.salonId} not found, using VMB LTD as default sponsor`);
+            sponsorName = "VMB LTD";
+            sponsorSalonId = 1;
           }
         }
 
