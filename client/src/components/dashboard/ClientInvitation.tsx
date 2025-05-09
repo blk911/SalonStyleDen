@@ -263,9 +263,11 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     if (!salonId) return;
     
     try {
-      const response = await fetch(`/api/salons/${salonId}/invitations`);
+      console.log('[DEBUG] Fetching salon invitations for salonId:', salonId);
+      const response = await fetch(`/api/invitations?salonId=${salonId}`);
       if (response.ok) {
         const data = await response.json();
+        console.log('[DEBUG] Fetched salon invitations:', data);
         setRecentInvites(data);
       } else {
         console.error(`Failed to fetch salon invites, status:`, response.status);
