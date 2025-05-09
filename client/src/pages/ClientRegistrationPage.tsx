@@ -373,6 +373,16 @@ export default function ClientRegistrationPage() {
             variant: 'default',
           });
           
+          // TODO: CRITICAL FEATURE - IMPLEMENT LOGIN PROMPT FLOW
+          // This section needs to be enhanced with a comprehensive login prompt flow
+          // that includes the following features:
+          // 1. A dedicated dialog explaining that the phone number is already registered
+          // 2. Login options (password, verification code, etc.)
+          // 3. Account recovery options
+          // 4. Option to continue with different phone number
+          // 5. Help resources for users who don't recognize the account
+          // This will be implemented during the next development phase
+          
           // Try to find existing client by the duplicate contact information
           let existingClientId: number | undefined;
           
