@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,10 +14,9 @@ import {
   MailIcon
 } from "lucide-react";
 import { useLocation } from "wouter";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { formatPhonePartial, cleanPhoneNumber } from "@/lib/utils";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
-import { useToast } from "@/hooks/use-toast";
 
 interface Invitation {
   id: number;
@@ -29,6 +28,7 @@ interface Invitation {
   salonId: number | null;
   senderId?: number | null;
   sponsor: string | null;
+  sponsorName?: string | null;
   status: string;
   inviteHash: string;
   createdAt: string;
@@ -54,121 +54,39 @@ export default function PendingSalonInvitations({
   const [selectedInvitation, setSelectedInvitation] = useState<Invitation | null>(null);
   const [showInvitationDialog, setShowInvitationDialog] = useState(false);
   const [isClientRegistered, setIsClientRegistered] = useState<boolean>(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   
-  console.log('[FLOW-DEBUG] PendingSalonInvitations component mounted with clientId:', clientId);
+  const filterParams = new URLSearchParams();
+  if (limit) filterParams.set('limit', limit.toString());
+  if (clientId) filterParams.set('clientId', clientId.toString());
+  filterParams.set('status', 'pending'); // Only get pending invitations
   
-  // Construct the URL manually for better control and logging
-  const buildQueryUrl = () => {
-    const url = new URL('/api/invitations', window.location.origin);
-    
-    if (limit) url.searchParams.append('limit', limit.toString());
-    if (clientId) url.searchParams.append('clientId', clientId.toString());
-    url.searchParams.append('status', 'pending'); // Only get pending invitations
-    
-    return url.toString();
-  };
-  
-  const queryUrl = buildQueryUrl();
-  console.log('[FLOW-DEBUG] Query URL:', queryUrl);
-  
-  const { data: allInvitations, isLoading, isError, error } = useQuery({
-    queryKey: ['/api/invitations', clientId, 'pending'],
+  const { data: invitations, isLoading } = useQuery({
+    queryKey: ['/api/invitations/pending', clientId, limit],
     queryFn: async () => {
-      console.log('[FLOW-DEBUG] Fetching pending invitations from:', queryUrl);
-      try {
-        const response = await fetch(queryUrl);
-        
-        if (!response.ok) {
-          console.error('[FLOW-DEBUG] Failed to fetch invitations:', response.status, response.statusText);
-          throw new Error(`Failed to fetch invitations: ${response.status} ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log('[FLOW-DEBUG] Fetched invitations data:', data);
-        return data as Invitation[];
-      } catch (err) {
-        console.error('[FLOW-DEBUG] Error in query function:', err);
-        throw err;
-      }
+      const response = await fetch(`/api/invitations?${filterParams}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json() as Promise<Invitation[]>;
     }
   });
-  
-  // Debug the data that was returned
-  useEffect(() => {
-    if (allInvitations) {
-      console.log(`[FLOW-DEBUG] Retrieved ${allInvitations.length} total invitations`);
-      
-      if (allInvitations.length > 0) {
-        const phoneNumbers = allInvitations.map(inv => inv.phone);
-        console.log('[FLOW-DEBUG] Phone numbers in invitations:', phoneNumbers);
-        
-        const statuses = allInvitations.map(inv => inv.status);
-        console.log('[FLOW-DEBUG] Statuses in invitations:', statuses);
-      }
-    }
-  }, [allInvitations]);
-  
-  // Filter to only include relevant invitations
-  const invitations = allInvitations ? allInvitations.filter(invitation => {
-    // For client dashboard, only show invitations TO this client, not FROM them
-    // When clientId is provided, only show invitations where this client is NOT the sender
-    if (clientId) {
-      const isNotSender = invitation.senderId !== clientId;
-      console.log(`[FLOW-DEBUG] Invitation ${invitation.id} - senderId: ${invitation.senderId}, clientId: ${clientId}, isNotSender: ${isNotSender}`);
-      
-      // For client dashboard, also check if the phone matches the client's phone
-      // This is a temporary workaround until we have proper recipient tracking
-      if (isNotSender) {
-        return true;
-      }
-    }
-    // In salon dashboards or other pages where no clientId is provided, show all invitations
-    return true;
-  }) : [];
-  
-  // Log filtered invitations
-  useEffect(() => {
-    if (invitations) {
-      console.log(`[FLOW-DEBUG] Filtered to ${invitations.length} relevant invitations`);
-    }
-  }, [invitations]);
 
   // Function to check if a client is registered based on invitation data
   const checkClientRegistration = async (invitation: Invitation): Promise<boolean> => {
     try {
-      console.log('[FLOW-DEBUG] Checking if client is registered for invitation:', invitation.id);
-      
-      // Clean phone number for comparison
-      const cleanedPhone = cleanPhoneNumber(invitation.phone);
-      console.log('[FLOW-DEBUG] Cleaned phone for registration check:', cleanedPhone);
-      
+      console.log('[FLOW] Checking if client is registered for invitation:', invitation.id);
       // Make a request to check if a client exists with this phone number
-      const response = await fetch(`/api/clients?phone=${encodeURIComponent(cleanedPhone)}`);
+      const response = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
       
       if (response.ok) {
         const clients = await response.json();
-        console.log('[FLOW-DEBUG] Found clients with matching phone:', clients);
-        
         const isRegistered = clients && clients.length > 0;
-        console.log(`[FLOW-DEBUG] Client registration check result for invitation ${invitation.id}:`, isRegistered);
-        
-        if (isRegistered && clients[0]) {
-          console.log('[FLOW-DEBUG] Matching client details:', {
-            id: clients[0].id,
-            name: clients[0].name,
-            phone: clients[0].phone
-          });
-        }
-        
+        console.log(`[FLOW] Client registration check result for invitation ${invitation.id}:`, isRegistered);
         return isRegistered;
       }
       
-      console.log(`[FLOW-DEBUG] Failed to check client registration for invitation ${invitation.id}:`, response.status);
+      console.log(`[FLOW] Failed to check client registration for invitation ${invitation.id}:`, response.status);
       return false;
     } catch (error) {
-      console.error('[FLOW-DEBUG] Error checking client registration:', error);
+      console.error('[FLOW] Error checking client registration:', error);
       return false;
     }
   };
@@ -177,52 +95,12 @@ export default function PendingSalonInvitations({
   const handleViewInvitation = async (invitation: Invitation) => {
     setSelectedInvitation(invitation);
     
-    console.log('[FLOW-DEBUG] Viewing invitation details:', invitation);
-    
     // Check if the client is registered
     const registered = await checkClientRegistration(invitation);
     setIsClientRegistered(registered);
-    console.log('[FLOW-DEBUG] Is client registered?', registered);
     
     // Show the dialog after registration check
     setShowInvitationDialog(true);
-  };
-  
-  // Handle updating invitation status
-  const updateInvitationStatus = async (id: number, status: string) => {
-    try {
-      console.log(`[FLOW-DEBUG] Updating invitation ${id} status to ${status}`);
-      
-      const response = await fetch(`/api/invitations/${id}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to update invitation status: ${response.status}`);
-      }
-      
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['/api/invitations'] });
-      
-      toast({
-        title: "Success",
-        description: `Invitation status updated to ${status}`,
-      });
-      
-      return true;
-    } catch (error) {
-      console.error('[FLOW-DEBUG] Error updating invitation status:', error);
-      
-      toast({
-        title: "Error",
-        description: "Failed to update invitation status",
-        variant: "destructive"
-      });
-      
-      return false;
-    }
   };
 
   if (isLoading) {
@@ -231,17 +109,6 @@ export default function PendingSalonInvitations({
         <Skeleton className="h-8 w-full" />
         <Skeleton className="h-20 w-full" />
       </div>
-    );
-  }
-  
-  if (isError) {
-    console.error('[FLOW-DEBUG] Error loading invitations:', error);
-    return (
-      <Card className="p-4 bg-red-50 border-red-200">
-        <p className="text-red-700 text-center text-sm">
-          Error loading invitations. Please try again.
-        </p>
-      </Card>
     );
   }
 
@@ -264,6 +131,8 @@ export default function PendingSalonInvitations({
       year: '2-digit' 
     }).format(date);
   };
+
+  // Using the site-wide standardized phone formatter from utils.ts
 
   return (
     <div className="grid grid-cols-1 gap-3">
@@ -330,9 +199,9 @@ export default function PendingSalonInvitations({
               )}
             </div>
             
-            {invitation.sponsor && (
+            {(invitation.sponsorName || invitation.sponsor) && (
               <div className="text-xs text-gray-500 mt-1">
-                <span>From: {invitation.sponsor}</span>
+                <span>From: {invitation.sponsorName || invitation.sponsor}</span>
               </div>
             )}
             
@@ -357,7 +226,7 @@ export default function PendingSalonInvitations({
             <DialogDescription>
               {selectedInvitation?.senderId ?
                 `You created this gift request for ${selectedInvitation?.name}` :
-                `${selectedInvitation?.sponsor} has sent you a VMB LTD invitation`}
+                `${selectedInvitation?.sponsorName || selectedInvitation?.sponsor || "Your Stylist"} has sent you a Ven Me, Baby! invitation`}
             </DialogDescription>
           </DialogHeader>
           
@@ -366,46 +235,19 @@ export default function PendingSalonInvitations({
               <RenderedInvitation
                 inviteId={selectedInvitation.inviteHash || `inv-${selectedInvitation.id}`}
                 recipientName={selectedInvitation.name}
-                styleOption={selectedInvitation.styleOption || ""}
+                styleOption={selectedInvitation.styleOption || "Selected Style"}
                 price={selectedInvitation.stylePrice ? `$${selectedInvitation.stylePrice}` : "$45"}
                 time={selectedInvitation.styleDuration ? `${selectedInvitation.styleDuration} min` : "30 min"}
-                senderName={selectedInvitation.sponsor || "Your Stylist"}
+                senderName={selectedInvitation.sponsorName || selectedInvitation.sponsor || "Your Stylist"}
                 imageUrl={selectedInvitation.styleImageUrl || "/assets/french-tips.png"}
                 salonInitiated={!selectedInvitation.senderId} // salonInitiated = true when no senderId (salon sent it)
-                status={selectedInvitation.status} // Pass the invitation status
-                onSendGift={isClientRegistered && 
-                  selectedInvitation.status === 'pending' ? async () => {
-                  // If client is registered and status allows sending gift, allow sending gift
+                onSendGift={isClientRegistered ? () => {
+                  // If client is registered, allow sending gift
                   setShowInvitationDialog(false);
                   if (selectedInvitation) {
-                    try {
-                      // First try to find client by phone
-                      const cleanedPhone = cleanPhoneNumber(selectedInvitation.phone);
-                      console.log('[FLOW-DEBUG] Finding client for phone:', cleanedPhone);
-                      
-                      const response = await fetch(`/api/clients?phone=${encodeURIComponent(cleanedPhone)}`);
-                      if (response.ok) {
-                        const clients = await response.json();
-                        if (clients && clients.length > 0) {
-                          console.log(`[FLOW-DEBUG] onSendGift: Found client ID ${clients[0].id} for invitation ${selectedInvitation.id}`);
-                          
-                          // Update the invitation status to "accepted"
-                          await updateInvitationStatus(selectedInvitation.id, "accepted");
-                          
-                          setLocation(`/client/${clients[0].id}`);
-                          return;
-                        }
-                      }
-                      
-                      // Fall back to invitation ID
-                      console.log(`[FLOW-DEBUG] onSendGift: No client found for invitation ${selectedInvitation.id}, using invitation ID`);
-                      setLocation(`/client/${selectedInvitation.id}`);
-                    } catch (error) {
-                      console.error("[FLOW-DEBUG] Error finding client for onSendGift:", error);
-                      setLocation(`/client/${selectedInvitation.id}`);
-                    }
+                    setLocation(`/client/${selectedInvitation.id}`);
                   }
-                } : undefined} // Will show the button only if client is registered and invitation status allows gift sending
+                } : undefined} // Will show the button only if client is registered
               />
             )}
             
@@ -421,38 +263,7 @@ export default function PendingSalonInvitations({
                     setShowInvitationDialog(false);
                     // Navigate to client registration with the invite hash as a parameter
                     if (selectedInvitation) {
-                      // Check if we have a valid invitation hash
-                      const inviteHash = selectedInvitation.inviteHash;
-                      if (!inviteHash) {
-                        console.error('[FLOW-DEBUG] Missing invitation hash, using fallback');
-                        toast({
-                          title: "Warning",
-                          description: "Using a fallback invitation ID - registration may be incomplete",
-                          variant: "default"
-                        });
-                        // Use ID as fallback
-                        const fallbackRegistrationUrl = `/register?invitation=fallback-${selectedInvitation.id}`;
-                        console.log('[FLOW-DEBUG] Using fallback registration URL:', fallbackRegistrationUrl);
-                        setLocation(fallbackRegistrationUrl);
-                        return;
-                      }
-                      
-                      // Use the query parameter format for better compatibility
-                      const registrationUrl = `/register?invitation=${inviteHash}`;
-                      console.log('[FLOW-DEBUG] Navigating to registration with hash:', inviteHash);
-                      console.log('[FLOW-DEBUG] Full registration URL:', registrationUrl);
-                      
-                      // Log invitation details for debugging
-                      console.log('[FLOW-DEBUG] Full invitation data:', {
-                        id: selectedInvitation.id,
-                        name: selectedInvitation.name,
-                        phone: selectedInvitation.phone,
-                        inviteHash: selectedInvitation.inviteHash,
-                        sponsor: selectedInvitation.sponsor
-                      });
-                      
-                      // Navigate to registration page with the invitation hash
-                      setLocation(registrationUrl);
+                      setLocation(`/register?invitation=${selectedInvitation.inviteHash}`);
                     }
                   }}
                   className="bg-green-600 hover:bg-green-700 text-white w-full"
@@ -471,42 +282,21 @@ export default function PendingSalonInvitations({
             {isClientRegistered ? (
               // Show this button only if client is registered
               <Button 
-                onClick={async () => {
+                onClick={() => {
                   setShowInvitationDialog(false);
                   
-                  // Navigate to the client dashboard using the client ID if possible
+                  // Navigate to client dashboard
                   if (selectedInvitation) {
-                    try {
-                      // First try to find client by phone
-                      const cleanedPhone = cleanPhoneNumber(selectedInvitation.phone);
-                      
-                      const response = await fetch(`/api/clients?phone=${encodeURIComponent(cleanedPhone)}`);
-                      if (response.ok) {
-                        const clients = await response.json();
-                        if (clients && clients.length > 0) {
-                          console.log(`[FLOW-DEBUG] Found client ID ${clients[0].id} for invitation ${selectedInvitation.id}`);
-                          
-                          // Update the invitation status to "accepted"
-                          await updateInvitationStatus(selectedInvitation.id, "accepted");
-                          
-                          setLocation(`/client/${clients[0].id}`);
-                          return;
-                        }
-                      }
-                      // Fall back to invitation ID
-                      console.log(`[FLOW-DEBUG] No client found for invitation ${selectedInvitation.id}, using invitation ID`);
-                      setLocation(`/client/${selectedInvitation.id}`);
-                    } catch (error) {
-                      console.error("[FLOW-DEBUG] Error finding client for invitation:", error);
-                      setLocation(`/client/${selectedInvitation.id}`);
-                    }
+                    setLocation(`/client/${selectedInvitation.id}`);
                   }
                 }}
                 className={selectedInvitation?.senderId ? 
                   "bg-pink-600 hover:bg-pink-700 text-white" : 
                   "bg-amber-600 hover:bg-amber-700 text-white"}
               >
-                View Client Dashboard
+                {selectedInvitation?.senderId ? 
+                  "View Client Dashboard" : 
+                  "View Client Dashboard"}
               </Button>
             ) : (
               // Close button if client is not registered
