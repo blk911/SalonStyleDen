@@ -70,6 +70,7 @@ interface ClientInvite {
   salonId?: number;
   status?: string;
   sponsor?: string;
+  sponsorName?: string; // Added sponsorName field
   firstServiceDate?: string;
   inviteHash?: string; // Unique invitation hash for tracking
 }
@@ -351,6 +352,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           firstServiceDate,
           status: 'pending',
           sponsor: salonInfo.name, // Add the salon name as the sponsor
+          sponsorName: salonInfo.name, // Also set the sponsorName to match sponsor
           inviteHash: generateInviteHash() // Generate a unique hash on the client side
         })
       });

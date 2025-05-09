@@ -1409,7 +1409,7 @@ export class DatabaseStorage implements IStorage {
       const sqlQuery = `
         SELECT 
             id, name, phone, email, notes, message, type,
-            salon_id, sponsor, invite_hash, status, 
+            salon_id, sponsor, sponsor_name, invite_hash, status, 
             first_service_date, created_at, 
             favorite_services, sender_id,
             style_option, style_price, style_duration
