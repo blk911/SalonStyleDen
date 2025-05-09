@@ -59,12 +59,18 @@ export default function PendingSalonInvitations({
   if (clientId) filterParams.set('clientId', clientId.toString());
   filterParams.set('status', 'pending'); // Only get pending invitations
   
-  const { data: allInvitations, isLoading } = useQuery({
-    queryKey: ['/api/invitations/pending', clientId, limit],
+  const { data: allInvitations, isLoading, isError, error } = useQuery({
+    queryKey: ['/api/invitations', clientId, limit, 'pending'],
     queryFn: async () => {
+      console.log('[FLOW] Fetching pending invitations with params:', filterParams.toString());
       const response = await fetch(`/api/invitations?${filterParams}`);
-      if (!response.ok) throw new Error('Network response was not ok');
-      return response.json() as Promise<Invitation[]>;
+      if (!response.ok) {
+        console.error('[FLOW] Failed to fetch invitations:', response.status, response.statusText);
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      console.log('[FLOW] Fetched invitations data:', data);
+      return data as Invitation[];
     }
   });
   
