@@ -11,6 +11,12 @@ import {
 import { db, pool } from "./db";
 import { eq, sql, and } from "drizzle-orm";
 
+// Helper function to ensure sponsorName is always provided
+function getValidSponsorName(row: any): string {
+  // Try to get sponsor_name first, then fall back to sponsor, then use default
+  return row.sponsor_name || row.sponsor || "VMB LTD";
+}
+
 export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
@@ -989,7 +995,7 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          sponsorName: null,
+          sponsorName: getValidSponsorName(row),
           senderId: row.sender_id || null
         };
       } finally {
@@ -1045,7 +1051,7 @@ export class DatabaseStorage implements IStorage {
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
           // Set sponsorName to null (it's a new field)
-          sponsorName: null,
+          sponsorName: getValidSponsorName(row),
           // Use sender_id from query if available, otherwise null
           senderId: row.sender_id || null
         }));
@@ -1105,7 +1111,7 @@ export class DatabaseStorage implements IStorage {
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
           // Set sponsorName to null (it's a new field)
-          sponsorName: null,
+          sponsorName: getValidSponsorName(row),
           // Use sender_id from query if available, otherwise null
           senderId: row.sender_id || null
         }));
@@ -1198,7 +1204,7 @@ export class DatabaseStorage implements IStorage {
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
           // Set sponsorName to null (it's a new field)
-          sponsorName: null,
+          sponsorName: getValidSponsorName(row),
           senderId: row.sender_id || null
         }));
         
@@ -1258,7 +1264,7 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          sponsorName: null,
+          sponsorName: getValidSponsorName(row),
           senderId: row.sender_id || null
         };
         
@@ -1316,7 +1322,7 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          sponsorName: null,
+          sponsorName: getValidSponsorName(row),
           senderId: row.sender_id || null
         };
       } finally {
@@ -1432,7 +1438,7 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          sponsorName: null,
+          sponsorName: getValidSponsorName(row),
           senderId: row.sender_id || null
         }));
         
