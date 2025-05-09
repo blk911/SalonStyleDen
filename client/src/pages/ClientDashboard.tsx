@@ -20,7 +20,7 @@ import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import EditableClientInfo from "@/components/dashboard/EditableClientInfo";
 import RecentVmbInvitations from "@/components/dashboard/RecentVmbInvitations";
 import InlineVmbInvitations from "@/components/dashboard/InlineVmbInvitations";
-import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitations";
+import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitationsFixed";
 import SentInvitations from "@/components/dashboard/SentInvitations";
 import ClientInviteForm from "@/components/dashboard/ClientInviteForm";
 import ClientAppointments from "@/components/appointments/ClientAppointments";
