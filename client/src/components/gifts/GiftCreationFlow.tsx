@@ -393,8 +393,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     });
   };
 
-  // Function to handle payment and create the gift
-  const handlePayment = async () => {
+  // Function to create and send the gift
+  const handleGiftCreation = async () => {
     // Clear any previous errors
     setError(null);
     
@@ -817,7 +817,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
               type="button"
               className="flex-1 bg-pink-500 hover:bg-pink-600 text-white font-medium"
               disabled={createGiftMutation.isPending}
-              onClick={handlePayment}
+              onClick={handleGiftCreation}
             >
               {createGiftMutation.isPending ? (
                 <div className="flex items-center gap-2">

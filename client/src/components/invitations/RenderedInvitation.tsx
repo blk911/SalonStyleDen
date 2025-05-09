@@ -311,7 +311,7 @@ export function RenderedInvitation({
                       ) : (
                         <>
                           {/* SPECIAL CASE: Show ACCEPT GIFT or CONFIRM APPT button based on invitation type */}
-                          {showPayButton ? (
+                          {showConfirmButton ? (
                             <Button 
                               className="h-10 px-4 py-2 w-full bg-amber-500 hover:bg-amber-600 text-white font-medium"
                               onClick={handleConfirmClick}
@@ -373,7 +373,7 @@ export function RenderedInvitation({
                     ) : (
                       <>
                         {/* SPECIAL CASE: Show ACCEPT GIFT button */}
-                        {showPayButton ? (
+                        {showConfirmButton ? (
                           <Button 
                             className="h-10 px-4 py-2 w-full bg-pink-500 hover:bg-pink-600 text-white font-medium"
                             onClick={handleConfirmClick}
@@ -457,7 +457,7 @@ export function RenderedInvitation({
               
               <p className="text-sm text-gray-500">
                 {salonInitiated ? 
-                  'By clicking confirm, you agree to pay for this service at your scheduled appointment time.' : 
+                  'By clicking confirm, you agree to schedule this service at the salon.' : 
                   'By accepting this gift, you will be able to schedule an appointment for this service at the salon.'}
               </p>
             </div>
