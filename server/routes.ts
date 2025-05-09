@@ -105,7 +105,11 @@ const invitationInputSchema = z.object({
   salonName: z.string().optional(),
   sponsor: z.string().default("VMB LTD"), // Default sponsor field
   // [RULE: UniqueInvitationID] Invitations must have unique hash identifiers
-  inviteHash: z.string().optional(), // Generated server-side if not provided
+  // Note: We handle the generation of hash in the route handler for both cases:
+  // 1. If client provides a hash, we validate and potentially replace it
+  // 2. If no hash provided, we generate a secure one
+  // This ensures the database constraint is always satisfied
+  inviteHash: z.string().default(""), // Will be replaced in the handler
   firstServiceDate: z.string().optional(),
   status: z.string().default("pending"),
   senderId: z.number().optional(), // Sender ID for client-to-client invitations
@@ -1201,12 +1205,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const validatedData = invitationInputSchema.parse(req.body);
           
-          // [RULE: UniqueInvitationID] Generate a unique hash for this invitation if not provided
-          if (!validatedData.inviteHash) {
-            // Import the generateInviteHash function from client utils
+          // [RULE: UniqueInvitationID] Generate a unique hash for this invitation
+          // Even if one is provided, we need to ensure it exists and is proper
+          try {
             const { generateInviteHash } = await import('../client/src/lib/utils');
-            validatedData.inviteHash = generateInviteHash();
-            console.log(`[RULE ENFORCEMENT] Generated unique invitation hash: ${validatedData.inviteHash}`);
+            // Always generate a new hash to maintain control
+            const newHash = generateInviteHash();
+            
+            // Save the original hash for logging if it existed
+            const originalHash = validatedData.inviteHash;
+            validatedData.inviteHash = newHash;
+            
+            if (originalHash && originalHash !== newHash) {
+              console.warn(`[RULE ENFORCEMENT] Replaced provided hash (${originalHash}) with system-generated hash: ${newHash}`);
+            } else {
+              console.log(`[RULE ENFORCEMENT] Generated unique invitation hash: ${newHash}`);
+            }
+          } catch (error) {
+            // Fallback to UUID if client utils import fails
+            const crypto = await import('crypto');
+            validatedData.inviteHash = crypto.randomUUID();
+            console.log(`[RULE ENFORCEMENT] Generated fallback UUID hash: ${validatedData.inviteHash}`);
           }
           
           // [RULE: SponsorClientRelationship] Ensure salon relationship for all invitations
@@ -1264,12 +1283,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log(`[API] POST /invitations - Valid senderId: ${validatedData.senderId} - Client exists: ${senderClient.name}`);
           }
           
-          // salonId must be defined since it's a required field in the database
-          // If not already set by earlier code, set it to VMB LTD (ID: 1)
+          // [RULE: SponsorClientRelationship] salonId must be defined since it's a required field
+          // If not already set by earlier code, set it to VMB LTD (ID: 1) 
           validatedData.salonId = validatedData.salonId || 1;
           
-          // Create the invitation in database
-          const createdInvitation = await storage.createInvitation(validatedData);
+          // [RULE: UniqueInvitationID] Final validation before database insert
+          // This failsafe ensures we never create an invitation without a unique hash
+          if (!validatedData.inviteHash) {
+            console.error('[CRITICAL RULE VIOLATION] Invitation creation attempted without hash - generating emergency hash');
+            const crypto = await import('crypto');
+            validatedData.inviteHash = crypto.randomUUID();
+          }
+          
+          // Create the final validated invitation object that satisfies all database constraints
+          const invitationToCreate: InsertInvitation = {
+            name: validatedData.name,
+            phone: validatedData.phone,
+            email: validatedData.email,
+            message: validatedData.message,
+            notes: validatedData.notes,
+            favoriteServices: validatedData.favoriteServices,
+            salonId: validatedData.salonId,
+            salonName: validatedData.salonName,
+            sponsor: validatedData.sponsor,
+            sponsorName: validatedData.sponsorName,
+            inviteHash: validatedData.inviteHash, // Now guaranteed to exist
+            firstServiceDate: validatedData.firstServiceDate,
+            status: validatedData.status,
+            senderId: validatedData.senderId,
+            type: validatedData.type
+          };
+          
+          // Create the invitation in database with properly defined fields
+          const createdInvitation = await storage.createInvitation(invitationToCreate);
         
           // Log activity with the invitation hash
           if (createdInvitation && createdInvitation.inviteHash) {
@@ -2203,12 +2249,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const giftHash = crypto.randomUUID();
       console.log(`[RULE ENFORCEMENT] Generated unique gift hash: ${giftHash}`);
       
-      // Get sender client to determine salon relationship
+      // [RULE: SponsorClientRelationship] Get sender client to determine salon relationship
       const senderClient = await storage.getClient(validatedData.senderId);
-      const salonId = senderClient?.sponsorSalonId || 1; // Default to VMB LTD if not found
+      if (!senderClient) {
+        console.error(`[RULE VIOLATION] Gift creation with invalid sender ID: ${validatedData.senderId}`);
+        return res.status(400).json({
+          error: "Invalid sender",
+          details: "The specified sender doesn't exist in our records"
+        });
+      }
       
-      // Transform the validated data to match the required schema
-      const giftData = {
+      // Get the salon relationship from the sender's sponsor salon
+      const salonId = senderClient.sponsorSalonId || 1; // Default to VMB LTD if not found
+      console.log(`[RULE ENFORCEMENT] Using sender's salon relationship: ${salonId}`);
+      
+      // [RULE: UniqueGiftTracking] Create properly structured gift data with all required fields
+      const giftData: InsertGift = {
         senderId: validatedData.senderId,
         recipientPhone: validatedData.recipientPhone,
         recipientEmail: validatedData.recipientEmail || null,
@@ -2220,7 +2276,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // [RULE: SponsorClientRelationship] Every gift must have a salon relationship
         salonId,
         // [RULE: UniqueGiftTracking] Every gift must have a unique tracking ID
-        giftHash
+        giftHash,
+        // Additional fields that might be optional but useful
+        styleId: validatedData.styleId,
+        styleName: validatedData.styleName
       };
       
       // Create the gift
