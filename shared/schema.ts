@@ -11,7 +11,8 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Salon schema
+// [RULE: SponsorClientRelationship] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
+// Salon schema with proper constraints to enforce relationships
 export const salons = pgTable("salons", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -33,27 +34,30 @@ export const salons = pgTable("salons", {
   licenseState: text("license_state"), // State that issued the license
   licenseVerified: boolean("license_verified").default(false), // Whether license has been verified
   licenseStatus: text("license_status").default("pending"), // Status: pending, verified, rejected
-  sponsor: text("sponsor").default("VMB LTD"), // Default sponsor name
-  sponsorId: integer("sponsor_id"), // ID of the sponsoring salon
+  sponsor: text("sponsor").notNull().default("VMB LTD"), // Default sponsor name
+  sponsorId: integer("sponsor_id").default(1), // ID of the sponsoring salon, default to VMB LTD (1)
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Client schema
+// [RULE: ClientSchema] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
+// Client schema with mandatory relationship to sponsor and phone uniqueness
 export const clients = pgTable("clients", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  phone: text("phone").notNull(),
+  phone: text("phone").notNull().unique(), // Each phone number can only be associated with ONE client
   email: text("email").default(''),
   isCurrentClient: boolean("is_current_client").notNull().default(false),
   acceptedTerms: boolean("accepted_terms").default(false), // Track terms & conditions acceptance
   profilePromptShown: boolean("profile_prompt_shown").default(false), // Track if profile completion prompt has been shown
   notes: text("notes"),
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
-  salonId: integer("salon_id"), // Reference to salon if client belongs to one
+  // [RULE: SponsorClientRelationship] Client salon relationship
+  salonId: integer("salon_id").references(() => salons.id), // Reference to salon if client belongs to one
   salonName: text("salon_name"), // Name of the salon for display purposes
+  // [RULE: SponsorClientRelationship] CRITICAL: Every client MUST have these sponsor fields
   sponsor: text("sponsor").notNull().default("VMB LTD"), // Sponsor name with default
-  sponsorName: text("sponsor_name").notNull().default("VMB LTD"), // Name of the sponsor (client who invited)
-  sponsorSalonId: integer("sponsor_salon_id").notNull().references(() => salons.id), // Reference to the salon that sponsored this client
+  sponsorName: text("sponsor_name").notNull().default("VMB LTD"), // Name of the sponsor
+  sponsorSalonId: integer("sponsor_salon_id").notNull().default(1).references(() => salons.id), // Default to VMB LTD (ID: 1)
   type: text("type").notNull().default("client"),
   address: text("address"), // Street address
   city: text("city"),
@@ -64,7 +68,8 @@ export const clients = pgTable("clients", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Client Invitations schema
+// [RULE: InvitationSchema] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
+// Client Invitations schema with strict unique hash requirement and relationship tracking
 export const invitations = pgTable("invitations", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
@@ -72,14 +77,19 @@ export const invitations = pgTable("invitations", {
   email: text("email"), // Email is optional for phone-only invitations
   notes: text("notes"),
   message: text("message"), // Custom message from the sender
-  type: text("type"), // Type of invitation (e.g., "client_invitation")
+  // [RULE: UniqueInvitationID] Explicitly track invitation type for relationship mapping
+  type: text("type").notNull().default("client_invitation"), // Type of invitation
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
-  salonId: integer("salon_id").notNull().references(() => salons.id), // Reference to salon sending the invitation
-  senderId: integer("sender_id"), // Reference to the client who sent the invitation
+  // [RULE: SponsorClientRelationship] Critical salon relationship
+  salonId: integer("salon_id").notNull().default(1).references(() => salons.id),
+  // Reference to the client who sent the invitation (may be null for salon-initiated invitations)
+  senderId: integer("sender_id").references(() => clients.id),
+  // [RULE: SponsorClientRelationship] Every invitation must have a sponsor
   sponsor: text("sponsor").notNull().default("VMB LTD"),
-  sponsorName: text("sponsor_name").notNull().default("VMB LTD"), // Name of the sponsor (client or salon who invited)
-  inviteHash: text("invite_hash").unique(), // Unique hash identifier for tracking invitations
-  status: text("status").notNull().default("pending"), // pending, accepted, declined
+  sponsorName: text("sponsor_name").notNull().default("VMB LTD"),
+  // [RULE: UniqueInvitationID] CRITICAL: Every invitation must have a unique hash
+  inviteHash: text("invite_hash").notNull().unique(), // Immutable unique tracking ID
+  status: text("status").notNull().default("pending"), // pending, accepted, declined, completed
   firstServiceDate: text("first_service_date"), // Date of first service (if scheduled)
   styleOption: text("style_option"), // Selected style name/option
   stylePrice: integer("style_price"), // Price of the selected style in cents
@@ -210,25 +220,37 @@ export const appointmentsRelations = relations(appointments, ({ one }) => ({
   })
 }));
 
-// Gifts schema
+// [RULE: GiftSchema] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
+// Gifts schema with sponsorship tracking and unique tracking ID
 export const gifts = pgTable("gifts", {
   id: serial("id").primaryKey(),
+  // [RULE: SponsorClientRelationship] Every gift must have a sender
   senderId: integer("sender_id").notNull().references(() => clients.id),
+  // Recipient ID if already a client
   recipientId: integer("recipient_id").references(() => clients.id),
-  recipientPhone: text("recipient_phone"),
-  recipientEmail: text("recipient_email"),
+  // [RULE: PhoneFormat] Store phone as pure digits for recipient
+  recipientPhone: text("recipient_phone"), // For non-client recipients
+  recipientEmail: text("recipient_email"), // For non-client recipients
+  // Every gift must have a type
   giftType: text("gift_type").notNull().default("style_card"),
   styleId: integer("style_id"),
   styleName: text("style_name"),
+  // Every gift must have an amount
   amount: integer("amount").notNull(), // Amount in cents
   message: text("message"),
+  // [RULE: UniqueGiftTracking] Every gift has a mandatory status
   status: text("status").notNull().default("created"), // created, sent, redeemed
+  // [RULE: SponsorClientRelationship] Track the salon that created/sponsored this gift
+  salonId: integer("salon_id").default(1).references(() => salons.id),
+  // [RULE: UniqueGiftTracking] Every gift must have a unique tracking ID 
+  giftHash: text("gift_hash").notNull().unique(), // Unique hash for tracking gifts
   expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at").defaultNow(),
   redeemedAt: timestamp("redeemed_at"),
 });
 
-// Add relations for gifts
+// [RULE: GiftRelations] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
+// Add relations for gifts including salon relationship
 export const giftsRelations = relations(gifts, ({ one }) => ({
   sender: one(clients, {
     fields: [gifts.senderId],
@@ -237,6 +259,11 @@ export const giftsRelations = relations(gifts, ({ one }) => ({
   recipient: one(clients, {
     fields: [gifts.recipientId],
     references: [clients.id]
+  }),
+  // [RULE: SponsorClientRelationship] Every gift must be associated with a salon
+  salon: one(salons, {
+    fields: [gifts.salonId],
+    references: [salons.id]
   })
 }));
 

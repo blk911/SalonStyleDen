@@ -2198,6 +2198,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[API] POST /gifts - Creating new gift`);
       const validatedData = giftInputSchema.parse(req.body);
       
+      // [RULE: UniqueGiftTracking] - Generate a unique hash for this gift
+      const crypto = await import('crypto');
+      const giftHash = crypto.randomUUID();
+      console.log(`[RULE ENFORCEMENT] Generated unique gift hash: ${giftHash}`);
+      
+      // Get sender client to determine salon relationship
+      const senderClient = await storage.getClient(validatedData.senderId);
+      const salonId = senderClient?.sponsorSalonId || 1; // Default to VMB LTD if not found
+      
       // Transform the validated data to match the required schema
       const giftData = {
         senderId: validatedData.senderId,
@@ -2207,7 +2216,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         amount: validatedData.value || 5000, // Default amount if not specified
         status: validatedData.status || 'sent',
         message: validatedData.message || null,
-        giftType: 'style_card' // Default gift type
+        giftType: 'style_card', // Default gift type
+        // [RULE: SponsorClientRelationship] Every gift must have a salon relationship
+        salonId,
+        // [RULE: UniqueGiftTracking] Every gift must have a unique tracking ID
+        giftHash
       };
       
       // Create the gift
