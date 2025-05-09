@@ -60,11 +60,14 @@ export default function PendingSalonInvitations({
   filterParams.set('status', 'pending'); // Only get pending invitations
   
   const { data: allInvitations, isLoading } = useQuery({
-    queryKey: ['/api/invitations/pending', clientId, limit],
+    queryKey: ['/api/invitations', 'pending', clientId, limit],
     queryFn: async () => {
+      console.log('[DEBUG] Fetching pending invitations with params:', filterParams.toString());
       const response = await fetch(`/api/invitations?${filterParams}`);
       if (!response.ok) throw new Error('Network response was not ok');
-      return response.json() as Promise<Invitation[]>;
+      const data = await response.json();
+      console.log('[DEBUG] Received pending invitations:', data);
+      return data as Promise<Invitation[]>;
     }
   });
   
