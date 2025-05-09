@@ -28,7 +28,6 @@ interface Invitation {
   salonId: number | null;
   senderId?: number | null;
   sponsor: string | null;
-  sponsorName: string;  // Added this field to match our schema
   status: string;
   inviteHash: string;
   createdAt: string;
@@ -60,15 +59,18 @@ export default function PendingSalonInvitations({
   if (clientId) filterParams.set('clientId', clientId.toString());
   filterParams.set('status', 'pending'); // Only get pending invitations
   
-  const { data: allInvitations, isLoading } = useQuery({
-    queryKey: ['/api/invitations', 'pending', clientId, limit],
+  const { data: allInvitations, isLoading, isError, error } = useQuery({
+    queryKey: ['/api/invitations', clientId, limit, 'pending'],
     queryFn: async () => {
-      console.log('[DEBUG] Fetching pending invitations with params:', filterParams.toString());
+      console.log('[FLOW] Fetching pending invitations with params:', filterParams.toString());
       const response = await fetch(`/api/invitations?${filterParams}`);
-      if (!response.ok) throw new Error('Network response was not ok');
+      if (!response.ok) {
+        console.error('[FLOW] Failed to fetch invitations:', response.status, response.statusText);
+        throw new Error('Network response was not ok');
+      }
       const data = await response.json();
-      console.log('[DEBUG] Received pending invitations:', data);
-      return data as Promise<Invitation[]>;
+      console.log('[FLOW] Fetched invitations data:', data);
+      return data as Invitation[];
     }
   });
   
@@ -208,9 +210,11 @@ export default function PendingSalonInvitations({
               )}
             </div>
             
-            <div className="text-xs text-gray-500 mt-1">
-                <span>From: {invitation.sponsorName || invitation.sponsor || "VMB LTD"}</span>
+            {invitation.sponsor && (
+              <div className="text-xs text-gray-500 mt-1">
+                <span>From: {invitation.sponsor}</span>
               </div>
+            )}
             
             {invitation.message && (
               <div className="text-xs italic text-gray-600 mt-2 border-t border-gray-100 pt-1">
@@ -233,7 +237,7 @@ export default function PendingSalonInvitations({
             <DialogDescription>
               {selectedInvitation?.senderId ?
                 `You created this gift request for ${selectedInvitation?.name}` :
-                `${selectedInvitation?.sponsorName || selectedInvitation?.sponsor || "VMB LTD"} has sent you a VMB LTD invitation`}
+                `${selectedInvitation?.sponsor} has sent you a Ven Me, Baby! invitation`}
             </DialogDescription>
           </DialogHeader>
           
@@ -245,7 +249,7 @@ export default function PendingSalonInvitations({
                 styleOption={selectedInvitation.styleOption || ""}
                 price={selectedInvitation.stylePrice ? `$${selectedInvitation.stylePrice}` : "$45"}
                 time={selectedInvitation.styleDuration ? `${selectedInvitation.styleDuration} min` : "30 min"}
-                senderName={selectedInvitation.sponsorName || selectedInvitation.sponsor || "VMB LTD"}
+                senderName={selectedInvitation.sponsor || "Your Stylist"}
                 imageUrl={selectedInvitation.styleImageUrl || "/assets/french-tips.png"}
                 salonInitiated={!selectedInvitation.senderId} // salonInitiated = true when no senderId (salon sent it)
                 status={selectedInvitation.status} // Pass the invitation status

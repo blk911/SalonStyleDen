@@ -1,18 +1,54 @@
--- Update SQL queries to fix the sponsor_name field
--- This script ensures that all invitations have a proper sponsor_name value
+-- Fix database schema and data issues
 
--- Update any null sponsor_name values to use the sponsor field as a fallback
-UPDATE invitations 
-SET sponsor_name = sponsor 
-WHERE sponsor_name IS NULL OR sponsor_name = '';
+-- 1. Update default sponsor values for consistency
+UPDATE invitations SET sponsor = 'VMB LTD' WHERE sponsor = 'Ven Me, Baby! LTD' OR sponsor IS NULL;
+UPDATE clients SET sponsor = 'VMB LTD' WHERE sponsor = 'Ven Me, Baby! LTD' OR sponsor IS NULL;
+UPDATE salons SET sponsor = 'VMB LTD' WHERE sponsor = 'Ven Me, Baby! LTD' OR sponsor IS NULL;
 
--- Ensure all future invitations have a default value of "VMB LTD" for sponsor_name if not specified
-ALTER TABLE invitations 
-ALTER COLUMN sponsor_name SET DEFAULT 'VMB LTD';
+-- 2. Add the missing style fields to invitations table if they don't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'invitations' AND column_name = 'style_option') THEN
+        ALTER TABLE invitations ADD COLUMN style_option TEXT;
+    END IF;
 
--- Ensure the sponsor_name is NOT NULL to match schema expectations
-ALTER TABLE invitations 
-ALTER COLUMN sponsor_name SET NOT NULL;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'invitations' AND column_name = 'style_price') THEN
+        ALTER TABLE invitations ADD COLUMN style_price INTEGER;
+    END IF;
 
--- Display updated records (count) for verification
-SELECT COUNT(*) as updated_records FROM invitations WHERE sponsor_name IS NOT NULL;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'invitations' AND column_name = 'style_duration') THEN
+        ALTER TABLE invitations ADD COLUMN style_duration INTEGER;
+    END IF;
+END
+$$;
+
+-- 3. Add the sender_id column to invitations table if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'invitations' AND column_name = 'sender_id') THEN
+        ALTER TABLE invitations ADD COLUMN sender_id INTEGER;
+    END IF;
+END
+$$;
+
+-- 4. If we need to keep client_id column data before removing it, migrate to sender_id
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'invitations' AND column_name = 'client_id') AND
+       EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'invitations' AND column_name = 'sender_id') THEN
+        -- Copy any non-null client_id values to sender_id if sender_id is null
+        UPDATE invitations 
+        SET sender_id = client_id 
+        WHERE client_id IS NOT NULL AND sender_id IS NULL;
+        
+        -- Now client_id data is preserved, it can be safely removed later with:
+        -- ALTER TABLE invitations DROP COLUMN client_id;
+    END IF;
+END
+$$;
+
+-- 5. Display current table structure for confirmation
+SELECT column_name, data_type 
+FROM information_schema.columns 
+WHERE table_name = 'invitations'
+ORDER BY ordinal_position;

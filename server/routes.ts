@@ -1236,15 +1236,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (salonId) {
         // Get invitations for a specific salon
         invitations = await storage.getSalonInvitations(salonId);
-        console.log(`[API] GET /invitations - Got ${invitations.length} invitations for salon ${salonId}`);
+        console.log(`[API] GET /invitations - Got ${invitations.length} invitations for salon ${salonId}:`, invitations);
       } else if (clientId) {
         // Get invitations specific to this client
         invitations = await storage.getClientInvitations(clientId, status, limit);
-        console.log(`[API] GET /invitations - Got ${invitations.length} invitations for client ${clientId}`);
+        console.log(`[API] GET /invitations - Got ${invitations.length} invitations for client ${clientId}:`, invitations);
+        
+        if (status) {
+          console.log(`[API] GET /invitations - Filtering for status ${status}`);
+        }
+        
+        // Additional logging for debugging
+        if (invitations.length === 0) {
+          console.log(`[API] GET /invitations - No invitations found for client ${clientId}. Checking if client exists...`);
+          const client = await storage.getClient(clientId);
+          if (client) {
+            console.log(`[API] GET /invitations - Client exists:`, { 
+              id: client.id, 
+              name: client.name, 
+              phone: client.phone,
+              sponsorSalonId: client.sponsorSalonId 
+            });
+          } else {
+            console.log(`[API] GET /invitations - Client with ID ${clientId} not found`);
+          }
+        }
       } else {
         // Default: get recent invitations with limit
         invitations = await storage.getRecentInvitations(limit);
-        console.log(`[API] GET /invitations - Got ${invitations.length} recent invitations (default)`);
+        console.log(`[API] GET /invitations - Got ${invitations.length} recent invitations (default):`, invitations);
       }
       
       res.json(invitations);

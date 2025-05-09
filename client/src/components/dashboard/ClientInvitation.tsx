@@ -70,7 +70,6 @@ interface ClientInvite {
   salonId?: number;
   status?: string;
   sponsor?: string;
-  sponsorName?: string; // Added sponsorName field
   firstServiceDate?: string;
   inviteHash?: string; // Unique invitation hash for tracking
 }
@@ -264,11 +263,9 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     if (!salonId) return;
     
     try {
-      console.log('[DEBUG] Fetching salon invitations for salonId:', salonId);
-      const response = await fetch(`/api/invitations?salonId=${salonId}`);
+      const response = await fetch(`/api/salons/${salonId}/invitations`);
       if (response.ok) {
         const data = await response.json();
-        console.log('[DEBUG] Fetched salon invitations:', data);
         setRecentInvites(data);
       } else {
         console.error(`Failed to fetch salon invites, status:`, response.status);
@@ -352,7 +349,6 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
           firstServiceDate,
           status: 'pending',
           sponsor: salonInfo.name, // Add the salon name as the sponsor
-          sponsorName: salonInfo.name, // Also set the sponsorName to match sponsor
           inviteHash: generateInviteHash() // Generate a unique hash on the client side
         })
       });
