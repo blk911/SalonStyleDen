@@ -928,6 +928,8 @@ export class DatabaseStorage implements IStorage {
           type: row.type || null,
           salonId: row.salon_id,
           sponsor: row.sponsor,
+          // Use the helper function to get a valid sponsorName
+          sponsorName: getValidSponsorName(row),
           inviteHash: row.invite_hash,
           status: row.status,
           firstServiceDate: row.first_service_date,
@@ -1167,7 +1169,7 @@ export class DatabaseStorage implements IStorage {
       const sqlQuery = `
         SELECT 
             id, name, phone, email, notes, message, type,
-            salon_id, sponsor, invite_hash, status, 
+            salon_id, sponsor, sponsor_name, invite_hash, status, 
             first_service_date, created_at, 
             favorite_services, sender_id,
             style_option, style_price, style_duration
@@ -1229,7 +1231,7 @@ export class DatabaseStorage implements IStorage {
         WHERE id = $2
         RETURNING 
             id, name, phone, email, notes, message, type,
-            salon_id, sponsor, invite_hash, status, 
+            salon_id, sponsor, sponsor_name, invite_hash, status, 
             first_service_date, created_at, 
             favorite_services, sender_id,
             style_option, style_price, style_duration
@@ -1285,7 +1287,7 @@ export class DatabaseStorage implements IStorage {
       const sqlQuery = `
         SELECT 
             id, name, phone, email, notes, message, type,
-            salon_id, sponsor, invite_hash, status, 
+            salon_id, sponsor, sponsor_name, invite_hash, status, 
             first_service_date, created_at, 
             favorite_services, sender_id,
             style_option, style_price, style_duration
