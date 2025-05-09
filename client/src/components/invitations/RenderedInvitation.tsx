@@ -92,14 +92,13 @@ export function RenderedInvitation({
     setLocalStatus(status);
   }, [status]);
   
-  // Function to handle PAY / SET APPT button click
-  const handlePayClick = () => {
+  // Function to handle appointment confirmation button click
+  const handleConfirmClick = () => {
     setShowConfirmDialog(true);
   };
   
-  // Function to confirm payment/appointment
-  // In the future, this will integrate with Stripe for actual payment processing
-  const handleConfirmPayment = async () => {
+  // Function to confirm and complete the invitation
+  const handleConfirmInvitation = async () => {
     setIsProcessing(true);
     
     try {
@@ -116,12 +115,7 @@ export function RenderedInvitation({
       const inviteData = await inviteResponse.json();
       const numericId = inviteData.id;
       
-      // FUTURE ENHANCEMENT: This is where Stripe payment processing will be integrated
-      // 1. Create a payment intent with Stripe
-      // 2. Process the payment with card details
-      // 3. On successful payment, update the invitation status
-      
-      // For now, just update the invitation status to "completed" 
+      // Update the invitation status to "completed" 
       const response = await fetch(`/api/invitations/${numericId}/status`, {
         method: 'PUT',
         headers: {
@@ -144,9 +138,9 @@ export function RenderedInvitation({
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              type: salonInitiated ? 'payment_completed' : 'gift_accepted',
+              type: salonInitiated ? 'appointment_confirmed' : 'gift_accepted',
               description: salonInitiated 
-                ? `Payment for invitation #${numericId} completed by ${recipientName}`
+                ? `Appointment for invitation #${numericId} confirmed by ${recipientName}`
                 : `Gift invitation #${numericId} accepted by ${recipientName}`,
               clientId: inviteData.clientId, // Use actual client ID from invitation data
               salonId: inviteData.salonId, // Use actual salon ID from invitation data
@@ -158,9 +152,9 @@ export function RenderedInvitation({
         }
         
         toast({
-          title: salonInitiated ? "Payment Confirmed" : "Gift Accepted",
+          title: salonInitiated ? "Appointment Confirmed" : "Gift Accepted",
           description: salonInitiated 
-            ? "Your payment has been processed! Now you can schedule your appointment."
+            ? "Your appointment has been confirmed! You're all set."
             : "You've accepted the gift! Now you can schedule your appointment."
         });
         
@@ -171,12 +165,12 @@ export function RenderedInvitation({
       } else {
         toast({
           title: "Error",
-          description: "Failed to process payment. Please try again.",
+          description: "Failed to complete the process. Please try again.",
           variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error processing payment:', error);
+      console.error('Error completing invitation:', error);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -205,7 +199,7 @@ export function RenderedInvitation({
   const isPendingLocalStatus = localStatus === 'pending';
   
   // NEW CASE: Detect when a client is viewing their OWN salon invitation (recipient is self)
-  // This is the special case where we show the PAY / SET APPT button
+  // This is the special case where we show the CONFIRM APPOINTMENT or ACCEPT GIFT button
   const isRecipientViewingSelfInvitation = currentClientId && 
                                          recipientName === currentClientId && 
                                          isPendingLocalStatus; // Use localStatus here
@@ -220,12 +214,12 @@ export function RenderedInvitation({
                      sourceDashboard === 'client'; // Only show when viewed from client dashboard
   
   // NEW CASE: Determine if we should show the ACCEPT GIFT button for client 
-  // or PAY/SET APPT for salon-initiated invitations
-  const showPayButton = !isInPreviewMode && 
+  // or CONFIRM APPOINTMENT for salon-initiated invitations
+  const showConfirmButton = !isInPreviewMode && 
                        isPendingLocalStatus && // Use localStatus here
                        isRecipientViewingSelfInvitation;
   
-  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Local Status: ${localStatus} - Client ID: ${currentClientId || 'NOT SET'} - Source: ${sourceDashboard || 'none'} - Is client: ${isClientViewingOwnInvitation} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'} - Pay button will ${showPayButton ? 'SHOW' : 'HIDE'}`);
+  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Local Status: ${localStatus} - Client ID: ${currentClientId || 'NOT SET'} - Source: ${sourceDashboard || 'none'} - Is client: ${isClientViewingOwnInvitation} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'} - Confirm button will ${showConfirmButton ? 'SHOW' : 'HIDE'}`);
   
   return (
     <>
@@ -316,14 +310,14 @@ export function RenderedInvitation({
                         </div>
                       ) : (
                         <>
-                          {/* SPECIAL CASE: Show ACCEPT GIFT or PAY/SET APPT button based on invitation type */}
+                          {/* SPECIAL CASE: Show ACCEPT GIFT or CONFIRM APPT button based on invitation type */}
                           {showPayButton ? (
                             <Button 
                               className="h-10 px-4 py-2 w-full bg-amber-500 hover:bg-amber-600 text-white font-medium"
-                              onClick={handlePayClick}
+                              onClick={handleConfirmClick}
                               disabled={isProcessing}
                             >
-                              {isProcessing ? 'Processing...' : salonInitiated ? 'PAY / SET APPT' : 'ACCEPT GIFT'}
+                              {isProcessing ? 'Processing...' : salonInitiated ? 'CONFIRM APPT' : 'ACCEPT GIFT'}
                             </Button>
                           ) : showButton ? (
                             <Button 
@@ -378,11 +372,11 @@ export function RenderedInvitation({
                       </div>
                     ) : (
                       <>
-                        {/* SPECIAL CASE: Show ACCEPT GIFT or PAY/SET APPT button based on invitation type */}
+                        {/* SPECIAL CASE: Show ACCEPT GIFT button */}
                         {showPayButton ? (
                           <Button 
                             className="h-10 px-4 py-2 w-full bg-pink-500 hover:bg-pink-600 text-white font-medium"
-                            onClick={handlePayClick}
+                            onClick={handleConfirmClick}
                             disabled={isProcessing}
                           >
                             {isProcessing ? 'Processing...' : 'ACCEPT GIFT'}
@@ -478,7 +472,7 @@ export function RenderedInvitation({
               Cancel
             </Button>
             <Button 
-              onClick={handleConfirmPayment}
+              onClick={handleConfirmInvitation}
               className={`${salonInitiated ? 'bg-amber-500 hover:bg-amber-600' : 'bg-pink-500 hover:bg-pink-600'} text-white`}
               disabled={isProcessing}
             >
@@ -490,7 +484,7 @@ export function RenderedInvitation({
               ) : (
                 <>
                   <CheckCircle className="mr-2 h-4 w-4" />
-                  {salonInitiated ? 'Confirm Payment' : 'Accept Gift'}
+                  {salonInitiated ? 'Confirm Appointment' : 'Accept Gift'}
                 </>
               )}
             </Button>
