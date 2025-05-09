@@ -50,7 +50,8 @@ async function createTestInvitations() {
         message: `This is a salon invitation TO client ${client.name} (ID: ${client.id})`,
         type: 'service',
         salonId: salon.id,
-        senderId: null, // NULL senderId indicates it's from the salon
+        // Using the salon owner's user ID as the sender since null isn't allowed
+        senderId: salon.ownerId || 1, 
         sponsor: salon.name,
         status: 'pending',
         styleOption: 'French Tips',
