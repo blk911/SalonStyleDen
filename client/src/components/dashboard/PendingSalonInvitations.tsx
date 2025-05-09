@@ -28,6 +28,7 @@ interface Invitation {
   salonId: number | null;
   senderId?: number | null;
   sponsor: string | null;
+  sponsorName: string;  // Added this field to match our schema
   status: string;
   inviteHash: string;
   createdAt: string;
@@ -207,11 +208,9 @@ export default function PendingSalonInvitations({
               )}
             </div>
             
-            {invitation.sponsor && (
-              <div className="text-xs text-gray-500 mt-1">
-                <span>From: {invitation.sponsor}</span>
+            <div className="text-xs text-gray-500 mt-1">
+                <span>From: {invitation.sponsorName || invitation.sponsor || "VMB LTD"}</span>
               </div>
-            )}
             
             {invitation.message && (
               <div className="text-xs italic text-gray-600 mt-2 border-t border-gray-100 pt-1">
@@ -234,7 +233,7 @@ export default function PendingSalonInvitations({
             <DialogDescription>
               {selectedInvitation?.senderId ?
                 `You created this gift request for ${selectedInvitation?.name}` :
-                `${selectedInvitation?.sponsor} has sent you a Ven Me, Baby! invitation`}
+                `${selectedInvitation?.sponsorName || selectedInvitation?.sponsor || "VMB LTD"} has sent you a VMB LTD invitation`}
             </DialogDescription>
           </DialogHeader>
           
@@ -246,7 +245,7 @@ export default function PendingSalonInvitations({
                 styleOption={selectedInvitation.styleOption || ""}
                 price={selectedInvitation.stylePrice ? `$${selectedInvitation.stylePrice}` : "$45"}
                 time={selectedInvitation.styleDuration ? `${selectedInvitation.styleDuration} min` : "30 min"}
-                senderName={selectedInvitation.sponsor || "Your Stylist"}
+                senderName={selectedInvitation.sponsorName || selectedInvitation.sponsor || "VMB LTD"}
                 imageUrl={selectedInvitation.styleImageUrl || "/assets/french-tips.png"}
                 salonInitiated={!selectedInvitation.senderId} // salonInitiated = true when no senderId (salon sent it)
                 status={selectedInvitation.status} // Pass the invitation status
