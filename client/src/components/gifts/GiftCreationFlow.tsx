@@ -165,7 +165,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         recipientEmail: data.email || null,
         message: data.message,
         value: data.stylePrice, // Used instead of amount in the UI
-        status: 'pending',
+        status: 'sent',
         styleId: data.styleId,
         styleName: data.styleOption
       };
@@ -216,8 +216,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       setShowConfirmDialog(true);
       
       toast({
-        title: "Gift Created!",
-        description: `Your gift to ${recipientData.name} has been created and is in pending status.`,
+        title: "Gift Sent!",
+        description: `Your gift to ${recipientData.name} has been sent successfully.`,
       });
     },
     onError: (error: any) => {
@@ -241,7 +241,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       
       // Show toast alert
       toast({
-        title: "Failed to Create Gift",
+        title: "Failed to Send Gift",
         description: userMessage,
         variant: "destructive",
         duration: 5000
@@ -431,7 +431,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       styleDuration: selectedStyle.duration,
       clientId: clientId,
       salonId: useSalonId,
-      status: "pending",
+      status: "sent",
       senderName: client?.name || "Client",
       invitationType: "client_to_friend",
       styleImageUrl: selectedStyle.gifUrl,
@@ -444,8 +444,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     // Instead of directly calling the mutation, better handle the error scenarios
     try {
       toast({
-        title: "Creating Gift",
-        description: "Creating your gift in pending status...",
+        title: "Processing Gift",
+        description: "Creating your gift...",
       });
       
       // Call the mutation to create the gift
