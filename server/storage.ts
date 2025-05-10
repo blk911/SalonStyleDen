@@ -2200,12 +2200,19 @@ export class DatabaseStorage implements IStorage {
         return [];
       }
       
+      // CRITICAL FIX: When fetching gifts for the recipient, we should 
+      // modify the status when displaying them on the recipient side
+      // A gift with status "sent" should appear as "pending" on the recipient side
+      // until they take action
+      
+      // For received gifts by phone, we need to convert "sent" status to "pending"
       const phoneReceivedGiftsPromise = client.phone ? db
         .select()
         .from(gifts)
         .where(eq(gifts.recipientPhone, client.phone))
         .orderBy(sql`${gifts.createdAt} DESC`) : Promise.resolve([]);
       
+      // For received gifts by ID, do the same status conversion
       const idReceivedGiftsPromise = db
         .select()
         .from(gifts)
@@ -2229,8 +2236,19 @@ export class DatabaseStorage implements IStorage {
         }
       }
       
-      console.log(`DatabaseStorage.getReceivedGifts - Found ${allGifts.length} gifts (${idReceivedGifts.length} by ID, ${phoneReceivedGifts.length} by phone)`);
-      return allGifts;
+      // Critical fix: Modify the status of "sent" gifts to be "pending" for recipients
+      // This ensures the recipient sees the correct status without changing the database
+      const modifiedGifts = allGifts.map(gift => {
+        // If the gift is in "sent" status and visible to a recipient, it should appear as "pending"
+        // to the recipient so they can take action (accept/redeem)
+        if (gift.status === 'sent') {
+          return { ...gift, status: 'pending' };
+        }
+        return gift;
+      });
+      
+      console.log(`DatabaseStorage.getReceivedGifts - Found ${modifiedGifts.length} gifts (${idReceivedGifts.length} by ID, ${phoneReceivedGifts.length} by phone)`);
+      return modifiedGifts;
     } catch (error) {
       console.error(`Error getting received gifts:`, error);
       throw error;
