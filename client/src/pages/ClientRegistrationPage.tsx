@@ -346,12 +346,26 @@ export default function ClientRegistrationPage() {
       
       setIsSubmitting(true);
       
+      // Map clientType to appropriate type value for database
+      let clientTypeValue = 'client'; // Default
+      if (data.clientType === 'salonOwner') {
+        clientTypeValue = 'salon_owner';
+      } else if (data.clientType === 'giftInvite') {
+        clientTypeValue = 'gift_recipient';
+      }
+      
+      // Determine sponsor based on selection
+      const sponsorSalonId = data.sponsorSalonId || salonId || invitation?.salonId || 1; // Default to VMB LTD (ID 1) if nothing selected
+      
+      // Find the selected salon from the dropdown
+      const selectedSalon = allSalons?.find(s => s.id === sponsorSalonId);
+      
       // Add sponsor information
       const clientData = {
         ...data,
-        type: 'client',
-        sponsor: salon?.name || invitation?.sponsor || 'Unknown',
-        sponsorSalonId: data.sponsorSalonId || salonId || invitation?.salonId,
+        type: clientTypeValue,
+        sponsor: selectedSalon?.name || salon?.name || invitation?.sponsor || 'VMB LTD',
+        sponsorSalonId: sponsorSalonId,
         isCurrentClient: true,
         accepted_terms: data.acceptTerms || false, // Use snake_case to match database
         invitationId: invitation?.id // Add invitation ID for linking
@@ -677,12 +691,87 @@ export default function ClientRegistrationPage() {
               <CardContent>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-                    {/* Invite Type Radio */}
+                    {/* Client Type Selection - I AM: section */}
+                    <FormField
+                      control={form.control}
+                      name="clientType"
+                      render={({ field }) => (
+                        <FormItem className="mb-4">
+                          <div className="mb-2 font-medium">I AM:</div>
+                          <div className="grid grid-cols-3 gap-2">
+                            <Button
+                              type="button"
+                              variant={field.value === 'newClient' ? 'default' : 'outline'}
+                              className={`flex items-center justify-center ${field.value === 'newClient' ? 'bg-[#FF92A5] hover:bg-[#FF92A5]/90' : 'border-2 border-[#FF92A5] text-[#FF92A5] hover:bg-gray-50'}`}
+                              onClick={() => field.onChange('newClient')}
+                            >
+                              <UserCircle className="h-4 w-4 mr-2" /> 
+                              New Client
+                            </Button>
+                            
+                            <Button
+                              type="button"
+                              variant={field.value === 'salonOwner' ? 'default' : 'outline'}
+                              className={`flex items-center justify-center ${field.value === 'salonOwner' ? 'bg-[#FF92A5] hover:bg-[#FF92A5]/90' : 'border-2 border-[#FF92A5] text-[#FF92A5] hover:bg-gray-50'}`}
+                              onClick={() => field.onChange('salonOwner')}
+                            >
+                              <Building2 className="h-4 w-4 mr-2" /> 
+                              Salon Owner
+                            </Button>
+                            
+                            <Button
+                              type="button"
+                              variant={field.value === 'giftInvite' ? 'default' : 'outline'}
+                              className={`flex items-center justify-center ${field.value === 'giftInvite' ? 'bg-[#FF92A5] hover:bg-[#FF92A5]/90' : 'border-2 border-[#FF92A5] text-[#FF92A5] hover:bg-gray-50'}`}
+                              onClick={() => field.onChange('giftInvite')}
+                            >
+                              <Gift className="h-4 w-4 mr-2" /> 
+                              Gift/Invite
+                            </Button>
+                          </div>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {/* Salon Selection Dropdown */}
+                    <FormField
+                      control={form.control}
+                      name="sponsorSalonId"
+                      render={({ field }) => (
+                        <FormItem className="mb-4">
+                          <FormLabel>Select Your Salon</FormLabel>
+                          <Select
+                            value={field.value?.toString() || ''}
+                            onValueChange={(value) => field.onChange(parseInt(value))}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a salon" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {/* Sort salons to show VMB LTD first, then alphabetically */}
+                              {allSalons?.sort((a, b) => {
+                                // VMB LTD always comes first
+                                if (a.name === 'VMB LTD') return -1;
+                                if (b.name === 'VMB LTD') return 1;
+                                // Then sort alphabetically
+                                return a.name.localeCompare(b.name);
+                              }).map((salon) => (
+                                <SelectItem key={salon.id} value={salon.id.toString()}>
+                                  {salon.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {/* Invite Type Radio - keep this for backward compatibility */}
                     <FormField
                       control={form.control}
                       name="inviteType"
                       render={({ field }) => (
-                        <FormItem className="mb-2">
+                        <FormItem className="mb-2 hidden">
                           <div className="mb-1 font-medium">Who are you inviting?</div>
                           <div className="flex items-center space-x-6">
                             <div className="flex items-center space-x-2">
