@@ -456,18 +456,18 @@ export default function ClientRegistrationPage() {
                   setRegisteredClientId(existingClientId);
                 }
                 
-                // IMMEDIATE REDIRECT to existing client's dashboard - critical fix
-                console.log('REDIRECTING TO EXISTING CLIENT DASHBOARD IMMEDIATELY:', existingClientId);
-                logFlow('CRITICAL FIX: Redirecting to existing client dashboard immediately', existingClientId);
+                // IMMEDIATE REDIRECT to complete address registration form for existing client
+                console.log('REDIRECTING TO ADDRESS REGISTRATION FORM FOR EXISTING CLIENT:', existingClientId);
+                logFlow('CRITICAL FLOW: Redirecting to address form for existing client', existingClientId);
                 
                 // Show success toast for existing client
                 toast({
                   title: 'Account Found!',
-                  description: 'Your existing account was found. Redirecting to your dashboard...',
+                  description: 'Please complete your address information to continue.',
                   variant: 'default',
                 });
                 
-                navigate(`/client/${existingClientId}`);
+                navigate(`/client-address-registration/${existingClientId}`);
                 
                 return;
               }
@@ -526,18 +526,18 @@ export default function ClientRegistrationPage() {
           setRegisteredClientId(clientId);
           console.log('Client created with ID:', clientId);
           
-          // IMMEDIATE REDIRECT to client dashboard - critical fix for user flow
-        console.log('REDIRECTING TO CLIENT DASHBOARD IMMEDIATELY:', clientId);
-        logFlow('CRITICAL FIX: Redirecting to client dashboard immediately', clientId);
+          // IMMEDIATE REDIRECT to complete client address registration form
+        console.log('REDIRECTING TO CLIENT ADDRESS REGISTRATION FORM:', clientId);
+        logFlow('CRITICAL FLOW: Redirecting to client address registration form', clientId);
                 
         // Enhanced toast message for better feedback on redirect
         toast({
-          title: 'Registration Complete!',
-          description: 'Your account has been created. Redirecting to your dashboard...',
+          title: 'Almost Done!',
+          description: 'Please complete your address information to finish registration.',
           variant: 'default',
         });
                 
-        navigate(`/client/${clientId}`);
+        navigate(`/client-address-registration/${clientId}`);
         } else {
           // Fallback if we don't have the client ID
           console.warn('No client ID available for redirection');

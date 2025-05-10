@@ -25,7 +25,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, CheckCheck } from 'lucide-react';
-import logFlow from '@/lib/flow-logger';
+import FlowLogger from '@/lib/flow-logger';
 
 // Form validation schema
 const clientAddressFormSchema = z.object({
@@ -110,7 +110,9 @@ export default function ClientAddressRegistrationPage() {
     }
 
     setIsSubmitting(true);
-    logFlow(`Submitting address information for client ${clientId}`);
+    console.log(`Submitting address information for client ${clientId}`);
+    // Use FlowLogger class for logging
+    FlowLogger.log(`Submitting address information for client ${clientId}`);
 
     try {
       const response = await fetch(`/api/clients/${clientId}`, {
