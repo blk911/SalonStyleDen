@@ -13,6 +13,7 @@ import { AtSignIcon, ChevronDownIcon, ChevronUpIcon, PhoneIcon, SendIcon, UserIc
 import FlowLogger from "@/lib/flow-logger";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { queryClient } from "@/lib/queryClient";
+import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/utils";
 
 interface ClientInviteFormProps {
   clientId: number;
@@ -43,18 +44,8 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     
     // Format phone number if phone field is being updated
     if (name === 'phone') {
-      // Keep only digits
-      const digitsOnly = value.replace(/\D/g, '');
-      
-      // Format the phone number as (XXX) XXX-XXXX
-      let formattedPhone = '';
-      if (digitsOnly.length <= 3) {
-        formattedPhone = digitsOnly;
-      } else if (digitsOnly.length <= 6) {
-        formattedPhone = `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3)}`;
-      } else {
-        formattedPhone = `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6, 10)}`;
-      }
+      // Use standard site-wide phone formatting utility
+      const formattedPhone = formatPhoneNumber(value);
       
       setForm((prev) => ({ ...prev, [name]: formattedPhone }));
       FlowLogger.log('ClientInviteForm', 'Form Field Updated (Formatted Phone)', { field: name, value: formattedPhone, raw: value });
@@ -116,7 +107,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
       setLoading(true);
       FlowLogger.log('ClientInviteForm', 'Form Validation Passed, Processing Submission');
       
-      // Context-aware validation first
+      // Context-aware validation first with cleaned phone number
       FlowLogger.log('ClientInviteForm', 'Performing Server-Side Validation');
       const validationResponse = await fetch("/api/invitations", {
         method: "POST",
@@ -126,7 +117,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
         body: JSON.stringify({
           _validateOnly: true,
           name: form.name,
-          phone: form.phone,
+          phone: form.phone ? cleanPhoneNumber(form.phone) : '',
           email: form.email,
           senderId: clientId,
         }),
@@ -147,7 +138,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
       
       FlowLogger.log('ClientInviteForm', 'Server Validation Passed, Sending Invitation');
       
-      // Send invitation
+      // Send invitation - ensure phone is cleaned before submission
       const response = await fetch("/api/invitations", {
         method: "POST",
         headers: {
@@ -155,7 +146,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
         },
         body: JSON.stringify({
           name: form.name,
-          phone: form.phone,
+          phone: form.phone ? cleanPhoneNumber(form.phone) : '',
           email: form.email,
           message: form.message,
           senderId: clientId,
