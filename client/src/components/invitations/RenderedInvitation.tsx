@@ -293,18 +293,21 @@ export function RenderedInvitation({
                              'COMPLETED'}
                           </div>
                           
-                          {/* For completed invitations, show a Schedule button if viewing from client dashboard */}
-                          {(localStatus === 'completed' || localStatus === 'redeemed') && 
-                           sourceDashboard === 'client' && 
-                           !isInPreviewMode && (
+                          {/* For completed invitations, show a Close button as requested */}
+                          {(localStatus === 'completed' || localStatus === 'redeemed') && (
                             <Button 
                               className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
                               onClick={() => {
-                                setLocation('/client-dashboard?tab=appointments');
+                                // Return to client dashboard or close the dialog
+                                if (sourceDashboard === 'client' && !isInPreviewMode) {
+                                  setLocation(`/client/${currentClientId}`);
+                                } else {
+                                  // If in a dialog, close it by navigating back or calling a close handler
+                                  window.history.back();
+                                }
                               }}
                             >
-                              <Calendar className="h-4 w-4" />
-                              Schedule Appointment
+                              Close
                             </Button>
                           )}
                         </div>
@@ -355,18 +358,21 @@ export function RenderedInvitation({
                            'COMPLETED'}
                         </div>
                         
-                        {/* For completed invitations, show a Schedule button if viewing from client dashboard */}
-                        {(localStatus === 'completed' || localStatus === 'redeemed') && 
-                         sourceDashboard === 'client' && 
-                         !isInPreviewMode && (
+                        {/* For completed invitations, show a Close button as requested */}
+                        {(localStatus === 'completed' || localStatus === 'redeemed') && (
                           <Button 
                             className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
                             onClick={() => {
-                              setLocation('/client-dashboard?tab=appointments');
+                              // Return to client dashboard or close the dialog
+                              if (sourceDashboard === 'client' && !isInPreviewMode) {
+                                setLocation(`/client/${currentClientId}`);
+                              } else {
+                                // If in a dialog, close it by navigating back or calling a close handler
+                                window.history.back();
+                              }
                             }}
                           >
-                            <Calendar className="h-4 w-4" />
-                            Schedule Appointment
+                            Close
                           </Button>
                         )}
                       </div>
