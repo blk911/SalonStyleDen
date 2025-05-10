@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import { formatPhoneNumber, cleanPhoneNumber } from '@/lib/utils';
 
 // Simple logging helper (replaced test flow logger)
 const logFlow = (step: string, data?: any) => {
