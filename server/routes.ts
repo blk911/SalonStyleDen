@@ -1488,7 +1488,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Invitation not found" });
       }
       
-      // Update invitation status
+      // [RULE ENFORCEMENT] Update invitation status
       const updatedInvitation = await storage.updateInvitationStatus(id, status);
       
       // Log the status change as an activity
@@ -1501,6 +1501,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       } catch (logError) {
         console.error('Failed to log invitation status update activity:', logError);
+      }
+      
+      // [RULE ENFORCEMENT] If an invitation is being accepted or completed, create a gift record to ensure tracking
+      if ((status === 'accepted' || status === 'completed') && invitation.type !== 'system_notice') {
+        console.log(`[RULE ENFORCEMENT] Creating gift record for invitation ${id} with status ${status}`);
+        
+        // Generate a unique gift hash
+        const giftHash = `gift-${invitation.inviteHash}-${Date.now()}`;
+        
+        try {
+          // Create a gift record based on the invitation
+          const giftData = {
+            senderId: invitation.senderId || 1, // Default to system if not set
+            recipientPhone: invitation.phone,
+            recipientEmail: invitation.email || null,
+            amount: invitation.stylePrice || 5000, // Default value if not set
+            message: invitation.message || `Gift from ${invitation.sponsor || 'VMB'}`,
+            status: 'sent',
+            giftType: 'style_card',
+            salonId: invitation.salonId,
+            giftHash,
+            styleName: invitation.styleOption || null
+          };
+          
+          // Create the gift
+          const gift = await storage.createGift(giftData);
+          console.log(`[RULE ENFORCEMENT] Created gift ${gift.id} for invitation ${id}`);
+          
+          // Include the gift in the response
+          return res.json({
+            invitation: updatedInvitation,
+            gift,
+            ruleEnforced: true
+          });
+        } catch (giftError) {
+          console.error("Error creating gift from invitation:", giftError);
+          // Continue with normal response if gift creation fails
+        }
       }
       
       res.json(updatedInvitation);
