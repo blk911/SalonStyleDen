@@ -2185,7 +2185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get gifts received by a client
+  // Get gifts awaiting client action (pending/to be accepted)
   apiRouter.get("/gifts/received/:clientId", async (req: Request, res: Response) => {
     try {
       const { clientId } = req.params;
@@ -2197,14 +2197,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       console.log(`[API] GET /gifts/received/${clientId} - Fetching gifts received by client ID ${clientId}`);
-      const receivedGifts = await storage.getReceivedGifts(Number(clientId));
-      console.log(`[API] GET /gifts/received/${clientId} - Found ${receivedGifts.length} gifts`);
       
-      return res.json(receivedGifts);
+      // Use the same getReceivedGifts function but clarify this is for client-awaiting-action view
+      const awaitingActionGifts = await storage.getReceivedGifts(Number(clientId));
+      console.log(`[API] GET /gifts/received/${clientId} - Found ${awaitingActionGifts.length} gifts`);
+      
+      return res.json(awaitingActionGifts);
     } catch (error) {
-      console.error("Error fetching received gifts:", error);
+      console.error("Error fetching client action gifts:", error);
       return res.status(500).json({
-        error: "Server error while fetching received gifts"
+        error: "Server error while fetching gifts awaiting client action"
       });
     }
   });

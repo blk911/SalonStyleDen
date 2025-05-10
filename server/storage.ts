@@ -2200,19 +2200,18 @@ export class DatabaseStorage implements IStorage {
         return [];
       }
       
-      // CRITICAL FIX: When fetching gifts for the recipient, we should 
-      // modify the status when displaying them on the recipient side
-      // A gift with status "sent" should appear as "pending" on the recipient side
-      // until they take action
+      // CRITICAL FIX: We must maintain the STATE CONTEXT for client viewing their gifts
+      // From the client's perspective, gifts sent TO them that require action should be "pending"
+      // This reflects the accurate flow: Salon/Client sends gift → Client receives gift and sees "pending" → Client takes action
       
-      // For received gifts by phone, we need to convert "sent" status to "pending"
+      // Query for gifts sent to this client's phone number
       const phoneReceivedGiftsPromise = client.phone ? db
         .select()
         .from(gifts)
         .where(eq(gifts.recipientPhone, client.phone))
         .orderBy(sql`${gifts.createdAt} DESC`) : Promise.resolve([]);
       
-      // For received gifts by ID, do the same status conversion
+      // Query for gifts sent to this client by ID
       const idReceivedGiftsPromise = db
         .select()
         .from(gifts)
@@ -2236,19 +2235,19 @@ export class DatabaseStorage implements IStorage {
         }
       }
       
-      // Critical fix: Modify the status of "sent" gifts to be "pending" for recipients
-      // This ensures the recipient sees the correct status without changing the database
-      const modifiedGifts = allGifts.map(gift => {
-        // If the gift is in "sent" status and visible to a recipient, it should appear as "pending"
-        // to the recipient so they can take action (accept/redeem)
+      // STATE CONTEXT FIX: We transform the status to accurately reflect what the CLIENT should see
+      // Gifts in "sent" status that are awaiting client action should appear as "pending" to the client
+      const pendingActionGifts = allGifts.map(gift => {
+        // If the gift is in "sent" status (sender's perspective) and visible to this client,
+        // it should appear as "pending" (recipient's perspective) so they can take action
         if (gift.status === 'sent') {
           return { ...gift, status: 'pending' };
         }
         return gift;
       });
       
-      console.log(`DatabaseStorage.getReceivedGifts - Found ${modifiedGifts.length} gifts (${idReceivedGifts.length} by ID, ${phoneReceivedGifts.length} by phone)`);
-      return modifiedGifts;
+      console.log(`DatabaseStorage.getReceivedGifts - Found ${pendingActionGifts.length} gifts (${idReceivedGifts.length} by ID, ${phoneReceivedGifts.length} by phone)`);
+      return pendingActionGifts;
     } catch (error) {
       console.error(`Error getting received gifts:`, error);
       throw error;
