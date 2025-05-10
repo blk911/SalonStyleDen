@@ -1159,22 +1159,6 @@ export function VmbStyleOptions({
                           
                           {/* Payment icons are in the message area above */}
                           
-                          {/* Personal Message input field */}
-                          <div className="mt-4">
-                            <label htmlFor="personalMessage" className="block text-sm font-medium text-gray-700 mb-1">
-                              Your Personal Message (optional)
-                            </label>
-                            <input
-                              ref={personalMessageRef}
-                              id="personalMessage"
-                              type="text"
-                              placeholder="TIP: ENTER YOUR NAME or personal message here"
-                              className="w-full p-2 text-sm border border-pink-200 rounded-md focus:ring-pink-500 focus:border-pink-500"
-                              value={invitationMessage || ""}
-                              onChange={(e) => setInvitationMessage(e.target.value)}
-                            />
-                          </div>
-                          
                           {/* Direct Send Gift Request button without confirmation dialog */}
                           <div className="mt-4 text-center">
                             <Button 
