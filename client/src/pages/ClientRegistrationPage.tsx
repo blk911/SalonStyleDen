@@ -36,9 +36,12 @@ import {
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 
-// Create a flow testing logger helper for this component
+// Simple logging helper (replaced test flow logger)
 const logFlow = (step: string, data?: any) => {
-  console.log(`[FLOW TEST] ${step}`, data ? data : '');
+  // Only log in development mode
+  if (import.meta.env.DEV) {
+    console.log(`[ClientRegistration] ${step}`, data ? data : '');
+  }
 };
 
 // Client schema with enhanced validation and more forgiving rules

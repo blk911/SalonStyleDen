@@ -9,9 +9,12 @@ import {
 import { Loader2 } from "lucide-react";
 import { ValidationResult } from "@/hooks/use-contact-validation";
 
-// Flow testing helper - logs flow steps to console
+// Simple logging helper (replaced test flow logger)
 const logFlowStep = (step: string, data?: any) => {
-  console.log(`[FLOW TEST] ${step}`, data ? data : '');
+  // Only log in development mode
+  if (import.meta.env.DEV) {
+    console.log(`[ContactValidation] ${step}`, data ? data : '');
+  }
 };
 
 interface ContactValidationDialogProps {

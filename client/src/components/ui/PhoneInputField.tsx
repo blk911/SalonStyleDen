@@ -7,9 +7,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
 
-// Flow testing helper - logs flow steps to console
+// Simple logging helper (replaced test flow logger)
 const logFlowStep = (step: string, data?: any) => {
-  console.log(`[FLOW TEST] ${step}`, data ? data : '');
+  // Only log in development mode
+  if (import.meta.env.DEV) {
+    console.log(`[PhoneInput] ${step}`, data ? data : '');
+  }
 };
 
 interface PhoneInputFieldProps extends Omit<InputProps, 'onChange'> {

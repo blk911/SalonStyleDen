@@ -219,7 +219,10 @@ export function RenderedInvitation({
                        isPendingLocalStatus && // Use localStatus here
                        isRecipientViewingSelfInvitation;
   
-  console.log(`[FLOW] RenderedInvitation for ${recipientName} - Status: ${status} - Local Status: ${localStatus} - Client ID: ${currentClientId || 'NOT SET'} - Source: ${sourceDashboard || 'none'} - Is client: ${isClientViewingOwnInvitation} - Send gift button will ${showButton ? 'SHOW' : 'HIDE'} - Confirm button will ${showConfirmButton ? 'SHOW' : 'HIDE'}`);
+  // Only log in development mode
+  if (import.meta.env.DEV) {
+    console.log(`[RenderedInvitation] Rendering invitation for ${recipientName} - Status: ${localStatus} - Actions: ${showButton ? 'Send Gift' : ''}${showConfirmButton ? 'Confirm' : ''}`);
+  }
   
   return (
     <>
