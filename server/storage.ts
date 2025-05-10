@@ -2200,12 +2200,17 @@ export class DatabaseStorage implements IStorage {
         return [];
       }
       
+      // DEBUG: Log client details to verify phone number format
+      console.log(`DatabaseStorage.getReceivedGifts - Client phone for matching: "${client.phone}"`);
+      
+      // Make sure we include gifts sent to this client's phone number, even if recipient_id is null
       const phoneReceivedGiftsPromise = client.phone ? db
         .select()
         .from(gifts)
         .where(eq(gifts.recipientPhone, client.phone))
         .orderBy(sql`${gifts.createdAt} DESC`) : Promise.resolve([]);
       
+      // Also include gifts explicitly sent to this client ID
       const idReceivedGiftsPromise = db
         .select()
         .from(gifts)
@@ -2218,6 +2223,10 @@ export class DatabaseStorage implements IStorage {
         idReceivedGiftsPromise
       ]);
       
+      // DEBUG: Log matching results
+      console.log(`DatabaseStorage.getReceivedGifts - Found by phone (${client.phone}): ${phoneReceivedGifts.length}`);
+      console.log(`DatabaseStorage.getReceivedGifts - Found by ID (${recipientId}): ${idReceivedGifts.length}`);
+      
       // Combine and deduplicate results based on gift ID
       const allGifts = [...idReceivedGifts];
       const giftIds = new Set(allGifts.map(gift => gift.id));
@@ -2227,6 +2236,17 @@ export class DatabaseStorage implements IStorage {
           allGifts.push(gift);
           giftIds.add(gift.id);
         }
+      }
+      
+      // DEBUG: Log final combined results
+      console.log(`DatabaseStorage.getReceivedGifts - Found ${allGifts.length} total gifts after combination`);
+      if (allGifts.length > 0) {
+        console.log(`DatabaseStorage.getReceivedGifts - First gift details:`, {
+          id: allGifts[0].id,
+          sender: allGifts[0].senderId,
+          phone: allGifts[0].recipientPhone,
+          recipientId: allGifts[0].recipientId
+        });
       }
       
       console.log(`DatabaseStorage.getReceivedGifts - Found ${allGifts.length} gifts (${idReceivedGifts.length} by ID, ${phoneReceivedGifts.length} by phone)`);
