@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { PhoneInputField } from '@/components/ui/PhoneInputField';
 import { useContactValidation } from '@/hooks/use-contact-validation';
@@ -32,6 +33,7 @@ import {
   CheckCheck,
   Scissors,
   Sparkles,
+  Gift,
 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -46,6 +48,7 @@ const logFlow = (step: string, data?: any) => {
 
 // Client schema with enhanced validation and more forgiving rules
 const clientSchema = z.object({
+  clientType: z.enum(['newClient', 'salonOwner', 'giftInvite']).default('newClient'),
   inviteType: z.enum(['friend', 'salonOwner']).default('friend'),
   name: z.string().min(2, { message: 'Full name is required (minimum 2 characters)' }),
   phone: z.string()
@@ -153,6 +156,7 @@ export default function ClientRegistrationPage() {
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
+      clientType: 'newClient',
       inviteType: 'friend',
       name: '',
       phone: '',
@@ -212,6 +216,21 @@ export default function ClientRegistrationPage() {
       return response.json();
     },
     enabled: !!salonId,
+  });
+  
+  // Load all salons for the dropdown
+  const {
+    data: allSalons,
+    isLoading: salonListLoading,
+  } = useQuery<Salon[]>({
+    queryKey: ['/api/salons'],
+    queryFn: async () => {
+      const response = await fetch('/api/salons');
+      if (!response.ok) {
+        throw new Error('Failed to load salon list');
+      }
+      return response.json();
+    },
   });
   
   // If invitation data is loaded, prefill the form
