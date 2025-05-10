@@ -1060,9 +1060,22 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getSalonInvitations(salonId: number): Promise<Invitation[]> {
+  async getSalonInvitations(salonId: number, status?: string): Promise<Invitation[]> {
     try {
-      console.log(`DatabaseStorage.getSalonInvitations - Fetching invitations for salon ${salonId}`);
+      console.log(`DatabaseStorage.getSalonInvitations - Fetching invitations for salon ${salonId}${status ? ` with status ${status}` : ''}`);
+      
+      // Build query parameters
+      const queryParams = ['salon_id = $1'];
+      const values = [salonId];
+      
+      // Add status filter if provided
+      if (status) {
+        queryParams.push(`status = $${values.length + 1}`);
+        values.push(status);
+      }
+      
+      // Build the WHERE clause
+      const whereClause = queryParams.join(' AND ');
       
       // Use a raw SQL query that only selects columns we know exist, including style fields
       // This is safer than using the Drizzle model which may include fields not yet in DB
@@ -1074,13 +1087,13 @@ export class DatabaseStorage implements IStorage {
             favorite_services, sender_id,
             style_option, style_price, style_duration
         FROM invitations 
-        WHERE salon_id = $1
+        WHERE ${whereClause}
         ORDER BY created_at DESC
       `;
       
       const client = await pool.connect();
       try {
-        const result = await client.query(sqlQuery, [salonId]);
+        const result = await client.query(sqlQuery, values);
         const rows = result.rows;
         console.log(`DatabaseStorage.getSalonInvitations - Retrieved ${rows.length} invitations`);
         

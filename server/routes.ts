@@ -1861,13 +1861,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid salon ID format" });
       }
       
+      // Get status filter if provided
+      const status = req.query.status as string | undefined;
+      
       // Verify that salon exists
       const salon = await storage.getSalon(salonId);
       if (!salon) {
         return res.status(404).json({ error: "Salon not found" });
       }
       
-      const invitations = await storage.getSalonInvitations(salonId);
+      console.log(`[API] GET /salons/${salonId}/invitations - Fetching invitations with status filter: ${status || 'none'}`);
+      
+      // Pass the status filter to the storage function
+      const invitations = await storage.getSalonInvitations(salonId, status);
       res.json(invitations);
     } catch (error) {
       console.error('Error retrieving salon invitations:', error);

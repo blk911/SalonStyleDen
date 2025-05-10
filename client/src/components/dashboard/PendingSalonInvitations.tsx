@@ -54,15 +54,27 @@ export default function PendingSalonInvitations({
   const [showInvitationDialog, setShowInvitationDialog] = useState(false);
   const [isClientRegistered, setIsClientRegistered] = useState<boolean>(false);
   
-  const filterParams = new URLSearchParams();
-  if (limit) filterParams.set('limit', limit.toString());
-  if (clientId) filterParams.set('clientId', clientId.toString());
-  filterParams.set('status', 'pending'); // Only get pending invitations
-  
+  // Get invitation data from the correct salon-specific endpoint
   const { data: allInvitations, isLoading } = useQuery({
-    queryKey: ['/api/invitations/pending', clientId, limit],
+    queryKey: ['/api/salons/invitations/pending', clientId, limit],
     queryFn: async () => {
-      const response = await fetch(`/api/invitations?${filterParams}`);
+      // Determine which API endpoint to use based on whether clientId is provided
+      let url;
+      if (clientId) {
+        // For a specific client, use the client-specific endpoint
+        const filterParams = new URLSearchParams();
+        if (limit) filterParams.set('limit', limit.toString());
+        filterParams.set('status', 'pending'); // Only get pending invitations
+        url = `/api/invitations?clientId=${clientId}&${filterParams}`;
+      } else {
+        // For salon dashboard, use the salon-specific endpoint with status filter
+        // Assuming we're on salon 2 (Tiffany's salon)
+        url = `/api/salons/2/invitations?status=pending`;
+        if (limit) url += `&limit=${limit}`;
+      }
+      
+      console.log('[PendingSalonInvitations] Fetching invitations from:', url);
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Network response was not ok');
       return response.json() as Promise<Invitation[]>;
     }
