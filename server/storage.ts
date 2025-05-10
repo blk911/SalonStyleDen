@@ -2252,14 +2252,10 @@ export class DatabaseStorage implements IStorage {
       console.log(`DatabaseStorage.getReceivedGifts - Client phone for matching: "${client.phone}"`);
       
       // Make sure we include gifts sent to this client's phone number, even if recipient_id is null
-      // Normalize phone number to remove non-digits for consistent comparison
-      const normalizedPhone = client.phone ? client.phone.replace(/\D/g, '') : '';
-      console.log(`DatabaseStorage.getReceivedGifts - Normalized phone for matching: "${normalizedPhone}"`);
-      
-      const phoneReceivedGiftsPromise = normalizedPhone ? db
+      const phoneReceivedGiftsPromise = client.phone ? db
         .select()
         .from(gifts)
-        .where(sql`regexp_replace(${gifts.recipientPhone}, '[^0-9]', '', 'g') = ${normalizedPhone}`)
+        .where(eq(gifts.recipientPhone, client.phone))
         .orderBy(sql`${gifts.createdAt} DESC`) : Promise.resolve([]);
       
       // Also include gifts explicitly sent to this client ID
