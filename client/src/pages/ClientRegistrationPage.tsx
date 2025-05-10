@@ -564,6 +564,9 @@ export default function ClientRegistrationPage() {
           }
         }
         
+        // Clean up any stored registration data from session storage
+        sessionStorage.removeItem('vmb-temp-registration');
+        
         // Show success message
         toast({
           title: 'Registration Successful',
@@ -717,8 +720,41 @@ export default function ClientRegistrationPage() {
   
   // Function to handle completing the registration from welcome page
   const handleCompleteRegistration = () => {
-    setShowWelcomePage(false);
-    setShowFullRegistration(true);
+    // Get stored form data
+    const storedData = sessionStorage.getItem('vmb-temp-registration');
+    
+    if (storedData) {
+      try {
+        // Parse the stored data
+        const registrationData = JSON.parse(storedData);
+        
+        // Reset the form with the stored data to ensure all fields are populated
+        form.reset({
+          ...registrationData,
+        });
+        
+        // Show toast for better UX
+        toast({
+          title: "Registration Continuing",
+          description: "Please complete the rest of your information",
+        });
+        
+        // Show the full registration form
+        setShowWelcomePage(false);
+        setShowFullRegistration(true);
+        
+        logFlow('Continuing to full registration form from welcome page');
+      } catch (error) {
+        console.error('Error parsing stored registration data:', error);
+        // Fallback to a fresh form if there's an error
+        setShowWelcomePage(false);
+        setShowFullRegistration(true);
+      }
+    } else {
+      // No stored data found, just show the form
+      setShowWelcomePage(false);
+      setShowFullRegistration(true);
+    }
   };
   
   // Render the welcome page for gift/invite recipients
