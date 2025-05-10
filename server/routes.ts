@@ -144,8 +144,7 @@ const giftInputSchema = z.object({
     z.null()  // Also allow null
   ]).optional(),
   message: z.string().optional(),
-  // CRITICAL FIX: Default to "pending" instead of "sent" to follow proper workflow
-  status: z.string().default("pending"),
+  status: z.string().default("sent"),
   recipientId: z.number().optional(),
   value: z.number().optional(),
   expiresAt: z.date().optional(),
@@ -645,12 +644,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const invitationId = parseInt(req.body.invitationId);
           if (!isNaN(invitationId)) {
             try {
-              // CRITICAL FIX: Do NOT update invitation status to completed automatically
-              // Status should remain 'pending' until user explicitly accepts the invitation
-              console.log(`[FLOW] Client ${client.id} created from invitation ${invitationId}, but keeping status as pending until user action`);
+              // Update invitation status to completed
+              await storage.updateInvitationStatus(invitationId, 'completed');
             } catch (invitationError) {
               // Log error but don't fail the client creation
-              console.error(`Error handling invitation ${invitationId}:`, invitationError);
+              console.error(`Failed to update invitation ${invitationId} status:`, invitationError);
             }
           }
         }
@@ -661,16 +659,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const matchingInvitations = await storage.getInvitationsByPhone(validatedData.phone);
             
             if (matchingInvitations.length > 0) {
-              // CRITICAL FIX: Don't update invitations to completed automatically
-              // Log the matching invitations for debugging purposes
-              console.log(`[FLOW] Client ${client.id} created with phone ${validatedData.phone} matches ${matchingInvitations.length} existing invitations`);
+              // Update all matching invitations to completed
               for (const invitation of matchingInvitations) {
-                console.log(`[FLOW] Matching invitation: ID ${invitation.id}, status ${invitation.status}`);
+                if (invitation.status !== 'completed') {
+                  await storage.updateInvitationStatus(invitation.id, 'completed');
+                }
               }
             }
           } catch (invitationError) {
             // Log error but don't fail the client creation
-            console.error('Error checking matching invitations:', invitationError);
+            console.error('Failed to update matching invitations:', invitationError);
           }
         }
 
@@ -1861,19 +1859,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid salon ID format" });
       }
       
-      // Get status filter if provided
-      const status = req.query.status as string | undefined;
-      
       // Verify that salon exists
       const salon = await storage.getSalon(salonId);
       if (!salon) {
         return res.status(404).json({ error: "Salon not found" });
       }
       
-      console.log(`[API] GET /salons/${salonId}/invitations - Fetching invitations with status filter: ${status || 'none'}`);
-      
-      // Pass the status filter to the storage function
-      const invitations = await storage.getSalonInvitations(salonId, status);
+      const invitations = await storage.getSalonInvitations(salonId);
       res.json(invitations);
     } catch (error) {
       console.error('Error retrieving salon invitations:', error);
