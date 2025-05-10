@@ -37,9 +37,13 @@ interface Gift {
   amount: number;
   message: string | null;
   status: string;
+  salonId: number;
+  giftHash: string;
   expiresAt: string | null;
   createdAt: string;
   redeemedAt: string | null;
+  recipientName?: string;
+  senderName?: string;
 }
 
 interface GiftsPageProps {

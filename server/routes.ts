@@ -2270,7 +2270,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recipientEmail: validatedData.recipientEmail || null,
         recipientId: validatedData.recipientId || null,
         amount: validatedData.value || 5000, // Default amount if not specified
-        status: validatedData.status || 'sent',
+        status: validatedData.status || 'pending', // Default to pending, not sent
         message: validatedData.message || null,
         giftType: 'style_card', // Default gift type
         // [RULE: SponsorClientRelationship] Every gift must have a salon relationship
