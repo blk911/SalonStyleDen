@@ -347,12 +347,11 @@ export default function ClientRegistrationPage() {
       setIsSubmitting(true);
       
       // Map clientType to appropriate type value for database
-      let clientTypeValue = 'client'; // Default
-      if (data.clientType === 'salonOwner') {
-        clientTypeValue = 'salon_owner';
-      } else if (data.clientType === 'giftInvite') {
-        clientTypeValue = 'gift_recipient';
-      }
+      // NOTE: Backend currently only accepts 'client' as a valid type
+      let clientTypeValue = 'client'; // Default for all types
+      
+      // Store the original client type in a separate field that won't conflict with backend validation
+      const originalClientType = data.clientType;
       
       // Determine sponsor based on selection
       const sponsorSalonId = data.sponsorSalonId || salonId || invitation?.salonId || 1; // Default to VMB LTD (ID 1) if nothing selected
@@ -363,7 +362,8 @@ export default function ClientRegistrationPage() {
       // Add sponsor information
       const clientData = {
         ...data,
-        type: clientTypeValue,
+        type: clientTypeValue, // Always 'client' to match backend validation
+        clientSource: originalClientType, // Store the source/type in a separate field
         sponsor: selectedSalon?.name || salon?.name || invitation?.sponsor || 'VMB LTD',
         sponsorSalonId: sponsorSalonId,
         isCurrentClient: true,
