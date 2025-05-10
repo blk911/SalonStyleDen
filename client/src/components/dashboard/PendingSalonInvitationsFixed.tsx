@@ -239,6 +239,7 @@ export default function PendingSalonInvitations({
                 price={selectedInvitation.stylePrice ? `$${selectedInvitation.stylePrice}` : "$45"}
                 time={selectedInvitation.styleDuration ? `${selectedInvitation.styleDuration} min` : "30 min"}
                 senderName={selectedInvitation.sponsorName || selectedInvitation.sponsor || "Your Stylist"}
+                sponsorName={selectedInvitation.sponsorName || selectedInvitation.sponsor || ""}
                 imageUrl={selectedInvitation.styleImageUrl || "/assets/french-tips.png"}
                 salonInitiated={!selectedInvitation.senderId} // salonInitiated = true when no senderId (salon sent it)
                 onSendGift={isClientRegistered ? () => {
