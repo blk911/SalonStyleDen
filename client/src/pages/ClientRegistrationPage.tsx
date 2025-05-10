@@ -121,17 +121,17 @@ export default function ClientRegistrationPage() {
   
   // We'll use a direct approach to the terms checkbox element
   const focusTermsCheckbox = () => {
-    logFlow('Focusing terms checkbox - direct approach');
+    console.log('Focusing terms checkbox - direct approach');
     // Immediate focus attempt without timeout
     const checkbox = document.getElementById('acceptTerms');
     if (checkbox) {
-      logFlow('Terms checkbox found by ID, focusing immediately');
+      console.log('Terms checkbox found by ID, focusing immediately');
       checkbox.focus();
       checkbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      logFlow('Terms checkbox focused and scrolled into view');
+      console.log('Terms checkbox focused and scrolled into view');
     } else {
       // Extra logging for debugging
-      logFlow('ERROR: Terms checkbox not found by ID on first attempt');
+      console.log('ERROR: Terms checkbox not found by ID on first attempt');
       // Try again with a very short delay as a fallback
       setTimeout(() => {
         const retryCheckbox = document.getElementById('acceptTerms');
