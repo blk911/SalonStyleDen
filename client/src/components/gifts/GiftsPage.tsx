@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExternalLinkIcon, HeartIcon, PlusCircleIcon, UserPlusIcon, XIcon } from "lucide-react";
 import GiftCreationFlow from "./GiftCreationFlow";
+import GiftViewDialog from "./GiftViewDialog";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -56,6 +57,11 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
   const [showSentGifts, setShowSentGifts] = useState(true);
   const [showReceivedGifts, setShowReceivedGifts] = useState(true);
   const [, setLocation] = useLocation();
+  
+  // State for gift view dialog
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [selectedGift, setSelectedGift] = useState<Gift | null>(null);
+  const [isViewingSentGift, setIsViewingSentGift] = useState(false);
   
   // Query for the current client's name to use in filters
   const { data: clientData } = useQuery({
@@ -156,6 +162,17 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
   
   return (
     <div className="space-y-4 w-full">
+      {/* Gift View Dialog */}
+      {selectedGift && (
+        <GiftViewDialog
+          open={isViewDialogOpen}
+          onOpenChange={setIsViewDialogOpen}
+          gift={selectedGift}
+          clientId={clientId || 0}
+          isSender={isViewingSentGift}
+        />
+      )}
+      
       {/* SHARE VMB Card - Always shown whether client has a salon or not */}
       <Card className="rounded-xl shadow-sm overflow-hidden">
         <div className="bg-pink-50 pt-5 pb-2.5 flex justify-center items-center">
@@ -250,13 +267,28 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                 </div>
                 
                 <div className="flex items-center gap-8 ml-2">
-                  <Link
-                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
-                    className="text-xs text-amber-600 font-medium hover:text-amber-800 flex items-center gap-1 whitespace-nowrap"
+                  <button
+                    onClick={() => {
+                      // Get the actual gift data for the dialog
+                      fetch(`/api/gifts/${gift.id}`)
+                        .then(response => {
+                          if (!response.ok) throw new Error('Failed to fetch gift details');
+                          return response.json();
+                        })
+                        .then(giftData => {
+                          setSelectedGift(giftData);
+                          setIsViewingSentGift(false); // This is a received gift
+                          setIsViewDialogOpen(true);
+                        })
+                        .catch(error => {
+                          console.error('Error fetching gift details:', error);
+                        });
+                    }}
+                    className="text-xs text-amber-600 font-medium hover:text-amber-800 flex items-center gap-1 whitespace-nowrap bg-transparent border-none cursor-pointer p-0"
                   >
                     <ExternalLinkIcon className="h-3 w-3" />
                     View
-                  </Link>
+                  </button>
                   
                   {gift.status.toLowerCase() === 'pending' || gift.status.toLowerCase() === 'sent' ? (
                     <Button 
@@ -356,13 +388,28 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                 </div>
                 
                 <div className="flex items-center gap-8 ml-2">
-                  <Link
-                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
-                    className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1 whitespace-nowrap"
+                  <button
+                    onClick={() => {
+                      // Get the actual gift data for the dialog
+                      fetch(`/api/gifts/${gift.id}`)
+                        .then(response => {
+                          if (!response.ok) throw new Error('Failed to fetch gift details');
+                          return response.json();
+                        })
+                        .then(giftData => {
+                          setSelectedGift(giftData);
+                          setIsViewingSentGift(true); // This is a sent gift
+                          setIsViewDialogOpen(true);
+                        })
+                        .catch(error => {
+                          console.error('Error fetching gift details:', error);
+                        });
+                    }}
+                    className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1 whitespace-nowrap bg-transparent border-none cursor-pointer p-0"
                   >
                     <ExternalLinkIcon className="h-3 w-3" />
                     View
-                  </Link>
+                  </button>
                   
                   <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                     gift.status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
