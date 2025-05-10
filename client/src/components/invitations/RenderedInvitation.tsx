@@ -73,9 +73,10 @@ export function RenderedInvitation({
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   
-  // Check URL for source parameter
+  // Check URL for source and preview parameters
   const urlParams = new URLSearchParams(window.location.search);
   const sourceDashboard = urlParams.get('source');
+  const isPreviewMode = urlParams.get('preview') === 'true';
   
   // Get the current client ID from the global window object
   useEffect(() => {
@@ -299,7 +300,7 @@ export function RenderedInvitation({
                               className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
                               onClick={() => {
                                 // Return to client dashboard or close the dialog
-                                if (sourceDashboard === 'client' && !isInPreviewMode) {
+                                if (sourceDashboard === 'client' && !isPreviewMode) {
                                   setLocation(`/client/${currentClientId}`);
                                 } else {
                                   // If in a dialog, close it by navigating back or calling a close handler
@@ -364,7 +365,7 @@ export function RenderedInvitation({
                             className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
                             onClick={() => {
                               // Return to client dashboard or close the dialog
-                              if (sourceDashboard === 'client' && !isInPreviewMode) {
+                              if (sourceDashboard === 'client' && !isPreviewMode) {
                                 setLocation(`/client/${currentClientId}`);
                               } else {
                                 // If in a dialog, close it by navigating back or calling a close handler
