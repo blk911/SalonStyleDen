@@ -1,15 +1,19 @@
-// This file was previously used for test flows which have been removed
-// The actual application code doesn't rely on these test flows
+// This file was previously used for test flows
+// These have been simplified to maintain import compatibility
 
-import FlowLogger from '../flow-logger';
+// Import the stub test flow implementations
+import salonInvitationFlowImpl from './salon-invitation-flow';
+import clientInvitationFlowImpl from './client-invitation-flow';
+import invitationStatusFlowImpl from './invitation-status-flow';
 
-// Empty export to maintain module imports elsewhere
+// Empty initialization function
 export function initTestFlows() {
-  // Test flows have been removed
-  console.log('[INFO] Test flows have been removed from this version');
+  if (import.meta.env.DEV) {
+    console.log('[INFO] Test flows have been removed from this version');
+  }
 }
 
-// Empty exports to avoid breaking imports
-export const salonInvitationFlow = null;
-export const clientInvitationFlow = null;
-export const invitationStatusFlow = null;
+// Export the test flow stubs
+export const salonInvitationFlow = salonInvitationFlowImpl;
+export const clientInvitationFlow = clientInvitationFlowImpl;
+export const invitationStatusFlow = invitationStatusFlowImpl;
