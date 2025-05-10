@@ -317,6 +317,8 @@ export default function ClientRegistrationPage() {
       logFlow('Form data', {
         name: data.name,
         phone: data.phone,
+        clientType: data.clientType,
+        selectedSalonId: data.sponsorSalonId || 'Not selected',
         acceptTerms: data.acceptTerms,
         hasAddress: Boolean(data.address || data.city || data.state || data.zipCode)
       });
@@ -346,12 +348,14 @@ export default function ClientRegistrationPage() {
       
       setIsSubmitting(true);
       
-      // Add sponsor information
+      // Add client type and sponsor information
       const clientData = {
         ...data,
-        type: 'client',
-        sponsor: salon?.name || invitation?.sponsor || 'Unknown',
-        sponsorSalonId: data.sponsorSalonId || salonId || invitation?.salonId,
+        type: data.clientType === 'salonOwner' ? 'salonOwner' : 'client', // Set type based on selection
+        sponsor: data.sponsorSalonId 
+          ? (allSalons?.find(s => s.id === data.sponsorSalonId)?.name || 'VMB LTD')
+          : (salon?.name || invitation?.sponsor || 'VMB LTD'),
+        sponsorSalonId: data.sponsorSalonId || salonId || invitation?.salonId || 1, // Default to VMB LTD (ID 1) if no salon
         isCurrentClient: true,
         accepted_terms: data.acceptTerms || false, // Use snake_case to match database
         invitationId: invitation?.id // Add invitation ID for linking
@@ -677,37 +681,51 @@ export default function ClientRegistrationPage() {
               <CardContent>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-                    {/* Invite Type Radio */}
+                    {/* Client Type Selection */}
                     <FormField
                       control={form.control}
-                      name="inviteType"
+                      name="clientType"
                       render={({ field }) => (
-                        <FormItem className="mb-2">
-                          <div className="mb-1 font-medium">Who are you inviting?</div>
-                          <div className="flex items-center space-x-6">
-                            <div className="flex items-center space-x-2">
-                              <input
-                                type="radio"
-                                id="friend"
-                                checked={field.value === 'friend'}
-                                onChange={() => field.onChange('friend')}
-                                className="h-4 w-4 border-gray-300 text-pink-600 focus:ring-pink-600"
-                              />
-                              <label htmlFor="friend" className="text-sm font-medium flex items-center">
-                                <UserCircle className="h-4 w-4 mr-1" /> Friend
-                              </label>
+                        <FormItem className="mb-4">
+                          <div className="mb-2 font-medium">I AM:</div>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div 
+                              className={`p-4 rounded-lg border-2 cursor-pointer transition-all flex flex-col items-center justify-center
+                                ${field.value === 'newClient' 
+                                  ? 'border-[#FF92A5] bg-pink-50' 
+                                  : 'border-gray-200 hover:border-[#FF92A5] hover:bg-pink-50'}`}
+                              onClick={() => field.onChange('newClient')}
+                            >
+                              <UserCircle className={`h-8 w-8 mb-2 ${field.value === 'newClient' ? 'text-[#FF92A5]' : 'text-gray-500'}`} />
+                              <span className={`font-medium ${field.value === 'newClient' ? 'text-[#FF92A5]' : 'text-gray-700'}`}>
+                                New Client
+                              </span>
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <input
-                                type="radio"
-                                id="salonOwner"
-                                checked={field.value === 'salonOwner'}
-                                onChange={() => field.onChange('salonOwner')}
-                                className="h-4 w-4 border-gray-300 text-pink-600 focus:ring-pink-600"
-                              />
-                              <label htmlFor="salonOwner" className="text-sm font-medium flex items-center">
-                                <Building2 className="h-4 w-4 mr-1" /> Salon Owner
-                              </label>
+                            
+                            <div 
+                              className={`p-4 rounded-lg border-2 cursor-pointer transition-all flex flex-col items-center justify-center
+                                ${field.value === 'salonOwner' 
+                                  ? 'border-[#FF92A5] bg-pink-50' 
+                                  : 'border-gray-200 hover:border-[#FF92A5] hover:bg-pink-50'}`}
+                              onClick={() => field.onChange('salonOwner')}
+                            >
+                              <Building2 className={`h-8 w-8 mb-2 ${field.value === 'salonOwner' ? 'text-[#FF92A5]' : 'text-gray-500'}`} />
+                              <span className={`font-medium ${field.value === 'salonOwner' ? 'text-[#FF92A5]' : 'text-gray-700'}`}>
+                                Salon Owner
+                              </span>
+                            </div>
+                            
+                            <div 
+                              className={`p-4 rounded-lg border-2 cursor-pointer transition-all flex flex-col items-center justify-center
+                                ${field.value === 'giftInvite' 
+                                  ? 'border-[#FF92A5] bg-pink-50' 
+                                  : 'border-gray-200 hover:border-[#FF92A5] hover:bg-pink-50'}`}
+                              onClick={() => field.onChange('giftInvite')}
+                            >
+                              <Gift className={`h-8 w-8 mb-2 ${field.value === 'giftInvite' ? 'text-[#FF92A5]' : 'text-gray-500'}`} />
+                              <span className={`font-medium ${field.value === 'giftInvite' ? 'text-[#FF92A5]' : 'text-gray-700'}`}>
+                                Gift/Invite
+                              </span>
                             </div>
                           </div>
                         </FormItem>
@@ -721,9 +739,10 @@ export default function ClientRegistrationPage() {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
+                            <FormLabel>Full Name</FormLabel>
                             <FormControl>
                               <Input 
-                                placeholder="Full Name" 
+                                placeholder="Enter your full name" 
                                 {...field} 
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
@@ -747,9 +766,10 @@ export default function ClientRegistrationPage() {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
+                            <FormLabel>Phone Number</FormLabel>
                             <FormControl>
                               <PhoneInputField 
-                                placeholder="Phone Number" 
+                                placeholder="Enter your phone number" 
                                 value={field.value} 
                                 onChange={field.onChange}
                                 onValidationComplete={handlePhoneValidation}
@@ -761,6 +781,59 @@ export default function ClientRegistrationPage() {
                         )}
                       />
                     </div>
+                    
+                    {/* Salon Selection Dropdown */}
+                    <FormField
+                      control={form.control}
+                      name="sponsorSalonId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select Your Salon</FormLabel>
+                          <Select
+                            onValueChange={(value) => field.onChange(parseInt(value, 10))}
+                            defaultValue={field.value?.toString() || ""}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose a salon" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {salonListLoading ? (
+                                <div className="p-2 text-center">Loading salons...</div>
+                              ) : allSalons?.length ? (
+                                <>
+                                  {/* Sort to show VMB LTD first */}
+                                  {allSalons
+                                    .sort((a, b) => {
+                                      // VMB LTD always comes first
+                                      if (a.name === 'VMB LTD') return -1;
+                                      if (b.name === 'VMB LTD') return 1;
+                                      // Then alphabetical
+                                      return a.name.localeCompare(b.name);
+                                    })
+                                    .map((salon) => (
+                                      <SelectItem 
+                                        key={salon.id} 
+                                        value={salon.id.toString()}
+                                      >
+                                        {salon.name}
+                                      </SelectItem>
+                                    ))
+                                  }
+                                </>
+                              ) : (
+                                <div className="p-2 text-center">No salons available</div>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            Choose the salon you're associated with, or VMB LTD if none
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     
                     {/* Terms and Conditions Checkbox - CRITICALLY ENHANCED for visibility and reliability */}
                     <FormField
