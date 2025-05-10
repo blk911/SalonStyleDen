@@ -671,11 +671,9 @@ export default function ClientRegistrationPage() {
           <div className="md:col-span-3">
             <Card>
               <CardHeader>
-                <CardTitle>Client Registration</CardTitle>
+                <CardTitle>Registration</CardTitle>
                 <CardDescription>
-                  {invitation
-                    ? `Complete your registration for ${invitation.sponsor || salon?.name || 'the salon'}`
-                    : 'Invite a friend or salon owner'}
+                  For yourself, a friend, or your fav salon owner
                 </CardDescription>
               </CardHeader>
               <CardContent>
