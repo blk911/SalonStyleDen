@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { ExternalLinkIcon, HeartIcon, PlusCircleIcon, UserPlusIcon, XIcon } from "lucide-react";
 import GiftCreationFlow from "./GiftCreationFlow";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link, useLocation } from "wouter";
 
+// Define the interfaces for data types
 interface Invitation {
   id: number;
   name: string;
@@ -37,9 +38,13 @@ interface Gift {
   amount: number;
   message: string | null;
   status: string;
+  salonId?: number;
   expiresAt: string | null;
   createdAt: string;
   redeemedAt: string | null;
+  giftHash?: string;
+  recipientName?: string;
+  senderName?: string;
 }
 
 interface GiftsPageProps {
@@ -47,13 +52,12 @@ interface GiftsPageProps {
   salonId?: number;
 }
 
+// Main component for the Gifts page
 export default function GiftsPage({ clientId }: GiftsPageProps) {
   const [showGiftCreation, setShowGiftCreation] = useState(false);
-  const [showSentGifts, setShowSentGifts] = useState(true);
-  const [showReceivedGifts, setShowReceivedGifts] = useState(true);
   const [, setLocation] = useLocation();
   
-  // Query for the current client's name to use in filters
+  // Query for the current client's data
   const { data: clientData } = useQuery({
     queryKey: ['/api/clients/data', clientId],
     queryFn: async () => {
@@ -80,30 +84,34 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         console.log("Received gifts:", gifts);
         
         // Transform gift data to match the format expected by the UI
-        return gifts.map(gift => ({
-          id: gift.id,
-          name: gift.senderName || "Gift Sender", // Use sender name if available
-          phone: gift.recipientPhone || "",
-          email: gift.recipientEmail || "",
-          message: gift.message,
-          salonId: gift.salonId,
-          senderId: gift.senderId,
-          sponsor: "Gift Sender", // Default display name
-          status: gift.status || "sent",
-          inviteHash: `gift-${gift.id}`, // Route key for viewing 
-          createdAt: gift.createdAt,
-          amount: gift.amount,
-          styleOption: gift.styleName,
-          stylePrice: gift.amount,
-          giftHash: gift.giftHash // Include gift hash for unique identification
-        })) as Invitation[];
+        return gifts.map(gift => {
+          // Default sender name if not available
+          const senderDisplay = gift.senderName || "Gift Sender";
+          
+          return {
+            id: gift.id,
+            name: senderDisplay,
+            phone: gift.recipientPhone || "",
+            email: gift.recipientEmail || "",
+            message: gift.message || "Personal gift invitation",
+            salonId: gift.salonId || null,
+            senderId: gift.senderId,
+            sponsor: senderDisplay,
+            status: gift.status || "sent",
+            inviteHash: `gift-${gift.id}`,
+            createdAt: gift.createdAt,
+            amount: gift.amount,
+            styleOption: gift.styleName || `$${(gift.amount / 100).toFixed(2)}`,
+            stylePrice: gift.amount
+          } as Invitation;
+        });
       } catch (error) {
         console.error("Error fetching received gifts:", error);
         return []; // Return empty array on error
       }
     },
     enabled: !!clientId,
-    refetchInterval: 30000 // Refresh every 30 seconds
+    refetchInterval: 15000 // Refresh every 15 seconds
   });
   
   // Query for sent gifts (where this client is the sender)
@@ -121,30 +129,43 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         console.log("Sent gifts:", gifts);
         
         // Transform gift data to match the format expected by the UI
-        return gifts.map(gift => ({
-          id: gift.id,
-          name: gift.recipientName || "Gift Recipient", // Use recipient name if available
-          phone: gift.recipientPhone || "",
-          email: gift.recipientEmail || "",
-          message: gift.message,
-          salonId: gift.salonId,
-          senderId: gift.senderId,
-          sponsor: null,
-          status: gift.status || "sent",
-          inviteHash: `gift-${gift.id}`, // Route key for viewing
-          createdAt: gift.createdAt,
-          amount: gift.amount,
-          styleOption: gift.styleName,
-          stylePrice: gift.amount,
-          giftHash: gift.giftHash // Include gift hash for unique identification
-        })) as Invitation[];
+        return gifts.map(gift => {
+          // Create a display name for the recipient
+          let displayName = gift.recipientName || "Recipient";
+          
+          // If no recipient name but we have a phone, use last 4 digits
+          if (!gift.recipientName && gift.recipientPhone) {
+            const phone = gift.recipientPhone.replace(/\D/g, '');
+            const lastFour = phone.slice(-4);
+            if (lastFour && lastFour.length === 4) {
+              displayName = `${displayName} (${lastFour})`;
+            }
+          }
+          
+          return {
+            id: gift.id,
+            name: displayName,
+            phone: gift.recipientPhone || "",
+            email: gift.recipientEmail || "",
+            message: gift.message || "Personal gift invitation",
+            salonId: gift.salonId || null,
+            senderId: gift.senderId,
+            sponsor: null,
+            status: gift.status || "sent",
+            inviteHash: `gift-${gift.id}`,
+            createdAt: gift.createdAt,
+            amount: gift.amount,
+            styleOption: gift.styleName || `$${(gift.amount / 100).toFixed(2)}`,
+            stylePrice: gift.amount
+          } as Invitation;
+        });
       } catch (error) {
         console.error("Error fetching sent gifts:", error);
         return []; // Return empty array on error
       }
     },
     enabled: !!clientId,
-    refetchInterval: 30000 // Refresh every 30 seconds
+    refetchInterval: 15000 // Refresh every 15 seconds
   });
   
   // Use the transformed sent gifts data
@@ -213,6 +234,68 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         </CardContent>
       </Card>
   
+      {/* Single line display of sent gifts */}
+      {sentGifts && sentGifts.length > 0 && (
+        <div className="mt-4 border rounded-lg p-4 bg-green-50">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-green-800">Gifts Sent ({sentGifts.length})</h3>
+            <div className="flex items-center gap-8">
+              <span className="text-sm font-medium text-green-800">GIFT</span>
+              <span className="text-sm font-medium text-green-800">STATUS</span>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            {sentGifts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(gift => (
+              <div key={gift.id} className="flex items-center justify-between py-2 px-4 bg-white rounded-lg border border-green-200 shadow-sm">
+                <div className="flex items-center gap-2 flex-grow">
+                  <UserPlusIcon className="h-4 w-4 text-green-600" />
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <p className="text-sm font-medium">
+                        Gift to <span className="font-semibold text-green-700">{gift.name}</span>
+                      </p>
+                      <span className="text-xs text-gray-400">•</span>
+                      <p className="text-xs text-gray-500">{new Date(gift.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}</p>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-0.5">{gift.message || "Personal gift invitation"}</p>
+                    {gift.styleOption && (
+                      <p className="text-xs text-pink-600 mt-0.5 font-medium">
+                        {gift.styleOption}
+                        {gift.stylePrice && ` • $${(gift.stylePrice / 100).toFixed(2)}`}
+                        {gift.styleDuration && ` • ${gift.styleDuration} min`}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-8 ml-2">
+                  <Link
+                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
+                    className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1 whitespace-nowrap"
+                  >
+                    <ExternalLinkIcon className="h-3 w-3" />
+                    View
+                  </Link>
+                  
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                    gift.status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
+                    gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
+                    gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' : 
+                    'bg-gray-100 text-gray-700'
+                  }`}>
+                    {gift.status.charAt(0).toUpperCase() + gift.status.slice(1).toLowerCase()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Only show Gifts Received section if there are actual gifts to display */}
       {receivedGifts && receivedGifts.length > 0 && (
@@ -311,67 +394,19 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
           </div>
         </div>
       )}
-
-      {/* Single line display of sent gifts */}
-      {sentGifts && sentGifts.length > 0 && (
-        <div className="mt-4 border rounded-lg p-4 bg-green-50">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-green-800">Gifts Sent ({sentGifts.length})</h3>
-            <div className="flex items-center gap-8">
-              <span className="text-sm font-medium text-green-800">GIFT</span>
-              <span className="text-sm font-medium text-green-800">STATUS</span>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            {sentGifts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(gift => (
-              <div key={gift.id} className="flex items-center justify-between py-2 px-4 bg-white rounded-lg border border-green-200 shadow-sm">
-                <div className="flex items-center gap-2 flex-grow">
-                  <UserPlusIcon className="h-4 w-4 text-green-600" />
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <p className="text-sm font-medium">
-                        Gift to <span className="font-semibold text-green-700">{gift.name}</span>
-                      </p>
-                      <span className="text-xs text-gray-400">•</span>
-                      <p className="text-xs text-gray-500">{new Date(gift.createdAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}</p>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-0.5">{gift.message || "Personal gift invitation"}</p>
-                    {gift.styleOption && (
-                      <p className="text-xs text-pink-600 mt-0.5 font-medium">
-                        {gift.styleOption}
-                        {gift.stylePrice && ` • $${(gift.stylePrice / 100).toFixed(2)}`}
-                        {gift.styleDuration && ` • ${gift.styleDuration} min`}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-8 ml-2">
-                  <Link
-                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
-                    className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1 whitespace-nowrap"
-                  >
-                    <ExternalLinkIcon className="h-3 w-3" />
-                    View
-                  </Link>
-                  
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                    gift.status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
-                    gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
-                    gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' : 
-                    'bg-gray-100 text-gray-700'
-                  }`}>
-                    {gift.status.charAt(0).toUpperCase() + gift.status.slice(1).toLowerCase()}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+      
+      {/* Show loader while data is being fetched */}
+      {(isLoadingReceived || isLoadingSent) && (
+        <div className="mt-4 space-y-3">
+          <Skeleton className="w-full h-20 rounded-md"/>
+          <Skeleton className="w-full h-20 rounded-md"/>
+        </div>
+      )}
+      
+      {/* Show empty state if no gifts found */}
+      {!isLoadingReceived && !isLoadingSent && (!receivedGifts || receivedGifts.length === 0) && (!sentGifts || sentGifts.length === 0) && (
+        <div className="mt-4 text-center p-8 border border-dashed border-gray-200 rounded-lg">
+          <p className="text-gray-500">No gifts yet. Create one by clicking the button above!</p>
         </div>
       )}
     </div>
