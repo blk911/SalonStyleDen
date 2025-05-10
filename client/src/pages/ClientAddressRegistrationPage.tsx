@@ -25,7 +25,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, CheckCheck } from 'lucide-react';
-import { logFlow } from '@/lib/flow-logger';
+import logFlow from '@/lib/flow-logger';
 
 // Form validation schema
 const clientAddressFormSchema = z.object({

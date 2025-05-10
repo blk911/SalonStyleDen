@@ -25,6 +25,7 @@ import DependencyVisualizer from "@/pages/DependencyVisualizer";
 import InvitationPage from "@/pages/InvitationPage";
 import InvitationPreview from "@/pages/InvitationPreview";
 import ClientRegistrationPage from "@/pages/ClientRegistrationPage";
+import ClientAddressRegistrationPage from "@/pages/ClientAddressRegistrationPage";
 import SalonRegistrationPage from "@/pages/SalonRegistrationPage";
 import CompleteInvitationPage from "@/pages/CompleteInvitationPage";
 import TestFinalStep3 from "@/pages/TestFinalStep3";
@@ -51,6 +52,7 @@ function Router() {
       <Route path="/invitation-preview/:hash" component={InvitationPreview} />
       <Route path="/invitations/by-hash/:hash" component={InvitationPage} />
       <Route path="/complete-invitation/:id" component={CompleteInvitationPage} />
+      <Route path="/client-address-registration/:clientId" component={ClientAddressRegistrationPage} />
       {/* Unhiding all routes as requested */}
       <Route path="/promos" component={PromosPage} />
       <Route path="/sitemap" component={Sitemap} />
