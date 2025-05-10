@@ -83,8 +83,20 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         const gifts = await response.json() as Gift[];
         console.log("Received gifts:", gifts);
         
-        // Transform gift data to match the format expected by the UI
-        return gifts.map(gift => ({
+        // Critical check: Filter out any gifts where this client is BOTH the sender and recipient
+        // This prevents the impossible case where a client sends a gift to themselves
+        const filteredGifts = gifts.filter(gift => {
+          // A gift can be received either by ID or phone, but the sender cannot be the same as recipient
+          if (gift.senderId === clientId) {
+            // Log and filter out self-gifts which violate business rules
+            console.warn("[DATA INTEGRITY] Filtering out gift", gift.id, "where sender is also recipient");
+            return false;
+          }
+          return true;
+        });
+        
+        // Transform valid gift data to match the format expected by the UI
+        return filteredGifts.map(gift => ({
           id: gift.id,
           name: gift.senderName || "Gift Sender", // Use sender name if available
           phone: gift.recipientPhone || "",
@@ -124,8 +136,27 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         const gifts = await response.json() as Gift[];
         console.log("Sent gifts:", gifts);
         
+        // Critical fix - Ensure no gifts are shown as "sent" where the recipient is the same as the sender
+        // This is a business rule violation and should not be possible
+        const validGifts = gifts.filter(gift => {
+          // Ensure no gifts where sender is sending to themselves via ID
+          if (gift.recipientId === clientId) {
+            console.warn("[DATA INTEGRITY] Filtering out impossible gift", gift.id, "where recipient ID matches sender ID");
+            return false;
+          }
+          
+          // Fetch client data synchronously (we're in an async function so this is OK)
+          // This adds an extra check to ensure client phone number doesn't match recipient
+          if (clientData && gift.recipientPhone === clientData.phone) {
+            console.warn("[DATA INTEGRITY] Filtering out impossible gift", gift.id, "where recipient phone matches sender phone");
+            return false;
+          }
+          
+          return true;
+        });
+        
         // Transform gift data to match the format expected by the UI
-        return gifts.map(gift => ({
+        return validGifts.map(gift => ({
           id: gift.id,
           name: gift.recipientName || "Gift Recipient", // Use recipient name if available
           phone: gift.recipientPhone || "",

@@ -2114,6 +2114,29 @@ export class DatabaseStorage implements IStorage {
   async createGift(insertGift: InsertGift): Promise<Gift> {
     try {
       console.log(`DatabaseStorage.createGift - Creating new gift`);
+      
+      // CRITICAL DATA INTEGRITY CHECK: Ensure a client cannot send a gift to themselves
+      // This is a fundamental business rule - a gift must be from one person to another
+      if (insertGift.senderId) {
+        // Check if recipientId matches sender (if both are specified)
+        if (insertGift.recipientId && insertGift.recipientId === insertGift.senderId) {
+          const error = new Error("DATA INTEGRITY VIOLATION: Cannot create gift where sender is the same as recipient (by ID)");
+          console.error(error.message);
+          throw error;
+        }
+        
+        // If we have a recipient phone, check if it matches the sender's phone
+        if (insertGift.recipientPhone) {
+          // Get the sender's info to check phone
+          const sender = await this.getClient(insertGift.senderId);
+          if (sender && sender.phone === insertGift.recipientPhone) {
+            const error = new Error("DATA INTEGRITY VIOLATION: Cannot create gift where sender's phone matches recipient phone");
+            console.error(error.message);
+            throw error;
+          }
+        }
+      }
+      
       const giftData = {
         ...insertGift,
         createdAt: new Date()
