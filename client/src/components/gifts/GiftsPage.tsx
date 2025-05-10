@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExternalLinkIcon, HeartIcon, PlusCircleIcon, UserPlusIcon, XIcon } from "lucide-react";
 import GiftCreationFlow from "./GiftCreationFlow";
-import GiftViewDialog from "./GiftViewDialog";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -56,8 +55,6 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
   const [showGiftCreation, setShowGiftCreation] = useState(false);
   const [showSentGifts, setShowSentGifts] = useState(true);
   const [showReceivedGifts, setShowReceivedGifts] = useState(true);
-  const [selectedGift, setSelectedGift] = useState<Invitation | null>(null);
-  const [showGiftViewDialog, setShowGiftViewDialog] = useState(false);
   const [, setLocation] = useLocation();
   
   // Query for the current client's name to use in filters
@@ -221,14 +218,6 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       </Card>
   
 
-      {/* Gift View Dialog */}
-      <GiftViewDialog 
-        gift={selectedGift}
-        open={showGiftViewDialog}
-        onOpenChange={setShowGiftViewDialog}
-        clientId={clientId}
-      />
-
       {/* Only show Gifts Received section if there are actual gifts to display */}
       {receivedGifts && receivedGifts.length > 0 && (
         <div className="mt-4 border rounded-lg p-4 bg-yellow-50">
@@ -261,16 +250,13 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                 </div>
                 
                 <div className="flex items-center gap-8 ml-2">
-                  <button
-                    onClick={() => {
-                      setSelectedGift(gift);
-                      setShowGiftViewDialog(true);
-                    }}
-                    className="text-xs text-amber-600 font-medium hover:text-amber-800 flex items-center gap-1 whitespace-nowrap bg-transparent border-0 cursor-pointer p-0"
+                  <Link
+                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
+                    className="text-xs text-amber-600 font-medium hover:text-amber-800 flex items-center gap-1 whitespace-nowrap"
                   >
                     <ExternalLinkIcon className="h-3 w-3" />
                     View
-                  </button>
+                  </Link>
                   
                   {gift.status.toLowerCase() === 'pending' || gift.status.toLowerCase() === 'sent' ? (
                     <Button 
@@ -370,16 +356,13 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
                 </div>
                 
                 <div className="flex items-center gap-8 ml-2">
-                  <button
-                    onClick={() => {
-                      setSelectedGift(gift);
-                      setShowGiftViewDialog(true);
-                    }}
-                    className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1 whitespace-nowrap bg-transparent border-0 cursor-pointer p-0"
+                  <Link
+                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
+                    className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1 whitespace-nowrap"
                   >
                     <ExternalLinkIcon className="h-3 w-3" />
                     View
-                  </button>
+                  </Link>
                   
                   <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
                     gift.status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
