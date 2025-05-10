@@ -1250,8 +1250,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Check for salon invitation limits if this is a salon-created invitation
           if (validatedData.salonId && !validatedData.senderId) {
-            // This is a salon-created invitation
+            // This is a salon-created invitation - CRITICAL FIX: Set the sponsor to the salon name
             console.log(`[API] POST /invitations - Checking invitation limits for salon ${validatedData.salonId}`);
+            
+            // Get the salon to use its name as the sponsor
+            const sponsorSalon = await storage.getSalon(validatedData.salonId);
+            if (sponsorSalon) {
+              // [CRITICAL FIX] Set the sponsor to the salon name, NOT VMB LTD
+              validatedData.sponsor = sponsorSalon.name;
+              validatedData.sponsorName = sponsorSalon.name;
+              console.log(`[RULE ENFORCEMENT] Setting sponsor to salon name: ${sponsorSalon.name} for salon-initiated invitation`);
+            }
             
             // Check if salon has reached its invitation limit
             const limitCheck = await storage.hasSalonReachedInvitationLimit(validatedData.salonId);
@@ -2259,6 +2268,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // [CRITICAL FIX] [RULE: SelfGiftProhibition] Check that sender and recipient are not the same
+      // A phone number CANNOT be both sender and recipient on the same gift
+      if (senderClient.phone === validatedData.recipientPhone) {
+        console.error(`[RULE VIOLATION] Gift creation with same phone number for sender and recipient: ${senderClient.phone}`);
+        return res.status(400).json({
+          error: "Invalid recipient",
+          details: "The sender and recipient cannot be the same person"
+        });
+      }
+      
       // Get the salon relationship from the sender's sponsor salon
       const salonId = senderClient.sponsorSalonId || 1; // Default to VMB LTD if not found
       console.log(`[RULE ENFORCEMENT] Using sender's salon relationship: ${salonId}`);
@@ -2269,6 +2288,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recipientPhone: validatedData.recipientPhone,
         recipientEmail: validatedData.recipientEmail || null,
         recipientId: validatedData.recipientId || null,
+        // [CRITICAL FIX] Ensure gift_hash is ALWAYS set to maintain unique tracking
+        giftHash: giftHash, // Use the UUID generated above
         amount: validatedData.value || 5000, // Default amount if not specified
         status: validatedData.status || 'pending', // Default to pending, not sent
         message: validatedData.message || null,
