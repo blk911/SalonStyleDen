@@ -101,6 +101,31 @@ export interface IStorage {
 
 // Copy over all the implementation from old storage.ts then add getSalonsTable method at the end
 export class DatabaseStorage implements IStorage {
+  // Helper function to consistently map a database row to an Invitation object
+  private mapInvitationFromRow(row: any): Invitation {
+    return {
+      id: row.id,
+      name: row.name,
+      phone: row.phone,
+      email: row.email,
+      notes: row.notes,
+      message: row.message || null,
+      type: row.type || null,
+      salonId: row.salon_id,
+      sponsor: row.sponsor,
+      // Use sponsor_name from database, with fallbacks to sponsor field or empty string
+      sponsorName: row.sponsor_name || row.sponsor || "",
+      inviteHash: row.invite_hash,
+      status: row.status,
+      firstServiceDate: row.first_service_date,
+      createdAt: row.created_at,
+      favoriteServices: row.favorite_services,
+      styleOption: row.style_option || null,
+      stylePrice: row.style_price || null,
+      styleDuration: row.style_duration || null,
+      senderId: row.sender_id || null
+    };
+  }
   // User methods
   async getUser(id: number): Promise<User | undefined> {
     const results = await db.select().from(users).where(eq(users.id, id));
@@ -911,7 +936,7 @@ export class DatabaseStorage implements IStorage {
         const row = result.rows[0];
         console.log(`DatabaseStorage.createInvitation - Created invitation with ID ${row.id}`);
         
-        // Convert DB result to Invitation type with senderId
+        // Convert DB result to Invitation type using our helper
         const invitation: Invitation = {
           id: row.id,
           name: row.name,
@@ -922,17 +947,16 @@ export class DatabaseStorage implements IStorage {
           type: row.type || null,
           salonId: row.salon_id,
           sponsor: row.sponsor,
-          sponsorName: row.sponsor_name || row.sponsor || "",
+          // For salon-initiated invitations, the salon should always be the sponsor
+          sponsorName: row.salon_id ? (await this.getSalon(row.salon_id))?.name || row.sponsor : row.sponsor,
           inviteHash: row.invite_hash,
           status: row.status,
           firstServiceDate: row.first_service_date,
           createdAt: row.created_at,
           favoriteServices: row.favorite_services,
-          // Required fields from schema
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          // Add the senderId property, using row value if column exists or provided value
           senderId: (senderIdColumnExists && row.sender_id) ? row.sender_id : invitationData.senderId || null
         };
         
