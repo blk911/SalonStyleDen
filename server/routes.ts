@@ -103,7 +103,8 @@ const invitationInputSchema = z.object({
     invalid_type_error: "Salon ID must be a number"
   }).default(1), // Default to VMB LTD (ID: 1) if not provided
   salonName: z.string().optional(),
-  sponsor: z.string().default("VMB LTD"), // Default sponsor field
+  sponsor: z.string().optional(), // Do NOT default sponsor - it must be set correctly based on invitation context
+  sponsorName: z.string().optional(), // Sponsor name for display purposes - must match sponsor
   // [RULE: UniqueInvitationID] Invitations must have unique hash identifiers
   // Note: We handle the generation of hash in the route handler for both cases:
   // 1. If client provides a hash, we validate and potentially replace it
@@ -1235,15 +1236,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
               const senderClient = await storage.getClient(validatedData.senderId);
               if (senderClient && senderClient.sponsorSalonId) {
                 validatedData.salonId = senderClient.sponsorSalonId;
-                console.log(`[RULE ENFORCEMENT] Using sender's sponsor salon: ${validatedData.salonId}`);
+                // CRITICAL FIX: Use the sender client's sponsor info
+                validatedData.sponsor = senderClient.sponsor || "";
+                validatedData.sponsorName = senderClient.sponsorName || "";
+                console.log(`[RULE ENFORCEMENT] Using sender's sponsor salon: ${validatedData.salonId} (${senderClient.sponsorName})`);
               } else {
                 // Default to VMB LTD if sender's salon is unknown
                 validatedData.salonId = 1;
+                // VMB LTD should only be used in this specific case
+                validatedData.sponsor = "VMB LTD";
+                validatedData.sponsorName = "VMB LTD"; 
                 console.warn('[RULE ENFORCEMENT] Sender has no sponsor salon, defaulting to VMB LTD');
               }
             } else {
-              // Default to VMB LTD if no sender and no salon specified
+              // Default to VMB LTD if no sender and no salon specified - only valid for direct registrations 
               validatedData.salonId = 1;
+              validatedData.sponsor = "VMB LTD";
+              validatedData.sponsorName = "VMB LTD";
               console.warn('[RULE ENFORCEMENT] No sender or salon specified, defaulting to VMB LTD');
             }
           }
@@ -1252,6 +1261,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (validatedData.salonId && !validatedData.senderId) {
             // This is a salon-created invitation
             console.log(`[API] POST /invitations - Checking invitation limits for salon ${validatedData.salonId}`);
+            
+            // CRITICAL FIX: For salon-created invitations, the salon itself must be the sponsor
+            // NOT "VMB LTD" - this fixes the business rule violation
+            const salonInfo = await storage.getSalon(validatedData.salonId);
+            if (salonInfo) {
+              validatedData.sponsor = salonInfo.name;
+              validatedData.sponsorName = salonInfo.name;
+              console.log(`[RULE ENFORCEMENT] Setting correct sponsor for salon invitation: ${salonInfo.name}`);
+            } else {
+              console.error(`[RULE VIOLATION] Salon ID ${validatedData.salonId} not found for invitation sponsor`);
+            }
             
             // Check if salon has reached its invitation limit
             const limitCheck = await storage.hasSalonReachedInvitationLimit(validatedData.salonId);
