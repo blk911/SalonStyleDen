@@ -2160,6 +2160,32 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+  
+  /**
+   * CRITICAL VMB RULESET FUNCTION: Get ALL gifts for a phone number
+   * This fixes the catastrophic error where gifts weren't appearing for invitation IDs
+   */
+  async getGiftsByRecipientPhone(phone: string): Promise<Gift[]> {
+    try {
+      // Standardize phone format - get only digits for comparison
+      const cleanPhone = phone.replace(/\D/g, '');
+      console.log(`[VMB RULESET] DatabaseStorage.getGiftsByRecipientPhone - Looking for ALL gifts with recipient phone ${cleanPhone}`);
+      
+      // Query using regex to match phone numbers regardless of format
+      const results = await db
+        .select()
+        .from(gifts)
+        .where(sql`regexp_replace(${gifts.recipientPhone}, '[^0-9]', '', 'g') = ${cleanPhone}`)
+        .orderBy(sql`${gifts.createdAt} DESC`);
+      
+      console.log(`DatabaseStorage.getGiftsByRecipientPhone - Found ${results.length} matching gifts for phone ${cleanPhone}`);
+      
+      return results;
+    } catch (error) {
+      console.error(`Error getting gifts by recipient phone:`, error);
+      throw error;
+    }
+  }
 
   async getSentGifts(senderId: number): Promise<Gift[]> {
     try {
@@ -2192,62 +2218,82 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DatabaseStorage.getReceivedGifts - Fetching gifts received by client ID ${recipientId}`);
       
-      // Get client info to ensure phone matching for gifts received by phone
+      // Try multiple paths to get the correct phone number:
+      // 1. First check if this is a client ID 
+      // 2. If not, check if this is an invitation ID
+      // 3. In either case, use phone number to lookup gifts
+      let phone: string | null = null;
+
+      // Get client info first
       const client = await this.getClient(recipientId);
       
-      if (!client) {
-        console.error(`DatabaseStorage.getReceivedGifts - Client with ID ${recipientId} not found`);
+      if (client) {
+        console.log(`DatabaseStorage.getReceivedGifts - Found client with ID ${recipientId}, phone: ${client.phone}`);
+        phone = client.phone;
+      } else {
+        // Client not found, check if this is an invitation ID
+        console.log(`DatabaseStorage.getReceivedGifts - Client not found, checking if ID ${recipientId} is an invitation`);
+        const invitation = await this.getInvitation(recipientId);
+        
+        if (invitation) {
+          console.log(`DatabaseStorage.getReceivedGifts - Found invitation with ID ${recipientId}, phone: ${invitation.phone}`);
+          phone = invitation.phone;
+        } else {
+          console.error(`DatabaseStorage.getReceivedGifts - No client or invitation found with ID ${recipientId}`);
+          return [];
+        }
+      }
+      
+      // At this point we should have a valid phone number from either client or invitation
+      if (!phone) {
+        console.error(`DatabaseStorage.getReceivedGifts - No valid phone number found for ID ${recipientId}`);
         return [];
       }
       
-      // CRITICAL FIX: We must maintain the STATE CONTEXT for client viewing their gifts
-      // From the client's perspective, gifts sent TO them that require action should be "pending"
-      // This reflects the accurate flow: Salon/Client sends gift → Client receives gift and sees "pending" → Client takes action
+      // [VMB RULESET] - GIFT INVITATIONS: Any gift associated with this phone number should be visible
+      console.log(`DatabaseStorage.getReceivedGifts - Looking up gifts for phone: ${phone}`);
       
-      // Query for gifts sent to this client's phone number
-      const phoneReceivedGiftsPromise = client.phone ? db
+      // For accuracy, we do two separate queries:
+      // 1. Gifts sent to this recipient's phone number
+      // 2. Gifts sent to this recipient's ID (if available)
+      
+      // Query for gifts by phone number (this is the critical path for invitations)
+      const phoneGifts = await db
         .select()
         .from(gifts)
-        .where(eq(gifts.recipientPhone, client.phone))
-        .orderBy(sql`${gifts.createdAt} DESC`) : Promise.resolve([]);
+        .where(eq(gifts.recipientPhone, phone))
+        .orderBy(sql`${gifts.createdAt} DESC`);
       
-      // Query for gifts sent to this client by ID
-      const idReceivedGiftsPromise = db
+      // Query for gifts by ID only if we have a registered client (not just invitation)
+      const idGifts = client ? await db
         .select()
         .from(gifts)
         .where(eq(gifts.recipientId, recipientId))
-        .orderBy(sql`${gifts.createdAt} DESC`);
-      
-      // Fetch both in parallel
-      const [phoneReceivedGifts, idReceivedGifts] = await Promise.all([
-        phoneReceivedGiftsPromise,
-        idReceivedGiftsPromise
-      ]);
+        .orderBy(sql`${gifts.createdAt} DESC`) : [];
       
       // Combine and deduplicate results based on gift ID
-      const allGifts = [...idReceivedGifts];
+      const allGifts = [...idGifts];
       const giftIds = new Set(allGifts.map(gift => gift.id));
       
-      for (const gift of phoneReceivedGifts) {
+      for (const gift of phoneGifts) {
         if (!giftIds.has(gift.id)) {
           allGifts.push(gift);
           giftIds.add(gift.id);
         }
       }
       
-      // STATE CONTEXT FIX: We transform the status to accurately reflect what the CLIENT should see
-      // Gifts in "sent" status that are awaiting client action should appear as "pending" to the client
-      const pendingActionGifts = allGifts.map(gift => {
-        // If the gift is in "sent" status (sender's perspective) and visible to this client,
-        // it should appear as "pending" (recipient's perspective) so they can take action
+      // STATE CONTEXT TRANSFORMATION - From recipient's perspective:
+      // - Gifts with status "sent" should appear as "pending" to recipient
+      // - This maintains logical consistency based on user context 
+      const contextAwareGifts = allGifts.map(gift => {
         if (gift.status === 'sent') {
           return { ...gift, status: 'pending' };
         }
         return gift;
       });
       
-      console.log(`DatabaseStorage.getReceivedGifts - Found ${pendingActionGifts.length} gifts (${idReceivedGifts.length} by ID, ${phoneReceivedGifts.length} by phone)`);
-      return pendingActionGifts;
+      console.log(`DatabaseStorage.getReceivedGifts - Found ${contextAwareGifts.length} gifts (${idGifts.length} by ID, ${phoneGifts.length} by phone)`);
+      return contextAwareGifts;
     } catch (error) {
       console.error(`Error getting received gifts:`, error);
       throw error;
