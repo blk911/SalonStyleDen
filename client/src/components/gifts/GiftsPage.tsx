@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ExternalLinkIcon, HeartIcon, PlusCircleIcon, UserPlusIcon, XIcon } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ExternalLinkIcon, HeartIcon, PlusCircleIcon, XIcon } from "lucide-react";
 import GiftCreationFlow from "./GiftCreationFlow";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Link, useLocation } from "wouter";
 
 interface Invitation {
@@ -53,8 +52,6 @@ interface GiftsPageProps {
 
 export default function GiftsPage({ clientId }: GiftsPageProps) {
   const [showGiftCreation, setShowGiftCreation] = useState(false);
-  const [showSentGifts, setShowSentGifts] = useState(true);
-  const [showReceivedGifts, setShowReceivedGifts] = useState(true);
   const [, setLocation] = useLocation();
   
   // Query for the current client's name to use in filters
@@ -70,7 +67,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
   });
 
   // Query for received gifts (where this client is the recipient)
-  const { data: receivedGifts, isLoading: isLoadingReceived } = useQuery({
+  const { data: receivedGiftsData, isLoading: isLoadingReceived } = useQuery({
     queryKey: ['/api/gifts/received', clientId],
     queryFn: async () => {
       if (!clientId) return [];
@@ -182,7 +179,8 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
     refetchInterval: 30000 // Refresh every 30 seconds
   });
   
-  // Use the transformed sent gifts data
+  // Use the transformed gifts data with safety checks
+  const receivedGifts = receivedGiftsData || [];
   const sentGifts = sentGiftsData || [];
   
   return (
@@ -247,168 +245,179 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
           )}
         </CardContent>
       </Card>
-  
 
-      {/* Only show Gifts Received section if there are actual gifts to display */}
-      {receivedGifts && receivedGifts.length > 0 && (
-        <div className="mt-4 border rounded-lg p-4 bg-yellow-50">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-amber-800">Gifts Received</h3>
+      {/* Always show Gifts Received section, with appropriate empty state */}
+      <div className="mt-4 border rounded-lg p-4 bg-yellow-50">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium text-amber-800">Gifts Received</h3>
+          {receivedGifts.length > 0 && (
             <div className="flex items-center gap-8">
               <span className="text-sm font-medium text-amber-800">GIFT</span>
               <span className="text-sm font-medium text-amber-800">STATUS</span>
             </div>
-          </div>
+          )}
+        </div>
+        
+        {receivedGifts.length > 0 ? (
           <div className="space-y-2">
-            {receivedGifts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(gift => (
-              <div key={gift.id} className="flex items-center justify-between py-2 px-4 bg-white rounded-lg border border-yellow-200 shadow-sm">
-                <div className="flex items-center gap-2 flex-grow">
-                  <HeartIcon className="h-4 w-4 text-yellow-600" />
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <p className="text-sm font-medium">
-                        Gift from <span className="font-semibold text-amber-700">{gift.sponsor || "Unknown"}</span>
-                      </p>
-                      <span className="text-xs text-gray-400">•</span>
-                      <p className="text-xs text-gray-500">{new Date(gift.createdAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}</p>
+            {receivedGifts
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+              .map(gift => (
+                <div key={gift.id} className="flex items-center justify-between py-2 px-4 bg-white rounded-lg border border-yellow-200 shadow-sm">
+                  <div className="flex items-center gap-2 flex-grow">
+                    <HeartIcon className="h-4 w-4 text-yellow-600" />
+                    <div>
+                      <div className="flex items-center gap-1">
+                        <p className="text-sm font-medium">
+                          Gift from <span className="font-semibold text-amber-700">{gift.sponsor || "Unknown"}</span>
+                        </p>
+                        <span className="text-xs text-gray-400">•</span>
+                        <p className="text-xs text-gray-500">{new Date(gift.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}</p>
+                      </div>
+                      <p className="text-xs text-gray-600 mt-0.5">{gift.message || "Personal gift invitation"}</p>
                     </div>
-                    <p className="text-xs text-gray-600 mt-0.5">{gift.message || "Personal gift invitation"}</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-8 ml-2">
+                    <Link
+                      to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
+                      className="text-xs text-amber-600 font-medium hover:text-amber-800 flex items-center gap-1 whitespace-nowrap"
+                    >
+                      <ExternalLinkIcon className="h-3 w-3" />
+                      View
+                    </Link>
+                    
+                    {gift.status.toLowerCase() === 'pending' || gift.status.toLowerCase() === 'sent' ? (
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        className="h-7 py-0 px-3 whitespace-nowrap bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200 text-xs"
+                        onClick={async () => {
+                          try {
+                            // If it's a gift (not an invitation), use the gifts API
+                            if (gift.inviteHash.startsWith('gift-')) {
+                              const giftId = gift.inviteHash.split('-')[1];
+                              const response = await fetch(`/api/gifts/${giftId}/status`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ status: 'redeemed' })
+                              });
+                              
+                              if (!response.ok) throw new Error('Failed to update gift status');
+                              
+                              // Refresh the component
+                              window.location.reload();
+                            } else {
+                              // For legacy invitations
+                              const response = await fetch(`/api/invitations/${gift.id}/status`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ status: 'accepted' })
+                              });
+                              
+                              if (!response.ok) throw new Error('Failed to update status');
+                              
+                              // Navigate to the invitation preview page
+                              setLocation(`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`);
+                            }
+                          } catch (error) {
+                            console.error('Error accepting gift:', error);
+                            // Refresh anyway
+                            window.location.reload();
+                          }
+                        }}
+                      >
+                        {gift.inviteHash.startsWith('gift-') ? 'Redeem' : 'Accept'}
+                      </Button>
+                    ) : (
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                        gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
+                        gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' : 
+                        'bg-gray-100 text-gray-700'
+                      }`}>
+                        {gift.status.charAt(0).toUpperCase() + gift.status.slice(1).toLowerCase()}
+                      </span>
+                    )}
                   </div>
                 </div>
-                
-                <div className="flex items-center gap-8 ml-2">
-                  <Link
-                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
-                    className="text-xs text-amber-600 font-medium hover:text-amber-800 flex items-center gap-1 whitespace-nowrap"
-                  >
-                    <ExternalLinkIcon className="h-3 w-3" />
-                    View
-                  </Link>
-                  
-                  {gift.status.toLowerCase() === 'pending' || gift.status.toLowerCase() === 'sent' ? (
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      className="h-7 py-0 px-3 whitespace-nowrap bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200 text-xs"
-                      onClick={async () => {
-                        try {
-                          // If it's a gift (not an invitation), use the gifts API
-                          if (gift.inviteHash.startsWith('gift-')) {
-                            const giftId = gift.inviteHash.split('-')[1];
-                            const response = await fetch(`/api/gifts/${giftId}/status`, {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ status: 'redeemed' })
-                            });
-                            
-                            if (!response.ok) throw new Error('Failed to update gift status');
-                            
-                            // Refresh the component
-                            window.location.reload();
-                          } else {
-                            // For legacy invitations
-                            const response = await fetch(`/api/invitations/${gift.id}/status`, {
-                              method: 'PUT',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ status: 'accepted' })
-                            });
-                            
-                            if (!response.ok) throw new Error('Failed to update status');
-                            
-                            // Navigate to the invitation preview page
-                            setLocation(`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`);
-                          }
-                        } catch (error) {
-                          console.error('Error accepting gift:', error);
-                          // Refresh anyway
-                          window.location.reload();
-                        }
-                      }}
-                    >
-                      {gift.inviteHash.startsWith('gift-') ? 'Redeem' : 'Accept'}
-                    </Button>
-                  ) : (
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                      gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
-                      gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' : 
-                      'bg-gray-100 text-gray-700'
-                    }`}>
-                      {gift.status.charAt(0).toUpperCase() + gift.status.slice(1).toLowerCase()}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="text-center p-4 bg-white rounded-lg border border-yellow-200">
+            <p className="text-amber-800">No gifts received yet</p>
+            <p className="text-xs text-gray-500 mt-1">When someone sends you a gift, it will appear here</p>
+          </div>
+        )}
+      </div>
 
-      {/* Single line display of sent gifts */}
-      {sentGifts && sentGifts.length > 0 && (
-        <div className="mt-4 border rounded-lg p-4 bg-green-50">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-green-800">Gifts Sent ({sentGifts.length})</h3>
+      {/* Always show Gifts Sent section, with appropriate empty state */}
+      <div className="mt-4 border rounded-lg p-4 bg-green-50">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium text-green-800">Gifts Sent {sentGifts.length > 0 && `(${sentGifts.length})`}</h3>
+          {sentGifts.length > 0 && (
             <div className="flex items-center gap-8">
               <span className="text-sm font-medium text-green-800">GIFT</span>
               <span className="text-sm font-medium text-green-800">STATUS</span>
             </div>
-          </div>
-          
+          )}
+        </div>
+        
+        {sentGifts.length > 0 ? (
           <div className="space-y-2">
-            {sentGifts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(gift => (
-              <div key={gift.id} className="flex items-center justify-between py-2 px-4 bg-white rounded-lg border border-green-200 shadow-sm">
-                <div className="flex items-center gap-2 flex-grow">
-                  <UserPlusIcon className="h-4 w-4 text-green-600" />
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <p className="text-sm font-medium">
-                        Gift to <span className="font-semibold text-green-700">{gift.name}</span>
-                      </p>
-                      <span className="text-xs text-gray-400">•</span>
-                      <p className="text-xs text-gray-500">{new Date(gift.createdAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}</p>
+            {sentGifts
+              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+              .map(gift => (
+                <div key={gift.id} className="flex items-center justify-between py-2 px-4 bg-white rounded-lg border border-green-200 shadow-sm">
+                  <div className="flex items-center gap-2 flex-grow">
+                    <HeartIcon className="h-4 w-4 text-green-600" />
+                    <div>
+                      <div className="flex items-center gap-1">
+                        <p className="text-sm font-medium">
+                          Gift to <span className="font-semibold text-green-700">{gift.name}</span>
+                        </p>
+                        <span className="text-xs text-gray-400">•</span>
+                        <p className="text-xs text-gray-500">{new Date(gift.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}</p>
+                      </div>
+                      <p className="text-xs text-gray-600 mt-0.5">{gift.message || "Personal gift invitation"}</p>
                     </div>
-                    <p className="text-xs text-gray-600 mt-0.5">{gift.message || "Personal gift invitation"}</p>
-                    {gift.styleOption && (
-                      <p className="text-xs text-pink-600 mt-0.5 font-medium">
-                        {gift.styleOption}
-                        {gift.stylePrice && ` • $${(gift.stylePrice / 100).toFixed(2)}`}
-                        {gift.styleDuration && ` • ${gift.styleDuration} min`}
-                      </p>
-                    )}
+                  </div>
+                  
+                  <div className="flex items-center gap-8 ml-2">
+                    <Link
+                      to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
+                      className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1 whitespace-nowrap"
+                    >
+                      <ExternalLinkIcon className="h-3 w-3" />
+                      View
+                    </Link>
+                    
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                      gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
+                      gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' :
+                      gift.status.toLowerCase() === 'redeemed' ? 'bg-purple-100 text-purple-700' : 
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      {gift.status.charAt(0).toUpperCase() + gift.status.slice(1).toLowerCase()}
+                    </span>
                   </div>
                 </div>
-                
-                <div className="flex items-center gap-8 ml-2">
-                  <Link
-                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
-                    className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1 whitespace-nowrap"
-                  >
-                    <ExternalLinkIcon className="h-3 w-3" />
-                    View
-                  </Link>
-                  
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                    gift.status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
-                    gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
-                    gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' : 
-                    'bg-gray-100 text-gray-700'
-                  }`}>
-                    {gift.status.charAt(0).toUpperCase() + gift.status.slice(1).toLowerCase()}
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="text-center p-4 bg-white rounded-lg border border-green-200">
+            <p className="text-green-800">No gifts sent yet</p>
+            <p className="text-xs text-gray-500 mt-1">Create a gift using the form above</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
