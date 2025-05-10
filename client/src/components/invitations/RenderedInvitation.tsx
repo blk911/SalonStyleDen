@@ -42,7 +42,6 @@ interface RenderedInvitationProps {
   time?: string;
   senderName: string;
   salonName?: string;
-  sponsorName?: string; // New field to properly display sponsor relationship
   imageUrl?: string;
   className?: string;
   salonInitiated?: boolean; // To identify salon-initiated invitations
@@ -58,8 +57,7 @@ export function RenderedInvitation({
   price = "$45",
   time = "30 min",
   senderName,
-  salonName = "",
-  sponsorName = "",
+  salonName = "Tiffany 5280 Nails Studio",
   imageUrl = "/assets/french-tips.png",
   className = "",
   salonInitiated = false,
@@ -235,7 +233,7 @@ export function RenderedInvitation({
               </div>
               <div className="flex items-center">
                 <span className="text-sm font-semibold text-amber-800 w-16">FROM:</span>
-                <span className="text-sm font-medium text-gray-700">{sponsorName || salonName || "VMB LTD"}</span>
+                <span className="text-sm font-medium text-gray-700">{salonName}</span>
               </div>
               <div className="flex justify-end">
                 <div className="text-xs font-mono text-gray-500">{formattedInviteId}</div>
