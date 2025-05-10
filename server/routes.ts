@@ -7,12 +7,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { db } from "./db";
-import { 
-  clients, invitations, gifts, salons, 
-  type Invitation, type Gift, type Client, type Salon,
-  type InsertInvitation, type InsertGift, type InsertClient, type InsertSalon,
-  type InsertActivityLog, type InsertStyleSelection, type InsertAppointment
-} from "../shared/schema";
+import { clients, invitations, gifts, type Invitation, type Gift } from "../shared/schema";
 import { eq } from "drizzle-orm";
 import { registerVisualizationRoutes } from "./visualization";
 import { registerMadgeRoutes } from "./madge-api";
@@ -1301,7 +1296,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           
           // Create the final validated invitation object that satisfies all database constraints
-          const invitationToCreate = {
+          const invitationToCreate: InsertInvitation = {
             name: validatedData.name,
             phone: validatedData.phone,
             email: validatedData.email,
@@ -1311,12 +1306,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             salonId: validatedData.salonId,
             salonName: validatedData.salonName,
             sponsor: validatedData.sponsor,
+            sponsorName: validatedData.sponsorName,
             inviteHash: validatedData.inviteHash, // Now guaranteed to exist
             firstServiceDate: validatedData.firstServiceDate,
             status: validatedData.status,
             senderId: validatedData.senderId,
             type: validatedData.type
-          } as InsertInvitation;
+          };
           
           // Create the invitation in database with properly defined fields
           const createdInvitation = await storage.createInvitation(invitationToCreate);
@@ -2268,7 +2264,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[RULE ENFORCEMENT] Using sender's salon relationship: ${salonId}`);
       
       // [RULE: UniqueGiftTracking] Create properly structured gift data with all required fields
-      const giftData = {
+      const giftData: InsertGift = {
         senderId: validatedData.senderId,
         recipientPhone: validatedData.recipientPhone,
         recipientEmail: validatedData.recipientEmail || null,
@@ -2280,8 +2276,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // [RULE: SponsorClientRelationship] Every gift must have a salon relationship
         salonId,
         // [RULE: UniqueGiftTracking] Every gift must have a unique tracking ID
-        giftHash
-      } as InsertGift;
+        giftHash,
+        // Additional fields that might be optional but useful
+        styleId: validatedData.styleId,
+        styleName: validatedData.styleName
+      };
       
       // Create the gift
       const gift = await storage.createGift(giftData);

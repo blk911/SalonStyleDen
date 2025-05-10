@@ -228,21 +228,20 @@ export const gifts = pgTable("gifts", {
   senderId: integer("sender_id").notNull().references(() => clients.id),
   // Recipient ID if already a client
   recipientId: integer("recipient_id").references(() => clients.id),
-  // [RULE: RecipientIdentification] A gift MUST have either a phone number or a recipientId
-  // [RULE: PhoneFormat] Store phone as pure digits for recipient - formatted as (xxx) xxx-xxxx for display
-  recipientPhone: text("recipient_phone").notNull(), // For non-client recipients
-  recipientEmail: text("recipient_email"), // Optional email for non-client recipients
-  // [RULE: GiftTypeEnforcement] Every gift must have a type
+  // [RULE: PhoneFormat] Store phone as pure digits for recipient
+  recipientPhone: text("recipient_phone"), // For non-client recipients
+  recipientEmail: text("recipient_email"), // For non-client recipients
+  // Every gift must have a type
   giftType: text("gift_type").notNull().default("style_card"),
   styleId: integer("style_id"),
   styleName: text("style_name"),
-  // [RULE: GiftValueRequired] Every gift must have an amount (default 5000 cents = $50)
-  amount: integer("amount").notNull().default(5000), // Amount in cents
+  // Every gift must have an amount
+  amount: integer("amount").notNull(), // Amount in cents
   message: text("message"),
   // [RULE: UniqueGiftTracking] Every gift has a mandatory status
   status: text("status").notNull().default("created"), // created, sent, redeemed
   // [RULE: SponsorClientRelationship] Track the salon that created/sponsored this gift
-  salonId: integer("salon_id").notNull().default(1).references(() => salons.id),
+  salonId: integer("salon_id").default(1).references(() => salons.id),
   // [RULE: UniqueGiftTracking] Every gift must have a unique tracking ID 
   giftHash: text("gift_hash").notNull().unique(), // Unique hash for tracking gifts
   expiresAt: timestamp("expires_at"),
