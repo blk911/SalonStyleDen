@@ -71,32 +71,39 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
     queryFn: async () => {
       if (!clientId) return [];
       
-      // Get gifts received by this client
-      const response = await fetch(`/api/gifts/received/${clientId}`);
-      if (!response.ok) throw new Error('Failed to fetch received gifts');
-      
-      const gifts = await response.json() as Gift[];
-      console.log("Received gifts:", gifts);
-      
-      // Transform gift data to match the format expected by the UI
-      return gifts.map(gift => ({
-        id: gift.id,
-        name: "", // We don't have this from gift data
-        phone: gift.recipientPhone || "",
-        email: gift.recipientEmail || "",
-        message: gift.message,
-        salonId: null,
-        senderId: gift.senderId,
-        sponsor: "Gift Sender", // Need to fetch sender name in the future
-        status: gift.status,
-        inviteHash: `gift-${gift.id}`, // Placeholder for routing
-        createdAt: gift.createdAt,
-        amount: gift.amount,
-        styleOption: gift.styleName,
-        stylePrice: gift.amount
-      })) as Invitation[];
+      try {
+        // Get gifts received by this client (both by ID and phone)
+        const response = await fetch(`/api/gifts/received/${clientId}`);
+        if (!response.ok) throw new Error('Failed to fetch received gifts');
+        
+        const gifts = await response.json() as Gift[];
+        console.log("Received gifts:", gifts);
+        
+        // Transform gift data to match the format expected by the UI
+        return gifts.map(gift => ({
+          id: gift.id,
+          name: gift.senderName || "Gift Sender", // Use sender name if available
+          phone: gift.recipientPhone || "",
+          email: gift.recipientEmail || "",
+          message: gift.message,
+          salonId: gift.salonId,
+          senderId: gift.senderId,
+          sponsor: "Gift Sender", // Default display name
+          status: gift.status || "sent",
+          inviteHash: `gift-${gift.id}`, // Route key for viewing 
+          createdAt: gift.createdAt,
+          amount: gift.amount,
+          styleOption: gift.styleName,
+          stylePrice: gift.amount,
+          giftHash: gift.giftHash // Include gift hash for unique identification
+        })) as Invitation[];
+      } catch (error) {
+        console.error("Error fetching received gifts:", error);
+        return []; // Return empty array on error
+      }
     },
-    enabled: !!clientId
+    enabled: !!clientId,
+    refetchInterval: 30000 // Refresh every 30 seconds
   });
   
   // Query for sent gifts (where this client is the sender)
@@ -105,32 +112,39 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
     queryFn: async () => {
       if (!clientId) return [];
       
-      // Get gifts sent by this client
-      const response = await fetch(`/api/gifts/sent/${clientId}`);
-      if (!response.ok) throw new Error('Failed to fetch sent gifts');
-      
-      const gifts = await response.json() as Gift[];
-      console.log("Sent gifts:", gifts);
-      
-      // Transform gift data to match the format expected by the UI
-      return gifts.map(gift => ({
-        id: gift.id,
-        name: "Gift Recipient", // Placeholder, we should fetch recipient name if available
-        phone: gift.recipientPhone || "",
-        email: gift.recipientEmail || "",
-        message: gift.message,
-        salonId: null,
-        senderId: gift.senderId,
-        sponsor: null,
-        status: gift.status,
-        inviteHash: `gift-${gift.id}`, // Placeholder for routing
-        createdAt: gift.createdAt,
-        amount: gift.amount,
-        styleOption: gift.styleName,
-        stylePrice: gift.amount
-      })) as Invitation[];
+      try {
+        // Get gifts sent by this client
+        const response = await fetch(`/api/gifts/sent/${clientId}`);
+        if (!response.ok) throw new Error('Failed to fetch sent gifts');
+        
+        const gifts = await response.json() as Gift[];
+        console.log("Sent gifts:", gifts);
+        
+        // Transform gift data to match the format expected by the UI
+        return gifts.map(gift => ({
+          id: gift.id,
+          name: gift.recipientName || "Gift Recipient", // Use recipient name if available
+          phone: gift.recipientPhone || "",
+          email: gift.recipientEmail || "",
+          message: gift.message,
+          salonId: gift.salonId,
+          senderId: gift.senderId,
+          sponsor: null,
+          status: gift.status || "sent",
+          inviteHash: `gift-${gift.id}`, // Route key for viewing
+          createdAt: gift.createdAt,
+          amount: gift.amount,
+          styleOption: gift.styleName,
+          stylePrice: gift.amount,
+          giftHash: gift.giftHash // Include gift hash for unique identification
+        })) as Invitation[];
+      } catch (error) {
+        console.error("Error fetching sent gifts:", error);
+        return []; // Return empty array on error
+      }
     },
-    enabled: !!clientId
+    enabled: !!clientId,
+    refetchInterval: 30000 // Refresh every 30 seconds
   });
   
   // Use the transformed sent gifts data

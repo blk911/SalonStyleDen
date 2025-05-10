@@ -2164,6 +2164,16 @@ export class DatabaseStorage implements IStorage {
   async getSentGifts(senderId: number): Promise<Gift[]> {
     try {
       console.log(`DatabaseStorage.getSentGifts - Fetching gifts sent by client ID ${senderId}`);
+      
+      // Get client info to ensure phone matching for gifts sent by phone
+      const client = await this.getClient(senderId);
+      
+      if (!client) {
+        console.error(`DatabaseStorage.getSentGifts - Client with ID ${senderId} not found`);
+        return [];
+      }
+      
+      // Query by sender ID
       const results = await db
         .select()
         .from(gifts)
@@ -2181,14 +2191,46 @@ export class DatabaseStorage implements IStorage {
   async getReceivedGifts(recipientId: number): Promise<Gift[]> {
     try {
       console.log(`DatabaseStorage.getReceivedGifts - Fetching gifts received by client ID ${recipientId}`);
-      const results = await db
+      
+      // Get client info to ensure phone matching for gifts received by phone
+      const client = await this.getClient(recipientId);
+      
+      if (!client) {
+        console.error(`DatabaseStorage.getReceivedGifts - Client with ID ${recipientId} not found`);
+        return [];
+      }
+      
+      const phoneReceivedGiftsPromise = client.phone ? db
+        .select()
+        .from(gifts)
+        .where(eq(gifts.recipientPhone, client.phone))
+        .orderBy(sql`${gifts.createdAt} DESC`) : Promise.resolve([]);
+      
+      const idReceivedGiftsPromise = db
         .select()
         .from(gifts)
         .where(eq(gifts.recipientId, recipientId))
         .orderBy(sql`${gifts.createdAt} DESC`);
       
-      console.log(`DatabaseStorage.getReceivedGifts - Found ${results.length} gifts`);
-      return results;
+      // Fetch both in parallel
+      const [phoneReceivedGifts, idReceivedGifts] = await Promise.all([
+        phoneReceivedGiftsPromise,
+        idReceivedGiftsPromise
+      ]);
+      
+      // Combine and deduplicate results based on gift ID
+      const allGifts = [...idReceivedGifts];
+      const giftIds = new Set(allGifts.map(gift => gift.id));
+      
+      for (const gift of phoneReceivedGifts) {
+        if (!giftIds.has(gift.id)) {
+          allGifts.push(gift);
+          giftIds.add(gift.id);
+        }
+      }
+      
+      console.log(`DatabaseStorage.getReceivedGifts - Found ${allGifts.length} gifts (${idReceivedGifts.length} by ID, ${phoneReceivedGifts.length} by phone)`);
+      return allGifts;
     } catch (error) {
       console.error(`Error getting received gifts:`, error);
       throw error;
