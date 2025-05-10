@@ -352,6 +352,7 @@ export default function ClientRegistrationPage() {
       // Add client type and sponsor information
       const clientData = {
         ...data,
+        phone: cleanPhoneNumber(data.phone), // Clean phone number to ensure consistent format
         type: data.clientType === 'salonOwner' ? 'salonOwner' : 'client', // Set type based on selection
         sponsor: data.sponsorSalonId 
           ? (allSalons?.find(s => s.id === data.sponsorSalonId)?.name || 'VMB LTD')
