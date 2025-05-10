@@ -123,15 +123,6 @@ export default function ClientRegistrationPage() {
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [registeredClientId, setRegisteredClientId] = useState<number | null>(null);
   const [isExistingClient, setIsExistingClient] = useState(false);
-  
-  // State for welcome page and full registration form
-  const [showWelcomePage, setShowWelcomePage] = useState(false);
-  const [showFullRegistration, setShowFullRegistration] = useState(true);
-  
-  // Parse URL parameters to extract client type information
-  const params = new URLSearchParams(location.split('?')[1] || '');
-  const urlClientType = params.get('clientType');
-  const invitationId = params.get('invitationId');
   // Note: Address dialog state variables removed
   
   // We'll use a direct approach to the terms checkbox element
@@ -244,24 +235,7 @@ export default function ClientRegistrationPage() {
   
   // If invitation data is loaded, prefill the form
   useEffect(() => {
-    // First check if we're resuming from the welcome page (stored data takes precedence)
-    const storedData = sessionStorage.getItem('vmb-temp-registration');
-    
-    if (storedData && !showWelcomePage) {
-      // We're returning to the full registration form from the welcome page
-      try {
-        const registrationData = JSON.parse(storedData);
-        form.reset({
-          ...form.getValues(),
-          ...registrationData,
-        });
-        logFlow('Restored form data from temporary storage');
-      } catch (error) {
-        console.error('Error parsing stored registration data:', error);
-      }
-    }
-    // Otherwise, use invitation data if available
-    else if (invitation) {
+    if (invitation) {
       form.reset({
         ...form.getValues(),
         name: invitation.name || '',
@@ -271,9 +245,8 @@ export default function ClientRegistrationPage() {
         favoriteServices: invitation.favoriteServices || [],
         sponsorSalonId: invitation.salonId || salonId,
       });
-      logFlow('Loaded data from invitation');
     }
-  }, [invitation, form, salonId, showWelcomePage]);
+  }, [invitation, form, salonId]);
   
   // Function to handle phone validation - checks if phone is valid and if it has unredeemed gifts
   const handlePhoneValidation = async (isValid: boolean, phoneNumber?: string) => {
@@ -348,22 +321,6 @@ export default function ClientRegistrationPage() {
         hasAddress: Boolean(data.address || data.city || data.state || data.zipCode)
       });
       
-      // For gift/invite registrations, show the welcome page instead of submitting
-      if (data.clientType === 'giftInvite') {
-        logFlow('Gift/Invite registration detected, showing welcome page');
-        // Store form data temporarily for later submission
-        sessionStorage.setItem('vmb-temp-registration', JSON.stringify({
-          ...data,
-          sponsorSalonId: data.sponsorSalonId || salonId
-        }));
-        
-        setShowWelcomePage(true);
-        setShowFullRegistration(false);
-        setIsSubmitting(false);
-        
-        return; // Don't proceed with API call yet
-      }
-      
       // Clean up any leftover address state attributes
       if (document.body.hasAttribute('data-address-shown')) {
         logFlow('Cleaning up address state attributes');
@@ -389,26 +346,12 @@ export default function ClientRegistrationPage() {
       
       setIsSubmitting(true);
       
-      // Map clientType to appropriate type value for database
-      // NOTE: Backend currently only accepts 'client' as a valid type
-      let clientTypeValue = 'client'; // Default for all types
-      
-      // Store the original client type in a separate field that won't conflict with backend validation
-      const originalClientType = data.clientType;
-      
-      // Determine sponsor based on selection
-      const sponsorSalonId = data.sponsorSalonId || salonId || invitation?.salonId || 1; // Default to VMB LTD (ID 1) if nothing selected
-      
-      // Find the selected salon from the dropdown
-      const selectedSalon = allSalons?.find(s => s.id === sponsorSalonId);
-      
       // Add sponsor information
       const clientData = {
         ...data,
-        type: clientTypeValue, // Always 'client' to match backend validation
-        clientSource: originalClientType, // Store the source/type in a separate field
-        sponsor: selectedSalon?.name || salon?.name || invitation?.sponsor || 'VMB LTD',
-        sponsorSalonId: sponsorSalonId,
+        type: 'client',
+        sponsor: salon?.name || invitation?.sponsor || 'Unknown',
+        sponsorSalonId: data.sponsorSalonId || salonId || invitation?.salonId,
         isCurrentClient: true,
         accepted_terms: data.acceptTerms || false, // Use snake_case to match database
         invitationId: invitation?.id // Add invitation ID for linking
@@ -564,9 +507,6 @@ export default function ClientRegistrationPage() {
           }
         }
         
-        // Clean up any stored registration data from session storage
-        sessionStorage.removeItem('vmb-temp-registration');
-        
         // Show success message
         toast({
           title: 'Registration Successful',
@@ -717,100 +657,6 @@ export default function ClientRegistrationPage() {
       </div>
     );
   }
-  
-  // Function to handle completing the registration from welcome page
-  const handleCompleteRegistration = () => {
-    // Get stored form data
-    const storedData = sessionStorage.getItem('vmb-temp-registration');
-    
-    if (storedData) {
-      try {
-        // Parse the stored data
-        const registrationData = JSON.parse(storedData);
-        
-        // Reset the form with the stored data to ensure all fields are populated
-        form.reset({
-          ...registrationData,
-        });
-        
-        // Show toast for better UX
-        toast({
-          title: "Registration Continuing",
-          description: "Please complete the rest of your information",
-        });
-        
-        // Show the full registration form
-        setShowWelcomePage(false);
-        setShowFullRegistration(true);
-        
-        logFlow('Continuing to full registration form from welcome page');
-      } catch (error) {
-        console.error('Error parsing stored registration data:', error);
-        // Fallback to a fresh form if there's an error
-        setShowWelcomePage(false);
-        setShowFullRegistration(true);
-      }
-    } else {
-      // No stored data found, just show the form
-      setShowWelcomePage(false);
-      setShowFullRegistration(true);
-    }
-  };
-  
-  // Render the welcome page for gift/invite recipients
-  if (showWelcomePage) {
-    const storedData = sessionStorage.getItem('vmb-temp-registration');
-    const registrationData = storedData ? JSON.parse(storedData) : {};
-    const selectedSalon = allSalons?.find(s => s.id === (registrationData.sponsorSalonId || salonId));
-    
-    return (
-      <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-pink-50">
-        <Navbar />
-        <main className="flex-grow container mx-auto px-4 py-8">
-          <Card className="max-w-3xl mx-auto shadow-md">
-            <CardHeader className="bg-pink-50 pb-4">
-              <CardTitle className="text-2xl text-pink-700">Welcome, {registrationData.name}!</CardTitle>
-              <CardDescription>Complete your registration to access your dashboard</CardDescription>
-            </CardHeader>
-            
-            <CardContent className="pt-6 pb-6">
-              {/* Invitation details */}
-              <div className="border rounded-md p-4 mb-6 bg-gray-50">
-                <h3 className="font-semibold mb-2">Your Invitation</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">FROM:</span>
-                    <span className="font-medium">{selectedSalon?.name || 'VMB LTD'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">TO:</span>
-                    <span className="font-medium">{registrationData.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Status:</span>
-                    <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-sm">pending</span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Complete Registration button */}
-              <div className="flex justify-center">
-                <Button 
-                  onClick={handleCompleteRegistration}
-                  className="bg-pink-600 hover:bg-pink-700 w-full md:w-auto px-6 py-6"
-                  size="lg"
-                >
-                  <CheckCircle className="mr-2 h-5 w-5" />
-                  Complete Registration
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -831,87 +677,12 @@ export default function ClientRegistrationPage() {
               <CardContent>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-                    {/* Client Type Selection - I AM: section */}
-                    <FormField
-                      control={form.control}
-                      name="clientType"
-                      render={({ field }) => (
-                        <FormItem className="mb-4">
-                          <div className="mb-2 font-medium">I AM:</div>
-                          <div className="grid grid-cols-3 gap-2">
-                            <Button
-                              type="button"
-                              variant={field.value === 'newClient' ? 'default' : 'outline'}
-                              className={`flex items-center justify-center ${field.value === 'newClient' ? 'bg-[#FF92A5] hover:bg-[#FF92A5]/90' : 'border-2 border-[#FF92A5] text-[#FF92A5] hover:bg-gray-50'}`}
-                              onClick={() => field.onChange('newClient')}
-                            >
-                              <UserCircle className="h-4 w-4 mr-2" /> 
-                              New Client
-                            </Button>
-                            
-                            <Button
-                              type="button"
-                              variant={field.value === 'salonOwner' ? 'default' : 'outline'}
-                              className={`flex items-center justify-center ${field.value === 'salonOwner' ? 'bg-[#FF92A5] hover:bg-[#FF92A5]/90' : 'border-2 border-[#FF92A5] text-[#FF92A5] hover:bg-gray-50'}`}
-                              onClick={() => field.onChange('salonOwner')}
-                            >
-                              <Building2 className="h-4 w-4 mr-2" /> 
-                              Salon Owner
-                            </Button>
-                            
-                            <Button
-                              type="button"
-                              variant={field.value === 'giftInvite' ? 'default' : 'outline'}
-                              className={`flex items-center justify-center ${field.value === 'giftInvite' ? 'bg-[#FF92A5] hover:bg-[#FF92A5]/90' : 'border-2 border-[#FF92A5] text-[#FF92A5] hover:bg-gray-50'}`}
-                              onClick={() => field.onChange('giftInvite')}
-                            >
-                              <Gift className="h-4 w-4 mr-2" /> 
-                              Gift/Invite
-                            </Button>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                    
-                    {/* Salon Selection Dropdown */}
-                    <FormField
-                      control={form.control}
-                      name="sponsorSalonId"
-                      render={({ field }) => (
-                        <FormItem className="mb-4">
-                          <FormLabel>Select Your Salon</FormLabel>
-                          <Select
-                            value={field.value?.toString() || ''}
-                            onValueChange={(value) => field.onChange(parseInt(value))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a salon" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {/* Sort salons to show VMB LTD first, then alphabetically */}
-                              {allSalons?.sort((a, b) => {
-                                // VMB LTD always comes first
-                                if (a.name === 'VMB LTD') return -1;
-                                if (b.name === 'VMB LTD') return 1;
-                                // Then sort alphabetically
-                                return a.name.localeCompare(b.name);
-                              }).map((salon) => (
-                                <SelectItem key={salon.id} value={salon.id.toString()}>
-                                  {salon.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormItem>
-                      )}
-                    />
-                    
-                    {/* Invite Type Radio - keep this for backward compatibility */}
+                    {/* Invite Type Radio */}
                     <FormField
                       control={form.control}
                       name="inviteType"
                       render={({ field }) => (
-                        <FormItem className="mb-2 hidden">
+                        <FormItem className="mb-2">
                           <div className="mb-1 font-medium">Who are you inviting?</div>
                           <div className="flex items-center space-x-6">
                             <div className="flex items-center space-x-2">
