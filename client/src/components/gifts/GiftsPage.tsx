@@ -92,7 +92,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
           message: gift.message,
           salonId: gift.salonId,
           senderId: gift.senderId,
-          sponsor: "Gift Sender", // Default display name
+          sponsor: gift.senderName || "Gift Sender", // Default display name
           status: gift.status || "sent",
           inviteHash: `gift-${gift.id}`, // Route key for viewing 
           createdAt: gift.createdAt,
@@ -156,7 +156,31 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
   
   return (
     <div className="space-y-4 w-full">
-      {/* SHARE VMB Card - Always shown whether client has a salon or not */}
+      {/* Gift section tabs - Sent/Received at the top level */}
+      <div className="flex w-full border-b border-gray-200 mb-3">
+        <button
+          onClick={() => setShowSentGifts(true)}
+          className={`flex-1 py-2 text-center font-medium text-sm border-b-2 ${
+            showSentGifts 
+              ? 'border-pink-500 text-pink-700' 
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          }`}
+        >
+          Sent
+        </button>
+        <button
+          onClick={() => setShowReceivedGifts(true)}
+          className={`flex-1 py-2 text-center font-medium text-sm border-b-2 ${
+            showReceivedGifts 
+              ? 'border-pink-500 text-pink-700' 
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+          }`}
+        >
+          Received
+        </button>
+      </div>
+
+      {/* Create Gift Request Card */}
       <Card className="rounded-xl shadow-sm overflow-hidden">
         <div className="bg-pink-50 pt-5 pb-2.5 flex justify-center items-center">
           <div className="flex items-center gap-1.5 text-sm">
@@ -217,167 +241,195 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         </CardContent>
       </Card>
   
-
-      {/* Only show Gifts Received section if there are actual gifts to display */}
-      {receivedGifts && receivedGifts.length > 0 && (
-        <div className="mt-4 border rounded-lg p-4 bg-yellow-50">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-amber-800">Gifts Received</h3>
-            <div className="flex items-center gap-8">
-              <span className="text-sm font-medium text-amber-800">GIFT</span>
-              <span className="text-sm font-medium text-amber-800">STATUS</span>
-            </div>
-          </div>
-          <div className="space-y-2">
-            {receivedGifts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(gift => (
-              <div key={gift.id} className="flex items-center justify-between py-2 px-4 bg-white rounded-lg border border-yellow-200 shadow-sm">
-                <div className="flex items-center gap-2 flex-grow">
-                  <HeartIcon className="h-4 w-4 text-yellow-600" />
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <p className="text-sm font-medium">
-                        Gift from <span className="font-semibold text-amber-700">{gift.sponsor || "Unknown"}</span>
-                      </p>
-                      <span className="text-xs text-gray-400">•</span>
-                      <p className="text-xs text-gray-500">{new Date(gift.createdAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}</p>
-                    </div>
-                    <p className="text-xs text-gray-600 mt-0.5">{gift.message || "Personal gift invitation"}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-8 ml-2">
-                  <Link
-                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
-                    className="text-xs text-amber-600 font-medium hover:text-amber-800 flex items-center gap-1 whitespace-nowrap"
-                  >
-                    <ExternalLinkIcon className="h-3 w-3" />
-                    View
-                  </Link>
-                  
-                  {gift.status.toLowerCase() === 'pending' || gift.status.toLowerCase() === 'sent' ? (
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      className="h-7 py-0 px-3 whitespace-nowrap bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200 text-xs"
-                      onClick={async () => {
-                        try {
-                          // If it's a gift (not an invitation), use the gifts API
-                          if (gift.inviteHash.startsWith('gift-')) {
-                            const giftId = gift.inviteHash.split('-')[1];
-                            const response = await fetch(`/api/gifts/${giftId}/status`, {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ status: 'redeemed' })
-                            });
-                            
-                            if (!response.ok) throw new Error('Failed to update gift status');
-                            
-                            // Refresh the component
-                            window.location.reload();
-                          } else {
-                            // For legacy invitations
-                            const response = await fetch(`/api/invitations/${gift.id}/status`, {
-                              method: 'PUT',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ status: 'accepted' })
-                            });
-                            
-                            if (!response.ok) throw new Error('Failed to update status');
-                            
-                            // Navigate to the invitation preview page
-                            setLocation(`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`);
-                          }
-                        } catch (error) {
-                          console.error('Error accepting gift:', error);
-                          // Refresh anyway
-                          window.location.reload();
-                        }
-                      }}
-                    >
-                      {gift.inviteHash.startsWith('gift-') ? 'Redeem' : 'Accept'}
-                    </Button>
-                  ) : (
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                      gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
-                      gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' : 
-                      'bg-gray-100 text-gray-700'
-                    }`}>
-                      {gift.status.charAt(0).toUpperCase() + gift.status.slice(1).toLowerCase()}
-                    </span>
-                  )}
-                </div>
+      {/* Gifts display area - conditionally rendered based on tabs */}
+      <div className="space-y-6 mt-6">
+        {/* RECEIVED GIFTS SECTION - Shown when received tab is active */}
+        {showReceivedGifts && (
+          <div>
+            <h3 className="text-base font-medium text-gray-800 mb-3">Received Gifts</h3>
+            
+            {isLoadingReceived ? (
+              <div className="space-y-2">
+                <Skeleton className="h-14 w-full rounded-lg" />
+                <Skeleton className="h-14 w-full rounded-lg" />
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Single line display of sent gifts */}
-      {sentGifts && sentGifts.length > 0 && (
-        <div className="mt-4 border rounded-lg p-4 bg-green-50">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-green-800">Gifts Sent ({sentGifts.length})</h3>
-            <div className="flex items-center gap-8">
-              <span className="text-sm font-medium text-green-800">GIFT</span>
-              <span className="text-sm font-medium text-green-800">STATUS</span>
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            {sentGifts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(gift => (
-              <div key={gift.id} className="flex items-center justify-between py-2 px-4 bg-white rounded-lg border border-green-200 shadow-sm">
-                <div className="flex items-center gap-2 flex-grow">
-                  <UserPlusIcon className="h-4 w-4 text-green-600" />
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <p className="text-sm font-medium">
-                        Gift to <span className="font-semibold text-green-700">{gift.name}</span>
-                      </p>
-                      <span className="text-xs text-gray-400">•</span>
-                      <p className="text-xs text-gray-500">{new Date(gift.createdAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}</p>
+            ) : receivedGifts && receivedGifts.length > 0 ? (
+              <div className="space-y-3">
+                {receivedGifts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(gift => (
+                  <div key={gift.id} className="flex flex-col py-3 px-4 bg-white rounded-lg border border-pink-100 shadow-sm hover:shadow-md transition-all">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <HeartIcon className="h-5 w-5 text-pink-500" />
+                        <div>
+                          <div className="flex items-center gap-1">
+                            <p className="text-sm font-medium">
+                              From <span className="font-semibold text-pink-700">{gift.sponsor || "Unknown"}</span>
+                            </p>
+                            <span className="text-xs text-gray-400 mx-1">•</span>
+                            <p className="text-xs text-gray-500">{new Date(gift.createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}</p>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-0.5">{gift.message || "Personal gift invitation"}</p>
+                          {gift.styleOption && (
+                            <p className="text-xs text-pink-600 mt-1 font-medium">
+                              {gift.styleOption}
+                              {gift.stylePrice && ` • $${(gift.stylePrice / 100).toFixed(2)}`}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
+                          gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' : 
+                          gift.status.toLowerCase() === 'redeemed' ? 'bg-purple-100 text-purple-700' : 
+                          gift.status.toLowerCase() === 'pending' || gift.status.toLowerCase() === 'sent' ? 'bg-yellow-100 text-yellow-700' : 
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {gift.status.charAt(0).toUpperCase() + gift.status.slice(1).toLowerCase()}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-xs text-gray-600 mt-0.5">{gift.message || "Personal gift invitation"}</p>
-                    {gift.styleOption && (
-                      <p className="text-xs text-pink-600 mt-0.5 font-medium">
-                        {gift.styleOption}
-                        {gift.stylePrice && ` • $${(gift.stylePrice / 100).toFixed(2)}`}
-                        {gift.styleDuration && ` • ${gift.styleDuration} min`}
-                      </p>
-                    )}
+                    
+                    <div className="flex justify-end gap-2 mt-2">
+                      <Link
+                        to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
+                        className="text-xs text-pink-600 font-medium hover:text-pink-800 flex items-center gap-1"
+                      >
+                        <ExternalLinkIcon className="h-3 w-3" />
+                        View
+                      </Link>
+                      
+                      {(gift.status.toLowerCase() === 'pending' || gift.status.toLowerCase() === 'sent') && (
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          className="h-7 py-0 px-3 bg-pink-100 text-pink-800 border-pink-300 hover:bg-pink-200 text-xs"
+                          onClick={async () => {
+                            try {
+                              // If it's a gift (not an invitation), use the gifts API
+                              if (gift.inviteHash.startsWith('gift-')) {
+                                const giftId = gift.inviteHash.split('-')[1];
+                                const response = await fetch(`/api/gifts/${giftId}/status`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ status: 'redeemed' })
+                                });
+                                
+                                if (!response.ok) throw new Error('Failed to update gift status');
+                                
+                                // Refresh the component
+                                window.location.reload();
+                              } else {
+                                // For legacy invitations
+                                const response = await fetch(`/api/invitations/${gift.id}/status`, {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ status: 'accepted' })
+                                });
+                                
+                                if (!response.ok) throw new Error('Failed to update status');
+                                
+                                // Navigate to the invitation preview page
+                                setLocation(`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`);
+                              }
+                            } catch (error) {
+                              console.error('Error accepting gift:', error);
+                              // Refresh anyway
+                              window.location.reload();
+                            }
+                          }}
+                        >
+                          {gift.inviteHash.startsWith('gift-') ? 'Redeem Gift' : 'Accept'}
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex items-center gap-8 ml-2">
-                  <Link
-                    to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
-                    className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1 whitespace-nowrap"
-                  >
-                    <ExternalLinkIcon className="h-3 w-3" />
-                    View
-                  </Link>
-                  
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
-                    gift.status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
-                    gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
-                    gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' : 
-                    'bg-gray-100 text-gray-700'
-                  }`}>
-                    {gift.status.charAt(0).toUpperCase() + gift.status.slice(1).toLowerCase()}
-                  </span>
-                </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg bg-gray-50">
+                <p className="text-gray-500">No gifts received yet</p>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
+
+        {/* SENT GIFTS SECTION - Shown when sent tab is active */}
+        {showSentGifts && (
+          <div>
+            <h3 className="text-base font-medium text-gray-800 mb-3">Sent Gifts</h3>
+            
+            {isLoadingSent ? (
+              <div className="space-y-2">
+                <Skeleton className="h-14 w-full rounded-lg" />
+                <Skeleton className="h-14 w-full rounded-lg" />
+              </div>
+            ) : sentGifts && sentGifts.length > 0 ? (
+              <div className="space-y-3">
+                {sentGifts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(gift => (
+                  <div key={gift.id} className="flex flex-col py-3 px-4 bg-white rounded-lg border border-green-100 shadow-sm hover:shadow-md transition-all">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <UserPlusIcon className="h-5 w-5 text-green-500" />
+                        <div>
+                          <div className="flex items-center gap-1">
+                            <p className="text-sm font-medium">
+                              To <span className="font-semibold text-green-700">{gift.name}</span>
+                            </p>
+                            <span className="text-xs text-gray-400 mx-1">•</span>
+                            <p className="text-xs text-gray-500">{new Date(gift.createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}</p>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-0.5">{gift.message || "Personal gift invitation"}</p>
+                          {gift.styleOption && (
+                            <p className="text-xs text-green-600 mt-1 font-medium">
+                              {gift.styleOption}
+                              {gift.stylePrice && ` • $${(gift.stylePrice / 100).toFixed(2)}`}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          gift.status.toLowerCase() === 'accepted' ? 'bg-green-100 text-green-700' : 
+                          gift.status.toLowerCase() === 'completed' ? 'bg-blue-100 text-blue-700' : 
+                          gift.status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-700' : 
+                          'bg-pink-100 text-pink-700'
+                        }`}>
+                          {gift.status.charAt(0).toUpperCase() + gift.status.slice(1).toLowerCase()}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end gap-2 mt-2">
+                      <Link
+                        to={`/invitation-preview/${gift.inviteHash}?stayOnPreview=true`}
+                        className="text-xs text-green-600 font-medium hover:text-green-800 flex items-center gap-1"
+                      >
+                        <ExternalLinkIcon className="h-3 w-3" />
+                        View
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center p-6 border border-dashed border-gray-200 rounded-lg bg-gray-50">
+                <p className="text-gray-500">No gifts sent yet</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
