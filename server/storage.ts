@@ -1341,7 +1341,7 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          sponsorName: null,
+          sponsorName: row.sponsor_name || row.sponsor || "",
           senderId: row.sender_id || null
         };
       } finally {
