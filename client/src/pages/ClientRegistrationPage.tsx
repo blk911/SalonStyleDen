@@ -244,7 +244,24 @@ export default function ClientRegistrationPage() {
   
   // If invitation data is loaded, prefill the form
   useEffect(() => {
-    if (invitation) {
+    // First check if we're resuming from the welcome page (stored data takes precedence)
+    const storedData = sessionStorage.getItem('vmb-temp-registration');
+    
+    if (storedData && !showWelcomePage) {
+      // We're returning to the full registration form from the welcome page
+      try {
+        const registrationData = JSON.parse(storedData);
+        form.reset({
+          ...form.getValues(),
+          ...registrationData,
+        });
+        logFlow('Restored form data from temporary storage');
+      } catch (error) {
+        console.error('Error parsing stored registration data:', error);
+      }
+    }
+    // Otherwise, use invitation data if available
+    else if (invitation) {
       form.reset({
         ...form.getValues(),
         name: invitation.name || '',
@@ -254,8 +271,9 @@ export default function ClientRegistrationPage() {
         favoriteServices: invitation.favoriteServices || [],
         sponsorSalonId: invitation.salonId || salonId,
       });
+      logFlow('Loaded data from invitation');
     }
-  }, [invitation, form, salonId]);
+  }, [invitation, form, salonId, showWelcomePage]);
   
   // Function to handle phone validation - checks if phone is valid and if it has unredeemed gifts
   const handlePhoneValidation = async (isValid: boolean, phoneNumber?: string) => {
@@ -329,6 +347,22 @@ export default function ClientRegistrationPage() {
         acceptTerms: data.acceptTerms,
         hasAddress: Boolean(data.address || data.city || data.state || data.zipCode)
       });
+      
+      // For gift/invite registrations, show the welcome page instead of submitting
+      if (data.clientType === 'giftInvite') {
+        logFlow('Gift/Invite registration detected, showing welcome page');
+        // Store form data temporarily for later submission
+        sessionStorage.setItem('vmb-temp-registration', JSON.stringify({
+          ...data,
+          sponsorSalonId: data.sponsorSalonId || salonId
+        }));
+        
+        setShowWelcomePage(true);
+        setShowFullRegistration(false);
+        setIsSubmitting(false);
+        
+        return; // Don't proceed with API call yet
+      }
       
       // Clean up any leftover address state attributes
       if (document.body.hasAttribute('data-address-shown')) {
@@ -675,6 +709,67 @@ export default function ClientRegistrationPage() {
               </CardContent>
             </Card>
           </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+  
+  // Function to handle completing the registration from welcome page
+  const handleCompleteRegistration = () => {
+    setShowWelcomePage(false);
+    setShowFullRegistration(true);
+  };
+  
+  // Render the welcome page for gift/invite recipients
+  if (showWelcomePage) {
+    const storedData = sessionStorage.getItem('vmb-temp-registration');
+    const registrationData = storedData ? JSON.parse(storedData) : {};
+    const selectedSalon = allSalons?.find(s => s.id === (registrationData.sponsorSalonId || salonId));
+    
+    return (
+      <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-pink-50">
+        <Navbar />
+        <main className="flex-grow container mx-auto px-4 py-8">
+          <Card className="max-w-3xl mx-auto shadow-md">
+            <CardHeader className="bg-pink-50 pb-4">
+              <CardTitle className="text-2xl text-pink-700">Welcome, {registrationData.name}!</CardTitle>
+              <CardDescription>Complete your registration to access your dashboard</CardDescription>
+            </CardHeader>
+            
+            <CardContent className="pt-6 pb-6">
+              {/* Invitation details */}
+              <div className="border rounded-md p-4 mb-6 bg-gray-50">
+                <h3 className="font-semibold mb-2">Your Invitation</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">FROM:</span>
+                    <span className="font-medium">{selectedSalon?.name || 'VMB LTD'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">TO:</span>
+                    <span className="font-medium">{registrationData.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Status:</span>
+                    <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-sm">pending</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Complete Registration button */}
+              <div className="flex justify-center">
+                <Button 
+                  onClick={handleCompleteRegistration}
+                  className="bg-pink-600 hover:bg-pink-700 w-full md:w-auto px-6 py-6"
+                  size="lg"
+                >
+                  <CheckCircle className="mr-2 h-5 w-5" />
+                  Complete Registration
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </main>
         <Footer />
       </div>
