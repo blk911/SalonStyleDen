@@ -2,60 +2,69 @@
  * VMB Debug Configuration
  * 
  * This file controls the visibility of debugging features.
- * Modify these settings to show/hide development tool messages.
+ * Simplified version that maintains the same interface.
  */
 
-// These get saved to localStorage for persistence
+// Local storage key for configuration persistence
 export const DEBUG_CONFIG_KEY = 'vmb_debug_config';
 
-// Default configuration
+// Default configuration (development mode only)
 export const defaultDebugConfig = {
-  showConsoleMessages: false,  // Controls console messages
-  showFlowTesting: false,      // Controls flow testing messages
-  showDevTools: false,         // Controls developer tool messages
-  showMonitoringDashboard: false  // Controls VMB Testing Monitor visibility
+  showConsoleMessages: false,    // Controls console messages
+  showFlowTesting: false,        // Controls flow testing messages (disabled)
+  showDevTools: false,           // Controls developer tool messages (disabled)
+  showMonitoringDashboard: false // Controls monitoring dashboard visibility (disabled)
 };
 
-// Get current debug configuration from localStorage
+// Simplified get configuration function
 export function getDebugConfig() {
-  try {
-    const saved = localStorage.getItem(DEBUG_CONFIG_KEY);
-    if (saved) {
-      return JSON.parse(saved);
+  // Only try to load from localStorage in browser environment
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    try {
+      const saved = localStorage.getItem(DEBUG_CONFIG_KEY);
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (err) {
+      console.error('Failed to parse debug config', err);
     }
-  } catch (err) {
-    console.error('Failed to parse debug config', err);
   }
   
   return { ...defaultDebugConfig };
 }
 
-// Save debug configuration to localStorage
+// Simplified save configuration function
 export function saveDebugConfig(config: typeof defaultDebugConfig) {
-  localStorage.setItem(DEBUG_CONFIG_KEY, JSON.stringify(config));
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    localStorage.setItem(DEBUG_CONFIG_KEY, JSON.stringify(config));
+  }
 }
 
-// Use this to conditionally display console messages
+// Simplified shouldLog function - determines if logs should be shown
 export function shouldLog() {
+  // Only log in development mode and if showConsoleMessages is true
+  if (!import.meta.env.DEV) {
+    return false;
+  }
   const config = getDebugConfig();
   return config.showConsoleMessages;
 }
 
-// Enable console messages
+// The following functions are kept for interface compatibility
+// but with simplified implementations
+
 export function enableConsoleMessages() {
   const config = getDebugConfig();
   config.showConsoleMessages = true;
   saveDebugConfig(config);
 }
 
-// Disable console messages
 export function disableConsoleMessages() {
   const config = getDebugConfig();
   config.showConsoleMessages = false;
   saveDebugConfig(config);
 }
 
-// Toggle console messages
 export function toggleConsoleMessages() {
   const config = getDebugConfig();
   config.showConsoleMessages = !config.showConsoleMessages;
@@ -63,30 +72,18 @@ export function toggleConsoleMessages() {
   return config.showConsoleMessages;
 }
 
-// Check if monitoring dashboard should be shown
 export function shouldShowMonitoringDashboard() {
-  const config = getDebugConfig();
-  return config.showMonitoringDashboard;
+  return false; // Monitoring dashboard is disabled in this version
 }
 
-// Enable monitoring dashboard
 export function enableMonitoringDashboard() {
-  const config = getDebugConfig();
-  config.showMonitoringDashboard = true;
-  saveDebugConfig(config);
+  // Monitoring dashboard is disabled in this version
 }
 
-// Disable monitoring dashboard
 export function disableMonitoringDashboard() {
-  const config = getDebugConfig();
-  config.showMonitoringDashboard = false;
-  saveDebugConfig(config);
+  // Monitoring dashboard is disabled in this version
 }
 
-// Toggle monitoring dashboard visibility
 export function toggleMonitoringDashboard() {
-  const config = getDebugConfig();
-  config.showMonitoringDashboard = !config.showMonitoringDashboard;
-  saveDebugConfig(config);
-  return config.showMonitoringDashboard;
+  return false; // Monitoring dashboard is disabled in this version
 }
