@@ -1259,7 +1259,7 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          sponsorName: invitation.salonId ? invitation.sponsor : null, // Fixed FROM display for salon invitations
+          sponsorName: row.salon_id ? row.sponsor : null, // Fixed FROM display for salon invitations
           senderId: row.sender_id || null
         };
         
@@ -1317,7 +1317,7 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          sponsorName: invitation.salonId ? invitation.sponsor : null, // Fixed FROM display for salon invitations
+          sponsorName: row.salon_id ? row.sponsor : null, // Fixed FROM display for salon invitations
           senderId: row.sender_id || null
         };
       } finally {
