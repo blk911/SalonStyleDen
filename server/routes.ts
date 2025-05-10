@@ -2185,61 +2185,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get gifts awaiting client action (pending/to be accepted)
-  // THIS MUST FOLLOW THE UNIFIED ID PHILOSOPHY - BOTH INVITATION IDs AND CLIENT IDs SHOULD WORK
-  apiRouter.get("/gifts/received/:id", async (req: Request, res: Response) => {
+  // Get gifts received by a client
+  apiRouter.get("/gifts/received/:clientId", async (req: Request, res: Response) => {
     try {
-      const { id } = req.params;
+      const { clientId } = req.params;
       
-      if (!id || isNaN(Number(id))) {
+      if (!clientId || isNaN(Number(clientId))) {
         return res.status(400).json({
-          error: "Invalid ID format"
+          error: "Invalid client ID"
         });
       }
       
-      const numericId = Number(id);
+      console.log(`[API] GET /gifts/received/${clientId} - Fetching gifts received by client ID ${clientId}`);
+      const receivedGifts = await storage.getReceivedGifts(Number(clientId));
+      console.log(`[API] GET /gifts/received/${clientId} - Found ${receivedGifts.length} gifts`);
       
-      console.log(`[API] GET /gifts/received/${id} - VMB RULESET: Finding all gifts for ID ${id} (client or invitation)`);
-      
-      // First, check if this is a client ID
-      const client = await storage.getClient(numericId);
-      
-      if (client) {
-        console.log(`[API] GET /gifts/received/${id} - Found client record, fetching gifts for client ID ${id}`);
-        const clientGifts = await storage.getReceivedGifts(numericId);
-        console.log(`[API] GET /gifts/received/${id} - Found ${clientGifts.length} gifts for client`);
-        return res.json(clientGifts);
-      }
-      
-      // If not a client ID, check if it's an invitation ID
-      const invitation = await storage.getInvitation(numericId);
-      
-      if (invitation) {
-        console.log(`[API] GET /gifts/received/${id} - Found invitation record with phone ${invitation.phone}, fetching gifts`);
-        
-        // Critical: If this is an invitation ID, we need to search by phone number
-        const giftsByPhone = await storage.getGiftsByRecipientPhone(invitation.phone);
-        
-        console.log(`[API] GET /gifts/received/${id} - Found ${giftsByPhone.length} gifts for invitation phone`);
-        
-        // Transform status for recipient's perspective
-        const contextAwareGifts = giftsByPhone.map(gift => {
-          if (gift.status === 'sent') {
-            return { ...gift, status: 'pending' };
-          }
-          return gift;
-        });
-        
-        return res.json(contextAwareGifts);
-      }
-      
-      // If neither client nor invitation found, return empty array
-      console.log(`[API] GET /gifts/received/${id} - No client or invitation found with ID ${id}, returning empty list`);
-      return res.json([]);
+      return res.json(receivedGifts);
     } catch (error) {
-      console.error("Error fetching gifts:", error);
+      console.error("Error fetching received gifts:", error);
       return res.status(500).json({
-        error: "Server error while fetching gifts"
+        error: "Server error while fetching received gifts"
       });
     }
   });
