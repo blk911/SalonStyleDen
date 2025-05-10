@@ -144,7 +144,8 @@ const giftInputSchema = z.object({
     z.null()  // Also allow null
   ]).optional(),
   message: z.string().optional(),
-  status: z.string().default("sent"),
+  // CRITICAL FIX: Default to "pending" instead of "sent" to follow proper workflow
+  status: z.string().default("pending"),
   recipientId: z.number().optional(),
   value: z.number().optional(),
   expiresAt: z.date().optional(),
@@ -644,11 +645,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const invitationId = parseInt(req.body.invitationId);
           if (!isNaN(invitationId)) {
             try {
-              // Update invitation status to completed
-              await storage.updateInvitationStatus(invitationId, 'completed');
+              // CRITICAL FIX: Do NOT update invitation status to completed automatically
+              // Status should remain 'pending' until user explicitly accepts the invitation
+              console.log(`[FLOW] Client ${client.id} created from invitation ${invitationId}, but keeping status as pending until user action`);
             } catch (invitationError) {
               // Log error but don't fail the client creation
-              console.error(`Failed to update invitation ${invitationId} status:`, invitationError);
+              console.error(`Error handling invitation ${invitationId}:`, invitationError);
             }
           }
         }
@@ -659,16 +661,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const matchingInvitations = await storage.getInvitationsByPhone(validatedData.phone);
             
             if (matchingInvitations.length > 0) {
-              // Update all matching invitations to completed
+              // CRITICAL FIX: Don't update invitations to completed automatically
+              // Log the matching invitations for debugging purposes
+              console.log(`[FLOW] Client ${client.id} created with phone ${validatedData.phone} matches ${matchingInvitations.length} existing invitations`);
               for (const invitation of matchingInvitations) {
-                if (invitation.status !== 'completed') {
-                  await storage.updateInvitationStatus(invitation.id, 'completed');
-                }
+                console.log(`[FLOW] Matching invitation: ID ${invitation.id}, status ${invitation.status}`);
               }
             }
           } catch (invitationError) {
             // Log error but don't fail the client creation
-            console.error('Failed to update matching invitations:', invitationError);
+            console.error('Error checking matching invitations:', invitationError);
           }
         }
 
