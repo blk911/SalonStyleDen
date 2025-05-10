@@ -123,6 +123,15 @@ export default function ClientRegistrationPage() {
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [registeredClientId, setRegisteredClientId] = useState<number | null>(null);
   const [isExistingClient, setIsExistingClient] = useState(false);
+  
+  // State for welcome page and full registration form
+  const [showWelcomePage, setShowWelcomePage] = useState(false);
+  const [showFullRegistration, setShowFullRegistration] = useState(true);
+  
+  // Parse URL parameters to extract client type information
+  const params = new URLSearchParams(location.split('?')[1] || '');
+  const urlClientType = params.get('clientType');
+  const invitationId = params.get('invitationId');
   // Note: Address dialog state variables removed
   
   // We'll use a direct approach to the terms checkbox element
