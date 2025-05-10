@@ -526,18 +526,18 @@ export default function ClientRegistrationPage() {
           setRegisteredClientId(clientId);
           console.log('Client created with ID:', clientId);
           
-          // REDIRECT to address form - enhanced registration flow
-        console.log('REDIRECTING TO ADDRESS FORM:', clientId);
-        logFlow('ENHANCEMENT: Redirecting to address form for complete registration', clientId);
+          // IMMEDIATE REDIRECT to client dashboard - critical fix for user flow
+        console.log('REDIRECTING TO CLIENT DASHBOARD IMMEDIATELY:', clientId);
+        logFlow('CRITICAL FIX: Redirecting to client dashboard immediately', clientId);
                 
         // Enhanced toast message for better feedback on redirect
         toast({
-          title: 'Registration Started!',
-          description: 'Please complete your address information to finish registration.',
+          title: 'Registration Complete!',
+          description: 'Your account has been created. Redirecting to your dashboard...',
           variant: 'default',
         });
                 
-        navigate(`/client/address/${clientId}`);
+        navigate(`/client/${clientId}`);
         } else {
           // Fallback if we don't have the client ID
           console.warn('No client ID available for redirection');
@@ -671,11 +671,11 @@ export default function ClientRegistrationPage() {
           <div className="md:col-span-3">
             <Card>
               <CardHeader>
-                <CardTitle>Registration</CardTitle>
+                <CardTitle>Client Registration</CardTitle>
                 <CardDescription>
                   {invitation
                     ? `Complete your registration for ${invitation.sponsor || salon?.name || 'the salon'}`
-                    : 'For yourself, a friend, or your fav salon owner'}
+                    : 'Invite a friend or salon owner'}
                 </CardDescription>
               </CardHeader>
               <CardContent>

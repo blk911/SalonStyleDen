@@ -25,7 +25,6 @@ import DependencyVisualizer from "@/pages/DependencyVisualizer";
 import InvitationPage from "@/pages/InvitationPage";
 import InvitationPreview from "@/pages/InvitationPreview";
 import ClientRegistrationPage from "@/pages/ClientRegistrationPage";
-import ClientAddressRegistrationPage from "@/pages/ClientAddressRegistrationPage";
 import SalonRegistrationPage from "@/pages/SalonRegistrationPage";
 import CompleteInvitationPage from "@/pages/CompleteInvitationPage";
 import TestFinalStep3 from "@/pages/TestFinalStep3";
@@ -41,7 +40,6 @@ function Router() {
       <Route path="/client/register" component={ClientRegistrationPage} />
       <Route path="/client-registration" component={ClientRegistrationPage} />
       <Route path="/register-client" component={ClientRegistrationPage} />
-      <Route path="/client/address/:clientId" component={ClientAddressRegistrationPage} />
       <Route path="/salon-registration" component={SalonRegistrationPage} />
       <Route path="/register-salon" component={SalonRegistrationPage} />
       <Route path="/client/:id" component={ClientDashboard} />
