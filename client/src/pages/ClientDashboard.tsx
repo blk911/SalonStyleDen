@@ -27,7 +27,7 @@ import ClientAppointments from "@/components/appointments/ClientAppointments";
 import GiftsPage from "@/components/gifts/GiftsPage";
 import InvitationsPage from "@/components/invitations/InvitationsPage";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, formatPhoneNumber } from "@/lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -604,7 +604,7 @@ export default function ClientDashboard() {
               <div className="space-y-1.5 text-center md:text-left">
                 <div className="flex items-center justify-center md:justify-start gap-2 text-sm text-gray-600">
                   <PhoneIcon className="h-4 w-4 flex-shrink-0 text-gray-400" />
-                  <span className="truncate">{client.phone || 'No phone number'}</span>
+                  <span className="truncate">{client.phone ? formatPhoneNumber(client.phone) : 'No phone number'}</span>
                 </div>
                 
                 <div className="flex items-center justify-center md:justify-start gap-2 text-sm text-gray-600">
