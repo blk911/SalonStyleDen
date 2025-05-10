@@ -9,7 +9,7 @@ import {
   gifts, type Gift, type InsertGift
 } from "@shared/schema";
 import { db, pool } from "./db";
-import { eq, sql, and } from "drizzle-orm";
+import { eq, sql, and, or } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -2333,9 +2333,12 @@ export class DatabaseStorage implements IStorage {
         .where(
           and(
             sql`regexp_replace(${gifts.recipientPhone}, '[^0-9]', '', 'g') = ${cleanPhone}`,
-            eq(gifts.status, 'sent')
+            or(
+              eq(gifts.status, 'sent'),
+              eq(gifts.status, 'pending')
+            )
           )
-        ); // Only check for 'sent' gifts that haven't been redeemed yet
+        ); // Check for both 'sent' and 'pending' gifts that haven't been redeemed yet
       
       const hasUnredeemedGift = results.length > 0;
       
