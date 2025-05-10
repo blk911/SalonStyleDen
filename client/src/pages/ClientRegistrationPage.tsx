@@ -526,18 +526,18 @@ export default function ClientRegistrationPage() {
           setRegisteredClientId(clientId);
           console.log('Client created with ID:', clientId);
           
-          // IMMEDIATE REDIRECT to client dashboard - critical fix for user flow
-        console.log('REDIRECTING TO CLIENT DASHBOARD IMMEDIATELY:', clientId);
-        logFlow('CRITICAL FIX: Redirecting to client dashboard immediately', clientId);
+          // REDIRECT to address form - enhanced registration flow
+        console.log('REDIRECTING TO ADDRESS FORM:', clientId);
+        logFlow('ENHANCEMENT: Redirecting to address form for complete registration', clientId);
                 
         // Enhanced toast message for better feedback on redirect
         toast({
-          title: 'Registration Complete!',
-          description: 'Your account has been created. Redirecting to your dashboard...',
+          title: 'Registration Started!',
+          description: 'Please complete your address information to finish registration.',
           variant: 'default',
         });
                 
-        navigate(`/client/${clientId}`);
+        navigate(`/client/address/${clientId}`);
         } else {
           // Fallback if we don't have the client ID
           console.warn('No client ID available for redirection');

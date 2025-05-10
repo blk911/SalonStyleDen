@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { Loader2 as Loader2Icon, CheckCircle, MapPin } from 'lucide-react';
+// Import with correct types
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -73,11 +74,7 @@ export default function ClientAddressRegistrationPage() {
     queryKey: ['/api/clients', clientId],
     queryFn: async () => {
       if (!clientId) return null;
-      const response = await apiRequest('GET', `/api/clients/${clientId}`, undefined);
-      if (!response.ok) {
-        throw new Error('Failed to fetch client');
-      }
-      return response.json();
+      return await apiRequest(`/api/clients/${clientId}`);
     },
     enabled: !!clientId,
   });
@@ -119,16 +116,17 @@ export default function ClientAddressRegistrationPage() {
 
     try {
       // Update client with address information
-      const response = await apiRequest('PATCH', `/api/clients/${clientId}`, {
+      const payload = {
         address: data.address,
         city: data.city,
         state: data.state,
         zipCode: data.zipCode,
+      };
+      
+      const response = await apiRequest(`/api/clients/${clientId}`, {
+        method: 'PATCH',
+        data: payload
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to update address information');
-      }
 
       // Success
       logFlow('Address update successful');
