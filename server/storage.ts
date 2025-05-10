@@ -93,6 +93,7 @@ export interface IStorage {
   createGift(gift: InsertGift): Promise<Gift>;
   getGift(id: number): Promise<Gift | undefined>;
   getGiftByRecipientPhone(phone: string): Promise<Gift | undefined>;
+  getGiftsByRecipientPhone(phone: string): Promise<Gift[]>; // CRITICAL for unified ID system
   getSentGifts(senderId: number): Promise<Gift[]>;
   getReceivedGifts(recipientId: number): Promise<Gift[]>;
   updateGiftStatus(id: number, status: string): Promise<Gift>;
