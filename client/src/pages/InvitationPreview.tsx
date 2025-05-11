@@ -374,7 +374,7 @@ export default function InvitationPreview() {
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-0.5">
         <Card className="shadow-sm">
-          <CardHeader className={`${isSalonInvitation ? 'bg-amber-50' : 'bg-pink-50'} pb-0.5`}>
+          <CardHeader className={`${isSalonInvitation ? 'bg-amber-50' : 'bg-pink-50'} py-3`}>
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="text-lg font-medium text-pink-700">
