@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { logError, initMonitoring } from "@/lib/monitoring";
 import { MonitoringProvider } from "@/contexts/MonitoringContext";
 import { StatusProvider } from "@/contexts/StatusContext";
+import { NavigationProvider } from "@/context/NavigationContext";
 import MonitoringDashboard from "@/components/monitoring/MonitoringDashboard";
 import { shouldShowMonitoringDashboard } from "@/lib/debug-config";
 import NotFound from "@/pages/not-found";
@@ -27,6 +28,7 @@ import InvitationPreview from "@/pages/InvitationPreview";
 import ClientRegistrationPage from "@/pages/ClientRegistrationPage";
 import SalonRegistrationPage from "@/pages/SalonRegistrationPage";
 import CompleteInvitationPage from "@/pages/CompleteInvitationPage";
+import GiftRedemptionPage from "@/pages/GiftRedemptionPage";
 import TestFinalStep3 from "@/pages/TestFinalStep3";
 
 function Router() {

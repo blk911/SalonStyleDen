@@ -193,6 +193,21 @@ export function generateInviteHash(): string {
   return `VMB-INV-${randomPart}-${timestamp}`;
 }
 
+/**
+ * Formats a number as a currency string (USD)
+ * @param amount The amount to format
+ * @param currency The currency code (defaults to USD)
+ * @returns Formatted currency string (e.g., $10.99)
+ */
+export function formatCurrency(amount: number, currency: string = 'USD'): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount);
+}
+
 // Helper to process image URLs consistently
 export function getImageUrl(url?: string, debugLabel?: string): string {
   // For debugging purposes

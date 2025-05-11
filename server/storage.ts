@@ -2213,6 +2213,31 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async getGiftByHash(hash: string): Promise<Gift | undefined> {
+    try {
+      console.log(`DatabaseStorage.getGiftByHash - Getting gift with hash ${hash}`);
+      
+      // Query for gift with the exact hash
+      const results = await db
+        .select()
+        .from(gifts)
+        .where(eq(gifts.giftHash, hash))
+        .limit(1);
+      
+      console.log(`DatabaseStorage.getGiftByHash - Found ${results.length} gifts with hash ${hash}`);
+      
+      if (results.length === 0) {
+        return undefined;
+      }
+      
+      // Return the found gift
+      return results[0];
+    } catch (error) {
+      console.error(`Error getting gift by hash:`, error);
+      throw error;
+    }
+  }
+  
   async getGiftByRecipientPhone(phone: string): Promise<Gift | undefined> {
     try {
       // Standardize phone format - get only digits for comparison
