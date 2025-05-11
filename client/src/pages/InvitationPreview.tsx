@@ -378,13 +378,13 @@ export default function InvitationPreview() {
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="text-lg font-medium">
-                  <span>{isSalonInvitation ? 
+                  {isSalonInvitation ? 
                     `Salon Invitation for ` : 
-                    `Gift Request to: `}</span><span className="text-black">{invitation.name}</span>
+                    `Gift Request to: `}<span className="text-black">{invitation.name}</span>
                 </h3>
                 <div className="flex items-center justify-between gap-4 mt-0.5">
                   <p className="text-lg font-medium">
-                    <span>Sent from: </span><span className="text-black">{invitation.senderName || invitation.sponsor || invitation.salonName || salon?.name || "Unknown Salon"}</span>
+                    Sent from: <span className="text-black">{invitation.senderName || invitation.sponsor || invitation.salonName || salon?.name || "Unknown Salon"}</span>
                   </p>
                   
                   {invitation.type === 'client_invitation' && (
