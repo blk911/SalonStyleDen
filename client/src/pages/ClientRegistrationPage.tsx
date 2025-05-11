@@ -238,9 +238,10 @@ export default function ClientRegistrationPage() {
     },
   });
   
-  // If invitation data is loaded, prefill the form
+  // If invitation data is loaded or in complete registration mode, prefill the form
   useEffect(() => {
     if (invitation) {
+      // Auto-fill all client information when in complete registration mode
       form.reset({
         ...form.getValues(),
         name: invitation.name || '',
@@ -249,9 +250,20 @@ export default function ClientRegistrationPage() {
         notes: invitation.notes || '',
         favoriteServices: invitation.favoriteServices || [],
         sponsorSalonId: invitation.salonId || salonId,
+        // Make sure client type is set to newClient
+        clientType: 'newClient',
       });
+      
+      // Log that form is pre-filled for complete registration
+      if (isCompleteRegistrationMode) {
+        logFlow('Auto-filled client info for complete registration', {
+          name: invitation.name,
+          phone: invitation.phone,
+          sponsor: invitation.sponsor || salon?.name || 'VMB LTD'
+        });
+      }
     }
-  }, [invitation, form, salonId]);
+  }, [invitation, form, salonId, isCompleteRegistrationMode, salon]);
   
   // Function to handle phone validation - checks if phone is valid and if it has unredeemed gifts
   const handlePhoneValidation = async (isValid: boolean, phoneNumber?: string) => {
@@ -791,58 +803,88 @@ export default function ClientRegistrationPage() {
                       />
                     </div>
                     
-                    {/* Salon Selection Dropdown */}
-                    <FormField
-                      control={form.control}
-                      name="sponsorSalonId"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Select Your Salon</FormLabel>
-                          <Select
-                            onValueChange={(value) => field.onChange(parseInt(value, 10))}
-                            defaultValue={field.value?.toString() || ""}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Choose your salon" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {salonListLoading ? (
-                                <div className="p-2 text-center">Loading salons...</div>
-                              ) : allSalons?.length ? (
-                                <>
-                                  {/* Sort to show VMB LTD first */}
-                                  {allSalons
-                                    .sort((a, b) => {
-                                      // VMB LTD always comes first
-                                      if (a.name === 'VMB LTD') return -1;
-                                      if (b.name === 'VMB LTD') return 1;
-                                      // Then alphabetical
-                                      return a.name.localeCompare(b.name);
-                                    })
-                                    .map((salon) => (
-                                      <SelectItem 
-                                        key={salon.id} 
-                                        value={salon.id.toString()}
-                                      >
-                                        {salon.name}
-                                      </SelectItem>
-                                    ))
-                                  }
-                                </>
-                              ) : (
-                                <div className="p-2 text-center">No salons available</div>
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormDescription>
-                            Choose your salon, or VMB LTD Salon is your temp salon.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {/* Salon Information - Show selected salon or default */}
+                    {isCompleteRegistrationMode ? (
+                      /* In Complete Registration mode, show salon info instead of selection dropdown */
+                      <div className="mb-4">
+                        <FormLabel className="block mb-1">Salon</FormLabel>
+                        <div className="border rounded-md p-3 bg-gray-50">
+                          {invitation?.sponsor ? (
+                            <div className="flex items-center gap-2">
+                              <Building2 className="h-4 w-4 text-gray-500" />
+                              <span className="font-medium">
+                                {invitation.sponsor} {invitation.salonId && `[ID: ${invitation.salonId}]`}
+                              </span>
+                            </div>
+                          ) : salon?.name ? (
+                            <div className="flex items-center gap-2">
+                              <Building2 className="h-4 w-4 text-gray-500" />
+                              <span className="font-medium">
+                                {salon.name} {salon.id && `[ID: ${salon.id}]`}
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <Building2 className="h-4 w-4 text-gray-500" />
+                              <span className="font-medium">VMB LTD [ID: 1]</span>
+                            </div>
+                          )}
+                        </div>
+                        <input 
+                          type="hidden" 
+                          name="sponsorSalonId" 
+                          value={invitation?.salonId || salon?.id || 1} 
+                        />
+                      </div>
+                    ) : (
+                      <FormField
+                        control={form.control}
+                        name="sponsorSalonId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Select Your Salon</FormLabel>
+                            <Select
+                              onValueChange={(value) => field.onChange(parseInt(value, 10))}
+                              defaultValue={field.value?.toString() || ""}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Choose your salon" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {salonListLoading ? (
+                                  <div className="p-2 text-center">Loading salons...</div>
+                                ) : allSalons?.length ? (
+                                  <>
+                                    {allSalons
+                                      .sort((a, b) => {
+                                        if (a.name === 'VMB LTD') return -1;
+                                        if (b.name === 'VMB LTD') return 1;
+                                        return a.name.localeCompare(b.name);
+                                      })
+                                      .map((salon) => (
+                                        <SelectItem 
+                                          key={salon.id} 
+                                          value={salon.id.toString()}
+                                        >
+                                          {salon.name} [ID: {salon.id}]
+                                        </SelectItem>
+                                      ))}
+                                  </>
+                                ) : (
+                                  <div className="p-2 text-center">No salons available</div>
+                                )}
+                              </SelectContent>
+                            </Select>
+                            <FormDescription>
+                              Choose your salon, or VMB LTD Salon is your temp salon.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                     
                     {/* Terms and Conditions Checkbox - CRITICALLY ENHANCED for visibility and reliability */}
                     <FormField
