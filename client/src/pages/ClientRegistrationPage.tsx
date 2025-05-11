@@ -546,6 +546,9 @@ export default function ClientRegistrationPage() {
       setIsSubmitting(true);
       
       // Add client type and sponsor information
+      // Add gift ID to client data for tracking
+      const giftId = urlParams.get('giftId') ? parseInt(urlParams.get('giftId')!) : undefined;
+      
       const clientData = {
         ...data,
         type: data.clientType === 'salonOwner' ? 'salonOwner' : 'client', // Set type based on selection
@@ -555,7 +558,8 @@ export default function ClientRegistrationPage() {
         sponsorSalonId: data.sponsorSalonId || salonId || invitation?.salonId || 1, // Default to VMB LTD (ID 1) if no salon
         isCurrentClient: true,
         accepted_terms: data.acceptTerms || false, // Use snake_case to match database
-        invitationId: invitation?.id // Add invitation ID for linking
+        invitationId: invitation?.id, // Add invitation ID for linking
+        giftId: giftId // Add gift ID for linking to pending gifts
       };
       
       console.log('Submitting client data:', clientData);

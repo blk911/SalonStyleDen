@@ -671,6 +671,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.error('Failed to update matching invitations:', invitationError);
           }
         }
+        
+        // CRITICAL FIX: Check for any pending gifts for this client's phone number
+        try {
+          console.log(`[GIFT LINKING] Checking for pending gifts for phone ${validatedData.phone}`);
+          const pendingGifts = await storage.getGiftsByRecipientPhone(validatedData.phone, 'pending');
+          
+          if (pendingGifts && pendingGifts.length > 0) {
+            console.log(`[GIFT LINKING] Found ${pendingGifts.length} pending gifts for new client ${client.id}`);
+            
+            // Update all matching gifts to link them to this client
+            for (const gift of pendingGifts) {
+              try {
+                console.log(`[GIFT LINKING] Linking gift ID ${gift.id} to client ID ${client.id}`);
+                // Update the gift to link it to this client
+                await storage.updateGift(gift.id, {
+                  recipientId: client.id
+                });
+              } catch (giftError) {
+                console.error(`[GIFT LINKING] Failed to update gift ${gift.id}:`, giftError);
+              }
+            }
+          } else {
+            console.log(`[GIFT LINKING] No pending gifts found for phone ${validatedData.phone}`);
+          }
+        } catch (giftsError) {
+          console.error('[GIFT LINKING] Error checking for gifts:', giftsError);
+        }
+        
+        // Also check for giftId parameter that might be passed directly
+        if (req.body.giftId) {
+          const giftId = parseInt(req.body.giftId);
+          if (!isNaN(giftId)) {
+            try {
+              console.log(`[GIFT LINKING] Updating gift ${giftId} to link with client ${client.id}`);
+              
+              // Update the gift with the client ID and set status to claimed
+              await storage.updateGift(giftId, {
+                recipientId: client.id,
+                status: 'claimed'
+              });
+            } catch (giftError) {
+              console.error(`[GIFT LINKING] Failed to update gift ${giftId}:`, giftError);
+            }
+          }
+        }
 
         // Return the client data
         res.status(201).json(client);
