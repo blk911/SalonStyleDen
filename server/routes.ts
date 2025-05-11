@@ -670,6 +670,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Log error but don't fail the client creation
             console.error('Failed to update matching invitations:', invitationError);
           }
+          
+          // [CRITICAL FIX] Link any pending gifts to this newly registered client
+          try {
+            console.log(`[GIFT LINKING] Checking for pending gifts for phone: ${validatedData.phone}`);
+            const pendingGifts = await storage.getGiftsByRecipientPhone(validatedData.phone);
+            
+            if (pendingGifts.length > 0) {
+              console.log(`[GIFT LINKING] Found ${pendingGifts.length} pending gifts for this phone number`);
+              
+              // Update all pending gifts to link them to this client
+              for (const gift of pendingGifts) {
+                if (gift.status === 'sent' || gift.status === 'pending') {
+                  // Update the gift with the client ID
+                  await storage.updateGift(gift.id, {
+                    recipientId: client.id,
+                    status: 'pending' // Change to pending if it was just 'sent'
+                  });
+                  
+                  console.log(`[GIFT LINKING] Successfully linked gift ID ${gift.id} to client ID ${client.id}`);
+                  
+                  // Log this gift linking as an activity
+                  await storage.createActivityLog({
+                    type: "gift_linked",
+                    description: `Gift from ${gift.senderName || 'Unknown'} has been linked to ${client.name}`,
+                    clientId: client.id,
+                    salonId: gift.salonId || undefined,
+                    timestamp: new Date()
+                  });
+                }
+              }
+            }
+          } catch (giftError) {
+            // Log error but don't fail the client creation
+            console.error('[GIFT LINKING] Failed to link gifts to client:', giftError);
+          }
         }
 
         // Return the client data
