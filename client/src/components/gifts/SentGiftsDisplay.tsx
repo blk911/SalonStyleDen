@@ -37,6 +37,8 @@ interface SentGift {
 interface SentGiftsDisplayProps {
   clientId: number;
   onCreateGift?: () => void;
+  setLocation?: (to: string) => void;
+  className?: string;
 }
 
 export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayProps) {

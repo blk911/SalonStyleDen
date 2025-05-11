@@ -32,6 +32,8 @@ interface ReceivedGift {
 interface ReceivedGiftsDisplayProps {
   clientId: number;
   onRedeemGift?: (giftId: number) => void;
+  setLocation?: (to: string) => void;
+  className?: string;
 }
 
 export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDisplayProps) {
@@ -57,9 +59,21 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   // Mutation for redeeming a gift
   const redeemGiftMutation = useMutation({
     mutationFn: async (giftId: number) => {
-      return await apiRequest("PATCH", `/api/gifts/${giftId}/status`, {
-        status: "redeemed"
+      const response = await fetch(`/api/gifts/${giftId}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          status: "redeemed"
+        })
       });
+      
+      if (!response.ok) {
+        throw new Error("Failed to redeem gift");
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
