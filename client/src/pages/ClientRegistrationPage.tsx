@@ -201,6 +201,16 @@ export default function ClientRegistrationPage() {
       const phone = urlParams.get('phone');
       if (phone) {
         form.setValue('phone', phone);
+        
+        // If we have the phone number, auto-initiate lookup
+        setTimeout(() => {
+          // Need a slight timeout to ensure form state is ready
+          const cleanedPhone = cleanPhoneNumber(phone);
+          if (cleanedPhone.length === 10) {
+            logFlow('Auto-triggering phone validation from URL parameter');
+            handlePhoneValidation(true, phone);
+          }
+        }, 100);
       }
       
       const name = urlParams.get('name');
@@ -208,12 +218,48 @@ export default function ClientRegistrationPage() {
         form.setValue('name', name);
       }
       
-      // Set VMB LTD as default salon
-      const providedSalonId = urlParams.get('salonId');
-      if (providedSalonId && !isNaN(parseInt(providedSalonId, 10))) {
-        form.setValue('sponsorSalonId', parseInt(providedSalonId, 10));
+      const email = urlParams.get('email');
+      if (email) {
+        form.setValue('email', email);
+      }
+      
+      // Get invitationId from URL parameter
+      const invitationId = urlParams.get('invitationId');
+      if (invitationId) {
+        logFlow(`Found invitation ID in URL: ${invitationId}`);
+        
+        // Attempt to fetch the invitation details
+        fetch(`/api/invitations/${invitationId}`)
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Failed to fetch invitation');
+          })
+          .then(inviteData => {
+            logFlow('Loaded invitation data from ID:', inviteData);
+            
+            if (inviteData && inviteData.salonId) {
+              form.setValue('sponsorSalonId', inviteData.salonId);
+              
+              toast({
+                title: 'Invitation Found!',
+                description: `We found your invitation from ${inviteData.sponsor || 'a salon'}. Complete registration to accept it.`,
+                variant: 'default',
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching invitation by ID:', error);
+          });
       } else {
-        form.setValue('sponsorSalonId', 1); // Default to VMB LTD
+        // Set VMB LTD as default salon if no invitation ID
+        const providedSalonId = urlParams.get('salonId');
+        if (providedSalonId && !isNaN(parseInt(providedSalonId, 10))) {
+          form.setValue('sponsorSalonId', parseInt(providedSalonId, 10));
+        } else {
+          form.setValue('sponsorSalonId', 1); // Default to VMB LTD
+        }
       }
     }
   }, [isCompleteRegistrationMode, urlParams, form]);
@@ -782,10 +828,15 @@ export default function ClientRegistrationPage() {
           <div className="md:col-span-3">
             <Card>
               <CardHeader>
-                <CardTitle>REGISTRATION</CardTitle>
+                <CardTitle>
+                  {form.getValues('clientType') === 'giftInvite' ? 'GIFT/INVITATION REDEMPTION' : 'REGISTRATION'}
+                </CardTitle>
                 {isCompleteRegistrationMode ? (
                   <CardDescription>
-                    Complete your registration for {invitation?.sponsor || salon?.name || 'VMB LTD'} {invitation?.salonId && `[ID: ${invitation.salonId}]`}
+                    {form.getValues('clientType') === 'giftInvite'
+                      ? 'Enter your phone number to find your gift or invitation'
+                      : `Complete your registration for ${invitation?.sponsor || salon?.name || 'VMB LTD'} ${invitation?.salonId ? `[ID: ${invitation.salonId}]` : ''}`
+                    }
                   </CardDescription>
                 ) : (
                   <CardDescription>
@@ -798,6 +849,15 @@ export default function ClientRegistrationPage() {
               <CardContent>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                    {/* Show appropriate notice for gift/invite redemption */}
+                    {isCompleteRegistrationMode && form.getValues('clientType') === 'giftInvite' && (
+                      <div className="mb-4 p-4 bg-pink-50 border border-pink-200 rounded-md">
+                        <h3 className="font-medium text-pink-800 mb-2">Gift/Invitation Redemption</h3>
+                        <p className="text-pink-700 text-sm">
+                          Please enter your phone number to claim your gift or invitation. Once found, you'll need to complete your registration.
+                        </p>
+                      </div>
+                    )}
                     {/* Client Type Selection */}
                     {!isCompleteRegistrationMode && (
                       <FormField
