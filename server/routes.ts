@@ -480,7 +480,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             let salonName = null;
             if (invitationCheck.invitation.salonId) {
               try {
-                const salon = await storage.getSalon(invitationCheck.invitation.salonId);
+                const salon = await storage.getSalonById(invitationCheck.invitation.salonId);
                 if (salon) {
                   salonName = salon.name;
                   console.log(`[INVITE REDEMPTION] Invitation is from salon: ${salonName}`);
