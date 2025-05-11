@@ -53,6 +53,8 @@ function Router() {
       <Route path="/invitation-preview/:hash" component={InvitationPreview} />
       <Route path="/invitations/by-hash/:hash" component={InvitationPage} />
       <Route path="/complete-invitation/:id" component={CompleteInvitationPage} />
+      {/* Gift redemption route */}
+      <Route path="/redeem-gift/:giftHash" component={GiftRedemptionPage} />
       {/* Unhiding all routes as requested */}
       <Route path="/promos" component={PromosPage} />
       <Route path="/sitemap" component={Sitemap} />
@@ -125,10 +127,12 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <StatusProvider>
           <MonitoringProvider>
-            <Router />
-            {/* Only render MonitoringDashboard when debug config enables it */}
-            {showMonitoring && <MonitoringDashboard />}
-            <Toaster />
+            <NavigationProvider>
+              <Router />
+              {/* Only render MonitoringDashboard when debug config enables it */}
+              {showMonitoring && <MonitoringDashboard />}
+              <Toaster />
+            </NavigationProvider>
           </MonitoringProvider>
         </StatusProvider>
       </QueryClientProvider>

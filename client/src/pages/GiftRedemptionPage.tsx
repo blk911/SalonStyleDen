@@ -11,7 +11,7 @@ import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
 import { Loader2, Gift, CheckCircle, AlertTriangle, Phone, Mail } from "lucide-react";
-import { useNavigationContext } from "@/context/NavigationContext";
+import { useNavigationContext } from "../context/NavigationContext";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -106,7 +106,10 @@ export default function GiftRedemptionPage() {
   const checkPhoneMutation = useMutation({
     mutationFn: async (phone: string) => {
       const normalizedPhone = phone.replace(/\D/g, "");
-      const response = await apiRequest("GET", `/api/gifts/check-phone/${normalizedPhone}`);
+      const response = await fetch(`/api/gifts/check-phone/${normalizedPhone}`);
+      if (!response.ok) {
+        throw new Error("Failed to check phone number");
+      }
       return response.json();
     },
     onSuccess: (data) => {
@@ -137,34 +140,57 @@ export default function GiftRedemptionPage() {
       
       // First check if this is an existing client
       try {
-        const clientCheckResponse = await apiRequest("GET", `/api/gifts/check-phone/${normalizedPhone}`);
+        const clientCheckResponse = await fetch(`/api/gifts/check-phone/${normalizedPhone}`);
+        if (!clientCheckResponse.ok) {
+          throw new Error("Failed to check client existence");
+        }
         const clientCheckData = await clientCheckResponse.json();
         
         // If this is a new client, register them first
         if (!clientCheckData.existingClient && gift) {
           // Create a new client
-          const newClientResponse = await apiRequest("POST", "/api/clients", {
-            name: "New Client", // Default name
-            phone: normalizedPhone,
-            email: formData.email || null,
-            isCurrentClient: true,
-            salonId: gift.salonId,
-            // [RULE: SponsorClientRelationship] Set the sponsor to the salon that sent the gift
-            sponsor: gift.salonName || "VMB Limited",
-            sponsorSalonId: gift.salonId,
-            // [RULE: UniqueGiftTracking] Create a unique inviteHash for this client based on the gift
-            inviteHash: `VMB-INV-GIFT-${giftHash}`,
-            type: "client",
+          const newClientResponse = await fetch("/api/clients", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              name: "New Client", // Default name
+              phone: normalizedPhone,
+              email: formData.email || null,
+              isCurrentClient: true,
+              salonId: gift.salonId,
+              // [RULE: SponsorClientRelationship] Set the sponsor to the salon that sent the gift
+              sponsor: gift.salonName || "VMB Limited",
+              sponsorSalonId: gift.salonId,
+              // [RULE: UniqueGiftTracking] Create a unique inviteHash for this client based on the gift
+              inviteHash: `VMB-INV-GIFT-${giftHash}`,
+              type: "client",
+            })
           });
+          
+          if (!newClientResponse.ok) {
+            throw new Error("Failed to create client");
+          }
           
           const newClient = await newClientResponse.json();
           console.log("Created new client:", newClient);
           
           // Now update the gift with the new client ID
-          await apiRequest("PATCH", `/api/gifts/${gift.id}`, {
-            recipientId: newClient.id,
-            status: "redeemed",
+          const updateGiftResponse = await fetch(`/api/gifts/${gift.id}/status`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              recipientId: newClient.id,
+              status: "redeemed"
+            })
           });
+          
+          if (!updateGiftResponse.ok) {
+            throw new Error("Failed to update gift status");
+          }
           
           setClaimedGift({
             ...gift,
@@ -178,10 +204,20 @@ export default function GiftRedemptionPage() {
           // This is an existing client, just update the gift
           const clientId = clientCheckData.clientId;
           
-          await apiRequest("PATCH", `/api/gifts/${gift.id}`, {
-            recipientId: clientId,
-            status: "redeemed",
+          const updateGiftResponse = await fetch(`/api/gifts/${gift.id}/status`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              recipientId: clientId,
+              status: "redeemed"
+            })
           });
+          
+          if (!updateGiftResponse.ok) {
+            throw new Error("Failed to update gift status");
+          }
           
           setClaimedGift({
             ...gift,
