@@ -21,7 +21,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, cleanPhoneNumber, normalizePhoneForStorage } from "@/lib/utils";
 import { useContactValidation } from "@/hooks/use-contact-validation";
 import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
 import VerificationModal from "@/components/shared/VerificationModal";
@@ -275,7 +275,7 @@ export default function ClientForm({
         // Transform the form data to match the expected format
         const clientData = {
           name: data.name,
-          phone: data.phone,
+          phone: normalizePhoneForStorage(data.phone), // Clean phone number for storage
           email: data.email,
           isCurrentClient: data.isCurrentClient === "yes",
           notes: data.notes || "",
