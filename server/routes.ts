@@ -2365,6 +2365,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get gift by its unique hash
+  apiRouter.get("/gifts/by-hash/:hash", async (req: Request, res: Response) => {
+    try {
+      const { hash } = req.params;
+      
+      if (!hash) {
+        return res.status(400).json({
+          error: "Gift hash is required"
+        });
+      }
+      
+      console.log(`[API] GET /gifts/by-hash/${hash} - Finding gift by hash`);
+      
+      // Get the gift by its unique hash
+      const gift = await storage.getGiftByHash(hash);
+      
+      if (!gift) {
+        console.log(`[API] GET /gifts/by-hash/${hash} - No gift found with this hash`);
+        return res.status(404).json({
+          error: "Gift not found"
+        });
+      }
+      
+      // Check if gift is already redeemed
+      if (gift.status === "redeemed") {
+        console.log(`[API] GET /gifts/by-hash/${hash} - Gift found but already redeemed`);
+      } else {
+        console.log(`[API] GET /gifts/by-hash/${hash} - Gift found, status: ${gift.status}`);
+        
+        // If the gift is found but not linked to the sender, fetch sender info
+        if (gift.senderId) {
+          try {
+            const sender = await storage.getClient(gift.senderId);
+            if (sender) {
+              gift.senderName = sender.name;
+            }
+          } catch (error) {
+            console.error(`Error fetching sender for gift ${gift.id}:`, error);
+            // Non-blocking error, continue without sender name
+          }
+        }
+        
+        // If gift is linked to a salon, fetch salon info
+        if (gift.salonId) {
+          try {
+            const salon = await storage.getSalon(gift.salonId);
+            if (salon) {
+              gift.salonName = salon.name;
+            }
+          } catch (error) {
+            console.error(`Error fetching salon for gift ${gift.id}:`, error);
+            // Non-blocking error, continue without salon name
+          }
+        }
+      }
+      
+      return res.json(gift);
+    } catch (error) {
+      console.error("Error fetching gift by hash:", error);
+      return res.status(500).json({
+        error: "Server error while fetching gift"
+      });
+    }
+  });
+
   // Check if a phone number has any unredeemed gifts
   apiRouter.get("/gifts/check-phone/:phone", async (req: Request, res: Response) => {
     try {

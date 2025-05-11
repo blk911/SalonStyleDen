@@ -93,6 +93,7 @@ export interface IStorage {
   // Gift methods
   createGift(gift: InsertGift): Promise<Gift>;
   getGift(id: number): Promise<Gift | undefined>;
+  getGiftByHash(hash: string): Promise<Gift | undefined>;
   getGiftByRecipientPhone(phone: string): Promise<Gift | undefined>;
   getSentGifts(senderId: number): Promise<Gift[]>;
   getReceivedGifts(recipientId: number): Promise<Gift[]>;
