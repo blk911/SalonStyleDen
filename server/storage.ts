@@ -1448,12 +1448,15 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          sponsorName: invitations[i].salonId ? invitations[i].sponsor : null, // Fixed FROM display for salon invitations
+          // Removed problematic line with unresolved reference to invitations[i]
           senderId: row.sender_id || null
         }));
         
         // Filter based on matching criteria
         let filteredInvitations: Invitation[] = [];
+        
+        // Debug log
+        console.log(`[PHONE MATCH] Starting phone matching with ${allInvitations.length} invitations for phone ${cleanPhone}`);
         
         if (partialMatch) {
           // For partial match, check if invitation phone ends with the given digits
@@ -1461,19 +1464,39 @@ export class DatabaseStorage implements IStorage {
             if (!invitation.phone) return false;
             const invitePhone = invitation.phone.replace(/\D/g, '');
             
+            // Debug log
+            console.log(`[PHONE PARTIAL MATCH] Comparing DB=${invitePhone} with search=${cleanPhone}`);
+            
             // Match if the last N digits match our search
             if (cleanPhone.length <= invitePhone.length) {
               const lastDigits = invitePhone.slice(-cleanPhone.length);
-              return lastDigits === cleanPhone;
+              const matches = lastDigits === cleanPhone;
+              
+              console.log(`[PHONE PARTIAL MATCH] Last ${cleanPhone.length} digits: ${lastDigits}, match=${matches}`);
+              
+              return matches;
             }
             return false;
           });
         } else {
           // For exact match, require full phone number match
-          filteredInvitations = allInvitations.filter(invitation => 
-            invitation.phone && invitation.phone.replace(/\D/g, '') === cleanPhone
-          );
+          filteredInvitations = allInvitations.filter(invitation => {
+            if (!invitation.phone) return false;
+            const invitePhone = invitation.phone.replace(/\D/g, '');
+            const matches = invitePhone === cleanPhone;
+            
+            // Debug log each comparison
+            console.log(`[PHONE EXACT MATCH] Comparing DB=${invitePhone} (${invitation.id}: ${invitation.name}) with search=${cleanPhone}, match=${matches}`);
+            
+            return matches;
+          });
         }
+        
+        // Debug log results
+        console.log(`[PHONE MATCH] Found ${filteredInvitations.length} matching invitations`);
+        filteredInvitations.forEach((inv, i) => {
+          console.log(`[PHONE MATCH] Match #${i+1}: id=${inv.id}, name=${inv.name}, phone=${inv.phone}, status=${inv.status}`);
+        });
         
         return filteredInvitations;
       } finally {
