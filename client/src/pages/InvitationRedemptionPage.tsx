@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { RenderedInvitation } from '@/components/invitations/RenderedInvitation';
-import { PhoneInputField } from '@/components/ui/PhoneInputField';
+import { SimplePhoneInput } from '@/components/redemption/SimplePhoneInput';
 import { toast } from '@/hooks/use-toast';
 import { formatPhoneNumber, cleanPhoneNumber } from '@/lib/utils';
 import Navbar from '@/components/layout/Navbar';
@@ -207,11 +207,12 @@ export default function InvitationRedemptionPage() {
             <form onSubmit={handleSubmit}>
               <CardContent>
                 <div className="space-y-4">
-                  <PhoneInputField
+                  <SimplePhoneInput
                     name="phone"
                     label="Your Phone Number"
                     description="Enter the phone number where you received an invitation or gift."
                     onChange={handlePhoneValidation}
+                    autoFocus
                   />
                 </div>
               </CardContent>
