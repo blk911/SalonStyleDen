@@ -324,8 +324,15 @@ export default function InvitationPreview() {
     try {
       // If the invitation is still pending, update its status to accepted
       if (invitation.status === 'pending') {
-        const updateResponse = await fetch(`/api/invitations/${invitation.id}/status`, {
-          method: 'PUT',
+        // Use the gifts endpoint when we have a gift hash format, otherwise use invitations endpoint
+        const endpoint = isGiftFormatted ? 
+          `/api/gifts/${giftId}/status` : 
+          `/api/invitations/${invitation.id}/status`;
+          
+        console.log(`[FLOW] Updating status using endpoint: ${endpoint}`);
+        
+        const updateResponse = await fetch(endpoint, {
+          method: isGiftFormatted ? 'PATCH' : 'PUT', // PATCH for gifts, PUT for invitations
           headers: {
             'Content-Type': 'application/json'
           },
@@ -333,7 +340,14 @@ export default function InvitationPreview() {
         });
         
         if (!updateResponse.ok) {
-          throw new Error('Failed to update invitation status');
+          // Get more detailed error information
+          try {
+            const errorData = await updateResponse.json();
+            console.error('[FLOW ERROR] Status update failed:', errorData);
+            throw new Error(`Failed to process gift: ${errorData.error || updateResponse.statusText}`);
+          } catch (jsonError) {
+            throw new Error(`Failed to process request: ${updateResponse.status} ${updateResponse.statusText}`);
+          }
         }
         
         // Show toast notification
