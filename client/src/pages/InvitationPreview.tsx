@@ -363,11 +363,11 @@ export default function InvitationPreview() {
                 <CardTitle className={`text-2xl ${isSalonInvitation ? 'text-amber-700' : 'text-pink-700'}`}>
                   {isSalonInvitation ? 
                     `Salon Invitation for ${invitation.name}` : 
-                    `Ven Me, Baby! Gift Request for ${invitation.name}`}
+                    `Gift Request to: ${invitation.name}`}
                 </CardTitle>
                 <div className="flex items-center justify-between gap-4 mt-0.5">
                   <p className="text-gray-600">
-                    From {invitation.sponsor || invitation.salonName || salon?.name || "Unknown Salon"}
+                    Sent from: {invitation.sponsor || invitation.salonName || salon?.name || "Unknown Salon"}
                   </p>
                   
                   {invitation.type === 'client_invitation' && (
@@ -461,56 +461,68 @@ export default function InvitationPreview() {
                   "This is a preview of a salon invitation" : 
                   "This is a preview of a client gift request form"}
               </div>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  // CRITICAL FIX: Button logic based on gift type
-                  // 1. For client-sent gifts (has isClientSentGift flag): go to sender's client dashboard
-                  // 2. For salon invitations (has salonId): go to salon page
-                  // 3. Fallback: go to salon directory
-                  
-                  // Check if this is a client-sent gift (from our new flag)
-                  if (isGiftHash && invitation.isClientSentGift && invitation.senderClientId) {
-                    // This is a client-sent gift, go back to sender's client dashboard
-                    console.log(`[FLOW] CLIENT GIFT: Navigating to client dashboard for sender ID: ${invitation.senderClientId}`);
-                    setLocation(`/client/${invitation.senderClientId}`);
+              <div className="flex space-x-2">
+                {/* Add Send Gift button for client-sent gifts */}
+                {isGiftHash && invitation.isClientSentGift && 
+                  <Button
+                    onClick={promptAcceptInvitation}
+                    className="bg-green-500 hover:bg-green-600 text-white"
+                  >
+                    Send Gift
+                  </Button>
+                }
+                
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    // CRITICAL FIX: Button logic based on gift type
+                    // 1. For client-sent gifts (has isClientSentGift flag): go to sender's client dashboard
+                    // 2. For salon invitations (has salonId): go to salon page
+                    // 3. Fallback: go to salon directory
                     
-                    toast({
-                      title: 'Returned to client dashboard',
-                      description: 'Viewing gift sender profile',
-                      duration: 2000
-                    });
-                    return;
-                  }
-                  
-                  // For salon invitations, use salonId
-                  const salonId = invitation?.salonId || salon?.id;
-                  
-                  if (salonId) {
-                    console.log(`[FLOW] SALON INVITE: Navigating to salon page: ${invitation?.salonName || salon?.name} (ID: ${salonId})`);
-                    setLocation(`/salon/${salonId}`);
-                  } else {
-                    // Fallback if no salon info is available
-                    console.log(`[FLOW] No salon or client ID found, returning to salon directory`);
-                    setLocation('/salons');
+                    // Check if this is a client-sent gift (from our new flag)
+                    if (isGiftHash && invitation.isClientSentGift && invitation.senderClientId) {
+                      // This is a client-sent gift, go back to sender's client dashboard
+                      console.log(`[FLOW] CLIENT GIFT: Navigating to client dashboard for sender ID: ${invitation.senderClientId}`);
+                      setLocation(`/client/${invitation.senderClientId}`);
+                      
+                      toast({
+                        title: 'Returned to client dashboard',
+                        description: 'Viewing gift sender profile',
+                        duration: 2000
+                      });
+                      return;
+                    }
                     
-                    toast({
-                      title: 'Returned to salon directory',
-                      description: 'Please select a salon from the directory.',
-                      duration: 3000
-                    });
-                  }
-                }}
-                className={isSalonInvitation ? 
-                  "border-amber-200 text-amber-700 hover:bg-amber-50" : 
-                  "border-pink-200 text-pink-700 hover:bg-pink-50"}
-              >
-                <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                {/* Customize button label based on gift type */}
-                {isGiftHash && invitation.isClientSentGift 
-                  ? `Back to Sender's Dashboard` 
-                  : `To ${invitation?.salonName || salon?.name || "Salon Page"}`}
-              </Button>
+                    // For salon invitations, use salonId
+                    const salonId = invitation?.salonId || salon?.id;
+                    
+                    if (salonId) {
+                      console.log(`[FLOW] SALON INVITE: Navigating to salon page: ${invitation?.salonName || salon?.name} (ID: ${salonId})`);
+                      setLocation(`/salon/${salonId}`);
+                    } else {
+                      // Fallback if no salon info is available
+                      console.log(`[FLOW] No salon or client ID found, returning to salon directory`);
+                      setLocation('/salons');
+                      
+                      toast({
+                        title: 'Returned to salon directory',
+                        description: 'Please select a salon from the directory.',
+                        duration: 3000
+                      });
+                    }
+                  }}
+                  className={isSalonInvitation ? 
+                    "border-amber-200 text-amber-700 hover:bg-amber-50" : 
+                    "border-pink-200 text-pink-700 hover:bg-pink-50"}
+                >
+                  <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                  {/* Customize button label based on gift type */}
+                  {isGiftHash && invitation.isClientSentGift 
+                    ? `Back to Sender's Dashboard` 
+                    : `To ${invitation?.salonName || salon?.name || "Salon Page"}`}
+                </Button>
+              </div>
             </div>
           </CardFooter>
         </Card>
