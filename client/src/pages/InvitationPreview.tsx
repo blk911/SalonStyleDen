@@ -407,17 +407,17 @@ export default function InvitationPreview() {
                 <div className="space-y-4">
                   <div className="flex items-center">
                     <p className="text-sm text-gray-600 mr-2">Recipient:</p>
-                    <p className="font-medium">{invitation.name}</p>
+                    <p className="text-sm font-medium">{invitation.name}</p>
                   </div>
                   
                   <div className="flex items-center">
                     <p className="text-sm text-gray-600 mr-2">Contact:</p>
-                    <p className="font-medium">{formatPhone(invitation.phone)}</p>
+                    <p className="text-sm font-medium">{formatPhone(invitation.phone)}</p>
                   </div>
                   
-                  <div>
-                    <p className="text-sm text-gray-600">Email:</p>
-                    <p className="font-medium">{invitation.email}</p>
+                  <div className="flex items-center">
+                    <p className="text-sm text-gray-600 mr-2">Email:</p>
+                    <p className="text-sm font-medium">{invitation.email}</p>
                   </div>
                   
                   {invitation.firstServiceDate && (
