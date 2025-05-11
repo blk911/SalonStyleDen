@@ -435,7 +435,7 @@ export default function ClientDashboard() {
                       </CardDescription>
                     </div>
                     <Button
-                      onClick={() => setLocation(`/client/register?invitationId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&phone=${encodeURIComponent(invitation.phone)}`)}
+                      onClick={() => setLocation(`/client/register?invitationId=${invitation.id}&name=${encodeURIComponent(invitation.name)}&phone=${encodeURIComponent(invitation.phone)}&registrationMode=complete`)}
                       className="bg-pink-600 hover:bg-pink-700 text-white"
                     >
                       Complete Registration

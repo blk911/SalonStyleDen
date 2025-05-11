@@ -120,7 +120,8 @@ export default function ClientRegistrationPage() {
   const salonId = salonIdParam ? parseInt(salonIdParam, 10) : undefined;
   
   // Check if coming from "Complete Registration" button click (from invitation)
-  const isFromInviteRegistration = location.includes('registrationMode=complete');
+  const urlParams = new URLSearchParams(window.location.search);
+  const isCompleteRegistrationMode = urlParams.get('registrationMode') === 'complete';
   
   // State management for form submission
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -160,7 +161,7 @@ export default function ClientRegistrationPage() {
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
-      clientType: 'newClient',
+      clientType: isCompleteRegistrationMode ? 'newClient' : 'newClient', // Default always to new client when from Complete Registration
       inviteType: 'friend',
       name: '',
       phone: '',
@@ -675,24 +676,27 @@ export default function ClientRegistrationPage() {
           <div className="md:col-span-3">
             <Card>
               <CardHeader>
-                <CardTitle>Registration</CardTitle>
-                <CardDescription>
-                  {invitation
-                    ? `Complete your registration for ${invitation.sponsor || salon?.name || 'the salon'}`
-                    : 'Register yourself, your favorite salon, or redeem gift/invite'}
-                </CardDescription>
+                <CardTitle>REGISTRATION</CardTitle>
+                {!isCompleteRegistrationMode && (
+                  <CardDescription>
+                    {invitation
+                      ? `Complete your registration for ${invitation.sponsor || salon?.name || 'the salon'}`
+                      : 'Register yourself, your favorite salon, or redeem gift/invite'}
+                  </CardDescription>
+                )}
               </CardHeader>
               <CardContent>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
                     {/* Client Type Selection */}
-                    <FormField
-                      control={form.control}
-                      name="clientType"
-                      render={({ field }) => (
-                        <FormItem className="mb-4">
-                          <div className="mb-2 font-medium">I AM:</div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {!isCompleteRegistrationMode && (
+                      <FormField
+                        control={form.control}
+                        name="clientType"
+                        render={({ field }) => (
+                          <FormItem className="mb-4">
+                            <div className="mb-2 font-medium">I AM:</div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div 
                               className={`p-4 rounded-lg border-2 cursor-pointer transition-all flex flex-col items-center justify-center
                                 ${field.value === 'newClient' 
@@ -735,6 +739,7 @@ export default function ClientRegistrationPage() {
                         </FormItem>
                       )}
                     />
+                    )}
                     
                     {/* FIRST ROW: Name and Phone side by side */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
