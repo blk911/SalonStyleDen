@@ -300,30 +300,46 @@ export default function ClientRegistrationPage() {
             logFlow('Auto-set client type to Gift/Invite due to unredeemed gift');
           }
           
-          // Fetch gift details to get salon information
+          // Fetch gift details to get salon information 
+          // Using a consolidated endpoint that gets all pending gifts for a phone number
           try {
-            const response = await fetch(`/api/gifts/phone/${encodeURIComponent(phoneNumber)}`);
+            const response = await fetch(`/api/gifts/pending?phone=${encodeURIComponent(phoneNumber)}`);
             
             if (response.ok) {
               const giftData = await response.json();
               logFlow('Found gift data:', giftData);
               
-              if (giftData && giftData.senderId) {
+              if (giftData && giftData.length > 0 && giftData[0].senderId) {
+                const gift = giftData[0]; // Use the first gift in the list
+                
                 // Get the salon information for this sender
-                const salonResponse = await fetch(`/api/salons/owner/${giftData.senderId}`);
+                const salonResponse = await fetch(`/api/salons?ownerId=${gift.senderId}`);
                 
                 if (salonResponse.ok) {
-                  const salonData = await salonResponse.json();
-                  logFlow('Found salon data:', salonData);
+                  const salons = await salonResponse.json();
                   
-                  // Auto-populate the form with salon information
-                  form.setValue('sponsorSalonId', salonData.id);
-                  
-                  toast({
-                    title: 'Gift Found!',
-                    description: `We found your gift from ${salonData.name}. Complete registration to redeem it.`,
-                    variant: 'default',
-                  });
+                  if (salons && salons.length > 0) {
+                    const salonData = salons[0];
+                    logFlow('Found salon data:', salonData);
+                    
+                    // Auto-populate the form with salon information
+                    form.setValue('sponsorSalonId', salonData.id);
+                    
+                    toast({
+                      title: 'Gift Found!',
+                      description: `We found your gift from ${salonData.name}. Complete registration to redeem it.`,
+                      variant: 'default',
+                    });
+                  } else {
+                    // Fallback to VMB LTD if salon not found
+                    form.setValue('sponsorSalonId', 1); // VMB LTD has ID 1
+                    
+                    toast({
+                      title: 'Gift Found!',
+                      description: 'We found your gift. Complete registration to redeem it.',
+                      variant: 'default',
+                    });
+                  }
                 }
               }
             }
@@ -343,21 +359,36 @@ export default function ClientRegistrationPage() {
         } else if (clientType === 'giftInvite') {
           // Check for invitations if no gift was found
           try {
-            const inviteResponse = await fetch(`/api/invitations/phone/${encodeURIComponent(phoneNumber)}`);
+            // Using a consolidated endpoint that gets all pending invitations for a phone number
+            const inviteResponse = await fetch(`/api/invitations/pending?phone=${encodeURIComponent(phoneNumber)}`);
             
             if (inviteResponse.ok) {
-              const inviteData = await inviteResponse.json();
-              logFlow('Found invitation data:', inviteData);
+              const invitations = await inviteResponse.json();
+              logFlow('Found invitation data:', invitations);
               
-              if (inviteData && inviteData.salonId) {
+              if (invitations && invitations.length > 0) {
+                const inviteData = invitations[0]; // Use the first invitation in the list
+                
                 // Auto-populate the form with salon information
                 form.setValue('sponsorSalonId', inviteData.salonId);
+                
+                // Also populate name and email if available
+                if (inviteData.name) {
+                  form.setValue('name', inviteData.name);
+                }
+                
+                if (inviteData.email) {
+                  form.setValue('email', inviteData.email);
+                }
                 
                 toast({
                   title: 'Invitation Found!',
                   description: `We found your invitation from ${inviteData.sponsor || 'a salon'}. Complete registration to accept it.`,
                   variant: 'default',
                 });
+                
+                // Update status in UI to show we're now completing registration
+                setIsCompleteRegistrationMode(true);
               } else {
                 // No invitation found for gift/invite mode
                 toast({
@@ -814,7 +845,13 @@ export default function ClientRegistrationPage() {
                                 
                                 // If phone is already entered, validate it immediately
                                 const currentPhone = form.getValues('phone');
-                                if (currentPhone && isValidPhone(currentPhone)) {
+                                
+                                // Make sure phone is valid (10 digits) before validating
+                                const isPhoneValid = currentPhone && 
+                                  currentPhone.length >= 10 && 
+                                  cleanPhoneNumber(currentPhone).length === 10;
+                                  
+                                if (isPhoneValid) {
                                   handlePhoneValidation(true, currentPhone);
                                 } else {
                                   toast({
