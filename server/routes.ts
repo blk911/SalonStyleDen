@@ -173,120 +173,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/status", (req: Request, res: Response) => {
     res.json({ status: "ok", version: "1.0.0", timestamp: new Date().toISOString() });
   });
-  
-  // Test endpoints for gift and client linking functionality
-  // Step 1: Create a test gift for a phone number
-  apiRouter.post("/test/gift-linking/gift", async (req: Request, res: Response) => {
-    try {
-      // Step 1: Create a test gift to a phone number
-      const phoneNumber = "5552224444"; // Test phone number
-      
-      // First check if we already have a client with this phone
-      const allClients = await storage.getAllClients();
-      const existingClient = allClients.find(c => 
-        c.phone && c.phone.replace(/\D/g, '') === phoneNumber.replace(/\D/g, '')
-      );
-      
-      if (existingClient) {
-        return res.status(400).json({
-          error: "Test phone number already has a client account",
-          clientId: existingClient.id
-        });
-      }
-      
-      // Get sender information (use a default client ID if not specified)
-      const senderId = req.body.senderId || 55; // Default to Anna's client ID
-      
-      // Create the gift
-      const newGift = await storage.createGift({
-        senderId,
-        recipientPhone: phoneNumber,
-        giftType: "style_card",
-        styleId: 1,
-        styleName: "French Tips / Touch-Up",
-        amount: 4000, // $40.00
-        message: "This is a test gift for gift linking",
-        status: "sent",
-        giftHash: `test-gift-${Date.now()}`
-      });
-      
-      return res.status(201).json({
-        message: "Test gift created successfully",
-        gift: newGift,
-        step2Instructions: "Now create a client with phone number 5552224444 to test automatic gift linking",
-        testClientEndpoint: "/api/test/gift-linking/client"
-      });
-    } catch (error) {
-      console.error("Error in test gift linking endpoint:", error);
-      return res.status(500).json({
-        error: "Failed to create test gift",
-        details: String(error)
-      });
-    }
-  });
-  
-  // Step 2: Create a test client with the same phone number to trigger gift linking
-  apiRouter.post("/test/gift-linking/client", async (req: Request, res: Response) => {
-    try {
-      const phoneNumber = "5552224444"; // Must match the test gift phone
-      
-      // First check if we already have gifts for this phone number
-      const pendingGifts = await storage.getGiftsByRecipientPhone(phoneNumber);
-      
-      if (pendingGifts.length === 0) {
-        return res.status(400).json({
-          error: "No pending gifts found for this phone number. Create a test gift first.",
-          createGiftEndpoint: "/api/test/gift-linking/gift"
-        });
-      }
-      
-      // Check if a client with this phone already exists
-      const allClients = await storage.getAllClients();
-      const existingClient = allClients.find(c => 
-        c.phone && c.phone.replace(/\D/g, '') === phoneNumber.replace(/\D/g, '')
-      );
-      
-      if (existingClient) {
-        return res.status(400).json({
-          error: "Test client already exists",
-          clientId: existingClient.id,
-          pendingGifts
-        });
-      }
-      
-      // Create a new test client with the same phone number
-      const newClient = await storage.createClient({
-        name: "Test Gift Recipient",
-        phone: phoneNumber,
-        email: "test-recipient@example.com",
-        type: "client",
-        acceptedTerms: true,
-        isCurrentClient: true,
-        salonId: 2, // Tiffany's salon
-        sponsor: "Test"
-      });
-      
-      // Check if gift linking worked by fetching gifts again
-      const linkedGifts = await storage.getReceivedGifts(newClient.id);
-      
-      return res.status(201).json({
-        message: "Test client created successfully and gifts should be auto-linked",
-        client: newClient,
-        originalPendingGifts: pendingGifts,
-        linkedGifts,
-        success: linkedGifts.length > 0,
-        details: linkedGifts.length > 0 
-          ? "Gift linking successful! The system automatically linked gifts to the new client." 
-          : "Gift linking failed. The gifts were not automatically linked to the new client."
-      });
-    } catch (error) {
-      console.error("Error in test client creation endpoint:", error);
-      return res.status(500).json({
-        error: "Failed to create test client",
-        details: String(error)
-      });
-    }
-  });
 
   // Error logging endpoint for monitoring
   apiRouter.post("/log-error", (req: Request, res: Response) => {
@@ -784,40 +670,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Log error but don't fail the client creation
             console.error('Failed to update matching invitations:', invitationError);
           }
+        }
+        
+        // CRITICAL FIX: Check for any pending gifts for this client's phone number
+        try {
+          console.log(`[GIFT LINKING] Checking for pending gifts for phone ${validatedData.phone}`);
+          const pendingGifts = await storage.getGiftsByRecipientPhone(validatedData.phone, 'pending');
           
-          // [CRITICAL FIX] Link any pending gifts to this newly registered client
-          try {
-            console.log(`[GIFT LINKING] Checking for pending gifts for phone: ${validatedData.phone}`);
-            const pendingGifts = await storage.getGiftsByRecipientPhone(validatedData.phone);
+          if (pendingGifts && pendingGifts.length > 0) {
+            console.log(`[GIFT LINKING] Found ${pendingGifts.length} pending gifts for new client ${client.id}`);
             
-            if (pendingGifts.length > 0) {
-              console.log(`[GIFT LINKING] Found ${pendingGifts.length} pending gifts for this phone number`);
-              
-              // Update all pending gifts to link them to this client
-              for (const gift of pendingGifts) {
-                if (gift.status === 'sent' || gift.status === 'pending') {
-                  // Update the gift with the client ID
-                  await storage.updateGift(gift.id, {
-                    recipientId: client.id,
-                    status: 'pending' // Change to pending if it was just 'sent'
-                  });
-                  
-                  console.log(`[GIFT LINKING] Successfully linked gift ID ${gift.id} to client ID ${client.id}`);
-                  
-                  // Log this gift linking as an activity
-                  await storage.createActivityLog({
-                    type: "gift_linked",
-                    description: `Gift from ${gift.senderName || 'Unknown'} has been linked to ${client.name}`,
-                    clientId: client.id,
-                    salonId: gift.salonId || undefined,
-                    timestamp: new Date()
-                  });
-                }
+            // Update all matching gifts to link them to this client
+            for (const gift of pendingGifts) {
+              try {
+                console.log(`[GIFT LINKING] Linking gift ID ${gift.id} to client ID ${client.id}`);
+                // Update the gift to link it to this client
+                await storage.updateGift(gift.id, {
+                  recipientId: client.id
+                });
+              } catch (giftError) {
+                console.error(`[GIFT LINKING] Failed to update gift ${gift.id}:`, giftError);
               }
             }
-          } catch (giftError) {
-            // Log error but don't fail the client creation
-            console.error('[GIFT LINKING] Failed to link gifts to client:', giftError);
+          } else {
+            console.log(`[GIFT LINKING] No pending gifts found for phone ${validatedData.phone}`);
+          }
+        } catch (giftsError) {
+          console.error('[GIFT LINKING] Error checking for gifts:', giftsError);
+        }
+        
+        // Also check for giftId parameter that might be passed directly
+        if (req.body.giftId) {
+          const giftId = parseInt(req.body.giftId);
+          if (!isNaN(giftId)) {
+            try {
+              console.log(`[GIFT LINKING] Updating gift ${giftId} to link with client ${client.id}`);
+              
+              // Update the gift with the client ID and set status to claimed
+              await storage.updateGift(giftId, {
+                recipientId: client.id,
+                status: 'claimed'
+              });
+            } catch (giftError) {
+              console.error(`[GIFT LINKING] Failed to update gift ${giftId}:`, giftError);
+            }
           }
         }
 
