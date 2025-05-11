@@ -1306,16 +1306,20 @@ export class DatabaseStorage implements IStorage {
 
   async getInvitationByHash(hash: string): Promise<Invitation | undefined> {
     try {
-      // Use raw SQL to get the invitation by hash to avoid schema mismatch issues
+      console.log(`DatabaseStorage.getInvitationByHash - Getting invitation with hash ${hash}`);
+      
+      // Use raw SQL with JOIN to get the salon name for the invitation
       const sqlQuery = `
         SELECT 
-            id, name, phone, email, notes, message, type,
-            salon_id, sponsor, invite_hash, status, 
-            first_service_date, created_at, 
-            favorite_services, sender_id,
-            style_option, style_price, style_duration
-        FROM invitations 
-        WHERE invite_hash = $1
+            i.id, i.name, i.phone, i.email, i.notes, i.message, i.type,
+            i.salon_id, i.sponsor, i.invite_hash, i.status, 
+            i.first_service_date, i.created_at, 
+            i.favorite_services, i.sender_id,
+            i.style_option, i.style_price, i.style_duration,
+            s.name as salon_name
+        FROM invitations i
+        LEFT JOIN salons s ON i.salon_id = s.id
+        WHERE i.invite_hash = $1
       `;
       
       const client = await pool.connect();
@@ -1323,12 +1327,14 @@ export class DatabaseStorage implements IStorage {
         const result = await client.query(sqlQuery, [hash]);
         
         if (result.rows.length === 0) {
+          console.log(`DatabaseStorage.getInvitationByHash - No invitation found with hash ${hash}`);
           return undefined;
         }
         
         const row = result.rows[0];
+        console.log(`DatabaseStorage.getInvitationByHash - Found invitation ID: ${row.id}, Name: ${row.name}, Salon ID: ${row.salon_id}`);
         
-        // Map to our expected format
+        // Map to our expected format, including salon name
         return {
           id: row.id,
           name: row.name,
@@ -1347,7 +1353,9 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          sponsorName: row.salon_id ? row.sponsor : null, // Fixed FROM display for salon invitations
+          // For salon invitations, use the salon name as sponsorName for display
+          sponsorName: row.salon_name || row.sponsor,
+          salonName: row.salon_name,
           senderId: row.sender_id || null
         };
       } finally {
