@@ -447,6 +447,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // New functionality: Check for pending invitations when context is 'redemption'
+      if (context === 'redemption' && phone) {
+        console.log(`[INVITE REDEMPTION] Checking if phone number ${phone} has pending invitations`);
+        
+        try {
+          // First check for pending invitations
+          const invitationCheck = await storage.checkPendingInvitationByPhone(phone);
+          
+          if (invitationCheck.hasPendingInvitation && invitationCheck.invitation) {
+            console.log(`[INVITE REDEMPTION] Phone ${phone} has a pending invitation: ${invitationCheck.invitation.inviteHash}`);
+            
+            // Return invitation details for redemption flow
+            return res.json({
+              success: true,
+              hasPendingInvitation: true,
+              invitation: invitationCheck.invitation,
+              message: "Pending invitation found"
+            });
+          }
+          
+          // If no pending invitation, check for unredeemed gifts
+          const giftCheck = await storage.checkUnredeemedGiftByPhone(phone);
+          
+          if (giftCheck.hasUnredeemedGift && giftCheck.gift) {
+            console.log(`[INVITE REDEMPTION] Phone ${phone} has an unredeemed gift`);
+            
+            // Return gift details for redemption flow
+            return res.json({
+              success: true,
+              hasUnredeemedGift: true,
+              gift: giftCheck.gift,
+              message: "Unredeemed gift found"
+            });
+          }
+          
+          // If neither invitation nor gift is found
+          return res.json({
+            success: false,
+            message: "No pending invitations or gifts found for this phone number"
+          });
+        } catch (error) {
+          console.error("[INVITE REDEMPTION] Error checking redemption status:", error);
+          return res.status(500).json({
+            success: false,
+            error: "Error checking redemption status"
+          });
+        }
+      }
+      
       // If senderId is provided and context is 'invitation', use the context-aware validation
       if (senderId && context === 'invitation') {
         // Use the enhanced context-aware validation for invitations
