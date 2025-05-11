@@ -119,6 +119,9 @@ export default function ClientRegistrationPage() {
     
   const salonId = salonIdParam ? parseInt(salonIdParam, 10) : undefined;
   
+  // Check if coming from "Complete Registration" button click (from invitation)
+  const isFromInviteRegistration = location.includes('registrationMode=complete');
+  
   // State management for form submission
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
