@@ -95,8 +95,10 @@ export interface IStorage {
   getGift(id: number): Promise<Gift | undefined>;
   getGiftByHash(hash: string): Promise<Gift | undefined>;
   getGiftByRecipientPhone(phone: string): Promise<Gift | undefined>;
+  getGiftsByRecipientPhone(phone: string): Promise<Gift[]>;
   getSentGifts(senderId: number): Promise<Gift[]>;
   getReceivedGifts(recipientId: number): Promise<Gift[]>;
+  updateGift(id: number, updateData: Partial<Gift>): Promise<Gift>;
   updateGiftStatus(id: number, status: string): Promise<Gift>;
   checkUnredeemedGiftByPhone(phone: string): Promise<{hasUnredeemedGift: boolean, gift?: Gift}>;
 }
@@ -2428,6 +2430,64 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error(`Error checking unredeemed gift by phone:`, error);
       return { hasUnredeemedGift: false };
+    }
+  }
+  
+  async getGiftsByRecipientPhone(phone: string): Promise<Gift[]> {
+    try {
+      // Standardize phone format - get only digits for comparison
+      const cleanPhone = phone.replace(/\D/g, '');
+      console.log(`DatabaseStorage.getGiftsByRecipientPhone - Getting gifts for recipient phone ${cleanPhone}`);
+      
+      // Query using regex to match phone numbers regardless of format
+      const results = await db
+        .select()
+        .from(gifts)
+        .where(
+          and(
+            sql`regexp_replace(${gifts.recipientPhone}, '[^0-9]', '', 'g') = ${cleanPhone}`,
+            or(
+              eq(gifts.status, 'sent'),
+              eq(gifts.status, 'pending')
+            )
+          )
+        );
+      
+      console.log(`DatabaseStorage.getGiftsByRecipientPhone - Found ${results.length} gifts for phone ${cleanPhone}`);
+      
+      return results;
+    } catch (error) {
+      console.error(`Error getting gifts by recipient phone:`, error);
+      throw error;
+    }
+  }
+  
+  async updateGift(id: number, updateData: Partial<Gift>): Promise<Gift> {
+    try {
+      console.log(`DatabaseStorage.updateGift - Updating gift ID ${id}`, updateData);
+      
+      // Get current gift to ensure it exists
+      const currentGift = await this.getGift(id);
+      if (!currentGift) {
+        throw new Error(`Gift with ID ${id} not found`);
+      }
+      
+      // Update the gift in the database
+      const result = await db
+        .update(gifts)
+        .set(updateData)
+        .where(eq(gifts.id, id))
+        .returning();
+      
+      if (result.length === 0) {
+        throw new Error(`Failed to update gift for ID ${id}`);
+      }
+      
+      console.log(`DatabaseStorage.updateGift - Gift updated successfully`);
+      return result[0];
+    } catch (error) {
+      console.error(`Error updating gift:`, error);
+      throw error;
     }
   }
 }
