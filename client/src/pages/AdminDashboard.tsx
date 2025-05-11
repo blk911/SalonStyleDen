@@ -1188,11 +1188,11 @@ export default function AdminDashboard() {
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <span className="cursor-help">
-                                    {client.phone.substring(0, 7)}•••
+                                    {formatPhonePartial(client.phone)}
                                   </span>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p>{client.phone}</p>
+                                  <p>{formatPhoneNumber(client.phone)}</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>

@@ -508,7 +508,7 @@ export default function SalonsPage() {
                             <h3 className="font-bold text-sm text-[#FF92A5]">{selectedSalon.name}</h3>
                             <p className="text-xs mt-1">{selectedSalon.address}</p>
                             <p className="text-xs">{selectedSalon.city}, {selectedSalon.state} {selectedSalon.zipCode}</p>
-                            <p className="text-xs mt-1">{selectedSalon.phone}</p>
+                            <p className="text-xs mt-1">{formatPhoneNumber(selectedSalon.phone)}</p>
                             <Link href={`/salon/${selectedSalon.id}`}>
                               <a className="text-[10px] text-blue-500 hover:text-blue-700">
                                 View Salon Page
