@@ -37,7 +37,7 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { formatPhoneNumber, cleanPhoneNumber } from '@/lib/utils';
+import { formatPhoneNumber, cleanPhoneNumber, isValidPhone } from '@/lib/utils';
 
 // Simple logging helper (replaced test flow logger)
 const logFlow = (step: string, data?: any) => {
@@ -284,29 +284,91 @@ export default function ClientRegistrationPage() {
       logFlow('Phone is valid, validating with server');
       
       try {
-        // Call validateContact with context=registration to check for unredeemed gifts
+        // Get the current client type
+        const clientType = form.getValues('clientType');
+        
+        // Call validateContact to check for unredeemed gifts
         const result = await validateContact(phoneNumber);
         
-        // If this phone has an unredeemed gift, show appropriate dialog
+        // If this phone has an unredeemed gift, handle appropriately
         if (result === 'has_unredeemed_gift') {
           logFlow('Phone has unredeemed gift');
           
-          toast({
-            title: 'Gift Available!',
-            description: 'You have an unredeemed gift. Complete registration to redeem it.',
-            variant: 'default',
-          });
+          // Auto-set client type to gift/invite if not already set
+          if (clientType !== 'giftInvite') {
+            form.setValue('clientType', 'giftInvite');
+            logFlow('Auto-set client type to Gift/Invite due to unredeemed gift');
+          }
           
-          // Check if we need to show the address dialog
+          // Fetch gift details to get salon information
+          try {
+            const response = await fetch(`/api/gifts/phone/${encodeURIComponent(phoneNumber)}`);
+            
+            if (response.ok) {
+              const giftData = await response.json();
+              logFlow('Found gift data:', giftData);
+              
+              if (giftData && giftData.senderId) {
+                // Get the salon information for this sender
+                const salonResponse = await fetch(`/api/salons/owner/${giftData.senderId}`);
+                
+                if (salonResponse.ok) {
+                  const salonData = await salonResponse.json();
+                  logFlow('Found salon data:', salonData);
+                  
+                  // Auto-populate the form with salon information
+                  form.setValue('sponsorSalonId', salonData.id);
+                  
+                  toast({
+                    title: 'Gift Found!',
+                    description: `We found your gift from ${salonData.name}. Complete registration to redeem it.`,
+                    variant: 'default',
+                  });
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching gift details:', error);
+          }
+          
+          // Check if we need address information
           if (requiresAddress) {
             logFlow('Gift requires address information');
-            // Address dialog functionality removed
-            // Show toast notification instead
             toast({
-              title: 'Gift Available!',
-              description: 'Complete registration to view your gift in your dashboard.',
+              title: 'Address Needed',
+              description: 'Please fill in your address information to complete redemption.',
               variant: 'default',
             });
+          }
+        } else if (clientType === 'giftInvite') {
+          // Check for invitations if no gift was found
+          try {
+            const inviteResponse = await fetch(`/api/invitations/phone/${encodeURIComponent(phoneNumber)}`);
+            
+            if (inviteResponse.ok) {
+              const inviteData = await inviteResponse.json();
+              logFlow('Found invitation data:', inviteData);
+              
+              if (inviteData && inviteData.salonId) {
+                // Auto-populate the form with salon information
+                form.setValue('sponsorSalonId', inviteData.salonId);
+                
+                toast({
+                  title: 'Invitation Found!',
+                  description: `We found your invitation from ${inviteData.sponsor || 'a salon'}. Complete registration to accept it.`,
+                  variant: 'default',
+                });
+              } else {
+                // No invitation found for gift/invite mode
+                toast({
+                  title: 'No Records Found',
+                  description: 'We couldn\'t find any gifts or invitations for this phone number.',
+                  variant: 'destructive',
+                });
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching invitation details:', error);
           }
         }
       } catch (error) {
@@ -744,7 +806,24 @@ export default function ClientRegistrationPage() {
                                 ${field.value === 'giftInvite' 
                                   ? 'border-[#FF92A5] bg-pink-50' 
                                   : 'border-gray-200 hover:border-[#FF92A5] hover:bg-pink-50'}`}
-                              onClick={() => field.onChange('giftInvite')}
+                              onClick={() => {
+                                field.onChange('giftInvite');
+                                
+                                // When Gift/Invite is selected, initiate the redemption flow
+                                logFlow('Gift/Invite option selected, initiating redemption flow');
+                                
+                                // If phone is already entered, validate it immediately
+                                const currentPhone = form.getValues('phone');
+                                if (currentPhone && isValidPhone(currentPhone)) {
+                                  handlePhoneValidation(true, currentPhone);
+                                } else {
+                                  toast({
+                                    title: 'Redeem Gift or Invitation',
+                                    description: 'Please enter your phone number to find your gift or invitation',
+                                    variant: 'default',
+                                  });
+                                }
+                              }}
                             >
                               <Gift className={`h-8 w-8 mb-2 ${field.value === 'giftInvite' ? 'text-[#FF92A5]' : 'text-gray-500'}`} />
                               <span className={`font-medium ${field.value === 'giftInvite' ? 'text-[#FF92A5]' : 'text-gray-700'}`}>
