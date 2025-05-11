@@ -2356,6 +2356,47 @@ export class DatabaseStorage implements IStorage {
       return { hasUnredeemedGift: false };
     }
   }
+  
+  /**
+   * Check for pending invitations for a phone number and retrieve the most recent one.
+   * This is used for the gift/invitation redemption flow.
+   * @param phone The recipient's phone number
+   * @returns Object containing the pending invitation if found
+   */
+  async checkPendingInvitationByPhone(phone: string): Promise<{hasPendingInvitation: boolean, invitation?: Invitation}> {
+    try {
+      // Standardize phone format - get only digits for comparison
+      const cleanPhone = phone.replace(/\D/g, '');
+      console.log(`DatabaseStorage.checkPendingInvitationByPhone - Checking for pending invitation for phone ${cleanPhone}`);
+      
+      // Get all invitations
+      const allInvitations = await this.getInvitationsByPhone(phone);
+      
+      // Filter for pending invitations
+      const pendingInvitations = allInvitations.filter(invitation => 
+        invitation.status === 'pending' || invitation.status === 'sent'
+      );
+      
+      // Sort by created date (newest first)
+      pendingInvitations.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
+      
+      const hasPendingInvitation = pendingInvitations.length > 0;
+      
+      console.log(`DatabaseStorage.checkPendingInvitationByPhone - Found ${pendingInvitations.length} pending invitations`);
+      
+      return {
+        hasPendingInvitation,
+        invitation: hasPendingInvitation ? pendingInvitations[0] : undefined
+      };
+    } catch (error) {
+      console.error(`Error checking pending invitation by phone:`, error);
+      return { hasPendingInvitation: false };
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
