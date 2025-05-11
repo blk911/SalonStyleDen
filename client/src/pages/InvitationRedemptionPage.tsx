@@ -114,6 +114,9 @@ export default function InvitationRedemptionPage() {
       const data = await response.json();
       console.log('[REDEMPTION] Check response:', data);
       
+      // CRITICAL: Must set submitted state to true to show results
+      setSubmitted(true);
+      
       // Additional logs to help debug
       if (data.hasPendingInvitation && data.invitation) {
         console.log('[REDEMPTION] Found pending invitation:', {
@@ -125,12 +128,25 @@ export default function InvitationRedemptionPage() {
           styleOption: data.invitation.styleOption,
           stylePrice: data.invitation.stylePrice
         });
+        
+        // Show toast notification for successful invitation lookup
+        toast({
+          title: 'Invitation Found',
+          description: `We found a pending invitation for ${data.invitation.name}`,
+        });
+        
       } else if (data.hasUnredeemedGift && data.gift) {
         console.log('[REDEMPTION] Found unredeemed gift:', {
           id: data.gift.id,
           recipientName: data.gift.recipientName,
           recipientPhone: data.gift.recipientPhone,
           status: data.gift.status
+        });
+        
+        // Show toast notification for successful gift lookup
+        toast({
+          title: 'Gift Found',
+          description: `We found an unredeemed gift for you`,
         });
       } else {
         console.log('[REDEMPTION] No pending invitations or gifts found');
