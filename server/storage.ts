@@ -456,10 +456,17 @@ export class DatabaseStorage implements IStorage {
         if (mostRecentInvitation) {
           console.log(`DatabaseStorage.createClient - Using invitation data for sponsorship: invitation ID ${mostRecentInvitation.id}`);
           
-          // If the invitation has a salonId, use it as the sponsorSalonId
+          // CRITICAL: Save the inviteHash - this is the IMMUTABLE link between invitation and client
+          // This is what maintains the relationship tracking between invitations and clients
+          insertClient.inviteHash = mostRecentInvitation.inviteHash;
+          console.log(`DatabaseStorage.createClient - Setting inviteHash to ${mostRecentInvitation.inviteHash} from invitation`);
+          
+          // If the invitation has a salonId, use it as the sponsorSalonId AND the salonId
           if (mostRecentInvitation.salonId) {
+            // For salon invitations, both fields need to be set to maintain proper relationship
             insertClient.sponsorSalonId = mostRecentInvitation.salonId;
-            console.log(`DatabaseStorage.createClient - Setting sponsorSalonId to ${mostRecentInvitation.salonId} from invitation`);
+            insertClient.salonId = mostRecentInvitation.salonId;
+            console.log(`DatabaseStorage.createClient - Setting sponsorSalonId and salonId to ${mostRecentInvitation.salonId} from invitation`);
           }
           
           // If the invitation has a senderId (client who sent the invitation), note the sponsor relationship
@@ -478,9 +485,23 @@ export class DatabaseStorage implements IStorage {
               }
             }
           } else if (mostRecentInvitation.sponsor) {
-            // Set the sponsor name from the invitation
-            insertClient.sponsorName = mostRecentInvitation.sponsor;
-            console.log(`DatabaseStorage.createClient - Setting sponsorName to ${mostRecentInvitation.sponsor} from invitation`);
+            // For salon invitations, ensure the sponsor name shows the salon name, not VMB LTD
+            if (mostRecentInvitation.salonId) {
+              // Get the salon name from the database to ensure accuracy
+              const salon = await this.getSalon(mostRecentInvitation.salonId);
+              if (salon) {
+                insertClient.sponsorName = salon.name;
+                console.log(`DatabaseStorage.createClient - Setting sponsorName to ${salon.name} from salon record`);
+              } else {
+                // Fallback to the sponsor from the invitation
+                insertClient.sponsorName = mostRecentInvitation.sponsor;
+                console.log(`DatabaseStorage.createClient - Setting sponsorName to ${mostRecentInvitation.sponsor} from invitation (salon not found)`);
+              }
+            } else {
+              // Set the sponsor name from the invitation for non-salon invitations
+              insertClient.sponsorName = mostRecentInvitation.sponsor;
+              console.log(`DatabaseStorage.createClient - Setting sponsorName to ${mostRecentInvitation.sponsor} from invitation`);
+            }
           }
           
           // Update invitation status to accepted
@@ -1631,14 +1652,27 @@ export class DatabaseStorage implements IStorage {
   
   async validateRegistration(phone: string, email: string, excludeId?: number): Promise<{isValid: boolean, message?: string, hasUnredeemedGift?: boolean, requiresAddress?: boolean}> {
     try {
+      console.log(`DatabaseStorage.validateRegistration - Validating registration for phone: ${phone}, email: ${email}`);
+      
+      // Standardize the phone number for consistent comparison
+      const cleanPhone = cleanPhoneNumber(phone);
+      console.log(`DatabaseStorage.validateRegistration - Standardized phone: ${cleanPhone}`);
+      
       // For registration, we want to be strict about duplicates
       const duplicateCheck = await this.isDuplicateContact(phone, email, undefined, excludeId);
       
       if (duplicateCheck.isDuplicate) {
+        console.log(`DatabaseStorage.validateRegistration - Duplicate ${duplicateCheck.field} detected`);
         return { 
           isValid: false, 
           message: `This ${duplicateCheck.field} is already registered` 
         };
+      }
+      
+      // Check if this phone is in the invitations table to link relationships
+      const invitations = await this.getInvitationsByPhone(phone);
+      if (invitations.length > 0) {
+        console.log(`DatabaseStorage.validateRegistration - Found ${invitations.length} invitations for this phone`);
       }
       
       // Check if phone number has an unredeemed gift
@@ -1654,6 +1688,7 @@ export class DatabaseStorage implements IStorage {
       }
       
       // If we made it here, the registration is valid
+      console.log(`DatabaseStorage.validateRegistration - Registration is valid for ${phone}`);
       return { isValid: true };
     } catch (error) {
       console.error('Error validating registration:', error);
