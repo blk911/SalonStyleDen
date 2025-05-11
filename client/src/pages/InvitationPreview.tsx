@@ -473,7 +473,7 @@ export default function InvitationPreview() {
                   inviteId={invitation.inviteHash || `inv-${invitation.id}`}
                   recipientName={invitation.name}
                   styleOption={invitation.favoriteServices?.[0] || ""}
-                  senderName={invitation.sponsor || salon?.name || "Your Stylist"}
+                  senderName={invitation.sponsorName || invitation.sponsor || salon?.name || "Your Stylist"}
                   salonName={salon?.name}
                   imageUrl={"/assets/french-tips.png"} // Default image
                   salonInitiated={isSalonInvitation}

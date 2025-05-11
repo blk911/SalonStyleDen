@@ -1312,7 +1312,7 @@ export class DatabaseStorage implements IStorage {
       const sqlQuery = `
         SELECT 
             i.id, i.name, i.phone, i.email, i.notes, i.message, i.type,
-            i.salon_id, i.sponsor, i.invite_hash, i.status, 
+            i.salon_id, i.sponsor, i.sponsor_name, i.invite_hash, i.status, 
             i.first_service_date, i.created_at, 
             i.favorite_services, i.sender_id,
             i.style_option, i.style_price, i.style_duration,
@@ -1353,8 +1353,8 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          // For salon invitations, use the salon name as sponsorName for display
-          sponsorName: row.salon_name || row.sponsor,
+          // Use sponsor_name from DB, fall back to sponsor field or salon name if needed
+          sponsorName: row.sponsor_name || row.sponsor || row.salon_name,
           salonName: row.salon_name,
           senderId: row.sender_id || null
         };
