@@ -45,6 +45,7 @@ interface Invitation {
   // New properties for gift support
   isClientSentGift?: boolean;
   senderClientId?: number;
+  senderName?: string;
 }
 
 interface Salon {
@@ -122,6 +123,21 @@ export default function InvitationPreview() {
         
         console.log(`[FLOW] Extracted recipient name from message: "${recipientName}"`);
         
+        // Fetch sender's name if we have a sender ID
+        let senderName = '';
+        if (data.senderId) {
+          try {
+            const senderResponse = await fetch(`/api/clients/${data.senderId}`);
+            if (senderResponse.ok) {
+              const senderData = await senderResponse.json();
+              senderName = senderData.name || '';
+              console.log(`[FLOW] Found sender name: ${senderName}`);
+            }
+          } catch (error) {
+            console.error('[FLOW] Error fetching sender name:', error);
+          }
+        }
+        
         return {
           id: data.id,
           name: recipientName || data.recipientName || 'Recipient',
@@ -136,7 +152,8 @@ export default function InvitationPreview() {
           createdAt: data.createdAt,
           inviteHash: `gift-${data.id}`,
           isClientSentGift: isClientSentGift, // New flag to identify client-sent gifts
-          senderClientId: data.senderId // Add the sender's client ID for client-sent gifts
+          senderClientId: data.senderId, // Add the sender's client ID for client-sent gifts
+          senderName: senderName // Add the sender's name
         };
       }
       
@@ -366,8 +383,8 @@ export default function InvitationPreview() {
                     `Gift Request to: ${invitation.name}`}
                 </CardTitle>
                 <div className="flex items-center justify-between gap-4 mt-0.5">
-                  <p className="text-gray-600">
-                    Sent from: {invitation.sponsor || invitation.salonName || salon?.name || "Unknown Salon"}
+                  <p className="text-sm font-semibold text-gray-700">
+                    Sent from: {invitation.senderName || invitation.sponsor || invitation.salonName || salon?.name || "Unknown Salon"}
                   </p>
                   
                   {invitation.type === 'client_invitation' && (
@@ -462,16 +479,6 @@ export default function InvitationPreview() {
                   "This is a preview of a client gift request form"}
               </div>
               <div className="flex space-x-2">
-                {/* Add Send Gift button for client-sent gifts */}
-                {isGiftHash && invitation.isClientSentGift && 
-                  <Button
-                    onClick={promptAcceptInvitation}
-                    className="bg-green-500 hover:bg-green-600 text-white"
-                  >
-                    Send Gift
-                  </Button>
-                }
-                
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -522,6 +529,16 @@ export default function InvitationPreview() {
                     ? `Back to Sender's Dashboard` 
                     : `To ${invitation?.salonName || salon?.name || "Salon Page"}`}
                 </Button>
+                
+                {/* Add Send Gift button positioned on the right side */}
+                {isGiftHash && invitation.isClientSentGift && 
+                  <Button
+                    onClick={promptAcceptInvitation}
+                    className="bg-green-500 hover:bg-green-600 text-white ml-2"
+                  >
+                    Send Gift
+                  </Button>
+                }
               </div>
             </div>
           </CardFooter>
