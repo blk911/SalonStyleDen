@@ -405,13 +405,13 @@ export default function InvitationPreview() {
                 </h3>
                 
                 <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-gray-600">Recipient:</p>
+                  <div className="flex items-center">
+                    <p className="text-sm text-gray-600 mr-2">Recipient:</p>
                     <p className="font-medium">{invitation.name}</p>
                   </div>
                   
-                  <div>
-                    <p className="text-sm text-gray-600">Contact:</p>
+                  <div className="flex items-center">
+                    <p className="text-sm text-gray-600 mr-2">Contact:</p>
                     <p className="font-medium">{formatPhone(invitation.phone)}</p>
                   </div>
                   

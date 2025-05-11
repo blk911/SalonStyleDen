@@ -244,9 +244,9 @@ export function RenderedInvitation({
             </div>
           ) : (
             <>
-              <div className="flex justify-between items-center">
-                <div className="text-xs text-gray-500">{salonName}</div>
-                {/* Removed invitation ID display from header */}
+              <div className="flex justify-center items-center">
+                <div className="text-xs text-gray-500 text-center">{salonName}</div>
+                {/* Centered salon name */}
               </div>
               <h3 className="text-xl font-semibold text-pink-800 text-center mt-2">
                 Ven Me, Baby! Gift Request
