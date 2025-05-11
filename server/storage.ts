@@ -95,10 +95,8 @@ export interface IStorage {
   getGift(id: number): Promise<Gift | undefined>;
   getGiftByHash(hash: string): Promise<Gift | undefined>;
   getGiftByRecipientPhone(phone: string): Promise<Gift | undefined>;
-  getGiftsByRecipientPhone(phone: string, status?: string): Promise<Gift[]>;
   getSentGifts(senderId: number): Promise<Gift[]>;
   getReceivedGifts(recipientId: number): Promise<Gift[]>;
-  updateGift(id: number, updateData: Partial<Gift>): Promise<Gift>;
   updateGiftStatus(id: number, status: string): Promise<Gift>;
   checkUnredeemedGiftByPhone(phone: string): Promise<{hasUnredeemedGift: boolean, gift?: Gift}>;
 }
@@ -2360,35 +2358,6 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async updateGift(id: number, updateData: Partial<Gift>): Promise<Gift> {
-    try {
-      console.log(`DatabaseStorage.updateGift - Updating gift ID ${id}`, updateData);
-      
-      // Get current gift to ensure it exists
-      const currentGift = await this.getGift(id);
-      if (!currentGift) {
-        throw new Error(`Gift with ID ${id} not found`);
-      }
-      
-      // Update the gift with new data
-      const result = await db
-        .update(gifts)
-        .set(updateData)
-        .where(eq(gifts.id, id))
-        .returning();
-      
-      if (result.length === 0) {
-        throw new Error(`Failed to update gift for ID ${id}`);
-      }
-      
-      console.log(`DatabaseStorage.updateGift - Gift updated successfully`);
-      return result[0];
-    } catch (error) {
-      console.error(`Error updating gift:`, error);
-      throw error;
-    }
-  }
-
   async updateGiftStatus(id: number, status: string): Promise<Gift> {
     try {
       console.log(`DatabaseStorage.updateGiftStatus - Updating gift ID ${id} status to ${status}`);
@@ -2409,58 +2378,21 @@ export class DatabaseStorage implements IStorage {
         updateData.redeemedAt = new Date();
       }
       
-      // Update the gift status in the database using updateGift
-      return await this.updateGift(id, updateData);
+      // Update the gift status in the database
+      const result = await db
+        .update(gifts)
+        .set(updateData)
+        .where(eq(gifts.id, id))
+        .returning();
+      
+      if (result.length === 0) {
+        throw new Error(`Failed to update gift status for ID ${id}`);
+      }
+      
+      console.log(`DatabaseStorage.updateGiftStatus - Gift status updated successfully`);
+      return result[0];
     } catch (error) {
       console.error(`Error updating gift status:`, error);
-      throw error;
-    }
-  }
-
-  async getGiftsByRecipientPhone(phone: string, status?: string): Promise<Gift[]> {
-    try {
-      // Standardize phone format - get only digits for comparison
-      const cleanPhone = phone.replace(/\D/g, '');
-      console.log(`DatabaseStorage.getGiftsByRecipientPhone - Looking for gifts with recipient phone ${cleanPhone} (digits only)`);
-      
-      // Build SQL query using SQL template for custom PostgreSQL regexp_replace function
-      const baseQuery = sql`
-        SELECT * FROM gifts 
-        WHERE regexp_replace(recipient_phone, '[^0-9]', '', 'g') = ${cleanPhone}
-        ${status ? sql` AND status = ${status}` : sql``}
-        ORDER BY created_at DESC
-      `;
-      
-      // Execute the query directly
-      const client = await pool.connect();
-      try {
-        const result = await client.query(baseQuery);
-        const gifts = result.rows.map(row => ({
-          id: row.id,
-          senderId: row.sender_id,
-          recipientId: row.recipient_id,
-          recipientPhone: row.recipient_phone,
-          recipientEmail: row.recipient_email,
-          recipientName: row.recipient_name,
-          amount: row.amount,
-          message: row.message,
-          status: row.status,
-          salonId: row.salon_id,
-          giftHash: row.gift_hash,
-          expiresAt: row.expires_at,
-          redeemedAt: row.redeemed_at,
-          createdAt: row.created_at,
-          giftType: row.gift_type || 'style_card'
-        }));
-        
-        console.log(`DatabaseStorage.getGiftsByRecipientPhone - Found ${gifts.length} matching gifts with phone ${cleanPhone}${status ? ` and status ${status}` : ''}`);
-        
-        return gifts;
-      } finally {
-        client.release();
-      }
-    } catch (error) {
-      console.error(`Error getting gifts by recipient phone:`, error);
       throw error;
     }
   }
