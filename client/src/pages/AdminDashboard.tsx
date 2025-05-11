@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { formatPhoneNumber, formatPhonePartial, cleanPhoneNumber } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
@@ -324,13 +325,7 @@ export default function AdminDashboard() {
     },
   });
 
-  // Format phone numbers for display
-  const formatPhoneNumber = (phone: string) => {
-    if (!phone) return '';
-    const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length !== 10) return phone;
-    return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
-  };
+  // Using standardized phone formatting utilities from utils.ts (imported at top of file)
   
   // Delete invitation mutation
   const deleteInvitationMutation = useMutation({
