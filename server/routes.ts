@@ -1411,12 +1411,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid ID format" });
       }
       
-      const invitation = await storage.getInvitation(id);
-      if (!invitation) {
-        return res.status(404).json({ error: "Invitation not found" });
+      // Try to fetch by invitation ID first
+      const invitationById = await storage.getInvitation(id);
+      if (invitationById) {
+        return res.json(invitationById);
       }
       
-      res.json(invitation);
+      // If not found, try to get the client's details to find the invitation by hash
+      const client = await storage.getClient(id);
+      if (client && client.inviteHash) {
+        console.log(`[API] GET /invitations/${id} - Client has inviteHash: ${client.inviteHash}, attempting to fetch invitation by hash`);
+        const invitationByHash = await storage.getInvitationByHash(client.inviteHash);
+        if (invitationByHash) {
+          console.log(`[API] GET /invitations/${id} - Found invitation ${invitationByHash.id} using client's inviteHash`);
+          return res.json(invitationByHash);
+        }
+      }
+      
+      // If we reach here, the invitation wasn't found
+      return res.status(404).json({ error: "Invitation not found" });
     } catch (error) {
       console.error('Error retrieving invitation:', error);
       res.status(500).json({ error: "Failed to retrieve invitation" });
