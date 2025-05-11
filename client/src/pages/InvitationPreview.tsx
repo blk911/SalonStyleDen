@@ -569,7 +569,7 @@ export default function InvitationPreview() {
             /* Standard dialog for client invitations */
             <>
               <DialogHeader>
-                <DialogTitle className="text-center text-pink-700">Accept Gift Request?</DialogTitle>
+                <DialogTitle className="text-center text-pink-700">CONFIRM AND SEND GIFT</DialogTitle>
                 <DialogDescription className="text-center">
                   You're about to accept the gift request from {invitation.name}.
                 </DialogDescription>
@@ -600,7 +600,7 @@ export default function InvitationPreview() {
                   Processing...
                 </>
               ) : (
-                'Accept & Continue'
+                'YES, SEND GIFT NOW!'
               )}
             </Button>
           </DialogFooter>
