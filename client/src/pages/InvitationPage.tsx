@@ -543,7 +543,7 @@ export default function InvitationPage() {
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Contact:</p>
-                          <p className="font-medium">{formatPhone(invitation.phone)}</p>
+                          <p className="font-medium">{formatPhoneNumber(invitation.phone)}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Email:</p>
