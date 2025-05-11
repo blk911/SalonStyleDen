@@ -11,7 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, cleanPhoneNumber, normalizePhoneForStorage } from "@/lib/utils";
 import { Loader2, SendIcon } from "lucide-react";
 import {
   Dialog,

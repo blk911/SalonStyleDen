@@ -117,7 +117,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
         body: JSON.stringify({
           _validateOnly: true,
           name: form.name,
-          phone: form.phone,
+          phone: normalizePhoneForStorage(form.phone), // Normalize phone for storage
           email: form.email,
           senderId: clientId,
         }),
@@ -146,7 +146,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
         },
         body: JSON.stringify({
           name: form.name,
-          phone: form.phone,
+          phone: normalizePhoneForStorage(form.phone), // Normalize phone for storage
           email: form.email,
           message: form.message,
           senderId: clientId,
