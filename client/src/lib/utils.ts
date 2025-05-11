@@ -44,29 +44,30 @@ export function formatPhoneNumber(value: string): string {
   if (digits.length === 0) {
     return '';
   } else if (digits.length < 10) {
-    // Pad with dots if less than 10 digits to maintain consistent format
+    // Pad with zeros if less than 10 digits to maintain consistent format
     const paddedDigits = digits.padEnd(10, '0');
     return `(${paddedDigits.slice(0, 3)}) ${paddedDigits.slice(3, 6)}-${paddedDigits.slice(6, 10)}`;
   } else {
-    // Standard 10-digit format
+    // Standard 10-digit format with parentheses - critical for site-wide consistency
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
   }
 }
 
 /**
  * SITE-WIDE CRITICAL STANDARD: Formats a phone number for display with partial masking
- * for privacy/security (e.g., (123) 456-****).
+ * for privacy/security (e.g., (555) 111-****).
  * @param phone The phone number to format with masking
- * @returns Partially masked phone number
+ * @returns Partially masked phone number in standard (XXX) XXX-**** format
  */
 export function formatPhonePartial(phone: string): string {
   const cleaned = cleanPhoneNumber(phone);
-  // Always maintain (XXX) XXX-XXXX format even with partial phones
+  // Always maintain (XXX) XXX-**** format even with partial phones
   if (cleaned.length < 10) {
     const paddedDigits = cleaned.padEnd(10, '0');
-    // Last 4 digits always masked
+    // Last 4 digits always masked with asterisks
     return `(${paddedDigits.slice(0, 3)}) ${paddedDigits.slice(3, 6)}-****`;
   } else {
+    // Standard 10-digit format with last 4 digits masked - consistent with screenshots
     return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-****`;
   }
 }
