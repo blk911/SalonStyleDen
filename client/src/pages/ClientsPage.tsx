@@ -145,18 +145,6 @@ export default function ClientsPage() {
               <div className="overflow-hidden rounded-xl border shadow-md">
                 <TeaserCarousel />
               </div>
-              
-              {/* Invitation Redemption Link */}
-              <div className="w-full flex justify-center mt-4">
-                <Link href="/check-invitation">
-                  <Button 
-                    className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all"
-                  >
-                    <GiftIcon className="mr-2 h-4 w-4" />
-                    Got a Gift or Invitation? Check Here!
-                  </Button>
-                </Link>
-              </div>
             </div>
 
             {/* Cards now always stack vertically on all devices */}

@@ -1392,13 +1392,11 @@ export class DatabaseStorage implements IStorage {
     try {
       // Handle empty phone cases
       if (!phone) {
-        console.log(`[PHONE MATCH] getInvitationsByPhone - Empty phone provided, returning empty array`);
         return [];
       }
       
       // Clean phone number to digits only for comparison
       const cleanPhone = phone.replace(/\D/g, '');
-      console.log(`[PHONE MATCH] getInvitationsByPhone - Searching for phone: ${cleanPhone} (original: ${phone})`);
       
       // Use raw SQL to get all invitations - this ensures we don't have schema mismatch issues
       const sqlQuery = `
@@ -1411,23 +1409,10 @@ export class DatabaseStorage implements IStorage {
         FROM invitations
       `;
       
-      console.log(`[PHONE MATCH] Running SQL query to get all invitations`);
       const client = await pool.connect();
       try {
         const queryResult = await client.query(sqlQuery);
         const rows = queryResult.rows;
-        console.log(`[PHONE MATCH] Found ${rows.length} total invitations in database`);
-        
-        // Debug log the first few rows to check structure
-        if (rows.length > 0) {
-          console.log(`[PHONE MATCH] First invitation in DB:`, JSON.stringify({
-            id: rows[0].id,
-            name: rows[0].name,
-            phone: rows[0].phone,
-            status: rows[0].status,
-            hash: rows[0].invite_hash
-          }));
-        }
         
         // Map results to our expected format
         const allInvitations = rows.map(row => ({
@@ -1448,15 +1433,12 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          sponsorName: row.salon_id ? row.sponsor : null, // Fixed FROM display for salon invitations
+          sponsorName: invitations[i].salonId ? invitations[i].sponsor : null, // Fixed FROM display for salon invitations
           senderId: row.sender_id || null
         }));
         
         // Filter based on matching criteria
         let filteredInvitations: Invitation[] = [];
-        
-        // Debug log
-        console.log(`[PHONE MATCH] Starting phone matching with ${allInvitations.length} invitations for phone ${cleanPhone}`);
         
         if (partialMatch) {
           // For partial match, check if invitation phone ends with the given digits
@@ -1464,39 +1446,19 @@ export class DatabaseStorage implements IStorage {
             if (!invitation.phone) return false;
             const invitePhone = invitation.phone.replace(/\D/g, '');
             
-            // Debug log
-            console.log(`[PHONE PARTIAL MATCH] Comparing DB=${invitePhone} with search=${cleanPhone}`);
-            
             // Match if the last N digits match our search
             if (cleanPhone.length <= invitePhone.length) {
               const lastDigits = invitePhone.slice(-cleanPhone.length);
-              const matches = lastDigits === cleanPhone;
-              
-              console.log(`[PHONE PARTIAL MATCH] Last ${cleanPhone.length} digits: ${lastDigits}, match=${matches}`);
-              
-              return matches;
+              return lastDigits === cleanPhone;
             }
             return false;
           });
         } else {
           // For exact match, require full phone number match
-          filteredInvitations = allInvitations.filter(invitation => {
-            if (!invitation.phone) return false;
-            const invitePhone = invitation.phone.replace(/\D/g, '');
-            const matches = invitePhone === cleanPhone;
-            
-            // Debug log each comparison
-            console.log(`[PHONE EXACT MATCH] Comparing DB=${invitePhone} (${invitation.id}: ${invitation.name}) with search=${cleanPhone}, match=${matches}`);
-            
-            return matches;
-          });
+          filteredInvitations = allInvitations.filter(invitation => 
+            invitation.phone && invitation.phone.replace(/\D/g, '') === cleanPhone
+          );
         }
-        
-        // Debug log results
-        console.log(`[PHONE MATCH] Found ${filteredInvitations.length} matching invitations`);
-        filteredInvitations.forEach((inv, i) => {
-          console.log(`[PHONE MATCH] Match #${i+1}: id=${inv.id}, name=${inv.name}, phone=${inv.phone}, status=${inv.status}`);
-        });
         
         return filteredInvitations;
       } finally {
@@ -2392,47 +2354,6 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error(`Error checking unredeemed gift by phone:`, error);
       return { hasUnredeemedGift: false };
-    }
-  }
-  
-  /**
-   * Check for pending invitations for a phone number and retrieve the most recent one.
-   * This is used for the gift/invitation redemption flow.
-   * @param phone The recipient's phone number
-   * @returns Object containing the pending invitation if found
-   */
-  async checkPendingInvitationByPhone(phone: string): Promise<{hasPendingInvitation: boolean, invitation?: Invitation}> {
-    try {
-      // Standardize phone format - get only digits for comparison
-      const cleanPhone = phone.replace(/\D/g, '');
-      console.log(`DatabaseStorage.checkPendingInvitationByPhone - Checking for pending invitation for phone ${cleanPhone}`);
-      
-      // Get all invitations
-      const allInvitations = await this.getInvitationsByPhone(phone);
-      
-      // Filter for pending invitations
-      const pendingInvitations = allInvitations.filter(invitation => 
-        invitation.status === 'pending' || invitation.status === 'sent'
-      );
-      
-      // Sort by created date (newest first)
-      pendingInvitations.sort((a, b) => {
-        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return dateB - dateA;
-      });
-      
-      const hasPendingInvitation = pendingInvitations.length > 0;
-      
-      console.log(`DatabaseStorage.checkPendingInvitationByPhone - Found ${pendingInvitations.length} pending invitations`);
-      
-      return {
-        hasPendingInvitation,
-        invitation: hasPendingInvitation ? pendingInvitations[0] : undefined
-      };
-    } catch (error) {
-      console.error(`Error checking pending invitation by phone:`, error);
-      return { hasPendingInvitation: false };
     }
   }
 }
