@@ -100,7 +100,30 @@ export default function InvitationRedemptionPage() {
       }
 
       const data = await response.json();
-      console.log('Redemption check response:', data);
+      console.log('[REDEMPTION] Check response:', data);
+      
+      // Additional logs to help debug
+      if (data.hasPendingInvitation && data.invitation) {
+        console.log('[REDEMPTION] Found pending invitation:', {
+          id: data.invitation.id,
+          name: data.invitation.name,
+          phone: data.invitation.phone,
+          status: data.invitation.status,
+          hash: data.invitation.inviteHash,
+          styleOption: data.invitation.styleOption,
+          stylePrice: data.invitation.stylePrice
+        });
+      } else if (data.hasUnredeemedGift && data.gift) {
+        console.log('[REDEMPTION] Found unredeemed gift:', {
+          id: data.gift.id,
+          recipientName: data.gift.recipientName,
+          recipientPhone: data.gift.recipientPhone,
+          status: data.gift.status
+        });
+      } else {
+        console.log('[REDEMPTION] No pending invitations or gifts found');
+      }
+      
       setRedemptionResult(data);
     } catch (error) {
       console.error('Error checking phone for invitations:', error);

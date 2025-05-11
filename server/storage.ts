@@ -1392,11 +1392,13 @@ export class DatabaseStorage implements IStorage {
     try {
       // Handle empty phone cases
       if (!phone) {
+        console.log(`[PHONE MATCH] getInvitationsByPhone - Empty phone provided, returning empty array`);
         return [];
       }
       
       // Clean phone number to digits only for comparison
       const cleanPhone = phone.replace(/\D/g, '');
+      console.log(`[PHONE MATCH] getInvitationsByPhone - Searching for phone: ${cleanPhone} (original: ${phone})`);
       
       // Use raw SQL to get all invitations - this ensures we don't have schema mismatch issues
       const sqlQuery = `
@@ -1409,10 +1411,23 @@ export class DatabaseStorage implements IStorage {
         FROM invitations
       `;
       
+      console.log(`[PHONE MATCH] Running SQL query to get all invitations`);
       const client = await pool.connect();
       try {
         const queryResult = await client.query(sqlQuery);
         const rows = queryResult.rows;
+        console.log(`[PHONE MATCH] Found ${rows.length} total invitations in database`);
+        
+        // Debug log the first few rows to check structure
+        if (rows.length > 0) {
+          console.log(`[PHONE MATCH] First invitation in DB:`, JSON.stringify({
+            id: rows[0].id,
+            name: rows[0].name,
+            phone: rows[0].phone,
+            status: rows[0].status,
+            hash: rows[0].invite_hash
+          }));
+        }
         
         // Map results to our expected format
         const allInvitations = rows.map(row => ({

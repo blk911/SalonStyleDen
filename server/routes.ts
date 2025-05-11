@@ -455,6 +455,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // First check for pending invitations
           const invitationCheck = await storage.checkPendingInvitationByPhone(phone);
           
+          // Debug logging - detailed inspection of what we found
+          console.log(`[INVITE REDEMPTION] Invitation check result:`, JSON.stringify({
+            hasPendingInvitation: invitationCheck.hasPendingInvitation,
+            invitationId: invitationCheck.invitation?.id,
+            invitationHash: invitationCheck.invitation?.inviteHash,
+            status: invitationCheck.invitation?.status,
+            name: invitationCheck.invitation?.name,
+            phone: invitationCheck.invitation?.phone
+          }));
+          
           if (invitationCheck.hasPendingInvitation && invitationCheck.invitation) {
             console.log(`[INVITE REDEMPTION] Phone ${phone} has a pending invitation: ${invitationCheck.invitation.inviteHash}`);
             
