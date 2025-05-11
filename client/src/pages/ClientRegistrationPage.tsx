@@ -279,131 +279,101 @@ export default function ClientRegistrationPage() {
       return;
     }
     
-    // If phone is valid, check for unredeemed gifts
+    // If phone is valid and we're in Gift/Invite mode, look up the invitation ID directly
     if (isValid && phoneNumber) {
-      logFlow('Phone is valid, validating with server');
+      const clientType = form.getValues('clientType');
       
-      try {
-        // Get the current client type
-        const clientType = form.getValues('clientType');
+      if (clientType === 'giftInvite') {
+        logFlow('Gift/Invite mode: Looking up invitation ID for phone', phoneNumber);
         
-        // Call validateContact to check for unredeemed gifts
-        const result = await validateContact(phoneNumber);
-        
-        // If this phone has an unredeemed gift, handle appropriately
-        if (result === 'has_unredeemed_gift') {
-          logFlow('Phone has unredeemed gift');
+        try {
+          // Call API to find invitation ID associated with this phone number
+          const response = await fetch(`/api/invitations?phone=${encodeURIComponent(phoneNumber)}`);
           
-          // Auto-set client type to gift/invite if not already set
-          if (clientType !== 'giftInvite') {
-            form.setValue('clientType', 'giftInvite');
-            logFlow('Auto-set client type to Gift/Invite due to unredeemed gift');
-          }
-          
-          // Fetch gift details to get salon information 
-          // Using a consolidated endpoint that gets all pending gifts for a phone number
-          try {
-            const response = await fetch(`/api/gifts/pending?phone=${encodeURIComponent(phoneNumber)}`);
+          if (response.ok) {
+            const invitations = await response.json();
             
-            if (response.ok) {
-              const giftData = await response.json();
-              logFlow('Found gift data:', giftData);
+            if (invitations && invitations.length > 0) {
+              const invitation = invitations[0]; // Get the first matching invitation
+              const invitationId = invitation.id;
+              const name = invitation.name || '';
               
-              if (giftData && giftData.length > 0 && giftData[0].senderId) {
-                const gift = giftData[0]; // Use the first gift in the list
+              logFlow(`Found invitation ID ${invitationId} for phone ${phoneNumber}`);
+              
+              // Redirect to complete registration page with invitation ID
+              window.location.href = `/client/register?registrationMode=complete&invitationId=${invitationId}&phone=${encodeURIComponent(phoneNumber)}&name=${encodeURIComponent(name)}`;
+              
+              toast({
+                title: 'Invitation Found!',
+                description: 'Loading your invitation details...',
+                variant: 'default',
+              });
+              
+              return;
+            } else {
+              // Now check for gifts if no invitation found
+              const giftsResponse = await fetch(`/api/gifts?recipientPhone=${encodeURIComponent(phoneNumber)}&status=pending`);
+              
+              if (giftsResponse.ok) {
+                const gifts = await giftsResponse.json();
                 
-                // Get the salon information for this sender
-                const salonResponse = await fetch(`/api/salons?ownerId=${gift.senderId}`);
-                
-                if (salonResponse.ok) {
-                  const salons = await salonResponse.json();
+                if (gifts && gifts.length > 0) {
+                  const gift = gifts[0]; // Get the first matching gift
+                  const giftId = gift.id;
+                  const recipientName = gift.recipientName || '';
                   
-                  if (salons && salons.length > 0) {
-                    const salonData = salons[0];
-                    logFlow('Found salon data:', salonData);
-                    
-                    // Auto-populate the form with salon information
-                    form.setValue('sponsorSalonId', salonData.id);
-                    
-                    toast({
-                      title: 'Gift Found!',
-                      description: `We found your gift from ${salonData.name}. Complete registration to redeem it.`,
-                      variant: 'default',
-                    });
-                  } else {
-                    // Fallback to VMB LTD if salon not found
-                    form.setValue('sponsorSalonId', 1); // VMB LTD has ID 1
-                    
-                    toast({
-                      title: 'Gift Found!',
-                      description: 'We found your gift. Complete registration to redeem it.',
-                      variant: 'default',
-                    });
-                  }
+                  logFlow(`Found gift ID ${giftId} for phone ${phoneNumber}`);
+                  
+                  // Redirect to complete registration page with gift ID
+                  window.location.href = `/client/register?registrationMode=complete&giftId=${giftId}&phone=${encodeURIComponent(phoneNumber)}&name=${encodeURIComponent(recipientName)}`;
+                  
+                  toast({
+                    title: 'Gift Found!',
+                    description: 'Loading your gift details...',
+                    variant: 'default',
+                  });
+                  
+                  return;
+                } else {
+                  // No invitation or gift found
+                  toast({
+                    title: 'No Records Found',
+                    description: 'We couldn\'t find any gifts or invitations for this phone number.',
+                    variant: 'destructive',
+                  });
                 }
               }
             }
-          } catch (error) {
-            console.error('Error fetching gift details:', error);
           }
+        } catch (error) {
+          console.error('Error searching for invitation/gift:', error);
+          toast({
+            title: 'Error',
+            description: 'There was a problem looking up your information. Please try again.',
+            variant: 'destructive',
+          });
+        }
+      } else {
+        // Regular phone validation for other client types
+        logFlow('Phone is valid, validating with server');
+        
+        try {
+          // Call validateContact to check if this is a registered client
+          const result = await validateContact(phoneNumber);
           
-          // Check if we need address information
-          if (requiresAddress) {
-            logFlow('Gift requires address information');
+          // If this phone has an unredeemed gift, suggest the Gift/Invite option
+          if (result === 'has_unredeemed_gift') {
+            logFlow('Phone has unredeemed gift');
+            
             toast({
-              title: 'Address Needed',
-              description: 'Please fill in your address information to complete redemption.',
+              title: 'Gift Available!',
+              description: 'This phone number has a gift waiting. Please select the Gift/Invite option to redeem it.',
               variant: 'default',
             });
           }
-        } else if (clientType === 'giftInvite') {
-          // Check for invitations if no gift was found
-          try {
-            // Using a consolidated endpoint that gets all pending invitations for a phone number
-            const inviteResponse = await fetch(`/api/invitations/pending?phone=${encodeURIComponent(phoneNumber)}`);
-            
-            if (inviteResponse.ok) {
-              const invitations = await inviteResponse.json();
-              logFlow('Found invitation data:', invitations);
-              
-              if (invitations && invitations.length > 0) {
-                const inviteData = invitations[0]; // Use the first invitation in the list
-                
-                // Auto-populate the form with salon information
-                form.setValue('sponsorSalonId', inviteData.salonId);
-                
-                // Also populate name and email if available
-                if (inviteData.name) {
-                  form.setValue('name', inviteData.name);
-                }
-                
-                if (inviteData.email) {
-                  form.setValue('email', inviteData.email);
-                }
-                
-                toast({
-                  title: 'Invitation Found!',
-                  description: `We found your invitation from ${inviteData.sponsor || 'a salon'}. Complete registration to accept it.`,
-                  variant: 'default',
-                });
-                
-                // Update status in UI to show we're now completing registration
-                setIsCompleteRegistrationMode(true);
-              } else {
-                // No invitation found for gift/invite mode
-                toast({
-                  title: 'No Records Found',
-                  description: 'We couldn\'t find any gifts or invitations for this phone number.',
-                  variant: 'destructive',
-                });
-              }
-            }
-          } catch (error) {
-            console.error('Error fetching invitation details:', error);
-          }
+        } catch (error) {
+          console.error('Error validating phone:', error);
         }
-      } catch (error) {
-        console.error('Error validating phone for gifts:', error);
       }
     }
   };
@@ -843,23 +813,12 @@ export default function ClientRegistrationPage() {
                                 // When Gift/Invite is selected, initiate the redemption flow
                                 logFlow('Gift/Invite option selected, initiating redemption flow');
                                 
-                                // If phone is already entered, validate it immediately
-                                const currentPhone = form.getValues('phone');
-                                
-                                // Make sure phone is valid (10 digits) before validating
-                                const isPhoneValid = currentPhone && 
-                                  currentPhone.length >= 10 && 
-                                  cleanPhoneNumber(currentPhone).length === 10;
-                                  
-                                if (isPhoneValid) {
-                                  handlePhoneValidation(true, currentPhone);
-                                } else {
-                                  toast({
-                                    title: 'Redeem Gift or Invitation',
-                                    description: 'Please enter your phone number to find your gift or invitation',
-                                    variant: 'default',
-                                  });
-                                }
+                                // Ask for phone number to find the invitation
+                                toast({
+                                  title: 'Redeem Gift or Invitation',
+                                  description: 'Please enter your phone number to find your invitation',
+                                  variant: 'default',
+                                });
                               }}
                             >
                               <Gift className={`h-8 w-8 mb-2 ${field.value === 'giftInvite' ? 'text-[#FF92A5]' : 'text-gray-500'}`} />
@@ -912,7 +871,20 @@ export default function ClientRegistrationPage() {
                               <PhoneInputField 
                                 placeholder="Enter your phone number" 
                                 value={field.value} 
-                                onChange={field.onChange}
+                                onChange={(value) => {
+                                  field.onChange(value);
+                                  
+                                  // If gift/invite is selected, automatically validate 
+                                  // as soon as a valid phone number is entered
+                                  const clientType = form.getValues('clientType');
+                                  if (clientType === 'giftInvite' && value.length >= 10) {
+                                    if (cleanPhoneNumber(value).length === 10) {
+                                      // Valid phone number entered - initiate validation
+                                      logFlow('Auto-validating phone in Gift/Invite mode');
+                                      handlePhoneValidation(true, value);
+                                    }
+                                  }
+                                }}
                                 onValidationComplete={handlePhoneValidation}
                                 clearField={() => form.setValue('phone', '')}
                               />
