@@ -11,7 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { formatPhoneNumber, cleanPhoneNumber, normalizePhoneForStorage } from "@/lib/utils";
+import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/utils";
 import { Loader2, SendIcon } from "lucide-react";
 import {
   Dialog,
@@ -161,7 +161,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       const giftData = {
         senderId: data.senderId,
         recipientName: data.name,
-        recipientPhone: normalizePhoneForStorage(data.phone), // Normalize phone number for storage
+        recipientPhone: data.phone,
         recipientEmail: data.email || null,
         message: data.message,
         value: data.stylePrice, // Used instead of amount in the UI
@@ -371,7 +371,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         clientId: clientId,
         salonId: useSalonId,
         name: recipientData.name,
-        phone: normalizePhoneForStorage(recipientData.phone), // Normalize phone for storage
+        phone: recipientData.phone,
         email: recipientData.email,
         signature: recipientData.signature
       });
@@ -387,8 +387,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     // Log the preview action
     console.log("[FLOW][GiftCreationFlow] Opening invitation preview", {
       recipientName: recipientData.name,
-      recipientContact: formatPhoneNumber(recipientData.phone), // Display formatted phone in logs
-      phoneNormalized: normalizePhoneForStorage(recipientData.phone), // Also show normalized form
+      recipientContact: recipientData.phone,
       styleId: selectedStyleId,
       salonId: useSalonId
     });
@@ -422,7 +421,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     // Create gift data
     const giftData = {
       name: recipientData.name,
-      phone: normalizePhoneForStorage(recipientData.phone), // Normalize phone for storage
+      phone: recipientData.phone,
       email: recipientData.email || null,
       message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️ ${recipientData.signature || ""}`,
       signature: recipientData.signature || client?.name || "",

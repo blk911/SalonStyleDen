@@ -13,7 +13,6 @@ import { AtSignIcon, ChevronDownIcon, ChevronUpIcon, PhoneIcon, SendIcon, UserIc
 import FlowLogger from "@/lib/flow-logger";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { queryClient } from "@/lib/queryClient";
-import { formatPhoneNumber, normalizePhoneForStorage } from "@/lib/utils";
 
 interface ClientInviteFormProps {
   clientId: number;
@@ -44,8 +43,18 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     
     // Format phone number if phone field is being updated
     if (name === 'phone') {
-      // Use the standard site-wide phone formatter
-      const formattedPhone = formatPhoneNumber(value);
+      // Keep only digits
+      const digitsOnly = value.replace(/\D/g, '');
+      
+      // Format the phone number as (XXX) XXX-XXXX
+      let formattedPhone = '';
+      if (digitsOnly.length <= 3) {
+        formattedPhone = digitsOnly;
+      } else if (digitsOnly.length <= 6) {
+        formattedPhone = `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3)}`;
+      } else {
+        formattedPhone = `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6, 10)}`;
+      }
       
       setForm((prev) => ({ ...prev, [name]: formattedPhone }));
       FlowLogger.log('ClientInviteForm', 'Form Field Updated (Formatted Phone)', { field: name, value: formattedPhone, raw: value });
@@ -117,7 +126,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
         body: JSON.stringify({
           _validateOnly: true,
           name: form.name,
-          phone: normalizePhoneForStorage(form.phone), // Normalize phone for storage
+          phone: form.phone,
           email: form.email,
           senderId: clientId,
         }),
@@ -146,7 +155,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
         },
         body: JSON.stringify({
           name: form.name,
-          phone: normalizePhoneForStorage(form.phone), // Normalize phone for storage
+          phone: form.phone,
           email: form.email,
           message: form.message,
           senderId: clientId,

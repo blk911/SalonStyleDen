@@ -19,25 +19,18 @@ export function cleanPhoneNumber(phoneNumber: string | null | undefined): string
 }
 
 /**
- * SERVER-WIDE CRITICAL STANDARD: Format a phone number for display as (xxx) xxx-xxxx
- * This MUST be used for ALL phone display across the application
+ * SERVER-WIDE STANDARD: Format a phone number for display as (xxx) xxx-xxxx
  * @param phoneNumber The phone number to format
- * @returns Formatted phone number in consistent (XXX) XXX-XXXX format
+ * @returns Formatted phone number, or empty string if invalid
  */
 export function formatPhoneForDisplay(phoneNumber: string | null | undefined): string {
   const digits = cleanPhoneNumber(phoneNumber);
   
-  // Ensure we have a consistent format for all phones
-  if (digits.length === 0) {
-    return '';
-  } else if (digits.length < 10) {
-    // Pad with zeros if less than 10 digits to maintain consistent format
-    const paddedDigits = digits.padEnd(10, '0');
-    return `(${paddedDigits.substring(0, 3)}) ${paddedDigits.substring(3, 6)}-${paddedDigits.substring(6, 10)}`;
-  } else {
-    // Standard 10-digit format
-    return `(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6, 10)}`;
-  }
+  // Validate to make sure we have enough digits
+  if (digits.length < 10) return digits; // Return as-is if not enough digits
+  
+  // Format as (xxx) xxx-xxxx
+  return `(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6, 10)}`;
 }
 
 /**

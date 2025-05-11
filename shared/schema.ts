@@ -58,8 +58,6 @@ export const clients = pgTable("clients", {
   sponsor: text("sponsor").notNull().default("VMB LTD"), // Sponsor name with default
   sponsorName: text("sponsor_name").notNull().default("VMB LTD"), // Name of the sponsor
   sponsorSalonId: integer("sponsor_salon_id").notNull().default(1).references(() => salons.id), // Default to VMB LTD (ID: 1)
-  // [RULE: UniqueInvitationID] CRITICAL: Track the invitation that created this client
-  inviteHash: text("invite_hash"), // The hash code from the invitation that created the client
   type: text("type").notNull().default("client"),
   address: text("address"), // Street address
   city: text("city"),

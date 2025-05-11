@@ -290,7 +290,7 @@ export default function EditableClientInfo({ client, onSave, defaultEditing = fa
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center text-gray-700">
                     <PhoneIcon className="h-3 w-3 mr-2 text-pink-500" />
-                    <span className="text-sm">{formatPhoneNumber(editedClient.phone)}</span>
+                    <span className="text-sm">{editedClient.phone}</span>
                   </div>
                   <div className="flex items-center text-gray-700">
                     <AtSignIcon className="h-3 w-3 mr-2 text-pink-500" />

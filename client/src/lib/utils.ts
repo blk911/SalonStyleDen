@@ -20,8 +20,28 @@ export function validateResponse<T>(response: T | null): T {
 }
 
 /**
- * SITE-WIDE CRITICAL STANDARD: Clean phone number by removing all non-digit characters
- * This is the base function used throughout all phone handling
+ * SITE-WIDE STANDARD: Formats a phone number into (XXX) XXX-XXXX format
+ * @param value The input phone number string (can contain non-digit characters)
+ * @returns Formatted phone number in (XXX) XXX-XXXX format
+ */
+export function formatPhoneNumber(value: string): string {
+  // Remove non-digit characters
+  const digits = cleanPhoneNumber(value);
+
+  // Format as (XXX) XXX-XXXX - site-wide standard
+  if (digits.length === 0) {
+    return '';
+  } else if (digits.length <= 3) {
+    return digits;
+  } else if (digits.length <= 6) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  } else {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  }
+}
+
+/**
+ * SITE-WIDE STANDARD: Clean phone number by removing all non-digit characters
  * @param phoneNumber The phone number to clean
  * @returns Only the digits of the phone number
  */
@@ -31,45 +51,17 @@ export function cleanPhoneNumber(phoneNumber: string): string {
 }
 
 /**
- * SITE-WIDE CRITICAL STANDARD: Formats a phone number into (XXX) XXX-XXXX format
- * This must be used for ALL phone display throughout the application
- * @param value The input phone number string (can contain non-digit characters)
- * @returns Formatted phone number in (XXX) XXX-XXXX format
- */
-export function formatPhoneNumber(value: string): string {
-  // Remove non-digit characters
-  const digits = cleanPhoneNumber(value);
-  
-  // Ensure we have a consistent format for all phones
-  if (digits.length === 0) {
-    return '';
-  } else if (digits.length < 10) {
-    // Pad with zeros if less than 10 digits to maintain consistent format
-    const paddedDigits = digits.padEnd(10, '0');
-    return `(${paddedDigits.slice(0, 3)}) ${paddedDigits.slice(3, 6)}-${paddedDigits.slice(6, 10)}`;
-  } else {
-    // Standard 10-digit format with parentheses - critical for site-wide consistency
-    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
-  }
-}
-
-/**
- * SITE-WIDE CRITICAL STANDARD: Formats a phone number for display with partial masking
- * for privacy/security (e.g., (555) 111-****).
+ * SITE-WIDE STANDARD: Formats a phone number for display with partial masking
+ * for privacy/security (e.g., (123) 456-****).
  * @param phone The phone number to format with masking
- * @returns Partially masked phone number in standard (XXX) XXX-**** format
+ * @returns Partially masked phone number
  */
 export function formatPhonePartial(phone: string): string {
   const cleaned = cleanPhoneNumber(phone);
-  // Always maintain (XXX) XXX-**** format even with partial phones
-  if (cleaned.length < 10) {
-    const paddedDigits = cleaned.padEnd(10, '0');
-    // Last 4 digits always masked with asterisks
-    return `(${paddedDigits.slice(0, 3)}) ${paddedDigits.slice(3, 6)}-****`;
-  } else {
-    // Standard 10-digit format with last 4 digits masked - consistent with screenshots
+  if (cleaned.length === 10) {
     return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-****`;
   }
+  return formatPhoneNumber(phone);
 }
 
 /**

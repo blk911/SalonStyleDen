@@ -10,7 +10,6 @@ import {
 } from "@shared/schema";
 import { db, pool } from "./db";
 import { eq, sql, and, or } from "drizzle-orm";
-import { cleanPhoneNumber, formatPhoneForDisplay, phonesMatch } from "./utils";
 
 export interface IStorage {
   // User methods
@@ -420,26 +419,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createClient(insertClient: InsertClient): Promise<Client> {
-    // Add explicit debug messages for tracking
-    console.log(`DatabaseStorage.createClient - Creating client ${insertClient.name} with phone ${insertClient.phone}`);
-    
     // First check if this is a phone in invitations but not in clients
     if (insertClient.phone) {
-      // Use standardized phone formats consistently for all comparisons
-      const cleanPhone = cleanPhoneNumber(insertClient.phone);
-      console.log(`DatabaseStorage.createClient - Clean phone: ${cleanPhone}`);
-      
-      // Find matching invitations with improved phone number standardization
       const invitations = await this.getInvitationsByPhone(insertClient.phone);
-      console.log(`DatabaseStorage.createClient - Found ${invitations.length} matching invitations`);
+      const allClients = await db.select().from(clients);
       
-      // Use PostgreSQL's regexp_replace for consistent phone comparisons
-      const allClients = await db.query.clients.findMany({
-        where: sql`regexp_replace(${clients.phone}, '[^0-9]', '', 'g') = ${cleanPhone}`
-      });
+      // Standardize phone format for comparison
+      const cleanPhone = insertClient.phone.replace(/\D/g, '');
       
       // Check if phone exists in clients
-      const clientExists = allClients.length > 0;
+      const clientExists = allClients.some(c => 
+        c.phone && c.phone.replace(/\D/g, '') === cleanPhone
+      );
       
       // If phone exists in invitations but not in clients, this is a valid registration from an invitation
       if (invitations.length > 0 && !clientExists) {
@@ -456,17 +447,10 @@ export class DatabaseStorage implements IStorage {
         if (mostRecentInvitation) {
           console.log(`DatabaseStorage.createClient - Using invitation data for sponsorship: invitation ID ${mostRecentInvitation.id}`);
           
-          // CRITICAL: Save the inviteHash - this is the IMMUTABLE link between invitation and client
-          // This is what maintains the relationship tracking between invitations and clients
-          insertClient.inviteHash = mostRecentInvitation.inviteHash;
-          console.log(`DatabaseStorage.createClient - Setting inviteHash to ${mostRecentInvitation.inviteHash} from invitation`);
-          
-          // If the invitation has a salonId, use it as the sponsorSalonId AND the salonId
+          // If the invitation has a salonId, use it as the sponsorSalonId
           if (mostRecentInvitation.salonId) {
-            // For salon invitations, both fields need to be set to maintain proper relationship
             insertClient.sponsorSalonId = mostRecentInvitation.salonId;
-            insertClient.salonId = mostRecentInvitation.salonId;
-            console.log(`DatabaseStorage.createClient - Setting sponsorSalonId and salonId to ${mostRecentInvitation.salonId} from invitation`);
+            console.log(`DatabaseStorage.createClient - Setting sponsorSalonId to ${mostRecentInvitation.salonId} from invitation`);
           }
           
           // If the invitation has a senderId (client who sent the invitation), note the sponsor relationship
@@ -485,23 +469,9 @@ export class DatabaseStorage implements IStorage {
               }
             }
           } else if (mostRecentInvitation.sponsor) {
-            // For salon invitations, ensure the sponsor name shows the salon name, not VMB LTD
-            if (mostRecentInvitation.salonId) {
-              // Get the salon name from the database to ensure accuracy
-              const salon = await this.getSalon(mostRecentInvitation.salonId);
-              if (salon) {
-                insertClient.sponsorName = salon.name;
-                console.log(`DatabaseStorage.createClient - Setting sponsorName to ${salon.name} from salon record`);
-              } else {
-                // Fallback to the sponsor from the invitation
-                insertClient.sponsorName = mostRecentInvitation.sponsor;
-                console.log(`DatabaseStorage.createClient - Setting sponsorName to ${mostRecentInvitation.sponsor} from invitation (salon not found)`);
-              }
-            } else {
-              // Set the sponsor name from the invitation for non-salon invitations
-              insertClient.sponsorName = mostRecentInvitation.sponsor;
-              console.log(`DatabaseStorage.createClient - Setting sponsorName to ${mostRecentInvitation.sponsor} from invitation`);
-            }
+            // Set the sponsor name from the invitation
+            insertClient.sponsorName = mostRecentInvitation.sponsor;
+            console.log(`DatabaseStorage.createClient - Setting sponsorName to ${mostRecentInvitation.sponsor} from invitation`);
           }
           
           // Update invitation status to accepted
@@ -1306,20 +1276,16 @@ export class DatabaseStorage implements IStorage {
 
   async getInvitationByHash(hash: string): Promise<Invitation | undefined> {
     try {
-      console.log(`DatabaseStorage.getInvitationByHash - Getting invitation with hash ${hash}`);
-      
-      // Use raw SQL with JOIN to get the salon name for the invitation
+      // Use raw SQL to get the invitation by hash to avoid schema mismatch issues
       const sqlQuery = `
         SELECT 
-            i.id, i.name, i.phone, i.email, i.notes, i.message, i.type,
-            i.salon_id, i.sponsor, i.invite_hash, i.status, 
-            i.first_service_date, i.created_at, 
-            i.favorite_services, i.sender_id,
-            i.style_option, i.style_price, i.style_duration,
-            s.name as salon_name
-        FROM invitations i
-        LEFT JOIN salons s ON i.salon_id = s.id
-        WHERE i.invite_hash = $1
+            id, name, phone, email, notes, message, type,
+            salon_id, sponsor, invite_hash, status, 
+            first_service_date, created_at, 
+            favorite_services, sender_id,
+            style_option, style_price, style_duration
+        FROM invitations 
+        WHERE invite_hash = $1
       `;
       
       const client = await pool.connect();
@@ -1327,14 +1293,12 @@ export class DatabaseStorage implements IStorage {
         const result = await client.query(sqlQuery, [hash]);
         
         if (result.rows.length === 0) {
-          console.log(`DatabaseStorage.getInvitationByHash - No invitation found with hash ${hash}`);
           return undefined;
         }
         
         const row = result.rows[0];
-        console.log(`DatabaseStorage.getInvitationByHash - Found invitation ID: ${row.id}, Name: ${row.name}, Salon ID: ${row.salon_id}`);
         
-        // Map to our expected format, including salon name
+        // Map to our expected format
         return {
           id: row.id,
           name: row.name,
@@ -1353,9 +1317,7 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          // For salon invitations, use the salon name as sponsorName for display
-          sponsorName: row.salon_name || row.sponsor,
-          salonName: row.salon_name,
+          sponsorName: row.salon_id ? row.sponsor : null, // Fixed FROM display for salon invitations
           senderId: row.sender_id || null
         };
       } finally {
@@ -1434,42 +1396,25 @@ export class DatabaseStorage implements IStorage {
       }
       
       // Clean phone number to digits only for comparison
-      const cleanPhone = cleanPhoneNumber(phone);
+      const cleanPhone = phone.replace(/\D/g, '');
       
-      console.log(`DatabaseStorage.getInvitationsByPhone - Searching for phone: ${phone} (cleaned: ${cleanPhone}), partialMatch: ${partialMatch}`);
-      
-      // Use PostgreSQL's regexp_replace for server-side cleaning and comparison
-      // This provides more consistent results than client-side regex
+      // Use raw SQL to get all invitations - this ensures we don't have schema mismatch issues
       const sqlQuery = `
         SELECT 
-            i.id, i.name, i.phone, i.email, i.notes, i.message, i.type,
-            i.salon_id, i.sponsor, i.invite_hash, i.status, 
-            i.first_service_date, i.created_at, 
-            i.favorite_services, i.sender_id,
-            i.style_option, i.style_price, i.style_duration,
-            s.name as salon_name
-        FROM 
-            invitations i
-        LEFT JOIN
-            salons s ON i.salon_id = s.id
-        WHERE 
-            ${partialMatch 
-              ? `REGEXP_REPLACE(i.phone, '[^0-9]', '', 'g') LIKE '%' || $1`
-              : `REGEXP_REPLACE(i.phone, '[^0-9]', '', 'g') = $1`
-            }
-        ORDER BY 
-            i.created_at DESC
+            id, name, phone, email, notes, message, type,
+            salon_id, sponsor, invite_hash, status, 
+            first_service_date, created_at, 
+            favorite_services, sender_id,
+            style_option, style_price, style_duration
+        FROM invitations
       `;
       
       const client = await pool.connect();
       try {
-        // Pass the clean phone number as a parameter for more secure queries
-        const queryResult = await client.query(sqlQuery, [cleanPhone]);
+        const queryResult = await client.query(sqlQuery);
         const rows = queryResult.rows;
         
-        console.log(`DatabaseStorage.getInvitationsByPhone - Found ${rows.length} matching invitations`);
-        
-        // Map results to our expected format with consistent relationship data
+        // Map results to our expected format
         const allInvitations = rows.map(row => ({
           id: row.id,
           name: row.name,
@@ -1479,10 +1424,7 @@ export class DatabaseStorage implements IStorage {
           message: row.message || null,
           type: row.type || null,
           salonId: row.salon_id,
-          // Ensure sponsor data is consistent with salon relationship
           sponsor: row.sponsor,
-          // For salon invitations, use the salon name as sponsorName for display
-          sponsorName: row.salon_name || row.sponsor,
           inviteHash: row.invite_hash,
           status: row.status,
           firstServiceDate: row.first_service_date,
@@ -1491,10 +1433,34 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
+          sponsorName: row.salon_id ? row.sponsor : null, // Fixed FROM display for salon invitations
           senderId: row.sender_id || null
         }));
         
-        return allInvitations;
+        // Filter based on matching criteria
+        let filteredInvitations: Invitation[] = [];
+        
+        if (partialMatch) {
+          // For partial match, check if invitation phone ends with the given digits
+          filteredInvitations = allInvitations.filter(invitation => {
+            if (!invitation.phone) return false;
+            const invitePhone = invitation.phone.replace(/\D/g, '');
+            
+            // Match if the last N digits match our search
+            if (cleanPhone.length <= invitePhone.length) {
+              const lastDigits = invitePhone.slice(-cleanPhone.length);
+              return lastDigits === cleanPhone;
+            }
+            return false;
+          });
+        } else {
+          // For exact match, require full phone number match
+          filteredInvitations = allInvitations.filter(invitation => 
+            invitation.phone && invitation.phone.replace(/\D/g, '') === cleanPhone
+          );
+        }
+        
+        return filteredInvitations;
       } finally {
         client.release();
       }
@@ -1660,27 +1626,14 @@ export class DatabaseStorage implements IStorage {
   
   async validateRegistration(phone: string, email: string, excludeId?: number): Promise<{isValid: boolean, message?: string, hasUnredeemedGift?: boolean, requiresAddress?: boolean}> {
     try {
-      console.log(`DatabaseStorage.validateRegistration - Validating registration for phone: ${phone}, email: ${email}`);
-      
-      // Standardize the phone number for consistent comparison
-      const cleanPhone = cleanPhoneNumber(phone);
-      console.log(`DatabaseStorage.validateRegistration - Standardized phone: ${cleanPhone}`);
-      
       // For registration, we want to be strict about duplicates
       const duplicateCheck = await this.isDuplicateContact(phone, email, undefined, excludeId);
       
       if (duplicateCheck.isDuplicate) {
-        console.log(`DatabaseStorage.validateRegistration - Duplicate ${duplicateCheck.field} detected`);
         return { 
           isValid: false, 
           message: `This ${duplicateCheck.field} is already registered` 
         };
-      }
-      
-      // Check if this phone is in the invitations table to link relationships
-      const invitations = await this.getInvitationsByPhone(phone);
-      if (invitations.length > 0) {
-        console.log(`DatabaseStorage.validateRegistration - Found ${invitations.length} invitations for this phone`);
       }
       
       // Check if phone number has an unredeemed gift
@@ -1696,7 +1649,6 @@ export class DatabaseStorage implements IStorage {
       }
       
       // If we made it here, the registration is valid
-      console.log(`DatabaseStorage.validateRegistration - Registration is valid for ${phone}`);
       return { isValid: true };
     } catch (error) {
       console.error('Error validating registration:', error);

@@ -231,12 +231,12 @@ export function RenderedInvitation({
           {salonInitiated ? (
             <div className="flex flex-col space-y-1">
               <div className="flex items-center">
-                <span className="text-sm font-semibold text-purple-700 w-24">Gift Request to:</span>
-                <span className="text-sm font-medium text-gray-800">{recipientName}</span>
+                <span className="text-sm font-semibold text-amber-800 w-16">TO:</span>
+                <span className="text-sm font-medium text-gray-700">{recipientName}</span>
               </div>
               <div className="flex items-center">
-                <span className="text-sm font-semibold text-purple-700 w-24">Sent from:</span>
-                <span className="text-sm font-medium text-gray-800">{salonName}</span>
+                <span className="text-sm font-semibold text-amber-800 w-16">FROM:</span>
+                <span className="text-sm font-medium text-gray-700">{salonName}</span>
               </div>
               <div className="flex justify-end">
                 <div className="text-xs font-mono text-gray-500">{formattedInviteId}</div>
@@ -244,20 +244,13 @@ export function RenderedInvitation({
             </div>
           ) : (
             <>
-              <div className="flex flex-col space-y-1">
-                <div className="flex items-center">
-                  <span className="text-sm font-semibold text-purple-700 w-24">Gift Request to:</span>
-                  <span className="text-sm font-medium text-gray-800">{recipientName}</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-sm font-semibold text-purple-700 w-24">Sent from:</span>
-                  <span className="text-sm font-medium text-gray-800">{senderName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <div className="text-xs text-gray-500">{salonName}</div>
-                  <div className="text-xs font-mono text-gray-500">{formattedInviteId}</div>
-                </div>
+              <div className="flex justify-center items-center">
+                <div className="text-xs text-gray-500 text-center">{salonName}</div>
+                {/* Centered salon name */}
               </div>
+              <h3 className="text-xl font-semibold text-pink-800 text-center mt-2">
+                Ven Me, Baby! Gift Request
+              </h3>
             </>
           )}
         </CardHeader>
