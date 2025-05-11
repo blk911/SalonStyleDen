@@ -10,7 +10,6 @@ import { Link } from 'wouter';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
-import { formatPhoneNumber } from "@/lib/utils";
 import InviteCompleteStatus from "@/components/dashboard/InviteCompleteStatus";
 import { SvgVisualizer } from "@/components/visualization/SvgVisualizer";
 import { VisualizationSelector } from "@/components/visualization/VisualizationSelector";
@@ -325,7 +324,13 @@ export default function AdminDashboard() {
     },
   });
 
-  // Now using the site-wide standard phone formatting
+  // Format phone numbers for display
+  const formatPhoneNumber = (phone: string) => {
+    if (!phone) return '';
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length !== 10) return phone;
+    return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+  };
   
   // Delete invitation mutation
   const deleteInvitationMutation = useMutation({

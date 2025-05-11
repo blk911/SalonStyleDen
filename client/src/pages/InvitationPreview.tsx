@@ -18,7 +18,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatPhoneNumber } from "@/lib/utils";
 import { ArrowLeftIcon, CalendarIcon, CheckCircleIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import Navbar from "@/components/layout/Navbar";
@@ -283,7 +282,14 @@ export default function InvitationPreview() {
   }
 
   // Format phone for display
-  // Now using the site-wide standard phone formatting from utils.ts
+  const formatPhone = (phone: string) => {
+    if (!phone) return "";
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 10) {
+      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    }
+    return phone;
+  };
 
   // Determine if this is a salon or client invitation
   const isSalonInvitation = !invitation.senderId;
@@ -420,7 +426,7 @@ export default function InvitationPreview() {
                   
                   <div className="flex items-center">
                     <p className="text-sm text-gray-600 mr-2">Contact:</p>
-                    <p className="text-sm font-medium">{formatPhoneNumber(invitation.phone)}</p>
+                    <p className="text-sm font-medium">{formatPhone(invitation.phone)}</p>
                   </div>
                   
                   <div className="flex items-center">

@@ -3,7 +3,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card } from "@/components/ui/card";
 import { ExternalLinkIcon } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { formatPhoneNumber } from "@/lib/utils";
 
 interface Invitation {
   id: number;
@@ -68,7 +67,10 @@ export default function RecentVmbInvitations({
   // All invitations are pre-filtered by salonId on the server side
   // No need to group by sponsor anymore as we only have one salon's invitations
 
-  // Using site-wide standard phone formatting
+  // Format phone number for display
+  const formatPhone = (phone: string) => {
+    return "512-555•••";
+  };
 
   return (
     <div>
@@ -95,7 +97,7 @@ export default function RecentVmbInvitations({
                   <tr key={invitation.id} className="border-b">
                     <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm">{invitation.name}</td>
                     <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">{invitation.email}</td>
-                    <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">{formatPhoneNumber(invitation.phone)}</td>
+                    <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm whitespace-nowrap">{formatPhone(invitation.phone)}</td>
                     <td className="py-2 px-2 sm:px-4 text-xs sm:text-sm">
                       <span className={`px-1 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium whitespace-nowrap
                         ${invitation.status.toLowerCase() === 'complete' ? 'bg-emerald-100 text-emerald-700' : 

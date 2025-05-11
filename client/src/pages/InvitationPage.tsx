@@ -11,7 +11,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { PhoneIcon, MailIcon, CalendarIcon, UserIcon, ClockIcon, BuildingIcon, CheckCircleIcon, ChevronUpIcon, ChevronDownIcon, ArrowLeftIcon } from "lucide-react";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import { useToast } from "@/hooks/use-toast";
-import { formatPhoneNumber } from "@/lib/utils";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface Invitation {
@@ -143,7 +142,17 @@ export default function InvitationPage() {
     localStorage.setItem('vmb-invite-style-section-open', JSON.stringify(styleSectionOpen));
   }, [styleSectionOpen]);
 
-  // Now using the site-wide standard phone formatting from utils.ts
+  // Format phone number for display
+  const formatPhone = (phone: string) => {
+    if (!phone) return "";
+
+    // Simple US phone formatting
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 10) {
+      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    }
+    return phone;
+  };
 
   // Fetch invitation by hash
   const { 
@@ -543,7 +552,7 @@ export default function InvitationPage() {
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Contact:</p>
-                          <p className="font-medium">{formatPhoneNumber(invitation.phone)}</p>
+                          <p className="font-medium">{formatPhone(invitation.phone)}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Email:</p>
