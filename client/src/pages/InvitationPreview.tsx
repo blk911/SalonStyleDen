@@ -377,13 +377,13 @@ export default function InvitationPreview() {
           <CardHeader className={`${isSalonInvitation ? 'bg-amber-50' : 'bg-pink-50'} pb-0.5`}>
             <div className="flex justify-between items-center">
               <div>
-                <h3>
+                <h3 className="text-lg font-medium">
                   {isSalonInvitation ? 
                     `Salon Invitation for ` : 
                     `Gift Request to: `}<span className="text-black">{invitation.name}</span>
                 </h3>
                 <div className="flex items-center justify-between gap-4 mt-0.5">
-                  <p>
+                  <p className="text-lg font-medium">
                     Sent from: <span className="text-black">{invitation.senderName || invitation.sponsor || invitation.salonName || salon?.name || "Unknown Salon"}</span>
                   </p>
                   
