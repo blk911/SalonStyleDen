@@ -161,7 +161,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       const giftData = {
         senderId: data.senderId,
         recipientName: data.name,
-        recipientPhone: data.phone,
+        recipientPhone: normalizePhoneForStorage(data.phone), // Normalize phone number for storage
         recipientEmail: data.email || null,
         message: data.message,
         value: data.stylePrice, // Used instead of amount in the UI
@@ -421,7 +421,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     // Create gift data
     const giftData = {
       name: recipientData.name,
-      phone: recipientData.phone,
+      phone: normalizePhoneForStorage(recipientData.phone), // Normalize phone for storage
       email: recipientData.email || null,
       message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️ ${recipientData.signature || ""}`,
       signature: recipientData.signature || client?.name || "",
