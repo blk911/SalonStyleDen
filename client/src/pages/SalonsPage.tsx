@@ -12,7 +12,7 @@ import BrandName from "../components/ui/BrandName";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatPhoneNumber } from "@/lib/utils";
 
 // Define social media item interface
 interface SocialMediaItem {
@@ -579,7 +579,7 @@ export default function SalonsPage() {
                         <span className="mx-1 text-gray-300">|</span>
                         <span className="mr-1">{salon.ownerName}</span> 
                         <span className="mr-1">•</span>
-                        <span className="truncate">{salon.phone}</span>
+                        <span className="truncate">{formatPhoneNumber(salon.phone)}</span>
                       </div>
                     </div>
                     <button 
