@@ -123,6 +123,8 @@ export default function ClientRegistrationPage() {
   const urlParams = new URLSearchParams(window.location.search);
   const isCompleteRegistrationMode = urlParams.get('registrationMode') === 'complete';
   
+
+  
   // State management for form submission
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
@@ -186,6 +188,35 @@ export default function ClientRegistrationPage() {
     requiresAddress,
     validationResult
   } = useContactValidation();
+  
+  // Special useEffect to handle gift/invite mode properly when form is ready
+  useEffect(() => {
+    if (isCompleteRegistrationMode && form) {
+      logFlow('Setting up complete registration mode for gift/invite');
+      
+      // Force client type to be gift/invite when in complete registration mode
+      form.setValue('clientType', 'giftInvite');
+      
+      // Auto-populate with parameters from URL if available
+      const phone = urlParams.get('phone');
+      if (phone) {
+        form.setValue('phone', phone);
+      }
+      
+      const name = urlParams.get('name');
+      if (name) {
+        form.setValue('name', name);
+      }
+      
+      // Set VMB LTD as default salon
+      const providedSalonId = urlParams.get('salonId');
+      if (providedSalonId && !isNaN(parseInt(providedSalonId, 10))) {
+        form.setValue('sponsorSalonId', parseInt(providedSalonId, 10));
+      } else {
+        form.setValue('sponsorSalonId', 1); // Default to VMB LTD
+      }
+    }
+  }, [isCompleteRegistrationMode, urlParams, form]);
   
   // Load invitation data if invite hash is present
   const { 
@@ -813,12 +844,9 @@ export default function ClientRegistrationPage() {
                                 // When Gift/Invite is selected, initiate the redemption flow
                                 logFlow('Gift/Invite option selected, initiating redemption flow');
                                 
-                                // Ask for phone number to find the invitation
-                                toast({
-                                  title: 'Redeem Gift or Invitation',
-                                  description: 'Please enter your phone number to find your invitation',
-                                  variant: 'default',
-                                });
+                                // Make registration mode "complete" directly in the URL
+                                // This immediately changes the layout
+                                window.location.href = `/client/register?registrationMode=complete`;
                               }}
                             >
                               <Gift className={`h-8 w-8 mb-2 ${field.value === 'giftInvite' ? 'text-[#FF92A5]' : 'text-gray-500'}`} />
