@@ -1448,7 +1448,7 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          // Removed problematic line with unresolved reference to invitations[i]
+          sponsorName: row.salon_id ? row.sponsor : null, // Fixed FROM display for salon invitations
           senderId: row.sender_id || null
         }));
         
