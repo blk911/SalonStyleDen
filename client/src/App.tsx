@@ -24,7 +24,6 @@ import MadgeVisualizationPage from "@/pages/MadgeVisualizationPage";
 import DependencyVisualizer from "@/pages/DependencyVisualizer";
 import InvitationPage from "@/pages/InvitationPage";
 import InvitationPreview from "@/pages/InvitationPreview";
-import InvitationRedemptionPage from "@/pages/InvitationRedemptionPage";
 import ClientRegistrationPage from "@/pages/ClientRegistrationPage";
 import SalonRegistrationPage from "@/pages/SalonRegistrationPage";
 import CompleteInvitationPage from "@/pages/CompleteInvitationPage";
@@ -52,7 +51,6 @@ function Router() {
       <Route path="/invitation-preview/:hash" component={InvitationPreview} />
       <Route path="/invitations/by-hash/:hash" component={InvitationPage} />
       <Route path="/complete-invitation/:id" component={CompleteInvitationPage} />
-      <Route path="/check-invitation" component={InvitationRedemptionPage} />
       {/* Unhiding all routes as requested */}
       <Route path="/promos" component={PromosPage} />
       <Route path="/sitemap" component={Sitemap} />
