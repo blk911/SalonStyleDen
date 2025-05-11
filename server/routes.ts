@@ -447,12 +447,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Site-wide phone number rule: CRITICAL - Validate the phone number format
+      if (phone && phone.replace(/\D/g, '').length !== 10) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid phone number - must be 10 digits"
+        });
+      }
+      
       // New functionality: Check for pending invitations when context is 'redemption'
       if (context === 'redemption' && phone) {
         console.log(`[INVITE REDEMPTION] Checking if phone number ${phone} has pending invitations`);
         
         try {
-          // First check for pending invitations
+          // First check for pending invitations - CRITICAL PATH
           const invitationCheck = await storage.checkPendingInvitationByPhone(phone);
           
           // Debug logging - detailed inspection of what we found
@@ -468,11 +476,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
           if (invitationCheck.hasPendingInvitation && invitationCheck.invitation) {
             console.log(`[INVITE REDEMPTION] Phone ${phone} has a pending invitation: ${invitationCheck.invitation.inviteHash}`);
             
-            // Return invitation details for redemption flow
+            // Get salon name and sender info for proper display
+            let salonName = null;
+            if (invitationCheck.invitation.salonId) {
+              try {
+                const salon = await storage.getSalonById(invitationCheck.invitation.salonId);
+                if (salon) {
+                  salonName = salon.name;
+                  console.log(`[INVITE REDEMPTION] Invitation is from salon: ${salonName}`);
+                }
+              } catch (error) {
+                console.error(`Error getting salon:`, error);
+              }
+            }
+            
+            // Return invitation details for redemption flow with salon info
             return res.json({
               success: true,
               hasPendingInvitation: true,
-              invitation: invitationCheck.invitation,
+              invitation: {
+                ...invitationCheck.invitation,
+                salonName: salonName || 'VMB LTD'
+              },
               message: "Pending invitation found"
             });
           }

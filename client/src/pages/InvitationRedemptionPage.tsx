@@ -72,18 +72,30 @@ export default function InvitationRedemptionPage() {
     if (!phoneValid) {
       toast({
         title: 'Invalid Phone Number',
-        description: 'Please enter a valid phone number',
+        description: 'Please enter a valid 10-digit phone number',
         variant: 'destructive',
       });
       return;
     }
 
-    setIsSubmitting(true);
-    setSubmitted(true);
+    // Enforce site-wide rule: Check if both phone and email match the same user
+    if (phone.includes('@')) {
+      toast({
+        title: 'Invalid Input',
+        description: 'Please enter a phone number only. Email addresses should be entered in the email field.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
+    console.log('[REDEMPTION] Submitting phone number:', phone);
+    setIsSubmitting(true);
+    
     try {
       // Call the validate-contact endpoint with 'redemption' context
       const cleanedPhone = cleanPhoneNumber(phone);
+      console.log('[REDEMPTION] Cleaned phone number:', cleanedPhone);
+      
       const response = await fetch('/api/validate-contact', {
         method: 'POST',
         headers: {
