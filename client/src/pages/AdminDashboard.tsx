@@ -324,12 +324,12 @@ export default function AdminDashboard() {
     },
   });
 
-  // Format phone numbers for display
+  // Format phone numbers for display - using site-wide standard (XXX) XXX-XXXX
   const formatPhoneNumber = (phone: string) => {
     if (!phone) return '';
     const cleaned = phone.replace(/\D/g, '');
     if (cleaned.length !== 10) return phone;
-    return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
   };
   
   // Delete invitation mutation
@@ -1182,17 +1182,17 @@ export default function AdminDashboard() {
                             )}
                           </TableCell>
                           
-                          {/* Phone with truncation */}
+                          {/* Phone formatted properly */}
                           <TableCell className="py-0 text-center">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <span className="cursor-help">
-                                    {client.phone.substring(0, 7)}•••
+                                    {formatPhoneNumber(client.phone)}
                                   </span>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p>{client.phone}</p>
+                                  <p>{formatPhoneNumber(client.phone)}</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
