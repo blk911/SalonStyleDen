@@ -13,6 +13,7 @@ import { AtSignIcon, ChevronDownIcon, ChevronUpIcon, PhoneIcon, SendIcon, UserIc
 import FlowLogger from "@/lib/flow-logger";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { queryClient } from "@/lib/queryClient";
+import { formatPhoneNumber, normalizePhoneForStorage } from "@/lib/utils";
 
 interface ClientInviteFormProps {
   clientId: number;
@@ -43,18 +44,8 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
     
     // Format phone number if phone field is being updated
     if (name === 'phone') {
-      // Keep only digits
-      const digitsOnly = value.replace(/\D/g, '');
-      
-      // Format the phone number as (XXX) XXX-XXXX
-      let formattedPhone = '';
-      if (digitsOnly.length <= 3) {
-        formattedPhone = digitsOnly;
-      } else if (digitsOnly.length <= 6) {
-        formattedPhone = `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3)}`;
-      } else {
-        formattedPhone = `(${digitsOnly.slice(0, 3)}) ${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6, 10)}`;
-      }
+      // Use the standard site-wide phone formatter
+      const formattedPhone = formatPhoneNumber(value);
       
       setForm((prev) => ({ ...prev, [name]: formattedPhone }));
       FlowLogger.log('ClientInviteForm', 'Form Field Updated (Formatted Phone)', { field: name, value: formattedPhone, raw: value });
