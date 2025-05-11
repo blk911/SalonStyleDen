@@ -371,7 +371,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
         clientId: clientId,
         salonId: useSalonId,
         name: recipientData.name,
-        phone: recipientData.phone,
+        phone: normalizePhoneForStorage(recipientData.phone), // Normalize phone for storage
         email: recipientData.email,
         signature: recipientData.signature
       });
@@ -387,7 +387,8 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     // Log the preview action
     console.log("[FLOW][GiftCreationFlow] Opening invitation preview", {
       recipientName: recipientData.name,
-      recipientContact: recipientData.phone,
+      recipientContact: formatPhoneNumber(recipientData.phone), // Display formatted phone in logs
+      phoneNormalized: normalizePhoneForStorage(recipientData.phone), // Also show normalized form
       styleId: selectedStyleId,
       salonId: useSalonId
     });
