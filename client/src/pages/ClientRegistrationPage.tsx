@@ -672,11 +672,11 @@ export default function ClientRegistrationPage() {
           <div className="md:col-span-3">
             <Card>
               <CardHeader>
-                <CardTitle>Client Registration</CardTitle>
+                <CardTitle>Registration</CardTitle>
                 <CardDescription>
                   {invitation
                     ? `Complete your registration for ${invitation.sponsor || salon?.name || 'the salon'}`
-                    : 'Invite a friend or salon owner'}
+                    : 'Register yourself, your favorite salon, or redeem gift/invite'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -796,7 +796,7 @@ export default function ClientRegistrationPage() {
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Choose a salon" />
+                                <SelectValue placeholder="Choose your salon" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -829,7 +829,7 @@ export default function ClientRegistrationPage() {
                             </SelectContent>
                           </Select>
                           <FormDescription>
-                            Choose the salon you're associated with, or VMB LTD if none
+                            Choose your salon, or VMB LTD Salon is your temp salon.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
