@@ -689,7 +689,11 @@ export default function ClientRegistrationPage() {
             <Card>
               <CardHeader>
                 <CardTitle>REGISTRATION</CardTitle>
-                {!isCompleteRegistrationMode && (
+                {isCompleteRegistrationMode ? (
+                  <CardDescription>
+                    Complete your registration for {invitation?.sponsor || salon?.name || 'VMB LTD'} {invitation?.salonId && `[ID: ${invitation.salonId}]`}
+                  </CardDescription>
+                ) : (
                   <CardDescription>
                     {invitation
                       ? `Complete your registration for ${invitation.sponsor || salon?.name || 'the salon'}`
