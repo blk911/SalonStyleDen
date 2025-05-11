@@ -2302,15 +2302,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recipientEmail: validatedData.recipientEmail || null,
         recipientId: validatedData.recipientId || null,
         // [CRITICAL FIX] Ensure gift_hash is ALWAYS set to maintain unique tracking
-        giftHash: giftHash, // Use the UUID generated above
+        // [RULE: UniqueGiftTracking] Every gift must have a unique tracking ID
+        giftHash, // Use the UUID generated above
         amount: validatedData.value || 5000, // Default amount if not specified
         status: validatedData.status || 'pending', // Default to pending, not sent
         message: validatedData.message || null,
         giftType: 'style_card', // Default gift type
         // [RULE: SponsorClientRelationship] Every gift must have a salon relationship
         salonId,
-        // [RULE: UniqueGiftTracking] Every gift must have a unique tracking ID
-        giftHash,
         // Additional fields that might be optional but useful
         styleId: validatedData.styleId,
         styleName: validatedData.styleName

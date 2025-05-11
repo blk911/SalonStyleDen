@@ -353,12 +353,16 @@ export default function ClientDashboard() {
   useEffect(() => {
     if (!client) return;
 
-    console.log(`ClientDashboard - Client data loaded. Checking acceptedTerms status: ${client.acceptedTerms}`);
-    console.log(`ClientDashboard - Profile prompt shown status: ${client.profilePromptShown}`);
-    console.log(`ClientDashboard - adminView status: ${isAdminView}`);
+    // Log client status info in development mode only
+    if (import.meta.env.DEV) {
+      console.log(`ClientDashboard - Client status:
+      - acceptedTerms: ${client.acceptedTerms}
+      - profilePromptShown: ${client.profilePromptShown}
+      - adminView: ${isAdminView}`);
+    }
     
     // CRITICAL FIX: Bypass profile completion popup per user request
-    console.log('[CRITICAL FIX] Bypassing profile prompt popup as requested');
+    // Skip profile prompt in admin view
     setShowCompleteProfileDialog(false);
     
     // Still mark that we've shown the popup to this client in the database
