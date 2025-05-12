@@ -409,7 +409,27 @@ export default function ClientRegistrationPage() {
               
               // Otherwise, we're already on the right page, just show confirmation and update form
               form.setValue('name', name);
-              form.setValue('sponsorSalonId', invitation.salonId);
+              
+              // Make sure to set the salon ID correctly (this was the issue)
+              if (invitation.salonId) {
+                console.log(`Setting salon ID to ${invitation.salonId} from invitation`);
+                form.setValue('sponsorSalonId', invitation.salonId);
+                
+                // Force value update to ensure it's set properly
+                setTimeout(() => {
+                  const currentValue = form.getValues('sponsorSalonId');
+                  console.log('Verified salon ID after setting:', currentValue);
+                  
+                  // If it's still not set, try again
+                  if (currentValue !== invitation.salonId) {
+                    console.log('Salon ID not set properly, trying again');
+                    form.setValue('sponsorSalonId', invitation.salonId, { shouldValidate: true });
+                  }
+                }, 50);
+              } else {
+                console.log('No salon ID in invitation, defaulting to Tiffany (ID: 2)');
+                form.setValue('sponsorSalonId', 2); // Default to Tiffany's salon
+              }
               
               // Show success message
               toast({
@@ -445,11 +465,39 @@ export default function ClientRegistrationPage() {
                   
                   // Set salon ID from gift - this is what was missing!
                   if (gift.salonId) {
+                    console.log(`Setting salon ID to ${gift.salonId} from gift`);
                     form.setValue('sponsorSalonId', gift.salonId);
+                    
+                    // Force value update to ensure it's set properly
+                    setTimeout(() => {
+                      const currentValue = form.getValues('sponsorSalonId');
+                      console.log('Verified salon ID after setting:', currentValue);
+                      
+                      // If it's still not set, try again
+                      if (currentValue !== gift.salonId) {
+                        console.log('Salon ID not set properly from gift, trying again');
+                        form.setValue('sponsorSalonId', gift.salonId, { shouldValidate: true });
+                      }
+                    }, 50);
+                    
                     logFlow(`Setting sponsorSalonId to ${gift.salonId} from gift`);
                   } else {
                     // Default to Tiffany's salon (ID: 2) if no salon is specified
+                    console.log('No salon ID in gift, defaulting to Tiffany (ID: 2)');
                     form.setValue('sponsorSalonId', 2);
+                    
+                    // Force value update to ensure it's set properly
+                    setTimeout(() => {
+                      const currentValue = form.getValues('sponsorSalonId');
+                      console.log('Verified default salon ID after setting:', currentValue);
+                      
+                      // If it's still not set, try again
+                      if (currentValue !== 2) {
+                        console.log('Default salon ID not set properly, trying again');
+                        form.setValue('sponsorSalonId', 2, { shouldValidate: true });
+                      }
+                    }, 50);
+                    
                     logFlow('No salonId in gift, setting default to Tiffany (ID: 2)');
                   }
                   
@@ -464,7 +512,20 @@ export default function ClientRegistrationPage() {
                 } else {
                   // No invitation or gift found, but still set a default salon (Tiffany's)
                   logFlow('No gift or invitation found, setting default salon to Tiffany (ID: 2)');
+                  console.log('No records found, defaulting to Tiffany (ID: 2)');
                   form.setValue('sponsorSalonId', 2); // Default to Tiffany's salon ID
+                  
+                  // Force value update to ensure it's set properly
+                  setTimeout(() => {
+                    const currentValue = form.getValues('sponsorSalonId');
+                    console.log('Verified default salon ID after setting:', currentValue);
+                    
+                    // If it's still not set, try again
+                    if (currentValue !== 2) {
+                      console.log('Default salon ID not set properly, trying again');
+                      form.setValue('sponsorSalonId', 2, { shouldValidate: true });
+                    }
+                  }, 50);
                   
                   toast({
                     title: 'No Records Found',
@@ -1056,31 +1117,62 @@ export default function ClientRegistrationPage() {
                       <div className="mb-4">
                         <FormLabel className="block mb-1">Salon</FormLabel>
                         <div className="border rounded-md p-3 bg-gray-50">
-                          {invitation?.sponsor ? (
-                            <div className="flex items-center gap-2">
-                              <Building2 className="h-4 w-4 text-gray-500" />
-                              <span className="font-medium">
-                                {invitation.sponsor} {invitation.salonId && `[ID: ${invitation.salonId}]`}
-                              </span>
-                            </div>
-                          ) : salon?.name ? (
-                            <div className="flex items-center gap-2">
-                              <Building2 className="h-4 w-4 text-gray-500" />
-                              <span className="font-medium">
-                                {salon.name} {salon.id && `[ID: ${salon.id}]`}
-                              </span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-2">
-                              <Building2 className="h-4 w-4 text-gray-500" />
-                              <span className="font-medium">VMB LTD [ID: 1]</span>
-                            </div>
-                          )}
+                          {(() => {
+                            // Get the current salon ID from form values - this is crucial
+                            const currentSalonId = form.getValues('sponsorSalonId');
+                            console.log('Current salon ID from form:', currentSalonId);
+                            
+                            // Find the matching salon from the list
+                            const selectedSalon = allSalons?.find(s => s.id === currentSalonId);
+                            
+                            if (selectedSalon) {
+                              // If we have a selected salon from the form value
+                              return (
+                                <div className="flex items-center gap-2">
+                                  <Building2 className="h-4 w-4 text-gray-500" />
+                                  <span className="font-medium">
+                                    {selectedSalon.name} [ID: {selectedSalon.id}]
+                                  </span>
+                                </div>
+                              );
+                            } else if (invitation?.sponsor) {
+                              // Fallback to invitation data
+                              return (
+                                <div className="flex items-center gap-2">
+                                  <Building2 className="h-4 w-4 text-gray-500" />
+                                  <span className="font-medium">
+                                    {invitation.sponsor} {invitation.salonId && `[ID: ${invitation.salonId}]`}
+                                  </span>
+                                </div>
+                              );
+                            } else if (salon?.name) {
+                              // Fallback to salon data
+                              return (
+                                <div className="flex items-center gap-2">
+                                  <Building2 className="h-4 w-4 text-gray-500" />
+                                  <span className="font-medium">
+                                    {salon.name} {salon.id && `[ID: ${salon.id}]`}
+                                  </span>
+                                </div>
+                              );
+                            } else {
+                              // Default fallback
+                              return (
+                                <div className="flex items-center gap-2">
+                                  <Building2 className="h-4 w-4 text-gray-500" />
+                                  <span className="font-medium">
+                                    {currentSalonId === 2 ? "Tiffany 5280 Nails Studio [ID: 2]" : "VMB LTD [ID: 1]"}
+                                  </span>
+                                </div>
+                              );
+                            }
+                          })()}
                         </div>
+                        {/* Keep the hidden input to preserve form value */}
                         <input 
                           type="hidden" 
                           name="sponsorSalonId" 
-                          value={invitation?.salonId || salon?.id || 1} 
+                          value={form.getValues('sponsorSalonId') || invitation?.salonId || salon?.id || 1} 
                         />
                       </div>
                     ) : (

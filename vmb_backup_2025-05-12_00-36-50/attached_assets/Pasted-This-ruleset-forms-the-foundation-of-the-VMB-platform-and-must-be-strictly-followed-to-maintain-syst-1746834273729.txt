@@ -1,0 +1,78 @@
+This ruleset forms the foundation of the VMB platform and must be strictly followed to maintain system integrity and functionality.
+
+VMB Platform: Core Rules & Code Priorities (With Our Additions)
+Foundational Rules
+Sponsor-Client Relationship (MANDATORY)
+
+Every client MUST have a sponsor in their record
+Default fallback is VMB LTD (if no specific sponsor exists)
+This relationship is permanent and forms the basis of all tracking
+✅ Added relationship tracking in client registration flow
+✅ Implemented sponsor fallback logic using VMB LTD
+Unique Invitation/Gift IDs (CRITICAL)
+
+Every invitation generates an immutable, unique code
+This code links all entities in the relationship
+No generic fallbacks allowed for these IDs
+Database integrity enforced through foreign key constraints
+✅ Enhanced invitation hash generation
+✅ Added error checking for missing invitation IDs
+Strict Access Control
+
+Only directly referenced participants can view their specific invitations
+Only the named recipient can accept/decline an invitation
+No third-party access to any invitation data
+✅ Added validation checks for invitation access
+✅ Implemented recipient-only action permissions
+Phone Number Standardization
+
+Phone numbers must be 10 digits (US format)
+Displayed as (xxx) xxx-xxxx
+Stored as pure digits in database
+Each phone number can be associated with only ONE client
+✅ Standardized phone formatting across all components
+✅ Created utility functions in utils.ts for consistent handling
+Code Modifications We've Made
+Payment Terminology Removal
+
+✅ Renamed "handlePayment" to "handleGiftCreation" in GiftCreationFlow.tsx
+✅ Changed "handlePayClick" to "handleConfirmClick" in RenderedInvitation.tsx
+✅ Updated "PAY / SET APPT" button to "CONFIRM APPT"
+✅ Removed all references to payment processing
+✅ Changed activity log entries from "payment_completed" to "appointment_confirmed"
+Login Flow Preparation
+
+✅ Added TODO note in ClientRegistrationPage.tsx for login prompt implementation
+✅ Documented requirements for the comprehensive login flow
+✅ Prepared for implementation of account recovery options
+Client Registration Simplification
+
+✅ Removed problematic address popup step
+✅ Simplified registration process for better user experience
+✅ Fixed duplicate client registration issues
+Error Handling Improvements
+
+✅ Added more descriptive error messages
+✅ Improved logging for critical paths
+✅ Enhanced toast notifications for better user feedback
+Database Relationship Enhancement
+
+✅ Clarified relationship paths between entities
+✅ Documented hierarchy of database tables
+✅ Reinforced importance of invitation as central connecting entity
+Development Roadmap
+Near-Term Priorities
+
+Implement login prompt flow with verification options
+Complete appointment scheduling feature
+Add comprehensive client history tracking
+Future Enhancements
+
+Relationship visualization dashboard
+Enhanced analytics for invitation conversion
+Salon performance metrics
+Technical Debt Cleanup
+
+Complete standardization of naming conventions
+Optimize database queries for relationship lookups
+Enhance logging system for better debugging
