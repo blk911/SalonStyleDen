@@ -2264,10 +2264,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       console.log(`[API] GET /gifts/received/${clientId} - Fetching gifts received by client ID ${clientId}`);
-      const receivedGifts = await storage.getReceivedGifts(Number(clientId));
-      console.log(`[API] GET /gifts/received/${clientId} - Found ${receivedGifts.length} gifts`);
       
-      return res.json(receivedGifts);
+      // CRITICAL FIX: Combine both gifts and invitations for a complete view
+      
+      // 1. Get standard gifts
+      const receivedGifts = await storage.getReceivedGifts(Number(clientId));
+      console.log(`[API] GET /gifts/received/${clientId} - Found ${receivedGifts.length} direct gifts`);
+      
+      // 2. Get client info for invitation matching
+      const client = await storage.getClient(Number(clientId));
+      if (!client) {
+        console.error(`[API] GET /gifts/received/${clientId} - Client not found`);
+        return res.status(404).json({ error: "Client not found" });
+      }
+      
+      // 3. Fetch invitations for this client (both by ID via inviteHash and matching phone number)
+      let clientInvitations: Invitation[] = [];
+      
+      // 3a. First check for direct lookup by client's inviteHash
+      if (client.inviteHash) {
+        try {
+          const invitationByHash = await storage.getInvitationByHash(client.inviteHash);
+          if (invitationByHash) {
+            console.log(`[API] GET /gifts/received/${clientId} - Found invitation with hash ${client.inviteHash}`);
+            clientInvitations.push(invitationByHash);
+          }
+        } catch (hashError) {
+          console.error(`Error looking up invitation by hash ${client.inviteHash}:`, hashError);
+        }
+      }
+      
+      // 3b. Also check for any invitations sent to this client's phone number
+      if (client.phone) {
+        try {
+          const phoneInvitations = await storage.getInvitationsByPhone(client.phone);
+          console.log(`[API] GET /gifts/received/${clientId} - Found ${phoneInvitations.length} invitations by phone ${client.phone}`);
+          
+          // Combine invitations, avoiding duplicates
+          const existingIds = new Set(clientInvitations.map(inv => inv.id));
+          for (const inv of phoneInvitations) {
+            if (!existingIds.has(inv.id)) {
+              clientInvitations.push(inv);
+              existingIds.add(inv.id);
+            }
+          }
+        } catch (phoneError) {
+          console.error(`Error looking up invitations by phone ${client.phone}:`, phoneError);
+        }
+      }
+      
+      console.log(`[API] GET /gifts/received/${clientId} - Found ${clientInvitations.length} invitations total`);
+      
+      // 4. Convert invitations to "gift-like" objects for frontend compatibility
+      const invitationGifts = clientInvitations.map(inv => ({
+        id: inv.id,
+        senderId: inv.senderId || null,
+        recipientId: Number(clientId),
+        recipientPhone: inv.phone,
+        recipientEmail: inv.email,
+        recipientName: inv.name,
+        giftType: 'invitation',
+        styleId: null,
+        styleName: inv.styleOption || null,
+        amount: inv.stylePrice || 0,
+        message: inv.notes || inv.message || 'You received an invitation',
+        status: inv.status,
+        salonId: inv.salonId,
+        salonName: inv.salonName || null,
+        giftHash: inv.inviteHash,
+        senderName: inv.sponsor || 'VMB LTD',
+        expiresAt: null,
+        createdAt: inv.createdAt,
+        redeemedAt: inv.status === 'completed' ? inv.createdAt : null
+      }));
+      
+      // 5. Combine both gifts and invitation-gifts
+      const combinedResults = [...receivedGifts, ...invitationGifts];
+      
+      console.log(`[API] GET /gifts/received/${clientId} - Returning ${combinedResults.length} total items (${receivedGifts.length} gifts + ${invitationGifts.length} invitations)`);
+      
+      return res.json(combinedResults);
     } catch (error) {
       console.error("Error fetching received gifts:", error);
       return res.status(500).json({
