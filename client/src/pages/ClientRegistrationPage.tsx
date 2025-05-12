@@ -251,6 +251,13 @@ export default function ClientRegistrationPage() {
             if (inviteData && inviteData.salonId) {
               form.setValue('sponsorSalonId', inviteData.salonId);
               
+              // Set the localSalon state to force UI update
+              setLocalSalon({
+                id: inviteData.salonId,
+                name: inviteData.sponsor || 'Tiffany 5280 Nails Studio',
+                ownerName: inviteData.sponsorName || 'Tiffany'
+              });
+              
               toast({
                 title: 'Invitation Found!',
                 description: `We found your invitation from ${inviteData.sponsor || 'a salon'}. Complete registration to accept it.`,
@@ -416,7 +423,17 @@ export default function ClientRegistrationPage() {
               // Make sure to set the salon ID correctly (this was the issue)
               if (invitation.salonId) {
                 console.log(`Setting salon ID to ${invitation.salonId} from invitation`);
-                form.setValue('sponsorSalonId', invitation.salonId);
+                form.setValue('sponsorSalonId', invitation.salonId, { shouldValidate: true });
+                
+                // Set the localSalon state to force UI update
+                setLocalSalon({
+                  id: invitation.salonId,
+                  name: invitation.sponsor || 'Tiffany 5280 Nails Studio',
+                  ownerName: invitation.sponsorName || 'Tiffany'
+                });
+                
+                // Log confirmation
+                console.log('Set salon state from invitation:', invitation.sponsor, invitation.salonId);
                 
                 // Force value update to ensure it's set properly
                 setTimeout(() => {
@@ -426,12 +443,19 @@ export default function ClientRegistrationPage() {
                   // If it's still not set, try again
                   if (currentValue !== invitation.salonId) {
                     console.log('Salon ID not set properly, trying again');
-                    form.setValue('sponsorSalonId', invitation.salonId, { shouldValidate: true });
+                    form.setValue('sponsorSalonId', invitation.salonId, { shouldValidate: true, shouldDirty: true });
                   }
                 }, 50);
               } else {
                 console.log('No salon ID in invitation, defaulting to Tiffany (ID: 2)');
-                form.setValue('sponsorSalonId', 2); // Default to Tiffany's salon
+                form.setValue('sponsorSalonId', 2, { shouldValidate: true }); // Default to Tiffany's salon
+                
+                // Set the localSalon state to force UI update
+                setLocalSalon({
+                  id: 2,
+                  name: 'Tiffany 5280 Nails Studio',
+                  ownerName: 'Tiffany'
+                });
               }
               
               // Show success message
@@ -498,7 +522,7 @@ export default function ClientRegistrationPage() {
                     form.setValue('sponsorSalonId', 2, { shouldValidate: true });
                     
                     // Force a state refresh to ensure the UI updates
-                    setSalon({
+                    setLocalSalon({
                       id: 2,
                       name: 'Tiffany 5280 Nails Studio',
                       ownerName: 'Tiffany',
@@ -536,7 +560,7 @@ export default function ClientRegistrationPage() {
                   form.setValue('sponsorSalonId', 2, { shouldValidate: true }); 
                   
                   // Force a state refresh to ensure the UI updates
-                  setSalon({
+                  setLocalSalon({
                     id: 2,
                     name: 'Tiffany 5280 Nails Studio',
                     ownerName: 'Tiffany',
@@ -553,7 +577,7 @@ export default function ClientRegistrationPage() {
                       form.setValue('sponsorSalonId', 2, { shouldValidate: true, shouldDirty: true });
                       
                       // Force salon state update
-                      setSalon({
+                      setLocalSalon({
                         id: 2,
                         name: 'Tiffany 5280 Nails Studio',
                         ownerName: 'Tiffany',
@@ -1153,7 +1177,20 @@ export default function ClientRegistrationPage() {
                         <div className="border rounded-md p-3 bg-gray-50">
                           {(() => {
                             // This is a crucial part for salon display logic
-                            // We need to get the current salon ID from the form values
+                            // First, prioritize our local salon state if it exists
+                            if (localSalon) {
+                              console.log('Using localSalon state for display:', localSalon);
+                              return (
+                                <div className="flex items-center gap-2">
+                                  <Building2 className="h-4 w-4 text-gray-500" />
+                                  <span className="font-medium">
+                                    {localSalon.name} [ID: {localSalon.id}]
+                                  </span>
+                                </div>
+                              );
+                            }
+                            
+                            // If no localSalon, fall back to form values
                             const currentSalonId = form.getValues('sponsorSalonId') || 2; // Default to Tiffany if not set
                             console.log('Current salon ID from form (display logic):', currentSalonId);
                             
@@ -1224,7 +1261,7 @@ export default function ClientRegistrationPage() {
                         <input 
                           type="hidden" 
                           name="sponsorSalonId" 
-                          value={form.getValues('sponsorSalonId') || invitation?.salonId || salon?.id || 1} 
+                          value={localSalon?.id || form.getValues('sponsorSalonId') || invitation?.salonId || salon?.id || 2} 
                         />
                       </div>
                     ) : (
