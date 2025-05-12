@@ -1406,6 +1406,133 @@ export default function AdminDashboard() {
               )}
             </CollapsibleCard>
 
+            {/* Client Gift Requests Section */}
+            <CollapsibleCard
+              title="Client Gift Requests"
+              isOpen={giftRequestsOpen}
+              onToggle={() => setGiftRequestsOpen(!giftRequestsOpen)}
+            >
+              {/* Loading state */}
+              {giftsIsLoading && (
+                <div className="py-8 text-center">
+                  <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
+                  <p className="text-gray-500 text-sm">Loading gift requests...</p>
+                </div>
+              )}
+              
+              {/* Error state */}
+              {giftsError && !giftsIsLoading && (
+                <div className="py-8 text-center border rounded-md bg-red-50">
+                  <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
+                  <p className="text-red-700 mb-1">Error loading gift requests</p>
+                  <p className="text-sm text-red-600">{giftsError.message}</p>
+                </div>
+              )}
+              
+              {/* Empty state */}
+              {!giftsIsLoading && !giftsError && (!pendingGifts || pendingGifts.length === 0) && (
+                <div className="py-8 text-center border rounded-md bg-gray-50">
+                  <GiftIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500">No pending gift requests found</p>
+                </div>
+              )}
+              
+              {/* Data table */}
+              {!giftsIsLoading && !giftsError && pendingGifts && pendingGifts.length > 0 && (
+                <ScrollArea className="h-[300px]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="max-h-[30px]">
+                        <TableHead className="max-h-[30px] py-1 text-center">From</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-center">To</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-center">Amount</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-center">Message</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-center">Status</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-center">Date</TableHead>
+                        <TableHead className="max-h-[30px] py-1 text-center">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pendingGifts.map((gift: Gift) => (
+                        <TableRow
+                          key={gift.id}
+                          className="hover:bg-gray-50 h-[28px]"
+                        >
+                          <TableCell className="py-0 text-center">
+                            {gift.senderName || "Unknown"}
+                            <div className="text-[10px] text-gray-500">
+                              {formatPhoneNumber(gift.senderPhone || "")}
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-0 text-center">
+                            {gift.recipientName || "Unknown"}
+                            <div className="text-[10px] text-gray-500">
+                              {formatPhoneNumber(gift.recipientPhone || "")}
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-0 text-center">
+                            ${(gift.amount / 100).toFixed(2)}
+                          </TableCell>
+                          <TableCell className="py-0 text-center">
+                            {gift.message && gift.message.length > 20 ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="cursor-help">
+                                      {gift.message.substring(0, 18)}...
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{gift.message}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : (
+                              gift.message || "No message"
+                            )}
+                          </TableCell>
+                          <TableCell className="py-0 text-center">
+                            <Badge className={
+                              gift.status === 'pending' 
+                                ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100' 
+                                : gift.status === 'redeemed' 
+                                  ? 'bg-green-100 text-green-800 hover:bg-green-100'
+                                  : 'bg-gray-100 text-gray-800 hover:bg-gray-100'
+                            }>
+                              {gift.status.charAt(0).toUpperCase() + gift.status.slice(1)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="py-0 text-center text-xs">
+                            {new Date(gift.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className="py-0 text-center">
+                            <div className="flex justify-center space-x-1">
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Link to={`/admin/gifts/${gift.id}`}>
+                                      <button
+                                        className="px-2 py-1 text-[10px] bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                                      >
+                                        <Eye className="h-3 w-3" />
+                                      </button>
+                                    </Link>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>View gift details</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+              )}
+            </CollapsibleCard>
+
             {/* Network Visualization with Madge + Graphviz */}
             <CollapsibleCard
               title="Network Visualization"
