@@ -1036,6 +1036,7 @@ export class DatabaseStorage implements IStorage {
           message: row.message || null,
           type: row.type || null,
           salonId: row.salon_id,
+          salonName: row.salon_name || null, // Include salon name
           sponsor: row.sponsor,
           inviteHash: row.invite_hash,
           status: row.status,
@@ -1045,7 +1046,7 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          sponsorName: row.salon_id ? row.sponsor : null, // Fixed FROM display for salon invitations
+          sponsorName: row.sponsor_name || row.sponsor || null, // Use sponsor_name if available
           senderId: row.sender_id || null
         };
       } finally {
@@ -1217,7 +1218,7 @@ export class DatabaseStorage implements IStorage {
       const sqlQuery = `
         SELECT 
             id, name, phone, email, notes, message, type,
-            salon_id, sponsor, invite_hash, status, 
+            salon_id, sponsor, sponsor_name, salon_name, invite_hash, status, 
             first_service_date, created_at, 
             favorite_services, sender_id,
             style_option, style_price, style_duration
