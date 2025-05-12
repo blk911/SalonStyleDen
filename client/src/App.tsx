@@ -45,6 +45,8 @@ function Router() {
       <Route path="/salon-registration" component={SalonRegistrationPage} />
       <Route path="/register-salon" component={SalonRegistrationPage} />
       <Route path="/client/:id" component={ClientDashboard} />
+      {/* Also allow /clients/:id format for consistency */}
+      <Route path="/clients/:id" component={ClientDashboard} />
       {/* Ensure the registration route doesn't collide with the ClientDashboard's :id param */}
       {/* Clients route kept for direct linking */}
       <Route path="/clients" component={ClientsPage} />
