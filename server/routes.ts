@@ -2671,6 +2671,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get gift by ID (for admin views)
+  apiRouter.get("/gifts/:id([0-9]+)", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      if (!id || isNaN(Number(id))) {
+        return res.status(400).json({
+          error: "Invalid gift ID"
+        });
+      }
+      
+      const giftId = parseInt(id, 10);
+      console.log(`[API] GET /gifts/${giftId} - Retrieving gift by ID`);
+      
+      const gift = await storage.getGiftById(giftId);
+      
+      if (!gift) {
+        console.log(`[API] GET /gifts/${giftId} - No gift found with this ID`);
+        return res.status(404).json({
+          error: "Gift not found"
+        });
+      }
+      
+      // If the gift is found but not linked to the sender, fetch sender info
+      if (gift.senderId) {
+        try {
+          const sender = await storage.getClientById(gift.senderId);
+          if (sender) {
+            gift.senderName = sender.name;
+            gift.senderPhone = sender.phone;
+          }
+        } catch (error) {
+          console.error("Error fetching gift sender info:", error);
+        }
+      }
+      
+      // Get salon info if available
+      if (gift.salonId) {
+        try {
+          const salon = await storage.getSalonById(gift.salonId);
+          if (salon) {
+            gift.salonName = salon.name;
+          }
+        } catch (error) {
+          console.error("Error fetching gift salon info:", error);
+        }
+      }
+      
+      console.log(`[API] GET /gifts/${giftId} - Retrieved gift successfully`);
+      return res.status(200).json(gift);
+    } catch (error) {
+      console.error(`Error retrieving gift by ID ${req.params.id}:`, error);
+      return res.status(500).json({
+        error: "Server error while retrieving gift"
+      });
+    }
+  });
+
   // Check if a phone number has any unredeemed gifts
   apiRouter.get("/gifts/check-phone/:phone", async (req: Request, res: Response) => {
     try {
