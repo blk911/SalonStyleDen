@@ -202,15 +202,21 @@ export default function ClientRegistrationPage() {
       if (phone) {
         form.setValue('phone', phone);
         
-        // If we have the phone number, auto-initiate lookup
-        setTimeout(() => {
-          // Need a slight timeout to ensure form state is ready
-          const cleanedPhone = cleanPhoneNumber(phone);
-          if (cleanedPhone.length === 10) {
-            logFlow('Auto-triggering phone validation from URL parameter');
-            handlePhoneValidation(true, phone);
-          }
-        }, 100);
+        // Only auto-validate if we don't already have invitation data in the URL
+        const currentInvitationId = urlParams.get('invitationId');
+        const currentGiftId = urlParams.get('giftId');
+        
+        // If we have a phone but no invitation/gift ID, try to find it
+        if (!currentInvitationId && !currentGiftId) {
+          setTimeout(() => {
+            // Need a slight timeout to ensure form state is ready
+            const cleanedPhone = cleanPhoneNumber(phone);
+            if (cleanedPhone.length === 10) {
+              logFlow('Auto-triggering phone validation from URL parameter');
+              handlePhoneValidation(true, phone);
+            }
+          }, 100);
+        }
       }
       
       const name = urlParams.get('name');
@@ -361,11 +367,22 @@ export default function ClientRegistrationPage() {
       const clientType = form.getValues('clientType');
       
       if (clientType === 'giftInvite') {
+        // Check if we're already in the right view and have an invitation ID in the URL
+        // If we do, we don't need to reload or redirect
+        const currentInvitationId = urlParams.get('invitationId');
+        const currentPhone = urlParams.get('phone');
+        
+        // If we already have the right invitation ID and phone, skip further API calls
+        if (isCompleteRegistrationMode && currentInvitationId && currentPhone === phoneNumber) {
+          logFlow('Already have invitation data, skipping lookup');
+          return;
+        }
+        
         logFlow('Gift/Invite mode: Looking up invitation ID for phone', phoneNumber);
         
         try {
-          // Call API to find invitation ID associated with this phone number
-          const response = await fetch(`/api/invitations?phone=${encodeURIComponent(phoneNumber)}`);
+          // Get first pending invitation for this phone
+          const response = await fetch(`/api/invitations?phone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
           
           if (response.ok) {
             const invitations = await response.json();
@@ -377,19 +394,35 @@ export default function ClientRegistrationPage() {
               
               logFlow(`Found invitation ID ${invitationId} for phone ${phoneNumber}`);
               
-              // Redirect to complete registration page with invitation ID
-              window.location.href = `/client/register?registrationMode=complete&invitationId=${invitationId}&phone=${encodeURIComponent(phoneNumber)}&name=${encodeURIComponent(name)}`;
+              // If we're not in complete mode, redirect to it
+              if (!isCompleteRegistrationMode) {
+                // Navigate to the complete registration view
+                window.location.href = `/client/register?registrationMode=complete&invitationId=${invitationId}&phone=${encodeURIComponent(phoneNumber)}&name=${encodeURIComponent(name)}`;
+                return;
+              }
               
+              // If we are in complete mode but with a different invitation, reload with the right one
+              if (isCompleteRegistrationMode && currentInvitationId !== String(invitationId)) {
+                window.location.href = `/client/register?registrationMode=complete&invitationId=${invitationId}&phone=${encodeURIComponent(phoneNumber)}&name=${encodeURIComponent(name)}`;
+                return;
+              }
+              
+              // Otherwise, we're already on the right page, just show confirmation and update form
+              form.setValue('name', name);
+              form.setValue('sponsorSalonId', invitation.salonId);
+              
+              // Show success message
               toast({
                 title: 'Invitation Found!',
-                description: 'Loading your invitation details...',
+                description: `Found your invitation from ${invitation.sponsor || 'a salon'}. Complete the form to accept it.`,
                 variant: 'default',
               });
               
               return;
             } else {
-              // Now check for gifts if no invitation found
-              const giftsResponse = await fetch(`/api/gifts?recipientPhone=${encodeURIComponent(phoneNumber)}&status=pending`);
+              // No invitation found, check for gifts
+              logFlow('No invitation found, checking for gifts');
+              const giftsResponse = await fetch(`/api/gifts?recipientPhone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
               
               if (giftsResponse.ok) {
                 const gifts = await giftsResponse.json();
@@ -401,12 +434,19 @@ export default function ClientRegistrationPage() {
                   
                   logFlow(`Found gift ID ${giftId} for phone ${phoneNumber}`);
                   
-                  // Redirect to complete registration page with gift ID
-                  window.location.href = `/client/register?registrationMode=complete&giftId=${giftId}&phone=${encodeURIComponent(phoneNumber)}&name=${encodeURIComponent(recipientName)}`;
+                  // Similar logic as above for gifts
+                  if (!isCompleteRegistrationMode) {
+                    window.location.href = `/client/register?registrationMode=complete&giftId=${giftId}&phone=${encodeURIComponent(phoneNumber)}&name=${encodeURIComponent(recipientName)}`;
+                    return;
+                  }
                   
+                  // Update form with gift information
+                  form.setValue('name', recipientName);
+                  
+                  // Show gift success
                   toast({
                     title: 'Gift Found!',
-                    description: 'Loading your gift details...',
+                    description: 'We found your gift. Complete the form to redeem it.',
                     variant: 'default',
                   });
                   
@@ -904,9 +944,19 @@ export default function ClientRegistrationPage() {
                                 // When Gift/Invite is selected, initiate the redemption flow
                                 logFlow('Gift/Invite option selected, initiating redemption flow');
                                 
-                                // Make registration mode "complete" directly in the URL
-                                // This immediately changes the layout
-                                window.location.href = `/client/register?registrationMode=complete`;
+                                  // Check if we're already in complete mode to avoid reload loops
+                                if (!isCompleteRegistrationMode) {
+                                  // This immediately changes the layout
+                                  window.location.href = `/client/register?registrationMode=complete`;
+                                } else {
+                                  // Just update the form value without redirecting
+                                  form.setValue('clientType', 'giftInvite');
+                                  toast({
+                                    title: 'Gift/Invite Mode',
+                                    description: 'Enter your phone number to find your gift or invitation.',
+                                    variant: 'default',
+                                  });
+                                }
                               }}
                             >
                               <Gift className={`h-8 w-8 mb-2 ${field.value === 'giftInvite' ? 'text-[#FF92A5]' : 'text-gray-500'}`} />
