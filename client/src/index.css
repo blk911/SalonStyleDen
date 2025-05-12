@@ -49,6 +49,31 @@
   @apply border border-pink-100 rounded-md overflow-hidden shadow-sm transition-all duration-300;
 }
 
+/* INVITATION & GIFT STYLES */
+.gift-invitation-card {
+  @apply border-2 border-pink-100 rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg;
+  background: linear-gradient(135deg, #fff5f7 0%, #ffffff 100%);
+}
+
+.gift-invitation-header {
+  @apply bg-gradient-to-r from-pink-50 to-pink-100 p-4 border-b border-pink-100;
+}
+
+.gift-claim-button {
+  @apply bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-6 rounded-md transition-all 
+    flex items-center justify-center gap-2 shadow-sm hover:shadow focus:ring-2 focus:ring-pink-300;
+  background-image: linear-gradient(135deg, #ff92a5 0%, #ff7b8f 100%);
+}
+
+.redemption-input-field {
+  @apply border-pink-100 focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50 rounded-md;
+  transition: all 0.3s ease;
+}
+
+.redemption-confirmation {
+  @apply bg-gradient-to-r from-green-50 to-green-100 rounded-md p-4 border border-green-200 shadow-inner;
+}
+
 .vmb-style-card:hover {
   @apply shadow-md border-pink-300 transform scale-102;
 }
