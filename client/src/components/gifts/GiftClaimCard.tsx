@@ -8,7 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { GiftIcon, PhoneIcon, MailIcon, Loader2 } from "lucide-react";
-import { formatCurrency, formatPhoneNumber, cleanPhoneNumber, isValidPhone } from "@/lib/utils";
+import { formatCurrency, formatPhoneNumber, cleanPhoneNumber, isValidPhone, processInvitationMessage } from "@/lib/utils";
 
 interface ReceivedGift {
   id: number;
@@ -26,6 +26,10 @@ interface ReceivedGift {
   createdAt: string;
   expiresAt?: string;
   redeemedAt?: string;
+  recipientName?: string;
+  recipientPhone?: string;
+  recipientEmail?: string;
+  recipientId?: number;
 }
 
 interface GiftClaimCardProps {
@@ -38,6 +42,20 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const { toast } = useToast();
+  
+  // Process message templates on component mount
+  const [processedMessage] = useState(() => {
+    if (gift.message) {
+      return processInvitationMessage(gift.message, {
+        clientName: gift.recipientName,
+        salonName: gift.salonName,
+        ownerName: gift.senderName,
+        styleOption: gift.styleName || "nail service",
+        uniqueId: gift.giftHash?.replace("VMB-INV-", "") || "VMB-ID"
+      });
+    }
+    return gift.message;
+  });
 
   // Mutation for claiming a gift
   const claimGiftMutation = useMutation({
@@ -147,9 +165,9 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
             </div>
           )}
           
-          {gift.message && (
+          {processedMessage && (
             <div className="mt-3 text-sm italic border-l-2 border-pink-200 pl-3 py-1 text-gray-700">
-              "{gift.message}"
+              "{processedMessage}"
             </div>
           )}
           

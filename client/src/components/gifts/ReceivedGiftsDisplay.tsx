@@ -9,7 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Gift as GiftIcon, CheckCircle, Calendar, ExternalLink } from "lucide-react";
-import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
+import { formatCurrency, formatPhoneNumber, processInvitationMessage } from "@/lib/utils";
 import { GiftClaimCard } from "./GiftClaimCard";
 
 interface ReceivedGift {
@@ -28,6 +28,10 @@ interface ReceivedGift {
   createdAt: string;
   expiresAt?: string;
   redeemedAt?: string;
+  recipientName?: string;
+  recipientPhone?: string;
+  recipientEmail?: string;
+  recipientId?: number;
 }
 
 interface ReceivedGiftsDisplayProps {
@@ -55,8 +59,19 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       const gifts = await response.json();
       console.log("Received gifts:", gifts);
       
-      // Convert completed invitations to pending for proper UI flow
+      // Process gift/invitation messages and convert completed invitations to pending for proper UI flow
       return gifts.map((gift: ReceivedGift) => {
+        // Process message templates to replace placeholders
+        if (gift.message) {
+          gift.message = processInvitationMessage(gift.message, {
+            clientName: gift.recipientName,
+            salonName: gift.salonName,
+            ownerName: gift.senderName,
+            styleOption: gift.styleName || "nail service",
+            uniqueId: gift.giftHash?.replace("VMB-INV-", "") || "VMB-ID"
+          });
+        }
+        
         // Mark invitations as "pending" for proper claim flow
         if (gift.giftType === 'invitation' && gift.status === 'completed') {
           return { ...gift, status: 'pending' };
