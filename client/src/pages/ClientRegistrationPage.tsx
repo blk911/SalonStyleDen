@@ -1080,12 +1080,14 @@ export default function ClientRegistrationPage() {
                                 // When Gift/Invite is selected, initiate the redemption flow
                                 logFlow('Gift/Invite option selected, initiating redemption flow');
                                 
-                                  // Check if we're already in complete mode to avoid reload loops
-                                if (!isCompleteRegistrationMode) {
-                                  // This immediately changes the layout
+                                // Check the current URL parameters first to prevent redirection loops
+                                if (!isCompleteRegistrationMode && !window.location.href.includes('registrationMode=complete')) {
+                                  console.log('Redirecting to complete mode (not already in complete mode)');
+                                  // This immediately changes the layout - only do it if we're not already there
                                   window.location.href = `/client/register?registrationMode=complete`;
                                 } else {
-                                  // Just update the form value without redirecting
+                                  // We're already in complete mode, just update the form value without redirecting
+                                  console.log('Already in complete mode, just updating form value');
                                   form.setValue('clientType', 'giftInvite');
                                   toast({
                                     title: 'Gift/Invite Mode',
