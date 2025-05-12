@@ -8,7 +8,7 @@ import path from "path";
 import fs from "fs";
 import { db } from "./db";
 import { clients, invitations, gifts, type Invitation, type Gift, type InsertInvitation, type InsertGift } from "../shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { registerVisualizationRoutes } from "./visualization";
 import { registerMadgeRoutes } from "./madge-api";
 import { errorMonitor } from './error-monitor';
@@ -1607,22 +1607,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedInvitation = await storage.updateInvitationStatus(id, "claimed");
       
       // Set redeemedAt timestamp if not already set
-      if (!updatedInvitation.redeemedAt) {
-        // This API doesn't expose direct redeemedAt field, so handle it through the database
-        try {
-          // Use raw SQL to update the redeemedAt timestamp
-          const client = await pool.connect();
-          try {
-            await client.query(
-              'UPDATE invitations SET redeemed_at = NOW() WHERE id = $1',
-              [id]
-            );
-          } finally {
-            client.release();
-          }
-        } catch (dbError) {
-          console.error('Error updating redeemed_at timestamp:', dbError);
-        }
+      try {
+        // Update directly with a SQL query
+        await db.execute(sql`
+          UPDATE invitations 
+          SET redeemed_at = NOW() 
+          WHERE id = ${id}
+        `);
+      } catch (dbError) {
+        console.error('Error updating redeemed_at timestamp:', dbError);
       }
       
       // Log activity
