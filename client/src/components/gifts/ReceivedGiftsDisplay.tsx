@@ -186,33 +186,35 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
 
   return (
     <>
-      <Card className="w-full">
+      <Card className="w-full mt-6">
         <CardContent className="pt-4">
           <div className="space-y-4">
             {receivedGifts.map((gift) => (
-              <Card key={gift.id} className="relative overflow-hidden border-l-4 border-l-primary">
-                <CardHeader className="pb-2">
+              <Card key={gift.id} className="relative overflow-hidden border-l-4 border-l-pink-400 hover:shadow-md transition-shadow duration-300">
+                <CardHeader className="pb-2 bg-gradient-to-r from-pink-50 to-white">
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-lg">{gift.styleName || (gift.giftType === 'invitation' ? 'Invitation' : 'Style Card')}</CardTitle>
+                      <CardTitle className="text-lg text-pink-700">{gift.styleName || (gift.giftType === 'invitation' ? 'Invitation' : 'Style Card')}</CardTitle>
                       <CardDescription>
                         From: {gift.senderName || "A VMB Client"} • {gift.amount > 0 ? formatCurrency(gift.amount / 100) : 'No Value Set'}
                       </CardDescription>
                     </div>
                     <Badge
                       variant={gift.status === "redeemed" || gift.status === "completed" ? "outline" : "default"}
-                      className={gift.status === "redeemed" || gift.status === "completed" ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-200"}
+                      className={gift.status === "redeemed" || gift.status === "completed" ? "bg-green-100 text-green-800 border-green-300" : "bg-yellow-100 text-yellow-800 border-yellow-200"}
                     >
                       {gift.status === "redeemed" || gift.status === "completed" ? "Redeemed" : "Pending"}
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="pb-2">
-                  {gift.message && <p className="text-sm italic">"{gift.message}"</p>}
+                  {gift.message && (
+                    <p className="text-sm italic border-l-2 border-pink-200 pl-3 py-1 text-gray-700">"{gift.message}"</p>
+                  )}
                 </CardContent>
-                <CardFooter className="flex justify-between pt-0">
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <Calendar className="h-3 w-3 mr-1" />
+                <CardFooter className="flex justify-between pt-0 bg-gradient-to-r from-white to-pink-50 border-t">
+                  <div className="flex items-center text-xs text-gray-500">
+                    <Calendar className="h-3 w-3 mr-1 text-pink-400" />
                     {new Date(gift.createdAt).toLocaleDateString()}
                   </div>
                 </CardFooter>
@@ -223,8 +225,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     <Button 
                       size="default" 
                       onClick={() => handleShowGiftClaim(gift)}
-                      variant="default"
-                      className="w-full font-bold tracking-wide bg-red-500 hover:bg-red-600 text-white rounded-md"
+                      className="gift-claim-button w-full font-bold tracking-wide"
                     >
                       CLAIM MY GIFT
                     </Button>

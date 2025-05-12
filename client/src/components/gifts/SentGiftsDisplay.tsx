@@ -85,11 +85,7 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
 
   if (isLoading) {
     return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Gifts You've Sent</CardTitle>
-          <CardDescription>Gifts you've sent to other clients</CardDescription>
-        </CardHeader>
+      <Card className="w-full mt-6">
         <CardContent className="flex justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </CardContent>
@@ -99,11 +95,7 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
 
   if (!sentGifts || sentGifts.length === 0) {
     return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Gifts You've Sent</CardTitle>
-          <CardDescription>Gifts you've sent to other clients</CardDescription>
-        </CardHeader>
+      <Card className="w-full mt-6">
         <CardContent>
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <GiftIcon className="h-12 w-12 text-muted-foreground mb-4" />
@@ -125,7 +117,7 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
 
   return (
     <>
-      <Card className="w-full">
+      <Card className="w-full mt-6">
         <CardContent className="pt-4">
           {onCreateGift && (
             <div className="flex justify-end mb-4">
@@ -137,11 +129,11 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
           )}
           <div className="space-y-4">
             {sentGifts.map((gift) => (
-              <Card key={gift.id} className="border-l-4 border-l-primary/50">
-                <CardHeader className="pb-2">
+              <Card key={gift.id} className="border-l-4 border-l-green-400 hover:shadow-md transition-shadow duration-300">
+                <CardHeader className="pb-2 bg-gradient-to-r from-green-50 to-white">
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-lg">{gift.styleName || "Style Card"}</CardTitle>
+                      <CardTitle className="text-lg text-green-700">{gift.styleName || "Style Card"}</CardTitle>
                       <CardDescription>
                         To: {gift.recipientName || formatPhoneNumber(gift.recipientPhone || "")} • {formatCurrency(gift.amount / 100)}
                       </CardDescription>
@@ -157,7 +149,7 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
                       className={
                         gift.status === "redeemed" 
                           ? "bg-green-100 text-green-800 border-green-300" 
-                          : ""
+                          : "bg-blue-100 text-blue-800 border-blue-200"
                       }
                     >
                       {gift.status === "redeemed" 
@@ -168,12 +160,16 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="pb-2">
-                  {gift.message && <p className="text-sm italic">"{gift.message}"</p>}
+                <CardContent className="pt-2 pb-2">
+                  {gift.message && (
+                    <p className="text-sm italic border-l-2 border-green-200 pl-3 py-1 text-gray-700">
+                      "{gift.message}"
+                    </p>
+                  )}
                 </CardContent>
-                <CardFooter className="flex justify-between pt-0">
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <Calendar className="h-3 w-3 mr-1" />
+                <CardFooter className="flex justify-between pt-0 bg-gradient-to-r from-white to-green-50 border-t">
+                  <div className="flex items-center text-xs text-gray-500">
+                    <Calendar className="h-3 w-3 mr-1 text-green-400" />
                     {new Date(gift.createdAt).toLocaleDateString()}
                     {gift.status === "redeemed" && gift.redeemedAt && (
                       <span className="ml-2 flex items-center">
@@ -187,6 +183,7 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
                       size="sm" 
                       variant="outline"
                       onClick={() => handleShareGift(gift)}
+                      className="text-green-600 border-green-200 hover:bg-green-50"
                     >
                       <Share2 className="h-4 w-4 mr-2" />
                       Share Link
@@ -210,13 +207,13 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
           </DialogHeader>
           
           {shareGift && (
-            <div className="p-4 bg-muted rounded-md">
-              <div className="font-medium">{shareGift.styleName || "Style Card"}</div>
-              <div className="text-sm text-muted-foreground">Value: {formatCurrency(shareGift.amount / 100)}</div>
+            <div className="p-4 bg-gradient-to-r from-green-50 to-white rounded-md border border-green-100">
+              <div className="font-medium text-green-700">{shareGift.styleName || "Style Card"}</div>
+              <div className="text-sm text-green-600">Value: {formatCurrency(shareGift.amount / 100)}</div>
               {shareGift.message && (
-                <div className="mt-2 text-sm italic">"{shareGift.message}"</div>
+                <div className="mt-2 text-sm italic text-gray-700">"{shareGift.message}"</div>
               )}
-              <div className="mt-2 text-xs">
+              <div className="mt-2 text-xs text-gray-500">
                 Sent to: {formatPhoneNumber(shareGift.recipientPhone || "")}
               </div>
             </div>
@@ -225,7 +222,7 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
           <DialogFooter>
             <Button 
               id="share-button"
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
               onClick={copyLinkToClipboard}
             >
               <ExternalLink className="h-4 w-4 mr-2" />
