@@ -156,6 +156,7 @@ export default function AdminDashboard() {
   const [clientsOpen, setClientsOpen] = useState(true);
   const [activityLogsOpen, setActivityLogsOpen] = useState(true);
   const [salonDirectoryOpen, setSalonDirectoryOpen] = useState(true);
+  const [giftRequestsOpen, setGiftRequestsOpen] = useState(true);
   
   // State to track which salon details are expanded (initially all closed)
   const [expandedSalon, setExpandedSalon] = useState<number | null>(null);
@@ -180,6 +181,7 @@ export default function AdminDashboard() {
         const clients = localStorage.getItem('adminDashboard_clientsOpen');
         const logs = localStorage.getItem('adminDashboard_activityLogsOpen');
         const salons = localStorage.getItem('adminDashboard_salonDirectoryOpen');
+        const gifts = localStorage.getItem('adminDashboard_giftRequestsOpen');
         const expanded = localStorage.getItem('adminDashboard_expandedSalon');
         
         if (styleOpt !== null) setStyleOptionsOpen(styleOpt === 'true');
@@ -189,6 +191,7 @@ export default function AdminDashboard() {
         if (clients !== null) setClientsOpen(clients === 'true');
         if (logs !== null) setActivityLogsOpen(logs === 'true');
         if (salons !== null) setSalonDirectoryOpen(salons === 'true');
+        if (gifts !== null) setGiftRequestsOpen(gifts === 'true');
         if (expanded !== null) setExpandedSalon(parseInt(expanded, 10));
       } catch (error) {
         console.error('Error loading section states from localStorage:', error);

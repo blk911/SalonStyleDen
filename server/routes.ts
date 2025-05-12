@@ -2588,6 +2588,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all pending gift requests (for admin dashboard)
+  apiRouter.get("/gifts/pending", async (req: Request, res: Response) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+      
+      console.log(`[API] GET /gifts/pending - Fetching pending gift requests (limit: ${limit})`);
+      const pendingGifts = await storage.getPendingGifts(limit);
+      console.log(`[API] GET /gifts/pending - Found ${pendingGifts.length} pending gifts`);
+      
+      return res.json(pendingGifts);
+    } catch (error) {
+      console.error("Error fetching pending gifts:", error);
+      return res.status(500).json({
+        error: "Server error while fetching pending gifts"
+      });
+    }
+  });
+
   // Get gift by its unique hash
   apiRouter.get("/gifts/by-hash/:hash", async (req: Request, res: Response) => {
     try {

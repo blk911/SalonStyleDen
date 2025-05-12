@@ -2498,6 +2498,44 @@ export class DatabaseStorage implements IStorage {
       return { hasUnredeemedGift: false };
     }
   }
+  async getPendingGifts(limit: number = 50): Promise<Gift[]> {
+    try {
+      console.log(`DatabaseStorage.getPendingGifts - Fetching ${limit} pending gift requests`);
+      
+      const pendingGifts = await db
+        .select()
+        .from(gifts)
+        .where(eq(gifts.status, 'pending'))
+        .orderBy(sql`${gifts.createdAt} DESC`)
+        .limit(limit);
+      
+      console.log(`DatabaseStorage.getPendingGifts - Found ${pendingGifts.length} pending gifts`);
+      
+      // Enhance gifts with sender information
+      const giftsWithSenderInfo = await Promise.all(pendingGifts.map(async gift => {
+        if (gift.senderId) {
+          try {
+            const sender = await this.getClient(gift.senderId);
+            if (sender) {
+              return {
+                ...gift,
+                senderName: sender.name,
+                senderPhone: sender.phone
+              };
+            }
+          } catch (error) {
+            console.error(`Error fetching sender for gift ${gift.id}:`, error);
+          }
+        }
+        return gift;
+      }));
+      
+      return giftsWithSenderInfo;
+    } catch (error) {
+      console.error(`Error getting pending gifts:`, error);
+      throw error;
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
