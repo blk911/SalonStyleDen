@@ -350,12 +350,36 @@ export default function ClientRegistrationPage() {
             if (inviteData && inviteData.salonId) {
               form.setValue('sponsorSalonId', inviteData.salonId);
               
-              // Set the localSalon state to force UI update
+              // Set the localSalon state to force UI update with the correct salon information
+              // If there's a sponsorName/sponsor in the invitation, use that, otherwise fetch the salon by ID
               setLocalSalon({
                 id: inviteData.salonId,
-                name: inviteData.sponsor || 'Tiffany 5280 Nails Studio',
+                name: inviteData.sponsor || inviteData.salonName || 'Tiffany 5280 Nails Studio',
                 ownerName: inviteData.sponsorName || 'Tiffany'
               });
+              
+              // Fetch the salon by ID to get most up-to-date salon info
+              fetch(`/api/salons/${inviteData.salonId}`)
+                .then(response => {
+                  if (response.ok) {
+                    return response.json();
+                  }
+                  throw new Error('Failed to fetch salon details');
+                })
+                .then(salonData => {
+                  if (salonData) {
+                    logFlow('Found salon for invitation:', salonData);
+                    setLocalSalon({
+                      id: salonData.id,
+                      name: salonData.name,
+                      ownerName: salonData.ownerName
+                    });
+                  }
+                })
+                .catch(err => {
+                  console.error('Failed to fetch salon details:', err);
+                  // We still have the initial salon info from the invitation
+                });
               
               toast({
                 title: 'Invitation Found!',
@@ -375,7 +399,7 @@ export default function ClientRegistrationPage() {
         if (providedSalonId && !isNaN(parseInt(providedSalonId, 10))) {
           form.setValue('sponsorSalonId', parseInt(providedSalonId, 10));
         } else {
-          form.setValue('sponsorSalonId', 1); // Default to VMB LTD
+          form.setValue('sponsorSalonId', 2); // Default to Tiffany 5280 Nails Studio
         }
         // Mark as loaded since we don't need to fetch invitation data
         setInvitationDataLoaded(true);
@@ -1017,7 +1041,7 @@ export default function ClientRegistrationPage() {
                                 <div className="flex items-center gap-2">
                                   <Building2 className="h-4 w-4 text-gray-500" />
                                   <span className="font-medium">
-                                    {localSalon.name} [ID: {localSalon.id}]
+                                    {localSalon.name}
                                   </span>
                                 </div>
                               );
@@ -1038,7 +1062,7 @@ export default function ClientRegistrationPage() {
                                   <div className="flex items-center gap-2">
                                     <Building2 className="h-4 w-4 text-gray-500" />
                                     <span className="font-medium">
-                                      {selectedSalon.name} [ID: {selectedSalon.id}]
+                                      {selectedSalon.name}
                                     </span>
                                   </div>
                                 );
