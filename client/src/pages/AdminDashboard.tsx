@@ -134,6 +134,26 @@ interface ActivityLog {
   timestamp: string;
 }
 
+interface Gift {
+  id: number;
+  senderId: number;
+  senderName?: string;
+  senderPhone?: string;
+  recipientId?: number | null;
+  recipientPhone: string | null;
+  recipientEmail?: string | null;
+  recipientName?: string;
+  amount: number;
+  message: string | null;
+  status: string;
+  salonId: number | null;
+  salonName?: string;
+  giftType?: string;
+  giftHash: string;
+  createdAt: string;
+  redeemedAt?: string | null;
+}
+
 // We're now using the imported SvgVisualizer component from @/components/visualization/SvgVisualizer
 
 export default function AdminDashboard() {
@@ -211,10 +231,11 @@ export default function AdminDashboard() {
       localStorage.setItem('adminDashboard_clientsOpen', clientsOpen.toString());
       localStorage.setItem('adminDashboard_activityLogsOpen', activityLogsOpen.toString());
       localStorage.setItem('adminDashboard_salonDirectoryOpen', salonDirectoryOpen.toString());
+      localStorage.setItem('adminDashboard_giftRequestsOpen', giftRequestsOpen.toString());
     } catch (error) {
       console.error('Error saving section states to localStorage:', error);
     }
-  }, [styleOptionsOpen, networkVisualizationOpen, codeGraphOpen, invitationsOpen, clientsOpen, activityLogsOpen, salonDirectoryOpen]);
+  }, [styleOptionsOpen, networkVisualizationOpen, codeGraphOpen, invitationsOpen, clientsOpen, activityLogsOpen, salonDirectoryOpen, giftRequestsOpen]);
   
   // Save expanded salon state to localStorage when it changes
   useEffect(() => {
@@ -322,6 +343,25 @@ export default function AdminDashboard() {
         return data;
       } catch (error) {
         console.error('Error fetching activity logs:', error);
+        return [];
+      }
+    },
+  });
+  
+  // Query for pending gift requests
+  const { data: pendingGifts, error: giftsError, isLoading: giftsIsLoading } = useQuery<Gift[]>({
+    queryKey: ['/api/gifts/pending'],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/gifts/pending');
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => 'No error details available');
+          throw new Error(`Failed to fetch pending gift requests: ${response.status} ${response.statusText}. Details: ${errorText}`);
+        }
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error fetching pending gift requests:', error);
         return [];
       }
     },
