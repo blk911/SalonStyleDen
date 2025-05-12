@@ -93,6 +93,7 @@ export interface IStorage {
   // Gift methods
   createGift(gift: InsertGift): Promise<Gift>;
   getGift(id: number): Promise<Gift | undefined>;
+  getGiftById(id: number): Promise<Gift | undefined>; // Added for AdminDashboard
   getGiftByHash(hash: string): Promise<Gift | undefined>;
   getGiftByRecipientPhone(phone: string): Promise<Gift | undefined>;
   getGiftsByRecipientPhone(phone: string, status?: string): Promise<Gift[]>;
@@ -2212,6 +2213,54 @@ export class DatabaseStorage implements IStorage {
       return results.length > 0 ? results[0] : undefined;
     } catch (error) {
       console.error(`Error getting gift ${id}:`, error);
+      throw error;
+    }
+  }
+  
+  // Added for Admin Dashboard gift details view
+  async getGiftById(id: number): Promise<Gift | undefined> {
+    try {
+      console.log(`DatabaseStorage.getGiftById - Fetching gift with ID ${id}`);
+      const results = await db.select().from(gifts).where(eq(gifts.id, id));
+      
+      if (results.length === 0) {
+        console.log(`DatabaseStorage.getGiftById - No gift found with ID ${id}`);
+        return undefined;
+      }
+      
+      const gift = results[0];
+      
+      // If this gift has a sender, try to get sender details
+      if (gift.senderId) {
+        try {
+          const sender = await this.getClient(gift.senderId);
+          if (sender) {
+            gift.senderName = sender.name;
+            gift.senderPhone = sender.phone;
+          }
+        } catch (senderError) {
+          console.error(`DatabaseStorage.getGiftById - Error getting sender info:`, senderError);
+          // Continue even if we can't get sender info
+        }
+      }
+      
+      // If this gift has a salon, try to get salon details
+      if (gift.salonId) {
+        try {
+          const salon = await this.getSalon(gift.salonId);
+          if (salon) {
+            gift.salonName = salon.name;
+          }
+        } catch (salonError) {
+          console.error(`DatabaseStorage.getGiftById - Error getting salon info:`, salonError);
+          // Continue even if we can't get salon info
+        }
+      }
+      
+      console.log(`DatabaseStorage.getGiftById - Successfully retrieved gift with ID ${id}`);
+      return gift;
+    } catch (error) {
+      console.error(`Error getting gift ${id} by ID:`, error);
       throw error;
     }
   }

@@ -2694,31 +2694,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // If the gift is found but not linked to the sender, fetch sender info
-      if (gift.senderId) {
-        try {
-          const sender = await storage.getClientById(gift.senderId);
-          if (sender) {
-            gift.senderName = sender.name;
-            gift.senderPhone = sender.phone;
-          }
-        } catch (error) {
-          console.error("Error fetching gift sender info:", error);
-        }
-      }
-      
-      // Get salon info if available
-      if (gift.salonId) {
-        try {
-          const salon = await storage.getSalonById(gift.salonId);
-          if (salon) {
-            gift.salonName = salon.name;
-          }
-        } catch (error) {
-          console.error("Error fetching gift salon info:", error);
-        }
-      }
-      
       console.log(`[API] GET /gifts/${giftId} - Retrieved gift successfully`);
       return res.status(200).json(gift);
     } catch (error) {
