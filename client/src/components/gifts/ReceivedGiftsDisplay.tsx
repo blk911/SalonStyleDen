@@ -112,8 +112,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     return (
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Your Gifts</CardTitle>
-          <CardDescription>Gifts sent to you from other clients</CardDescription>
+          <CardTitle>Your Gifts & Invitations</CardTitle>
+          <CardDescription>Gifts and invitations sent to you</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -126,13 +126,13 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     return (
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Your Gifts</CardTitle>
-          <CardDescription>Gifts sent to you from other clients</CardDescription>
+          <CardTitle>Your Gifts & Invitations</CardTitle>
+          <CardDescription>Gifts and invitations sent to you</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-6 text-center">
             <GiftIcon className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">You haven't received any gifts yet</p>
+            <p className="text-muted-foreground">You haven't received any gifts or invitations yet</p>
           </div>
         </CardContent>
       </Card>
@@ -143,8 +143,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     <>
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Your Gifts</CardTitle>
-          <CardDescription>Gifts sent to you from other clients</CardDescription>
+          <CardTitle>Your Gifts & Invitations</CardTitle>
+          <CardDescription>Gifts and invitations sent to you</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -153,16 +153,16 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-lg">{gift.styleName || "Style Card"}</CardTitle>
+                      <CardTitle className="text-lg">{gift.styleName || (gift.giftType === 'invitation' ? 'Invitation' : 'Style Card')}</CardTitle>
                       <CardDescription>
-                        From: {gift.senderName || "A VMB Client"} • {formatCurrency(gift.amount / 100)}
+                        From: {gift.senderName || "A VMB Client"} • {gift.amount > 0 ? formatCurrency(gift.amount / 100) : 'No Value Set'}
                       </CardDescription>
                     </div>
                     <Badge
-                      variant={gift.status === "redeemed" ? "outline" : "default"}
-                      className={gift.status === "redeemed" ? "bg-green-100 text-green-800 border-green-300" : ""}
+                      variant={gift.status === "redeemed" || gift.status === "completed" ? "outline" : "default"}
+                      className={gift.status === "redeemed" || gift.status === "completed" ? "bg-green-100 text-green-800 border-green-300" : ""}
                     >
-                      {gift.status === "redeemed" ? "Redeemed" : "Ready to Use"}
+                      {gift.status === "redeemed" || gift.status === "completed" ? "Redeemed" : "Ready to Use"}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -174,7 +174,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     <Calendar className="h-3 w-3 mr-1" />
                     {new Date(gift.createdAt).toLocaleDateString()}
                   </div>
-                  {gift.status !== "redeemed" && (
+                  {(gift.status !== "redeemed" && gift.status !== "completed" && gift.giftType !== 'invitation') && (
                     <Button 
                       size="sm" 
                       onClick={() => handleRedeemGift(gift)}
@@ -188,7 +188,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       Redeem Gift
                     </Button>
                   )}
-                  {gift.status === "redeemed" && (
+                  {(gift.status === "redeemed" || gift.status === "completed") && (
                     <div className="flex items-center text-xs text-muted-foreground">
                       <CheckCircle className="h-3 w-3 mr-1 text-green-600" />
                       Redeemed on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : "—"}

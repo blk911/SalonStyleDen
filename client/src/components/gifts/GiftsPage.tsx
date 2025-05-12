@@ -251,7 +251,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       {/* Always show Gifts Received section using the new ReceivedGiftsDisplay component */}
       <div className="mt-4 border rounded-lg p-4 bg-yellow-50">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium text-amber-800">Gifts Received</h3>
+          <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
         </div>
         
         {/* Pass client ID to the ReceivedGiftsDisplay component */}
