@@ -1316,7 +1316,8 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          sponsorName: row.salon_id ? row.sponsor : null, // Fixed FROM display for salon invitations
+          sponsorName: row.sponsor_name || row.sponsor || null, // Use sponsor_name from database
+          salonName: row.salon_name || null, // Include salon name from database
           senderId: row.sender_id || null
         };
         
