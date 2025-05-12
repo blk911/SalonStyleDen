@@ -1304,11 +1304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               // [CRITICAL FIX] Set the sponsor to the salon name, NOT VMB LTD
               validatedData.sponsor = sponsorSalon.name;
               validatedData.sponsorName = sponsorSalon.name;
-              
-              // Also set the salonName for consistency
-              validatedData.salonName = sponsorSalon.name;
-              
-              console.log(`[RULE ENFORCEMENT] Setting sponsor and salonName to salon name: ${sponsorSalon.name} for salon-initiated invitation`);
+              console.log(`[RULE ENFORCEMENT] Setting sponsor to salon name: ${sponsorSalon.name} for salon-initiated invitation`);
             }
             
             // Check if salon has reached its invitation limit
@@ -2671,39 +2667,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error fetching gift by hash:", error);
       return res.status(500).json({
         error: "Server error while fetching gift"
-      });
-    }
-  });
-
-  // Get gift by ID (for admin views)
-  apiRouter.get("/gifts/:id([0-9]+)", async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      
-      if (!id || isNaN(Number(id))) {
-        return res.status(400).json({
-          error: "Invalid gift ID"
-        });
-      }
-      
-      const giftId = parseInt(id, 10);
-      console.log(`[API] GET /gifts/${giftId} - Retrieving gift by ID`);
-      
-      const gift = await storage.getGiftById(giftId);
-      
-      if (!gift) {
-        console.log(`[API] GET /gifts/${giftId} - No gift found with this ID`);
-        return res.status(404).json({
-          error: "Gift not found"
-        });
-      }
-      
-      console.log(`[API] GET /gifts/${giftId} - Retrieved gift successfully`);
-      return res.status(200).json(gift);
-    } catch (error) {
-      console.error(`Error retrieving gift by ID ${req.params.id}:`, error);
-      return res.status(500).json({
-        error: "Server error while retrieving gift"
       });
     }
   });

@@ -84,8 +84,6 @@ export const invitations = pgTable("invitations", {
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
   // [RULE: SponsorClientRelationship] Critical salon relationship
   salonId: integer("salon_id").notNull().default(1).references(() => salons.id),
-  // Display name of the salon for this invitation
-  salonName: text("salon_name"),
   // Reference to the client who sent the invitation (may be null for salon-initiated invitations)
   senderId: integer("sender_id").references(() => clients.id),
   // [RULE: SponsorClientRelationship] Every invitation must have a sponsor
@@ -230,11 +228,8 @@ export const gifts = pgTable("gifts", {
   id: serial("id").primaryKey(),
   // [RULE: SponsorClientRelationship] Every gift must have a sender
   senderId: integer("sender_id").notNull().references(() => clients.id),
-  senderName: text("sender_name"), // Display name of sender for UI
-  senderPhone: text("sender_phone"), // Phone number of sender for display/contact
   // Recipient ID if already a client
   recipientId: integer("recipient_id").references(() => clients.id),
-  recipientName: text("recipient_name"), // Display name of recipient for UI
   // [RULE: PhoneFormat] Store phone as pure digits for recipient
   recipientPhone: text("recipient_phone"), // For non-client recipients
   recipientEmail: text("recipient_email"), // For non-client recipients
@@ -249,7 +244,6 @@ export const gifts = pgTable("gifts", {
   status: text("status").notNull().default("created"), // created, sent, redeemed
   // [RULE: SponsorClientRelationship] Track the salon that created/sponsored this gift
   salonId: integer("salon_id").default(1).references(() => salons.id),
-  salonName: text("salon_name"), // Display name of salon
   // [RULE: UniqueGiftTracking] Every gift must have a unique tracking ID 
   giftHash: text("gift_hash").notNull().unique(), // Unique hash for tracking gifts
   expiresAt: timestamp("expires_at"),

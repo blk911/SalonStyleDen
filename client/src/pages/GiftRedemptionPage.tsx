@@ -10,23 +10,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
-import { 
-  Loader2, 
-  Gift, 
-  CheckCircle, 
-  AlertTriangle, 
-  Phone, 
-  Mail, 
-  User, 
-  Calendar, 
-  Building, 
-  DollarSign, 
-  MessageSquare,
-  Clock,
-  ArrowLeft
-} from "lucide-react";
+import { Loader2, Gift, CheckCircle, AlertTriangle, Phone, Mail } from "lucide-react";
 import { useNavigationContext } from "../context/NavigationContext";
-import { Badge } from "@/components/ui/badge";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -63,22 +48,15 @@ interface Gift {
 
 export default function GiftRedemptionPage() {
   const [, setLocation] = useLocation();
-  const [isRedeemRoute, redeemParams] = useRoute("/redeem-gift/:giftHash");
-  const [isAdminRoute, adminParams] = useRoute("/admin/gifts/:id");
+  const [match, params] = useRoute("/redeem-gift/:giftHash");
   const { updateNavigation } = useNavigationContext();
   const [claimedGift, setClaimedGift] = useState<Gift | null>(null);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const { toast } = useToast();
   
-  // Determine mode (admin view or redeem flow)
-  const isAdminView = isAdminRoute && adminParams?.id;
-  const isRedeemView = isRedeemRoute && redeemParams?.giftHash;
-  
-  // Get the appropriate parameter based on the route
-  const giftHash = redeemParams?.giftHash;
-  const giftId = adminParams?.id ? parseInt(adminParams.id, 10) : undefined;
+  const giftHash = params?.giftHash;
 
-  // Set up form for redemption flow
+  // Set up form
   const form = useForm<ClaimGiftFormValues>({
     resolver: zodResolver(claimGiftSchema),
     defaultValues: {
@@ -87,26 +65,17 @@ export default function GiftRedemptionPage() {
     },
   });
 
-  // Fetch the gift by hash or id depending on the route
+  // Fetch the gift by hash
   const { 
     data: gift, 
     isLoading: isLoadingGift,
     isError,
     error 
   } = useQuery({
-    queryKey: isAdminView 
-      ? [`/api/gifts/${giftId}`] 
-      : [`/api/gifts/by-hash/${giftHash}`],
+    queryKey: [`/api/gifts/by-hash/${giftHash}`],
     queryFn: async () => {
       try {
-        // Determine which API endpoint to use based on whether we're in admin view
-        const url = isAdminView 
-          ? `/api/gifts/${giftId}`
-          : `/api/gifts/by-hash/${giftHash}`;
-          
-        console.log(`Fetching gift data from ${url}`);
-        const response = await fetch(url);
-        
+        const response = await fetch(`/api/gifts/by-hash/${giftHash}`);
         if (!response.ok) {
           if (response.status === 404) {
             throw new Error("Gift not found or has already been redeemed");
@@ -120,18 +89,18 @@ export default function GiftRedemptionPage() {
         throw error;
       }
     },
-    enabled: !!giftHash || !!giftId,
+    enabled: !!giftHash,
     retry: 1,
   });
 
   // Update navigation header
   useEffect(() => {
     updateNavigation({
-      title: isAdminView ? "Gift Details" : "Redeem Your Gift",
+      title: "Redeem Your Gift",
       showBackButton: true,
-      backButtonDestination: isAdminView ? "/admin" : "/",
+      backButtonDestination: "/",
     });
-  }, [updateNavigation, isAdminView]);
+  }, [updateNavigation]);
 
   // Check phone number for existing clients
   const checkPhoneMutation = useMutation({
@@ -334,159 +303,6 @@ export default function GiftRedemptionPage() {
             <Button className="w-full" onClick={() => setLocation("/")}>
               Go to Home Page
             </Button>
-          </CardFooter>
-        </Card>
-      </div>
-    );
-  }
-
-  // Handle admin view for gift details
-  if (isAdminView && gift) {
-    return (
-      <div className="container max-w-md mx-auto py-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Gift className="h-6 w-6 text-primary mr-2" />
-              Gift Details
-            </CardTitle>
-            <CardDescription>
-              Gift ID: {gift.id} - Status: 
-              <Badge className={`ml-2 ${
-                gift.status === 'pending' 
-                  ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100' 
-                  : gift.status === 'redeemed' 
-                    ? 'bg-green-100 text-green-800 hover:bg-green-100'
-                    : 'bg-gray-100 text-gray-800 hover:bg-gray-100'
-              }`}>
-                {gift.status.charAt(0).toUpperCase() + gift.status.slice(1)}
-              </Badge>
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="bg-muted p-4 rounded-md border">
-              <h3 className="font-semibold text-lg mb-3">Gift Information</h3>
-              
-              <div className="grid grid-cols-1 gap-3">
-                <div className="flex items-start">
-                  <DollarSign className="h-5 w-5 mr-2 text-primary" />
-                  <div>
-                    <p className="font-medium">Value</p>
-                    <p className="text-sm text-muted-foreground">{formatCurrency(gift.amount / 100)}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <Calendar className="h-5 w-5 mr-2 text-primary" />
-                  <div>
-                    <p className="font-medium">Created</p>
-                    <p className="text-sm text-muted-foreground">{new Date(gift.createdAt).toLocaleDateString()}</p>
-                  </div>
-                </div>
-                
-                {gift.redeemedAt && (
-                  <div className="flex items-start">
-                    <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
-                    <div>
-                      <p className="font-medium">Redeemed</p>
-                      <p className="text-sm text-muted-foreground">{new Date(gift.redeemedAt).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                )}
-                
-                {gift.message && (
-                  <div className="flex items-start">
-                    <MessageSquare className="h-5 w-5 mr-2 text-primary" />
-                    <div>
-                      <p className="font-medium">Message</p>
-                      <p className="text-sm italic">"{gift.message}"</p>
-                    </div>
-                  </div>
-                )}
-                
-                {gift.styleName && (
-                  <div className="flex items-start">
-                    <Gift className="h-5 w-5 mr-2 text-primary" />
-                    <div>
-                      <p className="font-medium">Service</p>
-                      <p className="text-sm text-muted-foreground">{gift.styleName}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-muted p-4 rounded-md border">
-                <h3 className="font-semibold mb-3">Sender</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <User className="h-4 w-4 mr-2 text-primary" />
-                    <span className="text-sm">{gift.senderName || "Unknown"}</span>
-                  </div>
-                  {gift.senderPhone && (
-                    <div className="flex items-center">
-                      <Phone className="h-4 w-4 mr-2 text-primary" />
-                      <span className="text-sm">{formatPhoneNumber(gift.senderPhone)}</span>
-                    </div>
-                  )}
-                  {gift.salonName && (
-                    <div className="flex items-center">
-                      <Building className="h-4 w-4 mr-2 text-primary" />
-                      <span className="text-sm">{gift.salonName}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              <div className="bg-muted p-4 rounded-md border">
-                <h3 className="font-semibold mb-3">Recipient</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <User className="h-4 w-4 mr-2 text-primary" />
-                    <span className="text-sm">{gift.recipientName || "Unknown"}</span>
-                  </div>
-                  {gift.recipientPhone && (
-                    <div className="flex items-center">
-                      <Phone className="h-4 w-4 mr-2 text-primary" />
-                      <span className="text-sm">{formatPhoneNumber(gift.recipientPhone)}</span>
-                    </div>
-                  )}
-                  {gift.recipientEmail && (
-                    <div className="flex items-center">
-                      <Mail className="h-4 w-4 mr-2 text-primary" />
-                      <span className="text-sm">{gift.recipientEmail}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button 
-              variant="outline" 
-              onClick={() => setLocation("/admin")}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-            {gift.status === 'pending' && (
-              <Button 
-                variant="destructive"
-                onClick={() => {
-                  if (confirm("Are you sure you want to cancel this gift?")) {
-                    // TODO: Implement gift cancellation
-                    toast({
-                      title: "Gift cancellation not implemented",
-                      description: "This feature will be available soon",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-              >
-                Cancel Gift
-              </Button>
-            )}
           </CardFooter>
         </Card>
       </div>
