@@ -219,21 +219,25 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     <Calendar className="h-3 w-3 mr-1" />
                     {new Date(gift.createdAt).toLocaleDateString()}
                   </div>
-                  
-                  {/* Show Claim My Gift button for pending gifts/invitations */}
-                  {gift.status === "pending" && (
+                </CardFooter>
+
+                {/* Show Claim My Gift button for pending gifts/invitations */}
+                {gift.status === "pending" && (
+                  <div className="pb-4 px-6">
                     <Button 
-                      size="sm" 
+                      size="default" 
                       onClick={() => handleShowGiftClaim(gift)}
                       variant="default"
-                      className="font-bold tracking-wide bg-red-500 hover:bg-red-600 text-white"
+                      className="w-full font-bold tracking-wide bg-red-500 hover:bg-red-600 text-white rounded-md"
                     >
                       CLAIM MY GIFT
                     </Button>
-                  )}
-                  
-                  {/* Show redeem button for non-invitation gifts that are ready to redeem */}
-                  {(gift.status !== "redeemed" && gift.status !== "completed" && gift.status !== "pending" && gift.giftType !== 'invitation') && (
+                  </div>
+                )}
+                
+                {/* Show redeem button for non-invitation gifts that are ready to redeem */}
+                {(gift.status !== "redeemed" && gift.status !== "completed" && gift.status !== "pending" && gift.giftType !== 'invitation') && (
+                  <div className="pb-4 px-6">
                     <Button 
                       size="sm" 
                       onClick={() => handleRedeemGift(gift)}
@@ -246,16 +250,18 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       )}
                       Redeem Gift
                     </Button>
-                  )}
-                  
-                  {/* Show redeemed status */}
-                  {(gift.status === "redeemed" || gift.status === "completed") && (
+                  </div>
+                )}
+                
+                {/* Show redeemed status */}
+                {(gift.status === "redeemed" || gift.status === "completed") && (
+                  <div className="pb-2 px-6">
                     <div className="flex items-center text-xs text-muted-foreground">
                       <CheckCircle className="h-3 w-3 mr-1 text-green-600" />
                       Redeemed on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : "—"}
                     </div>
-                  )}
-                </CardFooter>
+                  </div>
+                )}
               </Card>
             ))}
           </div>
