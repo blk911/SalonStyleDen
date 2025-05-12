@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { GiftIcon, PhoneIcon, MailIcon, Loader2 } from "lucide-react";
+import { GiftIcon, PhoneIcon, MailIcon } from "lucide-react";
 import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
 
 interface ReceivedGift {
@@ -42,14 +42,8 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
   // Mutation for claiming a gift
   const claimGiftMutation = useMutation({
     mutationFn: async () => {
-      // Validate the phone number with our VMB rules function
-      const phoneResult = validateAndCleanPhone(phone);
-      const cleanedPhone = phoneResult.cleaned;
-      
-      // Double check phone validity 
-      if (!phoneResult.isValid) {
-        throw new Error("Invalid phone number format. Must be a 10-digit US phone number with valid area code.");
-      }
+      // Clean the phone number
+      const cleanedPhone = cleanPhoneNumber(phone);
       
       // Use different endpoints based on gift type
       const endpoint = gift.giftType === 'invitation' 
@@ -59,7 +53,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
       const method = gift.giftType === 'invitation' ? 'POST' : 'PATCH';
       const status = gift.giftType === 'invitation' ? 'claimed' : 'redeemed';
       
-      console.log(`Claiming ${gift.giftType} with validated phone: ${cleanedPhone}`);
+      console.log(`Claiming ${gift.giftType} with phone: ${cleanedPhone}`);
       
       const response = await fetch(endpoint, {
         method: method,
@@ -68,7 +62,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
         },
         body: JSON.stringify({
           status: status,
-          phone: cleanedPhone, // Use the validated phone number
+          phone: cleanedPhone, // Use the cleaned phone number
           email,
           clientId
         })
@@ -103,55 +97,31 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
     }
   });
 
-  // Helper function to validate and clean the phone number following VMB rules
-  const validateAndCleanPhone = (phoneNumber: string): { isValid: boolean; cleaned: string } => {
+  // Helper function to clean the phone number
+  const cleanPhoneNumber = (phoneNumber: string): string => {
     // Remove any non-digit characters
-    const digitsOnly = phoneNumber.replace(/\D/g, '');
-    
-    // VMB phone number validation rules:
-    // 1. Must be exactly 10 digits (US format)
-    // 2. Must start with valid area code (not 000, 555, 999, etc.)
-    // 3. Must not be all same digits
-    
-    // Check length
-    if (digitsOnly.length !== 10) {
-      return { isValid: false, cleaned: digitsOnly };
-    }
-    
-    // Check if all digits are the same
-    if (/^(\d)\1{9}$/.test(digitsOnly)) {
-      return { isValid: false, cleaned: digitsOnly };
-    }
-    
-    // Check for invalid area codes
-    const areaCode = digitsOnly.substring(0, 3);
-    const invalidAreaCodes = ['000', '111', '555', '999'];
-    if (invalidAreaCodes.includes(areaCode)) {
-      return { isValid: false, cleaned: digitsOnly };
-    }
-    
-    return { isValid: true, cleaned: digitsOnly };
+    return phoneNumber.replace(/\D/g, '');
   };
 
   const handleClaimGift = () => {
     // Only allow claiming if status is pending or if the gift is an invitation that is marked completed
     // (since invitations are shown as pending in the UI even when they're completed)
     if (gift.status === "pending" || (gift.giftType === 'invitation' && gift.status === "completed")) {
-      // Validate and clean the phone number
-      const { isValid, cleaned: cleanedPhone } = validateAndCleanPhone(phone);
-      
-      if (!isValid) {
+      // Clean the phone number before submission
+      const cleanedPhone = cleanPhoneNumber(phone);
+      if (cleanedPhone.length < 10) {
         toast({
           title: "Invalid phone number",
-          description: "Please enter a valid 10-digit US phone number. Phone cannot use special area codes or have all the same digits.",
+          description: "Please enter a valid 10-digit phone number",
           variant: "destructive",
         });
         return;
       }
       
-      console.log(`Claiming with validated phone: ${cleanedPhone}`);
+      // Set the cleaned phone number
+      setPhone(cleanedPhone);
       
-      // Proceed with the mutation with the validated phone
+      // Proceed with the mutation
       claimGiftMutation.mutate();
     }
   };
