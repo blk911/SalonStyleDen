@@ -59,6 +59,7 @@ function Router() {
       <Route path="/promos" component={PromosPage} />
       <Route path="/sitemap" component={Sitemap} />
       <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/gifts/:id" component={GiftRedemptionPage} />
       <Route path="/test-image/:id" component={TestImagePage} />
       <Route path="/network-visualization" component={NetworkVisualization} />
       <Route path="/madge-visualization" component={MadgeVisualizationPage} />
