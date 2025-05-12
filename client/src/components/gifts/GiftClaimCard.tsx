@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,14 +7,8 @@ import { Label } from "@/components/ui/label";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { GiftIcon, PhoneIcon, MailIcon, Loader } from "lucide-react";
-import { 
-  formatCurrency, 
-  formatPhoneNumber, 
-  cleanPhoneNumber, 
-  normalizePhoneForStorage,
-  isValidPhone 
-} from "@/lib/utils";
+import { GiftIcon, PhoneIcon, MailIcon } from "lucide-react";
+import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
 
 interface ReceivedGift {
   id: number;
@@ -42,23 +36,14 @@ interface GiftClaimCardProps {
 
 export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardProps) {
   const [phone, setPhone] = useState("");
-  const [displayPhone, setDisplayPhone] = useState("");
   const [email, setEmail] = useState("");
   const { toast } = useToast();
-
-  // Format the phone number for display as the user types
-  useEffect(() => {
-    // Update the displayed phone with formatting
-    if (phone) {
-      setDisplayPhone(formatPhoneNumber(phone));
-    }
-  }, [phone]);
 
   // Mutation for claiming a gift
   const claimGiftMutation = useMutation({
     mutationFn: async () => {
-      // Normalize phone for storage according to VMB standards
-      const normalizedPhone = normalizePhoneForStorage(phone);
+      // Clean the phone number
+      const cleanedPhone = cleanPhoneNumber(phone);
       
       // Use different endpoints based on gift type
       const endpoint = gift.giftType === 'invitation' 
@@ -68,7 +53,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
       const method = gift.giftType === 'invitation' ? 'POST' : 'PATCH';
       const status = gift.giftType === 'invitation' ? 'claimed' : 'redeemed';
       
-      console.log(`Claiming ${gift.giftType} with normalized phone: ${normalizedPhone}`);
+      console.log(`Claiming ${gift.giftType} with phone: ${cleanedPhone}`);
       
       const response = await fetch(endpoint, {
         method: method,
@@ -77,7 +62,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
         },
         body: JSON.stringify({
           status: status,
-          phone: normalizedPhone, // Use the normalized 10-digit phone per VMB standards
+          phone: cleanedPhone, // Use the cleaned phone number
           email,
           clientId
         })
@@ -112,26 +97,29 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
     }
   });
 
-  // Handle phone number input changes with formatting
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    const digits = cleanPhoneNumber(inputValue);
-    setPhone(digits);
+  // Helper function to clean the phone number
+  const cleanPhoneNumber = (phoneNumber: string): string => {
+    // Remove any non-digit characters
+    return phoneNumber.replace(/\D/g, '');
   };
 
   const handleClaimGift = () => {
     // Only allow claiming if status is pending or if the gift is an invitation that is marked completed
     // (since invitations are shown as pending in the UI even when they're completed)
     if (gift.status === "pending" || (gift.giftType === 'invitation' && gift.status === "completed")) {
-      // Validate the phone number according to VMB standards
-      if (!isValidPhone(phone)) {
+      // Clean the phone number before submission
+      const cleanedPhone = cleanPhoneNumber(phone);
+      if (cleanedPhone.length < 10) {
         toast({
           title: "Invalid phone number",
-          description: "Please enter a valid 10-digit US phone number",
+          description: "Please enter a valid 10-digit phone number",
           variant: "destructive",
         });
         return;
       }
+      
+      // Set the cleaned phone number
+      setPhone(cleanedPhone);
       
       // Proceed with the mutation
       claimGiftMutation.mutate();
@@ -186,8 +174,8 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
               <Input 
                 id="phone" 
                 placeholder="(555) 123-4567"
-                value={displayPhone || ''}
-                onChange={handlePhoneChange}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="focus:border-primary"
               />
             </div>
@@ -220,7 +208,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
         >
           {claimGiftMutation.isPending ? (
             <>
-              <Loader className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Processing...
             </>
           ) : (
