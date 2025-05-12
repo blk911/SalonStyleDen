@@ -97,19 +97,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
     }
   });
 
-  // Helper function to clean the phone number
-  const cleanPhoneNumber = (phoneNumber: string): string => {
-    // Remove any non-digit characters
-    return phoneNumber.replace(/\D/g, '');
-  };
-
-  // Validate US phone number format
-  const validatePhoneNumber = (phoneNumber: string): boolean => {
-    // Must be 10 digits after cleaning
-    const cleaned = cleanPhoneNumber(phoneNumber);
-    return cleaned.length === 10;
-  };
-
+  // Use the same phone utils as ClientRegistrationPage
   const handleClaimGift = () => {
     // Only allow claiming if status is pending or if the gift is an invitation that is marked completed
     // (since invitations are shown as pending in the UI even when they're completed)
@@ -117,8 +105,8 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
       // Clean the phone number before submission
       const cleanedPhone = cleanPhoneNumber(phone);
       
-      // Validate phone number
-      if (!validatePhoneNumber(phone)) {
+      // Validate using same logic as in the registration page
+      if (!isValidPhone(phone)) {
         toast({
           title: "Invalid phone number",
           description: "Please enter a valid 10-digit phone number",
@@ -127,7 +115,10 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
         return;
       }
       
-      // Proceed with the mutation using the cleaned phone number
+      // Set the phone number with proper formatting
+      setPhone(formatPhoneNumber(phone));
+      
+      // Proceed with the mutation
       claimGiftMutation.mutate();
     }
   };
