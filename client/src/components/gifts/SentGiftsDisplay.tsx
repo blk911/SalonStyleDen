@@ -86,9 +86,9 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
   if (isLoading) {
     return (
       <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Gifts You've Sent</CardTitle>
-          <CardDescription>Gifts you've sent to other clients</CardDescription>
+        <CardHeader className="bg-green-50 pb-3 pt-3">
+          <h3 className="text-sm font-medium text-green-800">Gifts You've Sent</h3>
+          <CardDescription className="text-xs mt-1">Gifts you've sent to other clients</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -100,9 +100,9 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
   if (!sentGifts || sentGifts.length === 0) {
     return (
       <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Gifts You've Sent</CardTitle>
-          <CardDescription>Gifts you've sent to other clients</CardDescription>
+        <CardHeader className="bg-green-50 pb-3 pt-3">
+          <h3 className="text-sm font-medium text-green-800">Gifts You've Sent</h3>
+          <CardDescription className="text-xs mt-1">Gifts you've sent to other clients</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-6 text-center">
@@ -126,11 +126,11 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
   return (
     <>
       <Card className="w-full">
-        <CardHeader>
+        <CardHeader className="bg-green-50 pb-3 pt-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Gifts You've Sent</CardTitle>
-              <CardDescription>Gifts you've sent to other clients</CardDescription>
+              <h3 className="text-sm font-medium text-green-800">Gifts You've Sent</h3>
+              <CardDescription className="text-xs mt-1">Gifts you've sent to other clients</CardDescription>
             </div>
             {onCreateGift && (
               <Button size="sm" onClick={onCreateGift}>

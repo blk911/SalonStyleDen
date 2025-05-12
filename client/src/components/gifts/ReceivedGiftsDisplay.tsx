@@ -156,9 +156,9 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   if (isLoading) {
     return (
       <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Your Gifts & Invitations</CardTitle>
-          <CardDescription>Gifts and invitations sent to you</CardDescription>
+        <CardHeader className="bg-yellow-50 pb-3 pt-3">
+          <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
+          <CardDescription className="text-xs mt-1">Gifts and invitations sent to you</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -170,9 +170,9 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   if (!receivedGifts || receivedGifts.length === 0) {
     return (
       <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Your Gifts & Invitations</CardTitle>
-          <CardDescription>Gifts and invitations sent to you</CardDescription>
+        <CardHeader className="bg-yellow-50 pb-3 pt-3">
+          <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
+          <CardDescription className="text-xs mt-1">Gifts and invitations sent to you</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-6 text-center">
@@ -187,9 +187,9 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   return (
     <>
       <Card className="w-full">
-        <CardHeader className="bg-yellow-50">
-          <CardTitle className="text-xl text-amber-800 font-bold">GIFT/INVITE RECEIVED</CardTitle>
-          <CardDescription>Gifts and invitations sent to you</CardDescription>
+        <CardHeader className="bg-yellow-50 pb-3 pt-3">
+          <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
+          <CardDescription className="text-xs mt-1">Gifts and invitations sent to you</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
