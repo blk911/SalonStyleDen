@@ -1503,6 +1503,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Cancel an invitation (used by salon owners)
+  apiRouter.post("/invitations/:id/cancel", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      // Get the invitation to make sure it exists
+      const invitation = await storage.getInvitation(id);
+      if (!invitation) {
+        return res.status(404).json({ error: "Invitation not found" });
+      }
+      
+      // Only pending invitations can be cancelled
+      if (invitation.status !== 'pending') {
+        return res.status(400).json({ 
+          error: "Cannot cancel this invitation", 
+          message: `Invitation is already in '${invitation.status}' status`
+        });
+      }
+      
+      // Update invitation status to cancelled
+      const updatedInvitation = await storage.updateInvitationStatus(id, 'cancelled');
+      
+      console.log(`Invitation ${id} has been cancelled successfully`);
+      res.json({ 
+        success: true, 
+        invitation: updatedInvitation,
+        message: "Invitation cancelled successfully" 
+      });
+    } catch (error) {
+      console.error('Error cancelling invitation:', error);
+      res.status(500).json({ error: "Failed to cancel invitation" });
+    }
+  });
+  
   // Update invitation status (PATCH endpoint kept for backward compatibility)
   apiRouter.patch("/invitations/:id", async (req: Request, res: Response) => {
     try {
