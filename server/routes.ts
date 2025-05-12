@@ -2589,13 +2589,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all pending gift requests (for admin dashboard)
-  apiRouter.get("/gifts/pending", async (req: Request, res: Response) => {
+  apiRouter.get("/gifts-pending", async (req: Request, res: Response) => {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
       
-      console.log(`[API] GET /gifts/pending - Fetching pending gift requests (limit: ${limit})`);
+      console.log(`[API] GET /gifts-pending - Fetching pending gift requests (limit: ${limit})`);
       const pendingGifts = await storage.getPendingGifts(limit);
-      console.log(`[API] GET /gifts/pending - Found ${pendingGifts.length} pending gifts`);
+      console.log(`[API] GET /gifts-pending - Found ${pendingGifts.length} pending gifts`);
       
       return res.json(pendingGifts);
     } catch (error) {
