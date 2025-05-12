@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { GiftIcon, PhoneIcon, MailIcon } from "lucide-react";
+import { GiftIcon, PhoneIcon, MailIcon, Loader2 } from "lucide-react";
 import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
 
 interface ReceivedGift {
