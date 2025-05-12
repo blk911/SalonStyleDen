@@ -443,20 +443,33 @@ export default function ClientRegistrationPage() {
                   // Update form with gift information
                   form.setValue('name', recipientName);
                   
+                  // Set salon ID from gift - this is what was missing!
+                  if (gift.salonId) {
+                    form.setValue('sponsorSalonId', gift.salonId);
+                    logFlow(`Setting sponsorSalonId to ${gift.salonId} from gift`);
+                  } else {
+                    // Default to Tiffany's salon (ID: 2) if no salon is specified
+                    form.setValue('sponsorSalonId', 2);
+                    logFlow('No salonId in gift, setting default to Tiffany (ID: 2)');
+                  }
+                  
                   // Show gift success
                   toast({
                     title: 'Gift Found!',
-                    description: 'We found your gift. Complete the form to redeem it.',
+                    description: `We found your gift from ${gift.salonName || gift.senderName || 'Tiffany 5280 Nails Studio'}. Complete the form to redeem it.`,
                     variant: 'default',
                   });
                   
                   return;
                 } else {
-                  // No invitation or gift found
+                  // No invitation or gift found, but still set a default salon (Tiffany's)
+                  logFlow('No gift or invitation found, setting default salon to Tiffany (ID: 2)');
+                  form.setValue('sponsorSalonId', 2); // Default to Tiffany's salon ID
+                  
                   toast({
                     title: 'No Records Found',
-                    description: 'We couldn\'t find any gifts or invitations for this phone number.',
-                    variant: 'destructive',
+                    description: 'We couldn\'t find any gifts or invitations for this phone number, but you can still register with Tiffany 5280 Nails Studio.',
+                    variant: 'default',
                   });
                 }
               }
