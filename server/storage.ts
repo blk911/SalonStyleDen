@@ -101,6 +101,7 @@ export interface IStorage {
   updateGift(id: number, updateData: Partial<Gift>): Promise<Gift>;
   updateGiftStatus(id: number, status: string): Promise<Gift>;
   checkUnredeemedGiftByPhone(phone: string): Promise<{hasUnredeemedGift: boolean, gift?: Gift}>;
+  getPendingGifts(limit?: number): Promise<Gift[]>;
 }
 
 // Copy over all the implementation from old storage.ts then add getSalonsTable method at the end
