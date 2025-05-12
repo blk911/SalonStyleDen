@@ -350,10 +350,10 @@ export default function AdminDashboard() {
   
   // Query for pending gift requests
   const { data: pendingGifts, error: giftsError, isLoading: giftsIsLoading } = useQuery<Gift[]>({
-    queryKey: ['/api/gifts/pending'],
+    queryKey: ['/api/gifts-pending'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/gifts/pending');
+        const response = await fetch('/api/gifts-pending');
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch pending gift requests: ${response.status} ${response.statusText}. Details: ${errorText}`);
