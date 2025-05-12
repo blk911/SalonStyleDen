@@ -72,6 +72,8 @@ const clientSchema = z.object({
       message: 'You must accept the terms and conditions to continue'
     }),
   sponsorSalonId: z.number().optional().nullable(), // Allow null value
+  invitationId: z.number().optional().nullable(), // Store invitation ID for association
+  giftId: z.number().optional().nullable(), // Store gift ID for association
 });
 
 // Define the form values type
@@ -178,6 +180,8 @@ export default function ClientRegistrationPage() {
       notes: '',
       acceptTerms: false,
       sponsorSalonId: salonId,
+      invitationId: null,  // Initialize invitationId as null
+      giftId: null,  // Initialize giftId as null
     },
     mode: 'onChange', // Validate fields as they change for better user feedback
   });
@@ -283,6 +287,37 @@ export default function ClientRegistrationPage() {
                     description: `Found a gift from ${gift.senderName || 'someone special'}! Complete registration to claim it.`,
                     variant: 'default',
                   });
+                  
+                  // Auto-populate salon information from gift data
+                  if (gift.salonId) {
+                    logFlow('Auto-populating form with salon data from gift', {
+                      salonId: gift.salonId,
+                      senderName: gift.senderName || 'Unknown Sender'
+                    });
+                    
+                    // Set form value
+                    form.setValue('sponsorSalonId', gift.salonId);
+                    
+                    // Try to get salon info if available
+                    fetch(`/api/salons/${gift.salonId}`)
+                      .then(response => response.ok ? response.json() : null)
+                      .then(salonData => {
+                        if (salonData) {
+                          // Update local salon state for UI display
+                          setLocalSalon({
+                            id: salonData.id,
+                            name: salonData.name || 'Unknown Salon',
+                            ownerName: salonData.ownerName || 'Unknown Owner'
+                          });
+                        }
+                      })
+                      .catch(err => {
+                        console.warn('Failed to fetch salon details for gift', err);
+                      });
+                    
+                    // Store gift ID for later association during registration
+                    form.setValue('giftId', gift.id);
+                  }
                   
                   return;
                 }
@@ -530,8 +565,9 @@ export default function ClientRegistrationPage() {
       setIsSubmitting(true);
       
       // Add client type and sponsor information
-      // Add gift ID to client data for tracking
-      const giftId = urlParams.get('giftId') ? parseInt(urlParams.get('giftId')!) : undefined;
+      // Get gift or invitation ID from URL params or form values
+      const giftIdFromUrl = urlParams.get('giftId') ? parseInt(urlParams.get('giftId')!) : undefined;
+      const invitationIdFromUrl = urlParams.get('invitationId') ? parseInt(urlParams.get('invitationId')!) : undefined;
       
       const clientData = {
         ...data,
@@ -542,9 +578,16 @@ export default function ClientRegistrationPage() {
         sponsorSalonId: data.sponsorSalonId || salonId || invitation?.salonId || 1, // Default to VMB LTD (ID 1) if no salon
         isCurrentClient: true,
         accepted_terms: data.acceptTerms || false, // Use snake_case to match database
-        invitationId: invitation?.id, // Add invitation ID for linking
-        giftId: giftId // Add gift ID for linking to pending gifts
+        // Prioritize form values over URL params for IDs
+        invitationId: data.invitationId || invitationIdFromUrl || invitation?.id, // Add invitation ID for linking
+        giftId: data.giftId || giftIdFromUrl // Add gift ID for linking to pending gifts
       };
+      
+      // Log the IDs being passed for debugging
+      logFlow('Registering client with gift/invitation IDs', {
+        invitationId: data.invitationId || invitationIdFromUrl || invitation?.id,
+        giftId: data.giftId || giftIdFromUrl
+      });
       
       console.log('Submitting client data:', clientData);
       
