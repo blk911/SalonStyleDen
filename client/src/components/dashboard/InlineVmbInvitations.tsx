@@ -263,6 +263,36 @@ export default function InlineVmbInvitations({
                 </div>
               )}
               
+              {/* Cancel button for pending invitations */}
+              {invitation.status.toLowerCase() === 'pending' && (
+                <div className="flex justify-end mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100 hover:text-red-800 hover:border-red-300 px-2 py-0.5 h-auto text-xs flex items-center gap-1"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent card click
+                      
+                      // Confirm before cancelling
+                      if (window.confirm(`Are you sure you want to cancel this invitation to ${invitation.name}? This action cannot be undone.`)) {
+                        cancelInvitationMutation.mutate(invitation.id);
+                      }
+                    }}
+                    disabled={cancelInvitationMutation.isPending}
+                  >
+                    {cancelInvitationMutation.isPending ? (
+                      <>
+                        <span className="animate-spin">↻</span> Cancelling...
+                      </>
+                    ) : (
+                      <>
+                        <XCircleIcon className="h-3 w-3" /> CANCEL INVITATION
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+              
               {/* View Details Icon - Only visible on hover */}
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <ExternalLinkIcon className="h-4 w-4 text-pink-500" />
