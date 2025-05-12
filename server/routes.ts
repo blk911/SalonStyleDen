@@ -1577,6 +1577,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Claim invitation - special endpoint for clients to claim a received invitation
+  apiRouter.post("/invitations/:id/claim", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      // Get phone and email from request body if provided
+      const { phone, email, clientId } = req.body;
+      
+      // Get the invitation to make sure it exists
+      const invitation = await storage.getInvitation(id);
+      if (!invitation) {
+        return res.status(404).json({ error: "Invitation not found" });
+      }
+      
+      // Only allow claiming if the invitation is in pending state or completed
+      // (completed is treated as pending in the UI for existing invitations)
+      if (invitation.status !== "pending" && invitation.status !== "completed") {
+        return res.status(400).json({ 
+          error: "Cannot claim invitation", 
+          message: `Invitation is in ${invitation.status} state and cannot be claimed`
+        });
+      }
+      
+      // Update invitation to claimed status
+      const updatedInvitation = await storage.updateInvitationStatus(id, "claimed");
+      
+      // Set redeemedAt timestamp if not already set
+      if (!updatedInvitation.redeemedAt) {
+        // This API doesn't expose direct redeemedAt field, so handle it through the database
+        try {
+          // Use raw SQL to update the redeemedAt timestamp
+          const client = await pool.connect();
+          try {
+            await client.query(
+              'UPDATE invitations SET redeemed_at = NOW() WHERE id = $1',
+              [id]
+            );
+          } finally {
+            client.release();
+          }
+        } catch (dbError) {
+          console.error('Error updating redeemed_at timestamp:', dbError);
+        }
+      }
+      
+      // Log activity
+      try {
+        await storage.createActivityLog({
+          type: "invitation_claimed",
+          description: `Invitation #${id} claimed by client ${clientId || 'unknown'}`,
+          salonId: invitation.salonId || 0,
+          clientId: clientId ? Number(clientId) : undefined,
+          timestamp: new Date()
+        });
+      } catch (logError) {
+        console.error('Failed to log invitation claim activity:', logError);
+      }
+      
+      res.json({
+        ...updatedInvitation,
+        status: "claimed",
+        redeemedAt: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error claiming invitation:', error);
+      res.status(500).json({ error: "Failed to claim invitation" });
+    }
+  });
+  
   // Complete the invitation sequence by posting to dashboards and tracking
   apiRouter.post("/invitations/:id/complete", async (req: Request, res: Response) => {
     try {

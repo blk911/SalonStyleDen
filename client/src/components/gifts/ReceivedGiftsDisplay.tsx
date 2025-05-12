@@ -10,6 +10,7 @@ import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Gift as GiftIcon, CheckCircle, Calendar, ExternalLink } from "lucide-react";
 import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
+import { GiftClaimCard } from "./GiftClaimCard";
 
 interface ReceivedGift {
   id: number;
@@ -39,6 +40,8 @@ interface ReceivedGiftsDisplayProps {
 export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDisplayProps) {
   const [selectedGift, setSelectedGift] = useState<ReceivedGift | null>(null);
   const [isRedeemModalOpen, setIsRedeemModalOpen] = useState(false);
+  const [showGiftClaimForm, setShowGiftClaimForm] = useState(false);
+  const [giftToClaim, setGiftToClaim] = useState<ReceivedGift | null>(null);
   const { toast } = useToast();
 
   // Fetch received gifts
@@ -51,7 +54,15 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       }
       const gifts = await response.json();
       console.log("Received gifts:", gifts);
-      return gifts as ReceivedGift[];
+      
+      // Convert completed invitations to pending for proper UI flow
+      return gifts.map((gift: ReceivedGift) => {
+        // Mark invitations as "pending" for proper claim flow
+        if (gift.giftType === 'invitation' && gift.status === 'completed') {
+          return { ...gift, status: 'pending' };
+        }
+        return gift;
+      }) as ReceivedGift[];
     },
     enabled: !!clientId,
   });
@@ -108,6 +119,40 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     }
   };
 
+  const handleShowGiftClaim = (gift: ReceivedGift) => {
+    setGiftToClaim(gift);
+    setShowGiftClaimForm(true);
+  };
+
+  const handleGiftClaimed = () => {
+    setShowGiftClaimForm(false);
+    setGiftToClaim(null);
+    // Refresh the gifts list
+    queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
+  };
+
+  if (showGiftClaimForm && giftToClaim) {
+    return (
+      <div className="w-full">
+        <div className="mb-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowGiftClaimForm(false)}
+            className="mb-4"
+          >
+            &larr; Back to Gifts
+          </Button>
+        </div>
+        <GiftClaimCard 
+          gift={giftToClaim} 
+          clientId={clientId} 
+          onGiftClaimed={handleGiftClaimed} 
+        />
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <Card className="w-full">
@@ -162,7 +207,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       variant={gift.status === "redeemed" || gift.status === "completed" ? "outline" : "default"}
                       className={gift.status === "redeemed" || gift.status === "completed" ? "bg-green-100 text-green-800 border-green-300" : ""}
                     >
-                      {gift.status === "redeemed" || gift.status === "completed" ? "Redeemed" : "Ready to Use"}
+                      {gift.status === "redeemed" || gift.status === "completed" ? "Redeemed" : "Pending"}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -174,7 +219,21 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     <Calendar className="h-3 w-3 mr-1" />
                     {new Date(gift.createdAt).toLocaleDateString()}
                   </div>
-                  {(gift.status !== "redeemed" && gift.status !== "completed" && gift.giftType !== 'invitation') && (
+                  
+                  {/* Show Claim My Gift button for pending gifts/invitations */}
+                  {gift.status === "pending" && (
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleShowGiftClaim(gift)}
+                      variant="default"
+                    >
+                      <GiftIcon className="h-4 w-4 mr-2" />
+                      Claim My Gift
+                    </Button>
+                  )}
+                  
+                  {/* Show redeem button for non-invitation gifts that are ready to redeem */}
+                  {(gift.status !== "redeemed" && gift.status !== "completed" && gift.status !== "pending" && gift.giftType !== 'invitation') && (
                     <Button 
                       size="sm" 
                       onClick={() => handleRedeemGift(gift)}
@@ -188,6 +247,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       Redeem Gift
                     </Button>
                   )}
+                  
+                  {/* Show redeemed status */}
                   {(gift.status === "redeemed" || gift.status === "completed") && (
                     <div className="flex items-center text-xs text-muted-foreground">
                       <CheckCircle className="h-3 w-3 mr-1 text-green-600" />
