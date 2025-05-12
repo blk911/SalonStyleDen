@@ -856,10 +856,27 @@ export class DatabaseStorage implements IStorage {
       console.log(`DatabaseStorage.createInvitation - Generated invite hash: ${insertInvitation.inviteHash}`);
     }
     
+    // If salonId is provided but salonName is not, fetch the salon name
+    let salonName = insertInvitation.salonName;
+    if (insertInvitation.salonId && !salonName) {
+      try {
+        const salon = await this.getSalon(insertInvitation.salonId);
+        if (salon) {
+          salonName = salon.name;
+          console.log(`DatabaseStorage.createInvitation - Auto-populating salonName: ${salonName} from salonId: ${insertInvitation.salonId}`);
+        }
+      } catch (error) {
+        console.error(`DatabaseStorage.createInvitation - Error fetching salon name:`, error);
+        // Continue without salon name if we can't get it
+      }
+    }
+    
     // Set default values for any missing fields
     const invitationData = {
       ...insertInvitation,
       sponsor: sponsorName || 'VMB LTD',
+      sponsorName: sponsorName || 'VMB LTD',
+      salonName: salonName,
       status: insertInvitation.status || 'pending',
       createdAt: new Date()
     };
@@ -883,7 +900,7 @@ export class DatabaseStorage implements IStorage {
         // Prepare basic columns that we know exist
         let columns = [
           'name', 'phone', 'email', 'notes', 
-          'salon_id', 'sponsor', 'sponsor_name', 'invite_hash', 
+          'salon_id', 'sponsor', 'sponsor_name', 'salon_name', 'invite_hash', 
           'status', 'first_service_date', 'created_at'
         ];
         
@@ -895,7 +912,8 @@ export class DatabaseStorage implements IStorage {
           invitationData.notes, 
           invitationData.salonId, 
           invitationData.sponsor, 
-          invitationData.sponsor, // Use sponsor for sponsor_name if not explicitly provided
+          invitationData.sponsorName || invitationData.sponsor, // Use sponsorName or fallback to sponsor
+          invitationData.salonName, // Include the salon name
           invitationData.inviteHash,
           invitationData.status, 
           invitationData.firstServiceDate, 
@@ -957,6 +975,7 @@ export class DatabaseStorage implements IStorage {
           message: row.message || null,
           type: row.type || null,
           salonId: row.salon_id,
+          salonName: row.salon_name || null, // Include salon name
           sponsor: row.sponsor,
           sponsorName: row.sponsor_name || row.sponsor || 'VMB LTD', // [FIX] Ensure sponsorName is always set
           inviteHash: row.invite_hash,
@@ -989,7 +1008,7 @@ export class DatabaseStorage implements IStorage {
       const sqlQuery = `
         SELECT 
             id, name, phone, email, notes, message, type,
-            salon_id, sponsor, invite_hash, status, 
+            salon_id, sponsor, sponsor_name, salon_name, invite_hash, status, 
             first_service_date, created_at, 
             favorite_services, sender_id,
             style_option, style_price, style_duration
