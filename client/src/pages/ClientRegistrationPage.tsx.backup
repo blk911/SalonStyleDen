@@ -461,6 +461,278 @@ export default function ClientRegistrationPage() {
     }
   }, [invitation, form, salonId, isCompleteRegistrationMode, salon]);
   
+  // Function to handle phone validation - checks if phone is valid and if it has unredeemed gifts
+  const handlePhoneValidation = async (isValid: boolean, phoneNumber?: string) => {
+    logFlow(`Phone validation ${isValid ? 'passed' : 'failed'}`);
+    
+    // Only show a toast for invalid phone numbers to help user correct them immediately
+    if (!isValid) {
+      toast({
+        title: 'Invalid Phone Number',
+        description: 'Please enter a valid 10-digit phone number',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    // If phone is valid and we're in Gift/Invite mode, look up the invitation ID directly
+    if (isValid && phoneNumber) {
+      const clientType = form.getValues('clientType');
+      
+      if (clientType === 'giftInvite') {
+        // Check if we're already in the right view and have an invitation ID in the URL
+        // If we do, we don't need to reload or redirect
+        const currentInvitationId = urlParams.get('invitationId');
+        const currentPhone = urlParams.get('phone');
+        
+        // If we already have the right invitation ID and phone, skip further API calls
+        if (isCompleteRegistrationMode && currentInvitationId && currentPhone === phoneNumber) {
+          logFlow('Already have invitation data, skipping lookup');
+          return;
+        }
+        
+        logFlow('Gift/Invite mode: Looking up invitation ID for phone', phoneNumber);
+        
+        try {
+          // Get first pending invitation for this phone
+          const response = await fetch(`/api/invitations?phone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
+          
+          if (response.ok) {
+            const invitations = await response.json();
+            
+            if (invitations && invitations.length > 0) {
+              const invitation = invitations[0]; // Get the first matching invitation
+              const invitationId = invitation.id;
+              const name = invitation.name || '';
+              
+              logFlow(`Found invitation ID ${invitationId} for phone ${phoneNumber}`);
+              
+              // If we're not in complete mode, redirect to it
+              if (!isCompleteRegistrationMode) {
+                // Navigate to the complete registration view
+                window.location.href = `/client/register?registrationMode=complete&invitationId=${invitationId}&phone=${encodeURIComponent(phoneNumber)}&name=${encodeURIComponent(name)}`;
+                return;
+              }
+              
+              // If we are in complete mode but with a different invitation, reload with the right one
+              if (isCompleteRegistrationMode && currentInvitationId !== String(invitationId)) {
+                window.location.href = `/client/register?registrationMode=complete&invitationId=${invitationId}&phone=${encodeURIComponent(phoneNumber)}&name=${encodeURIComponent(name)}`;
+                return;
+              }
+              
+              // Otherwise, we're already on the right page, just show confirmation and update form
+              form.setValue('name', name);
+              
+              // Make sure to set the salon ID correctly (this was the issue)
+              if (invitation.salonId) {
+                console.log(`Setting salon ID to ${invitation.salonId} from invitation`);
+                form.setValue('sponsorSalonId', invitation.salonId, { shouldValidate: true });
+                
+                // Set the localSalon state to force UI update
+                setLocalSalon({
+                  id: invitation.salonId,
+                  name: invitation.sponsor || 'Tiffany 5280 Nails Studio',
+                  ownerName: invitation.sponsorName || 'Tiffany'
+                });
+                
+                // Log confirmation
+                console.log('Set salon state from invitation:', invitation.sponsor, invitation.salonId);
+                
+                // Force value update to ensure it's set properly
+                setTimeout(() => {
+                  const currentValue = form.getValues('sponsorSalonId');
+                  console.log('Verified salon ID after setting:', currentValue);
+                  
+                  // If it's still not set, try again
+                  if (currentValue !== invitation.salonId) {
+                    console.log('Salon ID not set properly, trying again');
+                    form.setValue('sponsorSalonId', invitation.salonId, { shouldValidate: true, shouldDirty: true });
+                  }
+                }, 50);
+              } else {
+                console.log('No salon ID in invitation, defaulting to Tiffany (ID: 2)');
+                form.setValue('sponsorSalonId', 2, { shouldValidate: true }); // Default to Tiffany's salon
+                
+                // Set the localSalon state to force UI update
+                setLocalSalon({
+                  id: 2,
+                  name: 'Tiffany 5280 Nails Studio',
+                  ownerName: 'Tiffany'
+                });
+              }
+              
+              // Show success message
+              toast({
+                title: 'Invitation Found!',
+                description: `Found your invitation from ${invitation.sponsor || 'a salon'}. Complete the form to accept it.`,
+                variant: 'default',
+              });
+              
+              return;
+            } else {
+              // No invitation found, check for gifts
+              logFlow('No invitation found, checking for gifts');
+              const giftsResponse = await fetch(`/api/gifts?recipientPhone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
+              
+              if (giftsResponse.ok) {
+                const gifts = await giftsResponse.json();
+                
+                if (gifts && gifts.length > 0) {
+                  const gift = gifts[0]; // Get the first matching gift
+                  const giftId = gift.id;
+                  const recipientName = gift.recipientName || '';
+                  
+                  logFlow(`Found gift ID ${giftId} for phone ${phoneNumber}`);
+                  
+                  // Similar logic as above for gifts
+                  if (!isCompleteRegistrationMode) {
+                    window.location.href = `/client/register?registrationMode=complete&giftId=${giftId}&phone=${encodeURIComponent(phoneNumber)}&name=${encodeURIComponent(recipientName)}`;
+                    return;
+                  }
+                  
+                  // Update form with gift information
+                  form.setValue('name', recipientName);
+                  
+                  // Set salon ID from gift - this is what was missing!
+                  if (gift.salonId) {
+                    console.log(`Setting salon ID to ${gift.salonId} from gift`);
+                    form.setValue('sponsorSalonId', gift.salonId, { shouldValidate: true });
+                    
+                    // Force a state refresh to ensure the UI updates with the correct salon
+                    if (allSalons) {
+                      const giftSalon = allSalons.find(s => s.id === gift.salonId);
+                      if (giftSalon) {
+                        setLocalSalon(giftSalon);
+                      }
+                    }
+                    
+                    // Force value update to ensure it's set properly
+                    setTimeout(() => {
+                      const currentValue = form.getValues('sponsorSalonId');
+                      console.log('Verified salon ID after setting:', currentValue);
+                      
+                      // If it's still not set, try again
+                      if (currentValue !== gift.salonId) {
+                        console.log('Salon ID not set properly from gift, trying again');
+                        form.setValue('sponsorSalonId', gift.salonId, { shouldValidate: true, shouldDirty: true });
+                      }
+                    }, 50);
+                    
+                    logFlow(`Setting sponsorSalonId to ${gift.salonId} from gift`);
+                  } else {
+                    // Default to Tiffany's salon (ID: 2) if no salon is specified
+                    console.log('No salon ID in gift, defaulting to Tiffany (ID: 2)');
+                    form.setValue('sponsorSalonId', 2, { shouldValidate: true });
+                    
+                    // Force a state refresh to ensure the UI updates
+                    setLocalSalon({
+                      id: 2,
+                      name: 'Tiffany 5280 Nails Studio',
+                      ownerName: 'Tiffany',
+                    });
+                    
+                    // Force value update to ensure it's set properly
+                    setTimeout(() => {
+                      const currentValue = form.getValues('sponsorSalonId');
+                      console.log('Verified default salon ID after setting:', currentValue);
+                      
+                      // If it's still not set, try again and update the state
+                      if (currentValue !== 2) {
+                        console.log('Default salon ID not set properly, forcing update');
+                        form.setValue('sponsorSalonId', 2, { shouldValidate: true, shouldDirty: true });
+                      }
+                    }, 50);
+                    
+                    logFlow('No salonId in gift, setting default to Tiffany (ID: 2)');
+                  }
+                  
+                  // Show gift success
+                  toast({
+                    title: 'Gift Found!',
+                    description: `We found your gift from ${gift.salonName || gift.senderName || 'Tiffany 5280 Nails Studio'}. Complete the form to redeem it.`,
+                    variant: 'default',
+                  });
+                  
+                  return;
+                } else {
+                  // No invitation or gift found, but still set a default salon (Tiffany's)
+                  logFlow('No gift or invitation found, setting default salon to Tiffany (ID: 2)');
+                  console.log('No records found, defaulting to Tiffany (ID: 2)');
+                  
+                  // Set the form value to Tiffany's salon ID and validate
+                  form.setValue('sponsorSalonId', 2, { shouldValidate: true }); 
+                  
+                  // Force a state refresh to ensure the UI updates
+                  setLocalSalon({
+                    id: 2,
+                    name: 'Tiffany 5280 Nails Studio',
+                    ownerName: 'Tiffany',
+                  });
+                  
+                  // Force value update to ensure it's set properly and double-check after a delay
+                  setTimeout(() => {
+                    const currentValue = form.getValues('sponsorSalonId');
+                    console.log('Verified default salon ID after setting:', currentValue);
+                    
+                    // If it's still not set, try again and update the state
+                    if (currentValue !== 2) {
+                      console.log('Default salon ID not set properly, forcing update');
+                      form.setValue('sponsorSalonId', 2, { shouldValidate: true, shouldDirty: true });
+                      
+                      // Force salon state update
+                      setLocalSalon({
+                        id: 2,
+                        name: 'Tiffany 5280 Nails Studio',
+                        ownerName: 'Tiffany',
+                      });
+                    }
+                  }, 50);
+                  
+                  toast({
+                    title: 'No Records Found',
+                    description: 'We couldn\'t find any gifts or invitations for this phone number, but you can still register with Tiffany 5280 Nails Studio.',
+                    variant: 'default',
+                  });
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error searching for invitation/gift:', error);
+          toast({
+            title: 'Error',
+            description: 'There was a problem looking up your information. Please try again.',
+            variant: 'destructive',
+          });
+        }
+      } else {
+        // Regular phone validation for other client types
+        logFlow('Phone is valid, validating with server');
+        
+        try {
+          // Call validateContact to check if this is a registered client
+          const result = await validateContact(phoneNumber);
+          
+          // If this phone has an unredeemed gift, suggest the Gift/Invite option
+          if (result === 'has_unredeemed_gift') {
+            logFlow('Phone has unredeemed gift');
+            
+            toast({
+              title: 'Gift Available!',
+              description: 'This phone number has a gift waiting. Please select the Gift/Invite option to redeem it.',
+              variant: 'default',
+            });
+          }
+        } catch (error) {
+          console.error('Error validating phone:', error);
+        }
+      }
+    }
+  };
+  
+  // Address dialog handling removed as requested
+  
+  // Handle form submission - IMPROVED with better error handling and debugging
   const onSubmit = async (data: ClientFormValues) => {
     // Critical Debug: Show form submission occurred in browser console
     console.log('[CRITICAL DEBUG] CLIENT REGISTRATION FORM SUBMITTED', data);
