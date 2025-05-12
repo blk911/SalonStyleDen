@@ -204,10 +204,20 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       </CardDescription>
                     </div>
                     <Badge
-                      variant={gift.status === "redeemed" || gift.status === "completed" ? "outline" : "default"}
-                      className={gift.status === "redeemed" || gift.status === "completed" ? "bg-green-100 text-green-800 border-green-300" : ""}
+                      variant={gift.status === "redeemed" || (gift.status === "completed" && gift.giftType !== 'invitation') ? "outline" : "default"}
+                      className={
+                        gift.status === "redeemed" || (gift.status === "completed" && gift.giftType !== 'invitation') 
+                          ? "bg-green-100 text-green-800 border-green-300" 
+                          : gift.status === "claimed" 
+                            ? "bg-blue-100 text-blue-800 border-blue-300" 
+                            : ""
+                      }
                     >
-                      {gift.status === "redeemed" || gift.status === "completed" ? "Redeemed" : "Pending"}
+                      {gift.status === "redeemed" || (gift.status === "completed" && gift.giftType !== 'invitation') 
+                        ? "Redeemed" 
+                        : gift.status === "claimed" 
+                          ? "Claimed" 
+                          : "PENDING"}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -221,14 +231,15 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                   </div>
                   
                   {/* Show Claim My Gift button for pending gifts/invitations */}
-                  {gift.status === "pending" && (
+                  {(gift.status === "pending" || 
+                    (gift.giftType === 'invitation' && (gift.status === "completed" || gift.status === "claimed"))) && (
                     <Button 
                       size="sm" 
                       onClick={() => handleShowGiftClaim(gift)}
-                      variant="default"
+                      variant={gift.status === "claimed" ? "outline" : "default"}
                     >
                       <GiftIcon className="h-4 w-4 mr-2" />
-                      Claim My Gift
+                      {gift.status === "claimed" ? "View Gift Details" : "Claim My Gift"}
                     </Button>
                   )}
                   
