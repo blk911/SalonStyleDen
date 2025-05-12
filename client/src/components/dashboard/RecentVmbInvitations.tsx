@@ -72,7 +72,7 @@ export default function RecentVmbInvitations({
       toast({
         title: "Invitation Cancelled",
         description: "The invitation has been successfully cancelled.",
-        variant: "success"
+        variant: "default" // Using default since "success" is not in the available variants
       });
       
       // Invalidate and refetch the invitations query to update the UI
@@ -132,6 +132,7 @@ export default function RecentVmbInvitations({
                   <th className="py-2 px-2 sm:px-4 font-medium text-xs sm:text-sm">Status</th>
                   <th className="py-2 px-2 sm:px-4 font-medium text-xs sm:text-sm">Type</th>
                   <th className="py-2 px-2 sm:px-4 font-medium text-xs sm:text-sm">Date</th>
+                  <th className="py-2 px-2 sm:px-4 font-medium text-center text-xs sm:text-sm">Actions</th>
                   <th className="py-2 px-2 sm:px-4 font-medium text-right text-xs sm:text-sm">Page</th>
                 </tr>
               </thead>
@@ -168,6 +169,36 @@ export default function RecentVmbInvitations({
                         day: 'numeric',
                         year: '2-digit'
                       })}
+                    </td>
+                    <td className="py-2 px-2 sm:px-4 text-center text-xs sm:text-sm">
+                      {/* Only show CANCEL button for pending invitations */}
+                      {invitation.status.toLowerCase() === 'pending' && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="bg-red-50 text-red-700 border-red-200 hover:bg-red-100 hover:text-red-800 hover:border-red-300 px-2 py-0 h-auto text-xs flex items-center gap-1"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            // Confirm before cancelling
+                            if (window.confirm(`Are you sure you want to cancel this invitation to ${invitation.name}? This action cannot be undone.`)) {
+                              cancelInvitationMutation.mutate(invitation.id);
+                            }
+                          }}
+                          disabled={cancelInvitationMutation.isPending}
+                        >
+                          {cancelInvitationMutation.isPending ? (
+                            <>
+                              <span className="animate-spin">↻</span> Cancelling...
+                            </>
+                          ) : (
+                            <>
+                              <XCircleIcon className="h-3 w-3" /> CANCEL
+                            </>
+                          )}
+                        </Button>
+                      )}
                     </td>
                     <td className="py-2 px-2 sm:px-4 text-right text-xs sm:text-sm">
                       <Link 

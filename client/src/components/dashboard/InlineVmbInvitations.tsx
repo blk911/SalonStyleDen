@@ -1,9 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { UserIcon, CalendarIcon, CheckIcon, ClockIcon, ExternalLinkIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { UserIcon, CalendarIcon, CheckIcon, ClockIcon, ExternalLinkIcon, XCircleIcon } from "lucide-react";
 import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
 import InviteCompleteStatus from "./InviteCompleteStatus";
 
 interface Invitation {
@@ -35,6 +37,8 @@ export default function InlineVmbInvitations({
 }: InlineVmbInvitationsProps) {
   // All hooks must be called at the top level
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const filterParams = new URLSearchParams();
   if (limit) filterParams.set('limit', limit.toString());
@@ -47,6 +51,44 @@ export default function InlineVmbInvitations({
       const response = await fetch(`/api/invitations?${filterParams}`);
       if (!response.ok) throw new Error('Network response was not ok');
       return response.json() as Promise<Invitation[]>;
+    }
+  });
+  
+  // Mutation for cancelling an invitation
+  const cancelInvitationMutation = useMutation({
+    mutationFn: async (invitationId: number) => {
+      const response = await fetch(`/api/invitations/${invitationId}/cancel`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to cancel invitation');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Show success message
+      toast({
+        title: "Invitation Cancelled",
+        description: "The invitation has been successfully cancelled.",
+        variant: "default" // Using default since "success" is not in the available variants
+      });
+      
+      // Invalidate and refetch the invitations query to update the UI
+      queryClient.invalidateQueries({ queryKey: ['/api/invitations'] });
+    },
+    onError: (error: Error) => {
+      // Show error message
+      toast({
+        title: "Cancellation Failed",
+        description: error.message || "There was an error cancelling the invitation.",
+        variant: "destructive"
+      });
     }
   });
 
