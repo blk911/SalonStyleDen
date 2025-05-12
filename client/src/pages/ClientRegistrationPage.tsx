@@ -517,17 +517,24 @@ export default function ClientRegistrationPage() {
     }
   }, [invitation, form, salonId, isCompleteRegistrationMode, salon]);
   
+  // Create a ref to track if we've already shown a processing toast
+  const processingToastShown = React.useRef(false);
+  
   const onSubmit = async (data: ClientFormValues) => {
     // Critical Debug: Show form submission occurred in browser console
     console.log('[CRITICAL DEBUG] CLIENT REGISTRATION FORM SUBMITTED', data);
 
     try {
-      // Show a toast immediately so user knows form was submitted
-      toast({
-        title: 'Processing Registration',
-        description: 'Please wait while we process your information...',
-        variant: 'default',
-      });
+      // Only show the toast if we haven't shown it yet
+      if (!processingToastShown.current) {
+        // Show a toast immediately so user knows form was submitted
+        toast({
+          title: 'Processing Registration',
+          description: 'Please wait while we process your information...',
+          variant: 'default',
+        });
+        processingToastShown.current = true;
+      }
 
       logFlow('Form submission initiated');
       logFlow('Form data', {
@@ -738,13 +745,6 @@ export default function ClientRegistrationPage() {
             console.warn('Error updating invitation after client creation:', inviteError);
           }
         }
-        
-        // Show success message
-        toast({
-          title: 'Registration Successful',
-          description: 'Your account has been created successfully.',
-          variant: 'default',
-        });
         
         // Update registration state and store client ID
         setRegistrationComplete(true);
