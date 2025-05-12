@@ -1304,7 +1304,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               // [CRITICAL FIX] Set the sponsor to the salon name, NOT VMB LTD
               validatedData.sponsor = sponsorSalon.name;
               validatedData.sponsorName = sponsorSalon.name;
-              console.log(`[RULE ENFORCEMENT] Setting sponsor to salon name: ${sponsorSalon.name} for salon-initiated invitation`);
+              
+              // Also set the salonName for consistency
+              validatedData.salonName = sponsorSalon.name;
+              
+              console.log(`[RULE ENFORCEMENT] Setting sponsor and salonName to salon name: ${sponsorSalon.name} for salon-initiated invitation`);
             }
             
             // Check if salon has reached its invitation limit

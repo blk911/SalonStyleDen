@@ -883,7 +883,7 @@ export class DatabaseStorage implements IStorage {
         // Prepare basic columns that we know exist
         let columns = [
           'name', 'phone', 'email', 'notes', 
-          'salon_id', 'sponsor', 'invite_hash', 
+          'salon_id', 'sponsor', 'sponsor_name', 'invite_hash', 
           'status', 'first_service_date', 'created_at'
         ];
         
@@ -895,6 +895,7 @@ export class DatabaseStorage implements IStorage {
           invitationData.notes, 
           invitationData.salonId, 
           invitationData.sponsor, 
+          invitationData.sponsor, // Use sponsor for sponsor_name if not explicitly provided
           invitationData.inviteHash,
           invitationData.status, 
           invitationData.firstServiceDate, 
