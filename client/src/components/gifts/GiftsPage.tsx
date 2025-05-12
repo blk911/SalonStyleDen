@@ -249,46 +249,40 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       </Card>
 
       {/* Always show Gifts Received section using the new ReceivedGiftsDisplay component */}
-      <div className="mt-4 border rounded-lg p-4 bg-yellow-50">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
-        </div>
-        
-        {/* Pass client ID to the ReceivedGiftsDisplay component */}
-        {clientId ? (
-          <ReceivedGiftsDisplay 
-            clientId={clientId}
-            setLocation={(to: string) => setLocation(to)}
-            className="bg-white rounded-lg border border-yellow-200"
-          />
-        ) : (
+      {clientId ? (
+        <ReceivedGiftsDisplay 
+          clientId={clientId}
+          setLocation={(to: string) => setLocation(to)}
+        />
+      ) : (
+        <div className="mt-4 border rounded-lg p-4 bg-yellow-50">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
+          </div>
           <div className="text-center p-4 bg-white rounded-lg border border-yellow-200">
             <p className="text-amber-800">Unable to display gifts</p>
             <p className="text-xs text-gray-500 mt-1">Client information not available</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Always show Gifts Sent section, with appropriate empty state */}
-      <div className="mt-4 border rounded-lg p-4 bg-green-50">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium text-green-800">Gifts Sent</h3>
-        </div>
-        
-        {/* Pass client ID to the SentGiftsDisplay component */}
-        {clientId ? (
-          <SentGiftsDisplay 
-            clientId={clientId}
-            setLocation={(to: string) => setLocation(to)}
-            className="bg-white rounded-lg border border-green-200"
-          />
-        ) : (
+      {clientId ? (
+        <SentGiftsDisplay 
+          clientId={clientId}
+          setLocation={(to: string) => setLocation(to)}
+        />
+      ) : (
+        <div className="mt-4 border rounded-lg p-4 bg-green-50">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-green-800">Gifts Sent</h3>
+          </div>
           <div className="text-center p-4 bg-white rounded-lg border border-green-200">
             <p className="text-green-800">Unable to display sent gifts</p>
             <p className="text-xs text-gray-500 mt-1">Client information not available</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
