@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { GiftIcon, PhoneIcon, MailIcon } from "lucide-react";
+import { GiftIcon, PhoneIcon, MailIcon, Loader2 } from "lucide-react";
 import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
 
 interface ReceivedGift {
@@ -128,10 +128,10 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
 
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg border-primary/20">
-      <CardHeader className="bg-gradient-to-r from-primary/15 to-primary/5 pb-4">
+      <CardHeader className="bg-yellow-50 pb-4">
         <div className="flex items-center gap-2">
-          <GiftIcon className="h-6 w-6 text-primary" />
-          <CardTitle className="text-2xl font-bold tracking-tight">GIFT/INVITE RECEIVED</CardTitle>
+          <GiftIcon className="h-6 w-6 text-amber-700" />
+          <CardTitle className="text-xl text-amber-800 font-bold">GIFT/INVITE RECEIVED</CardTitle>
         </div>
         <CardDescription className="mt-2">
           Claim your {gift.giftType === 'invitation' ? 'invitation' : 'gift'} by confirming your contact information
@@ -201,7 +201,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
       
       <CardFooter className="border-t pt-4 pb-4 bg-muted/20 flex flex-col">
         <Button 
-          className="w-full"
+          className="w-full font-bold tracking-wide bg-red-500 hover:bg-red-600 text-white"
           size="lg"
           onClick={handleClaimGift}
           disabled={!phone || phone.length < 10 || claimGiftMutation.isPending}
@@ -212,10 +212,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
               Processing...
             </>
           ) : (
-            <>
-              <GiftIcon className="mr-2 h-5 w-5" /> 
-              CLAIM MY GIFT
-            </>
+            "CLAIM MY GIFT"
           )}
         </Button>
         

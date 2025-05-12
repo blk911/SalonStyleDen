@@ -187,8 +187,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   return (
     <>
       <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Your Gifts & Invitations</CardTitle>
+        <CardHeader className="bg-yellow-50">
+          <CardTitle className="text-xl text-amber-800 font-bold">GIFT/INVITE RECEIVED</CardTitle>
           <CardDescription>Gifts and invitations sent to you</CardDescription>
         </CardHeader>
         <CardContent>
@@ -205,7 +205,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     </div>
                     <Badge
                       variant={gift.status === "redeemed" || gift.status === "completed" ? "outline" : "default"}
-                      className={gift.status === "redeemed" || gift.status === "completed" ? "bg-green-100 text-green-800 border-green-300" : ""}
+                      className={gift.status === "redeemed" || gift.status === "completed" ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-200"}
                     >
                       {gift.status === "redeemed" || gift.status === "completed" ? "Redeemed" : "Pending"}
                     </Badge>
@@ -226,9 +226,9 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       size="sm" 
                       onClick={() => handleShowGiftClaim(gift)}
                       variant="default"
+                      className="font-bold tracking-wide bg-red-500 hover:bg-red-600 text-white"
                     >
-                      <GiftIcon className="h-4 w-4 mr-2" />
-                      Claim My Gift
+                      CLAIM MY GIFT
                     </Button>
                   )}
                   
