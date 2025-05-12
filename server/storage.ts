@@ -1244,6 +1244,7 @@ export class DatabaseStorage implements IStorage {
           message: row.message || null,
           type: row.type || null,
           salonId: row.salon_id,
+          salonName: row.salon_name || null, // Include salon name from database
           sponsor: row.sponsor,
           inviteHash: row.invite_hash,
           status: row.status,
@@ -1254,8 +1255,8 @@ export class DatabaseStorage implements IStorage {
           styleOption: row.style_option || null,
           stylePrice: row.style_price || null,
           styleDuration: row.style_duration || null,
-          // Set sponsorName to null (it's a new field)
-          sponsorName: row.salon_id ? row.sponsor : null, // Fixed FROM display for salon invitations
+          // Use sponsor_name from database if available
+          sponsorName: row.sponsor_name || row.sponsor || null, // Use sponsor name from database
           senderId: row.sender_id || null
         }));
         
