@@ -243,6 +243,27 @@ export default function ClientRegistrationPage() {
                 variant: 'default',
               });
               
+              // Auto-populate salon information from invitation data
+              if (invite.salonId) {
+                logFlow('Auto-populating form with salon data from invitation', {
+                  salonId: invite.salonId,
+                  salonName: invite.sponsor || 'Unknown Salon'
+                });
+                
+                // Set form value
+                form.setValue('sponsorSalonId', invite.salonId);
+                
+                // Update local salon state for UI display
+                setLocalSalon({
+                  id: invite.salonId,
+                  name: invite.sponsor || 'Tiffany 5280 Nails Studio',
+                  ownerName: invite.sponsorName || 'Tiffany'
+                });
+                
+                // Store invitation ID for later association during registration
+                form.setValue('invitationId', invite.id);
+              }
+              
               return;
             } else {
               // No invitation found, check for gifts
