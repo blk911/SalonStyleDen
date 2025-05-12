@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { GiftIcon, PhoneIcon, MailIcon, Loader2 } from "lucide-react";
+import { GiftIcon, PhoneIcon, MailIcon } from "lucide-react";
 import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
 
 interface ReceivedGift {
@@ -104,14 +104,6 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
   };
 
   const handleClaimGift = () => {
-    // If already claimed, just go back to the list
-    if (gift.status === "claimed") {
-      if (onGiftClaimed) {
-        onGiftClaimed();
-      }
-      return;
-    }
-    
     // Only allow claiming if status is pending or if the gift is an invitation that is marked completed
     // (since invitations are shown as pending in the UI even when they're completed)
     if (gift.status === "pending" || (gift.giftType === 'invitation' && gift.status === "completed")) {
@@ -208,43 +200,29 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
       </CardContent>
       
       <CardFooter className="border-t pt-4 pb-4 bg-muted/20 flex flex-col">
-        {gift.status === "claimed" ? (
-          // For already claimed gifts, just show a "Return to Dashboard" button
-          <Button 
-            className="w-full"
-            size="lg"
-            onClick={handleClaimGift}
-          >
-            Return to Dashboard
-          </Button>
-        ) : (
-          // For pending gifts that need to be claimed
-          <>
-            <Button 
-              className="w-full"
-              size="lg"
-              onClick={handleClaimGift}
-              disabled={!phone || phone.length < 10 || claimGiftMutation.isPending}
-            >
-              {claimGiftMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <GiftIcon className="mr-2 h-5 w-5" /> 
-                  CLAIM MY GIFT
-                </>
-              )}
-            </Button>
-            
-            {!phone && (
-              <p className="text-xs text-center mt-2 text-muted-foreground">
-                Please enter your phone number to continue
-              </p>
-            )}
-          </>
+        <Button 
+          className="w-full"
+          size="lg"
+          onClick={handleClaimGift}
+          disabled={!phone || phone.length < 10 || claimGiftMutation.isPending}
+        >
+          {claimGiftMutation.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            <>
+              <GiftIcon className="mr-2 h-5 w-5" /> 
+              CLAIM MY GIFT
+            </>
+          )}
+        </Button>
+        
+        {!phone && (
+          <p className="text-xs text-center mt-2 text-muted-foreground">
+            Please enter your phone number to continue
+          </p>
         )}
       </CardFooter>
     </Card>
