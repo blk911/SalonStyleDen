@@ -208,6 +208,65 @@ export function formatCurrency(amount: number, currency: string = 'USD'): string
   }).format(amount);
 }
 
+/**
+ * Process invitation message templates by replacing placeholder variables with actual values
+ * @param message The message template containing placeholders
+ * @param client The client data for personalizing the message
+ * @param salon The salon data for personalizing the message
+ * @returns Processed message with placeholders replaced by actual data
+ */
+export function processInvitationMessage(message: string, data: {
+  clientName?: string;
+  salonName?: string;
+  ownerName?: string;
+  styleOption?: string;
+  uniqueId?: string;
+}): string {
+  if (!message) return '';
+
+  let processedMessage = message;
+
+  // Replace client name placeholders
+  if (data.clientName) {
+    processedMessage = processedMessage
+      .replace(/\[CL NAM - [^\]]+\]/g, data.clientName)
+      .replace(/\[NAME\]/g, data.clientName)
+      .replace(/\[Deborah\]/g, data.clientName)
+      .replace(/\[RECIPIENT\]/g, data.clientName);
+  }
+
+  // Replace salon name/owner placeholders
+  if (data.salonName) {
+    processedMessage = processedMessage
+      .replace(/\[SAL NAM\]/g, data.salonName)
+      .replace(/\[SALON\]/g, data.salonName);
+  }
+
+  // Replace salon owner name placeholders
+  if (data.ownerName) {
+    processedMessage = processedMessage
+      .replace(/\[SAL OWNER NAM\]/g, data.ownerName)
+      .replace(/\[SALON OWNER\]/g, data.ownerName);
+  }
+
+  // Replace style option placeholders
+  if (data.styleOption) {
+    processedMessage = processedMessage
+      .replace(/\[STY OPTS?\]/g, data.styleOption)
+      .replace(/\[STY OPT\]/g, data.styleOption)
+      .replace(/\[STYLE\]/g, data.styleOption);
+  }
+
+  // Replace unique ID placeholders
+  if (data.uniqueId) {
+    processedMessage = processedMessage
+      .replace(/\[UNIQ ID\]/g, data.uniqueId)
+      .replace(/\[VMB:[^\]]+\]/g, `[VMB:${data.uniqueId}]`);
+  }
+
+  return processedMessage;
+}
+
 // Helper to process image URLs consistently
 export function getImageUrl(url?: string, debugLabel?: string): string {
   // For debugging purposes
