@@ -187,11 +187,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   return (
     <>
       <Card className="w-full">
-        <CardHeader className="bg-yellow-50">
-          <CardTitle className="text-xl text-amber-800 font-bold">GIFT/INVITE RECEIVED</CardTitle>
-          <CardDescription>Gifts and invitations sent to you</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-4">
           <div className="space-y-4">
             {receivedGifts.map((gift) => (
               <Card key={gift.id} className="relative overflow-hidden border-l-4 border-l-primary">

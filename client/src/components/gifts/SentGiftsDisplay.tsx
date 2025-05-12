@@ -126,21 +126,15 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
   return (
     <>
       <Card className="w-full">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Gifts You've Sent</CardTitle>
-              <CardDescription>Gifts you've sent to other clients</CardDescription>
-            </div>
-            {onCreateGift && (
+        <CardContent className="pt-4">
+          {onCreateGift && (
+            <div className="flex justify-end mb-4">
               <Button size="sm" onClick={onCreateGift}>
                 <GiftIcon className="h-4 w-4 mr-2" />
                 Send New Gift
               </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
+            </div>
+          )}
           <div className="space-y-4">
             {sentGifts.map((gift) => (
               <Card key={gift.id} className="border-l-4 border-l-primary/50">
