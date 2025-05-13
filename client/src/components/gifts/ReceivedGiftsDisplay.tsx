@@ -241,7 +241,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     </div>
                     
                     {/* Style card display */}
-                    <div className="w-full mt-3">
+                    <div className="w-full mt-3 flex justify-end">
                       {gift.message && gift.message.includes("Glam Me! Custom Design") ? (
                         <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center">
                           <div className="flex-grow">
