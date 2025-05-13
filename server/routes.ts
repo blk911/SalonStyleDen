@@ -1422,26 +1422,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const salonId = req.query.salonId ? parseInt(req.query.salonId as string) : undefined;
       const clientId = req.query.clientId ? parseInt(req.query.clientId as string) : undefined;
       const status = req.query.status as string | undefined;
-      const phone = req.query.phone as string | undefined;
       
       let invitations;
       
-      console.log(`[API] GET /invitations - Params: salonId=${salonId}, clientId=${clientId}, status=${status}, phone=${phone}, limit=${limit}`);
+      console.log(`[API] GET /invitations - Params: salonId=${salonId}, clientId=${clientId}, status=${status}, limit=${limit}`);
       
-      // Check if phone is provided (highest priority for invitation lookup)
-      if (phone) {
-        // Get invitations by phone
-        invitations = await storage.getInvitationsByPhone(phone);
-        console.log(`[API] GET /invitations - Got ${invitations.length} invitations for phone ${phone}`);
-        
-        // Filter by status if provided
-        if (status) {
-          invitations = invitations.filter(inv => inv.status === status);
-          console.log(`[API] GET /invitations - Filtered to ${invitations.length} invitations with status ${status}`);
-        }
-      }
       // Check if salonId is provided
-      else if (salonId) {
+      if (salonId) {
         // Get invitations for a specific salon
         invitations = await storage.getSalonInvitations(salonId);
         console.log(`[API] GET /invitations - Got ${invitations.length} invitations for salon ${salonId}`);

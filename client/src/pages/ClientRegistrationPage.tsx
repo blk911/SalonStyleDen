@@ -236,20 +236,10 @@ export default function ClientRegistrationPage() {
 
         try {
           // Check for invitations first
-          const cleanPhone = cleanPhoneNumber(phoneNumber);
-          console.log(`Looking up phone number: "${cleanPhone}" (original: "${phoneNumber}")`);
-          
-          const inviteResponse = await fetch(`/api/invitations?phone=${encodeURIComponent(cleanPhone)}&status=pending&limit=1`);
-          console.log(`Checking for invitations with phone: "${cleanPhone}", Status code: ${inviteResponse.status}`);
+          const inviteResponse = await fetch(`/api/invitations?phone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
           
           if (inviteResponse.ok) {
             const invites = await inviteResponse.json();
-            console.log(`Found ${invites?.length || 0} invitation matches for phone ${cleanPhone}:`, JSON.stringify(invites, null, 2));
-            
-            // Log more details for debugging
-            if (invites?.length > 0) {
-              console.log(`First invitation details - ID: ${invites[0].id}, Name: ${invites[0].name}, SalonID: ${invites[0].salonId}, Hash: ${invites[0].inviteHash}`);
-            }
             
             if (invites && invites.length > 0) {
               const invite = invites[0]; // Get the first matching invitation
@@ -461,14 +451,12 @@ export default function ClientRegistrationPage() {
     data: invitation,
     isLoading: invitationLoading,
   } = useQuery<Invitation>({
-    queryKey: ['/api/invitations/by-hash', inviteHash],
+    queryKey: ['/api/invitations/hash', inviteHash],
     queryFn: async () => {
       if (!inviteHash) return null;
       
-      // Fixed route to match server endpoint: /api/invitations/by-hash/:hash
-      const response = await fetch(`/api/invitations/by-hash/${inviteHash}`);
+      const response = await fetch(`/api/invitations/hash/${inviteHash}`);
       if (!response.ok) {
-        console.error(`Failed to load invitation by hash: ${inviteHash}`);
         throw new Error('Failed to load invitation');
       }
       return response.json();
