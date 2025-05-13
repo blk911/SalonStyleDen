@@ -220,9 +220,12 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
               <Card key={gift.id} className="relative overflow-hidden border-l-4 border-l-primary">
                 <CardHeader className="pb-2">
                   <div>
-                    <CardTitle className="text-lg">{gift.styleName || (gift.giftType === 'invitation' ? 'Invitation' : 'Style Card')}</CardTitle>
+                    <CardTitle className="text-lg">
+                      {/* Removed "Style Card" and leave only specific style name if available */}
+                      {gift.styleName || (gift.giftType === 'invitation' ? 'Invitation' : '')}
+                    </CardTitle>
                     <CardDescription>
-                      From: {gift.senderName || "Ellen"} 
+                      From: {gift.senderName || "Ellen"} [ID: {gift.senderId}]
                       {gift.salonId && gift.salonName && (
                         <> • At: <a 
                           href={`/salon/${gift.salonId}`} 
@@ -236,8 +239,13 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         </a>
                         </>
                       )}
-                      {gift.amount > 0 && <> • {formatCurrency(gift.amount / 100)}</>}
                     </CardDescription>
+                    {/* Moved price to its own line */}
+                    {gift.amount > 0 && (
+                      <div className="text-sm font-medium text-gray-700 mt-1">
+                        {formatCurrency(gift.amount / 100)}
+                      </div>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="pb-2">
@@ -353,10 +361,16 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
               <div className="flex flex-col items-center">
                 <GiftIcon className="h-12 w-12 text-pink-500 mb-3" />
                 <div className="text-center font-bold text-lg mb-3">
-                  {selectedGift.styleName || (selectedGift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
+                  {/* Removed "Style Card" text as requested */}
+                  {selectedGift.styleName || (selectedGift.giftType === 'invitation' ? 'Salon Invitation' : '')}
+                  {/* Sender with ID */}
+                  <div className="text-sm font-medium text-gray-700 mt-2">
+                    From: {selectedGift.senderName || "Ellen"} [ID: {selectedGift.senderId}]
+                  </div>
+                  {/* Price on its own line */}
                   {selectedGift.amount > 0 && (
-                    <div className="font-semibold text-base text-pink-600 mt-1">
-                      Value: {formatCurrency(selectedGift.amount / 100)}
+                    <div className="font-semibold text-base text-pink-600 mt-2">
+                      {formatCurrency(selectedGift.amount / 100)}
                     </div>
                   )}
                 </div>
