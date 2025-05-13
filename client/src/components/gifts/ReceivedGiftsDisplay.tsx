@@ -9,7 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Gift as GiftIcon, CheckCircle, Calendar, ExternalLink } from "lucide-react";
-import { formatCurrency, formatPhoneNumber, processInvitationMessage } from "@/lib/utils";
+import { formatCurrency, formatPhoneNumber, processInvitationMessage, getImageUrl } from "@/lib/utils";
 import { GiftClaimCard } from "./GiftClaimCard";
 
 interface ReceivedGift {
