@@ -42,6 +42,17 @@ interface ReceivedGiftsDisplayProps {
 }
 
 export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDisplayProps) {
+  // Fetch client data to get their name
+  const { data: clientData } = useQuery({
+    queryKey: [`/api/clients/${clientId}`],
+    queryFn: async () => {
+      const response = await fetch(`/api/clients/${clientId}`);
+      if (!response.ok) {
+        return null;
+      }
+      return response.json();
+    },
+  });
   const [selectedGift, setSelectedGift] = useState<ReceivedGift | null>(null);
   const [isRedeemModalOpen, setIsRedeemModalOpen] = useState(false);
   const [isGiftPreviewOpen, setIsGiftPreviewOpen] = useState(false);
