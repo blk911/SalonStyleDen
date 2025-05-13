@@ -1022,7 +1022,7 @@ export function VmbStyleOptions({
                     
                     <CollapsibleContent className="bg-white border border-pink-100 rounded-b-md p-3">
                 
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-4 justify-items-end">
                   <div className={`border rounded ${isMobile ? 'px-2 py-1' : 'px-2 py-2'} border-pink-200 bg-pink-50 min-w-[320px] max-w-[400px]`}>
                     {confirmedStyle ? (
                     <div className="flex flex-col md:flex-row">
