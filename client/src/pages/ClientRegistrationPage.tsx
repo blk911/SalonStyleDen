@@ -451,12 +451,14 @@ export default function ClientRegistrationPage() {
     data: invitation,
     isLoading: invitationLoading,
   } = useQuery<Invitation>({
-    queryKey: ['/api/invitations/hash', inviteHash],
+    queryKey: ['/api/invitations/by-hash', inviteHash],
     queryFn: async () => {
       if (!inviteHash) return null;
       
-      const response = await fetch(`/api/invitations/hash/${inviteHash}`);
+      // Fixed route to match server endpoint: /api/invitations/by-hash/:hash
+      const response = await fetch(`/api/invitations/by-hash/${inviteHash}`);
       if (!response.ok) {
+        console.error(`Failed to load invitation by hash: ${inviteHash}`);
         throw new Error('Failed to load invitation');
       }
       return response.json();
