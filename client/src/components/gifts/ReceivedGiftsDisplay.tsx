@@ -221,14 +221,22 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                 <div className={`absolute top-0 right-0 w-24 h-24 transform translate-x-12 -translate-y-12 rotate-45 ${gift.status === "redeemed" || gift.status === "completed" ? "bg-green-500" : "bg-pink-500"} opacity-10`}></div>
                 
                 <CardHeader className="pb-2 relative z-10">
-                  <div className="flex justify-between items-start">
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Left column - From and price */}
                     <div>
-                      <CardTitle className="text-lg font-bold text-pink-800">
-                        From {gift.senderName || "Ellen"}
+                      <CardTitle className="text-lg font-bold text-gray-800">
+                        From: {gift.senderName || "Ellen"}
                       </CardTitle>
-                      <CardDescription className="mt-1 text-sm">
-                        {gift.salonId && gift.salonName && (
-                          <span className="flex items-center gap-1 mt-1 text-gray-700">
+                      
+                      {gift.amount > 0 && (
+                        <div className="mt-2 text-xl font-bold text-green-700">
+                          {formatCurrency(gift.amount / 100)}
+                        </div>
+                      )}
+                      
+                      {gift.salonId && gift.salonName && (
+                        <CardDescription className="mt-2 text-sm">
+                          <span className="flex items-center gap-1 text-gray-700">
                             <span className="font-semibold">At:</span> 
                             <a 
                               href={`/salon/${gift.salonId}`} 
@@ -241,19 +249,20 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                               {gift.salonName || "Tiffany 5280 Nails Studio"}
                             </a>
                           </span>
-                        )}
-                        
-                        {gift.amount > 0 && (
-                          <div className="mt-2 text-base font-semibold text-green-700">
-                            {formatCurrency(gift.amount / 100)}
-                          </div>
-                        )}
-                      </CardDescription>
+                        </CardDescription>
+                      )}
                     </div>
                     
-                    {/* Style option image placeholder styled like reference image */}
-                    <div className="h-16 w-32 border-2 border-red-500 rounded-md flex items-center justify-center bg-white">
-                      <span className="text-red-500 font-bold text-base rotate-3">STY OPT</span>
+                    {/* Right column - Style option card */}
+                    <div className="flex justify-end">
+                      <div className="border-2 border-red-500 rounded flex flex-col items-center justify-center bg-white p-3 w-44">
+                        <span className="text-red-500 font-bold text-base">
+                          {gift.styleName || "Glam Me! Custom Design"}
+                        </span>
+                        <span className="text-gray-600 text-sm">
+                          Fully custom art, gems, 3D extras
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
