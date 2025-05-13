@@ -191,7 +191,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     return (
       <Card className="w-full">
         <CardHeader className="bg-yellow-50 pb-3 pt-3">
-          <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
+          <h3 className="text-sm font-medium text-amber-800">{clientData?.name || 'CLIENT'}'s GIFTS &amp; INVITES</h3>
           <CardDescription className="text-xs mt-1">Gifts and invitations sent to you</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center py-8">
@@ -205,7 +205,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     return (
       <Card className="w-full">
         <CardHeader className="bg-yellow-50 pb-3 pt-3">
-          <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
+          <h3 className="text-sm font-medium text-amber-800">{clientData?.name || 'CLIENT'}'s GIFTS &amp; INVITES</h3>
           <CardDescription className="text-xs mt-1">Gifts and invitations sent to you</CardDescription>
         </CardHeader>
         <CardContent>
@@ -222,7 +222,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     <>
       <Card className="w-full">
         <CardHeader className="bg-yellow-50 pb-3 pt-3">
-          <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
+          <h3 className="text-sm font-medium text-amber-800">{clientData?.name || 'CLIENT'}'s GIFTS &amp; INVITES</h3>
           <CardDescription className="text-xs mt-1">Gifts and invitations sent to you</CardDescription>
         </CardHeader>
         <CardContent>
