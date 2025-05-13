@@ -243,7 +243,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     {/* Style card display */}
                     <div className="w-full mt-3">
                       {gift.message && gift.message.includes("Glam Me! Custom Design") ? (
-                        <div className="bg-pink-50 rounded-md w-full p-4 flex items-center">
+                        <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center">
                           <div className="flex-grow">
                             <div className="font-medium text-sm">Glam Me! Custom Design</div>
                             <div className="text-xs text-gray-600">Fully custom art, gems, 3D extras</div>
@@ -257,7 +257,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                           </div>
                         </div>
                       ) : gift.message && gift.message.includes("French Tips / Touch-Up") ? (
-                        <div className="bg-pink-50 rounded-md w-full p-4 flex items-center">
+                        <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center">
                           <div className="flex-grow">
                             <div className="font-medium text-sm">French Tips / Touch-Up</div>
                             <div className="text-xs text-gray-600">Classic white tips or quick polish refresh</div>
