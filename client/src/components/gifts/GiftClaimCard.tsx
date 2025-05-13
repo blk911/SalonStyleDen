@@ -188,7 +188,22 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
                 <span className="text-gray-500">From:</span> <span className="font-medium">{gift.senderName || "A VMB Client"}</span>
               </div>
               <div>
-                <span className="text-gray-500">At:</span> <span className="font-medium">{gift.salonName || "Salon"}</span>
+                <span className="text-gray-500">At:</span> <span className="font-medium">
+                  {gift.salonId && gift.salonName ? (
+                    <a 
+                      href={`/salon/${gift.salonId}`} 
+                      className="text-pink-600 hover:underline"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        window.location.href = `/salon/${gift.salonId}`;
+                      }}
+                    >
+                      {gift.salonName}
+                    </a>
+                  ) : (
+                    gift.salonName || "Salon"
+                  )}
+                </span>
               </div>
             </div>
           </div>
@@ -270,9 +285,26 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
               <p className="text-center font-medium">
                 {gift.styleName || "Style Card"} {gift.amount > 0 && `(${formatCurrency(gift.amount / 100)})`}
               </p>
-              <p className="text-sm text-center mt-2">
-                From: <span className="font-medium">{gift.senderName || "A VMB Client"}</span>
-              </p>
+              <div className="text-sm text-center mt-2 space-y-1">
+                <p>
+                  From: <span className="font-medium">{gift.senderName || "A VMB Client"}</span>
+                </p>
+                {gift.salonId && gift.salonName && (
+                  <p>
+                    At: <a 
+                      href={`/salon/${gift.salonId}`} 
+                      className="text-pink-600 hover:underline font-medium"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setShowSuccessDialog(false);
+                        window.location.href = `/salon/${gift.salonId}`;
+                      }}
+                    >
+                      {gift.salonName}
+                    </a>
+                  </p>
+                )}
+              </div>
             </div>
           </div>
           

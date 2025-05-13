@@ -149,7 +149,21 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
                     <div>
                       <CardTitle className="text-lg">{gift.styleName || "Style Card"}</CardTitle>
                       <CardDescription>
-                        To: {gift.recipientName || formatPhoneNumber(gift.recipientPhone || "")} • {formatCurrency(gift.amount / 100)}
+                        To: {gift.recipientName || formatPhoneNumber(gift.recipientPhone || "")} 
+                        {gift.salonId && gift.salonName && (
+                          <> • From: <a 
+                            href={`/salon/${gift.salonId}`} 
+                            className="text-pink-600 hover:underline"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.location.href = `/salon/${gift.salonId}`;
+                            }}
+                          >
+                            {gift.salonName}
+                          </a>
+                          </>
+                        )}
+                        {gift.amount > 0 && <> • {formatCurrency(gift.amount / 100)}</>}
                       </CardDescription>
                     </div>
                     <Badge

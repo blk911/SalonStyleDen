@@ -215,7 +215,21 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     <div>
                       <CardTitle className="text-lg">{gift.styleName || (gift.giftType === 'invitation' ? 'Invitation' : 'Style Card')}</CardTitle>
                       <CardDescription>
-                        From: {gift.senderName || "A VMB Client"} • {gift.amount > 0 ? formatCurrency(gift.amount / 100) : 'No Value Set'}
+                        From: {gift.senderName || "A VMB Client"} 
+                        {gift.salonId && gift.salonName && (
+                          <> • At: <a 
+                            href={`/salon/${gift.salonId}`} 
+                            className="text-pink-600 hover:underline"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.location.href = `/salon/${gift.salonId}`;
+                            }}
+                          >
+                            {gift.salonName}
+                          </a>
+                          </>
+                        )}
+                        {gift.amount > 0 && <> • {formatCurrency(gift.amount / 100)}</>}
                       </CardDescription>
                     </div>
                     <Badge
