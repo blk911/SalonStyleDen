@@ -217,45 +217,70 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
         <CardContent>
           <div className="space-y-4">
             {receivedGifts.map((gift) => (
-              <Card key={gift.id} className="relative overflow-hidden border-l-4 border-l-primary">
-                <CardHeader className="pb-2">
+              <Card key={gift.id} className="relative overflow-hidden border-l-4 border-l-primary shadow-sm hover:shadow transition-shadow duration-200">
+                <div className={`absolute top-0 right-0 w-24 h-24 transform translate-x-12 -translate-y-12 rotate-45 ${gift.status === "redeemed" || gift.status === "completed" ? "bg-green-500" : "bg-pink-500"} opacity-10`}></div>
+                
+                <CardHeader className="pb-2 relative z-10">
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-lg">{gift.styleName || (gift.giftType === 'invitation' ? 'Invitation' : 'Style Card')}</CardTitle>
-                      <CardDescription>
-                        From: {gift.senderName || "Ellen"} 
+                      <CardTitle className="text-lg font-bold text-pink-800">
+                        From {gift.senderName || "Ellen"}
+                      </CardTitle>
+                      <CardDescription className="mt-1 text-sm">
                         {gift.salonId && gift.salonName && (
-                          <> • At: <a 
-                            href={`/salon/${gift.salonId}`} 
-                            className="text-pink-600 hover:underline"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              window.location.href = `/salon/${gift.salonId}`;
-                            }}
-                          >
-                            {gift.salonName || "Tiffany 5280 Nails Studio"}
-                          </a>
-                          </>
+                          <span className="flex items-center gap-1 mt-1 text-gray-700">
+                            <span className="font-semibold">At:</span> 
+                            <a 
+                              href={`/salon/${gift.salonId}`} 
+                              className="text-pink-600 hover:underline font-medium"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                window.location.href = `/salon/${gift.salonId}`;
+                              }}
+                            >
+                              {gift.salonName || "Tiffany 5280 Nails Studio"}
+                            </a>
+                          </span>
                         )}
-                        {gift.amount > 0 && <> • {formatCurrency(gift.amount / 100)}</>}
+                        
+                        {gift.amount > 0 && (
+                          <div className="mt-2 text-base font-semibold text-green-700">
+                            {formatCurrency(gift.amount / 100)}
+                          </div>
+                        )}
                       </CardDescription>
                     </div>
-                    <Badge
-                      variant={gift.status === "redeemed" || gift.status === "completed" ? "outline" : "default"}
-                      className={gift.status === "redeemed" || gift.status === "completed" ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-200"}
-                    >
-                      {gift.status === "redeemed" || gift.status === "completed" ? "Redeemed" : "Pending"}
-                    </Badge>
+                    
+                    {/* Style option image placeholder styled like reference image */}
+                    <div className="h-16 w-32 border-2 border-red-500 rounded-md flex items-center justify-center bg-white">
+                      <span className="text-red-500 font-bold text-base rotate-3">STY OPT</span>
+                    </div>
                   </div>
                 </CardHeader>
-                <CardContent className="pb-2">
-                  {gift.message && <p className="text-sm italic">"{gift.message}"</p>}
+                
+                <CardContent className="pb-2 relative z-10">
+                  {gift.message && (
+                    <div className="p-3 bg-gradient-to-r from-pink-50 to-white rounded-md border border-pink-100 mt-1">
+                      <p className="text-sm italic leading-relaxed">"{gift.message}"</p>
+                    </div>
+                  )}
                 </CardContent>
-                <CardFooter className="flex justify-between pt-0">
+                
+                <CardFooter className="flex justify-between pt-2 border-t border-gray-100 relative z-10">
                   <div className="flex items-center text-xs text-muted-foreground">
-                    <Calendar className="h-3 w-3 mr-1" />
+                    <Calendar className="h-3 w-3 mr-1 text-pink-400" />
                     {new Date(gift.createdAt).toLocaleDateString()}
                   </div>
+                  
+                  {/* Status badge moved down to footer */}
+                  <Badge
+                    variant={gift.status === "redeemed" || gift.status === "completed" ? "outline" : "default"}
+                    className={`px-3 py-1 ${gift.status === "redeemed" || gift.status === "completed" 
+                      ? "bg-green-100 text-green-800 border-green-300" 
+                      : "bg-pink-100 text-pink-800 border-pink-200"}`}
+                  >
+                    {gift.status === "redeemed" || gift.status === "completed" ? "Redeemed" : "Pending"}
+                  </Badge>
                 </CardFooter>
 
                 {/* Show Claim My Gift button for pending gifts/invitations */}
