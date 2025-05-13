@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Gift as GiftIcon, CheckCircle, Calendar, ExternalLink } from "lucide-react";
 import { formatCurrency, formatPhoneNumber, processInvitationMessage } from "@/lib/utils";
 import { GiftClaimCard } from "./GiftClaimCard";
+import { StyleOptionCard } from "../shared/StyleOptionCard";
 
 interface ReceivedGift {
   id: number;
@@ -243,29 +244,21 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     {/* Right side style card display */}
                     <div className="w-[400px] flex justify-end">
                       {gift.message && gift.message.includes("Glam Me! Custom Design") ? (
-                        <div className="border border-pink-500 rounded-md overflow-hidden w-[400px] flex items-stretch">
-                          <div className="p-3 flex-grow" style={{ width: '70%' }}>
-                            <div className="text-xs">Glam Me! Custom Design</div>
-                            <div className="text-xs text-gray-600">Fully custom art, gems, 3D extras</div>
-                            <div className="flex items-baseline mt-2">
-                              <span className="text-xs">$125</span>
-                              <span className="ml-1 text-xs text-gray-600">90 min</span>
-                            </div>
-                          </div>
-                          <div className="w-[30%] bg-cover bg-center" style={{ backgroundImage: "url('/assets/custom-glam-lv.png')" }}></div>
-                        </div>
+                        <StyleOptionCard
+                          title="Glam Me! Custom Design"
+                          description="Fully custom art, gems, 3D extras"
+                          price={125}
+                          duration={90}
+                          imageUrl="/assets/custom-glam-lv.png"
+                        />
                       ) : gift.message && gift.message.includes("French Tips / Touch-Up") ? (
-                        <div className="border border-pink-500 rounded-md overflow-hidden w-[400px] flex items-stretch">
-                          <div className="p-3 flex-grow" style={{ width: '70%' }}>
-                            <div className="text-xs">French Tips / Touch-Up</div>
-                            <div className="text-xs text-gray-600">Classic white tips or quick polish refresh</div>
-                            <div className="flex items-baseline mt-2">
-                              <span className="text-xs">$40</span>
-                              <span className="ml-1 text-xs text-gray-600">30 min</span>
-                            </div>
-                          </div>
-                          <div className="w-[30%] bg-cover bg-center" style={{ backgroundImage: "url('/assets/french-tips.png')" }}></div>
-                        </div>
+                        <StyleOptionCard
+                          title="French Tips / Touch-Up"
+                          description="Classic white tips or quick polish refresh"
+                          price={40}
+                          duration={30}
+                          imageUrl="/assets/french-tips.png"
+                        />
                       ) : (
                         <div className="text-center text-muted-foreground text-xs">
                           Style details unavailable
