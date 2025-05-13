@@ -623,22 +623,12 @@ export default function ClientDashboard() {
                       <>{client.address}, {client.city || ''}, {client.state || ''} {client.zipCode || ''}</>
                     ) : (
                       <>Client of {' '}
-                        {client.sponsor ? (
-                          <Link 
-                            to={`/salons/${client.sponsorSalonId || 2}`} 
-                            className="text-pink-500 hover:text-pink-700 hover:underline"
-                          >
-                            {client.sponsor || 'Tiffany 5280 Nails Studio'}
-                          </Link>
-                        ) : client.salonId ? (
-                          <Link 
-                            to={`/salons/${client.salonId}`} 
-                            className="text-pink-500 hover:text-pink-700 hover:underline"
-                          >
+                        {client.salonId ? (
+                          <Link to={`/salons/${client.salonId}`} className="text-pink-500 hover:text-pink-700 hover:underline">
                             {client.salonName || salon?.name || 'Tiffany 5280 Nails Studio'}
                           </Link>
                         ) : (
-                          <span>Tiffany 5280 Nails Studio</span>
+                          <span>{client.salonName || salon?.name || 'Tiffany 5280 Nails Studio'}</span>
                         )}
                       </>
                     )}
