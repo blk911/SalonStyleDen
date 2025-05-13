@@ -1250,12 +1250,19 @@ export default function AdminDashboard() {
                                 inv => inv.phone === client.phone.replace(/\D/g, '')
                               );
                               
-                              const sponsorName = matchingInvitation?.salonName || 
+                              // Find salon by ID if client has salonId
+                              const linkedSalon = client.salonId && salons?.find(salon => salon.id === client.salonId);
+                              
+                              // Use the actual salon name if we can find it
+                              const sponsorName = linkedSalon?.name || 
+                                                 // If we can't find the linked salon by ID, use these fallbacks:
+                                                 matchingInvitation?.salonName || 
                                                  matchingInvitation?.sponsor || 
-                                                 client.salonName || 
-                                                 client.sponsorName || // Added the sponsorName field
-                                                 client.sponsor || 
-                                                 'Unknown';
+                                                 (client.sponsor === "Tiffany 5280 Nails Studio" ? "Tiffany 5280 Nails Studio" : 
+                                                  client.salonName || 
+                                                  client.sponsorName || 
+                                                  client.sponsor || 
+                                                  'Unknown');
                               
                               // Log for debugging
                               if (matchingInvitation) {
@@ -1264,9 +1271,12 @@ export default function AdminDashboard() {
                               
                               // Debug to identify sponsor information sources
                               console.log(`[SPONSOR-DEBUG] Client ${client.name} sponsor info:`, {
+                                salonId: client.salonId || 'MISSING',
+                                linkedSalonName: linkedSalon?.name || 'MISSING',
                                 salonName: client.salonName || 'MISSING',
                                 sponsorName: client.sponsorName || 'MISSING',
                                 sponsor: client.sponsor || 'MISSING',
+                                invitationSalonName: matchingInvitation?.salonName || 'MISSING',
                                 finalValue: sponsorName
                               });
                               
@@ -1465,7 +1475,16 @@ export default function AdminDashboard() {
                             </div>
                           </TableCell>
                           <TableCell className="py-0 text-center">
-                            {gift.recipientName || "Unknown"}
+                            {gift.recipientName || (() => {
+                              // Extract name from message if it starts with "Hi [Name],"
+                              if (gift.message) {
+                                const nameMatch = gift.message.match(/^Hi\s+([^,]+),/i);
+                                if (nameMatch && nameMatch[1]) {
+                                  return nameMatch[1].trim(); // Return the name part
+                                }
+                              }
+                              return "Unknown";
+                            })()}
                             <div className="text-[10px] text-gray-500">
                               {formatPhoneNumber(gift.recipientPhone || "")}
                             </div>
