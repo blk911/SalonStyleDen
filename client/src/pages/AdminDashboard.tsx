@@ -1468,19 +1468,27 @@ export default function AdminDashboard() {
                           className="hover:bg-gray-50 h-[28px]"
                         >
                           <TableCell className="py-0 text-center">
-                            {gift.senderName || "Unknown"}
+                            <Link 
+                              to={`/client/${gift.senderId}`}
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                            >
+                              {gift.senderName || "Unknown"}
+                            </Link>
                           </TableCell>
                           <TableCell className="py-0 text-center">
-                            {gift.recipientName || (() => {
-                              // Extract name from message if it starts with "Hi [Name],"
-                              if (gift.message) {
-                                const nameMatch = gift.message.match(/^Hi\s+([^,]+),/i);
-                                if (nameMatch && nameMatch[1]) {
-                                  return nameMatch[1].trim(); // Return the name part
+                            {/* We don't have a direct recipientId link yet, but we'll show the name as link for consistency */}
+                            <span className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer">
+                              {gift.recipientName || (() => {
+                                // Extract name from message if it starts with "Hi [Name],"
+                                if (gift.message) {
+                                  const nameMatch = gift.message.match(/^Hi\s+([^,]+),/i);
+                                  if (nameMatch && nameMatch[1]) {
+                                    return nameMatch[1].trim(); // Return the name part
+                                  }
                                 }
-                              }
-                              return "Unknown";
-                            })()}
+                                return "Unknown";
+                              })()}
+                            </span>
                           </TableCell>
                           <TableCell className="py-0 text-center">
                             ${(gift.amount / 100).toFixed(2)}
@@ -1506,14 +1514,15 @@ export default function AdminDashboard() {
                                   <TooltipTrigger asChild>
                                     <Link to={`/admin/gifts/${gift.id}`}>
                                       <button
-                                        className="px-2 py-1 text-[10px] bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                                        className="px-2 py-1 text-[10px] bg-blue-100 text-blue-700 rounded hover:bg-blue-200 flex items-center"
                                       >
-                                        <Eye className="h-3 w-3" />
+                                        <Eye className="h-3 w-3 mr-1" />
+                                        <span>View Gift</span>
                                       </button>
                                     </Link>
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                    <p>View gift details</p>
+                                    <p>View details of gift from {gift.senderName} to {gift.recipientName || "recipient"}</p>
                                   </TooltipContent>
                                 </Tooltip>
                               </TooltipProvider>
