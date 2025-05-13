@@ -220,60 +220,41 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
               <Card key={gift.id} className="relative overflow-hidden border-l-4 border-l-primary shadow-sm hover:shadow transition-shadow duration-200">
                 <div className={`absolute top-0 right-0 w-24 h-24 transform translate-x-12 -translate-y-12 rotate-45 ${gift.status === "redeemed" || gift.status === "completed" ? "bg-green-500" : "bg-pink-500"} opacity-10`}></div>
                 
-                <CardHeader className="pb-2 relative z-10">
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Left column - From and price */}
+                {/* Simple header design exactly like the reference */}
+                <div className="p-6 pt-5 pb-2 relative z-10">
+                  <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-lg font-bold text-gray-800">
+                      <h3 className="text-xl font-bold text-gray-800">
                         From: {gift.senderName || "Ellen"}
-                      </CardTitle>
+                      </h3>
                       
                       {gift.amount > 0 && (
                         <div className="mt-2 text-xl font-bold text-green-700">
                           {formatCurrency(gift.amount / 100)}
                         </div>
                       )}
-                      
-                      {gift.salonId && gift.salonName && (
-                        <CardDescription className="mt-2 text-sm">
-                          <span className="flex items-center gap-1 text-gray-700">
-                            <span className="font-semibold">At:</span> 
-                            <a 
-                              href={`/salon/${gift.salonId}`} 
-                              className="text-pink-600 hover:underline font-medium"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                window.location.href = `/salon/${gift.salonId}`;
-                              }}
-                            >
-                              {gift.salonName || "Tiffany 5280 Nails Studio"}
-                            </a>
-                          </span>
-                        </CardDescription>
-                      )}
                     </div>
                     
-                    {/* Right column - Style option card */}
-                    <div className="flex justify-end">
-                      <div className="border-2 border-red-500 rounded flex flex-col items-center justify-center bg-white p-3 w-44">
-                        <span className="text-red-500 font-bold text-base">
-                          {gift.styleName || "Glam Me! Custom Design"}
-                        </span>
-                        <span className="text-gray-600 text-sm">
-                          Fully custom art, gems, 3D extras
-                        </span>
-                      </div>
+                    {/* Style option card exactly as in the reference */}
+                    <div className="border border-red-500 rounded flex flex-col items-start justify-center bg-white p-3 w-48 shadow-sm">
+                      <span className="text-red-500 font-bold text-lg">
+                        {gift.styleName || "Glam Me! Custom Design"}
+                      </span>
+                      <span className="text-gray-600 text-sm">
+                        Fully custom art, gems, 3D extras
+                      </span>
                     </div>
                   </div>
-                </CardHeader>
+                </div>
                 
-                <CardContent className="pb-2 relative z-10">
+                {/* Message section - simplified pink background as in reference */}
+                <div className="px-6 pb-3 relative z-10">
                   {gift.message && (
-                    <div className="p-3 bg-gradient-to-r from-pink-50 to-white rounded-md border border-pink-100 mt-1">
+                    <div className="p-4 bg-pink-50 rounded-md">
                       <p className="text-sm italic leading-relaxed">"{gift.message}"</p>
                     </div>
                   )}
-                </CardContent>
+                </div>
                 
                 <CardFooter className="flex justify-between pt-2 border-t border-gray-100 relative z-10">
                   <div className="flex items-center text-xs text-muted-foreground">
