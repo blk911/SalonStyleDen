@@ -270,37 +270,37 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-center text-xl flex items-center justify-center gap-2">
-              <CheckCircle className="h-6 w-6 text-green-500" />
+            <DialogTitle className="text-center text-2xl font-bold flex items-center justify-center gap-2 text-pink-600">
+              <CheckCircle className="h-7 w-7 text-green-500" />
               GIFT DELIVERED
             </DialogTitle>
-            <DialogDescription className="text-center pt-2">
+            <DialogDescription className="text-center pt-2 text-base">
               Your gift has been successfully claimed and is now available in your account.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="bg-gradient-to-r from-green-50 to-white p-4 rounded-md my-4 border border-green-100">
+          <div className="bg-gradient-to-r from-green-50 to-white p-5 rounded-md my-4 border border-green-200 shadow-sm">
             <div className="flex flex-col items-center">
-              <GiftIcon className="h-12 w-12 text-pink-500 mb-3" />
-              <p className="text-center font-medium">
+              <GiftIcon className="h-14 w-14 text-pink-500 mb-3" />
+              <p className="text-center font-bold text-lg">
                 {gift.styleName || "Style Card"} {gift.amount > 0 && `(${formatCurrency(gift.amount / 100)})`}
               </p>
-              <div className="text-sm text-center mt-2 space-y-1">
-                <p>
-                  From: <span className="font-medium">{gift.senderName || "A VMB Client"}</span>
+              <div className="text-sm text-center mt-3 space-y-2">
+                <p className="text-gray-700">
+                  From: <span className="font-semibold text-black">{gift.senderName || "Ellen"}</span>
                 </p>
-                {gift.salonId && gift.salonName && (
-                  <p>
+                {gift.salonId && (
+                  <p className="text-gray-700">
                     At: <a 
                       href={`/salon/${gift.salonId}`} 
-                      className="text-pink-600 hover:underline font-medium"
+                      className="text-pink-600 hover:underline font-semibold"
                       onClick={(e) => {
                         e.preventDefault();
                         setShowSuccessDialog(false);
                         window.location.href = `/salon/${gift.salonId}`;
                       }}
                     >
-                      {gift.salonName}
+                      {gift.salonName || "Tiffany 5280 Nails Studio"}
                     </a>
                   </p>
                 )}
@@ -310,7 +310,8 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
           
           <DialogFooter className="flex flex-col sm:flex-row sm:justify-center">
             <Button 
-              className="w-full"
+              className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3"
+              size="lg"
               onClick={() => {
                 setShowSuccessDialog(false);
                 if (onGiftClaimed) {
