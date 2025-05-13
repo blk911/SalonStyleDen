@@ -251,9 +251,39 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       </CardDescription>
                     </div>
                     
-                    {/* Style option image placeholder styled like reference image */}
-                    <div className="h-16 w-32 border-2 border-red-500 rounded-md flex items-center justify-center bg-white">
-                      <span className="text-red-500 font-bold text-base rotate-3">STY OPT</span>
+                    {/* Exact style option card matching the reference UI */}
+                    <div className="mx-1">
+                      {gift.message && gift.message.includes("Glam Me! Custom Design") ? (
+                        <div className="border border-pink-500 rounded-md overflow-hidden bg-white shadow-sm">
+                          <div className="p-2 max-w-[140px]">
+                            <div className="text-left mb-1">
+                              <div className="font-bold text-xs">Glam Me! Custom Design</div>
+                              <div className="text-xs text-gray-600 text-[10px] leading-tight">Fully custom art, gems, 3D extras</div>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <div className="font-bold text-xs">$125</div>
+                              <div className="text-xs text-gray-600">90 min</div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : gift.message && gift.message.includes("French Tips") ? (
+                        <div className="border border-gray-300 rounded-md overflow-hidden bg-white shadow-sm">
+                          <div className="p-2 max-w-[140px]">
+                            <div className="text-left mb-1">
+                              <div className="font-bold text-xs">Luxe Gel Manicure</div>
+                              <div className="text-xs text-gray-600 text-[10px] leading-tight">Glossy, chip-free color with lasting shine</div>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <div className="font-bold text-xs">$55</div>
+                              <div className="text-xs text-gray-600">45 min</div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="border-2 border-red-500 rounded-md bg-white flex items-center justify-center h-[80px] max-w-[140px]">
+                          <span className="text-red-500 font-semibold text-lg">STY OPT</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardHeader>
