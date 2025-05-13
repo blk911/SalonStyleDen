@@ -244,7 +244,12 @@ export default function ClientRegistrationPage() {
           
           if (inviteResponse.ok) {
             const invites = await inviteResponse.json();
-            console.log(`Found ${invites?.length || 0} invitation matches for phone ${cleanPhone}:`, invites);
+            console.log(`Found ${invites?.length || 0} invitation matches for phone ${cleanPhone}:`, JSON.stringify(invites, null, 2));
+            
+            // Log more details for debugging
+            if (invites?.length > 0) {
+              console.log(`First invitation details - ID: ${invites[0].id}, Name: ${invites[0].name}, SalonID: ${invites[0].salonId}, Hash: ${invites[0].inviteHash}`);
+            }
             
             if (invites && invites.length > 0) {
               const invite = invites[0]; // Get the first matching invitation
