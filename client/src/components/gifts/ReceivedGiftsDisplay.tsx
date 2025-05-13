@@ -337,6 +337,93 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Gift Preview Dialog - Shows gift details before claiming */}
+      <Dialog open={isGiftPreviewOpen} onOpenChange={setIsGiftPreviewOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-bold text-pink-600">
+              Gift Details
+            </DialogTitle>
+            <DialogDescription className="text-center pt-2">
+              Review this gift before claiming it
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedGift && (
+            <div className="bg-gradient-to-r from-pink-50 to-white p-5 rounded-md my-4 border border-pink-100 shadow-sm">
+              <div className="flex flex-col items-center">
+                <GiftIcon className="h-12 w-12 text-pink-500 mb-3" />
+                <div className="text-center font-bold text-lg mb-3">
+                  {selectedGift.styleName || (selectedGift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
+                  {selectedGift.amount > 0 && (
+                    <div className="font-semibold text-base text-pink-600 mt-1">
+                      Value: {formatCurrency(selectedGift.amount / 100)}
+                    </div>
+                  )}
+                </div>
+                
+                {selectedGift.message && (
+                  <div className="mt-2 px-4 py-3 bg-white border border-pink-100 rounded-md w-full text-sm italic text-gray-700">
+                    "{selectedGift.message}"
+                  </div>
+                )}
+                
+                <div className="mt-4 w-full space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500">From:</span> 
+                    <span className="font-medium text-right">{selectedGift.senderName || "Ellen"}</span>
+                  </div>
+                  
+                  {selectedGift.salonId && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-500">At:</span> 
+                      <a 
+                        href={`/salon/${selectedGift.salonId}`} 
+                        className="text-pink-600 hover:underline font-medium"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setIsGiftPreviewOpen(false);
+                          window.location.href = `/salon/${selectedGift.salonId}`;
+                        }}
+                      >
+                        {selectedGift.salonName || "Tiffany 5280 Nails Studio"}
+                      </a>
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500">Date:</span>
+                    <span className="text-sm">
+                      {new Date(selectedGift.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:gap-0">
+            <Button 
+              onClick={() => setIsGiftPreviewOpen(false)}
+              variant="outline"
+              className="sm:mr-2"
+            >
+              Not Now
+            </Button>
+            <Button 
+              onClick={() => {
+                if (selectedGift) {
+                  handleShowGiftClaim(selectedGift);
+                }
+              }}
+              className="bg-red-500 hover:bg-red-600 text-white font-semibold"
+            >
+              Proceed to Claim
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
