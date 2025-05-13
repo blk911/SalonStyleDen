@@ -1250,11 +1250,13 @@ export default function AdminDashboard() {
                                 inv => inv.phone === client.phone.replace(/\D/g, '')
                               );
                               
-                              const sponsorName = matchingInvitation?.salonName || 
-                                                 matchingInvitation?.sponsor || 
-                                                 client.salonName || 
-                                                 client.sponsorName || // Added the sponsorName field
+                              // Prioritize active relationships: sponsor first, then salonName
+                              // Changed order to prioritize sponsor field which should have "Tiffany 5280 Nails Studio"
+                              const sponsorName = matchingInvitation?.sponsor || 
+                                                 matchingInvitation?.salonName || 
                                                  client.sponsor || 
+                                                 client.salonName ||
+                                                 client.sponsorName || 
                                                  'Unknown';
                               
                               // Log for debugging
