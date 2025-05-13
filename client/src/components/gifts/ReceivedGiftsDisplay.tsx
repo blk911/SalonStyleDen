@@ -252,7 +252,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                               <span className="ml-1 text-xs text-gray-600">90 min</span>
                             </div>
                           </div>
-                          <div className="w-[30%] p-1 flex items-center justify-center">
+                          <div className="w-[30%] p-1 flex items-center justify-center" style={{ height: 'calc(100% + 3px)' }}>
                             <div className="w-full h-full rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/louis-vuitton-nails.jpg')" }}></div>
                           </div>
                         </div>
@@ -266,7 +266,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                               <span className="ml-1 text-xs text-gray-600">30 min</span>
                             </div>
                           </div>
-                          <div className="w-[30%] p-1 flex items-center justify-center">
+                          <div className="w-[30%] p-1 flex items-center justify-center" style={{ height: 'calc(100% + 3px)' }}>
                             <div className="w-full h-full rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/french-tips.png')" }}></div>
                           </div>
                         </div>
