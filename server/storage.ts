@@ -2512,17 +2512,14 @@ export class DatabaseStorage implements IStorage {
       
       console.log(`DatabaseStorage.getPendingGifts - Found ${pendingGifts.length} pending gifts`);
       
-      // Enhance gifts with sender AND recipient information
-      const enhancedGifts = await Promise.all(pendingGifts.map(async gift => {
-        let enhancedGift = { ...gift };
-        
-        // Add sender information
+      // Enhance gifts with sender information
+      const giftsWithSenderInfo = await Promise.all(pendingGifts.map(async gift => {
         if (gift.senderId) {
           try {
             const sender = await this.getClient(gift.senderId);
             if (sender) {
-              enhancedGift = {
-                ...enhancedGift,
+              return {
+                ...gift,
                 senderName: sender.name,
                 senderPhone: sender.phone
               };
@@ -2531,46 +2528,10 @@ export class DatabaseStorage implements IStorage {
             console.error(`Error fetching sender for gift ${gift.id}:`, error);
           }
         }
-        
-        // Add recipient information
-        if (gift.recipientId) {
-          // If we have a direct recipient ID
-          try {
-            const recipient = await this.getClient(gift.recipientId);
-            if (recipient) {
-              enhancedGift = {
-                ...enhancedGift,
-                recipientName: recipient.name,
-                recipientPhone: recipient.phone
-              };
-            }
-          } catch (error) {
-            console.error(`Error fetching recipient for gift ${gift.id}:`, error);
-          }
-        } else if (gift.recipientPhone) {
-          // If we only have recipient phone, try to find matching client
-          try {
-            const matchingClients = await db
-              .select()
-              .from(clients)
-              .where(eq(clients.phone, cleanPhoneNumber(gift.recipientPhone)));
-              
-            if (matchingClients.length > 0) {
-              // Found a matching client by phone number
-              enhancedGift = {
-                ...enhancedGift,
-                recipientName: matchingClients[0].name
-              };
-            }
-          } catch (error) {
-            console.error(`Error searching for recipient by phone for gift ${gift.id}:`, error);
-          }
-        }
-        
-        return enhancedGift;
+        return gift;
       }));
       
-      return enhancedGifts;
+      return giftsWithSenderInfo;
     } catch (error) {
       console.error(`Error getting pending gifts:`, error);
       throw error;
