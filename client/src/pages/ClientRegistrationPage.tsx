@@ -431,7 +431,7 @@ export default function ClientRegistrationPage() {
         if (providedSalonId && !isNaN(parseInt(providedSalonId, 10))) {
           form.setValue('sponsorSalonId', parseInt(providedSalonId, 10));
         } else {
-          form.setValue('sponsorSalonId', 1); // Default to VMB LTD
+          form.setValue('sponsorSalonId', 2); // Default to Tiffany 5280 Nails Studio
         }
         // Mark as loaded since we don't need to fetch invitation data
         setInvitationDataLoaded(true);
@@ -580,9 +580,9 @@ export default function ClientRegistrationPage() {
         ...data,
         type: data.clientType === 'salonOwner' ? 'salonOwner' : 'client', // Set type based on selection
         sponsor: data.sponsorSalonId 
-          ? (allSalons?.find(s => s.id === data.sponsorSalonId)?.name || 'VMB LTD')
-          : (salon?.name || invitation?.sponsor || 'VMB LTD'),
-        sponsorSalonId: data.sponsorSalonId || salonId || invitation?.salonId || 1, // Default to VMB LTD (ID 1) if no salon
+          ? (allSalons?.find(s => s.id === data.sponsorSalonId)?.name || 'Tiffany 5280 Nails Studio')
+          : (salon?.name || invitation?.sponsor || 'Tiffany 5280 Nails Studio'),
+        sponsorSalonId: data.sponsorSalonId || salonId || invitation?.salonId || 2, // Default to Tiffany 5280 Nails Studio (ID 2) if no salon
         isCurrentClient: true,
         accepted_terms: data.acceptTerms || false, // Use snake_case to match database
         // Prioritize form values over URL params for IDs
@@ -906,7 +906,7 @@ export default function ClientRegistrationPage() {
                   <CardDescription>
                     {form.getValues('clientType') === 'giftInvite'
                       ? 'Enter your phone number to find your gift or invitation'
-                      : `Complete your registration for ${invitation?.sponsor || salon?.name || 'VMB LTD'} ${invitation?.salonId ? `[ID: ${invitation.salonId}]` : ''}`
+                      : `Complete your registration for ${invitation?.sponsor || salon?.name || 'Tiffany 5280 Nails Studio'} ${invitation?.salonId ? `[ID: ${invitation.salonId}]` : ''}`
                     }
                   </CardDescription>
                 ) : (
