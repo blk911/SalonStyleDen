@@ -622,21 +622,21 @@ export default function ClientDashboard() {
                     {client.address ? (
                       <>{client.address}, {client.city || ''}, {client.state || ''} {client.zipCode || ''}</>
                     ) : (
-                      <>Client of {client.salonName || salon?.name || 'Tiffany 5280 Nails Studio'}</>
+                      'No address'
                     )}
                   </span>
                 </div>
               </div>
               
-              {/* Section 4: Edit Profile Button - Reduced size */}
+              {/* Section 4: Edit Profile Button */}
               <div className="flex items-center justify-center">
                 <Button
                   variant="outline"
                   size="sm"
-                  className="px-3 py-1 text-xs rounded-full border-pink-200 hover:bg-pink-50"
+                  className="px-4 py-1.5 text-sm rounded-full border-pink-200 hover:bg-pink-50"
                   onClick={() => setIsEditing(true)}
                 >
-                  <PencilIcon className="mr-1 h-3 w-3 text-pink-500" />
+                  <PencilIcon className="mr-2 h-4 w-4 text-pink-500" />
                   Edit Profile
                 </Button>
               </div>

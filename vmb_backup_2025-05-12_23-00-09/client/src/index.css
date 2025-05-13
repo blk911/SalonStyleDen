@@ -1,0 +1,225 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* LOGO STYLES */
+/* Logo styles with size variants */
+.logo {
+  display: inline-block;
+  font-family: 'Georgia', serif;
+  font-weight: 300; /* extra light */
+  letter-spacing: 0.25px;
+  word-spacing: 2px;
+  text-align: center;
+  color: black;
+}
+
+/* Size variants */
+.logo-sm {
+  font-size: clamp(16px, 3vw, 24px);
+}
+
+.logo-md {
+  font-size: clamp(20px, 4vw, 36px);
+}
+
+.logo-lg {
+  font-size: clamp(24px, 5vw, 48px);
+}
+
+/* Default to medium if no size specified */
+.logo:not(.logo-sm):not(.logo-md):not(.logo-lg) {
+  font-size: clamp(20px, 4vw, 36px);
+}
+
+.logo .ven-me {
+  font-style: normal;
+  color: black;
+}
+
+.logo .baby {
+  font-style: italic;
+  color: #FF92A5;
+}
+
+/* CLIENT VMB PROMO ENGINE STYLES */
+.vmb-style-card {
+  @apply border border-pink-100 rounded-md overflow-hidden shadow-sm transition-all duration-300;
+}
+
+/* INVITATION & GIFT STYLES */
+.gift-invitation-card {
+  @apply border-2 border-pink-100 rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg;
+  background: linear-gradient(135deg, #fff5f7 0%, #ffffff 100%);
+}
+
+.gift-invitation-header {
+  @apply bg-gradient-to-r from-pink-50 to-pink-100 p-4 border-b border-pink-100;
+}
+
+.gift-claim-button {
+  @apply bg-pink-500 hover:bg-pink-600 text-white font-medium py-2 px-6 rounded-md transition-all 
+    flex items-center justify-center gap-2 shadow-sm hover:shadow focus:ring-2 focus:ring-pink-300;
+  background-image: linear-gradient(135deg, #ff92a5 0%, #ff7b8f 100%);
+}
+
+.redemption-input-field {
+  @apply border-pink-100 focus:border-pink-300 focus:ring focus:ring-pink-200 focus:ring-opacity-50 rounded-md;
+  transition: all 0.3s ease;
+}
+
+.redemption-confirmation {
+  @apply bg-gradient-to-r from-green-50 to-green-100 rounded-md p-4 border border-green-200 shadow-inner;
+}
+
+.vmb-style-card:hover {
+  @apply shadow-md border-pink-300 transform scale-102;
+}
+
+.vmb-style-card.selected {
+  @apply border-2 border-[#FF92A5] shadow-md;
+}
+
+.vmb-style-card-image {
+  @apply h-32 flex items-center justify-center overflow-hidden;
+}
+
+.vmb-style-card-content {
+  @apply p-2;
+}
+
+/* VMB STYLE OPTIONS ENGINE STYLES */
+.vmb-style-options .vmb-style-card {
+  @apply relative bg-white rounded-lg border border-gray-200 overflow-hidden transition-all duration-200 ease-in-out;
+}
+
+.vmb-style-options .vmb-style-card:hover {
+  @apply transform scale-[1.02] shadow-lg border-[#FF92A5];
+}
+
+.vmb-style-options .vmb-style-card.selected {
+  @apply border-[#FF92A5] ring-2 ring-[#FF92A5] shadow-md;
+}
+
+.vmb-style-options .vmb-style-card .image-container {
+  @apply relative overflow-hidden rounded-md;
+}
+
+.vmb-style-options .vmb-style-card:hover .image-container img {
+  @apply transform scale-110 transition-transform duration-300;
+}
+
+.vmb-style-options .vmb-style-card:hover .image-container::after {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-t from-pink-500/20 to-transparent;
+}
+
+/* Define a scale factor for hover effect */
+.scale-102 {
+  --tw-scale-x: 1.02;
+  --tw-scale-y: 1.02;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate))
+    skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+  
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* Site-wide styling */
+@layer components {
+  /* Reduce container paddings */
+  .container {
+    @apply px-2 py-2;
+  }
+  
+  /* Form specific padding reductions */
+  form {
+    @apply p-2;
+  }
+  
+  /* Input field padding adjustments */
+  input, select, textarea {
+    @apply px-2 py-1;
+  }
+  
+  /* Card and panel padding reductions */
+  .card, .form-container {
+    @apply p-2;
+  }
+  
+  /* Navigation components */
+  nav, header, footer {
+    @apply px-2 py-1;
+  }
+  
+  /* Button padding adjustment */
+  button {
+    @apply px-2 py-1;
+  }
+  
+  /* Centered content sections */
+  .content-section {
+    @apply flex flex-wrap justify-center items-center gap-2 text-xs;
+  }
+  
+  /* Standardized card styles */
+  .card-content {
+    @apply p-1;
+  }
+  
+  /* Compact text styles */
+  .text-compact {
+    @apply text-xs;
+  }
+  
+  .text-mini {
+    @apply text-[10px];
+  }
+  
+  .text-micro {
+    @apply text-[9px] text-gray-500;
+  }
+  
+  /* Standard vertical spacing */
+  .vspace-xs {
+    @apply mt-1;
+  }
+  
+  .vspace-sm {
+    @apply mt-2;
+  }
+  
+  /* Section dividers */
+  .section-divider {
+    @apply border-t border-pink-100 pt-1 mt-2;
+  }
+  
+  /* Centered button containers */
+  .button-container {
+    @apply mt-2 text-center;
+  }
+  
+  /* Content grids */
+  .grid-cols-responsive {
+    @apply grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-2;
+  }
+}
