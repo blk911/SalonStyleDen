@@ -671,11 +671,11 @@ export function VmbStyleOptions({
                     </div>
                     
                     <CollapsibleContent className="bg-white border border-pink-100 rounded-b-md p-3">
-                      <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'} gap-4`}>
+                      <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'} gap-4 justify-items-end`}>
                         {services.map((service) => (
                           <div 
                             key={service.id} 
-                            className={`border rounded ${isMobile ? 'px-2 py-1' : 'px-2 py-2'} ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'} cursor-pointer hover:border-pink-400 transition-colors duration-200`}
+                            className={`border rounded ${isMobile ? 'px-2 py-1' : 'px-2 py-2'} ${service.featured ? 'border-pink-200 bg-pink-50' : 'border-gray-200'} cursor-pointer hover:border-pink-400 transition-colors duration-200 min-w-[320px] max-w-[400px]`}
                             onClick={() => handleSelectStyle(service)}
                           >
                             <div className={`${isMobile ? 'flex flex-col' : 'flex'}`}>
@@ -741,8 +741,8 @@ export function VmbStyleOptions({
                     
                     <CollapsibleContent className="bg-white border border-pink-100 rounded-b-md p-3">
                   
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className={`border rounded ${isMobile ? 'px-2 py-1' : 'px-2 py-2'} border-pink-200 bg-pink-50`}>
+                  <div className="grid grid-cols-1 gap-4 justify-items-end">
+                    <div className={`border rounded ${isMobile ? 'px-2 py-1' : 'px-2 py-2'} border-pink-200 bg-pink-50 min-w-[320px] max-w-[400px]`}>
                       <div className="flex flex-col md:flex-row">
                       {/* Left side - Form Fields */}
                       <div className="w-full md:w-1/2 text-left pr-2 md:border-r border-pink-100 pb-2 md:pb-0">
@@ -1023,7 +1023,7 @@ export function VmbStyleOptions({
                     <CollapsibleContent className="bg-white border border-pink-100 rounded-b-md p-3">
                 
                 <div className="grid grid-cols-1 gap-4">
-                  <div className={`border rounded ${isMobile ? 'px-2 py-1' : 'px-2 py-2'} border-pink-200 bg-pink-50`}>
+                  <div className={`border rounded ${isMobile ? 'px-2 py-1' : 'px-2 py-2'} border-pink-200 bg-pink-50 min-w-[320px] max-w-[400px]`}>
                     {confirmedStyle ? (
                     <div className="flex flex-col md:flex-row">
                       {/* Left side - Ven Me, Baby! Reminders */}
