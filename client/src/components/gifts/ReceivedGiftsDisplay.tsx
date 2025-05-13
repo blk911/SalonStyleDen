@@ -252,7 +252,9 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                               <span className="ml-1 text-xs text-gray-600">90 min</span>
                             </div>
                           </div>
-                          <div className="w-[30%] bg-cover bg-center" style={{ backgroundImage: "url('/assets/style-thumbnails/glam-custom.jpg')" }}></div>
+                          <div className="w-[30%] bg-pink-100 flex items-center justify-center">
+                            <div className="text-xs text-pink-800 font-light px-1 text-center">Glam Design</div>
+                          </div>
                         </div>
                       ) : gift.message && gift.message.includes("French Tips / Touch-Up") ? (
                         <div className="border border-pink-500 rounded-md overflow-hidden w-[400px] flex items-stretch">
@@ -264,7 +266,9 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                               <span className="ml-1 text-xs text-gray-600">30 min</span>
                             </div>
                           </div>
-                          <div className="w-[30%] bg-cover bg-center" style={{ backgroundImage: "url('/assets/style-thumbnails/french-tips.jpg')" }}></div>
+                          <div className="w-[30%] bg-pink-100 flex items-center justify-center">
+                            <div className="text-xs text-pink-800 font-light px-1 text-center">French Tips</div>
+                          </div>
                         </div>
                       ) : (
                         <div className="text-center text-muted-foreground text-xs">
