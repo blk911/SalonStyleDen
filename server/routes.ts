@@ -2597,7 +2597,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pendingGifts = await storage.getPendingGifts(limit);
       console.log(`[API] GET /gifts-pending - Found ${pendingGifts.length} pending gifts`);
       
-      return res.json(pendingGifts);
+      // Process gifts to extract recipient names from messages if not available
+      const processedGifts = pendingGifts.map(gift => {
+        // Only process gifts that don't have recipient names
+        if (!gift.recipientName && gift.message) {
+          // Extract name from message if it starts with "Hi [Name],"
+          const nameMatch = gift.message.match(/^Hi\s+([^,]+),/i);
+          if (nameMatch && nameMatch[1]) {
+            console.log(`[API] Extracted recipient name "${nameMatch[1].trim()}" from gift message`);
+            return {
+              ...gift,
+              recipientName: nameMatch[1].trim()
+            };
+          }
+        }
+        return gift;
+      });
+      
+      return res.json(processedGifts);
     } catch (error) {
       console.error("Error fetching pending gifts:", error);
       return res.status(500).json({

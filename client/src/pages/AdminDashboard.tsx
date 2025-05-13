@@ -1251,10 +1251,10 @@ export default function AdminDashboard() {
                               );
                               
                               // Find salon by ID if client has salonId
-                              const linkedSalon = client.salonId && salons?.find(salon => salon.id === client.salonId);
+                              const linkedSalon = client.salonId ? salons?.find(salon => salon.id === client.salonId) : null;
                               
                               // Use the actual salon name if we can find it
-                              const sponsorName = linkedSalon?.name || 
+                              const sponsorName = linkedSalon ? linkedSalon.name : 
                                                  // If we can't find the linked salon by ID, use these fallbacks:
                                                  matchingInvitation?.salonName || 
                                                  matchingInvitation?.sponsor || 
