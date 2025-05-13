@@ -47,7 +47,8 @@ import {
   AlertTriangle as AlertTriangleIcon, 
   User as UserIcon, 
   Network as NetworkIcon,
-  RefreshCw, 
+  RefreshCw,
+  XCircle as XCircleIcon, 
   Download,
   Code, 
   Eye,
@@ -375,6 +376,41 @@ export default function AdminDashboard() {
     return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
   };
   
+  // Cancel invitation mutation (marks as cancelled but doesn't delete)
+  const cancelInvitationMutation = useMutation({
+    mutationFn: async (invitationId: number) => {
+      const response = await fetch(`/api/invitations/${invitationId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: "cancelled" })
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to cancel invitation');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Invitation cancelled",
+        description: "The invitation has been marked as cancelled. The client will no longer be able to accept it.",
+      });
+      // Invalidate the invitations query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['/api/invitations'] });
+      // Also invalidate activity logs
+      queryClient.invalidateQueries({ queryKey: ['/api/activity-logs'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error cancelling invitation",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+
   // Delete invitation mutation
   const deleteInvitationMutation = useMutation({
     mutationFn: async (invitationId: number) => {
@@ -1088,12 +1124,49 @@ export default function AdminDashboard() {
                                   <ExternalLinkIcon className="h-4 w-4" />
                                 </a>
                                 
+                                {/* Cancel invitation button */}
+                                {invitation.status !== 'cancelled' && (
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <button 
+                                        className="inline-flex items-center justify-center text-orange-500 hover:text-orange-700 cursor-pointer px-2 py-1"
+                                        title="Cancel invitation"
+                                      >
+                                        <XCircleIcon className="h-4 w-4" />
+                                      </button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Cancel Invitation</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Are you sure you want to cancel this invitation for {invitation.name}? 
+                                          The invitation will remain in the system but the client will no longer be able to accept it.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>
+                                          Keep Active
+                                        </AlertDialogCancel>
+                                        <AlertDialogAction 
+                                          onClick={() => {
+                                            cancelInvitationMutation.mutate(invitation.id);
+                                          }}
+                                          className="bg-orange-500 hover:bg-orange-600"
+                                        >
+                                          Cancel Invitation
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                )}
+                                
                                 {/* Delete invitation button */}
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
                                     <button 
                                       className="inline-flex items-center justify-center text-red-500 hover:text-red-700 cursor-pointer px-2 py-1"
                                       onClick={() => setInvitationToDelete(invitation)}
+                                      title="Delete invitation"
                                     >
                                       <TrashIcon className="h-4 w-4" />
                                     </button>
