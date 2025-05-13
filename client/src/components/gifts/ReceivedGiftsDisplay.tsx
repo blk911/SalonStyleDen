@@ -218,57 +218,55 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
           <div className="space-y-4">
             {receivedGifts.map((gift) => (
               <Card key={gift.id} className="relative overflow-hidden border-l-4 border-l-primary">
-                <div className="flex">
-                  <div className="flex-1">
-                    <CardHeader className="pb-2">
-                      <div>
-                        <CardTitle className="text-lg">{gift.senderName || "Ellen"}</CardTitle>
-                        <CardDescription>
-                          {gift.amount > 0 && <>{formatCurrency(gift.amount / 100)}</>}
-                          {gift.salonId && gift.salonName && (
-                            <div className="mt-1">At: <a 
-                              href={`/salon/${gift.salonId}`} 
-                              className="text-pink-600 hover:underline"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                window.location.href = `/salon/${gift.salonId}`;
-                              }}
-                            >
-                              {gift.salonName || "Tiffany 5280 Nails Studio"}
-                            </a>
-                            </div>
-                          )}
-                        </CardDescription>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pb-2">
-                      {gift.message && <p className="text-sm italic">"{gift.message}"</p>}
-                    </CardContent>
+                <CardHeader className="pb-2">
+                  <div className="flex justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{gift.senderName || "Ellen"}</CardTitle>
+                      <CardDescription>
+                        {gift.amount > 0 && <>{formatCurrency(gift.amount / 100)}</>}
+                        {gift.salonId && gift.salonName && (
+                          <div className="mt-1">At: <a 
+                            href={`/salon/${gift.salonId}`} 
+                            className="text-pink-600 hover:underline"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.location.href = `/salon/${gift.salonId}`;
+                            }}
+                          >
+                            {gift.salonName || "Tiffany 5280 Nails Studio"}
+                          </a>
+                          </div>
+                        )}
+                      </CardDescription>
+                    </div>
+                    
+                    {/* Right side style card display */}
+                    <div className="w-[350px] text-right">
+                      {gift.message && gift.message.includes("Glam Me! Custom Design") ? (
+                        <div className="text-center">
+                          <div className="font-medium text-sm">Glam Me! Custom Design</div>
+                          <div className="text-xs text-muted-foreground">Fully custom art, gems, 3D extras</div>
+                          <div className="mt-1 font-semibold">$125</div>
+                          <div className="text-xs text-muted-foreground">90 min</div>
+                        </div>
+                      ) : gift.message && gift.message.includes("French Tips / Touch-Up") ? (
+                        <div className="text-center">
+                          <div className="font-medium text-sm">French Tips / Touch-Up</div>
+                          <div className="text-xs text-muted-foreground">Classic French manicure</div>
+                          <div className="mt-1 font-semibold">$40</div>
+                          <div className="text-xs text-muted-foreground">30 min</div>
+                        </div>
+                      ) : (
+                        <div className="text-center text-muted-foreground text-xs">
+                          Style details unavailable
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  
-                  {/* Right side style card display */}
-                  <div className="w-[180px] border-l p-4 flex items-center justify-center">
-                    {gift.message && gift.message.includes("Glam Me! Custom Design") ? (
-                      <div className="text-center">
-                        <div className="font-medium text-sm">Glam Me! Custom Design</div>
-                        <div className="text-xs text-muted-foreground">Fully custom art, gems, 3D extras</div>
-                        <div className="mt-1 font-semibold">$125</div>
-                        <div className="text-xs text-muted-foreground">90 min</div>
-                      </div>
-                    ) : gift.message && gift.message.includes("French Tips / Touch-Up") ? (
-                      <div className="text-center">
-                        <div className="font-medium text-sm">French Tips / Touch-Up</div>
-                        <div className="text-xs text-muted-foreground">Classic French manicure</div>
-                        <div className="mt-1 font-semibold">$40</div>
-                        <div className="text-xs text-muted-foreground">30 min</div>
-                      </div>
-                    ) : (
-                      <div className="text-center text-muted-foreground text-xs">
-                        Style details unavailable
-                      </div>
-                    )}
-                  </div>
-                </div>
+                </CardHeader>
+                <CardContent className="pb-2">
+                  {gift.message && <p className="text-sm italic">"{gift.message}"</p>}
+                </CardContent>
                 <CardFooter className="flex justify-between items-center pt-0">
                   <div className="flex items-center text-xs text-muted-foreground">
                     <Calendar className="h-3 w-3 mr-1" />
