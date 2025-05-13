@@ -220,11 +220,11 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
               <Card key={gift.id} className="relative overflow-hidden border-l-4 border-l-primary">
                 <CardHeader className="pb-2">
                   <div>
-                    <CardTitle className="text-lg">{gift.styleName || (gift.giftType === 'invitation' ? 'Invitation' : 'Style Card')}</CardTitle>
+                    <CardTitle className="text-lg">{gift.senderName || "Ellen"}</CardTitle>
                     <CardDescription>
-                      From: {gift.senderName || "Ellen"} 
+                      From: {gift.senderName || "Ellen"}{gift.amount > 0 && <> • {formatCurrency(gift.amount / 100)}</>}
                       {gift.salonId && gift.salonName && (
-                        <> • At: <a 
+                        <div className="mt-1">At: <a 
                           href={`/salon/${gift.salonId}`} 
                           className="text-pink-600 hover:underline"
                           onClick={(e) => {
@@ -234,9 +234,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         >
                           {gift.salonName || "Tiffany 5280 Nails Studio"}
                         </a>
-                        </>
+                        </div>
                       )}
-                      {gift.amount > 0 && <> • {formatCurrency(gift.amount / 100)}</>}
                     </CardDescription>
                   </div>
                 </CardHeader>
