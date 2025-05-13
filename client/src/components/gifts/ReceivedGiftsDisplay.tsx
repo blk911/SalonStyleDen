@@ -222,7 +222,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                   <div>
                     <CardTitle className="text-lg">{gift.senderName || "Ellen"}</CardTitle>
                     <CardDescription>
-                      From: {gift.senderName || "Ellen"}{gift.amount > 0 && <> • {formatCurrency(gift.amount / 100)}</>}
+                      {gift.amount > 0 && <>{formatCurrency(gift.amount / 100)}</>}
                       {gift.salonId && gift.salonName && (
                         <div className="mt-1">At: <a 
                           href={`/salon/${gift.salonId}`} 
