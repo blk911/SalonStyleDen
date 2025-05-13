@@ -71,7 +71,12 @@ const clientSchema = z.object({
     .refine(val => val === true, {
       message: 'You must accept the terms and conditions to continue'
     }),
-  sponsorSalonId: z.number().optional().nullable(), // Allow null value
+  sponsorSalonId: z.number({
+    required_error: "Salon selection is required. Please select a salon.",
+    invalid_type_error: "Please select a valid salon",
+  }).optional().refine(value => value !== undefined, {
+    message: "Salon selection is required. Please select a salon."
+  }), // Require a salon selection
   invitationId: z.number().optional().nullable(), // Store invitation ID for association
   giftId: z.number().optional().nullable(), // Store gift ID for association
 });
@@ -179,7 +184,7 @@ export default function ClientRegistrationPage() {
       zipCode: '',
       notes: '',
       acceptTerms: false,
-      sponsorSalonId: salonId,
+      sponsorSalonId: undefined, // No default value, user must select
       invitationId: null,  // Initialize invitationId as null
       giftId: null,  // Initialize giftId as null
     },
@@ -431,7 +436,9 @@ export default function ClientRegistrationPage() {
         if (providedSalonId && !isNaN(parseInt(providedSalonId, 10))) {
           form.setValue('sponsorSalonId', parseInt(providedSalonId, 10));
         } else {
-          form.setValue('sponsorSalonId', 2); // Default to Tiffany 5280 Nails Studio
+          // No default salon - user must select one
+          // Clear the value in the form, don't set undefined
+          form.unregister('sponsorSalonId');
         }
         // Mark as loaded since we don't need to fetch invitation data
         setInvitationDataLoaded(true);
@@ -1174,7 +1181,7 @@ export default function ClientRegistrationPage() {
                             >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Choose your salon" />
+                                  <SelectValue placeholder="Please select a salon (required)" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -1184,8 +1191,9 @@ export default function ClientRegistrationPage() {
                                   <>
                                     {allSalons
                                       .sort((a, b) => {
-                                        if (a.name === 'VMB LTD') return -1;
-                                        if (b.name === 'VMB LTD') return 1;
+                                        // Sort Tiffany 5280 Nails Studio first
+                                        if (a.name === 'Tiffany 5280 Nails Studio') return -1;
+                                        if (b.name === 'Tiffany 5280 Nails Studio') return 1;
                                         return a.name.localeCompare(b.name);
                                       })
                                       .map((salon) => (
@@ -1203,7 +1211,7 @@ export default function ClientRegistrationPage() {
                               </SelectContent>
                             </Select>
                             <FormDescription>
-                              Choose your salon, or VMB LTD Salon is your temp salon.
+                              Salon selection is required. Please choose your salon.
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
