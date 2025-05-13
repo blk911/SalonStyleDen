@@ -243,28 +243,28 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     {/* Right side style card display */}
                     <div className="w-[350px] flex justify-end">
                       {gift.message && gift.message.includes("Glam Me! Custom Design") ? (
-                        <div className="border border-pink-500 rounded-md overflow-hidden w-[300px] flex">
+                        <div className="border border-pink-500 rounded-md overflow-hidden w-[250px] flex items-stretch">
                           <div className="p-3 flex-grow">
                             <div className="font-bold text-base">Glam Me! Custom Design</div>
                             <div className="text-xs text-gray-600">Fully custom art, gems, 3D extras</div>
-                            <div className="flex items-baseline mt-2">
+                            <div className="flex items-end mt-2">
                               <span className="font-bold text-base">$125</span>
-                              <span className="ml-2 text-xs text-gray-600">90 min</span>
+                              <span className="ml-1 text-xs text-gray-600">90 min</span>
                             </div>
                           </div>
-                          <div className="w-[110px] bg-cover bg-center" style={{ backgroundImage: "url('/assets/custom-glam-lv.png')" }}></div>
+                          <div className="w-[80px] bg-cover bg-center" style={{ backgroundImage: "url('/assets/custom-glam-lv.png')" }}></div>
                         </div>
                       ) : gift.message && gift.message.includes("French Tips / Touch-Up") ? (
-                        <div className="border border-pink-500 rounded-md overflow-hidden w-[300px] flex">
+                        <div className="border border-pink-500 rounded-md overflow-hidden w-[250px] flex items-stretch">
                           <div className="p-3 flex-grow">
                             <div className="font-bold text-base">French Tips / Touch-Up</div>
                             <div className="text-xs text-gray-600">Classic French manicure</div>
-                            <div className="flex items-baseline mt-2">
+                            <div className="flex items-end mt-2">
                               <span className="font-bold text-base">$40</span>
-                              <span className="ml-2 text-xs text-gray-600">30 min</span>
+                              <span className="ml-1 text-xs text-gray-600">30 min</span>
                             </div>
                           </div>
-                          <div className="w-[110px] bg-cover bg-center" style={{ backgroundImage: "url('/assets/french-tips.png')" }}></div>
+                          <div className="w-[80px] bg-cover bg-center" style={{ backgroundImage: "url('/assets/french-tips.png')" }}></div>
                         </div>
                       ) : (
                         <div className="text-center text-muted-foreground text-xs">
