@@ -252,7 +252,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                               <span className="ml-1 text-xs text-gray-600">90 min</span>
                             </div>
                           </div>
-                          <div className="w-[30%] bg-cover bg-center" style={{ backgroundImage: "url('/assets/custom-glam-lv.png')" }}></div>
+                          <div className="w-[30%] bg-cover bg-center" style={{ backgroundImage: "url('/assets/louis-vuitton-nails.jpg')" }}></div>
                         </div>
                       ) : gift.message && gift.message.includes("French Tips / Touch-Up") ? (
                         <div className="border border-pink-500 rounded-md overflow-hidden w-[400px] flex items-stretch">
