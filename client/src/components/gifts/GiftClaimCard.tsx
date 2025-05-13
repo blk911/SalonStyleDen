@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,8 +7,16 @@ import { Label } from "@/components/ui/label";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { GiftIcon, PhoneIcon, MailIcon, Loader2 } from "lucide-react";
+import { GiftIcon, PhoneIcon, MailIcon, Loader2, CheckCircle, X } from "lucide-react";
 import { formatCurrency, formatPhoneNumber, cleanPhoneNumber, isValidPhone, processInvitationMessage } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface ReceivedGift {
   id: number;
@@ -39,8 +47,10 @@ interface GiftClaimCardProps {
 }
 
 export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardProps) {
-  const [phone, setPhone] = useState("");
+  // Initialize phone state with the recipient's phone if available, or empty string
+  const [phone, setPhone] = useState(gift.recipientPhone ? formatPhoneNumber(gift.recipientPhone) : "");
   const [email, setEmail] = useState("");
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const { toast } = useToast();
   
   // Process message templates on component mount
@@ -96,13 +106,14 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
-      toast({
-        title: "Gift claimed successfully!",
-        description: "Your gift has been claimed and added to your account",
-        variant: "default",
-      });
+      
+      // Show the success dialog instead of a toast
+      setShowSuccessDialog(true);
+      
+      // We still call the callback but won't immediately redirect
       if (onGiftClaimed) {
-        onGiftClaimed();
+        // Only call onGiftClaimed when the dialog is closed
+        // This will happen in the dialog close handler
       }
     },
     onError: (error) => {
@@ -142,101 +153,145 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
   };
 
   return (
-    <Card className="gift-invitation-card w-full max-w-md mx-auto">
-      <CardHeader className="gift-invitation-header pb-4">
-        <div className="flex items-center gap-2">
-          <GiftIcon className="h-6 w-6 text-pink-600" />
-          <CardTitle className="text-xl text-pink-800 font-bold">GIFT/INVITE RECEIVED</CardTitle>
-        </div>
-        <CardDescription className="mt-2">
-          Claim your {gift.giftType === 'invitation' ? 'invitation' : 'gift'} by confirming your contact information
-        </CardDescription>
-      </CardHeader>
-      
-      <CardContent className="pt-6">
-        <div className="bg-gradient-to-r from-pink-50 to-white p-4 rounded-md mb-6 border border-pink-100 shadow-sm">
-          <div className="text-lg font-medium text-pink-700">
-            {gift.styleName || (gift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
+    <>
+      <Card className="gift-invitation-card w-full max-w-md mx-auto">
+        <CardHeader className="gift-invitation-header pb-4">
+          <div className="flex items-center gap-2">
+            <GiftIcon className="h-6 w-6 text-pink-600" />
+            <CardTitle className="text-xl text-pink-800 font-bold">GIFT/INVITE RECEIVED</CardTitle>
           </div>
-          
-          {gift.amount > 0 && (
-            <div className="text-sm font-medium mt-1 text-pink-600">
-              Value: {formatCurrency(gift.amount / 100)}
-            </div>
-          )}
-          
-          {processedMessage && (
-            <div className="mt-3 text-sm italic border-l-2 border-pink-200 pl-3 py-1 text-gray-700">
-              "{processedMessage}"
-            </div>
-          )}
-          
-          <div className="mt-3 grid grid-cols-2 gap-x-2 text-sm">
-            <div>
-              <span className="text-gray-500">From:</span> <span className="font-medium">{gift.senderName || "A VMB Client"}</span>
-            </div>
-            <div>
-              <span className="text-gray-500">At:</span> <span className="font-medium">{gift.salonName || "Salon"}</span>
-            </div>
-          </div>
-        </div>
+          <CardDescription className="mt-2">
+            Claim your {gift.giftType === 'invitation' ? 'invitation' : 'gift'} by confirming your contact information
+          </CardDescription>
+        </CardHeader>
         
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="phone" className="text-base font-medium">Phone Number</Label>
-            <div className="flex items-center">
-              <PhoneIcon className="h-4 w-4 mr-2 text-pink-400" />
-              <Input 
-                id="phone" 
-                placeholder="(555) 123-4567"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="redemption-input-field"
-              />
+        <CardContent className="pt-6">
+          <div className="bg-gradient-to-r from-pink-50 to-white p-4 rounded-md mb-6 border border-pink-100 shadow-sm">
+            <div className="text-lg font-medium text-pink-700">
+              {gift.styleName || (gift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
             </div>
-            <p className="text-xs text-gray-500">Enter your phone number to match with the sender's contact</p>
+            
+            {gift.amount > 0 && (
+              <div className="text-sm font-medium mt-1 text-pink-600">
+                Value: {formatCurrency(gift.amount / 100)}
+              </div>
+            )}
+            
+            {processedMessage && (
+              <div className="mt-3 text-sm italic border-l-2 border-pink-200 pl-3 py-1 text-gray-700">
+                "{processedMessage}"
+              </div>
+            )}
+            
+            <div className="mt-3 grid grid-cols-2 gap-x-2 text-sm">
+              <div>
+                <span className="text-gray-500">From:</span> <span className="font-medium">{gift.senderName || "A VMB Client"}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">At:</span> <span className="font-medium">{gift.salonName || "Salon"}</span>
+              </div>
+            </div>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-base font-medium">Email (Optional)</Label>
-            <div className="flex items-center">
-              <MailIcon className="h-4 w-4 mr-2 text-pink-400" />
-              <Input 
-                id="email" 
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="redemption-input-field"
-              />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-base font-medium">Phone Number</Label>
+              <div className="flex items-center">
+                <PhoneIcon className="h-4 w-4 mr-2 text-pink-400" />
+                <Input 
+                  id="phone" 
+                  placeholder="(555) 123-4567"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="redemption-input-field"
+                />
+              </div>
+              <p className="text-xs text-gray-500">Enter your phone number to match with the sender's contact</p>
             </div>
-            <p className="text-xs text-gray-500">Your email helps us confirm your identity and keep you updated</p>
+            
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-base font-medium">Email (Optional)</Label>
+              <div className="flex items-center">
+                <MailIcon className="h-4 w-4 mr-2 text-pink-400" />
+                <Input 
+                  id="email" 
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="redemption-input-field"
+                />
+              </div>
+              <p className="text-xs text-gray-500">Your email helps us confirm your identity and keep you updated</p>
+            </div>
           </div>
-        </div>
-      </CardContent>
-      
-      <CardFooter className="border-t pt-4 pb-4 bg-gradient-to-r from-white to-pink-50 flex flex-col">
-        <Button 
-          className="gift-claim-button w-full font-bold tracking-wide"
-          size="lg"
-          onClick={handleClaimGift}
-          disabled={!phone || phone.length < 10 || claimGiftMutation.isPending}
-        >
-          {claimGiftMutation.isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            "CLAIM MY GIFT"
-          )}
-        </Button>
+        </CardContent>
         
-        {!phone && (
-          <p className="text-xs text-center mt-2 text-gray-500">
-            Please enter your phone number to continue
-          </p>
-        )}
-      </CardFooter>
-    </Card>
+        <CardFooter className="border-t pt-4 pb-4 bg-gradient-to-r from-white to-pink-50 flex flex-col">
+          <Button 
+            className="gift-claim-button w-full font-bold tracking-wide"
+            size="lg"
+            onClick={handleClaimGift}
+            disabled={!phone || phone.length < 10 || claimGiftMutation.isPending}
+          >
+            {claimGiftMutation.isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "CLAIM MY GIFT"
+            )}
+          </Button>
+          
+          {!phone && (
+            <p className="text-xs text-center mt-2 text-gray-500">
+              Please enter your phone number to continue
+            </p>
+          )}
+        </CardFooter>
+      </Card>
+
+      {/* Success Dialog - GIFT DELIVERED popup */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl flex items-center justify-center gap-2">
+              <CheckCircle className="h-6 w-6 text-green-500" />
+              GIFT DELIVERED
+            </DialogTitle>
+            <DialogDescription className="text-center pt-2">
+              Your gift has been successfully claimed and is now available in your account.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="bg-gradient-to-r from-green-50 to-white p-4 rounded-md my-4 border border-green-100">
+            <div className="flex flex-col items-center">
+              <GiftIcon className="h-12 w-12 text-pink-500 mb-3" />
+              <p className="text-center font-medium">
+                {gift.styleName || "Style Card"} {gift.amount > 0 && `(${formatCurrency(gift.amount / 100)})`}
+              </p>
+              <p className="text-sm text-center mt-2">
+                From: <span className="font-medium">{gift.senderName || "A VMB Client"}</span>
+              </p>
+            </div>
+          </div>
+          
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-center">
+            <Button 
+              className="w-full"
+              onClick={() => {
+                setShowSuccessDialog(false);
+                if (onGiftClaimed) {
+                  // Now call the callback which will refresh or redirect
+                  onGiftClaimed();
+                }
+              }}
+            >
+              Back to Dashboard
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
