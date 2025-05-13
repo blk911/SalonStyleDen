@@ -44,6 +44,7 @@ interface ReceivedGiftsDisplayProps {
 export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDisplayProps) {
   const [selectedGift, setSelectedGift] = useState<ReceivedGift | null>(null);
   const [isRedeemModalOpen, setIsRedeemModalOpen] = useState(false);
+  const [isGiftPreviewOpen, setIsGiftPreviewOpen] = useState(false);
   const [showGiftClaimForm, setShowGiftClaimForm] = useState(false);
   const [giftToClaim, setGiftToClaim] = useState<ReceivedGift | null>(null);
   const { toast } = useToast();
@@ -134,9 +135,16 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     }
   };
 
+  const handlePreviewGift = (gift: ReceivedGift) => {
+    setSelectedGift(gift);
+    setIsGiftPreviewOpen(true);
+  };
+
   const handleShowGiftClaim = (gift: ReceivedGift) => {
     setGiftToClaim(gift);
     setShowGiftClaimForm(true);
+    // Close the preview dialog
+    setIsGiftPreviewOpen(false);
   };
 
   const handleGiftClaimed = () => {
@@ -255,7 +263,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                   <div className="pb-4 px-6">
                     <Button 
                       size="default" 
-                      onClick={() => handleShowGiftClaim(gift)}
+                      onClick={() => handlePreviewGift(gift)}
                       variant="default"
                       className="w-full font-bold tracking-wide bg-red-500 hover:bg-red-600 text-white rounded-md"
                     >
