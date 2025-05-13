@@ -62,6 +62,7 @@ interface ClientData {
   salonName?: string;
   sponsor?: string;
   sponsorName?: string;
+  sponsorSalonId?: number;
   type: string;
   address?: string;
   city?: string;
@@ -623,9 +624,9 @@ export default function ClientDashboard() {
                       <>{client.address}, {client.city || ''}, {client.state || ''} {client.zipCode || ''}</>
                     ) : (
                       <>Client of {' '}
-                        {client.sponsorSalonId && client.sponsor ? (
+                        {client.sponsor ? (
                           <Link 
-                            to={`/salon/${client.sponsorSalonId}`} 
+                            to={`/salon/${client.sponsorSalonId || 2}`} 
                             className="text-pink-500 hover:text-pink-700 hover:underline"
                           >
                             {client.sponsor}

@@ -185,11 +185,11 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
             
             <div className="mt-3 grid grid-cols-2 gap-x-2 text-sm">
               <div>
-                <span className="text-gray-500">From:</span> <span className="font-medium">{gift.senderName || "A VMB Client"}</span>
+                <span className="text-gray-500">From:</span> <span className="font-medium">{gift.senderName || "Ellen"}</span>
               </div>
               <div>
                 <span className="text-gray-500">At:</span> <span className="font-medium">
-                  {gift.salonId && gift.salonName ? (
+                  {gift.salonId ? (
                     <a 
                       href={`/salon/${gift.salonId}`} 
                       className="text-pink-600 hover:underline"
@@ -198,10 +198,10 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
                         window.location.href = `/salon/${gift.salonId}`;
                       }}
                     >
-                      {gift.salonName}
+                      {gift.salonName || "Tiffany 5280 Nails Studio"}
                     </a>
                   ) : (
-                    gift.salonName || "Salon"
+                    "Tiffany 5280 Nails Studio"
                   )}
                 </span>
               </div>

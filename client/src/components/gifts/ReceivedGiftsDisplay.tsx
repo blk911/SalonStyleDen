@@ -215,7 +215,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     <div>
                       <CardTitle className="text-lg">{gift.styleName || (gift.giftType === 'invitation' ? 'Invitation' : 'Style Card')}</CardTitle>
                       <CardDescription>
-                        From: {gift.senderName || "A VMB Client"} 
+                        From: {gift.senderName || "Ellen"} 
                         {gift.salonId && gift.salonName && (
                           <> • At: <a 
                             href={`/salon/${gift.salonId}`} 
@@ -225,7 +225,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                               window.location.href = `/salon/${gift.salonId}`;
                             }}
                           >
-                            {gift.salonName}
+                            {gift.salonName || "Tiffany 5280 Nails Studio"}
                           </a>
                           </>
                         )}
