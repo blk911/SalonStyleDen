@@ -1456,7 +1456,6 @@ export default function AdminDashboard() {
                         <TableHead className="max-h-[30px] py-1 text-center">From</TableHead>
                         <TableHead className="max-h-[30px] py-1 text-center">To</TableHead>
                         <TableHead className="max-h-[30px] py-1 text-center">Amount</TableHead>
-                        <TableHead className="max-h-[30px] py-1 text-center">Message</TableHead>
                         <TableHead className="max-h-[30px] py-1 text-center">Status</TableHead>
                         <TableHead className="max-h-[30px] py-1 text-center">Date</TableHead>
                         <TableHead className="max-h-[30px] py-1 text-center">Actions</TableHead>
@@ -1470,9 +1469,6 @@ export default function AdminDashboard() {
                         >
                           <TableCell className="py-0 text-center">
                             {gift.senderName || "Unknown"}
-                            <div className="text-[10px] text-gray-500">
-                              {formatPhoneNumber(gift.senderPhone || "")}
-                            </div>
                           </TableCell>
                           <TableCell className="py-0 text-center">
                             {gift.recipientName || (() => {
@@ -1485,30 +1481,9 @@ export default function AdminDashboard() {
                               }
                               return "Unknown";
                             })()}
-                            <div className="text-[10px] text-gray-500">
-                              {formatPhoneNumber(gift.recipientPhone || "")}
-                            </div>
                           </TableCell>
                           <TableCell className="py-0 text-center">
                             ${(gift.amount / 100).toFixed(2)}
-                          </TableCell>
-                          <TableCell className="py-0 text-center">
-                            {gift.message && gift.message.length > 20 ? (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="cursor-help">
-                                      {gift.message.substring(0, 18)}...
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>{gift.message}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
-                              gift.message || "No message"
-                            )}
                           </TableCell>
                           <TableCell className="py-0 text-center">
                             <Badge className={
