@@ -283,17 +283,12 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
             <div className="flex flex-col items-center">
               <GiftIcon className="h-14 w-14 text-pink-500 mb-3" />
               <p className="text-center font-bold text-lg">
-                {gift.styleName || ""}
+                {gift.styleName || "Style Card"} {gift.amount > 0 && `(${formatCurrency(gift.amount / 100)})`}
               </p>
               <div className="text-sm text-center mt-3 space-y-2">
                 <p className="text-gray-700">
-                  From: <span className="font-semibold text-black">{gift.senderName || "Ellen"}</span> [ID: {gift.senderId}]
+                  From: <span className="font-semibold text-black">{gift.senderName || "Ellen"}</span>
                 </p>
-                {gift.amount > 0 && (
-                  <p className="text-pink-600 font-medium">
-                    {formatCurrency(gift.amount / 100)}
-                  </p>
-                )}
                 {gift.salonId && (
                   <p className="text-gray-700">
                     At: <a 
