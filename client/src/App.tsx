@@ -29,7 +29,6 @@ import ClientRegistrationPage from "@/pages/ClientRegistrationPage";
 import SalonRegistrationPage from "@/pages/SalonRegistrationPage";
 import CompleteInvitationPage from "@/pages/CompleteInvitationPage";
 import GiftRedemptionPage from "@/pages/GiftRedemptionPage";
-import GiftDetailPage from "@/pages/GiftDetailPage";
 import TestFinalStep3 from "@/pages/TestFinalStep3";
 
 function Router() {
@@ -64,7 +63,6 @@ function Router() {
       <Route path="/promos" component={PromosPage} />
       <Route path="/sitemap" component={Sitemap} />
       <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin/gifts/:id" component={GiftDetailPage} />
       <Route path="/test-image/:id" component={TestImagePage} />
       <Route path="/network-visualization" component={NetworkVisualization} />
       <Route path="/madge-visualization" component={MadgeVisualizationPage} />

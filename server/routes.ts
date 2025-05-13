@@ -2623,7 +2623,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get gift by its unique hash - this must come BEFORE the generic ID route
+  // Get gift by its unique hash
   apiRouter.get("/gifts/by-hash/:hash", async (req: Request, res: Response) => {
     try {
       const { hash } = req.params;
@@ -2687,42 +2687,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
-  
-  // Get gift by ID - comes AFTER the more specific routes
-  apiRouter.get("/gifts/:id", async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      
-      if (!id || isNaN(parseInt(id))) {
-        return res.status(400).json({
-          error: "Valid gift ID is required"
-        });
-      }
-      
-      const giftId = parseInt(id);
-      console.log(`[API] GET /gifts/${giftId} - Finding gift by ID`);
-      
-      // Get the gift by ID
-      const gift = await storage.getGift(giftId);
-      
-      if (!gift) {
-        console.log(`[API] GET /gifts/${giftId} - No gift found with this ID`);
-        return res.status(404).json({
-          error: "Gift not found"
-        });
-      }
-      
-      console.log(`[API] GET /gifts/${giftId} - Gift found, status: ${gift.status}`);
-      return res.json(gift);
-    } catch (error) {
-      console.error("Error fetching gift by ID:", error);
-      return res.status(500).json({
-        error: "Server error while fetching gift"
-      });
-    }
-  });
 
-  // Move this route before the generic ID route as well
   // Check if a phone number has any unredeemed gifts
   apiRouter.get("/gifts/check-phone/:phone", async (req: Request, res: Response) => {
     try {
