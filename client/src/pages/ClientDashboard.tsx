@@ -622,7 +622,15 @@ export default function ClientDashboard() {
                     {client.address ? (
                       <>{client.address}, {client.city || ''}, {client.state || ''} {client.zipCode || ''}</>
                     ) : (
-                      <>Client of {client.salonName || salon?.name || 'Tiffany 5280 Nails Studio'}</>
+                      <>Client of {' '}
+                        {client.salonId ? (
+                          <Link to={`/salons/${client.salonId}`} className="text-pink-500 hover:text-pink-700 hover:underline">
+                            {client.salonName || salon?.name || 'Tiffany 5280 Nails Studio'}
+                          </Link>
+                        ) : (
+                          <span>{client.salonName || salon?.name || 'Tiffany 5280 Nails Studio'}</span>
+                        )}
+                      </>
                     )}
                   </span>
                 </div>
