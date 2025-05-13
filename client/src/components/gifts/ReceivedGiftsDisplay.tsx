@@ -241,9 +241,9 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     </div>
                     
                     {/* Right side style card display */}
-                    <div className="w-[230px] flex justify-end">
+                    <div className="w-[400px] flex justify-end">
                       {gift.message && gift.message.includes("Glam Me! Custom Design") ? (
-                        <div className="border border-pink-500 rounded-md overflow-hidden w-[230px] flex items-stretch">
+                        <div className="border border-pink-500 rounded-md overflow-hidden w-[400px] flex items-stretch">
                           <div className="p-3 flex-grow" style={{ width: '70%' }}>
                             <div className="font-bold text-base">Glam Me! Custom Design</div>
                             <div className="text-xs text-gray-600">Fully custom art, gems, 3D extras</div>
@@ -255,7 +255,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                           <div className="w-[30%] bg-cover bg-center" style={{ backgroundImage: "url('/assets/custom-glam-lv.png')" }}></div>
                         </div>
                       ) : gift.message && gift.message.includes("French Tips / Touch-Up") ? (
-                        <div className="border border-pink-500 rounded-md overflow-hidden w-[230px] flex items-stretch">
+                        <div className="border border-pink-500 rounded-md overflow-hidden w-[400px] flex items-stretch">
                           <div className="p-3 flex-grow" style={{ width: '70%' }}>
                             <div className="font-bold text-base">French Tips / Touch-Up</div>
                             <div className="text-xs text-gray-600">Classic white tips or quick polish refresh</div>
