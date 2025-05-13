@@ -245,10 +245,10 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       {gift.message && gift.message.includes("Glam Me! Custom Design") ? (
                         <div className="border border-pink-500 rounded-md overflow-hidden w-[400px] flex items-stretch">
                           <div className="p-3 flex-grow" style={{ width: '70%' }}>
-                            <div className="font-bold text-xs">Glam Me! Custom Design</div>
+                            <div className="text-xs">Glam Me! Custom Design</div>
                             <div className="text-xs text-gray-600">Fully custom art, gems, 3D extras</div>
                             <div className="flex items-baseline mt-2">
-                              <span className="font-bold text-xs">$125</span>
+                              <span className="text-xs">$125</span>
                               <span className="ml-1 text-xs text-gray-600">90 min</span>
                             </div>
                           </div>
@@ -257,10 +257,10 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       ) : gift.message && gift.message.includes("French Tips / Touch-Up") ? (
                         <div className="border border-pink-500 rounded-md overflow-hidden w-[400px] flex items-stretch">
                           <div className="p-3 flex-grow" style={{ width: '70%' }}>
-                            <div className="font-bold text-xs">French Tips / Touch-Up</div>
+                            <div className="text-xs">French Tips / Touch-Up</div>
                             <div className="text-xs text-gray-600">Classic white tips or quick polish refresh</div>
                             <div className="flex items-baseline mt-2">
-                              <span className="font-bold text-xs">$40</span>
+                              <span className="text-xs">$40</span>
                               <span className="ml-1 text-xs text-gray-600">30 min</span>
                             </div>
                           </div>
