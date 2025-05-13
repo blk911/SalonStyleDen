@@ -62,6 +62,7 @@ interface ClientData {
   salonName?: string;
   sponsor?: string;
   sponsorName?: string;
+  sponsorSalonId?: number; // Added field to track sponsor salon ID
   type: string;
   address?: string;
   city?: string;
@@ -625,15 +626,13 @@ export default function ClientDashboard() {
                       <>Client of {' '}
                         {client.sponsorSalonId || client.salonId ? (
                           <Link 
-                            to={`/salons/${client.sponsorSalonId || client.salonId || 2}`} 
+                            to={`/salons/${client.sponsorSalonId || client.salonId}`} 
                             className="text-pink-500 hover:text-pink-700 hover:underline"
                           >
-                            {client.sponsor === 'Tiffany 5280 Nails Studio' || client.salonId === 2 ? 
-                              'Tiffany 5280 Nails Studio' : 
-                              (client.salonName || salon?.name || 'Tiffany 5280 Nails Studio')}
+                            {client.salonName || client.sponsor || salon?.name}
                           </Link>
                         ) : (
-                          <span>Tiffany 5280 Nails Studio</span>
+                          <span>{client.salonName || client.sponsor || salon?.name}</span>
                         )}
                       </>
                     )}
