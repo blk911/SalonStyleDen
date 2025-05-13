@@ -251,9 +251,9 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       </CardDescription>
                     </div>
                     
-                    {/* Style option image placeholder styled like reference image */}
-                    <div className="h-16 w-32 border-2 border-red-500 rounded-md flex items-center justify-center bg-white">
-                      <span className="text-red-500 font-bold text-base rotate-3">STY OPT</span>
+                    {/* Style option image exactly matching the reference image */}
+                    <div className="border border-red-500 rounded-md w-24 h-10 flex items-center justify-center bg-white">
+                      <span className="text-red-500 font-semibold text-sm tracking-wide">STY OPT</span>
                     </div>
                   </div>
                 </CardHeader>
