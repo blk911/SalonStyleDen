@@ -102,9 +102,45 @@ export interface IStorage {
   updateGiftStatus(id: number, status: string): Promise<Gift>;
   checkUnredeemedGiftByPhone(phone: string): Promise<{hasUnredeemedGift: boolean, gift?: Gift}>;
   getPendingGifts(limit?: number): Promise<Gift[]>;
+  getGift(id: number): Promise<Gift | undefined>;
 }
 
 // Copy over all the implementation from old storage.ts then add getSalonsTable method at the end
+export interface Gift {
+  id: number;
+  senderId: number;
+  recipientId: number | null;
+  recipientPhone: string | null;
+  recipientEmail: string | null;
+  recipientName?: string;
+  amount: number;
+  message: string | null;
+  status: string;
+  salonId: number | null;
+  giftHash: string;
+  giftType: string;
+  expiresAt: Date | null;
+  redeemedAt: Date | null;
+  createdAt: Date | null;
+  senderName?: string;
+  salonName?: string;
+}
+
+export interface InsertGift {
+  senderId: number;
+  recipientId?: number | null;
+  recipientPhone: string;
+  recipientEmail?: string | null;
+  amount: number;
+  message?: string | null;
+  status: string;
+  salonId: number | null;
+  giftHash: string;
+  giftType: string;
+  styleId?: number;
+  styleName?: string;
+}
+
 export class DatabaseStorage implements IStorage {
   // User methods
   async getUser(id: number): Promise<User | undefined> {
@@ -2534,6 +2570,62 @@ export class DatabaseStorage implements IStorage {
       return giftsWithSenderInfo;
     } catch (error) {
       console.error(`Error getting pending gifts:`, error);
+      throw error;
+    }
+  }
+
+  async getGift(id: number): Promise<Gift | undefined> {
+    try {
+      console.log(`DatabaseStorage.getGift - Getting gift with ID ${id}`);
+      
+      const sqlQuery = `
+        SELECT g.*, 
+               c1.name as sender_name,
+               c2.name as recipient_name,
+               s.name as salon_name
+        FROM gifts g
+        LEFT JOIN clients c1 ON g.sender_id = c1.id
+        LEFT JOIN clients c2 ON g.recipient_id = c2.id
+        LEFT JOIN salons s ON g.salon_id = s.id
+        WHERE g.id = $1
+      `;
+      
+      const client = await pool.connect();
+      try {
+        const result = await client.query(sqlQuery, [id]);
+        
+        if (result.rows.length === 0) {
+          console.log(`DatabaseStorage.getGift - No gift found with ID ${id}`);
+          return undefined;
+        }
+        
+        const row = result.rows[0];
+        console.log(`DatabaseStorage.getGift - Found gift ID: ${row.id}, Status: ${row.status}`);
+        
+        return {
+          id: row.id,
+          senderId: row.sender_id,
+          recipientId: row.recipient_id,
+          recipientPhone: row.recipient_phone,
+          recipientEmail: row.recipient_email,
+          amount: row.amount,
+          message: row.message,
+          status: row.status,
+          salonId: row.salon_id,
+          giftHash: row.gift_hash,
+          giftType: row.gift_type,
+          expiresAt: row.expires_at,
+          redeemedAt: row.redeemed_at,
+          createdAt: row.created_at,
+          senderName: row.sender_name,
+          recipientName: row.recipient_name,
+          salonName: row.salon_name
+        };
+      } finally {
+        client.release();
+      }
+    } catch (error) {
+      console.error(`DatabaseStorage.getGift - Error fetching gift with ID ${id}:`, error);
       throw error;
     }
   }
