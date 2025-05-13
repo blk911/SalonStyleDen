@@ -219,43 +219,41 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
             {receivedGifts.map((gift) => (
               <Card key={gift.id} className="relative overflow-hidden border-l-4 border-l-primary">
                 <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-lg">{gift.styleName || (gift.giftType === 'invitation' ? 'Invitation' : 'Style Card')}</CardTitle>
-                      <CardDescription>
-                        From: {gift.senderName || "Ellen"} 
-                        {gift.salonId && gift.salonName && (
-                          <> • At: <a 
-                            href={`/salon/${gift.salonId}`} 
-                            className="text-pink-600 hover:underline"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              window.location.href = `/salon/${gift.salonId}`;
-                            }}
-                          >
-                            {gift.salonName || "Tiffany 5280 Nails Studio"}
-                          </a>
-                          </>
-                        )}
-                        {gift.amount > 0 && <> • {formatCurrency(gift.amount / 100)}</>}
-                      </CardDescription>
-                    </div>
-                    <Badge
-                      variant={gift.status === "redeemed" || gift.status === "completed" ? "outline" : "default"}
-                      className={gift.status === "redeemed" || gift.status === "completed" ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-200"}
-                    >
-                      {gift.status === "redeemed" || gift.status === "completed" ? "Redeemed" : "Pending"}
-                    </Badge>
+                  <div>
+                    <CardTitle className="text-lg">{gift.styleName || (gift.giftType === 'invitation' ? 'Invitation' : 'Style Card')}</CardTitle>
+                    <CardDescription>
+                      From: {gift.senderName || "Ellen"} 
+                      {gift.salonId && gift.salonName && (
+                        <> • At: <a 
+                          href={`/salon/${gift.salonId}`} 
+                          className="text-pink-600 hover:underline"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            window.location.href = `/salon/${gift.salonId}`;
+                          }}
+                        >
+                          {gift.salonName || "Tiffany 5280 Nails Studio"}
+                        </a>
+                        </>
+                      )}
+                      {gift.amount > 0 && <> • {formatCurrency(gift.amount / 100)}</>}
+                    </CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent className="pb-2">
                   {gift.message && <p className="text-sm italic">"{gift.message}"</p>}
                 </CardContent>
-                <CardFooter className="flex justify-between pt-0">
+                <CardFooter className="flex justify-between items-center pt-0">
                   <div className="flex items-center text-xs text-muted-foreground">
                     <Calendar className="h-3 w-3 mr-1" />
                     {new Date(gift.createdAt).toLocaleDateString()}
                   </div>
+                  <Badge
+                    variant={gift.status === "redeemed" || gift.status === "completed" ? "outline" : "default"}
+                    className={gift.status === "redeemed" || gift.status === "completed" ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-200"}
+                  >
+                    {gift.status === "redeemed" || gift.status === "completed" ? "Redeemed" : "Pending"}
+                  </Badge>
                 </CardFooter>
 
                 {/* Show Claim My Gift button for pending gifts/invitations */}
