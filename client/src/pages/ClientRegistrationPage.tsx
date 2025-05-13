@@ -236,10 +236,15 @@ export default function ClientRegistrationPage() {
 
         try {
           // Check for invitations first
-          const inviteResponse = await fetch(`/api/invitations?phone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
+          const cleanPhone = cleanPhoneNumber(phoneNumber);
+          console.log(`Looking up phone number: "${cleanPhone}" (original: "${phoneNumber}")`);
+          
+          const inviteResponse = await fetch(`/api/invitations?phone=${encodeURIComponent(cleanPhone)}&status=pending&limit=1`);
+          console.log(`Checking for invitations with phone: "${cleanPhone}", Status code: ${inviteResponse.status}`);
           
           if (inviteResponse.ok) {
             const invites = await inviteResponse.json();
+            console.log(`Found ${invites?.length || 0} invitation matches for phone ${cleanPhone}:`, invites);
             
             if (invites && invites.length > 0) {
               const invite = invites[0]; // Get the first matching invitation
