@@ -38,6 +38,8 @@ function Router() {
       <Route path="/" component={ClientsPage} />
       <Route path="/home" component={Home} /> {/* Keep old Home available at /home */}
       <Route path="/salon/:id" component={SalonPublicPage} />
+      {/* Add plural form for salons URLs */}
+      <Route path="/salons/:id" component={SalonPublicPage} />
       <Route path="/dashboard/salon/:id" component={SalonDashboard} />
       <Route path="/client/register" component={ClientRegistrationPage} />
       <Route path="/client-registration" component={ClientRegistrationPage} />
