@@ -151,7 +151,6 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
 
   const handleGiftClaimed = () => {
     setShowGiftClaimForm(false);
-    setGiftToClaim(null);
     
     // Mark the gift as delivered and collapsed when claimed
     if (giftToClaim) {
@@ -174,6 +173,16 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       .then(response => {
         if (!response.ok) {
           console.error("Failed to mark gift as delivered");
+        } else {
+          // Show success toast
+          toast({
+            title: "Gift Delivered!",
+            description: "The gift has been marked as delivered and will now appear in collapsed view.",
+            variant: "default",
+          });
+          
+          // Refresh the gifts list
+          queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
         }
       })
       .catch(error => {
@@ -181,15 +190,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       });
     }
     
-    // Refresh the gifts list
-    queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
-    
-    // Show success toast
-    toast({
-      title: "Gift Delivered!",
-      description: "The gift has been marked as delivered and will now appear in collapsed view.",
-      variant: "default",
-    });
+    // Clear the gift being claimed
+    setGiftToClaim(null);
   };
   
   const toggleGiftCollapse = (giftId: number) => {
@@ -341,8 +343,10 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                             </div>
                             <CardDescription>
                               {gift.amount > 0 && <>{formatCurrency(gift.amount / 100)}</>}
-                              {gift.salonId && gift.salonName && (
-                                <div className="mt-1">At: <a 
+                            </CardDescription>
+                            {gift.salonId && gift.salonName && (
+                              <div className="text-sm text-muted-foreground mt-1 ml-6">
+                                At: <a 
                                   href={`/salon/${gift.salonId}`} 
                                   className="text-pink-600 hover:underline"
                                   onClick={(e) => {
@@ -352,9 +356,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                                 >
                                   {gift.salonName || "Tiffany 5280 Nails Studio"}
                                 </a>
-                                </div>
-                              )}
-                            </CardDescription>
+                              </div>
+                            )}
                           </div>
                           
                           {/* Style card display */}
@@ -421,7 +424,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                             variant="default"
                             className="w-full font-bold tracking-wide bg-red-500 hover:bg-red-600 text-white rounded-md"
                           >
-                            CLAIM MY GIFT
+                            SEND GIFT TO {gift.recipientName || "Client"}
                           </Button>
                         )}
                         
