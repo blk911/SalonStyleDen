@@ -168,6 +168,7 @@ export default function AdminDashboard() {
   const [invitationToDelete, setInvitationToDelete] = useState<Invitation | null>(null);
   const [clientToSuspend, setClientToSuspend] = useState<Client | null>(null);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
+  const [giftToDelete, setGiftToDelete] = useState<Gift | null>(null);
   
   // Section visibility states (stored in localStorage for persistence)
   const [styleOptionsOpen, setStyleOptionsOpen] = useState(true);
