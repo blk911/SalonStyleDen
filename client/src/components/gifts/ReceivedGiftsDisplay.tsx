@@ -86,6 +86,30 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     enabled: !!clientId,
   });
 
+  // Initialize the default collapsed state for delivered gifts when data loads
+  useEffect(() => {
+    if (receivedGifts) {
+      // Find all delivered gifts that should be collapsed by default
+      const deliveredGifts = receivedGifts.filter(
+        gift => gift.status === "delivered" || 
+                gift.status === "redeemed" || 
+                gift.status === "completed"
+      );
+      
+      if (deliveredGifts.length > 0) {
+        // Create a record of which gifts should be collapsed by default
+        const defaultCollapsedState = { ...collapsedGifts };
+        deliveredGifts.forEach(gift => {
+          // Only set the default state if we don't have an explicit setting already
+          if (defaultCollapsedState[gift.id] === undefined) {
+            defaultCollapsedState[gift.id] = true;
+          }
+        });
+        setCollapsedGifts(defaultCollapsedState);
+      }
+    }
+  }, [receivedGifts]);
+  
   // Mutation for redeeming a gift
   const redeemGiftMutation = useMutation({
     mutationFn: async (giftId: number) => {
@@ -314,17 +338,43 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     <>
       <Card className="w-full">
         <CardHeader className="bg-yellow-50 pb-3 pt-3">
-          <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
-          <CardDescription className="text-xs mt-1">Gifts and invitations sent to you</CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
+              <CardDescription className="text-xs mt-1">Gifts and invitations sent to you</CardDescription>
+            </div>
+            
+            {/* Site-wide toggle for showing/hiding all delivered gifts */}
+            {receivedGifts.some(gift => 
+              gift.status === "delivered" || 
+              gift.status === "redeemed" || 
+              gift.status === "completed"
+            ) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleAllDeliveredGifts}
+                className="text-xs px-2 py-1 h-8 bg-white hover:bg-gray-50"
+              >
+                {showAllDelivered ? "Hide Delivered" : "Show Delivered"}
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {receivedGifts.map((gift) => {
-              const isCollapsed = collapsedGifts[gift.id] || gift.status === "delivered";
-              const isExpanded = expandedGifts[gift.id];
-              
-              // Determine if this is a delivered gift that should be collapsed by default
+              // Determine if this is a delivered gift
               const isDelivered = gift.status === "redeemed" || gift.status === "completed" || gift.status === "delivered";
+              
+              // Calculate collapsed state based on:
+              // 1. Individual gift collapsed state (from collapsedGifts state)
+              // 2. Default behavior for delivered gifts (collapsed unless specifically expanded)
+              // 3. Override by the site-wide showAllDelivered toggle
+              const isCollapsed = (collapsedGifts[gift.id] || (isDelivered && !showAllDelivered));
+              
+              // A gift is expanded if it's in the expandedGifts state OR if showAllDelivered is true for delivered gifts
+              const isExpanded = expandedGifts[gift.id] || (isDelivered && showAllDelivered);
 
               return (
                 <Card 
