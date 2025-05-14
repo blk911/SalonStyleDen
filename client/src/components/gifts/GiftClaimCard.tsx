@@ -159,9 +159,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
         <CardHeader className="gift-invitation-header pb-4">
           <div className="flex items-center gap-2">
             <GiftIcon className="h-6 w-6 text-pink-600" />
-            <CardTitle className="text-xl text-pink-800 font-bold">
-              SEND GIFT TO {gift.recipientName || "CLIENT"}
-            </CardTitle>
+            <CardTitle className="text-xl text-pink-800 font-bold">SEND GIFT</CardTitle>
           </div>
           <CardDescription className="mt-2">
             Claim your {gift.giftType === 'invitation' ? 'invitation' : 'gift'} by confirming your contact information
@@ -288,10 +286,10 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
           <DialogHeader>
             <DialogTitle className="text-center text-2xl font-bold flex items-center justify-center gap-2 text-pink-600">
               <CheckCircle className="h-7 w-7 text-green-500" />
-              GIFT DELIVERED SUCCESSFULLY
+              GIFT DELIVERED
             </DialogTitle>
             <DialogDescription className="text-center pt-2 text-base">
-              Your gift has been successfully claimed. Would you like to complete your registration now?
+              Your gift has been successfully claimed and is now available in your account.
             </DialogDescription>
           </DialogHeader>
           
@@ -330,23 +328,10 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
             </div>
           </div>
           
-          <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-3">
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-center">
             <Button 
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3"
+              className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3"
               size="lg"
-              onClick={() => {
-                setShowSuccessDialog(false);
-                // Redirect to registration page
-                window.location.href = "/register";
-              }}
-            >
-              Complete Registration
-            </Button>
-            
-            <Button 
-              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3"
-              size="lg"
-              variant="outline"
               onClick={() => {
                 setShowSuccessDialog(false);
                 if (onGiftClaimed) {
@@ -355,7 +340,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
                 }
               }}
             >
-              Later
+              Back to Dashboard
             </Button>
           </DialogFooter>
         </DialogContent>
