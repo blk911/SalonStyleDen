@@ -2538,6 +2538,38 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
+
+  async deleteGift(id: number): Promise<boolean> {
+    try {
+      console.log(`DatabaseStorage.deleteGift - Deleting gift with ID ${id}`);
+      
+      // Check if gift exists first
+      const gift = await this.getGift(id);
+      if (!gift) {
+        console.log(`DatabaseStorage.deleteGift - No gift found with ID ${id}`);
+        return false;
+      }
+      
+      // Create activity log for deletion
+      await this.createActivityLog({
+        type: 'gift_deleted',
+        description: `Gift from ${gift.senderName || `sender ID ${gift.senderId}`} to ${gift.recipientName || gift.recipientPhone} was deleted.`,
+        userId: null,
+        salonId: gift.salonId,
+        clientId: gift.senderId,
+        timestamp: new Date()
+      });
+      
+      // Delete the gift
+      await db.delete(gifts).where(eq(gifts.id, id));
+      console.log(`DatabaseStorage.deleteGift - Gift ${id} deletion successful`);
+      
+      return true;
+    } catch (error) {
+      console.error(`DatabaseStorage.deleteGift - Error deleting gift ${id}:`, error);
+      return false;
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
