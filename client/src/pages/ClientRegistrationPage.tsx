@@ -123,11 +123,17 @@ export default function ClientRegistrationPage() {
   const salonIdParam = location.includes('/salon/') 
     ? location.split('/salon/')[1]
     : null;
-    
-  const salonId = salonIdParam ? parseInt(salonIdParam, 10) : undefined;
+  
+  // Parse URL query parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const salonIdQueryParam = urlParams.get('salonId');
+  
+  // Use salonId from query parameter if available, otherwise from URL path
+  const salonId = salonIdQueryParam 
+    ? parseInt(salonIdQueryParam, 10) 
+    : (salonIdParam ? parseInt(salonIdParam, 10) : undefined);
   
   // Check if coming from "Complete Registration" button click (from invitation)
-  const urlParams = new URLSearchParams(window.location.search);
   const isCompleteRegistrationMode = urlParams.get('registrationMode') === 'complete';
   
 

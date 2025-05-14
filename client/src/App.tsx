@@ -45,6 +45,7 @@ function Router() {
       <Route path="/client/register" component={ClientRegistrationPage} />
       <Route path="/client-registration" component={ClientRegistrationPage} />
       <Route path="/register-client" component={ClientRegistrationPage} />
+      <Route path="/register/client" component={ClientRegistrationPage} />
       <Route path="/salon-registration" component={SalonRegistrationPage} />
       <Route path="/register-salon" component={SalonRegistrationPage} />
       <Route path="/client/:id" component={ClientDashboard} />
