@@ -2597,6 +2597,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Update gift or invitation status (combined endpoint for frontend convenience)
+  apiRouter.patch("/gifts/:id/status", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      
+      if (!id || isNaN(Number(id))) {
+        return res.status(400).json({
+          error: "Invalid ID"
+        });
+      }
+      
+      if (!status || typeof status !== 'string') {
+        return res.status(400).json({
+          error: "Status is required and must be a string"
+        });
+      }
+      
+      console.log(`[API] PATCH /gifts/${id}/status - Checking item type...`);
+      
+      // Try to update as a gift first
+      let updated = false;
+      let result;
+      
+      try {
+        const gift = await storage.getGift(Number(id));
+        if (gift) {
+          console.log(`[API] PATCH /gifts/${id}/status - Found gift, updating status to ${status}`);
+          result = await storage.updateGiftStatus(Number(id), status);
+          updated = true;
+          console.log(`[API] PATCH /gifts/${id}/status - Gift status updated successfully`);
+        }
+      } catch (error) {
+        console.log(`[API] PATCH /gifts/${id}/status - Not a gift, trying invitation...`);
+      }
+      
+      // If not a gift, try as an invitation
+      if (!updated) {
+        try {
+          const invitation = await storage.getInvitation(Number(id));
+          if (invitation) {
+            console.log(`[API] PATCH /gifts/${id}/status - Found invitation, updating status to ${status}`);
+            result = await storage.updateInvitationStatus(Number(id), status);
+            updated = true;
+            console.log(`[API] PATCH /gifts/${id}/status - Invitation status updated successfully`);
+          }
+        } catch (error) {
+          console.error(`[API] PATCH /gifts/${id}/status - Error updating invitation:`, error);
+        }
+      }
+      
+      if (updated && result) {
+        return res.json({
+          success: true,
+          message: "Status updated successfully",
+          item: result
+        });
+      } else {
+        return res.status(404).json({
+          error: "Gift or invitation not found"
+        });
+      }
+      
+    } catch (error) {
+      console.error("Error updating status:", error);
+      return res.status(500).json({
+        error: "Server error while updating status"
+      });
+    }
+  });
+  
   // Delete gift (admin functionality)
   apiRouter.delete("/gifts/:id", async (req: Request, res: Response) => {
     try {

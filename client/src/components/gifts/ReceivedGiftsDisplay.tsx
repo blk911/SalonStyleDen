@@ -396,7 +396,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         </div>
                       </CardHeader>
                       <CardContent className="pb-2">
-                        {gift.message && <p className="text-sm italic">"{gift.message}"</p>}
+                        {gift.message && <div className="text-sm italic">"{gift.message}"</div>}
                       </CardContent>
                       <CardFooter className="flex justify-between items-center pt-0">
                         <div className="flex items-center text-xs text-muted-foreground">
