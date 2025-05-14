@@ -74,7 +74,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
         }
         
         // Mark invitations as "pending" for proper claim flow
-        if (gift.giftType === 'invitation' && gift.status === 'completed') {
+        if (gift.giftType === 'invitation' && (gift.status === 'completed' || gift.status === 'claimed')) {
           return { ...gift, status: 'pending' };
         }
         return gift;
@@ -301,8 +301,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                   </Badge>
                 </CardFooter>
 
-                {/* Show Claim My Gift button for pending gifts/invitations */}
-                {gift.status === "pending" && (
+                {/* Show Claim My Gift button for pending or claimed gifts/invitations */}
+                {(gift.status === "pending" || gift.status === "claimed") && (
                   <div className="pb-4 px-6">
                     <Button 
                       size="default" 
@@ -316,7 +316,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                 )}
                 
                 {/* Show redeem button for non-invitation gifts that are ready to redeem */}
-                {(gift.status !== "redeemed" && gift.status !== "completed" && gift.status !== "pending" && gift.giftType !== 'invitation') && (
+                {(gift.status !== "redeemed" && gift.status !== "completed" && gift.status !== "pending" && gift.status !== "claimed" && gift.giftType !== 'invitation') && (
                   <div className="pb-4 px-6">
                     <Button 
                       size="sm" 
