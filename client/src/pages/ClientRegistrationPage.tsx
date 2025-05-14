@@ -136,6 +136,10 @@ export default function ClientRegistrationPage() {
   // Check if coming from "Complete Registration" button click (from invitation)
   const isCompleteRegistrationMode = urlParams.get('registrationMode') === 'complete';
   
+  // Determine source of registration (direct, invitation, gift)
+  const invitationSource = urlParams.get('invitationSource');
+  const isFromGift = invitationSource === 'gift';
+  
 
   
   // State management for form submission
