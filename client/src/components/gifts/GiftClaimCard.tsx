@@ -159,7 +159,9 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
         <CardHeader className="gift-invitation-header pb-4">
           <div className="flex items-center gap-2">
             <GiftIcon className="h-6 w-6 text-pink-600" />
-            <CardTitle className="text-xl text-pink-800 font-bold">SEND GIFT</CardTitle>
+            <CardTitle className="text-xl text-pink-800 font-bold">
+              SEND GIFT TO {gift.recipientName || "CLIENT"}
+            </CardTitle>
           </div>
           <CardDescription className="mt-2">
             Claim your {gift.giftType === 'invitation' ? 'invitation' : 'gift'} by confirming your contact information

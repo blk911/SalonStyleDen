@@ -217,9 +217,18 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   };
   
   const toggleGiftExpand = (giftId: number) => {
+    // Toggle the expanded state
+    const newExpandedState = !expandedGifts[giftId];
+    
     setExpandedGifts(prev => ({
       ...prev,
-      [giftId]: !prev[giftId]
+      [giftId]: newExpandedState
+    }));
+    
+    // Also toggle the collapsed state (inverse of expanded)
+    setCollapsedGifts(prev => ({
+      ...prev,
+      [giftId]: !newExpandedState
     }));
   };
 
@@ -286,11 +295,16 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
         <CardContent>
           <div className="space-y-4">
             {receivedGifts.map((gift) => {
-              const isCollapsed = collapsedGifts[gift.id] || gift.status === "delivered";
-              const isExpanded = expandedGifts[gift.id];
-              
-              // Determine if this is a delivered gift that should be collapsed by default
+              // Determine if this is a delivered gift 
               const isDelivered = gift.status === "redeemed" || gift.status === "completed" || gift.status === "delivered";
+              
+              // Check if gift is collapsed (explicitly set in state or is delivered and not explicitly expanded)
+              const isCollapsed = collapsedGifts[gift.id] !== undefined 
+                ? collapsedGifts[gift.id] 
+                : (isDelivered && !expandedGifts[gift.id]);
+              
+              // Check if gift is expanded (explicitly set in state)
+              const isExpanded = expandedGifts[gift.id] === true;
 
               return (
                 <Card 
