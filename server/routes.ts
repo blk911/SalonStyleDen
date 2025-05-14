@@ -1631,17 +1631,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Invitation not found" });
       }
       
-      // Only allow claiming if the invitation is in pending state or completed
-      // (completed is treated as pending in the UI for existing invitations)
-      if (invitation.status !== "pending" && invitation.status !== "completed") {
+      // Handle invitation based on status
+      // Allow pending and completed naturally, and also handle claimed as a special case for the gift completion flow
+      if (invitation.status !== "pending" && invitation.status !== "completed" && invitation.status !== "claimed") {
         return res.status(400).json({ 
           error: "Cannot claim invitation", 
           message: `Invitation is in ${invitation.status} state and cannot be claimed`
         });
       }
       
-      // Update invitation to claimed status
-      const updatedInvitation = await storage.updateInvitationStatus(id, "claimed");
+      // If already claimed, we'll just update the timestamp and proceed with the flow
+      // This allows the gift completion cycle to continue even if it was previously claimed
+      
+      // Update invitation to claimed status if it's not already claimed
+      let updatedInvitation;
+      if (invitation.status !== "claimed") {
+        updatedInvitation = await storage.updateInvitationStatus(id, "claimed");
+      } else {
+        // Already claimed, just use the existing invitation
+        updatedInvitation = invitation;
+      }
       
       // Set redeemedAt timestamp if not already set
       try {

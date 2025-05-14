@@ -128,9 +128,10 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
 
   // Use the same phone utils as ClientRegistrationPage
   const handleClaimGift = () => {
-    // Only allow claiming if status is pending or if the gift is an invitation that is marked completed
-    // (since invitations are shown as pending in the UI even when they're completed)
-    if (gift.status === "pending" || (gift.giftType === 'invitation' && gift.status === "completed")) {
+    // Allow claiming if status is pending, or if the gift is an invitation that is marked completed or claimed
+    // (since invitations may be in different states but still need completion)
+    if (gift.status === "pending" || 
+        (gift.giftType === 'invitation' && (gift.status === "completed" || gift.status === "claimed"))) {
       // Clean the phone number before submission
       const cleanedPhone = cleanPhoneNumber(phone);
       
