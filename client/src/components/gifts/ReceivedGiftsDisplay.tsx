@@ -49,6 +49,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   const [giftToClaim, setGiftToClaim] = useState<ReceivedGift | null>(null);
   const [collapsedGifts, setCollapsedGifts] = useState<Record<number, boolean>>({});
   const [expandedGifts, setExpandedGifts] = useState<Record<number, boolean>>({});
+  const [showAllDelivered, setShowAllDelivered] = useState(false);
   const { toast } = useToast();
 
   // Fetch received gifts
@@ -206,6 +207,54 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       ...prev,
       [giftId]: !prev[giftId]
     }));
+  };
+  
+  // Site-wide function to toggle all delivered gifts at once
+  const toggleAllDeliveredGifts = () => {
+    setShowAllDelivered(prev => !prev);
+    
+    if (receivedGifts) {
+      // Get all delivered gift IDs
+      const deliveredGiftIds = receivedGifts
+        .filter(gift => 
+          gift.status === "delivered" || 
+          gift.status === "redeemed" || 
+          gift.status === "completed"
+        )
+        .map(gift => gift.id);
+      
+      // If we're about to show all delivered gifts
+      if (!showAllDelivered) {
+        // Remove all of these gifts from the collapsed state
+        const newCollapsedState = { ...collapsedGifts };
+        deliveredGiftIds.forEach(id => {
+          delete newCollapsedState[id];
+        });
+        setCollapsedGifts(newCollapsedState);
+        
+        // Add them all to expanded state
+        const newExpandedState = { ...expandedGifts };
+        deliveredGiftIds.forEach(id => {
+          newExpandedState[id] = true;
+        });
+        setExpandedGifts(newExpandedState);
+      } else {
+        // If we're about to hide all delivered gifts
+        // Add all of these gifts to the collapsed state
+        const newCollapsedState = { ...collapsedGifts };
+        deliveredGiftIds.forEach(id => {
+          newCollapsedState[id] = true;
+        });
+        setCollapsedGifts(newCollapsedState);
+        
+        // Remove them from expanded state
+        const newExpandedState = { ...expandedGifts };
+        deliveredGiftIds.forEach(id => {
+          delete newExpandedState[id];
+        });
+        setExpandedGifts(newExpandedState);
+      }
+    }
   };
 
   if (showGiftClaimForm && giftToClaim) {
