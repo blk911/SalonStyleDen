@@ -222,7 +222,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                   <div className="flex justify-between">
                     <div>
                       <CardTitle className="text-lg">
-                        {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
+                        From: {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
                         {gift.message && gift.message.includes('❤️') 
                           ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
                           : gift.message && gift.message.includes('Annie')
