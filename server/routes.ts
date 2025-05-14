@@ -2753,6 +2753,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete gift endpoint
+  apiRouter.delete("/gifts/:id", async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const giftId = parseInt(id, 10);
+      
+      if (isNaN(giftId)) {
+        return res.status(400).json({
+          error: "Invalid gift ID format"
+        });
+      }
+      
+      console.log(`[API] DELETE /gifts/${giftId} - Attempting to delete gift`);
+      
+      // Get the gift first to check if it exists
+      const gift = await storage.getGift(giftId);
+      if (!gift) {
+        console.log(`[API] DELETE /gifts/${giftId} - Gift not found`);
+        return res.status(404).json({
+          error: "Gift not found"
+        });
+      }
+      
+      // Delete the gift
+      const success = await storage.deleteGift(giftId);
+      
+      if (success) {
+        console.log(`[API] DELETE /gifts/${giftId} - Gift deleted successfully`);
+        return res.json({
+          success: true,
+          message: "Gift deleted successfully"
+        });
+      } else {
+        console.log(`[API] DELETE /gifts/${giftId} - Failed to delete gift`);
+        return res.status(500).json({
+          error: "Failed to delete gift"
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting gift:", error);
+      return res.status(500).json({
+        error: "Server error while deleting gift"
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
