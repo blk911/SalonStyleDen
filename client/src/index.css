@@ -4,6 +4,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom styles for gift cards */
+.gift-card-collapsed {
+  max-height: 60px;
+  transition: max-height 0.3s ease-in-out;
+  overflow: hidden;
+  border-left-color: #16a34a !important;
+  background-color: #f0fdf4;
+}
+
 /* LOGO STYLES */
 /* Logo styles with size variants */
 .logo {

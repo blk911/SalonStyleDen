@@ -47,6 +47,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   const [isGiftPreviewOpen, setIsGiftPreviewOpen] = useState(false);
   const [showGiftClaimForm, setShowGiftClaimForm] = useState(false);
   const [giftToClaim, setGiftToClaim] = useState<ReceivedGift | null>(null);
+  const [collapsedGifts, setCollapsedGifts] = useState<Record<number, boolean>>({});
+  const [expandedGifts, setExpandedGifts] = useState<Record<number, boolean>>({});
   const { toast } = useToast();
 
   // Fetch received gifts
@@ -150,8 +152,29 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   const handleGiftClaimed = () => {
     setShowGiftClaimForm(false);
     setGiftToClaim(null);
+    // Mark the gift as collapsed when claimed
+    if (giftToClaim) {
+      setCollapsedGifts(prev => ({
+        ...prev,
+        [giftToClaim.id]: true
+      }));
+    }
     // Refresh the gifts list
     queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
+  };
+  
+  const toggleGiftCollapse = (giftId: number) => {
+    setCollapsedGifts(prev => ({
+      ...prev,
+      [giftId]: !prev[giftId]
+    }));
+  };
+  
+  const toggleGiftExpand = (giftId: number) => {
+    setExpandedGifts(prev => ({
+      ...prev,
+      [giftId]: !prev[giftId]
+    }));
   };
 
   if (showGiftClaimForm && giftToClaim) {
@@ -216,134 +239,193 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {receivedGifts.map((gift) => (
-              <Card key={gift.id} className="relative overflow-hidden border-l-4 border-l-primary">
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between">
-                    <div>
-                      <CardTitle className="text-lg">
-                        From: {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
-                        {gift.message && gift.message.includes('❤️') 
-                          ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
-                          : gift.message && gift.message.includes('Annie')
-                            ? 'Annie'
-                            : gift.senderName || "Ellen"}
-                      </CardTitle>
-                      <CardDescription>
-                        {gift.amount > 0 && <>{formatCurrency(gift.amount / 100)}</>}
-                        {gift.salonId && gift.salonName && (
-                          <div className="mt-1">At: <a 
-                            href={`/salon/${gift.salonId}`} 
-                            className="text-pink-600 hover:underline"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              window.location.href = `/salon/${gift.salonId}`;
-                            }}
-                          >
-                            {gift.salonName || "Tiffany 5280 Nails Studio"}
-                          </a>
-                          </div>
-                        )}
-                      </CardDescription>
-                    </div>
-                    
-                    {/* Style card display */}
-                    <div className="w-full mt-3 flex justify-end">
-                      {gift.message && gift.message.includes("Glam Me! Custom Design") ? (
-                        <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center">
-                          <div className="flex-grow">
-                            <div className="font-medium text-sm">Glam Me! Custom Design</div>
-                            <div className="text-xs text-gray-600">Fully custom art, gems, 3D extras</div>
-                            <div className="mt-2">
-                              <span className="font-medium text-sm">$125</span>
-                              <span className="ml-2 text-xs text-gray-600">90 min</span>
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/custom-glam-lv.png')" }}></div>
-                          </div>
-                        </div>
-                      ) : gift.message && gift.message.includes("French Tips / Touch-Up") ? (
-                        <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center">
-                          <div className="flex-grow">
-                            <div className="font-medium text-sm">French Tips / Touch-Up</div>
-                            <div className="text-xs text-gray-600">Classic white tips or quick polish refresh</div>
-                            <div className="mt-2">
-                              <span className="font-medium text-sm">$40</span>
-                              <span className="ml-2 text-xs text-gray-600">30 min</span>
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/french-tips.png')" }}></div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-center text-muted-foreground text-xs">
-                          Style details unavailable
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pb-2">
-                  {gift.message && <p className="text-sm italic">"{gift.message}"</p>}
-                </CardContent>
-                <CardFooter className="flex justify-between items-center pt-0">
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <Calendar className="h-3 w-3 mr-1" />
-                    {new Date(gift.createdAt).toLocaleDateString()}
-                  </div>
-                  <Badge
-                    variant={gift.status === "redeemed" || gift.status === "completed" ? "outline" : "default"}
-                    className={gift.status === "redeemed" || gift.status === "completed" ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-200"}
-                  >
-                    {gift.status === "redeemed" || gift.status === "completed" ? "Redeemed" : "Pending"}
-                  </Badge>
-                </CardFooter>
+            {receivedGifts.map((gift) => {
+              const isCollapsed = collapsedGifts[gift.id] || gift.status === "delivered";
+              const isExpanded = expandedGifts[gift.id];
+              
+              // Determine if this is a delivered gift that should be collapsed by default
+              const isDelivered = gift.status === "redeemed" || gift.status === "completed" || gift.status === "delivered";
 
-                {/* Show Claim My Gift button for pending or claimed gifts/invitations */}
-                {(gift.status === "pending" || gift.status === "claimed") && (
-                  <div className="pb-4 px-6">
-                    <Button 
-                      size="default" 
-                      onClick={() => handlePreviewGift(gift)}
-                      variant="default"
-                      className="w-full font-bold tracking-wide bg-red-500 hover:bg-red-600 text-white rounded-md"
-                    >
-                      CLAIM MY GIFT
-                    </Button>
-                  </div>
-                )}
-                
-                {/* Show redeem button for non-invitation gifts that are ready to redeem */}
-                {(gift.status !== "redeemed" && gift.status !== "completed" && gift.status !== "pending" && gift.status !== "claimed" && gift.giftType !== 'invitation') && (
-                  <div className="pb-4 px-6">
-                    <Button 
-                      size="sm" 
-                      onClick={() => handleRedeemGift(gift)}
-                      disabled={redeemGiftMutation.isPending}
-                    >
-                      {redeemGiftMutation.isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : (
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                      )}
-                      Redeem Gift
-                    </Button>
-                  </div>
-                )}
-                
-                {/* Show redeemed status */}
-                {(gift.status === "redeemed" || gift.status === "completed") && (
-                  <div className="pb-2 px-6">
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <CheckCircle className="h-3 w-3 mr-1 text-green-600" />
-                      Redeemed on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : "—"}
+              return (
+                <Card 
+                  key={gift.id} 
+                  className={`relative overflow-hidden border-l-4 ${isDelivered ? "border-l-green-500" : "border-l-primary"} 
+                             ${isCollapsed && !isExpanded ? "gift-card-collapsed" : ""}`}
+                >
+                  {/* Collapsed Version */}
+                  {isCollapsed && !isExpanded && (
+                    <div className="flex justify-between items-center p-3">
+                      <div className="flex items-center">
+                        <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                        <div>
+                          <span className="text-sm font-medium">Gift from {
+                            gift.message && gift.message.includes('❤️') 
+                              ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
+                              : gift.message && gift.message.includes('Annie')
+                                ? 'Annie'
+                                : gift.senderName || "Ellen"
+                          }</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <Badge className="bg-green-100 text-green-800 border-green-300 mr-2">
+                          DELIVERED
+                        </Badge>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="p-1"
+                          onClick={() => toggleGiftExpand(gift.id)}
+                        >
+                          <span className="text-xs text-blue-600">Show</span>
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </Card>
-            ))}
+                  )}
+                  
+                  {/* Expanded Version */}
+                  {(!isCollapsed || isExpanded) && (
+                    <>
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between">
+                          <div>
+                            <CardTitle className="text-lg">
+                              From: {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
+                              {gift.message && gift.message.includes('❤️') 
+                                ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
+                                : gift.message && gift.message.includes('Annie')
+                                  ? 'Annie'
+                                  : gift.senderName || "Ellen"}
+                            </CardTitle>
+                            <CardDescription>
+                              {gift.amount > 0 && <>{formatCurrency(gift.amount / 100)}</>}
+                              {gift.salonId && gift.salonName && (
+                                <div className="mt-1">At: <a 
+                                  href={`/salon/${gift.salonId}`} 
+                                  className="text-pink-600 hover:underline"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    window.location.href = `/salon/${gift.salonId}`;
+                                  }}
+                                >
+                                  {gift.salonName || "Tiffany 5280 Nails Studio"}
+                                </a>
+                                </div>
+                              )}
+                            </CardDescription>
+                          </div>
+                          
+                          {/* Style card display */}
+                          <div className="w-full mt-3 flex justify-end">
+                            {gift.message && gift.message.includes("Glam Me! Custom Design") ? (
+                              <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center">
+                                <div className="flex-grow">
+                                  <div className="font-medium text-sm">Glam Me! Custom Design</div>
+                                  <div className="text-xs text-gray-600">Fully custom art, gems, 3D extras</div>
+                                  <div className="mt-2">
+                                    <span className="font-medium text-sm">$125</span>
+                                    <span className="ml-2 text-xs text-gray-600">90 min</span>
+                                  </div>
+                                </div>
+                                <div className="ml-4">
+                                  <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/custom-glam-lv.png')" }}></div>
+                                </div>
+                              </div>
+                            ) : gift.message && gift.message.includes("French Tips / Touch-Up") ? (
+                              <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center">
+                                <div className="flex-grow">
+                                  <div className="font-medium text-sm">French Tips / Touch-Up</div>
+                                  <div className="text-xs text-gray-600">Classic white tips or quick polish refresh</div>
+                                  <div className="mt-2">
+                                    <span className="font-medium text-sm">$40</span>
+                                    <span className="ml-2 text-xs text-gray-600">30 min</span>
+                                  </div>
+                                </div>
+                                <div className="ml-4">
+                                  <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/french-tips.png')" }}></div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-center text-muted-foreground text-xs">
+                                Style details unavailable
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pb-2">
+                        {gift.message && <p className="text-sm italic">"{gift.message}"</p>}
+                      </CardContent>
+                      <CardFooter className="flex justify-between items-center pt-0">
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {new Date(gift.createdAt).toLocaleDateString()}
+                        </div>
+                        <Badge
+                          variant={isDelivered ? "outline" : "default"}
+                          className={isDelivered ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-200"}
+                        >
+                          {isDelivered ? "DELIVERED" : "Pending"}
+                        </Badge>
+                      </CardFooter>
+                      
+                      {/* Additional actions */}
+                      <div className="pb-4 px-6 flex justify-between">
+                        {/* Show Claim My Gift button for pending or claimed gifts/invitations */}
+                        {(gift.status === "pending" || gift.status === "claimed") && (
+                          <Button 
+                            size="default" 
+                            onClick={() => handlePreviewGift(gift)}
+                            variant="default"
+                            className="w-full font-bold tracking-wide bg-red-500 hover:bg-red-600 text-white rounded-md"
+                          >
+                            CLAIM MY GIFT
+                          </Button>
+                        )}
+                        
+                        {/* Show redeem button for non-invitation gifts that are ready to redeem */}
+                        {(gift.status !== "redeemed" && gift.status !== "completed" && gift.status !== "pending" && 
+                          gift.status !== "claimed" && gift.status !== "delivered" && gift.giftType !== 'invitation') && (
+                          <Button 
+                            size="sm" 
+                            onClick={() => handleRedeemGift(gift)}
+                            disabled={redeemGiftMutation.isPending}
+                          >
+                            {redeemGiftMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : (
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                            )}
+                            Redeem Gift
+                          </Button>
+                        )}
+                        
+                        {/* Show delivered status */}
+                        {isDelivered && (
+                          <>
+                            <div className="flex items-center text-xs text-green-600">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Delivered on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : new Date().toLocaleDateString()}
+                            </div>
+                            
+                            {isExpanded && (
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="ml-2"
+                                onClick={() => toggleGiftExpand(gift.id)}
+                              >
+                                <span className="text-xs text-blue-600">Hide</span>
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </Card>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
