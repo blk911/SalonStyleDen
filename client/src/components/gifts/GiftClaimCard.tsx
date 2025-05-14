@@ -288,10 +288,10 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
           <DialogHeader>
             <DialogTitle className="text-center text-2xl font-bold flex items-center justify-center gap-2 text-pink-600">
               <CheckCircle className="h-7 w-7 text-green-500" />
-              GIFT DELIVERED
+              GIFT DELIVERED SUCCESSFULLY
             </DialogTitle>
             <DialogDescription className="text-center pt-2 text-base">
-              Your gift has been successfully claimed and is now available in your account.
+              Your gift has been successfully claimed. Would you like to complete your registration now?
             </DialogDescription>
           </DialogHeader>
           
@@ -330,10 +330,23 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
             </div>
           </div>
           
-          <DialogFooter className="flex flex-col sm:flex-row sm:justify-center">
+          <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-3">
             <Button 
-              className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3"
               size="lg"
+              onClick={() => {
+                setShowSuccessDialog(false);
+                // Redirect to registration page
+                window.location.href = "/register";
+              }}
+            >
+              Complete Registration
+            </Button>
+            
+            <Button 
+              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3"
+              size="lg"
+              variant="outline"
               onClick={() => {
                 setShowSuccessDialog(false);
                 if (onGiftClaimed) {
@@ -342,7 +355,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
                 }
               }}
             >
-              Back to Dashboard
+              Later
             </Button>
           </DialogFooter>
         </DialogContent>
