@@ -371,10 +371,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       
                       {/* Additional actions */}
                       <div className="pb-4 px-6 flex justify-between">
-                        {/* Show Claim My Gift button for pending or claimed gifts/invitations 
-                            - ONLY show if not delivered/completed */}
-                        {(gift.status === "pending" || gift.status === "claimed") && 
-                         !isDelivered && !collapsedGifts[gift.id] && (
+                        {/* Show Claim My Gift button for pending or claimed gifts/invitations */}
+                        {(gift.status === "pending" || gift.status === "claimed") && (
                           <Button 
                             size="default" 
                             onClick={() => handlePreviewGift(gift)}
@@ -404,26 +402,23 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         
                         {/* Show delivered status */}
                         {isDelivered && (
-                          <div className="flex justify-between w-full">
+                          <>
                             <div className="flex items-center text-xs text-green-600">
                               <CheckCircle className="h-3 w-3 mr-1" />
                               Delivered on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : new Date().toLocaleDateString()}
                             </div>
                             
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="ml-2"
-                              onClick={() => {
-                                toggleGiftExpand(gift.id); 
-                                if (!isExpanded) {
-                                  toggleGiftCollapse(gift.id);
-                                }
-                              }}
-                            >
-                              <span className="text-xs text-blue-600">{isExpanded ? "Hide" : "Show"}</span>
-                            </Button>
-                          </div>
+                            {isExpanded && (
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="ml-2"
+                                onClick={() => toggleGiftExpand(gift.id)}
+                              >
+                                <span className="text-xs text-blue-600">Hide</span>
+                              </Button>
+                            )}
+                          </>
                         )}
                       </div>
                     </>
