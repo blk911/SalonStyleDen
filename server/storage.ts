@@ -98,6 +98,7 @@ export interface IStorage {
   getGiftsByRecipientPhone(phone: string, status?: string): Promise<Gift[]>;
   getSentGifts(senderId: number): Promise<Gift[]>;
   getReceivedGifts(recipientId: number): Promise<Gift[]>;
+  deleteGift(id: number): Promise<boolean>;
   updateGift(id: number, updateData: Partial<Gift>): Promise<Gift>;
   updateGiftStatus(id: number, status: string): Promise<Gift>;
   checkUnredeemedGiftByPhone(phone: string): Promise<{hasUnredeemedGift: boolean, gift?: Gift}>;
