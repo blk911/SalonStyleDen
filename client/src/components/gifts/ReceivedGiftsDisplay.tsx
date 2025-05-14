@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -125,6 +125,21 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       });
     }
   });
+
+  // Auto-collapse delivered gifts when they load
+  useEffect(() => {
+    if (receivedGifts && receivedGifts.length > 0) {
+      const newCollapsedState = { ...collapsedGifts };
+      
+      receivedGifts.forEach(gift => {
+        if (gift.status === "delivered" || gift.status === "redeemed" || gift.status === "completed") {
+          newCollapsedState[gift.id] = true;
+        }
+      });
+      
+      setCollapsedGifts(newCollapsedState);
+    }
+  }, [receivedGifts]);
 
   const handleRedeemGift = (gift: ReceivedGift) => {
     setSelectedGift(gift);
@@ -308,7 +323,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                           className="p-1"
                           onClick={() => toggleGiftExpand(gift.id)}
                         >
-                          <span className="text-xs text-blue-600">Show</span>
+                          <span className="text-xs text-blue-600">Show/Hide</span>
                         </Button>
                       </div>
                     </div>
@@ -337,7 +352,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                                   className="p-1 text-xs text-blue-600"
                                   onClick={() => toggleGiftExpand(gift.id)}
                                 >
-                                  Hide
+                                  Show/Hide
                                 </Button>
                               )}
                             </div>
