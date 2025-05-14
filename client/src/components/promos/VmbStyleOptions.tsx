@@ -37,6 +37,7 @@ import { useMediaQuery } from 'react-responsive';
 import { RenderedInvitation } from '@/components/invitations/RenderedInvitation';
 import { useContactValidation } from '@/hooks/use-contact-validation';
 import { ContactValidationDialog } from '@/components/ui/ContactValidationDialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 interface StyleOption {
   id: number;
@@ -140,6 +141,7 @@ export function VmbStyleOptions({
   const [showFinalInvitationModal, setShowFinalInvitationModal] = useState(false);
   const [finalInvitationId, setFinalInvitationId] = useState("");
   const [invitationSubmitted, setInvitationSubmitted] = useState(false); // Track if invitation has been submitted
+  const [showRegistrationDialog, setShowRegistrationDialog] = useState(false); // For "Complete Registration" dialog
   const personalMessageRef = useRef<HTMLInputElement>(null); // Reference for personal message input
   const { toast } = useToast();
   const [, navigate] = useLocation();
@@ -1469,7 +1471,7 @@ export function VmbStyleOptions({
                       // Mark invitation as submitted to prevent duplicates
                       setInvitationSubmitted(true);
                       
-                      // Close the modal
+                      // Close the invitation modal
                       setShowFinalInvitationModal(false);
                       
                       // Show success toast
@@ -1479,20 +1481,8 @@ export function VmbStyleOptions({
                         variant: "default"
                       });
                       
-                      // For a salon-initiated invitation, navigate to the salon dashboard
-                      // to see the pending invitation immediately
-                      if (salonId) {
-                        if (salonInitiated) {
-                          // Force reload to refresh the dashboard with the new invitation
-                          navigate(`/dashboard/salon/${salonId}`);
-                          
-                          // Refresh the page to make sure the dashboard shows the latest invitations
-                          setTimeout(() => window.location.reload(), 500); // Delayed reload to allow API time to complete
-                        } else {
-                          // For client-initiated invitations, go back to the salon public page
-                          navigate(`/salon/${salonId}`);
-                        }
-                      }
+                      // Show the registration completion dialog
+                      setShowRegistrationDialog(true);
                     } catch (error) {
                       console.error("[FLOW][ERROR] Failed to send invitation:", error);
                       
@@ -1527,6 +1517,54 @@ export function VmbStyleOptions({
           contactType={validatedContactType}
           contactValue={validatedContact}
         />
+        
+        {/* Registration Completion Dialog */}
+        <AlertDialog open={showRegistrationDialog} onOpenChange={setShowRegistrationDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-xl font-bold text-center">
+                Complete Your Registration
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-center">
+                Your gift request has been sent! Would you like to complete your registration now? 
+                This will allow you to track your invitations and gifts.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex justify-center gap-3">
+              <AlertDialogCancel 
+                className="bg-gray-200 hover:bg-gray-300 text-gray-800"
+                onClick={() => {
+                  // Redirect to salon dashboard if this is a salon-initiated invitation
+                  if (salonId && salonInitiated) {
+                    navigate(`/dashboard/salon/${salonId}`);
+                    
+                    // Refresh the page to make sure the dashboard shows the latest invitations
+                    setTimeout(() => window.location.reload(), 500);
+                  } else if (salonId) {
+                    // For client-initiated invitations, go back to the salon public page
+                    navigate(`/salon/${salonId}`);
+                  }
+                }}
+              >
+                Later
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                className="bg-pink-500 hover:bg-pink-600"
+                onClick={() => {
+                  // Redirect to client registration form with proper parameters
+                  if (salonId) {
+                    navigate(`/register/client?salonId=${salonId}&invitationSource=gift`);
+                  } else {
+                    // Fallback to default salon if none provided
+                    navigate(`/register/client?salonId=2&invitationSource=gift`);
+                  }
+                }}
+              >
+                Finish
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
