@@ -330,7 +330,13 @@ export default function GiftRedemptionPage() {
               {redeemedGift.message && (
                 <p className="mt-2 italic text-sm">"{redeemedGift.message}"</p>
               )}
-              <p className="mt-2 text-sm">From: {redeemedGift.senderName || "A VMB Client"}</p>
+              <p className="mt-2 text-sm">From: {
+                redeemedGift.message && redeemedGift.message.includes('❤️') 
+                  ? redeemedGift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
+                  : redeemedGift.message && redeemedGift.message.includes('Annie')
+                    ? 'Annie'
+                    : redeemedGift.senderName || "A VMB Client"
+              }</p>
             </div>
             
             <Alert>
@@ -369,7 +375,13 @@ export default function GiftRedemptionPage() {
             {gift.message && (
               <p className="mt-2 italic text-sm">"{gift.message}"</p>
             )}
-            <p className="mt-2 text-sm">From: {gift.senderName || "A VMB Client"}</p>
+            <p className="mt-2 text-sm">From: {
+              gift.message && gift.message.includes('❤️') 
+                ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
+                : gift.message && gift.message.includes('Annie')
+                  ? 'Annie'
+                  : gift.senderName || "A VMB Client"
+            }</p>
             {gift.salonName && (
               <p className="mt-1 text-xs text-muted-foreground">At: {gift.salonName}</p>
             )}
@@ -390,9 +402,17 @@ export default function GiftRedemptionPage() {
                           placeholder="(555) 123-4567" 
                           {...field} 
                           onChange={(e) => {
-                            field.onChange(e);
-                            handlePhoneChange(e.target.value);
+                            // Format the phone number as the user types
+                            const input = e.target.value;
+                            const formattedInput = formatPhoneNumber(input);
+                            field.onChange({
+                              ...e,
+                              target: { ...e.target, value: formattedInput }
+                            });
+                            handlePhoneChange(formattedInput);
                           }}
+                          pattern="(\([0-9]{3}\) [0-9]{3}-[0-9]{4}|\([0-9]{3}\) [0-9]{3}|[0-9]{10}|\([0-9]{3}\))"
+                          maxLength={14} // (XXX) XXX-XXXX = 14 characters
                         />
                       </div>
                     </FormControl>

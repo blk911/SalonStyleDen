@@ -185,7 +185,13 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
             
             <div className="mt-3 grid grid-cols-2 gap-x-2 text-sm">
               <div>
-                <span className="text-gray-500">From:</span> <span className="font-medium">{gift.senderName || "Ellen"}</span>
+                <span className="text-gray-500">From:</span> <span className="font-medium">
+                  {gift.message && gift.message.includes('❤️') 
+                    ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
+                    : gift.message && gift.message.includes('Annie')
+                      ? 'Annie'
+                      : gift.senderName || "Ellen"}
+                </span>
               </div>
               <div>
                 <span className="text-gray-500">At:</span> <span className="font-medium">
@@ -217,8 +223,15 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
                   id="phone" 
                   placeholder="(555) 123-4567"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => {
+                    // Format the phone number as the user types
+                    const input = e.target.value;
+                    const formattedInput = formatPhoneNumber(input);
+                    setPhone(formattedInput);
+                  }}
                   className="redemption-input-field"
+                  pattern="(\([0-9]{3}\) [0-9]{3}-[0-9]{4}|\([0-9]{3}\) [0-9]{3}|[0-9]{10}|\([0-9]{3}\))"
+                  maxLength={14} // (XXX) XXX-XXXX = 14 characters
                 />
               </div>
               <p className="text-xs text-gray-500">Enter your phone number to match with the sender's contact</p>
@@ -287,7 +300,13 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
               </p>
               <div className="text-sm text-center mt-3 space-y-2">
                 <p className="text-gray-700">
-                  From: <span className="font-semibold text-black">{gift.senderName || "Ellen"}</span>
+                  From: <span className="font-semibold text-black">
+                    {gift.message && gift.message.includes('❤️') 
+                      ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
+                      : gift.message && gift.message.includes('Annie')
+                        ? 'Annie'
+                        : gift.senderName || "Ellen"}
+                  </span>
                 </p>
                 {gift.salonId && (
                   <p className="text-gray-700">
