@@ -221,7 +221,14 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                 <CardHeader className="pb-2">
                   <div className="flex justify-between">
                     <div>
-                      <CardTitle className="text-lg">{gift.senderName || "Ellen"}</CardTitle>
+                      <CardTitle className="text-lg">
+                        {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
+                        {gift.message && gift.message.includes('❤️') 
+                          ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
+                          : gift.message && gift.message.includes('Annie')
+                            ? 'Annie'
+                            : gift.senderName || "Ellen"}
+                      </CardTitle>
                       <CardDescription>
                         {gift.amount > 0 && <>{formatCurrency(gift.amount / 100)}</>}
                         {gift.salonId && gift.salonName && (
@@ -408,7 +415,14 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                 <div className="mt-4 w-full space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-gray-500">From:</span> 
-                    <span className="font-medium text-right">{selectedGift.senderName || "Ellen"}</span>
+                    <span className="font-medium text-right">
+                      {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
+                      {selectedGift.message && selectedGift.message.includes('❤️') 
+                        ? selectedGift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
+                        : selectedGift.message && selectedGift.message.includes('Annie')
+                          ? 'Annie'
+                          : selectedGift.senderName || "Ellen"}
+                    </span>
                   </div>
                   
                   {selectedGift.salonId && (
