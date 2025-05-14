@@ -152,15 +152,44 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   const handleGiftClaimed = () => {
     setShowGiftClaimForm(false);
     setGiftToClaim(null);
-    // Mark the gift as collapsed when claimed
+    
+    // Mark the gift as delivered and collapsed when claimed
     if (giftToClaim) {
+      // Set the gift as collapsed in UI
       setCollapsedGifts(prev => ({
         ...prev,
         [giftToClaim.id]: true
       }));
+      
+      // Update the status to "delivered" in the database
+      fetch(`/api/gifts/${giftToClaim.id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          status: "delivered"
+        })
+      })
+      .then(response => {
+        if (!response.ok) {
+          console.error("Failed to mark gift as delivered");
+        }
+      })
+      .catch(error => {
+        console.error("Error updating gift status:", error);
+      });
     }
+    
     // Refresh the gifts list
     queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
+    
+    // Show success toast
+    toast({
+      title: "Gift Delivered!",
+      description: "The gift has been marked as delivered and will now appear in collapsed view.",
+      variant: "default",
+    });
   };
   
   const toggleGiftCollapse = (giftId: number) => {
@@ -289,14 +318,27 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       <CardHeader className="pb-2">
                         <div className="flex justify-between">
                           <div>
-                            <CardTitle className="text-lg">
-                              From: {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
-                              {gift.message && gift.message.includes('❤️') 
-                                ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
-                                : gift.message && gift.message.includes('Annie')
-                                  ? 'Annie'
-                                  : gift.senderName || "Ellen"}
-                            </CardTitle>
+                            <div className="flex justify-between items-center">
+                              <CardTitle className="text-lg">
+                                From: {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
+                                {gift.message && gift.message.includes('❤️') 
+                                  ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
+                                  : gift.message && gift.message.includes('Annie')
+                                    ? 'Annie'
+                                    : gift.senderName || "Ellen"}
+                              </CardTitle>
+                              {/* Add Hide button in expanded view */}
+                              {isExpanded && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="p-1 text-xs text-blue-600"
+                                  onClick={() => toggleGiftExpand(gift.id)}
+                                >
+                                  Hide
+                                </Button>
+                              )}
+                            </div>
                             <CardDescription>
                               {gift.amount > 0 && <>{formatCurrency(gift.amount / 100)}</>}
                               {gift.salonId && gift.salonName && (
@@ -407,17 +449,6 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                               <CheckCircle className="h-3 w-3 mr-1" />
                               Delivered on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : new Date().toLocaleDateString()}
                             </div>
-                            
-                            {isExpanded && (
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="ml-2"
-                                onClick={() => toggleGiftExpand(gift.id)}
-                              >
-                                <span className="text-xs text-blue-600">Hide</span>
-                              </Button>
-                            )}
                           </>
                         )}
                       </div>
