@@ -177,7 +177,7 @@ export default function AdminDashboard() {
   const [invitationsOpen, setInvitationsOpen] = useState(true);
   const [clientsOpen, setClientsOpen] = useState(true);
   const [activityLogsOpen, setActivityLogsOpen] = useState(true);
-  const [salonDirectoryOpen, setSalonDirectoryOpen] = useState(true);
+  const [salonDirectoryOpen, setSalonDirectoryOpen] = useState(false);
   const [giftRequestsOpen, setGiftRequestsOpen] = useState(true);
   
   // State to track which salon details are expanded (initially all closed)
@@ -734,7 +734,7 @@ export default function AdminDashboard() {
             
             {/* Salons with collapsible entries */}
             {!salonIsLoading && !salonError && salons && salons.length > 0 && (
-              <ScrollArea className="h-[400px] mt-2">
+              <ScrollArea className="h-[280px] mt-2">
                 <div className="space-y-3">
                   {salons.map((salon: Salon) => (
                     <div key={salon.id} className="border rounded-md overflow-hidden">
