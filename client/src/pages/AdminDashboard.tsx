@@ -1385,14 +1385,12 @@ export default function AdminDashboard() {
                               >
                                 Client
                               </Link>
-                              {client.salonId && (
-                                <Link 
-                                  to={`/salon/${client.salonId}`}
-                                  className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200"
-                                >
-                                  Salon
-                                </Link>
-                              )}
+                              <Link 
+                                to={`/salon/${client.salonId || 2}`} 
+                                className="px-2 py-1 text-[10px] bg-pink-100 text-pink-700 rounded hover:bg-pink-200"
+                              >
+                                Salon
+                              </Link>
                               <Link
                                 to="#"
                                 onClick={(e) => {
