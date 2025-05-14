@@ -139,6 +139,7 @@ export function VmbStyleOptions({
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showFinalInvitationModal, setShowFinalInvitationModal] = useState(false);
   const [finalInvitationId, setFinalInvitationId] = useState("");
+  const [invitationSubmitted, setInvitationSubmitted] = useState(false); // Track if invitation has been submitted
   const personalMessageRef = useRef<HTMLInputElement>(null); // Reference for personal message input
   const { toast } = useToast();
   const [, navigate] = useLocation();
@@ -1366,7 +1367,21 @@ export function VmbStyleOptions({
                 <Button 
                   type="button"
                   className={`w-full sm:w-auto ${salonInitiated ? 'bg-amber-500 hover:bg-amber-600' : 'bg-pink-500 hover:bg-pink-600'} text-white font-medium`}
+                  disabled={invitationSubmitted || isSubmitting}
                   onClick={async () => {
+                    // Prevent multiple submissions
+                    if (invitationSubmitted) {
+                      toast({
+                        title: "Invitation Already Sent",
+                        description: "This invitation has already been sent. Please return to the salon page.",
+                        variant: "default"
+                      });
+                      return;
+                    }
+                    
+                    // Set submitting state to prevent double-clicks
+                    setIsSubmitting(true);
+                    
                     // Basic validation before sending
                     if (!recipientContact || recipientContact.length < 10) {
                       toast({
