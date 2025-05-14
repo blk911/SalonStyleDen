@@ -1466,6 +1466,9 @@ export function VmbStyleOptions({
                       const result = await response.json();
                       console.log("[FLOW][VmbStyleOptions] Invitation sent successfully:", result);
                       
+                      // Mark invitation as submitted to prevent duplicates
+                      setInvitationSubmitted(true);
+                      
                       // Close the modal
                       setShowFinalInvitationModal(false);
                       
@@ -1503,6 +1506,9 @@ export function VmbStyleOptions({
                         description: errorMessage,
                         variant: "destructive"
                       });
+                      
+                      // Reset submission states to allow retrying
+                      setIsSubmitting(false);
                     }
                   }}
                 >
