@@ -2275,15 +2275,62 @@ export class DatabaseStorage implements IStorage {
         return [];
       }
       
-      // Query by sender ID
-      const results = await db
+      // 1. Get direct gifts sent by this client
+      const giftResults = await db
         .select()
         .from(gifts)
         .where(eq(gifts.senderId, senderId))
         .orderBy(sql`${gifts.createdAt} DESC`);
       
-      console.log(`DatabaseStorage.getSentGifts - Found ${results.length} gifts`);
-      return results;
+      console.log(`DatabaseStorage.getSentGifts - Found ${giftResults.length} direct gifts`);
+      
+      // 2. Get invitations sent by this client
+      const invitationQuery = `
+        SELECT * FROM invitations 
+        WHERE sender_id = $1
+        ORDER BY created_at DESC
+      `;
+      
+      const { rows: invitationRows } = await db.execute(invitationQuery, [senderId]);
+      
+      console.log(`DatabaseStorage.getSentGifts - Found ${invitationRows.length} invitations`);
+      
+      // Convert invitations to gift-like objects for frontend compatibility
+      const invitationGifts = invitationRows.map(inv => {
+        return {
+          id: inv.id,
+          senderId: senderId,
+          senderName: client.name,
+          recipientId: null,
+          recipientPhone: inv.phone,
+          recipientEmail: inv.email,
+          recipientName: inv.name,
+          giftType: 'invitation',
+          styleId: null,
+          styleName: inv.style_option || null,
+          amount: inv.style_price || 0,
+          message: inv.message || null,
+          status: inv.status || 'pending',
+          giftHash: inv.invite_hash || null,
+          createdAt: inv.created_at,
+          expiresAt: null,
+          redeemedAt: null,
+          salonId: inv.salon_id || null,
+          salonName: inv.salon_name || null
+        } as Gift;
+      });
+      
+      // Combine both types of gifts
+      const combinedResults = [...giftResults, ...invitationGifts];
+      
+      // Sort by creation date, most recent first
+      combinedResults.sort((a, b) => {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      
+      console.log(`DatabaseStorage.getSentGifts - Returning ${combinedResults.length} total items (${giftResults.length} gifts + ${invitationGifts.length} invitations)`);
+      
+      return combinedResults;
     } catch (error) {
       console.error(`Error getting sent gifts:`, error);
       throw error;
