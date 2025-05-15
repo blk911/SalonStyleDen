@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +49,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   const [giftToClaim, setGiftToClaim] = useState<ReceivedGift | null>(null);
   const [collapsedGifts, setCollapsedGifts] = useState<Record<number, boolean>>({});
   const [expandedGifts, setExpandedGifts] = useState<Record<number, boolean>>({});
+  const [showAllDelivered, setShowAllDelivered] = useState(false);
   const { toast } = useToast();
 
   // Fetch received gifts
@@ -85,6 +86,30 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     enabled: !!clientId,
   });
 
+  // Initialize the default collapsed state for delivered gifts when data loads
+  useEffect(() => {
+    if (receivedGifts) {
+      // Find all delivered gifts that should be collapsed by default
+      const deliveredGifts = receivedGifts.filter(
+        gift => gift.status === "delivered" || 
+                gift.status === "redeemed" || 
+                gift.status === "completed"
+      );
+      
+      if (deliveredGifts.length > 0) {
+        // Create a record of which gifts should be collapsed by default
+        const defaultCollapsedState = { ...collapsedGifts };
+        deliveredGifts.forEach(gift => {
+          // Only set the default state if we don't have an explicit setting already
+          if (defaultCollapsedState[gift.id] === undefined) {
+            defaultCollapsedState[gift.id] = true;
+          }
+        });
+        setCollapsedGifts(defaultCollapsedState);
+      }
+    }
+  }, [receivedGifts]);
+  
   // Mutation for redeeming a gift
   const redeemGiftMutation = useMutation({
     mutationFn: async (giftId: number) => {
@@ -154,7 +179,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     
     // Mark the gift as delivered and collapsed when claimed
     if (giftToClaim) {
-      // Set the gift as collapsed in UI immediately for a responsive feel
+      // Set the gift as collapsed in UI
       setCollapsedGifts(prev => ({
         ...prev,
         [giftToClaim.id]: true
@@ -173,11 +198,6 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       .then(response => {
         if (!response.ok) {
           console.error("Failed to mark gift as delivered");
-          toast({
-            title: "Error",
-            description: "Failed to update gift status. Please try again.",
-            variant: "destructive",
-          });
         } else {
           // Show success toast
           toast({
@@ -192,11 +212,6 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       })
       .catch(error => {
         console.error("Error updating gift status:", error);
-        toast({
-          title: "Error",
-          description: "There was a problem updating the gift status.",
-          variant: "destructive",
-        });
       });
     }
     
@@ -218,30 +233,53 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     }));
   };
   
-  // Automatically collapse delivered gifts when data is loaded or changes
-  useEffect(() => {
-    if (receivedGifts && receivedGifts.length > 0) {
-      // Find gifts that should be collapsed by default (delivered, redeemed, or completed)
+  // Site-wide function to toggle all delivered gifts at once
+  const toggleAllDeliveredGifts = () => {
+    setShowAllDelivered(prev => !prev);
+    
+    if (receivedGifts) {
+      // Get all delivered gift IDs
       const deliveredGiftIds = receivedGifts
         .filter(gift => 
           gift.status === "delivered" || 
           gift.status === "redeemed" || 
-          gift.status === "completed")
+          gift.status === "completed"
+        )
         .map(gift => gift.id);
       
-      if (deliveredGiftIds.length > 0) {
+      // If we're about to show all delivered gifts
+      if (!showAllDelivered) {
+        // Remove all of these gifts from the collapsed state
         const newCollapsedState = { ...collapsedGifts };
+        deliveredGiftIds.forEach(id => {
+          delete newCollapsedState[id];
+        });
+        setCollapsedGifts(newCollapsedState);
         
-        // Set all delivered gifts to collapsed state
+        // Add them all to expanded state
+        const newExpandedState = { ...expandedGifts };
+        deliveredGiftIds.forEach(id => {
+          newExpandedState[id] = true;
+        });
+        setExpandedGifts(newExpandedState);
+      } else {
+        // If we're about to hide all delivered gifts
+        // Add all of these gifts to the collapsed state
+        const newCollapsedState = { ...collapsedGifts };
         deliveredGiftIds.forEach(id => {
           newCollapsedState[id] = true;
         });
-        
         setCollapsedGifts(newCollapsedState);
+        
+        // Remove them from expanded state
+        const newExpandedState = { ...expandedGifts };
+        deliveredGiftIds.forEach(id => {
+          delete newExpandedState[id];
+        });
+        setExpandedGifts(newExpandedState);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [receivedGifts]);
+  };
 
   if (showGiftClaimForm && giftToClaim) {
     return (
@@ -300,20 +338,43 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     <>
       <Card className="w-full">
         <CardHeader className="bg-yellow-50 pb-3 pt-3">
-          <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
-          <CardDescription className="text-xs mt-1">Gifts and invitations sent to you</CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
+              <CardDescription className="text-xs mt-1">Gifts and invitations sent to you</CardDescription>
+            </div>
+            
+            {/* Site-wide toggle for showing/hiding all delivered gifts */}
+            {receivedGifts.some(gift => 
+              gift.status === "delivered" || 
+              gift.status === "redeemed" || 
+              gift.status === "completed"
+            ) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleAllDeliveredGifts}
+                className="text-xs px-2 py-1 h-8 bg-white hover:bg-gray-50"
+              >
+                {showAllDelivered ? "Hide Delivered" : "Show Delivered"}
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {receivedGifts.map((gift) => {
-              // Determine if this is a delivered gift that should be collapsed by default
+              // Determine if this is a delivered gift
               const isDelivered = gift.status === "redeemed" || gift.status === "completed" || gift.status === "delivered";
               
-              // A gift is collapsed if it's either manually collapsed or has delivered status
-              const isCollapsed = collapsedGifts[gift.id] || isDelivered;
+              // Calculate collapsed state based on:
+              // 1. Individual gift collapsed state (from collapsedGifts state)
+              // 2. Default behavior for delivered gifts (collapsed unless specifically expanded)
+              // 3. Override by the site-wide showAllDelivered toggle
+              const isCollapsed = (collapsedGifts[gift.id] || (isDelivered && !showAllDelivered));
               
-              // A gift is expanded if the user clicked to expand it (overrides collapsed state)
-              const isExpanded = expandedGifts[gift.id];
+              // A gift is expanded if it's in the expandedGifts state OR if showAllDelivered is true for delivered gifts
+              const isExpanded = expandedGifts[gift.id] || (isDelivered && showAllDelivered);
 
               return (
                 <Card 
