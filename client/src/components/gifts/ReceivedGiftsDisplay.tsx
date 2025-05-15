@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -104,7 +104,15 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Automatically collapse redeemed gifts
+      if (data && data.id) {
+        setCollapsedGifts(prev => ({
+          ...prev,
+          [data.id]: true
+        }));
+      }
+      
       queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
       toast({
         title: "Gift redeemed successfully!",
@@ -125,6 +133,25 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       });
     }
   });
+  
+  // Auto-collapse gifts that are already in delivered/redeemed/completed status
+  useEffect(() => {
+    if (receivedGifts) {
+      const deliveredGifts = receivedGifts.filter(
+        gift => gift.status === "delivered" || 
+               gift.status === "redeemed" || 
+               gift.status === "completed"
+      );
+      
+      if (deliveredGifts.length > 0) {
+        const newCollapsedState = { ...collapsedGifts };
+        deliveredGifts.forEach(gift => {
+          newCollapsedState[gift.id] = true;
+        });
+        setCollapsedGifts(newCollapsedState);
+      }
+    }
+  }, [receivedGifts]);
 
   const handleRedeemGift = (gift: ReceivedGift) => {
     setSelectedGift(gift);
