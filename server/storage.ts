@@ -2515,21 +2515,40 @@ export class DatabaseStorage implements IStorage {
       
       // Enhance gifts with sender information
       const giftsWithSenderInfo = await Promise.all(pendingGifts.map(async gift => {
+        let updatedGift = { ...gift };
+        
+        // Case 1: Gift sent by a client
         if (gift.senderId) {
           try {
             const sender = await this.getClient(gift.senderId);
             if (sender) {
-              return {
-                ...gift,
+              updatedGift = {
+                ...updatedGift,
                 senderName: sender.name,
                 senderPhone: sender.phone
               };
             }
           } catch (error) {
-            console.error(`Error fetching sender for gift ${gift.id}:`, error);
+            console.error(`Error fetching client sender info for gift ${gift.id}:`, error);
+          }
+        } 
+        // Case 2: Gift is an invitation from a salon (giftType = 'invitation')
+        else if (gift.giftType === 'invitation' && gift.salonId) {
+          try {
+            const salon = await this.getSalon(gift.salonId);
+            if (salon) {
+              updatedGift = {
+                ...updatedGift,
+                senderName: salon.name,
+                senderId: salon.id // Add salon ID as senderId for proper linking
+              };
+            }
+          } catch (error) {
+            console.error(`Error fetching salon sender info for invitation gift ${gift.id}:`, error);
           }
         }
-        return gift;
+        
+        return updatedGift;
       }));
       
       return giftsWithSenderInfo;
