@@ -2504,7 +2504,6 @@ export class DatabaseStorage implements IStorage {
     try {
       console.log(`DatabaseStorage.getPendingGifts - Fetching ${limit} pending gift requests`);
       
-      // Get regular pending gifts from the gifts table
       const pendingGifts = await db
         .select()
         .from(gifts)
@@ -2512,76 +2511,9 @@ export class DatabaseStorage implements IStorage {
         .orderBy(sql`${gifts.createdAt} DESC`)
         .limit(limit);
       
-      console.log(`DatabaseStorage.getPendingGifts - Found ${pendingGifts.length} direct pending gifts`);
+      console.log(`DatabaseStorage.getPendingGifts - Found ${pendingGifts.length} pending gifts`);
       
-      // Also get client invitations that should be treated as gift requests
-      // These are invitations of type 'client_to_friend'
-      const clientGiftInvitations = await db
-        .select()
-        .from(invitations)
-        .where(eq(invitations.type, 'client_to_friend'))
-        .where(eq(invitations.status, 'pending'))
-        .orderBy(sql`${invitations.createdAt} DESC`)
-        .limit(limit);
-      
-      console.log(`DatabaseStorage.getPendingGifts - Found ${clientGiftInvitations.length} client gift invitations`);
-      
-      // Convert invitations to the Gift format since the admin panel expects Gift objects
-      const invitationsAsGifts = await Promise.all(clientGiftInvitations.map(async invitation => {
-        // Find the sender client information if available
-        let senderName = "Unknown";
-        let senderPhone = "";
-        
-        if (invitation.senderId) {
-          try {
-            const sender = await this.getClient(invitation.senderId);
-            if (sender) {
-              senderName = sender.name;
-              senderPhone = sender.phone;
-            }
-          } catch (error) {
-            console.error(`Error fetching sender for invitation ${invitation.id}:`, error);
-          }
-        }
-        
-        // Find salon information
-        let salonName = invitation.sponsorName || "Unknown Salon";
-        try {
-          const salon = await this.getSalon(invitation.salonId);
-          if (salon) {
-            salonName = salon.name;
-          }
-        } catch (error) {
-          console.error(`Error fetching salon for invitation ${invitation.id}:`, error);
-        }
-        
-        // Convert invitation to Gift format
-        return {
-          id: invitation.id,
-          senderId: invitation.senderId || 0,
-          senderName: senderName,
-          senderPhone: senderPhone,
-          recipientId: null,
-          recipientPhone: invitation.phone,
-          recipientEmail: invitation.email || "",
-          recipientName: invitation.name,
-          giftType: "invitation",
-          styleId: null,
-          styleName: invitation.styleOption || null,
-          amount: invitation.stylePrice || 0,
-          message: invitation.message || "",
-          status: "pending",
-          salonId: invitation.salonId,
-          salonName: salonName,
-          giftHash: invitation.inviteHash, // Use the invitation hash as the gift hash
-          expiresAt: null,
-          createdAt: invitation.createdAt?.toISOString() || new Date().toISOString(),
-          redeemedAt: null,
-          isInvitation: true // Add a flag to identify this as converted from an invitation
-        } as Gift;
-      }));
-      
-      // Enhance direct gifts with sender information
+      // Enhance gifts with sender information
       const giftsWithSenderInfo = await Promise.all(pendingGifts.map(async gift => {
         if (gift.senderId) {
           try {
@@ -2600,14 +2532,7 @@ export class DatabaseStorage implements IStorage {
         return gift;
       }));
       
-      // Combine both sources and limit to the requested number
-      const combinedGifts = [...giftsWithSenderInfo, ...invitationsAsGifts]
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        .slice(0, limit);
-      
-      console.log(`DatabaseStorage.getPendingGifts - Returning ${combinedGifts.length} total gift requests (${pendingGifts.length} direct gifts + ${invitationsAsGifts.length} invitations)`);
-      
-      return combinedGifts;
+      return giftsWithSenderInfo;
     } catch (error) {
       console.error(`Error getting pending gifts:`, error);
       throw error;

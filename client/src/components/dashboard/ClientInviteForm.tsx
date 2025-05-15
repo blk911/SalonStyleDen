@@ -159,7 +159,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
           email: form.email,
           message: form.message,
           senderId: clientId,
-          type: form.inviteeType === "friend" ? "client_to_friend" : "salon_owner_invitation",
+          type: form.inviteeType === "friend" ? "client_invitation" : "salon_owner_invitation",
         }),
       });
       
