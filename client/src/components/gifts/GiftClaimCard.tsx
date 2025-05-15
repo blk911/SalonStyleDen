@@ -18,15 +18,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-interface ReceivedGift {
+export interface ReceivedGift {
   id: number;
-  senderId: number;
+  senderId?: number;
   senderName?: string;
-  salonId: number;
-  salonName?: string;
-  giftType: string;
+  giftType: 'gift' | 'invitation';
   styleId?: number;
   styleName?: string;
+  salonId?: number;
+  salonName?: string;
   amount: number;
   message?: string;
   status: string;
@@ -58,34 +58,27 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
   const [processedMessage] = useState(() => {
     if (gift.message) {
       return processInvitationMessage(gift.message, {
-        clientName: gift.recipientName,
-        salonName: gift.salonName,
-        ownerName: gift.senderName,
-        styleOption: gift.styleName || "nail service",
-        uniqueId: gift.giftHash?.replace("VMB-INV-", "") || "VMB-ID"
+        recipientName: gift.recipientName || "",
+        salonName: gift.salonName || "",
+        styleName: gift.styleName || "",
+        amount: gift.amount
       });
     }
-    return gift.message;
+    return "";
   });
 
-  // Mutation for claiming a gift
   const claimGiftMutation = useMutation({
     mutationFn: async () => {
-      // Clean the phone number
+      // For gift claims, we need to use the status from the gift's current status
+      // For example, 'pending' gifts become 'claimed' when accepted
+      const status = "claimed";
+      
+      // Clean the phone number (strip all non-numeric characters)
       const cleanedPhone = cleanPhoneNumber(phone);
       
-      // Use different endpoints based on gift type
-      const endpoint = gift.giftType === 'invitation' 
-        ? `/api/invitations/${gift.id}/claim` 
-        : `/api/gifts/${gift.id}/status`;
-      
-      const method = gift.giftType === 'invitation' ? 'POST' : 'PATCH';
-      const status = gift.giftType === 'invitation' ? 'claimed' : 'redeemed';
-      
-      console.log(`Claiming ${gift.giftType} with phone: ${cleanedPhone}`);
-      
-      const response = await fetch(endpoint, {
-        method: method,
+      // Make the API call to claim the gift
+      const response = await fetch(`/api/gifts/${gift.id}/claim`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
@@ -128,25 +121,20 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
   });
 
   // Use the same phone utils as ClientRegistrationPage
-  const handleClaimGift = () => {
-    // Allow claiming if status is pending, or if the gift is an invitation that is marked completed or claimed
-    // (since invitations may be in different states but still need completion)
-    if (gift.status === "pending" || 
-        (gift.giftType === 'invitation' && (gift.status === "completed" || gift.status === "claimed"))) {
-      // Clean the phone number before submission
-      const cleanedPhone = cleanPhoneNumber(phone);
-      
-      // Validate using same logic as in the registration page
-      if (!isValidPhone(phone)) {
-        toast({
-          title: "Invalid phone number",
-          description: "Please enter a valid 10-digit phone number",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      // Set the phone number with proper formatting
+  const isPhoneValid = isValidPhone(phone);
+  
+  // Handle the claim gift action
+  const handleClaimGift = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!isPhoneValid) {
+      toast({
+        title: "Invalid phone number",
+        description: "Please enter a valid phone number to claim your gift.",
+        variant: "destructive",
+      });
+    } else {
+      // Format before submitting to ensure consistent format
       setPhone(formatPhoneNumber(phone));
       
       // Show confirmation dialog instead of immediate submission
@@ -169,30 +157,38 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
             <GiftIcon className="h-6 w-6 text-pink-600" />
             <CardTitle className="text-xl text-pink-800 font-bold">SEND GIFT</CardTitle>
           </div>
-          <CardDescription className="mt-2">
-            Claim your {gift.giftType === 'invitation' ? 'invitation' : 'gift'} by confirming your contact information
+          <CardDescription className="mt-1">
+            Send this gift to {gift.recipientName || "someone"}
           </CardDescription>
+          
+          {gift.status === "claimed" && (
+            <Badge className="absolute top-3 right-3 bg-green-500">Claimed</Badge>
+          )}
+          {gift.status === "expired" && (
+            <Badge className="absolute top-3 right-3 bg-gray-500">Expired</Badge>
+          )}
         </CardHeader>
         
-        <CardContent className="pt-6">
-          <div className="bg-gradient-to-r from-pink-50 to-white p-4 rounded-md mb-6 border border-pink-100 shadow-sm">
-            <div className="text-lg font-medium text-pink-700">
-              {gift.styleName || (gift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
+        <CardContent className="space-y-4">
+          <div className="bg-gradient-to-r from-pink-50 to-white p-5 rounded-lg border border-pink-100">
+            <div className="mb-3">
+              <div className="text-lg font-bold text-pink-900">
+                {gift.styleName || (gift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
+              </div>
+              {gift.amount > 0 && (
+                <div className="text-sm font-medium">
+                  Value: {formatCurrency(gift.amount / 100)}
+                </div>
+              )}
             </div>
             
-            {gift.amount > 0 && (
-              <div className="text-sm font-medium mt-1 text-pink-600">
-                Value: {formatCurrency(gift.amount / 100)}
-              </div>
-            )}
-            
-            {processedMessage && (
-              <div className="mt-3 text-sm italic border-l-2 border-pink-200 pl-3 py-1 text-gray-700">
+            {gift.message && (
+              <div className="text-sm italic text-gray-700 bg-white p-3 rounded border border-gray-100 my-3">
                 "{processedMessage}"
               </div>
             )}
             
-            <div className="mt-3 grid grid-cols-2 gap-x-2 text-sm">
+            <div className="text-sm space-y-1">
               <div>
                 <span className="text-gray-500">From:</span> <span className="font-medium">
                   {gift.message && gift.message.includes('❤️') 
@@ -238,12 +234,12 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
                     const formattedInput = formatPhoneNumber(input);
                     setPhone(formattedInput);
                   }}
-                  className="redemption-input-field"
-                  pattern="(\([0-9]{3}\) [0-9]{3}-[0-9]{4}|\([0-9]{3}\) [0-9]{3}|[0-9]{10}|\([0-9]{3}\))"
-                  maxLength={14} // (XXX) XXX-XXXX = 14 characters
+                  className={`${!isPhoneValid && phone ? 'border-red-500' : ''}`}
                 />
               </div>
-              <p className="text-xs text-gray-500">Enter your phone number to match with the sender's contact</p>
+              {!isPhoneValid && phone && (
+                <p className="text-red-500 text-xs">Please enter a valid 10-digit phone number</p>
+              )}
             </div>
             
             <div className="space-y-2">
@@ -252,23 +248,22 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
                 <MailIcon className="h-4 w-4 mr-2 text-pink-400" />
                 <Input 
                   id="email" 
-                  placeholder="you@example.com"
+                  type="email"
+                  placeholder="your.email@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="redemption-input-field"
                 />
               </div>
-              <p className="text-xs text-gray-500">Your email helps us confirm your identity and keep you updated</p>
             </div>
           </div>
         </CardContent>
         
-        <CardFooter className="border-t pt-4 pb-4 bg-gradient-to-r from-white to-pink-50 flex flex-col">
+        <CardFooter className="pt-2 flex justify-center">
           <Button 
-            className="gift-claim-button w-full font-bold tracking-wide"
-            size="lg"
             onClick={handleClaimGift}
-            disabled={!phone || phone.length < 10 || claimGiftMutation.isPending}
+            disabled={!isPhoneValid || claimGiftMutation.isPending}
+            className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3"
+            size="lg"
           >
             {claimGiftMutation.isPending ? (
               <>
@@ -276,7 +271,9 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
                 Processing...
               </>
             ) : (
-              <>SEND GIFT TO {gift.recipientName || "CLIENT"}</>
+              <>
+                SEND GIFT TO {gift.recipientName || "RECIPIENT"}
+              </>
             )}
           </Button>
           
@@ -287,55 +284,6 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
           )}
         </CardFooter>
       </Card>
-
-      {/* Confirmation Dialog */}
-      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Confirm Gift Delivery</DialogTitle>
-            <DialogDescription className="text-center">
-              Are you sure you want to send this gift to {gift.recipientName || "the recipient"}? 
-              This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="p-4 my-4 bg-muted rounded-md">
-            <p className="font-medium mb-1">
-              {gift.styleName || (gift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
-            </p>
-            {gift.message && (
-              <p className="text-sm italic mb-2">"{processedMessage}"</p>
-            )}
-            <p className="text-sm">
-              To: <span className="font-medium">{gift.recipientName}</span>
-            </p>
-          </div>
-          
-          <DialogFooter className="flex sm:justify-between gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => setShowConfirmDialog(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={confirmClaimGift}
-              disabled={claimGiftMutation.isPending}
-              className="flex-1 bg-pink-600 hover:bg-pink-700"
-            >
-              {claimGiftMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                "Yes, Send Gift"
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Success Dialog - GIFT DELIVERED popup */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
@@ -403,6 +351,54 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
         </DialogContent>
       </Dialog>
 
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Confirm Gift Delivery</DialogTitle>
+            <DialogDescription className="text-center">
+              Are you sure you want to send this gift to {gift.recipientName || "the recipient"}? 
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="p-4 my-4 bg-muted rounded-md">
+            <p className="font-medium mb-1">
+              {gift.styleName || (gift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
+            </p>
+            {gift.message && (
+              <p className="text-sm italic mb-2">"{processedMessage}"</p>
+            )}
+            <p className="text-sm">
+              To: <span className="font-medium">{gift.recipientName}</span>
+            </p>
+          </div>
+          
+          <DialogFooter className="flex sm:justify-between gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowConfirmDialog(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={confirmClaimGift}
+              disabled={claimGiftMutation.isPending}
+              className="flex-1 bg-pink-600 hover:bg-pink-700"
+            >
+              {claimGiftMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Yes, Send Gift"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
