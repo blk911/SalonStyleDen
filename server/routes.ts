@@ -2801,6 +2801,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Endpoint for claiming a gift by its hash (used when sending gift to another person)
+  apiRouter.post("/gifts/:giftHash/claim", async (req: Request, res: Response) => {
+    try {
+      const { giftHash } = req.params;
+      const { clientId, phone, email, status } = req.body;
+      
+      console.log(`[API] POST /gifts/${giftHash}/claim - Claiming gift with hash ${giftHash}`);
+      
+      // Validate input
+      if (!giftHash) {
+        console.log(`[API] POST /gifts/${giftHash}/claim - Missing gift hash`);
+        return res.status(400).json({
+          error: "Gift hash is required"
+        });
+      }
+      
+      // Find the gift by hash
+      const gift = await storage.getGiftByHash(giftHash);
+      if (!gift) {
+        console.log(`[API] POST /gifts/${giftHash}/claim - Gift not found with hash ${giftHash}`);
+        return res.status(404).json({
+          error: "Gift not found"
+        });
+      }
+      
+      console.log(`[API] POST /gifts/${giftHash}/claim - Found gift with ID ${gift.id}`);
+      
+      // Update gift with recipient info and status
+      const updateData: Partial<Gift> = {
+        status: status || 'claimed',
+      };
+      
+      // Add recipient info if provided
+      if (clientId) {
+        updateData.recipientId = clientId;
+      }
+      
+      if (phone) {
+        updateData.recipientPhone = phone;
+      }
+      
+      if (email) {
+        updateData.recipientEmail = email;
+      }
+      
+      // Update the gift
+      const updatedGift = await storage.updateGift(gift.id, updateData);
+      
+      console.log(`[API] POST /gifts/${giftHash}/claim - Successfully claimed gift. New status: ${updatedGift.status}`);
+      
+      return res.json({
+        success: true,
+        message: "Gift claimed successfully",
+        gift: updatedGift
+      });
+      
+    } catch (error) {
+      console.error("Error claiming gift:", error);
+      return res.status(500).json({
+        error: "Server error while claiming gift"
+      });
+    }
+  });
 
   // Delete gift endpoint
   apiRouter.delete("/gifts/:id", async (req: Request, res: Response) => {
