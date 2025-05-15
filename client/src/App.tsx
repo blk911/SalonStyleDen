@@ -31,6 +31,7 @@ import CompleteInvitationPage from "@/pages/CompleteInvitationPage";
 import GiftRedemptionPage from "@/pages/GiftRedemptionPage";
 import GiftDetailPage from "@/pages/GiftDetailPage";
 import TestFinalStep3 from "@/pages/TestFinalStep3";
+import TestRenderPage from "@/pages/TestRenderPage";
 
 function Router() {
   return (
@@ -71,6 +72,7 @@ function Router() {
       <Route path="/madge-visualization" component={MadgeVisualizationPage} />
       <Route path="/dependencies" component={DependencyVisualizer} />
       <Route path="/testfinalstep3" component={TestFinalStep3} />
+      <Route path="/test-render" component={TestRenderPage} />
       <Route component={NotFound} />
     </Switch>
   );
