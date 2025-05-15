@@ -2809,6 +2809,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { clientId, phone, email, status } = req.body;
       
       console.log(`[API] POST /gifts/${giftHash}/claim - Claiming gift with hash ${giftHash}`);
+      console.log(`[API] Request body:`, req.body);
       
       // Validate input
       if (!giftHash) {
@@ -2819,7 +2820,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Find the gift by hash
-      const gift = await storage.getGiftByHash(giftHash);
+      let gift;
+      try {
+        gift = await storage.getGiftByHash(giftHash);
+        console.log(`[API] Gift search result for hash ${giftHash}:`, gift);
+      } catch (err) {
+        console.error(`[API] Error getting gift by hash ${giftHash}:`, err);
+        return res.status(500).json({
+          error: "Error retrieving gift"
+        });
+      }
+      
       if (!gift) {
         console.log(`[API] POST /gifts/${giftHash}/claim - Gift not found with hash ${giftHash}`);
         return res.status(404).json({
