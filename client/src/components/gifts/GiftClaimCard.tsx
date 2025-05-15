@@ -51,6 +51,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
   const [phone, setPhone] = useState(gift.recipientPhone ? formatPhoneNumber(gift.recipientPhone) : "");
   const [email, setEmail] = useState("");
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const { toast } = useToast();
   
   // Process message templates on component mount
@@ -148,9 +149,16 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
       // Set the phone number with proper formatting
       setPhone(formatPhoneNumber(phone));
       
-      // Proceed with the mutation
-      claimGiftMutation.mutate();
+      // Show confirmation dialog instead of immediate submission
+      setShowConfirmDialog(true);
     }
+  };
+  
+  // New function to proceed with claim after confirmation
+  const confirmClaimGift = () => {
+    setShowConfirmDialog(false);
+    // Proceed with the mutation
+    claimGiftMutation.mutate();
   };
 
   return (
