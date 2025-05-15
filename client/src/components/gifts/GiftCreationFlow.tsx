@@ -157,20 +157,17 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     mutationFn: async (data: any) => {
       console.log("GiftCreationFlow: Creating gift with data:", data);
       
-      // Transform the data to match the gift API format exactly as server expects
+      // Transform the data to match the gift API format
       const giftData = {
         senderId: data.senderId,
         recipientName: data.name,
-        recipientPhone: cleanPhoneNumber(data.phone), // Make sure phone is properly formatted
+        recipientPhone: data.phone,
         recipientEmail: data.email || null,
         message: data.message,
-        value: data.stylePrice, // Convert price from UI
+        value: data.stylePrice, // Used instead of amount in the UI
         status: 'pending',
         styleId: data.styleId,
-        styleName: data.styleOption,
-        // Add missing fields required by server
-        salonId: data.salonId,
-        giftType: 'style_card'
+        styleName: data.styleOption
       };
       
       console.log("GiftCreationFlow: Transformed gift data:", giftData);
@@ -231,21 +228,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       let userMessage = "There was a problem sending your gift. Please try again.";
       let errorDetails = "";
       
-      // More specific error type checking
+      // Check for specific error types
       if (errorMsg.includes("500")) {
         userMessage = "Server error. Please try again in a few moments.";
-      } else if (errorMsg.includes("Invalid sender") || errorMsg.includes("sender doesn't exist")) {
-        userMessage = "Your account information couldn't be verified. Please refresh and try again.";
-      } else if (errorMsg.includes("same person")) {
-        userMessage = "You cannot send a gift to yourself. Please enter a different recipient phone number.";
-      } else if (errorMsg.includes("Invalid recipient")) {
-        userMessage = "Please check the recipient's phone number and try again.";
-      } else if (errorMsg.includes("validation")) {
-        userMessage = "Some gift information is missing or invalid. Please check all fields and try again.";
       }
-      
-      // Add technical information for developers in console
-      console.log(`[GIFT-ERROR] Details: ${errorMsg}`);
       
       // Close the modal
       setShowFinalInvitationModal(false);
@@ -255,7 +241,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       
       // Show toast alert
       toast({
-        title: "Failed to Send Gift",
+        title: "Failed to Create Gift",
         description: userMessage,
         variant: "destructive",
         duration: 5000
@@ -432,7 +418,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       return;
     }
     
-    // Create gift data with all required fields
+    // Create gift data
     const giftData = {
       name: recipientData.name,
       phone: recipientData.phone,
@@ -449,11 +435,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       senderName: client?.name || "Client",
       invitationType: "client_to_friend",
       styleImageUrl: selectedStyle.gifUrl,
-      senderId: clientId, // Important: we need to set the sender ID to make sure gifts show up in sent list
-      giftType: 'style_card', // Required by server validation
-      recipientName: recipientData.name, // Ensure field name matches server expectation
-      recipientPhone: recipientData.phone, // Ensure field name matches server expectation
-      recipientEmail: recipientData.email || null // Ensure field name matches server expectation
+      senderId: clientId // Important: we need to set the sender ID to make sure gifts show up in sent list
     };
     
     // Log the gift data being sent
