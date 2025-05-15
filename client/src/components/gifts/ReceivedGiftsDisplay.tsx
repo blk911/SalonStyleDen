@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -154,7 +154,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     
     // Mark the gift as delivered and collapsed when claimed
     if (giftToClaim) {
-      // Set the gift as collapsed in UI
+      // Set the gift as collapsed in UI immediately for a responsive feel
       setCollapsedGifts(prev => ({
         ...prev,
         [giftToClaim.id]: true
@@ -173,6 +173,11 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       .then(response => {
         if (!response.ok) {
           console.error("Failed to mark gift as delivered");
+          toast({
+            title: "Error",
+            description: "Failed to update gift status. Please try again.",
+            variant: "destructive",
+          });
         } else {
           // Show success toast
           toast({
@@ -187,6 +192,11 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       })
       .catch(error => {
         console.error("Error updating gift status:", error);
+        toast({
+          title: "Error",
+          description: "There was a problem updating the gift status.",
+          variant: "destructive",
+        });
       });
     }
     
@@ -207,6 +217,30 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       [giftId]: !prev[giftId]
     }));
   };
+  
+  // Automatically collapse delivered gifts when data is loaded or changes
+  useEffect(() => {
+    if (receivedGifts && receivedGifts.length > 0) {
+      // Find gifts that should be collapsed by default (delivered, redeemed, or completed)
+      const deliveredGiftIds = receivedGifts
+        .filter(gift => 
+          gift.status === "delivered" || 
+          gift.status === "redeemed" || 
+          gift.status === "completed")
+        .map(gift => gift.id);
+      
+      if (deliveredGiftIds.length > 0) {
+        const newCollapsedState = { ...collapsedGifts };
+        
+        // Set all delivered gifts to collapsed state
+        deliveredGiftIds.forEach(id => {
+          newCollapsedState[id] = true;
+        });
+        
+        setCollapsedGifts(newCollapsedState);
+      }
+    }
+  }, [receivedGifts]);
 
   if (showGiftClaimForm && giftToClaim) {
     return (
@@ -271,11 +305,14 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
         <CardContent>
           <div className="space-y-4">
             {receivedGifts.map((gift) => {
-              const isCollapsed = collapsedGifts[gift.id] || gift.status === "delivered";
-              const isExpanded = expandedGifts[gift.id];
-              
               // Determine if this is a delivered gift that should be collapsed by default
               const isDelivered = gift.status === "redeemed" || gift.status === "completed" || gift.status === "delivered";
+              
+              // A gift is collapsed if it's either manually collapsed or has delivered status
+              const isCollapsed = collapsedGifts[gift.id] || isDelivered;
+              
+              // A gift is expanded if the user clicked to expand it (overrides collapsed state)
+              const isExpanded = expandedGifts[gift.id];
 
               return (
                 <Card 
