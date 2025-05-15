@@ -46,6 +46,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   const [isRedeemModalOpen, setIsRedeemModalOpen] = useState(false);
   const [isGiftPreviewOpen, setIsGiftPreviewOpen] = useState(false);
   const [showGiftClaimForm, setShowGiftClaimForm] = useState(false);
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [giftToClaim, setGiftToClaim] = useState<ReceivedGift | null>(null);
   const [collapsedGifts, setCollapsedGifts] = useState<Record<number, boolean>>({});
   const [expandedGifts, setExpandedGifts] = useState<Record<number, boolean>>({});
@@ -601,10 +602,10 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-center text-xl font-bold text-pink-600">
-              Gift Details
+              GIFT REQUEST DETAILS
             </DialogTitle>
             <DialogDescription className="text-center pt-2">
-              Review this gift before claiming it
+              Review this gift before sending
             </DialogDescription>
           </DialogHeader>
           
@@ -679,12 +680,15 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
             <Button 
               onClick={() => {
                 if (selectedGift) {
-                  handleShowGiftClaim(selectedGift);
+                  // Instead of going to the claim form, show the confirmation dialog directly
+                  setIsGiftPreviewOpen(false);
+                  setSelectedGift(selectedGift);
+                  setShowConfirmationDialog(true);
                 }
               }}
               className="bg-red-500 hover:bg-red-600 text-white font-semibold"
             >
-              Proceed to Claim
+              READY TO SEND
             </Button>
           </DialogFooter>
         </DialogContent>
