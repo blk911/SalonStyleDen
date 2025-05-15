@@ -119,14 +119,22 @@ export default function EditableService({ service, onSave, onDelete }: EditableS
             
             <div className="mt-1 flex justify-between items-center">
               {service.featured && (
-                <Badge className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer">
+                <Badge 
+                  className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white border-0 text-mini cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering the parent section toggle
+                  }}
+                >
                   Book Now
                 </Badge>
               )}
               <Button 
                 variant="link" 
                 className="text-micro text-pink-500 hover:text-pink-700 p-0 h-auto"
-                onClick={() => setIsEditing(true)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent triggering the parent section toggle
+                  setIsEditing(true);
+                }}
               >
                 Edit
               </Button>
