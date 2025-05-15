@@ -2667,37 +2667,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
-  
-  // Delete gift (admin functionality)
-  apiRouter.delete("/gifts/:id", async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      
-      if (!id || isNaN(Number(id))) {
-        return res.status(400).json({
-          error: "Invalid gift ID"
-        });
-      }
-      
-      console.log(`[API] DELETE /gifts/${id} - Attempting to delete gift`);
-      const success = await storage.deleteGift(Number(id));
-      
-      if (!success) {
-        console.log(`[API] DELETE /gifts/${id} - Gift not found or could not be deleted`);
-        return res.status(404).json({
-          error: "Gift not found or could not be deleted"
-        });
-      }
-      
-      console.log(`[API] DELETE /gifts/${id} - Gift deleted successfully`);
-      return res.json({ success: true, message: "Gift deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting gift:", error);
-      return res.status(500).json({
-        error: "Server error while deleting gift"
-      });
-    }
-  });
 
   // Get all pending gift requests (for admin dashboard)
   apiRouter.get("/gifts-pending", async (req: Request, res: Response) => {
