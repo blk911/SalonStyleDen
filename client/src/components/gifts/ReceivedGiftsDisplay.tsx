@@ -240,6 +240,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
         setCollapsedGifts(newCollapsedState);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [receivedGifts]);
 
   if (showGiftClaimForm && giftToClaim) {
