@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -104,14 +104,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       
       return response.json();
     },
-    onSuccess: (data) => {
-      // Automatically collapse redeemed gifts
-      if (data && data.id) {
-        setCollapsedGifts(prev => ({
-          ...prev,
-          [data.id]: true
-        }));
-      }
+    onSuccess: () => {
       
       queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
       toast({
@@ -133,25 +126,6 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       });
     }
   });
-  
-  // Auto-collapse gifts that are already in delivered/redeemed/completed status
-  useEffect(() => {
-    if (receivedGifts) {
-      const deliveredGifts = receivedGifts.filter(
-        gift => gift.status === "delivered" || 
-               gift.status === "redeemed" || 
-               gift.status === "completed"
-      );
-      
-      if (deliveredGifts.length > 0) {
-        const newCollapsedState = { ...collapsedGifts };
-        deliveredGifts.forEach(gift => {
-          newCollapsedState[gift.id] = true;
-        });
-        setCollapsedGifts(newCollapsedState);
-      }
-    }
-  }, [receivedGifts]);
 
   const handleRedeemGift = (gift: ReceivedGift) => {
     setSelectedGift(gift);
@@ -178,15 +152,10 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
 
   const handleGiftClaimed = () => {
     setShowGiftClaimForm(false);
+    setGiftToClaim(null);
     
-    // Mark the gift as delivered and collapsed when claimed
+    // Mark the gift as delivered when claimed
     if (giftToClaim) {
-      // Set the gift as collapsed in UI
-      setCollapsedGifts(prev => ({
-        ...prev,
-        [giftToClaim.id]: true
-      }));
-      
       // Update the status to "delivered" in the database
       fetch(`/api/gifts/${giftToClaim.id}/status`, {
         method: "PATCH",
@@ -200,16 +169,6 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       .then(response => {
         if (!response.ok) {
           console.error("Failed to mark gift as delivered");
-        } else {
-          // Show success toast
-          toast({
-            title: "Gift Delivered!",
-            description: "The gift has been marked as delivered and will now appear in collapsed view.",
-            variant: "default",
-          });
-          
-          // Refresh the gifts list
-          queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
         }
       })
       .catch(error => {
@@ -217,8 +176,15 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       });
     }
     
-    // Clear the gift being claimed
-    setGiftToClaim(null);
+    // Refresh the gifts list
+    queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
+    
+    // Show success toast
+    toast({
+      title: "Gift Delivered!",
+      description: "The gift has been successfully delivered.",
+      variant: "default",
+    });
   };
   
   const toggleGiftCollapse = (giftId: number) => {
@@ -370,21 +336,21 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                             </div>
                             <CardDescription>
                               {gift.amount > 0 && <>{formatCurrency(gift.amount / 100)}</>}
+                              {gift.salonId && gift.salonName && (
+                                <span className="block mt-1">
+                                  At: <a 
+                                    href={`/salon/${gift.salonId}`} 
+                                    className="text-pink-600 hover:underline"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      window.location.href = `/salon/${gift.salonId}`;
+                                    }}
+                                  >
+                                    {gift.salonName || "Tiffany 5280 Nails Studio"}
+                                  </a>
+                                </span>
+                              )}
                             </CardDescription>
-                            {gift.salonId && gift.salonName && (
-                              <div className="text-sm text-muted-foreground mt-1 ml-6">
-                                At: <a 
-                                  href={`/salon/${gift.salonId}`} 
-                                  className="text-pink-600 hover:underline"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    window.location.href = `/salon/${gift.salonId}`;
-                                  }}
-                                >
-                                  {gift.salonName || "Tiffany 5280 Nails Studio"}
-                                </a>
-                              </div>
-                            )}
                           </div>
                           
                           {/* Style card display */}
