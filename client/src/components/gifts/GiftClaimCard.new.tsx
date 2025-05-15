@@ -21,7 +21,7 @@ import {
 // Define the shape of the gift data
 interface ReceivedGift {
   id: number;
-  giftType: string; // Changed from literal type to match the component in ReceivedGiftsDisplay
+  giftType: 'gift' | 'invitation';
   senderName?: string;
   salonId?: number;
   salonName?: string;
@@ -57,7 +57,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
   const [processedMessage] = useState(() => {
     if (gift.message) {
       return processInvitationMessage(gift.message, {
-        styleOption: gift.styleName || "Style Card" // using styleOption instead of styleName
+        styleName: gift.styleName || "Style Card"
       });
     }
     return "";
