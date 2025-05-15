@@ -9,7 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Gift as GiftIcon, CheckCircle, Calendar, ExternalLink } from "lucide-react";
-import { formatCurrency, formatPhoneNumber, processInvitationMessage } from "@/lib/utils";
+import { formatCurrency, formatPhoneNumber, processInvitationMessage, cleanPhoneNumber } from "@/lib/utils";
 import { GiftClaimCard } from "./GiftClaimCard";
 
 interface ReceivedGift {
@@ -689,6 +689,105 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
               className="bg-red-500 hover:bg-red-600 text-white font-semibold"
             >
               READY TO SEND
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Dialog - Final step before sending gift */}
+      <Dialog open={showConfirmationDialog} onOpenChange={setShowConfirmationDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-bold text-pink-600">
+              Confirm Gift Delivery
+            </DialogTitle>
+            <DialogDescription className="text-center pt-2">
+              Are you sure you want to send this gift{selectedGift?.recipientName ? ` to ${selectedGift.recipientName}` : ''}? 
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedGift && (
+            <div className="p-4 my-4 bg-pink-50 rounded-md border border-pink-100">
+              <p className="font-medium mb-1">
+                {selectedGift.styleName || (selectedGift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
+              </p>
+              {selectedGift.message && (
+                <p className="text-sm italic mb-2">"{selectedGift.message}"</p>
+              )}
+              <p className="text-sm">
+                To: <span className="font-medium">{selectedGift.recipientName}</span>
+              </p>
+              {selectedGift.recipientPhone && (
+                <p className="text-sm">
+                  Phone: <span className="font-medium">{formatPhoneNumber(selectedGift.recipientPhone)}</span>
+                </p>
+              )}
+            </div>
+          )}
+          
+          <DialogFooter className="flex sm:justify-between gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowConfirmationDialog(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                if (selectedGift) {
+                  // Use the existing GiftClaimCard's mutation logic but handle it directly here
+                  const phone = selectedGift.recipientPhone || "";
+                  const cleanedPhone = phone ? cleanPhoneNumber(phone) : "";
+                  
+                  // Make the API request
+                  fetch(`/api/gifts/${selectedGift.giftHash}/claim`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                      status: selectedGift.giftType === 'invitation' ? 'claimed' : 'redeemed',
+                      phone: cleanedPhone,
+                      email: selectedGift.recipientEmail || "",
+                      clientId
+                    })
+                  })
+                  .then(response => {
+                    if (!response.ok) {
+                      throw new Error("Failed to send gift");
+                    }
+                    return response.json();
+                  })
+                  .then(() => {
+                    // Close the dialog
+                    setShowConfirmationDialog(false);
+                    
+                    // Show success message
+                    toast({
+                      title: "Gift Sent Successfully",
+                      description: "The gift has been delivered!",
+                      variant: "default",
+                    });
+                    
+                    // Refresh the gifts list
+                    queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
+                  })
+                  .catch(error => {
+                    console.error("Error sending gift:", error);
+                    toast({
+                      title: "Failed to send gift",
+                      description: "There was an error sending your gift. Please try again.",
+                      variant: "destructive",
+                    });
+                  });
+                }
+              }}
+              disabled={!selectedGift}
+              className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold"
+            >
+              SEND GIFT
             </Button>
           </DialogFooter>
         </DialogContent>
