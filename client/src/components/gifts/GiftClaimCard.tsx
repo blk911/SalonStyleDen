@@ -353,6 +353,54 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Confirm Gift Delivery</DialogTitle>
+            <DialogDescription className="text-center">
+              Are you sure you want to send this gift to {gift.recipientName || "the recipient"}? 
+              This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="p-4 my-4 bg-muted rounded-md">
+            <p className="font-medium mb-1">
+              {gift.styleName || (gift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
+            </p>
+            {gift.message && (
+              <p className="text-sm italic mb-2">"{processedMessage}"</p>
+            )}
+            <p className="text-sm">
+              To: <span className="font-medium">{gift.recipientName}</span>
+            </p>
+          </div>
+          
+          <DialogFooter className="flex sm:justify-between gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowConfirmDialog(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={confirmClaimGift}
+              disabled={claimGiftMutation.isPending}
+              className="flex-1 bg-pink-600 hover:bg-pink-700"
+            >
+              {claimGiftMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Yes, Send Gift"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
