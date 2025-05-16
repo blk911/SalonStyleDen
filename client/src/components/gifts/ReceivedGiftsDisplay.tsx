@@ -580,23 +580,12 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         
                         {/* Show delivered status */}
                         {isDelivered && (
-                          <div className="w-full flex flex-col space-y-2">
+                          <>
                             <div className="flex items-center text-xs text-green-600">
                               <CheckCircle className="h-3 w-3 mr-1" />
                               Delivered on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : new Date().toLocaleDateString()}
                             </div>
-                            
-                            {/* Schedule Appointment button for completed invitations */}
-                            {(gift.status === 'completed' || gift.status === 'redeemed') && gift.giftType === 'invitation' && (
-                              <Button 
-                                className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2 mt-2"
-                                onClick={() => window.location.href = '/client-dashboard?tab=appointments'}
-                              >
-                                <Calendar className="h-4 w-4" />
-                                Schedule Appointment
-                              </Button>
-                            )}
-                          </div>
+                          </>
                         )}
                       </div>
                     </>
