@@ -399,8 +399,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         </div>
                       </div>
                       <div className="flex items-center">
-                        <Badge className="bg-green-100 text-green-800 border-green-300 mr-2">
-                          DELIVERED
+                        <Badge className="bg-green-100 text-green-800 border-green-300 mr-2 text-xs">
+                          Delivered
                         </Badge>
                         <Button 
                           variant="ghost" 
@@ -421,8 +421,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         <div className="flex justify-between">
                           <div>
                             <div className="flex justify-between items-center">
-                              <CardTitle className="text-lg mb-0">
-                                <span className="text-gray-500">From:</span> {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
+                              <CardTitle className="text-sm mb-0">
+                                <span className="text-gray-500">From:</span>{' '}{/* Extract sender name from message if it contains a signature, otherwise use senderName */}
                                 <span className="font-medium">
                                 {gift.message && gift.message.includes('❤️') 
                                   ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
@@ -447,8 +447,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                               {gift.amount > 0 && <>{formatCurrency(gift.amount / 100)}</>}
                             </CardDescription>
                             {gift.salonId && gift.salonName && (
-                              <div className="text-lg font-normal mt-1">
-                                <span className="text-gray-500">At:</span> <a 
+                              <div className="text-sm font-normal mt-1">
+                                <span className="text-gray-500">At:</span>{' '}<a 
                                   href={`/salon/${gift.salonId}`} 
                                   className="text-pink-600 hover:underline font-medium"
                                   onClick={(e) => {
