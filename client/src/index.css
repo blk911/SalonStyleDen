@@ -20,9 +20,10 @@
   font-family: 'Georgia', serif;
   font-weight: 300; /* extra light */
   letter-spacing: 0.25px;
-  word-spacing: 2px;
+  word-spacing: 1px;
   text-align: center;
   color: black;
+  line-height: 1.2;
 }
 
 /* Size variants */
@@ -35,7 +36,7 @@
 }
 
 .logo-lg {
-  font-size: clamp(24px, 5vw, 48px);
+  font-size: clamp(30px, 5vw, 54px);
 }
 
 /* Default to medium if no size specified */
@@ -46,10 +47,31 @@
 .logo .ven-me {
   font-style: normal;
   color: black;
+  font-weight: 400;
 }
 
 .logo .baby {
   font-style: italic;
+  color: #FF92A5;
+  font-weight: 400;
+}
+
+/* Hero section specific styles */
+.hero-title {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.hero-title .ven-me {
+  font-family: 'Georgia', serif;
+  font-weight: 400;
+  color: #333;
+}
+
+.hero-title .baby {
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  font-weight: 400;
   color: #FF92A5;
 }
 

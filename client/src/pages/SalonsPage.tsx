@@ -258,13 +258,16 @@ export default function SalonsPage() {
       <Navbar />
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="bg-gradient-to-r from-pink-100 to-pink-50 border-b border-pink-200" style={{ height: "150px" }}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative h-full flex flex-col justify-center">
-            <h1 className="text-3xl font-bold text-pink-800">
-              <BrandName size="3xl" className="mr-1" inline />
-              <span>Salons</span>
-            </h1>
-            <p className="mt-2 text-gray-600">Find premium nail salons near you</p>
+        <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-3 lg:py-3 border-b border-pink-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative flex flex-col justify-center">
+            <div className="flex justify-center" style={{ marginBottom: '10px' }}>
+              <h1 className="logo logo-lg">
+                <span className="ven-me">Ven Me, </span>
+                <span className="baby">Baby!</span>
+              </h1>
+            </div>
+            <h2 className="text-xl font-medium text-gray-700 mb-1">Salons</h2>
+            <p className="text-gray-600">Find premium nail salons near you</p>
             <button
               onClick={() => refetch()}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-xs flex items-center gap-1 text-pink-600 hover:text-pink-800 bg-pink-50 hover:bg-pink-100 px-2 py-1 rounded-md"

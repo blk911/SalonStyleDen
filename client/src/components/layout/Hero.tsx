@@ -35,15 +35,15 @@ export default function Hero({
         )}
       </div>
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 text-center">
-        <div className="flex justify-center" style={{ marginBottom: '15px' }}>
+        <div className="flex justify-center" style={{ marginBottom: '10px' }}>
           <h1 className="logo logo-lg">
             <span className="ven-me">Ven Me, </span>
             <span className="baby">Baby!</span>
           </h1>
         </div>
-        <p className="text-xl max-w-2xl mx-auto mb-5 leading-relaxed">
-            <i>a connection-driven personal gifting platform</i>
-          </p>
+        <p className="text-lg md:text-xl max-w-2xl mx-auto mb-4 leading-relaxed text-gray-700">
+          Empowering. Personal. Connection.
+        </p>
         <div className="flex justify-center gap-4 flex-wrap">
           <button
             onClick={onSalonClick}
