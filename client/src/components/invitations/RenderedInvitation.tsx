@@ -306,7 +306,9 @@ export function RenderedInvitation({
                           {/* For completed invitations, show a Schedule button if viewing from client dashboard */}
                           {(localStatus === 'completed' || localStatus === 'redeemed') && 
                            sourceDashboard === 'client' && 
-                           !isInPreviewMode && (
+                           !isInPreviewMode &&
+                           invitationType !== 'gift' &&  // Don't show schedule button for gifts
+                           (
                             <Button 
                               className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
                               onClick={() => {
