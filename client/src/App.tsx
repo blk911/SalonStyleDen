@@ -31,6 +31,7 @@ import SalonRegistrationPage from "@/pages/SalonRegistrationPage";
 import CompleteInvitationPage from "@/pages/CompleteInvitationPage";
 import GiftRedemptionPage from "@/pages/GiftRedemptionPage";
 import GiftDetailPage from "@/pages/GiftDetailPage";
+import AboutPage from "@/pages/AboutPage";
 import TestFinalStep3 from "@/pages/TestFinalStep3";
 
 function Router() {
@@ -73,6 +74,7 @@ function Router() {
       <Route path="/network-visualization" component={NetworkVisualization} />
       <Route path="/madge-visualization" component={MadgeVisualizationPage} />
       <Route path="/dependencies" component={DependencyVisualizer} />
+      <Route path="/about" component={AboutPage} />
       <Route path="/testfinalstep3" component={TestFinalStep3} />
       <Route component={NotFound} />
     </Switch>

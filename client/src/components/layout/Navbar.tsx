@@ -76,24 +76,22 @@ export default function Navbar() {
           </div>
           <div className="hidden sm:flex sm:items-center justify-center w-full">
             <div className="flex items-center space-x-8">
+              <Link href="/home">
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home-A</div>
+              </Link>
+              <Link href="/">
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home-B</div>
+              </Link>
               <Link href="/salons">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Salons</div>
               </Link>
-              {/* Clients tab hidden - now the main page */}
               {/* ADMIN RESURFACED PER USER REQUEST */}
               <Link href="/admin">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Admin</div>
               </Link>
-              {/* Dependencies and Performance links moved to Admin Dashboard */}
-              <div className="flex items-center space-x-4">
-                <Link href="/">
-                  <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home-B</div>
-                </Link>
-                <Link href="/home">
-                  <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Home-A</div>
-                </Link>
-              </div>
-              <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
+              <Link href="/about">
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
+              </Link>
             </div>
             <LoadingIndicator />
           </div>
