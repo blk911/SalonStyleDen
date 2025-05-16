@@ -601,6 +601,7 @@ export default function AdminDashboard() {
             title="Ven Me, Baby! Style Options"
             isOpen={styleOptionsOpen}
             onToggle={() => setStyleOptionsOpen(!styleOptionsOpen)}
+            className="mb-2" // Reduced margin from mb-3 to mb-2
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
