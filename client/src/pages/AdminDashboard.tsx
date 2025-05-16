@@ -1559,8 +1559,8 @@ export default function AdminDashboard() {
               
               {/* Data table */}
               {!giftsIsLoading && !giftsError && pendingGifts && pendingGifts.length > 0 && (
-                <ScrollArea className="h-[300px]">
-                  <Table>
+                <ScrollArea className="max-h-[200px]">
+                  <Table className="text-xs">
                     <TableHeader>
                       <TableRow className="max-h-[30px]">
                         <TableHead className="max-h-[30px] py-1 text-center">From</TableHead>
