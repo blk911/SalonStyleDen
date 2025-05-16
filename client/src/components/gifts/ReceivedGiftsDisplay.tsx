@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Gift as GiftIcon, CheckCircle, Calendar, ExternalLink } from "lucide-react";
+import { Loader2, Gift as GiftIcon, CheckCircle, CheckCircleIcon, Calendar, ExternalLink } from "lucide-react";
 import { formatCurrency, formatPhoneNumber, processInvitationMessage, cleanPhoneNumber } from "@/lib/utils";
 import { GiftClaimCard } from "./GiftClaimCard";
 
@@ -384,7 +384,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                   {isCollapsed && !isExpanded && (
                     <div className="flex justify-between items-center p-3">
                       <div className="flex items-center">
-                        <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                        <CheckCircleIcon className="h-4 w-4 text-green-600 mr-2" />
                         <div>
                           <span className="text-sm font-medium">Gift from {
                             gift.message && gift.message.includes('❤️') 
@@ -572,7 +572,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                             {redeemGiftMutation.isPending ? (
                               <Loader2 className="h-4 w-4 animate-spin mr-2" />
                             ) : (
-                              <CheckCircle className="h-4 w-4 mr-2" />
+                              <CheckCircleIcon className="h-4 w-4 mr-2" />
                             )}
                             Redeem Gift
                           </Button>
@@ -582,7 +582,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         {isDelivered && (
                           <div className="w-full flex flex-col space-y-2">
                             <div className="flex items-center text-xs text-green-600">
-                              <CheckCircle className="h-3 w-3 mr-1" />
+                              <CheckCircleIcon className="h-3 w-3 mr-1" />
                               Delivered on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : new Date().toLocaleDateString()}
                             </div>
                             
