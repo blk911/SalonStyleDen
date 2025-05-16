@@ -197,7 +197,7 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
                     {new Date(gift.createdAt).toLocaleDateString()}
                     {gift.status === "redeemed" && gift.redeemedAt && (
                       <span className="ml-2 flex items-center">
-                        <CheckCircle className="h-3 w-3 mr-1 text-green-600" />
+                        <CheckCircleIcon className="h-3 w-3 mr-1 text-green-600" />
                         Redeemed on {new Date(gift.redeemedAt).toLocaleDateString()}
                       </span>
                     )}
