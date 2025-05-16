@@ -2577,6 +2577,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Gift management endpoints
+  // Get all gifts
+  apiRouter.get("/gifts", async (req: Request, res: Response) => {
+    try {
+      console.log(`[API] GET /gifts - Fetching all gifts`);
+      const allGifts = await storage.getAllGifts();
+      console.log(`[API] GET /gifts - Found ${allGifts.length} gifts`);
+      
+      return res.json(allGifts);
+    } catch (error) {
+      console.error("Error fetching all gifts:", error);
+      return res.status(500).json({
+        error: "Server error while fetching gifts"
+      });
+    }
+  });
+
   // Get gifts sent by a client
   apiRouter.get("/gifts/sent/:clientId", async (req: Request, res: Response) => {
     try {
