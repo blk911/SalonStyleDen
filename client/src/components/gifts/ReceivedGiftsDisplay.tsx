@@ -473,7 +473,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                                   </div>
                                 </div>
                                 <div className="ml-4">
-                                  <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/custom-glam-lv.png')" }}></div>
+                                  <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/glam-design.png')" }}></div>
                                 </div>
                               </div>
                             ) : gift.message && gift.message.includes("French Tips / Touch-Up") ? (
@@ -490,9 +490,43 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                                   <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/french-tips.png')" }}></div>
                                 </div>
                               </div>
+                            ) : gift.message && gift.message.includes("Luxe Gel Manicure") ? (
+                              <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center">
+                                <div className="flex-grow">
+                                  <div className="font-medium text-sm">Luxe Gel Manicure</div>
+                                  <div className="text-xs text-gray-600">Glossy, chip-free color with lasting shine</div>
+                                  <div className="mt-2">
+                                    <span className="font-medium text-sm">$55</span>
+                                    <span className="ml-2 text-xs text-gray-600">45 min</span>
+                                  </div>
+                                </div>
+                                <div className="ml-4">
+                                  <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/gel-manicure.png')" }}></div>
+                                </div>
+                              </div>
+                            ) : gift.message && gift.message.includes("Sculpted Acrylics") ? (
+                              <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center">
+                                <div className="flex-grow">
+                                  <div className="font-medium text-sm">Sculpted Acrylics</div>
+                                  <div className="text-xs text-gray-600">Custom-shaped acrylics for bold length</div>
+                                  <div className="mt-2">
+                                    <span className="font-medium text-sm">$70</span>
+                                    <span className="ml-2 text-xs text-gray-600">60 min</span>
+                                  </div>
+                                </div>
+                                <div className="ml-4">
+                                  <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/sculpted-acrylics.png')" }}></div>
+                                </div>
+                              </div>
                             ) : (
-                              <div className="text-center text-muted-foreground text-xs">
-                                Style details unavailable
+                              <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center opacity-70">
+                                <div className="flex-grow">
+                                  <div className="font-medium text-sm">Nail Service</div>
+                                  <div className="text-xs text-gray-600">Style details in message</div>
+                                </div>
+                                <div className="ml-4">
+                                  <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/french-tips.png')" }}></div>
+                                </div>
                               </div>
                             )}
                           </div>
