@@ -802,7 +802,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       status: selectedGift.giftType === 'invitation' ? 'claimed' : 'redeemed',
                       phone: cleanedPhone,
                       email: selectedGift.recipientEmail || "",
-                      clientId
+                      clientId,
+                      recipientName: selectedGift.recipientName || ""
                     })
                   })
                   .then(response => {
