@@ -963,8 +963,8 @@ export default function ClientRegistrationPage() {
                               onClick={() => field.onChange('newClient')}
                             >
                               <UserCircle className={`h-8 w-8 mb-2 ${field.value === 'newClient' ? 'text-[#FF92A5]' : 'text-gray-500'}`} />
-                              <span className={`font-medium ${field.value === 'newClient' ? 'text-[#FF92A5]' : 'text-gray-700'}`}>
-                                New Client
+                              <span className={`font-medium text-center ${field.value === 'newClient' ? 'text-[#FF92A5]' : 'text-gray-700'}`}>
+                                New<br/>Client
                               </span>
                             </div>
                             
@@ -976,8 +976,8 @@ export default function ClientRegistrationPage() {
                               onClick={() => field.onChange('salonOwner')}
                             >
                               <Building2 className={`h-8 w-8 mb-2 ${field.value === 'salonOwner' ? 'text-[#FF92A5]' : 'text-gray-500'}`} />
-                              <span className={`font-medium ${field.value === 'salonOwner' ? 'text-[#FF92A5]' : 'text-gray-700'}`}>
-                                Salon Owner
+                              <span className={`font-medium text-center ${field.value === 'salonOwner' ? 'text-[#FF92A5]' : 'text-gray-700'}`}>
+                                Salon<br/>Owner
                               </span>
                             </div>
                             
@@ -1030,7 +1030,7 @@ export default function ClientRegistrationPage() {
                             <FormLabel>Full Name</FormLabel>
                             <FormControl>
                               <Input 
-                                placeholder="Enter your full name" 
+                                placeholder="Enter full name" 
                                 {...field} 
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
@@ -1057,7 +1057,7 @@ export default function ClientRegistrationPage() {
                             <FormLabel>Phone Number</FormLabel>
                             <FormControl>
                               <PhoneInputField 
-                                placeholder="Enter your phone number" 
+                                placeholder="Enter phone number" 
                                 value={field.value} 
                                 onChange={(value) => {
                                   field.onChange(value);
@@ -1184,7 +1184,7 @@ export default function ClientRegistrationPage() {
                         name="sponsorSalonId"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Select Your Salon</FormLabel>
+                            <FormLabel>Select Salon</FormLabel>
                             <Select
                               onValueChange={(value) => field.onChange(parseInt(value, 10))}
                               defaultValue={field.value?.toString() || ""}
