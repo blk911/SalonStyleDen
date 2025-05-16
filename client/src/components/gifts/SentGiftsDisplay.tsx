@@ -11,7 +11,7 @@ import {
   DialogHeader, 
   DialogTitle 
 } from "@/components/ui/dialog";
-import { Loader2, Gift as GiftIcon, CheckCircle as CheckCircleIcon, Calendar, ExternalLink, Share2 } from "lucide-react";
+import { Loader2, Gift as GiftIcon, CheckCircle, Calendar, ExternalLink, Share2 } from "lucide-react";
 import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
 
 interface SentGift {
@@ -197,7 +197,7 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
                     {new Date(gift.createdAt).toLocaleDateString()}
                     {gift.status === "redeemed" && gift.redeemedAt && (
                       <span className="ml-2 flex items-center">
-                        <CheckCircleIcon className="h-3 w-3 mr-1 text-green-600" />
+                        <CheckCircle className="h-3 w-3 mr-1 text-green-600" />
                         Redeemed on {new Date(gift.redeemedAt).toLocaleDateString()}
                       </span>
                     )}
