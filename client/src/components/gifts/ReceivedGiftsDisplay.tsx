@@ -524,7 +524,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                             variant="default"
                             className="w-full font-bold tracking-wide bg-red-500 hover:bg-red-600 text-white rounded-md"
                           >
-                            SEND GIFT TO {gift.recipientName || "Client"}
+                            SEND GIFT REQUEST TO {gift.recipientName || "Client"}
                           </Button>
                         )}
                         
