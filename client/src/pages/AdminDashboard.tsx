@@ -719,6 +719,7 @@ export default function AdminDashboard() {
             title="Salon Directory"
             isOpen={salonDirectoryOpen}
             onToggle={() => setSalonDirectoryOpen(!salonDirectoryOpen)}
+            className="mb-2"
           >
             {/* Loading state */}
             {salonIsLoading && (
