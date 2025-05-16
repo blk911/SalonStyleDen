@@ -131,18 +131,6 @@ export default function ClientsPage() {
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             {/* Marketing Teaser Campaign Carousel */}
             <div className="mb-6">
-              <div className="flex items-center justify-center mb-3">
-                <h3 className="text-base md:text-xl font-serif font-bold text-red-600 w-full text-center">
-                  <div className="flex flex-col sm:flex-row items-center justify-center">
-                    <div className="mb-1 sm:mb-0">
-                      <span className="ven-me">Ven Me,</span><span className="baby">Baby!</span>
-                    </div> 
-                    <div className="sm:ml-2">
-                      Make Connections Personal!
-                    </div>
-                  </div>
-                </h3>
-              </div>
               
               {/* Import and use TeaserCarousel component */}
               <div className="overflow-hidden rounded-xl border shadow-md">
