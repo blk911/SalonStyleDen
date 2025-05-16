@@ -106,71 +106,7 @@ export interface IStorage {
 }
 
 // Copy over all the implementation from old storage.ts then add getSalonsTable method at the end
-interface DataCache<T> {
-  data: T[];
-  timestamp: number;
-}
-
 export class DatabaseStorage implements IStorage {
-  // Add cache properties
-  private _salonsCache: DataCache<Salon> = { data: [], timestamp: 0 };
-  private _clientsCache: DataCache<Client> = { data: [], timestamp: 0 };
-  private _invitationsCache: DataCache<Invitation> = { data: [], timestamp: 0 };
-  private _giftsCache: DataCache<Gift> = { data: [], timestamp: 0 };
-  private _activityLogsCache: DataCache<ActivityLog> = { data: [], timestamp: 0 };
-  
-  // Constants for cache management
-  private readonly CACHE_DURATION_MS = 30000; // 30 seconds
-  private readonly MAX_RETRIES = 3;
-  private readonly BASE_DELAY_MS = 1000;
-  
-  // Generic retry mechanism for database operations
-  private async withRetry<T>(
-    operation: () => Promise<T>,
-    entityName: string,
-    cache?: DataCache<T>,
-    cacheFilter?: (item: T) => boolean
-  ): Promise<T> {
-    let retries = this.MAX_RETRIES;
-    let delayMs = this.BASE_DELAY_MS;
-    
-    const performOperation = async (): Promise<T> => {
-      try {
-        // Add random jitter to avoid thundering herd problem
-        const jitter = Math.floor(Math.random() * 200);
-        await new Promise(resolve => setTimeout(resolve, jitter));
-        
-        return await operation();
-      } catch (error) {
-        console.error(`Error in database operation for ${entityName}:`, error);
-        
-        if (retries > 0) {
-          retries--;
-          console.log(`Retrying ${entityName} operation... (${retries} attempts left)`);
-          
-          // Wait using exponential backoff before retrying
-          await new Promise(resolve => setTimeout(resolve, delayMs));
-          delayMs *= 2; // Double the delay for the next retry
-          
-          return performOperation(); // Recursively retry
-        }
-        
-        // If we have cache and all retries failed, try to use cached data
-        if (cache && Array.isArray(cache.data) && cache.data.length > 0) {
-          console.log(`Using stale cached data for ${entityName} after all retries failed`);
-          // If we have a filter function, apply it to the cached data
-          if (cacheFilter && Array.isArray(cache.data)) {
-            return cache.data.filter(cacheFilter) as unknown as T;
-          }
-          return cache.data as unknown as T;
-        }
-        
-        throw error; // If no more retries and no usable cache, re-throw
-      }
-    };
-    
-    return performOperation();
-  }
   // User methods
   async getUser(id: number): Promise<User | undefined> {
     const results = await db.select().from(users).where(eq(users.id, id));
@@ -215,47 +151,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllSalons(): Promise<Salon[]> {
-    const MAX_RETRIES = 3; // Maximum number of retry attempts
-    const BASE_DELAY_MS = 1000; // Starting delay in milliseconds (will increase exponentially)
-    let retries = MAX_RETRIES;
-    let delayMs = BASE_DELAY_MS;
-    
-    // Use a static cache with timestamp to reduce database load
-    const CACHE_DURATION_MS = 30000; // 30 seconds
-    
-    // Static cache for salons
-    if (!this._salonsCache) {
-      this._salonsCache = {
-        data: [],
-        timestamp: 0
-      };
-    }
-    
-    // Check if we have fresh cached data
-    const now = Date.now();
-    if (this._salonsCache.data.length > 0 && 
-        now - this._salonsCache.timestamp < CACHE_DURATION_MS) {
-      console.log(`DatabaseStorage.getAllSalons - Using cached data (${this._salonsCache.data.length} salons)`);
-      return [...this._salonsCache.data]; // Return a copy of the cached data
-    }
+    let retries = 3; // Maximum number of retry attempts
+    let delayMs = 500; // Starting delay in milliseconds (will increase exponentially)
     
     const performQuery = async (): Promise<Salon[]> => {
       try {
         console.log('DatabaseStorage.getAllSalons - Attempting to fetch all salons');
-        
-        // Add random jitter to avoid thundering herd problem
-        const jitter = Math.floor(Math.random() * 200);
-        await new Promise(resolve => setTimeout(resolve, jitter));
-        
         const result = await db.select().from(salons);
         console.log(`DatabaseStorage.getAllSalons - Successfully retrieved ${result.length} salons`);
-        
-        // Update the cache
-        this._salonsCache = {
-          data: result,
-          timestamp: Date.now()
-        };
-        
         return result;
       } catch (error) {
         console.error('DatabaseStorage.getAllSalons - Error fetching salons:', error);
@@ -271,13 +174,7 @@ export class DatabaseStorage implements IStorage {
           return performQuery(); // Recursively retry
         }
         
-        // If we have stale cached data and all retries failed, return the stale data
-        if (this._salonsCache.data.length > 0) {
-          console.log(`DatabaseStorage.getAllSalons - Using stale cached data (${this._salonsCache.data.length} salons) after all retries failed`);
-          return [...this._salonsCache.data];
-        }
-        
-        throw error; // If no more retries and no cached data, re-throw to let the route handler catch it
+        throw error; // If no more retries, re-throw to let the route handler catch it
       }
     };
     
@@ -680,31 +577,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllClients(): Promise<Client[]> {
-    // Check if we have fresh cached data
-    const now = Date.now();
-    if (this._clientsCache.data.length > 0 && 
-        now - this._clientsCache.timestamp < this.CACHE_DURATION_MS) {
-      console.log(`DatabaseStorage.getAllClients - Using cached data (${this._clientsCache.data.length} clients)`);
-      return [...this._clientsCache.data]; // Return a copy of the cached data
+    try {
+      console.log('DatabaseStorage.getAllClients - Fetching all clients');
+      const result = await db.select().from(clients);
+      console.log(`DatabaseStorage.getAllClients - Retrieved ${result.length} clients`);
+      return result;
+    } catch (error) {
+      console.error('DatabaseStorage.getAllClients - Error fetching clients:', error);
+      throw error;
     }
-    
-    return this.withRetry(
-      async () => {
-        console.log('DatabaseStorage.getAllClients - Fetching all clients');
-        const result = await db.select().from(clients);
-        console.log(`DatabaseStorage.getAllClients - Retrieved ${result.length} clients`);
-        
-        // Update the cache
-        this._clientsCache = {
-          data: result,
-          timestamp: Date.now()
-        };
-        
-        return result;
-      },
-      'clients',
-      this._clientsCache
-    );
   }
 
   async updateClient(id: number, clientData: Partial<Client>): Promise<Client> {
@@ -1902,44 +1783,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRecentActivityLogs(limit: number = 10): Promise<ActivityLog[]> {
-    let retries = 3; // Maximum number of retry attempts
-    let delayMs = 500; // Starting delay in milliseconds (will increase exponentially)
-    
-    const performQuery = async (): Promise<ActivityLog[]> => {
-      try {
-        console.log(`DatabaseStorage.getRecentActivityLogs - Fetching ${limit} recent activity logs`);
-        const result = await db.select()
-          .from(activityLogs)
-          .orderBy(sql`${activityLogs.timestamp} DESC`)
-          .limit(limit);
-        
-        console.log(`DatabaseStorage.getRecentActivityLogs - Retrieved ${result.length} activity logs`);
-        return result;
-      } catch (error) {
-        console.error('Error fetching activity logs:', error);
-        
-        // Check if the error message indicates a rate limit issue
-        const errorMessage = error.toString().toLowerCase();
-        const isRateLimitError = errorMessage.includes('rate limit') || 
-                                 errorMessage.includes('too many requests') ||
-                                 errorMessage.includes('exceeded');
-        
-        if (retries > 0 && isRateLimitError) {
-          retries--;
-          console.log(`DatabaseStorage.getRecentActivityLogs - Rate limit detected. Retrying... (${retries} attempts left)`);
-          
-          // Wait using exponential backoff before retrying
-          await new Promise(resolve => setTimeout(resolve, delayMs));
-          delayMs *= 2; // Double the delay for the next retry (exponential backoff)
-          
-          return performQuery(); // Recursively retry
-        }
-        
-        throw error; // If no more retries or not a rate limit error, re-throw to let the route handler catch it
-      }
-    };
-    
-    return performQuery();
+    try {
+      const result = await db.select()
+        .from(activityLogs)
+        .orderBy(sql`${activityLogs.timestamp} DESC`)
+        .limit(limit);
+      
+      return result;
+    } catch (error) {
+      console.error('Error fetching activity logs:', error);
+      throw error;
+    }
   }
 
   async logVmbInvitationSent(clientId: number, salonId: number, styleId: number): Promise<ActivityLog> {
