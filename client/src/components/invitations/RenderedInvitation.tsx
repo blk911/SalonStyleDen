@@ -310,13 +310,13 @@ export function RenderedInvitation({
                            !isInPreviewMode && 
                            !(urlParams.get('delivered') === 'true') && (
                             <Button 
-                              className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
+                              className="w-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2"
                               onClick={() => {
-                                setLocation('/client-dashboard?tab=appointments');
+                                setLocation('/client-dashboard?tab=gifts');
                               }}
                             >
-                              <Calendar className="h-4 w-4" />
-                              Schedule Appointment
+                              <CheckCircle className="h-4 w-4" />
+                              Gift Received
                             </Button>
                           )}
                         </div>
