@@ -572,11 +572,22 @@ export default function AdminDashboard() {
       <Navbar />
       <main className="flex-grow p-4">
         <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
             <div>
-              <h1 className="text-2xl font-bold mb-1">Admin Dashboard</h1>
+              <h1 className="text-2xl font-bold mb-0">Admin Dashboard</h1>
             </div>
-            {/* Debug Controls hidden as requested */}
+            <div className="flex space-x-3">
+              <Link href="/dependencies">
+                <Button variant="outline" size="sm" className="text-xs bg-white hover:bg-gray-100">
+                  Dependencies
+                </Button>
+              </Link>
+              <Link href="/performance">
+                <Button variant="outline" size="sm" className="text-xs bg-white hover:bg-gray-100">
+                  Performance
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Ven Me Baby Style Options */}
