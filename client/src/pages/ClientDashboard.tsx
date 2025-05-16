@@ -801,7 +801,7 @@ export default function ClientDashboard() {
                     {client && (
                       <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start">
                         <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                          <CheckCircle className="h-5 w-5 text-green-600" />
+                          <CheckCircleIcon className="h-5 w-5 text-green-600" />
                         </div>
                         <div className="flex-grow">
                           <h4 className="font-medium text-gray-800">Gift Received</h4>

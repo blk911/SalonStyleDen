@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Gift as GiftIcon, Calendar, ExternalLink, CheckCircle } from "lucide-react";
+import { Loader2, Gift as GiftIcon, Calendar, ExternalLink, CheckCircle as CheckCircleIcon } from "lucide-react";
 import { formatCurrency, formatPhoneNumber, processInvitationMessage, cleanPhoneNumber } from "@/lib/utils";
 import { GiftClaimCard } from "./GiftClaimCard";
 
@@ -384,7 +384,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                   {isCollapsed && !isExpanded && (
                     <div className="flex justify-between items-center p-3">
                       <div className="flex items-center">
-                        <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                        <CheckCircleIcon className="h-4 w-4 text-green-600 mr-2" />
                         <div>
                           <span className="text-sm font-medium">Gift from {
                             gift.message && gift.message.includes('❤️') 
