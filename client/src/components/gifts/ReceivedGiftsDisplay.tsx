@@ -421,13 +421,15 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         <div className="flex justify-between">
                           <div>
                             <div className="flex justify-between items-center">
-                              <CardTitle className="text-lg">
-                                From: {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
+                              <CardTitle className="text-lg mb-0">
+                                <span className="inline-block font-normal">From:</span> {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
+                                <span className="font-semibold">
                                 {gift.message && gift.message.includes('❤️') 
                                   ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
                                   : gift.message && gift.message.includes('Annie')
                                     ? 'Annie'
                                     : gift.senderName || "Ellen"}
+                                </span>
                               </CardTitle>
                               {/* Add Hide button in expanded view */}
                               {isExpanded && (
@@ -445,10 +447,10 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                               {gift.amount > 0 && <>{formatCurrency(gift.amount / 100)}</>}
                             </CardDescription>
                             {gift.salonId && gift.salonName && (
-                              <div className="text-sm text-muted-foreground mt-1 ml-6">
-                                At: <a 
+                              <div className="text-lg font-normal mt-1">
+                                <span className="inline-block">At:</span> <a 
                                   href={`/salon/${gift.salonId}`} 
-                                  className="text-pink-600 hover:underline"
+                                  className="text-pink-600 hover:underline font-semibold"
                                   onClick={(e) => {
                                     e.preventDefault();
                                     window.location.href = `/salon/${gift.salonId}`;
