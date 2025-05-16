@@ -996,6 +996,7 @@ export default function AdminDashboard() {
             title="Salon to Client Invitations" 
             isOpen={invitationsOpen}
             onToggle={() => setInvitationsOpen(!invitationsOpen)}
+            className="mb-2"
           >
             {/* Invitations Count Summary */}
             {invitations && invitations.length > 0 && (
@@ -1270,6 +1271,7 @@ export default function AdminDashboard() {
               title="Current Clients"
               isOpen={clientsOpen}
               onToggle={() => setClientsOpen(!clientsOpen)}
+              className="mb-2"
             >
               {/* Loading state */}
               {clientIsLoading && (
@@ -1549,6 +1551,7 @@ export default function AdminDashboard() {
               title="Client Gift Requests"
               isOpen={giftRequestsOpen}
               onToggle={() => setGiftRequestsOpen(!giftRequestsOpen)}
+              className="mb-2"
             >
               {/* Loading state */}
               {giftsIsLoading && (
@@ -1706,6 +1709,7 @@ export default function AdminDashboard() {
               description="Explore component dependencies and relationships using Madge + Graphviz"
               isOpen={networkVisualizationOpen}
               onToggle={() => setNetworkVisualizationOpen(!networkVisualizationOpen)}
+              className="mb-2"
               action={
                 <Link 
                   to="/network-visualization"
@@ -1908,6 +1912,7 @@ export default function AdminDashboard() {
               description="Analyze and visualize code dependencies to safely isolate changes"
               isOpen={codeGraphOpen}
               onToggle={() => setCodeGraphOpen(!codeGraphOpen)}
+              className="mb-2"
             >
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 {/* Left Side - Controls */}
