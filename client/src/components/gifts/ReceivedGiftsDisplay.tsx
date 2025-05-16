@@ -77,10 +77,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
           });
         }
         
-        // Mark invitations as "pending" for proper claim flow
-        if (gift.giftType === 'invitation' && (gift.status === 'completed' || gift.status === 'claimed')) {
-          return { ...gift, status: 'pending' };
-        }
+        // Keep original status to preserve display
         return gift;
       }) as ReceivedGift[];
     },
