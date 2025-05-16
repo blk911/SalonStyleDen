@@ -2307,6 +2307,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register admin routes
   app.use("/api/admin", adminRouter);
 
+  // Register system metrics router
+  apiRouter.use('/system', systemMetricsRouter);
+  
+  // Add request tracking middleware for metrics
+  apiRouter.use((req: Request, res: Response, next: NextFunction) => {
+    // Start timer for response time tracking
+    const startTime = Date.now();
+    const originalPath = req.path;
+    
+    // Record API request after response is sent
+    const originalSend = res.send;
+    res.send = function(body) {
+      // Calculate response time
+      const responseTime = Date.now() - startTime;
+      
+      // Determine component based on path
+      let component = 'API Service';
+      if (originalPath.includes('/gifts')) {
+        component = 'Gift System';
+      } else if (originalPath.includes('/invitations')) {
+        component = 'Invitation System';
+      } else if (originalPath.includes('/clients')) {
+        component = 'Client Management';
+      } else if (originalPath.includes('/activity')) {
+        component = 'Activity Logging';
+      }
+      
+      // Record metrics
+      recordResponseTime(component, responseTime);
+      recordApiRequest(res.statusCode >= 400);
+      
+      // Log request details
+      logger.info('API Request', `${req.method} ${originalPath} - ${res.statusCode} in ${responseTime}ms`);
+      
+      return originalSend.call(this, body);
+    };
+    
+    next();
+  });
+  
   // Register API routes
   app.use("/api", apiRouter);
   

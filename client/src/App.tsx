@@ -19,6 +19,7 @@ import SalonsPage from "@/pages/SalonsPage";
 import PromosPage from "@/pages/PromosPage";
 import Sitemap from "@/pages/Sitemap";
 import AdminDashboard from "@/pages/AdminDashboard";
+import PerformancePage from "@/pages/PerformancePage";
 import TestImagePage from "@/pages/TestImagePage";
 import NetworkVisualization from "@/pages/NetworkVisualization";
 import MadgeVisualizationPage from "@/pages/MadgeVisualizationPage";
