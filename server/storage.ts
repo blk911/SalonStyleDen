@@ -1783,17 +1783,44 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRecentActivityLogs(limit: number = 10): Promise<ActivityLog[]> {
-    try {
-      const result = await db.select()
-        .from(activityLogs)
-        .orderBy(sql`${activityLogs.timestamp} DESC`)
-        .limit(limit);
-      
-      return result;
-    } catch (error) {
-      console.error('Error fetching activity logs:', error);
-      throw error;
-    }
+    let retries = 3; // Maximum number of retry attempts
+    let delayMs = 500; // Starting delay in milliseconds (will increase exponentially)
+    
+    const performQuery = async (): Promise<ActivityLog[]> => {
+      try {
+        console.log(`DatabaseStorage.getRecentActivityLogs - Fetching ${limit} recent activity logs`);
+        const result = await db.select()
+          .from(activityLogs)
+          .orderBy(sql`${activityLogs.timestamp} DESC`)
+          .limit(limit);
+        
+        console.log(`DatabaseStorage.getRecentActivityLogs - Retrieved ${result.length} activity logs`);
+        return result;
+      } catch (error) {
+        console.error('Error fetching activity logs:', error);
+        
+        // Check if the error message indicates a rate limit issue
+        const errorMessage = error.toString().toLowerCase();
+        const isRateLimitError = errorMessage.includes('rate limit') || 
+                                 errorMessage.includes('too many requests') ||
+                                 errorMessage.includes('exceeded');
+        
+        if (retries > 0 && isRateLimitError) {
+          retries--;
+          console.log(`DatabaseStorage.getRecentActivityLogs - Rate limit detected. Retrying... (${retries} attempts left)`);
+          
+          // Wait using exponential backoff before retrying
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          delayMs *= 2; // Double the delay for the next retry (exponential backoff)
+          
+          return performQuery(); // Recursively retry
+        }
+        
+        throw error; // If no more retries or not a rate limit error, re-throw to let the route handler catch it
+      }
+    };
+    
+    return performQuery();
   }
 
   async logVmbInvitationSent(clientId: number, salonId: number, styleId: number): Promise<ActivityLog> {
