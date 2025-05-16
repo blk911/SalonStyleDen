@@ -422,8 +422,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                           <div>
                             <div className="flex justify-between items-center">
                               <CardTitle className="text-lg mb-0">
-                                <span className="inline-block font-normal">From:</span> {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
-                                <span className="font-semibold">
+                                <span className="text-gray-500">From:</span> {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
+                                <span className="font-medium">
                                 {gift.message && gift.message.includes('❤️') 
                                   ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
                                   : gift.message && gift.message.includes('Annie')
@@ -448,9 +448,9 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                             </CardDescription>
                             {gift.salonId && gift.salonName && (
                               <div className="text-lg font-normal mt-1">
-                                <span className="inline-block">At:</span> <a 
+                                <span className="text-gray-500">At:</span> <a 
                                   href={`/salon/${gift.salonId}`} 
-                                  className="text-pink-600 hover:underline font-semibold"
+                                  className="text-pink-600 hover:underline font-medium"
                                   onClick={(e) => {
                                     e.preventDefault();
                                     window.location.href = `/salon/${gift.salonId}`;
