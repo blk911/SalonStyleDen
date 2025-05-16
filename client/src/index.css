@@ -18,14 +18,12 @@
 .logo {
   display: inline-block;
   font-family: 'Georgia', serif;
-  font-weight: 400;
-  letter-spacing: 0px;
-  word-spacing: 0px;
+  font-weight: 300; /* extra light */
+  letter-spacing: 0.25px;
+  word-spacing: 1px;
   text-align: center;
   color: black;
   line-height: 1.2;
-  margin: 0;
-  padding: 0;
 }
 
 /* Size variants */
@@ -34,21 +32,21 @@
 }
 
 .logo-md {
-  font-size: clamp(24px, 4vw, 36px);
+  font-size: clamp(20px, 4vw, 36px);
 }
 
 .logo-lg {
-  font-size: clamp(36px, 5vw, 48px);
+  font-size: clamp(30px, 5vw, 54px);
 }
 
 /* Default to medium if no size specified */
 .logo:not(.logo-sm):not(.logo-md):not(.logo-lg) {
-  font-size: clamp(24px, 4vw, 36px);
+  font-size: clamp(20px, 4vw, 36px);
 }
 
 .logo .ven-me {
   font-style: normal;
-  color: #000000;
+  color: black;
   font-weight: 400;
 }
 
@@ -56,6 +54,25 @@
   font-style: italic;
   color: #FF92A5;
   font-weight: 400;
+}
+
+/* Hero section specific styles */
+.hero-title {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.hero-title .ven-me {
+  font-family: 'Georgia', serif;
+  font-weight: 400;
+  color: #333;
+}
+
+.hero-title .baby {
+  font-family: 'Georgia', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: #FF92A5;
 }
 
 /* CLIENT VMB PROMO ENGINE STYLES */
