@@ -17,7 +17,7 @@ export default function Hero({
   ownerPhotoUrl 
 }: HeroProps) {
   return (
-    <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-3 lg:py-3">
+    <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-3 lg:py-3 border-b border-pink-200">
       <div className="flex justify-center mb-2">
         {/* Only show image if owner photo is provided (for salon pages) */}
         {ownerPhotoUrl && (
