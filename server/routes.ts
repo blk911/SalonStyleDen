@@ -2581,10 +2581,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/gifts", async (req: Request, res: Response) => {
     try {
       console.log(`[API] GET /gifts - Fetching all gifts`);
-      const allGifts = await storage.getAllGifts();
-      console.log(`[API] GET /gifts - Found ${allGifts.length} gifts`);
+      // Query gifts directly from the database
+      const result = await db.select().from(gifts).orderBy(sql`${gifts.createdAt} DESC`);
       
-      return res.json(allGifts);
+      console.log(`[API] GET /gifts - Found ${result.length} gifts`);
+      
+      return res.json(result);
     } catch (error) {
       console.error("Error fetching all gifts:", error);
       return res.status(500).json({

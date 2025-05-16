@@ -2646,6 +2646,25 @@ export class DatabaseStorage implements IStorage {
       return { hasUnredeemedGift: false };
     }
   }
+  async getAllGifts(): Promise<Gift[]> {
+    try {
+      console.log(`DatabaseStorage.getAllGifts - Fetching all gifts`);
+      
+      // Query all gifts from the database
+      const results = await db
+        .select()
+        .from(gifts)
+        .orderBy(desc(gifts.createdAt));
+      
+      console.log(`DatabaseStorage.getAllGifts - Retrieved ${results.length} gifts`);
+      
+      return results;
+    } catch (error) {
+      console.error(`Error getting all gifts:`, error);
+      throw error;
+    }
+  }
+
   async getPendingGifts(limit: number = 50): Promise<Gift[]> {
     try {
       console.log(`DatabaseStorage.getPendingGifts - Fetching ${limit} pending gift requests`);
