@@ -334,7 +334,7 @@ export function RenderedInvitation({
                               className="h-10 px-4 py-2 w-full bg-green-500 hover:bg-green-600 text-white font-medium"
                               onClick={onSendGift}
                             >
-                              SEND GIFT
+                              SEND GIFT REQUEST TO {recipientName}
                             </Button>
                           ) : (
                             <div className="h-10 px-4 py-2 w-full flex items-center justify-center text-sm font-medium rounded-md bg-gray-200 text-gray-600">
@@ -396,7 +396,7 @@ export function RenderedInvitation({
                             className="h-10 px-4 py-2 w-full bg-green-500 hover:bg-green-600 text-white font-medium"
                             onClick={onSendGift}
                           >
-                            SEND GIFT
+                            SEND GIFT REQUEST TO {recipientName}
                           </Button>
                         ) : (
                           <div className="h-10 px-4 py-2 w-full flex items-center justify-center text-sm font-medium rounded-md bg-gray-200 text-gray-600">
