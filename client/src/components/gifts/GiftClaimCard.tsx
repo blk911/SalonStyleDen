@@ -283,7 +283,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
                 Processing...
               </>
             ) : (
-              `SEND GIFT TO ${gift.recipientName || "RECIPIENT"}`
+              `SEND GIFT REQUEST TO ${gift.recipientName || "RECIPIENT"}`
             )}
           </Button>
           
