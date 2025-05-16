@@ -274,7 +274,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
           <Button 
             onClick={handleSubmit}
             disabled={claimGiftMutation.isPending || !phone}
-            className="w-full bg-pink-600 hover:bg-pink-700 font-bold"
+            className="w-full bg-pink-600 hover:bg-pink-700 font-bold text-sm"
             size="lg"
           >
             {claimGiftMutation.isPending ? (
@@ -283,7 +283,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
                 Processing...
               </>
             ) : (
-              `SEND GIFT REQUEST TO ${gift.recipientName || "RECIPIENT"}`
+              `Send gift request to ${gift.recipientName || "Recipient"}`
             )}
           </Button>
           
