@@ -493,16 +493,22 @@ export default function AdminDashboard() {
         }
       });
       
+      // If we get a 404, we'll consider this a "success" since the gift is already gone
+      if (response.status === 404) {
+        console.log(`Gift with ID ${giftId} not found - already deleted or doesn't exist`);
+        return { success: true, message: "Gift not found (already removed)" };
+      }
+      
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
         throw new Error(errorData.error || 'Failed to delete gift');
       }
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "Gift deleted",
-        description: "The gift has been permanently deleted from the system.",
+        description: "The gift has been removed from the system.",
         variant: "destructive"
       });
       setGiftToDelete(null);
