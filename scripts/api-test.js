@@ -5,7 +5,8 @@
  * Run with: node scripts/api-test.js
  */
 
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
+import { createInterface } from 'readline';
 
 // Configuration
 const BASE_URL = 'http://localhost:5000/api';
