@@ -260,7 +260,7 @@ export default function SalonsPage() {
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-3 lg:py-3 border-b border-pink-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative flex flex-col justify-center">
-            <div className="flex justify-center" style={{ marginBottom: '10px' }}>
+            <div className="flex justify-center" style={{ marginBottom: '15px' }}>
               <h1 className="logo logo-lg">
                 <span className="ven-me">Ven Me, </span>
                 <span className="baby">Baby!</span>

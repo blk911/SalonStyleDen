@@ -18,9 +18,9 @@
 .logo {
   display: inline-block;
   font-family: 'Georgia', serif;
-  font-weight: 300; /* extra light */
+  font-weight: 400;
   letter-spacing: 0.25px;
-  word-spacing: 1px;
+  word-spacing: 2px;
   text-align: center;
   color: black;
   line-height: 1.2;
@@ -36,7 +36,7 @@
 }
 
 .logo-lg {
-  font-size: clamp(30px, 5vw, 54px);
+  font-size: clamp(24px, 5vw, 48px);
 }
 
 /* Default to medium if no size specified */
