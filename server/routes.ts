@@ -2608,38 +2608,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update gift status
-  apiRouter.patch("/gifts/:id/status", async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const { status } = req.body;
-      
-      if (!id || isNaN(Number(id))) {
-        return res.status(400).json({
-          error: "Invalid gift ID"
-        });
-      }
-      
-      if (!status || typeof status !== 'string') {
-        return res.status(400).json({
-          error: "Status is required and must be a string"
-        });
-      }
-      
-      console.log(`[API] PATCH /gifts/${id}/status - Updating gift status to ${status}`);
-      const updatedGift = await storage.updateGiftStatus(Number(id), status);
-      console.log(`[API] PATCH /gifts/${id}/status - Gift status updated successfully`);
-      
-      return res.json(updatedGift);
-    } catch (error) {
-      console.error("Error updating gift status:", error);
-      return res.status(500).json({
-        error: "Server error while updating gift status"
-      });
-    }
-  });
-  
-  // Update gift or invitation status (combined endpoint for frontend convenience)
+  // Update gift or invitation status (combined endpoint)
   apiRouter.patch("/gifts/:id/status", async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -2657,53 +2626,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      console.log(`[API] PATCH /gifts/${id}/status - Checking item type...`);
+      console.log(`[API] PATCH /gifts/${id}/status - Updating status to ${status}`);
       
-      // Try to update as a gift first
-      let updated = false;
-      let result;
+      // First try to update as a gift
+      let isGift = false;
+      let isInvitation = false;
       
       try {
         const gift = await storage.getGift(Number(id));
         if (gift) {
-          console.log(`[API] PATCH /gifts/${id}/status - Found gift, updating status to ${status}`);
-          result = await storage.updateGiftStatus(Number(id), status);
-          updated = true;
+          isGift = true;
+          const updatedGift = await storage.updateGiftStatus(Number(id), status);
           console.log(`[API] PATCH /gifts/${id}/status - Gift status updated successfully`);
+          return res.json(updatedGift);
         }
       } catch (error) {
-        console.log(`[API] PATCH /gifts/${id}/status - Not a gift, trying invitation...`);
+        console.log(`[API] PATCH /gifts/${id}/status - Not found as a gift, trying as invitation`);
       }
       
-      // If not a gift, try as an invitation
-      if (!updated) {
+      // If not found as a gift, try to update as an invitation
+      if (!isGift) {
         try {
           const invitation = await storage.getInvitation(Number(id));
           if (invitation) {
-            console.log(`[API] PATCH /gifts/${id}/status - Found invitation, updating status to ${status}`);
-            result = await storage.updateInvitationStatus(Number(id), status);
-            updated = true;
+            isInvitation = true;
+            const updatedInvitation = await storage.updateInvitationStatus(Number(id), status);
             console.log(`[API] PATCH /gifts/${id}/status - Invitation status updated successfully`);
+            
+            // Convert the updated invitation to the gift format that the frontend expects
+            const giftFormat = {
+              id: updatedInvitation.id,
+              senderId: updatedInvitation.salonId,
+              recipientId: updatedInvitation.clientId || null,
+              recipientPhone: updatedInvitation.phone,
+              recipientEmail: updatedInvitation.email,
+              recipientName: updatedInvitation.name,
+              giftType: 'invitation',
+              styleId: null,
+              styleName: updatedInvitation.styleOption || null,
+              amount: updatedInvitation.stylePrice || 0,
+              message: updatedInvitation.notes || updatedInvitation.message || 'You received an invitation',
+              status: updatedInvitation.status,
+              salonId: updatedInvitation.salonId,
+              salonName: updatedInvitation.salonName || null,
+              giftHash: updatedInvitation.inviteHash,
+              senderName: updatedInvitation.sponsor || 'VMB LTD',
+              expiresAt: null,
+              createdAt: updatedInvitation.createdAt,
+              redeemedAt: status === 'redeemed' ? new Date() : 
+                          updatedInvitation.status === 'completed' ? updatedInvitation.createdAt : null
+            };
+            
+            return res.json(giftFormat);
           }
         } catch (error) {
-          console.error(`[API] PATCH /gifts/${id}/status - Error updating invitation:`, error);
+          console.error("Error updating invitation status:", error);
         }
       }
       
-      if (updated && result) {
-        return res.json({
-          success: true,
-          message: "Status updated successfully",
-          item: result
-        });
-      } else {
+      // If we get here, neither a gift nor an invitation was found
+      if (!isGift && !isInvitation) {
         return res.status(404).json({
           error: "Gift or invitation not found"
         });
       }
-      
     } catch (error) {
-      console.error("Error updating status:", error);
+      console.error("Error updating gift/invitation status:", error);
       return res.status(500).json({
         error: "Server error while updating status"
       });
