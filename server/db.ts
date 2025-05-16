@@ -17,15 +17,10 @@ if (!connectionString) {
 // Create a connection pool with more resilient settings
 export const pool = new Pool({ 
   connectionString,
-  max: 5, // Reduce max connections to avoid hitting rate limits
+  max: 3, // Reduce max connections to avoid hitting rate limits
   connectionTimeoutMillis: 15000, // Increase timeout for slower connections
   idleTimeoutMillis: 10000, // Reduce idle timeout to release connections faster
-  allowExitOnIdle: true, // Allow the pool to exit when idle
-  retry_strategy: {
-    max_retries: 5,      // Maximum number of retries
-    retry_delay: 100,    // Initial retry delay in ms
-    max_delay: 5000      // Maximum retry delay in ms
-  }
+  allowExitOnIdle: true // Allow the pool to exit when idle
 });
 
 // Add robust error handling to pool connections
