@@ -561,6 +561,23 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                           </Button>
                         )}
                         
+                        {/* Show Redeem button for completed invitations (for Bill's case) */}
+                        {(gift.status === "completed" && gift.giftType === 'invitation') && (
+                          <Button 
+                            size="default" 
+                            onClick={() => handleRedeemGift(gift)}
+                            disabled={redeemGiftMutation.isPending}
+                            className="w-full font-bold tracking-wide bg-red-500 hover:bg-red-600 text-white rounded-md text-sm"
+                          >
+                            {redeemGiftMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : (
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                            )}
+                            Claim Gift
+                          </Button>
+                        )}
+                        
                         {/* Show redeem button for non-invitation gifts that are ready to redeem */}
                         {(gift.status !== "redeemed" && gift.status !== "completed" && gift.status !== "pending" && 
                           gift.status !== "claimed" && gift.status !== "delivered" && gift.giftType !== 'invitation') && (
