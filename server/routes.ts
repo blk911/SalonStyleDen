@@ -2609,36 +2609,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update gift status
-  apiRouter.patch("/gifts/:id/status", async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const { status } = req.body;
-      
-      if (!id || isNaN(Number(id))) {
-        return res.status(400).json({
-          error: "Invalid gift ID"
-        });
-      }
-      
-      if (!status || typeof status !== 'string') {
-        return res.status(400).json({
-          error: "Status is required and must be a string"
-        });
-      }
-      
-      console.log(`[API] PATCH /gifts/${id}/status - Updating gift status to ${status}`);
-      const updatedGift = await storage.updateGiftStatus(Number(id), status);
-      console.log(`[API] PATCH /gifts/${id}/status - Gift status updated successfully`);
-      
-      return res.json(updatedGift);
-    } catch (error) {
-      console.error("Error updating gift status:", error);
-      return res.status(500).json({
-        error: "Server error while updating gift status"
-      });
-    }
-  });
-  
   // Update gift or invitation status (combined endpoint for frontend convenience)
   apiRouter.patch("/gifts/:id/status", async (req: Request, res: Response) => {
     try {
