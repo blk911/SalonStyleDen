@@ -778,7 +778,12 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                   const cleanedPhone = phone ? cleanPhoneNumber(phone) : "";
                   
                   // Make the API request
-                  fetch(`/api/gifts/${selectedGift.giftHash}/claim`, {
+                  // Check if this is an invitation type, which requires a different endpoint
+                  const endpoint = selectedGift.giftType === 'invitation' 
+                    ? `/api/invitations/${selectedGift.id}/accept`
+                    : `/api/gifts/${selectedGift.giftHash}/claim`;
+                    
+                  fetch(endpoint, {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json"
