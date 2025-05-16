@@ -574,24 +574,7 @@ export default function AdminDashboard() {
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
             <div>
-              <h1 className="text-2xl font-bold mb-3">Admin Dashboard</h1>
-              <div className="flex space-x-3 mb-4">
-                <Link href="/admin">
-                  <Button variant="outline" size="sm" className="bg-white hover:bg-gray-100">
-                    Dashboard
-                  </Button>
-                </Link>
-                <Link href="/admin/performance">
-                  <Button variant="outline" size="sm" className="bg-white hover:bg-gray-100">
-                    Performance
-                  </Button>
-                </Link>
-                <Link href="/dependencies">
-                  <Button variant="outline" size="sm" className="bg-white hover:bg-gray-100">
-                    Dependencies
-                  </Button>
-                </Link>
-              </div>
+              <h1 className="text-2xl font-bold mb-1">Admin Dashboard</h1>
             </div>
             {/* Debug Controls hidden as requested */}
           </div>
@@ -789,8 +772,8 @@ export default function AdminDashboard() {
             
             {/* Salons with collapsible entries */}
             {!salonIsLoading && !salonError && salons && salons.length > 0 && (
-              <ScrollArea className="max-h-[280px] mt-2">
-                <div className="space-y-3">
+              <ScrollArea className="max-h-[200px] mt-2">
+                <div className="space-y-2">
                   {salons.map((salon: Salon) => (
                     <div key={salon.id} className="border rounded-md overflow-hidden">
                       {/* Salon Header - Pink Background */}
@@ -1297,8 +1280,8 @@ export default function AdminDashboard() {
               
               {/* Data table */}
               {!clientIsLoading && !clientError && clients && clients.filter((client: Client) => client.isCurrentClient).length > 0 && (
-                <ScrollArea className="h-[300px]">
-                  <Table>
+                <ScrollArea className="max-h-[200px]">
+                  <Table className="text-xs">
                     <TableHeader>
                       <TableRow className="max-h-[30px]">
                         <TableHead className="max-h-[30px] py-1 text-center">Name</TableHead>
