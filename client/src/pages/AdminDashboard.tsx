@@ -573,10 +573,27 @@ export default function AdminDashboard() {
       <main className="flex-grow p-4">
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-            <div className="w-full md:w-64">
-              <DebugControls />
+            <div>
+              <h1 className="text-2xl font-bold mb-3">Admin Dashboard</h1>
+              <div className="flex space-x-3 mb-4">
+                <Link href="/admin">
+                  <Button variant="outline" size="sm" className="bg-white hover:bg-gray-100">
+                    Dashboard
+                  </Button>
+                </Link>
+                <Link href="/admin/performance">
+                  <Button variant="outline" size="sm" className="bg-white hover:bg-gray-100">
+                    Performance
+                  </Button>
+                </Link>
+                <Link href="/dependencies">
+                  <Button variant="outline" size="sm" className="bg-white hover:bg-gray-100">
+                    Dependencies
+                  </Button>
+                </Link>
+              </div>
             </div>
+            {/* Debug Controls hidden as requested */}
           </div>
 
           {/* Ven Me Baby Style Options */}
