@@ -572,7 +572,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                             {redeemGiftMutation.isPending ? (
                               <Loader2 className="h-4 w-4 animate-spin mr-2" />
                             ) : (
-                              <CheckCircle className="h-4 w-4 mr-2" />
+                              <CheckCircleIcon className="h-4 w-4 mr-2" />
                             )}
                             Redeem Gift
                           </Button>
@@ -582,7 +582,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         {isDelivered && (
                           <div className="w-full flex flex-col space-y-2">
                             <div className="flex items-center text-xs text-green-600">
-                              <CheckCircle className="h-3 w-3 mr-1" />
+                              <CheckCircleIcon className="h-3 w-3 mr-1" />
                               Delivered on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : new Date().toLocaleDateString()}
                             </div>
                             
