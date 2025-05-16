@@ -94,6 +94,9 @@ export default function Navbar() {
               <Link href="/dependencies">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Dependencies</div>
               </Link>
+              <Link href="/performance">
+                <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Performance</div>
+              </Link>
               <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
             </div>
             <LoadingIndicator />
@@ -131,6 +134,9 @@ export default function Navbar() {
           </Link>
           <Link href="/dependencies">
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Dependencies</div>
+          </Link>
+          <Link href="/performance">
+            <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Performance</div>
           </Link>
           <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
         </div>

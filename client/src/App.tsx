@@ -67,6 +67,8 @@ function Router() {
       <Route path="/sitemap" component={Sitemap} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/gifts/:id" component={GiftDetailPage} />
+      <Route path="/admin/performance" component={PerformancePage} />
+      <Route path="/performance" component={PerformancePage} />
       <Route path="/test-image/:id" component={TestImagePage} />
       <Route path="/network-visualization" component={NetworkVisualization} />
       <Route path="/madge-visualization" component={MadgeVisualizationPage} />
