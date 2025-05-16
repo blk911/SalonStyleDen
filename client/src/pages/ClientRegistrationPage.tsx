@@ -1057,7 +1057,7 @@ export default function ClientRegistrationPage() {
                             <FormLabel>Phone Number</FormLabel>
                             <FormControl>
                               <PhoneInputField 
-                                placeholder="Enter phone number" 
+                                placeholder="Enter cell number" 
                                 value={field.value} 
                                 onChange={(value) => {
                                   field.onChange(value);
