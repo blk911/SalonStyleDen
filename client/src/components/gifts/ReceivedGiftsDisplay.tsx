@@ -453,12 +453,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                                     e.preventDefault();
                                     window.location.href = `/salon/${gift.salonId}`;
                                   }}
-                                  title={gift.salonName || "Tiffany 5280 Nails Studio"}
                                 >
-                                  {(gift.salonName || "Tiffany 5280 Nails Studio").length > 14 
-                                    ? (gift.salonName || "Tiffany 5280 Nails Studio").substring(0, 14) + '...' 
-                                    : (gift.salonName || "Tiffany 5280 Nails Studio")
-                                  }
+                                  {gift.salonName || "Tiffany 5280 Nails Studio"}
                                 </a>
                               </div>
                             )}
