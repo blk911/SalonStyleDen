@@ -19,7 +19,7 @@ export function CollapsibleCard({
   isOpen,
   onToggle,
   children,
-  className = "mb-[3px]", // Set margin to exactly 3px
+  className = "mb-3", // Reduced margin from mb-6 to mb-3
   action,
 }: CardSectionProps) {
   return (
