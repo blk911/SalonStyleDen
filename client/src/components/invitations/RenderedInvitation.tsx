@@ -310,13 +310,13 @@ export function RenderedInvitation({
                            !isInPreviewMode && 
                            !(urlParams.get('delivered') === 'true') && (
                             <Button 
-                              className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
+                              className="w-full bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2"
                               onClick={() => {
                                 setLocation('/client-dashboard?tab=gifts');
                               }}
                             >
-                              <ShoppingBag className="h-4 w-4" />
-                              View Gift Details
+                              <CheckCircle className="h-4 w-4" />
+                              Gift Received
                             </Button>
                           )}
                         </div>
@@ -376,11 +376,11 @@ export function RenderedInvitation({
                           <Button 
                             className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
                             onClick={() => {
-                              setLocation('/client-dashboard?tab=gifts');
+                              setLocation('/client-dashboard?tab=appointments');
                             }}
                           >
-                            <ShoppingBag className="h-4 w-4" />
-                            View Gift Details
+                            <Calendar className="h-4 w-4" />
+                            Schedule Appointment
                           </Button>
                         )}
                       </div>
