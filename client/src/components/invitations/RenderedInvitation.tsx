@@ -303,10 +303,12 @@ export function RenderedInvitation({
                              'COMPLETED'}
                           </div>
                           
-                          {/* For completed invitations, show a Schedule button if viewing from client dashboard */}
+                          {/* For completed invitations, show a Schedule button if viewing from client dashboard 
+                             BUT ONLY if this is NOT a delivered invitation */}
                           {(localStatus === 'completed' || localStatus === 'redeemed') && 
                            sourceDashboard === 'client' && 
-                           !isInPreviewMode && (
+                           !isInPreviewMode && 
+                           !(urlParams.get('delivered') === 'true') && (
                             <Button 
                               className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
                               onClick={() => {
@@ -365,10 +367,12 @@ export function RenderedInvitation({
                            'COMPLETED'}
                         </div>
                         
-                        {/* For completed invitations, show a Schedule button if viewing from client dashboard */}
+                        {/* For completed invitations, show a Schedule button if viewing from client dashboard 
+                           BUT ONLY if this is NOT a delivered invitation */}
                         {(localStatus === 'completed' || localStatus === 'redeemed') && 
                          sourceDashboard === 'client' && 
-                         !isInPreviewMode && (
+                         !isInPreviewMode && 
+                         !(urlParams.get('delivered') === 'true') && (
                           <Button 
                             className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2"
                             onClick={() => {
