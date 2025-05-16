@@ -17,6 +17,8 @@ import appointmentRoutes from './routes/appointments';
 import createTimestampedBackup from './utils/create-backup';
 import { sponsorValidator } from './middleware/sponsor-validator';
 import { cleanPhoneNumber, isValidPhone, phonesMatch, phoneEndsWithDigits } from './utils';
+import { logger } from './logging';
+import { systemMetricsRouter, recordResponseTime, recordApiRequest } from './routes/system-metrics';
 
 // Set up multer for file uploads
 const uploadDir = path.join(process.cwd(), 'client/public/uploads');
