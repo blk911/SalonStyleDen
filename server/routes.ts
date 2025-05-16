@@ -2871,8 +2871,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
     } catch (error) {
       console.error("Error claiming gift:", error);
+      
+      // Provide more specific error messages based on the type of error
+      if (error instanceof Error) {
+        if (error.message.includes("not found")) {
+          return res.status(404).json({
+            error: "Gift not found",
+            details: error.message
+          });
+        } else if (error.message.includes("already claimed") || 
+                  error.message.includes("already redeemed")) {
+          return res.status(409).json({
+            error: "Gift already claimed or redeemed",
+            details: error.message
+          });
+        }
+      }
+      
+      // Default server error
       return res.status(500).json({
-        error: "Server error while claiming gift"
+        error: "Server error while claiming gift",
+        details: error instanceof Error ? error.message : "Unknown error"
       });
     }
   });

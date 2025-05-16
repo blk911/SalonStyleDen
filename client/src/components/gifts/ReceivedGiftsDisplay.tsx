@@ -741,6 +741,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                   const phone = selectedGift.recipientPhone || "";
                   const cleanedPhone = phone ? cleanPhoneNumber(phone) : "";
                   
+                  console.log(`Claiming gift with hash: ${selectedGift.giftHash}`);
+                  
                   // Make the API request
                   fetch(`/api/gifts/${selectedGift.giftHash}/claim`, {
                     method: "POST",
@@ -755,12 +757,14 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     })
                   })
                   .then(response => {
+                    console.log(`Gift claim response status: ${response.status}`);
                     if (!response.ok) {
                       throw new Error("Failed to send gift");
                     }
                     return response.json();
                   })
-                  .then(() => {
+                  .then((data) => {
+                    console.log("Gift claim successful:", data);
                     // Close the dialog
                     setShowConfirmationDialog(false);
                     
