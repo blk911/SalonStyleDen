@@ -416,47 +416,46 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                   {(!isCollapsed || isExpanded) && (
                     <>
                       <CardHeader className="pb-2">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="flex items-center mb-1">
-                              <span className="text-red-500 mr-1">•</span>
-                              <span className="text-sm font-medium">From:</span>{' '}
-                              <span className="font-medium ml-1">
-                              {gift.message && gift.message.includes('❤️') 
-                                ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
-                                : gift.message && gift.message.includes('Annie')
-                                  ? 'Annie'
-                                  : gift.senderName || "Ellen"}
-                              </span>
-                              {isExpanded && (
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="p-1 ml-2"
-                                  onClick={() => toggleGiftExpand(gift.id)}
-                                >
-                                  <span className="text-blue-600">Hide</span>
-                                  <span className="text-red-500 ml-1">•</span>
-                                </Button>
-                              )}
+                        <div className="flex flex-col space-y-2">
+                          {/* From section with dot and Hide button */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center">
+                                <span className="text-red-500 mr-1">•</span>
+                                <span className="font-medium">From:</span>{' '}
+                                <span className="ml-1">
+                                {gift.message && gift.message.includes('❤️') 
+                                  ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
+                                  : gift.message && gift.message.includes('Annie')
+                                    ? 'Annie'
+                                    : gift.senderName || "Annie"}
+                                </span>
+                              </div>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="p-1 h-6"
+                                onClick={() => toggleGiftExpand(gift.id)}
+                              >
+                                <span className="text-blue-600">Hide</span>
+                                <span className="text-red-500 ml-1">•</span>
+                              </Button>
                             </div>
                             
-                            {gift.salonId && gift.salonName && (
-                              <div className="flex items-center mb-1">
-                                <span className="text-red-500 mr-1">•</span>
-                                <span className="text-sm font-medium">At:</span>{' '}
-                                <a 
-                                  href={`/salon/${gift.salonId}`} 
-                                  className="text-pink-600 hover:underline font-medium ml-1"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    window.location.href = `/salon/${gift.salonId}`;
-                                  }}
-                                >
-                                  {gift.salonName || "Tiffany 5280 Nails Studio"}
-                                </a>
-                              </div>
-                            )}
+                            {/* At section with dot and salon name */}
+                            <div className="flex items-center">
+                              <span className="text-red-500 mr-1">•</span>
+                              <span className="font-medium">At:</span>{' '}
+                              <a 
+                                href={`/salon/${gift.salonId || 2}`} 
+                                className="text-pink-600 hover:underline font-medium ml-1"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  window.location.href = `/salon/${gift.salonId || 2}`;
+                                }}
+                              >
+                                {gift.salonName || "Tiffany 5280 Nails Studio"}
+                              </a>
+                            </div>
                           </div>
                           
                           {/* Style card display */}
