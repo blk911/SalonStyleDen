@@ -421,7 +421,11 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         <div className="flex items-center">
                           <span className="text-red-500 mr-1">•</span>
                           <span className="font-medium">From:</span>{' '}
-                          <span className="ml-1">Annie</span>
+                          <span className="ml-1">
+                            {gift.message && gift.message.includes('❤️') 
+                              ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '') || 'Annie'
+                              : gift.senderName || "Tiffany 5280 Nails Studio"}
+                          </span>
                         </div>
                         <Button 
                           variant="ghost" 
@@ -439,21 +443,35 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         <span className="text-red-500 mr-1">•</span>
                         <span className="font-medium">At:</span>{' '}
                         <a 
-                          href="#"
+                          href={`/salon/${gift.salonId || 2}`}
                           className="text-pink-600 hover:underline font-medium ml-1"
                         >
-                          Tiffany 5280 Nails Studio
+                          {gift.salonName || "Tiffany 5280 Nails Studio"}
                         </a>
                       </div>
                       
                       {/* Service card */}
                       <div className="bg-pink-50 rounded-md p-4 flex items-center w-full mb-3">
                         <div className="flex-grow">
-                          <div className="font-bold">French Tips / Touch-Up</div>
-                          <div className="text-sm text-gray-600 mt-1">Classic white tips or quick polish refresh</div>
+                          <div className="font-bold">
+                            {gift.styleName || 
+                              (gift.favoriteServices && gift.favoriteServices[0]) || 
+                              "French Tips / Touch-Up"}
+                          </div>
+                          <div className="text-sm text-gray-600 mt-1">
+                            {gift.giftType === "invitation" 
+                              ? "Classic white tips or quick polish refresh" 
+                              : "Salon service"}
+                          </div>
                           <div className="mt-2 flex items-baseline">
-                            <span className="font-bold text-lg">$40</span>
-                            <span className="ml-2 text-sm text-gray-500">30 min</span>
+                            <span className="font-bold text-lg">
+                              {gift.amount > 0 
+                                ? formatCurrency(gift.amount / 100) 
+                                : "$40"}
+                            </span>
+                            <span className="ml-2 text-sm text-gray-500">
+                              {gift.styleDuration || "30 min"}
+                            </span>
                           </div>
                         </div>
                         <div className="ml-4">
@@ -469,20 +487,26 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       <div className="flex mb-3">
                         <span className="text-red-500 mr-1">•</span>
                         <div className="text-gray-700 text-sm">
-                          Hi Tim, I would love a fresh set. My stylist has an opening for French Tips / Touch-Up, $40 (30 min) will you Ven Me, Baby! ❤️ ❤️ ❤️ Annie
+                          {gift.message 
+                            ? gift.message.replace(/VMB:VMB-\d+/, "").replace(/PS: Clients register here: 🏠/, "")
+                            : "No message provided"}
                         </div>
                       </div>
                       
                       {/* Delivery Status */}
                       <div className="flex items-center mb-1 text-sm text-green-600">
                         <CheckCircle className="h-4 w-4 mr-1" />
-                        <span>Delivered on 5/16/2025</span>
+                        <span>Delivered on {gift.redeemedAt 
+                          ? new Date(gift.redeemedAt).toLocaleDateString() 
+                          : "5/16/2025"}</span>
                       </div>
                       
                       {/* Date */}
                       <div className="flex items-center mb-4 text-sm text-gray-500">
                         <Calendar className="h-4 w-4 mr-1" />
-                        <span>5/16/2025</span>
+                        <span>{gift.createdAt 
+                          ? new Date(gift.createdAt).toLocaleDateString()
+                          : "5/16/2025"}</span>
                       </div>
                       
                       {/* View Gift Details Button */}
