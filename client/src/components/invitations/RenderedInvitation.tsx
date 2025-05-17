@@ -26,6 +26,7 @@ import {
 import { ShoppingBag, Calendar, CheckCircle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { DEFAULT_SALON_NAME, DEFAULT_SALON_ID, DEFAULT_OWNER_NAME } from "@/constants/salonConstants";
 
 // Extend the Window interface to add our client ID context
 declare global {
@@ -57,7 +58,7 @@ export function RenderedInvitation({
   price = "$45",
   time = "30 min",
   senderName,
-  salonName = "Tiffany 5280 Nails Studio",
+  salonName = DEFAULT_SALON_NAME,
   imageUrl = "/assets/french-tips.png",
   className = "",
   salonInitiated = false,

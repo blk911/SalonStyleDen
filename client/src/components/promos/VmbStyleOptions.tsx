@@ -27,6 +27,7 @@ import { apiRequest } from '../../lib/apiRequest';
 import { getImageUrl } from '../../lib/utils';
 import { useLocation } from 'wouter';
 import { queryClient } from '../../lib/queryClient';
+import { DEFAULT_SALON_NAME, DEFAULT_OWNER_NAME, DEFAULT_SALON_ID } from '@/constants/salonConstants';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -1061,7 +1062,7 @@ export function VmbStyleOptions({
                                 const name = recipientName || recipientData?.name || "Randy";
                                 const styleName = confirmedStyle.name;
                                 const priceTime = `$${confirmedStyle.price} (${confirmedStyle.duration} min)`;
-                                const signed = signature || recipientData?.sponsor || "Tiffany 5280 Nails Studio";
+                                const signed = signature || recipientData?.sponsor || DEFAULT_SALON_NAME;
                                 
                                 // Different message for salon-initiated vs client-initiated invitations
                                 if (salonInitiated) {
