@@ -26,6 +26,7 @@ import { useContactValidation } from "@/hooks/use-contact-validation";
 import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
 import VerificationModal from "@/components/shared/VerificationModal";
 import SuccessModal from "@/components/shared/SuccessModal";
+import { DEFAULT_SALON_NAME, DEFAULT_SALON_ID } from "@/constants/salonConstants";
 
 // Available salon services - updated to match approved Ven Me, Baby! Style Options
 const services = [
@@ -109,8 +110,8 @@ export default function ClientForm({
               ownerName: "Admin"
             },
             {
-              id: 2, 
-              name: "Tiffany 5280 Nails Studio",
+              id: DEFAULT_SALON_ID, 
+              name: DEFAULT_SALON_NAME,
               ownerName: "Tiffany"
             }
           ];
@@ -128,8 +129,8 @@ export default function ClientForm({
             ownerName: "Admin"
           },
           {
-            id: 2, 
-            name: "Tiffany 5280 Nails Studio",
+            id: DEFAULT_SALON_ID, 
+            name: DEFAULT_SALON_NAME,
             ownerName: "Tiffany"
           }
         ];

@@ -704,7 +704,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                      status: selectedGift.giftType === 'invitation' ? 'claimed' : 'redeemed',
+                      status: selectedGift.giftType === 'invitation' ? 'claimed' : GIFT_STATUSES.REDEEMED,
                       phone: cleanedPhone,
                       email: selectedGift.recipientEmail || "",
                       clientId,
