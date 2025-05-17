@@ -429,7 +429,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                           href={`/salon/${gift.salonId || 2}`}
                           className="text-pink-600 hover:underline font-medium ml-1"
                         >
-                          Tiffany 5280 Nails Studio
+                          {gift.salonName || "Tiffany 5280 Nails Studio"}
                         </a>
                       </div>
                       
@@ -438,14 +438,14 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         <div className="flex">
                           <div className="flex-grow">
                             <div className="font-bold">
-                              French Tips / Touch-Up
+                              {gift.styleName || "French Tips / Touch-Up"}
                             </div>
                             <div className="text-sm text-gray-600 mt-1">
                               Classic white tips or quick polish refresh
                             </div>
                             <div className="mt-2 flex items-baseline">
                               <span className="font-bold text-lg">
-                                $40
+                                ${gift.amount > 0 ? gift.amount : 40}
                               </span>
                               <span className="ml-2 text-sm text-gray-500">
                                 30 min
@@ -465,7 +465,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       {/* Message */}
                       <div className="mb-3">
                         <div className="text-gray-700">
-                          Hi Tim, I would love a fresh set. My stylist has an opening for French Tips / Touch-Up, $40 (30 min) will you Ven Me, Baby! ❤️ ❤️ ❤️ Annie
+                          {gift.message || "No message provided"}
                         </div>
                       </div>
                       
