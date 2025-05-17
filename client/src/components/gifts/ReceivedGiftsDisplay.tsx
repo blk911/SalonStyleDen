@@ -519,8 +519,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                                 </div>
                               </div>
                             ) : (
-                              <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center opacity-70">
-                                <div className="flex-grow">
+                              <div className="flex items-center opacity-90">
+                                <div className="pr-2">
                                   <div className="font-medium text-sm">Nail Service</div>
                                   <div className="text-xs text-gray-600">Style details in message</div>
                                 </div>
@@ -533,19 +533,29 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         </div>
                       </CardHeader>
                       <CardContent className="pb-2">
-                        {gift.message && <div className="text-sm italic">"{gift.message}"</div>}
+                        {gift.message && <div className="text-sm whitespace-pre-line">{gift.message}</div>}
+                        
+                        {/* Display delivered date directly in the card content for invitations */}
+                        {isDelivered && gift.giftType === 'invitation' && (
+                          <div className="flex items-center mt-2 text-xs text-green-600">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Delivered on {new Date(gift.createdAt).toLocaleDateString()}
+                          </div>
+                        )}
                       </CardContent>
                       <CardFooter className="flex justify-between items-center pt-0">
                         <div className="flex items-center text-xs text-muted-foreground">
                           <Calendar className="h-3 w-3 mr-1" />
                           {new Date(gift.createdAt).toLocaleDateString()}
                         </div>
-                        <Badge
-                          variant={isDelivered ? "outline" : "default"}
-                          className={isDelivered ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-200"}
-                        >
-                          {isDelivered ? "DELIVERED" : "Pending"}
-                        </Badge>
+                        {isDelivered && gift.giftType !== 'invitation' && (
+                          <Badge
+                            variant="outline"
+                            className="bg-green-100 text-green-800 border-green-300"
+                          >
+                            DELIVERED
+                          </Badge>
+                        )}
                       </CardFooter>
                       
                       {/* Additional actions */}
@@ -579,26 +589,17 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                           </Button>
                         )}
                         
-                        {/* Show delivered status */}
+                        {/* For delivered gifts, show only the View Gift Details button */}
                         {isDelivered && (
-                          <div className="w-full">
-                            <div className="flex items-center text-xs text-green-600 mb-2">
-                              <CheckCircleIcon className="h-3 w-3 mr-1" />
-                              Delivered on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : new Date().toLocaleDateString()}
-                            </div>
-                            
-                            {/* View Gift Details button - opens delivered gift details modal */}
-                            <Button 
-                              className="w-full bg-pink-500 hover:bg-pink-600 text-white rounded-md flex items-center justify-center gap-2"
-                              onClick={() => {
-                                setSelectedGift(gift);
-                                setShowDeliveredGiftDetails(true);
-                              }}
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                              View Gift Details
-                            </Button>
-                          </div>
+                          <Button 
+                            className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-md flex items-center justify-center gap-2"
+                            onClick={() => {
+                              setSelectedGift(gift);
+                              setShowDeliveredGiftDetails(true);
+                            }}
+                          >
+                            View Gift Details
+                          </Button>
                         )}
                       </div>
                     </>
