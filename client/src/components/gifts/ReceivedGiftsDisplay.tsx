@@ -353,7 +353,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                 variant="outline"
                 size="sm"
                 onClick={toggleAllDeliveredGifts}
-                className="text-xs px-2 py-1 h-8 bg-white hover:bg-gray-50"
+                className="text-xs px-3 py-1 h-8 bg-white hover:bg-gray-50 border border-green-300 text-green-700 font-medium rounded-md"
               >
                 {showAllDelivered ? "Hide Delivered" : "Show Delivered"}
               </Button>
@@ -397,8 +397,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         </div>
                       </div>
                       <div className="flex items-center">
-                        <Badge className="bg-green-100 text-green-800 border-green-300 mr-2 text-xs">
-                          Delivered
+                        <Badge className="bg-green-100 text-green-800 border-green-300 mr-2 text-xs font-medium">
+                          DELIVERED
                         </Badge>
                         <Button 
                           variant="ghost" 
@@ -406,7 +406,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                           className="p-1"
                           onClick={() => toggleGiftExpand(gift.id)}
                         >
-                          <span className="text-xs text-blue-600">Show</span>
+                          <span className="text-xs text-blue-600 font-medium">Show</span>
                         </Button>
                       </div>
                     </div>
