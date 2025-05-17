@@ -416,39 +416,38 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                   {(!isCollapsed || isExpanded) && (
                     <>
                       <CardHeader className="pb-2">
-                        <div className="flex justify-between">
+                        <div className="flex justify-between items-start">
                           <div>
-                            <div className="flex justify-between items-center">
-                              <CardTitle className="text-sm mb-0">
-                                <span className="text-gray-500">From:</span>{' '}{/* Extract sender name from message if it contains a signature, otherwise use senderName */}
-                                <span className="font-medium">
-                                {gift.message && gift.message.includes('❤️') 
-                                  ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
-                                  : gift.message && gift.message.includes('Annie')
-                                    ? 'Annie'
-                                    : gift.senderName || "Ellen"}
-                                </span>
-                              </CardTitle>
-                              {/* Add Hide button in expanded view */}
+                            <div className="flex items-center mb-1">
+                              <span className="text-red-500 mr-1">•</span>
+                              <span className="text-sm font-medium">From:</span>{' '}
+                              <span className="font-medium ml-1">
+                              {gift.message && gift.message.includes('❤️') 
+                                ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
+                                : gift.message && gift.message.includes('Annie')
+                                  ? 'Annie'
+                                  : gift.senderName || "Ellen"}
+                              </span>
                               {isExpanded && (
                                 <Button 
                                   variant="ghost" 
                                   size="sm" 
-                                  className="p-1 text-xs text-blue-600"
+                                  className="p-1 ml-2"
                                   onClick={() => toggleGiftExpand(gift.id)}
                                 >
-                                  Hide
+                                  <span className="text-blue-600">Hide</span>
+                                  <span className="text-red-500 ml-1">•</span>
                                 </Button>
                               )}
                             </div>
-                            <CardDescription>
-                              {gift.amount > 0 && <>{formatCurrency(gift.amount / 100)}</>}
-                            </CardDescription>
+                            
                             {gift.salonId && gift.salonName && (
-                              <div className="text-sm font-normal mt-1">
-                                <span className="text-gray-500">At:</span>{' '}<a 
+                              <div className="flex items-center mb-1">
+                                <span className="text-red-500 mr-1">•</span>
+                                <span className="text-sm font-medium">At:</span>{' '}
+                                <a 
                                   href={`/salon/${gift.salonId}`} 
-                                  className="text-pink-600 hover:underline font-medium"
+                                  className="text-pink-600 hover:underline font-medium ml-1"
                                   onClick={(e) => {
                                     e.preventDefault();
                                     window.location.href = `/salon/${gift.salonId}`;
