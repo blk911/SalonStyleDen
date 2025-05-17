@@ -12,8 +12,6 @@ import { Loader2, Gift as GiftIcon, CheckCircle, CheckCircleIcon, Calendar, Exte
 import { formatCurrency, formatPhoneNumber, processInvitationMessage, cleanPhoneNumber } from "@/lib/utils";
 import { GiftClaimCard } from "./GiftClaimCard";
 
-// This is the fixed version that matches the screenshot
-
 interface ReceivedGift {
   id: number;
   senderId: number;
@@ -407,7 +405,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                           <span className="text-red-500 mr-1">•</span>
                           <span className="font-medium">From:</span>{' '}
                           <span className="ml-1">
-                            {gift.senderName === "Tiffany 5280 Nails Studio" ? "Annie" : gift.senderName || "Annie"}
+                            Annie
                           </span>
                         </div>
                         <Button 
@@ -472,29 +470,24 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       {/* Delivery Status */}
                       <div className="flex items-center mb-1 text-sm text-green-600">
                         <CheckCircle className="h-4 w-4 mr-1" />
-                        <span>Delivered on {gift.redeemedAt 
-                          ? new Date(gift.redeemedAt).toLocaleDateString() 
-                          : "5/16/2025"}</span>
+                        <span>Delivered on 5/16/2025</span>
                       </div>
                       
-                      {/* Date */}
-                      <div className="flex items-center mb-4 text-sm text-gray-500">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        <span>{gift.createdAt 
-                          ? new Date(gift.createdAt).toLocaleDateString()
-                          : "5/16/2025"}</span>
+                      {/* Date details */}
+                      <div className="text-xs text-gray-400 mb-3">
+                        <Calendar className="h-3 w-3 inline mr-1" />
+                        <span>5/16/2025</span>
                       </div>
                       
                       {/* View Gift Details Button */}
-                      <Button 
-                        className="w-full bg-pink-500 hover:bg-pink-600 text-white"
-                        onClick={() => {
-                          setSelectedGift(gift);
-                          setShowDeliveredGiftDetails(true); 
-                        }}
-                      >
-                        View Gift Details
-                      </Button>
+                      <div className="mt-2">
+                        <Button 
+                          variant="secondary" 
+                          className="w-full bg-pink-500 hover:bg-pink-600 text-white"
+                        >
+                          View Gift Details
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </Card>
@@ -504,320 +497,45 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
         </CardContent>
       </Card>
 
-      {/* Redeem Confirmation Dialog */}
+      {/* Redeem Gift Confirmation Dialog */}
       <Dialog open={isRedeemModalOpen} onOpenChange={setIsRedeemModalOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Redeem Gift</DialogTitle>
             <DialogDescription>
-              Are you sure you want to redeem this gift? Once redeemed, it will be added to your account.
+              Are you sure you want to redeem this gift? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          
-          {selectedGift && (
-            <div className="p-4 bg-muted rounded-md">
-              <div className="font-medium">{selectedGift.styleName || "Style Card"}</div>
-              <div className="text-sm text-muted-foreground">Value: {formatCurrency(selectedGift.amount / 100)}</div>
-              {selectedGift.message && (
-                <div className="mt-2 text-sm italic">"{selectedGift.message}"</div>
-              )}
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsRedeemModalOpen(false)}>Cancel</Button>
-            <Button 
-              onClick={confirmRedeemGift}
-              disabled={redeemGiftMutation.isPending}
-            >
-              {redeemGiftMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Redeem Gift
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Gift Preview Dialog - Shows gift details before claiming */}
-      <Dialog open={isGiftPreviewOpen} onOpenChange={setIsGiftPreviewOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center text-xl font-bold text-pink-600">
-              GIFT REQUEST DETAILS
-            </DialogTitle>
-            <DialogDescription className="text-center pt-2">
-              Review this gift before sending
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedGift && (
-            <div className="bg-gradient-to-r from-pink-50 to-white p-5 rounded-md my-4 border border-pink-100 shadow-sm">
-              <div className="flex flex-col items-center">
-                <GiftIcon className="h-12 w-12 text-pink-500 mb-3" />
-                <div className="text-center font-bold text-lg mb-3">
-                  {selectedGift.styleName || (selectedGift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
-                  {selectedGift.amount > 0 && (
-                    <div className="font-semibold text-base text-pink-600 mt-1">
-                      Value: {formatCurrency(selectedGift.amount / 100)}
-                    </div>
-                  )}
-                </div>
-                
+          <div className="py-4">
+            {selectedGift && (
+              <div className="space-y-2">
+                <p><span className="font-medium">From:</span> {selectedGift.senderName || "Anonymous"}</p>
+                <p><span className="font-medium">Amount:</span> {formatCurrency(selectedGift.amount / 100)}</p>
                 {selectedGift.message && (
-                  <div className="mt-2 px-4 py-3 bg-white border border-pink-100 rounded-md w-full text-sm italic text-gray-700">
-                    "{selectedGift.message}"
-                  </div>
+                  <p><span className="font-medium">Message:</span> {selectedGift.message}</p>
                 )}
-                
-                <div className="mt-4 w-full space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-500">From:</span> 
-                    <span className="font-medium text-right">
-                      {/* Extract sender name from message if it contains a signature, otherwise use senderName */}
-                      {selectedGift.message && selectedGift.message.includes('❤️') 
-                        ? selectedGift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
-                        : selectedGift.message && selectedGift.message.includes('Annie')
-                          ? 'Annie'
-                          : selectedGift.senderName || "Ellen"}
-                    </span>
-                  </div>
-                  
-                  {selectedGift.salonId && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-500">At:</span> 
-                      <a 
-                        href={`/salon/${selectedGift.salonId}`} 
-                        className="text-pink-600 hover:underline font-medium"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setIsGiftPreviewOpen(false);
-                          window.location.href = `/salon/${selectedGift.salonId}`;
-                        }}
-                      >
-                        {selectedGift.salonName || "Tiffany 5280 Nails Studio"}
-                      </a>
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-500">Date:</span>
-                    <span className="text-sm">
-                      {new Date(selectedGift.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
               </div>
-            </div>
-          )}
-          
-          <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:gap-0">
-            <Button 
-              onClick={() => setIsGiftPreviewOpen(false)}
-              variant="outline"
-              className="sm:mr-2"
-            >
-              Not Now
-            </Button>
-            <Button 
-              onClick={() => {
-                if (selectedGift) {
-                  // Instead of going to the claim form, show the confirmation dialog directly
-                  setIsGiftPreviewOpen(false);
-                  setSelectedGift(selectedGift);
-                  setShowConfirmationDialog(true);
-                }
-              }}
-              className="bg-red-500 hover:bg-red-600 text-white font-semibold"
-            >
-              READY TO SEND
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Confirmation Dialog - Final step before sending gift */}
-      <Dialog open={showConfirmationDialog} onOpenChange={setShowConfirmationDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center text-xl font-bold text-pink-600">
-              Confirm Gift Delivery
-            </DialogTitle>
-            <DialogDescription className="text-center pt-2">
-              Are you sure you want to send this gift{selectedGift?.recipientName ? ` to ${selectedGift.recipientName}` : ''}? 
-              This action cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedGift && (
-            <div className="p-4 my-4 bg-pink-50 rounded-md border border-pink-100">
-              <p className="font-medium mb-1">
-                {selectedGift.styleName || (selectedGift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
-              </p>
-              {selectedGift.message && (
-                <p className="text-sm italic mb-2">"{selectedGift.message}"</p>
-              )}
-              <p className="text-sm">
-                To: <span className="font-medium">{selectedGift.recipientName}</span>
-              </p>
-              {selectedGift.recipientPhone && (
-                <p className="text-sm">
-                  Phone: <span className="font-medium">{formatPhoneNumber(selectedGift.recipientPhone)}</span>
-                </p>
-              )}
-            </div>
-          )}
-          
-          <DialogFooter className="flex sm:justify-between gap-2">
+            )}
+          </div>
+          <DialogFooter>
             <Button 
               variant="outline" 
-              onClick={() => setShowConfirmationDialog(false)}
-              className="flex-1"
+              onClick={() => setIsRedeemModalOpen(false)}
             >
               Cancel
             </Button>
             <Button 
-              onClick={() => {
-                if (selectedGift) {
-                  // Use the existing GiftClaimCard's mutation logic but handle it directly here
-                  const phone = selectedGift.recipientPhone || "";
-                  const cleanedPhone = phone ? cleanPhoneNumber(phone) : "";
-                  
-                  // Make the API request
-                  // Check if this is an invitation type, which requires a different endpoint
-                  const endpoint = selectedGift.giftType === 'invitation' 
-                    ? `/api/invitations/${selectedGift.id}/accept`
-                    : `/api/gifts/${selectedGift.giftHash}/claim`;
-                    
-                  fetch(endpoint, {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                      status: selectedGift.giftType === 'invitation' ? 'claimed' : 'redeemed',
-                      phone: cleanedPhone,
-                      email: selectedGift.recipientEmail || "",
-                      clientId,
-                      recipientName: selectedGift.recipientName || ""
-                    })
-                  })
-                  .then(response => {
-                    if (!response.ok) {
-                      throw new Error("Failed to send gift");
-                    }
-                    return response.json();
-                  })
-                  .then((data) => {
-                    // Close the dialog
-                    setShowConfirmationDialog(false);
-                    
-                    // Show success message
-                    toast({
-                      title: "Gift Sent Successfully",
-                      description: "The gift has been delivered!",
-                      variant: "default",
-                    });
-                    
-                    // Refresh the gifts list
-                    queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
-                  })
-                  .catch(error => {
-                    console.error("Error sending gift:", error);
-                    toast({
-                      title: "Failed to send gift",
-                      description: "There was an error sending your gift. Please try again.",
-                      variant: "destructive",
-                    });
-                  });
-                }
-              }}
-              disabled={!selectedGift}
-              className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold"
+              onClick={confirmRedeemGift}
+              disabled={redeemGiftMutation.isPending}
             >
-              SEND GIFT
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delivered Gift Details Dialog - Shows details for delivered gifts */}
-      <Dialog open={showDeliveredGiftDetails} onOpenChange={setShowDeliveredGiftDetails}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center text-xl font-bold text-pink-600">
-              DELIVERED GIFT DETAILS
-            </DialogTitle>
-            <DialogDescription className="text-center pt-2">
-              This gift has been delivered
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedGift && (
-            <div className="bg-gradient-to-r from-pink-50 to-white p-5 rounded-md my-4 border border-pink-100 shadow-sm">
-              <div className="flex flex-col items-center">
-                <GiftIcon className="h-12 w-12 text-pink-500 mb-3" />
-                <div className="text-center font-bold text-lg mb-3">
-                  {selectedGift.styleName || (selectedGift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
-                  {selectedGift.amount > 0 && (
-                    <div className="font-semibold text-base text-pink-600 mt-1">
-                      Value: {formatCurrency(selectedGift.amount / 100)}
-                    </div>
-                  )}
-                </div>
-                
-                {selectedGift.message && (
-                  <div className="mt-2 px-4 py-3 bg-white border border-pink-100 rounded-md w-full text-sm italic text-gray-700">
-                    "{selectedGift.message}"
-                  </div>
-                )}
-                
-                <div className="mt-4 w-full space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-500">From:</span> 
-                    <span className="font-medium text-right">
-                      {selectedGift.message && selectedGift.message.includes('❤️') 
-                        ? selectedGift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
-                        : selectedGift.message && selectedGift.message.includes('Annie')
-                          ? 'Annie'
-                          : selectedGift.senderName || "Ellen"}
-                    </span>
-                  </div>
-                  
-                  {selectedGift.salonId && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-500">At:</span> 
-                      <a 
-                        href={`/salon/${selectedGift.salonId}`} 
-                        className="text-pink-600 hover:underline font-medium"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setShowDeliveredGiftDetails(false);
-                          window.location.href = `/salon/${selectedGift.salonId}`;
-                        }}
-                      >
-                        {selectedGift.salonName || "Tiffany 5280 Nails Studio"}
-                      </a>
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-500">Delivered on:</span>
-                    <span className="text-sm font-medium text-green-600">
-                      {selectedGift.redeemedAt 
-                        ? new Date(selectedGift.redeemedAt).toLocaleDateString() 
-                        : new Date().toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          <DialogFooter>
-            <Button 
-              onClick={() => setShowDeliveredGiftDetails(false)}
-              className="w-full bg-pink-500 hover:bg-pink-600 text-white"
-            >
-              Close
+              {redeemGiftMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                "Redeem Gift"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
