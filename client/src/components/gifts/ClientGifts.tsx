@@ -56,6 +56,7 @@ interface ClientGiftsProps {
 export default function ClientGifts({ clientId, completedInvitations = [] }: ClientGiftsProps) {
   const [selectedGift, setSelectedGift] = useState<Gift | null>(null);
   const [giftDetailsOpen, setGiftDetailsOpen] = useState(false);
+  const [showDelivered, setShowDelivered] = useState(true);
   
   // Fetch received gifts
   const { data: receivedGifts, isLoading: isLoadingReceived } = useQuery({
@@ -123,31 +124,28 @@ export default function ClientGifts({ clientId, completedInvitations = [] }: Cli
       <Dialog open={giftDetailsOpen} onOpenChange={setGiftDetailsOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Gift Details</DialogTitle>
-            <DialogDescription>
-              View details about your gift
-            </DialogDescription>
+            <DialogTitle className="text-center">Gift Details</DialogTitle>
           </DialogHeader>
           
           {selectedGift && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div className="flex justify-center">
                 <Badge 
                   variant="outline" 
-                  className="px-4 py-2 text-lg font-semibold bg-blue-50"
+                  className="px-6 py-2 text-lg font-medium bg-green-50 border-green-200 text-green-700 rounded-full"
                 >
                   DELIVERED
                 </Badge>
               </div>
               
-              <div className="space-y-2">
-                <div className="flex items-center text-sm">
-                  <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                  <span className="text-gray-700">
-                    Gift sent on {formatDate(selectedGift.createdAt)}
-                  </span>
+              <div className="text-center">
+                <div className="text-sm text-gray-600">
+                  Gift sent on {formatDate(selectedGift.createdAt)}
                 </div>
-                
+              </div>
+              
+              {/* Information card with subtle styling */}
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 space-y-3">
                 {selectedGift.senderName && (
                   <div className="flex items-center text-sm">
                     <Gift className="h-4 w-4 mr-2 text-gray-500" />
@@ -166,16 +164,39 @@ export default function ClientGifts({ clientId, completedInvitations = [] }: Cli
                   </div>
                 )}
                 
-                {selectedGift.message && (
-                  <div className="mt-4 p-3 bg-gray-50 rounded-md text-sm italic">
-                    "{selectedGift.message}"
+                {selectedGift.styleName && (
+                  <div className="flex items-center text-sm">
+                    <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                    <span className="text-gray-700">
+                      Service: {selectedGift.styleName || 'Beauty Service'}
+                    </span>
+                  </div>
+                )}
+                
+                {selectedGift.status === 'completed' && (
+                  <div className="flex items-center text-sm text-green-600">
+                    <div className="flex-shrink-0 h-4 w-4 bg-green-100 rounded-full flex items-center justify-center mr-1">
+                      <span className="block h-2 w-2 rounded-full bg-green-600"></span>
+                    </div>
+                    <span>Delivered on {formatDate(selectedGift.redeemedAt || selectedGift.createdAt)}</span>
                   </div>
                 )}
               </div>
               
-              <div className="mt-4 pt-4 border-t flex justify-center">
+              {selectedGift.message && (
+                <div className="p-4 bg-gray-50 rounded-md text-sm italic border border-gray-200">
+                  "{selectedGift.message}"
+                </div>
+              )}
+              
+              <div className="mt-6 flex justify-center">
                 <DialogClose asChild>
-                  <Button variant="secondary">Close</Button>
+                  <Button 
+                    variant="default" 
+                    className="px-8 bg-pink-500 hover:bg-pink-600 text-white"
+                  >
+                    Close
+                  </Button>
                 </DialogClose>
               </div>
             </div>
@@ -205,8 +226,23 @@ export default function ClientGifts({ clientId, completedInvitations = [] }: Cli
               Gifts You've Received
             </AccordionTrigger>
             <AccordionContent>
+              <div className="flex justify-between items-center mb-4">
+                <div className="text-sm text-muted-foreground">
+                  {receivedGifts?.filter(gift => gift.status === 'completed').length || 0} delivered gift(s)
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className={`text-xs ${showDelivered ? 'bg-green-50 border-green-200 text-green-700' : ''}`}
+                  onClick={() => setShowDelivered(!showDelivered)}
+                >
+                  {showDelivered ? 'Hide Delivered' : 'Show Delivered'}
+                </Button>
+              </div>
               <div className="space-y-4">
-                {receivedGifts?.map((gift) => (
+                {receivedGifts
+                  ?.filter(gift => showDelivered || gift.status !== 'completed')
+                  .map((gift) => (
                   <Card key={gift.id} className="overflow-hidden">
                     <div className={`h-2 ${getStatusColor(gift.status)}`} />
                     <CardContent className="pt-4">
@@ -221,7 +257,7 @@ export default function ClientGifts({ clientId, completedInvitations = [] }: Cli
                               </Badge>
                             </h3>
                             {gift.status === 'completed' && (
-                              <Badge variant="outline" className="ml-2 bg-blue-50">DELIVERED</Badge>
+                              <Badge variant="outline" className="ml-2 bg-blue-50 px-3 py-1">DELIVERED</Badge>
                             )}
                           </div>
                           <div className="mt-2 space-y-1 text-sm">
@@ -241,11 +277,23 @@ export default function ClientGifts({ clientId, completedInvitations = [] }: Cli
                               </div>
                             )}
                           </div>
+                          <div className="flex items-center text-sm text-muted-foreground mt-2">
+                            <Calendar className="h-4 w-4 mr-1" />
+                            <span>{formatDate(gift.createdAt)}</span>
+                          </div>
+                          {gift.status === 'completed' && (
+                            <div className="flex items-center text-sm text-green-600 mt-1">
+                              <div className="flex-shrink-0 h-4 w-4 bg-green-100 rounded-full flex items-center justify-center mr-1">
+                                <span className="block h-2 w-2 rounded-full bg-green-600"></span>
+                              </div>
+                              <span>Delivered on {formatDate(gift.redeemedAt || gift.createdAt)}</span>
+                            </div>
+                          )}
                           {(gift.status === 'completed' || gift.status === 'delivered') && (
                             <CardFooter className="px-0 pt-4 pb-0">
                               <Button 
                                 variant="secondary" 
-                                className="w-full"
+                                className="w-full bg-pink-200 hover:bg-pink-300 text-pink-800"
                                 onClick={() => viewGiftDetails(gift)}
                               >
                                 View Gift
