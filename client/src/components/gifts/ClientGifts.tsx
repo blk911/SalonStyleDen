@@ -353,15 +353,15 @@ function getStatusText(status: string): string {
     case 'redeemed':
       return 'Redeemed';
     case 'sent':
-      return 'Sent';
+      return 'Delivered';
     case 'expired':
       return 'Expired';
     case 'confirmed':
       return 'Confirmed';
     case 'completed':
-      return 'Completed';
+      return 'Delivered';
     case 'delivered':
-      return 'DELIVERED';
+      return 'Delivered';
     case 'cancelled':
       return 'Cancelled';
     default:
