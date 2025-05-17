@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ExternalLinkIcon, HeartIcon, PlusCircleIcon, XIcon } from "lucide-react";
 import GiftCreationFlow from "./GiftCreationFlow";
-import { ReceivedGiftsDisplay } from "./ReceivedGiftsDisplay";
+import { FixedGiftsDisplay } from "./FixedGiftsDisplay";
 import { SentGiftsDisplay } from "./SentGiftsDisplay";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -248,9 +248,9 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         </CardContent>
       </Card>
 
-      {/* Always show Gifts Received section using the new ReceivedGiftsDisplay component */}
+      {/* Always show Gifts Received section using the fixed gift display component */}
       {clientId ? (
-        <ReceivedGiftsDisplay 
+        <FixedGiftsDisplay 
           clientId={clientId}
           setLocation={(to: string) => setLocation(to)}
         />
