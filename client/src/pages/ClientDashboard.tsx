@@ -23,7 +23,7 @@ import InlineVmbInvitations from "@/components/dashboard/InlineVmbInvitations";
 import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitations";
 import SentInvitations from "@/components/dashboard/SentInvitations";
 import ClientInviteForm from "@/components/dashboard/ClientInviteForm";
-import ClientAppointments from "@/components/appointments/ClientAppointments";
+import ClientGifts from "@/components/gifts/ClientGifts";
 import GiftsPage from "@/components/gifts/GiftsPage";
 import InvitationsPage from "@/components/invitations/InvitationsPage";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
@@ -711,7 +711,7 @@ export default function ClientDashboard() {
                 </div>
               </TabsTrigger>
               <TabsTrigger 
-                value="appointments" 
+                value="vmb-activity" 
                 className="bg-white shadow-md rounded-md transition-all duration-200 
                            border border-gray-100
                            hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100
@@ -723,15 +723,25 @@ export default function ClientDashboard() {
                            data-[state=active]:border-r data-[state=active]:border-r-blue-200"
               >
                 <div className="w-full text-center py-2">
-                  <div className="font-semibold text-gray-800">Appointments</div>
+                  <div className="font-semibold text-gray-800">Activity</div>
                   <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
-                    <span>Pending</span>
+                    <span>History</span>
                     <span className="text-muted-foreground/30 px-1">|</span>
-                    <span>Booked</span>
+                    <span>Stats</span>
                   </div>
                 </div>
               </TabsTrigger>
             </TabsList>
+            
+            <TabsContent value="vmb-activity" className="mt-12 transition-all duration-300 animate-in fade-in-50">
+              <div className="bg-white rounded-xl shadow-md p-4 border border-blue-200 bg-gradient-to-b from-blue-50/50 to-white">
+                <h3 className="text-lg font-semibold mb-3">Activity History</h3>
+                <p className="text-gray-600 mb-4">Track your gifts, invitations, and platform activity.</p>
+                <div className="p-4 border border-blue-100 rounded-lg bg-blue-50/50">
+                  <p className="text-center text-gray-500 italic">Activity history will appear here</p>
+                </div>
+              </div>
+            </TabsContent>
             
             <TabsContent value="gifts" className="mt-12 transition-all duration-300 animate-in fade-in-50">
               {/* Add dialog for editing client profile */}
@@ -792,9 +802,9 @@ export default function ClientDashboard() {
               </div>
             </TabsContent>
             
-            <TabsContent value="appointments" className="mt-12 transition-all duration-300 animate-in fade-in-50">
+            <TabsContent value="gifts" className="mt-12 transition-all duration-300 animate-in fade-in-50">
               <div className="bg-white rounded-xl shadow-md p-4 border border-blue-200 bg-gradient-to-b from-blue-50/50 to-white">
-                <ClientAppointments clientId={client.id} />
+                <ClientGifts clientId={client.id} />
               </div>
             </TabsContent>
           </Tabs>

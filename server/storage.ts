@@ -5,7 +5,6 @@ import {
   invitations, type Invitation, type InsertInvitation,
   styleSelections, type StyleSelection, type InsertStyleSelection,
   activityLogs, type ActivityLog, type InsertActivityLog,
-  appointments, type Appointment, type InsertAppointment,
   gifts, type Gift, type InsertGift
 } from "@shared/schema";
 import { db, pool } from "./db";
@@ -82,13 +81,7 @@ export interface IStorage {
   postToClientDashboard(invitationId: number): Promise<boolean>;
   postToSalonDashboard(invitationId: number): Promise<boolean>;
   
-  // Appointment methods
-  createAppointment(appointment: InsertAppointment): Promise<Appointment>;
-  getAppointment(id: number): Promise<Appointment | undefined>;
-  getClientAppointments(clientId: number): Promise<Appointment[]>;
-  getSalonAppointments(salonId: number): Promise<Appointment[]>;
-  getInvitationAppointments(invitationId: number): Promise<Appointment[]>;
-  updateAppointmentStatus(id: number, status: string): Promise<Appointment>;
+  // Gift-based system - No appointments
   
   // Gift methods
   createGift(gift: InsertGift): Promise<Gift>;
@@ -2213,103 +2206,15 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // Appointment methods
-  async createAppointment(insertAppointment: InsertAppointment): Promise<Appointment> {
-    console.log(`DatabaseStorage.createAppointment - Creating new appointment for client ${insertAppointment.clientId} at salon ${insertAppointment.salonId}`);
-    
-    try {
-      const result = await db.insert(appointments).values({
-        ...insertAppointment,
-        createdAt: new Date()
-      }).returning();
-      
-      console.log(`DatabaseStorage.createAppointment - Successfully created appointment with ID ${result[0].id}`);
-      return result[0];
-    } catch (error) {
-      console.error('DatabaseStorage.createAppointment - Error creating appointment:', error);
-      throw error;
-    }
-  }
+  // Gift-based system - No appointments
 
-  async getAppointment(id: number): Promise<Appointment | undefined> {
-    console.log(`DatabaseStorage.getAppointment - Fetching appointment ID ${id}`);
-    
-    try {
-      const results = await db.select().from(appointments).where(eq(appointments.id, id));
-      
-      if (results.length > 0) {
-        console.log(`DatabaseStorage.getAppointment - Found appointment ID ${id}`);
-        return results[0];
-      } else {
-        console.log(`DatabaseStorage.getAppointment - Appointment ID ${id} not found`);
-        return undefined;
-      }
-    } catch (error) {
-      console.error('DatabaseStorage.getAppointment - Error fetching appointment:', error);
-      throw error;
-    }
-  }
+  // Appointment method removed - Gift-based model
 
-  async getClientAppointments(clientId: number): Promise<Appointment[]> {
-    console.log(`DatabaseStorage.getClientAppointments - Fetching appointments for client ${clientId}`);
-    
-    try {
-      const results = await db.select().from(appointments).where(eq(appointments.clientId, clientId));
-      
-      console.log(`DatabaseStorage.getClientAppointments - Retrieved ${results.length} appointments for client ${clientId}`);
-      return results;
-    } catch (error) {
-      console.error('DatabaseStorage.getClientAppointments - Error fetching client appointments:', error);
-      throw error;
-    }
-  }
-  
-  async getInvitationAppointments(invitationId: number): Promise<Appointment[]> {
-    console.log(`DatabaseStorage.getInvitationAppointments - Fetching appointments for invitation ${invitationId}`);
-    
-    try {
-      const results = await db.select().from(appointments).where(eq(appointments.invitationId, invitationId));
-      
-      console.log(`DatabaseStorage.getInvitationAppointments - Retrieved ${results.length} appointments for invitation ${invitationId}`);
-      return results;
-    } catch (error) {
-      console.error('DatabaseStorage.getInvitationAppointments - Error fetching invitation appointments:', error);
-      throw error;
-    }
-  }
+  // Client appointment methods removed - Gift-based model
 
-  async getSalonAppointments(salonId: number): Promise<Appointment[]> {
-    console.log(`DatabaseStorage.getSalonAppointments - Fetching appointments for salon ${salonId}`);
-    
-    try {
-      const results = await db.select().from(appointments).where(eq(appointments.salonId, salonId));
-      
-      console.log(`DatabaseStorage.getSalonAppointments - Retrieved ${results.length} appointments for salon ${salonId}`);
-      return results;
-    } catch (error) {
-      console.error('DatabaseStorage.getSalonAppointments - Error fetching salon appointments:', error);
-      throw error;
-    }
-  }
+  // Salon appointment methods removed - Gift-based model
 
-  async updateAppointmentStatus(id: number, status: string): Promise<Appointment> {
-    console.log(`DatabaseStorage.updateAppointmentStatus - Updating appointment ${id} status to ${status}`);
-    
-    try {
-      // Update appointment status
-      const result = await db
-        .update(appointments)
-        .set({ status })
-        .where(eq(appointments.id, id))
-        .returning();
-      
-      console.log(`DatabaseStorage.updateAppointmentStatus - Successfully updated appointment ${id} status`);
-      return result[0];
-    } catch (error) {
-      console.error('DatabaseStorage.updateAppointmentStatus - Error updating appointment status:', error);
-      throw error;
-    }
-  }
+  // All appointment methods removed - Gift-based model
   // Gift methods implementation
   async createGift(insertGift: InsertGift): Promise<Gift> {
     try {

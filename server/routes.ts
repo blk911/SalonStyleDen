@@ -13,7 +13,6 @@ import { registerVisualizationRoutes } from "./visualization";
 import { registerMadgeRoutes } from "./madge-api";
 import { errorMonitor } from './error-monitor';
 import licenseRoutes from './routes/license';
-import appointmentRoutes from './routes/appointments';
 import createTimestampedBackup from './utils/create-backup';
 import { sponsorValidator } from './middleware/sponsor-validator';
 import { cleanPhoneNumber, isValidPhone, phonesMatch, phoneEndsWithDigits } from './utils';
@@ -2477,9 +2476,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register license routes
   apiRouter.use("/license", licenseRoutes);
-  
-  // Appointment routes
-  apiRouter.use("/", appointmentRoutes);
 
   // Admin API routes
   const adminRouter = express.Router();

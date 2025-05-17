@@ -167,18 +167,7 @@ export const activityLogs = pgTable("activity_logs", {
   timestamp: timestamp("timestamp").notNull()
 });
 
-// Appointments schema
-export const appointments = pgTable("appointments", {
-  id: serial("id").primaryKey(),
-  clientId: integer("client_id").notNull().references(() => clients.id),
-  salonId: integer("salon_id").notNull().references(() => salons.id),
-  invitationId: integer("invitation_id").references(() => invitations.id),
-  serviceDate: text("service_date").notNull(),
-  serviceTime: text("service_time").notNull(),
-  status: text("status").notNull().default("confirmed"), // confirmed, cancelled, completed
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow()
-});
+// Gift-based system - Appointment functionality removed
 
 // Add relations for new tables
 export const styleSelectionsRelations = relations(styleSelections, ({ one }) => ({
@@ -207,20 +196,7 @@ export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
   })
 }));
 
-export const appointmentsRelations = relations(appointments, ({ one }) => ({
-  client: one(clients, {
-    fields: [appointments.clientId],
-    references: [clients.id]
-  }),
-  salon: one(salons, {
-    fields: [appointments.salonId],
-    references: [salons.id]
-  }),
-  invitation: one(invitations, {
-    fields: [appointments.invitationId],
-    references: [invitations.id]
-  })
-}));
+// Appointment relations removed - Gift-based model
 
 // [RULE: GiftSchema] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
 // Gifts schema with sponsorship tracking and unique tracking ID
@@ -272,7 +248,7 @@ export const giftsRelations = relations(gifts, ({ one }) => ({
 // Insert schemas for new tables
 export const insertStyleSelectionSchema = createInsertSchema(styleSelections).omit({ id: true });
 export const insertActivityLogSchema = createInsertSchema(activityLogs).omit({ id: true });
-export const insertAppointmentSchema = createInsertSchema(appointments).omit({ id: true });
+// Appointment schema removed - Gift-based model
 export const insertGiftSchema = createInsertSchema(gifts).omit({ id: true });
 
 // Types
@@ -294,8 +270,7 @@ export type StyleSelection = typeof styleSelections.$inferSelect;
 export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
 export type ActivityLog = typeof activityLogs.$inferSelect;
 
-export type InsertAppointment = z.infer<typeof insertAppointmentSchema>;
-export type Appointment = typeof appointments.$inferSelect;
+// Appointment types removed - Gift-based model
 
 export type InsertGift = z.infer<typeof insertGiftSchema>;
 export type Gift = typeof gifts.$inferSelect;
