@@ -337,27 +337,11 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     <>
       <Card className="w-full">
         <CardHeader className="bg-yellow-50 pb-3 pt-3">
-          <div className="flex justify-between items-center">
+          <div className="flex items-center">
             <div>
               <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
               <CardDescription className="text-xs mt-1">Gifts and invitations sent to you</CardDescription>
             </div>
-            
-            {/* Site-wide toggle for showing/hiding all delivered gifts */}
-            {receivedGifts.some(gift => 
-              gift.status === "delivered" || 
-              gift.status === "redeemed" || 
-              gift.status === "completed"
-            ) && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleAllDeliveredGifts}
-                className="text-xs px-3 py-1 h-8 bg-white hover:bg-gray-50 border border-green-300 text-green-700 font-medium rounded-md"
-              >
-                {showAllDelivered ? "Hide Delivered" : "Show Delivered"}
-              </Button>
-            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -454,14 +438,10 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       <div className="bg-pink-50 rounded-md p-4 flex items-center w-full mb-3">
                         <div className="flex-grow">
                           <div className="font-bold">
-                            {gift.styleName || 
-                              (gift.favoriteServices && gift.favoriteServices[0]) || 
-                              "French Tips / Touch-Up"}
+                            {gift.styleName || "French Tips / Touch-Up"}
                           </div>
                           <div className="text-sm text-gray-600 mt-1">
-                            {gift.giftType === "invitation" 
-                              ? "Classic white tips or quick polish refresh" 
-                              : "Salon service"}
+                            {"Classic white tips or quick polish refresh"}
                           </div>
                           <div className="mt-2 flex items-baseline">
                             <span className="font-bold text-lg">
@@ -470,7 +450,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                                 : "$40"}
                             </span>
                             <span className="ml-2 text-sm text-gray-500">
-                              {gift.styleDuration || "30 min"}
+                              {"30 min"}
                             </span>
                           </div>
                         </div>
