@@ -456,8 +456,8 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         </div>
                         <div className="ml-4">
                           <img 
-                            src="https://images.unsplash.com/photo-1604654894610-df63bc536371?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGZyZW5jaCUyMG5haWxzfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60" 
-                            alt="French Tips" 
+                            src="https://img.freepik.com/free-photo/nail-art_144627-32107.jpg" 
+                            alt="Nail service" 
                             className="w-[70px] h-[70px] object-cover rounded-md" 
                           />
                         </div>
