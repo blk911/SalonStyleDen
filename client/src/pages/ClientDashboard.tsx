@@ -802,7 +802,11 @@ export default function ClientDashboard() {
               </div>
             </TabsContent>
             
-            {/* Removed duplicate gifts tab as it was showing duplicate content */}
+            <TabsContent value="gifts" className="mt-12 transition-all duration-300 animate-in fade-in-50">
+              <div className="bg-white rounded-xl shadow-md p-4 border border-blue-200 bg-gradient-to-b from-blue-50/50 to-white">
+                <ClientGifts clientId={client.id} />
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
       </main>
