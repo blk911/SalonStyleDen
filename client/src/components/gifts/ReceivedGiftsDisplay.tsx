@@ -47,6 +47,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   const [isGiftPreviewOpen, setIsGiftPreviewOpen] = useState(false);
   const [showGiftClaimForm, setShowGiftClaimForm] = useState(false);
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
+  const [showDeliveredGiftDetails, setShowDeliveredGiftDetails] = useState(false);
   const [giftToClaim, setGiftToClaim] = useState<ReceivedGift | null>(null);
   const [collapsedGifts, setCollapsedGifts] = useState<Record<number, boolean>>({});
   const [expandedGifts, setExpandedGifts] = useState<Record<number, boolean>>({});
@@ -586,10 +587,13 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                               Delivered on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : new Date().toLocaleDateString()}
                             </div>
                             
-                            {/* View Gift Details button - opens gift preview modal with close functionality */}
+                            {/* View Gift Details button - opens delivered gift details modal */}
                             <Button 
                               className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2 mt-2"
-                              onClick={() => handlePreviewGift(gift)}
+                              onClick={() => {
+                                setSelectedGift(gift);
+                                setShowDeliveredGiftDetails(true);
+                              }}
                             >
                               <ExternalLink className="h-4 w-4" />
                               View Gift Details
@@ -836,6 +840,90 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
               className="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold"
             >
               SEND GIFT
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delivered Gift Details Dialog - Shows details for delivered gifts */}
+      <Dialog open={showDeliveredGiftDetails} onOpenChange={setShowDeliveredGiftDetails}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl font-bold text-green-600">
+              DELIVERED GIFT DETAILS
+            </DialogTitle>
+            <DialogDescription className="text-center pt-2">
+              This gift has been delivered
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedGift && (
+            <div className="bg-gradient-to-r from-green-50 to-white p-5 rounded-md my-4 border border-green-100 shadow-sm">
+              <div className="flex flex-col items-center">
+                <GiftIcon className="h-12 w-12 text-green-500 mb-3" />
+                <div className="text-center font-bold text-lg mb-3">
+                  {selectedGift.styleName || (selectedGift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
+                  {selectedGift.amount > 0 && (
+                    <div className="font-semibold text-base text-green-600 mt-1">
+                      Value: {formatCurrency(selectedGift.amount / 100)}
+                    </div>
+                  )}
+                </div>
+                
+                {selectedGift.message && (
+                  <div className="mt-2 px-4 py-3 bg-white border border-green-100 rounded-md w-full text-sm italic text-gray-700">
+                    "{selectedGift.message}"
+                  </div>
+                )}
+                
+                <div className="mt-4 w-full space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500">From:</span> 
+                    <span className="font-medium text-right">
+                      {selectedGift.message && selectedGift.message.includes('❤️') 
+                        ? selectedGift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
+                        : selectedGift.message && selectedGift.message.includes('Annie')
+                          ? 'Annie'
+                          : selectedGift.senderName || "Ellen"}
+                    </span>
+                  </div>
+                  
+                  {selectedGift.salonId && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-500">At:</span> 
+                      <a 
+                        href={`/salon/${selectedGift.salonId}`} 
+                        className="text-green-600 hover:underline font-medium"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowDeliveredGiftDetails(false);
+                          window.location.href = `/salon/${selectedGift.salonId}`;
+                        }}
+                      >
+                        {selectedGift.salonName || "Tiffany 5280 Nails Studio"}
+                      </a>
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500">Delivered on:</span>
+                    <span className="text-sm font-medium text-green-600">
+                      {selectedGift.redeemedAt 
+                        ? new Date(selectedGift.redeemedAt).toLocaleDateString() 
+                        : new Date().toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button 
+              onClick={() => setShowDeliveredGiftDetails(false)}
+              className="w-full bg-green-500 hover:bg-green-600 text-white"
+            >
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
