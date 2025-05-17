@@ -394,7 +394,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
           
           <DialogFooter className="flex flex-col sm:flex-row sm:justify-center">
             <Button 
-              className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3"
+              className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-md"
               size="lg"
               onClick={() => {
                 setShowSuccessDialog(false);
@@ -404,7 +404,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
                 }
               }}
             >
-              Back to Dashboard
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
