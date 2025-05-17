@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Gift, MapPin, HeartIcon } from 'lucide-react';
+import { Gift, MapPin, HeartIcon, Calendar } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -13,9 +13,20 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { format } from 'date-fns';
 import type { Invitation } from '../../types';
 
 interface Gift {
@@ -43,29 +54,42 @@ interface ClientGiftsProps {
 }
 
 export default function ClientGifts({ clientId, completedInvitations = [] }: ClientGiftsProps) {
+  const [selectedGift, setSelectedGift] = useState<Gift | null>(null);
+  const [giftDetailsOpen, setGiftDetailsOpen] = useState(false);
+  
   // Fetch received gifts
   const { data: receivedGifts, isLoading: isLoadingReceived } = useQuery({
-    queryKey: [`/api/clients/${clientId}/gifts/received`],
+    queryKey: [`/api/gifts/received/${clientId}`],
     queryFn: async () => {
-      const response = await fetch(`/api/clients/${clientId}/gifts/received`);
+      const response = await fetch(`/api/gifts/received/${clientId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch received gifts');
       }
-      return response.json() as Promise<Gift[]>;
+      const data = await response.json();
+      console.log('Received gifts:', data);
+      return data as Promise<Gift[]>;
     }
   });
 
   // Fetch sent gifts
   const { data: sentGifts, isLoading: isLoadingSent } = useQuery({
-    queryKey: [`/api/clients/${clientId}/gifts/sent`],
+    queryKey: [`/api/gifts/sent/${clientId}`],
     queryFn: async () => {
-      const response = await fetch(`/api/clients/${clientId}/gifts/sent`);
+      const response = await fetch(`/api/gifts/sent/${clientId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch sent gifts');
       }
-      return response.json() as Promise<Gift[]>;
+      const data = await response.json();
+      console.log('Sent gifts:', data);
+      return data as Promise<Gift[]>;
     }
   });
+  
+  // Function to open gift details dialog
+  const viewGiftDetails = (gift: Gift) => {
+    setSelectedGift(gift);
+    setGiftDetailsOpen(true);
+  };
 
   const isLoading = isLoadingReceived || isLoadingSent;
 
@@ -95,6 +119,70 @@ export default function ClientGifts({ clientId, completedInvitations = [] }: Cli
 
   return (
     <div className="space-y-6 mt-4">
+      {/* Gift Details Dialog */}
+      <Dialog open={giftDetailsOpen} onOpenChange={setGiftDetailsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Gift Details</DialogTitle>
+            <DialogDescription>
+              View details about your gift
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedGift && (
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <Badge 
+                  variant="outline" 
+                  className="px-4 py-2 text-lg font-semibold bg-blue-50"
+                >
+                  DELIVERED
+                </Badge>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center text-sm">
+                  <Calendar className="h-4 w-4 mr-2 text-gray-500" />
+                  <span className="text-gray-700">
+                    Gift sent on {formatDate(selectedGift.createdAt)}
+                  </span>
+                </div>
+                
+                {selectedGift.senderName && (
+                  <div className="flex items-center text-sm">
+                    <Gift className="h-4 w-4 mr-2 text-gray-500" />
+                    <span className="text-gray-700">
+                      From: {selectedGift.senderName}
+                    </span>
+                  </div>
+                )}
+                
+                {selectedGift.salonName && (
+                  <div className="flex items-center text-sm">
+                    <MapPin className="h-4 w-4 mr-2 text-gray-500" />
+                    <span className="text-gray-700">
+                      Salon: {selectedGift.salonName}
+                    </span>
+                  </div>
+                )}
+                
+                {selectedGift.message && (
+                  <div className="mt-4 p-3 bg-gray-50 rounded-md text-sm italic">
+                    "{selectedGift.message}"
+                  </div>
+                )}
+              </div>
+              
+              <div className="mt-4 pt-4 border-t flex justify-center">
+                <DialogClose asChild>
+                  <Button variant="secondary">Close</Button>
+                </DialogClose>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+      
       {/* VMB Tagline Card */}
       <Card className="rounded-xl shadow-sm overflow-hidden">
         <div className="bg-pink-50 pt-5 pb-2.5 flex justify-center items-center">
@@ -123,14 +211,19 @@ export default function ClientGifts({ clientId, completedInvitations = [] }: Cli
                     <div className={`h-2 ${getStatusColor(gift.status)}`} />
                     <CardContent className="pt-4">
                       <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-medium">
-                            {gift.styleName || 'Beauty Service'}
-                            {' '}
-                            <Badge variant={getStatusVariant(gift.status)}>
-                              {getStatusText(gift.status)}
-                            </Badge>
-                          </h3>
+                        <div className="w-full">
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-medium">
+                              {gift.styleName || 'Beauty Service'}
+                              {' '}
+                              <Badge variant={getStatusVariant(gift.status)}>
+                                {getStatusText(gift.status)}
+                              </Badge>
+                            </h3>
+                            {gift.status === 'completed' && (
+                              <Badge variant="outline" className="ml-2 bg-blue-50">DELIVERED</Badge>
+                            )}
+                          </div>
                           <div className="mt-2 space-y-1 text-sm">
                             <div className="flex items-center text-muted-foreground">
                               <Gift className="h-4 w-4 mr-1" />
@@ -148,6 +241,17 @@ export default function ClientGifts({ clientId, completedInvitations = [] }: Cli
                               </div>
                             )}
                           </div>
+                          {(gift.status === 'completed' || gift.status === 'delivered') && (
+                            <CardFooter className="px-0 pt-4 pb-0">
+                              <Button 
+                                variant="secondary" 
+                                className="w-full"
+                                onClick={() => viewGiftDetails(gift)}
+                              >
+                                View Gift
+                              </Button>
+                            </CardFooter>
+                          )}
                         </div>
                       </div>
                     </CardContent>
@@ -216,6 +320,10 @@ function getStatusColor(status: string): string {
       return 'bg-green-500';
     case 'sent':
       return 'bg-blue-500';
+    case 'completed':
+      return 'bg-green-500';
+    case 'delivered':
+      return 'bg-blue-400';
     case 'expired':
       return 'bg-red-500';
     default:
@@ -228,6 +336,10 @@ function getStatusVariant(status: string) {
     case 'redeemed':
       return 'success' as const;
     case 'sent':
+      return 'secondary' as const;
+    case 'completed':
+      return 'success' as const;
+    case 'delivered':
       return 'secondary' as const;
     case 'expired':
       return 'destructive' as const;
@@ -248,9 +360,21 @@ function getStatusText(status: string): string {
       return 'Confirmed';
     case 'completed':
       return 'Completed';
+    case 'delivered':
+      return 'DELIVERED';
     case 'cancelled':
       return 'Cancelled';
     default:
       return status;
+  }
+}
+
+// Format date helper function
+function formatDate(dateString: string | undefined): string {
+  if (!dateString) return 'N/A';
+  try {
+    return format(new Date(dateString), 'MMM d, yyyy');
+  } catch (error) {
+    return 'Invalid date';
   }
 }
