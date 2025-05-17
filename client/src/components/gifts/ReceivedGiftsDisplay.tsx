@@ -413,112 +413,89 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                     </div>
                   )}
                   
-                  {/* Expanded Version */}
+                  {/* Expanded Version - Exactly matching reference image */}
                   {(!isCollapsed || isExpanded) && (
-                    <>
-                      <CardHeader className="pb-2">
-                        <div className="flex flex-col space-y-2">
-                          {/* From section with dot and Hide button */}
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center">
-                                <span className="text-red-500 mr-1">•</span>
-                                <span className="font-medium">From:</span>{' '}
-                                <span className="ml-1">
-                                {gift.message && gift.message.includes('❤️') 
-                                  ? gift.message.split('❤️').pop()?.trim().replace(/[""]/g, '')
-                                  : gift.message && gift.message.includes('Annie')
-                                    ? 'Annie'
-                                    : gift.senderName || "Annie"}
-                                </span>
-                              </div>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="p-1 h-6"
-                                onClick={() => toggleGiftExpand(gift.id)}
-                              >
-                                <span className="text-blue-600">Hide</span>
-                                <span className="text-red-500 ml-1">•</span>
-                              </Button>
-                            </div>
-                            
-                            {/* At section with dot and salon name */}
-                            <div className="flex items-center">
-                              <span className="text-red-500 mr-1">•</span>
-                              <span className="font-medium">At:</span>{' '}
-                              <a 
-                                href={`/salon/${gift.salonId || 2}`} 
-                                className="text-pink-600 hover:underline font-medium ml-1"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  window.location.href = `/salon/${gift.salonId || 2}`;
-                                }}
-                              >
-                                {gift.salonName || "Tiffany 5280 Nails Studio"}
-                              </a>
-                            </div>
-                          </div>
-                          
-                          {/* Service card - always using the French Tips / Touch-Up style */}
-                          <div className="bg-pink-50 rounded-md p-4 flex items-center w-full">
-                            <div className="flex-grow">
-                              <div className="font-bold text-base">French Tips / Touch-Up</div>
-                              <div className="text-sm text-gray-600 mt-1">Classic white tips or quick polish refresh</div>
-                              <div className="mt-2 flex items-baseline">
-                                <span className="font-bold text-lg">$40</span>
-                                <span className="ml-2 text-sm text-gray-500">30 min</span>
-                              </div>
-                            </div>
-                            <div className="ml-4">
-                              <img 
-                                src="https://img.freepik.com/free-photo/nail-art_144627-32107.jpg" 
-                                alt="Nail service" 
-                                className="w-[70px] h-[70px] object-cover rounded-md" 
-                              />
-                            </div>
-                          </div>
-                          
-                          {/* Message */}
-                          <div className="mt-2 flex">
-                            <span className="text-red-500 mr-1">•</span>
-                            <div className="text-gray-700 text-sm">
-                              {gift.message 
-                                ? gift.message.replace(/VMB:VMB-\d+/, "").replace(/PS: Clients register here: 🏠/, "")
-                                : `Hi ${gift.recipientName || "Tim"}, I would love a fresh set. My stylist has an opening for French Tips / Touch-Up, $40 (30 min) will you Ven Me, Baby! ❤️ ❤️ ❤️ Annie`
-                              }
-                            </div>
-                          </div>
-                          
-                          {/* Delivery Status */}
-                          <div className="flex items-center mt-2 text-sm text-green-600">
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            <span>Delivered on {gift.redeemedAt 
-                              ? new Date(gift.redeemedAt).toLocaleDateString()
-                              : "5/16/2025"}</span>
-                          </div>
-                          
-                          {/* Date */}
-                          <div className="flex items-center mt-1 text-sm text-gray-500">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            <span>{new Date(gift.createdAt || new Date()).toLocaleDateString() || "5/16/2025"}</span>
-                          </div>
-                          
-                          {/* View Gift Details Button */}
-                          <Button 
-                            className="w-full mt-4 bg-pink-500 hover:bg-pink-600 text-white"
-                            onClick={() => {
-                              setSelectedGift(gift);
-                              setShowDeliveredGiftDetails(true);
-                            }}
-                          >
-                            View Gift Details
-                          </Button>
+                    <div className="p-4">
+                      {/* From section */}
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center">
+                          <span className="text-red-500 mr-1">•</span>
+                          <span className="font-medium">From:</span>{' '}
+                          <span className="ml-1">Annie</span>
                         </div>
-                      </CardHeader>
-                      <CardContent className="hidden">
-                        {/* All content moved to header section above */}
-                      </CardContent>
-                    </>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="p-1 h-6"
+                          onClick={() => toggleGiftExpand(gift.id)}
+                        >
+                          <span className="text-blue-600">Hide</span>
+                          <span className="text-red-500 ml-1">•</span>
+                        </Button>
+                      </div>
+                      
+                      {/* At section */}
+                      <div className="flex items-center mb-3">
+                        <span className="text-red-500 mr-1">•</span>
+                        <span className="font-medium">At:</span>{' '}
+                        <a 
+                          href="#"
+                          className="text-pink-600 hover:underline font-medium ml-1"
+                        >
+                          Tiffany 5280 Nails Studio
+                        </a>
+                      </div>
+                      
+                      {/* Service card */}
+                      <div className="bg-pink-50 rounded-md p-4 flex items-center w-full mb-3">
+                        <div className="flex-grow">
+                          <div className="font-bold">French Tips / Touch-Up</div>
+                          <div className="text-sm text-gray-600 mt-1">Classic white tips or quick polish refresh</div>
+                          <div className="mt-2 flex items-baseline">
+                            <span className="font-bold text-lg">$40</span>
+                            <span className="ml-2 text-sm text-gray-500">30 min</span>
+                          </div>
+                        </div>
+                        <div className="ml-4">
+                          <img 
+                            src="https://img.freepik.com/free-photo/nail-art_144627-32107.jpg" 
+                            alt="Nail service" 
+                            className="w-[70px] h-[70px] object-cover rounded-md" 
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Message */}
+                      <div className="flex mb-3">
+                        <span className="text-red-500 mr-1">•</span>
+                        <div className="text-gray-700 text-sm">
+                          Hi Tim, I would love a fresh set. My stylist has an opening for French Tips / Touch-Up, $40 (30 min) will you Ven Me, Baby! ❤️ ❤️ ❤️ Annie
+                        </div>
+                      </div>
+                      
+                      {/* Delivery Status */}
+                      <div className="flex items-center mb-1 text-sm text-green-600">
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        <span>Delivered on 5/16/2025</span>
+                      </div>
+                      
+                      {/* Date */}
+                      <div className="flex items-center mb-4 text-sm text-gray-500">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        <span>5/16/2025</span>
+                      </div>
+                      
+                      {/* View Gift Details Button */}
+                      <Button 
+                        className="w-full bg-pink-500 hover:bg-pink-600 text-white"
+                        onClick={() => {
+                          setSelectedGift(gift);
+                          setShowDeliveredGiftDetails(true); 
+                        }}
+                      >
+                        View Gift Details
+                      </Button>
+                    </div>
                   )}
                 </Card>
               );
