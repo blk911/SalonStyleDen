@@ -2618,7 +2618,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
-
+  
   // Get gifts received by a client
   apiRouter.get("/gifts/received/:clientId", async (req: Request, res: Response) => {
     try {
