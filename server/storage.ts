@@ -814,8 +814,20 @@ export class DatabaseStorage implements IStorage {
         clientId: null
       });
       
-      // Note: Appointment functionality has been removed from the system
-      console.log(`DatabaseStorage.deleteClient - Skipping appointment deletion (feature removed)`)
+      // Get all appointments for this client
+      const clientAppointments = await this.getClientAppointments(id);
+      console.log(`DatabaseStorage.deleteClient - Found ${clientAppointments.length} appointments to delete first`);
+      
+      // Delete all appointments for this client
+      for (const appointment of clientAppointments) {
+        try {
+          await db.delete(appointments).where(eq(appointments.id, appointment.id));
+          console.log(`DatabaseStorage.deleteClient - Deleted appointment ID ${appointment.id}`);
+        } catch (appointmentError) {
+          console.error(`DatabaseStorage.deleteClient - Error deleting appointment ${appointment.id}:`, appointmentError);
+          // Continue with deletion of other appointments
+        }
+      }
       
       // Get all style selections for this client
       const clientStyleSelections = await this.getClientStyleSelections(id);
@@ -2109,8 +2121,20 @@ export class DatabaseStorage implements IStorage {
         return false;
       }
       
-      // Note: Appointment functionality has been removed from the system
-      console.log(`DatabaseStorage.deleteInvitation - Skipping appointment deletion (feature removed)`)
+      // First check for any related appointments
+      const relatedAppointments = await this.getInvitationAppointments(id);
+      console.log(`DatabaseStorage.deleteInvitation - Found ${relatedAppointments.length} appointments to delete first`);
+      
+      // Delete all related appointments
+      for (const appointment of relatedAppointments) {
+        try {
+          await db.delete(appointments).where(eq(appointments.id, appointment.id));
+          console.log(`DatabaseStorage.deleteInvitation - Deleted appointment ID ${appointment.id}`);
+        } catch (appointmentError) {
+          console.error(`DatabaseStorage.deleteInvitation - Error deleting appointment ${appointment.id}:`, appointmentError);
+          // Continue with deletion of other appointments
+        }
+      }
       
       // Check if there are associated style selections through the client
       // First try to find a client with the same phone number
