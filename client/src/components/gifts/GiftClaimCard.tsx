@@ -9,6 +9,13 @@ import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { GiftIcon, PhoneIcon, MailIcon, Loader2, CheckCircle, X } from "lucide-react";
 import { formatCurrency, formatPhoneNumber, cleanPhoneNumber, isValidPhone, processInvitationMessage } from "@/lib/utils";
+import { 
+  DEFAULT_SALON_NAME, 
+  DEFAULT_SALON_ID, 
+  DEFAULT_SERVICE_TYPE, 
+  DEFAULT_INVITATION_TYPE,
+  GIFT_STATUSES
+} from "@/constants/salonConstants";
 import {
   Dialog,
   DialogContent,
@@ -182,7 +189,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
           <div className="space-y-4">
             <div className="gift-style-info bg-gradient-to-r from-pink-50 to-white p-5 rounded-md border border-pink-100 shadow-sm">
               <div className="font-bold text-xl mb-2">
-                {gift.styleName || (gift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
+                {gift.styleName || (gift.giftType === 'invitation' ? DEFAULT_INVITATION_TYPE : DEFAULT_SERVICE_TYPE)}
                 {gift.amount > 0 && (
                   <span className="text-lg ml-2">
                     ({formatCurrency(gift.amount / 100)})
@@ -217,10 +224,10 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
                           window.location.href = `/salon/${gift.salonId}`;
                         }}
                       >
-                        {gift.salonName || "Tiffany 5280 Nails Studio"}
+                        {gift.salonName || DEFAULT_SALON_NAME}
                       </a>
                     ) : (
-                      "Tiffany 5280 Nails Studio"
+                      DEFAULT_SALON_NAME
                     )}
                   </span>
                 </div>
@@ -308,7 +315,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
           
           <div className="p-4 my-4 bg-muted rounded-md">
             <p className="font-medium mb-1">
-              {gift.styleName || (gift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
+              {gift.styleName || (gift.giftType === 'invitation' ? DEFAULT_INVITATION_TYPE : DEFAULT_SERVICE_TYPE)}
             </p>
             {gift.message && (
               <p className="text-sm italic mb-2">"{processedMessage}"</p>
@@ -361,7 +368,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
             <div className="flex flex-col items-center">
               <GiftIcon className="h-14 w-14 text-pink-500 mb-3" />
               <p className="text-center font-bold text-lg">
-                {gift.styleName || "Style Card"} {gift.amount > 0 && `(${formatCurrency(gift.amount / 100)})`}
+                {gift.styleName || DEFAULT_SERVICE_TYPE} {gift.amount > 0 && `(${formatCurrency(gift.amount / 100)})`}
               </p>
               <div className="text-sm text-center mt-3 space-y-2">
                 <p className="text-gray-700">
@@ -384,7 +391,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
                         window.location.href = `/salon/${gift.salonId}`;
                       }}
                     >
-                      {gift.salonName || "Tiffany 5280 Nails Studio"}
+                      {gift.salonName || DEFAULT_SALON_NAME}
                     </a>
                   </p>
                 )}

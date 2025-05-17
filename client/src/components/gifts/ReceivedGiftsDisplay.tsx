@@ -10,6 +10,15 @@ import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Gift as GiftIcon, CheckCircle, CheckCircleIcon, Calendar, ExternalLink } from "lucide-react";
 import { formatCurrency, formatPhoneNumber, processInvitationMessage, cleanPhoneNumber } from "@/lib/utils";
+import { 
+  DEFAULT_SALON_NAME, 
+  DEFAULT_SALON_ID, 
+  DEFAULT_SERVICE_TYPE, 
+  DEFAULT_INVITATION_TYPE,
+  DEFAULT_DATE_STRING,
+  GIFT_STATUSES,
+  DEFAULT_OWNER_NAME
+} from "@/constants/salonConstants";
 import { GiftClaimCard } from "./GiftClaimCard";
 
 // This is the fixed version that matches the screenshot
@@ -92,9 +101,9 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
     if (receivedGifts) {
       // Find all delivered gifts that should be collapsed by default
       const deliveredGifts = receivedGifts.filter(
-        gift => gift.status === "delivered" || 
-                gift.status === "redeemed" || 
-                gift.status === "completed"
+        gift => gift.status === GIFT_STATUSES.DELIVERED || 
+                gift.status === GIFT_STATUSES.REDEEMED || 
+                gift.status === GIFT_STATUSES.COMPLETED
       );
       
       if (deliveredGifts.length > 0) {
@@ -120,7 +129,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          status: "redeemed"
+          status: GIFT_STATUSES.REDEEMED
         })
       });
       
@@ -193,7 +202,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          status: "delivered"
+          status: GIFT_STATUSES.DELIVERED
         })
       })
       .then(response => {
@@ -242,9 +251,9 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       // Get all delivered gift IDs
       const deliveredGiftIds = receivedGifts
         .filter(gift => 
-          gift.status === "delivered" || 
-          gift.status === "redeemed" || 
-          gift.status === "completed"
+          gift.status === GIFT_STATUSES.DELIVERED || 
+          gift.status === GIFT_STATUSES.REDEEMED || 
+          gift.status === GIFT_STATUSES.COMPLETED
         )
         .map(gift => gift.id);
       
@@ -350,7 +359,9 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
           <div className="space-y-4">
             {receivedGifts.map((gift) => {
               // Determine if this is a delivered gift
-              const isDelivered = gift.status === "redeemed" || gift.status === "completed" || gift.status === "delivered";
+              const isDelivered = gift.status === GIFT_STATUSES.REDEEMED || 
+                               gift.status === GIFT_STATUSES.COMPLETED || 
+                               gift.status === GIFT_STATUSES.DELIVERED;
               
               // Calculate collapsed state based on:
               // 1. Individual gift collapsed state (from collapsedGifts state)
@@ -407,7 +418,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                           <span className="text-red-500 mr-1">•</span>
                           <span className="font-medium">From:</span>{' '}
                           <span className="ml-1">
-                            {gift.senderName === "Tiffany 5280 Nails Studio" ? "Annie" : gift.senderName || "Annie"}
+                            {gift.senderName === DEFAULT_SALON_NAME ? DEFAULT_OWNER_NAME : gift.senderName || DEFAULT_OWNER_NAME}
                           </span>
                         </div>
                         <Button 
@@ -426,7 +437,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         <span className="text-red-500 mr-1">•</span>
                         <span className="font-medium">At:</span>{' '}
                         <a 
-                          href={`/salon/${gift.salonId || 2}`}
+                          href={`/salon/${gift.salonId || DEFAULT_SALON_ID}`}
                           className="text-pink-600 hover:underline font-medium ml-1"
                         >
                           Tiffany 5280 Nails Studio
