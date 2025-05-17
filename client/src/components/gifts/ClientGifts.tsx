@@ -220,7 +220,7 @@ export default function ClientGifts({ clientId, completedInvitations = [] }: Cli
                                 {getStatusText(gift.status)}
                               </Badge>
                             </h3>
-                            {gift.status === 'completed' && (
+                            {(gift.status === 'completed' || gift.status === 'sent') && (
                               <Badge variant="outline" className="ml-2 bg-blue-50">DELIVERED</Badge>
                             )}
                           </div>
@@ -241,7 +241,7 @@ export default function ClientGifts({ clientId, completedInvitations = [] }: Cli
                               </div>
                             )}
                           </div>
-                          {(gift.status === 'completed' || gift.status === 'delivered') && (
+                          {(gift.status === 'completed' || gift.status === 'sent' || gift.status === 'delivered') && (
                             <CardFooter className="px-0 pt-4 pb-0">
                               <Button 
                                 variant="secondary" 
