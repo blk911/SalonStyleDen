@@ -586,17 +586,13 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                               Delivered on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : new Date().toLocaleDateString()}
                             </div>
                             
-                            {/* View Gift button */}
+                            {/* View Gift Details button - opens gift preview modal with close functionality */}
                             <Button 
                               className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2 mt-2"
-                              onClick={() => {
-                                // Set the selected gift for detailed view
-                                setSelectedGift(gift);
-                                setIsGiftPreviewOpen(true);
-                              }}
+                              onClick={() => handlePreviewGift(gift)}
                             >
                               <ExternalLink className="h-4 w-4" />
-                              View Gift
+                              View Gift Details
                             </Button>
                           </div>
                         )}
