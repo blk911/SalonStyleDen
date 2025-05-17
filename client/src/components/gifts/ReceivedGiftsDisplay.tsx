@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Gift as GiftIcon, CheckCircle, CheckCircleIcon, Calendar, ExternalLink } from "lucide-react";
+import { Loader2, Gift as GiftIcon, Calendar, ExternalLink, CheckCircle as CheckCircleIcon } from "lucide-react";
 import { formatCurrency, formatPhoneNumber, processInvitationMessage, cleanPhoneNumber } from "@/lib/utils";
 import { GiftClaimCard } from "./GiftClaimCard";
 
@@ -586,18 +586,16 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                               Delivered on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : new Date().toLocaleDateString()}
                             </div>
                             
-                            {/* View Gift button */}
-                            <Button 
-                              className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2 mt-2"
-                              onClick={() => {
-                                // Set the selected gift for detailed view
-                                setSelectedGift(gift);
-                                setIsGiftPreviewOpen(true);
-                              }}
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                              View Gift
-                            </Button>
+                            {/* Schedule Appointment button for completed invitations */}
+                            {(gift.status === 'completed' || gift.status === 'redeemed') && gift.giftType === 'invitation' && (
+                              <Button 
+                                className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2 mt-2"
+                                onClick={() => window.location.href = '/client-dashboard?tab=appointments'}
+                              >
+                                <Calendar className="h-4 w-4" />
+                                Schedule Appointment
+                              </Button>
+                            )}
                           </div>
                         )}
                       </div>
@@ -802,8 +800,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       status: selectedGift.giftType === 'invitation' ? 'claimed' : 'redeemed',
                       phone: cleanedPhone,
                       email: selectedGift.recipientEmail || "",
-                      clientId,
-                      recipientName: selectedGift.recipientName || ""
+                      clientId
                     })
                   })
                   .then(response => {
