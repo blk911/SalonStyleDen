@@ -9,6 +9,7 @@ import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { GiftIcon, PhoneIcon, MailIcon, Loader2, CheckCircle, X } from "lucide-react";
 import { formatCurrency, formatPhoneNumber, cleanPhoneNumber, isValidPhone, processInvitationMessage } from "@/lib/utils";
+import { DEFAULT_SALON_NAME, DEFAULT_SALON_ID, DEFAULT_OWNER_NAME, GIFT_STATUSES } from "@/constants/salonConstants";
 import {
   Dialog,
   DialogContent,

@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { DEFAULT_SALON_NAME, DEFAULT_SALON_ID, DEFAULT_OWNER_NAME, GIFT_STATUSES } from "@/constants/salonConstants";
 
 // Define the form schema for claiming a gift
 const claimGiftSchema = z.object({
