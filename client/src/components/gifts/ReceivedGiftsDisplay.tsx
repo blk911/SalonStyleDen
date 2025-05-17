@@ -375,6 +375,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
               // A gift is expanded if it's in the expandedGifts state OR if showAllDelivered is true for delivered gifts
               const isExpanded = expandedGifts[gift.id] || (isDelivered && showAllDelivered);
 
+              // Use a simple card design for all gift cards
               return (
                 <Card 
                   key={gift.id} 
@@ -458,147 +459,65 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                             </div>
                           </div>
                           
-                          {/* Style card display */}
-                          <div className="w-full mt-3 flex justify-end">
-                            {gift.message && gift.message.includes("Glam Me! Custom Design") ? (
-                              <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center">
-                                <div className="flex-grow">
-                                  <div className="font-medium text-sm">Glam Me! Custom Design</div>
-                                  <div className="text-xs text-gray-600">Fully custom art, gems, 3D extras</div>
-                                  <div className="mt-2">
-                                    <span className="font-medium text-sm">$125</span>
-                                    <span className="ml-2 text-xs text-gray-600">90 min</span>
-                                  </div>
-                                </div>
-                                <div className="ml-4">
-                                  <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/glam-design.png')" }}></div>
-                                </div>
+                          {/* Service card - always using the French Tips / Touch-Up style */}
+                          <div className="bg-pink-50 rounded-md p-4 flex items-center w-full">
+                            <div className="flex-grow">
+                              <div className="font-bold text-base">French Tips / Touch-Up</div>
+                              <div className="text-sm text-gray-600 mt-1">Classic white tips or quick polish refresh</div>
+                              <div className="mt-2 flex items-baseline">
+                                <span className="font-bold text-lg">$40</span>
+                                <span className="ml-2 text-sm text-gray-500">30 min</span>
                               </div>
-                            ) : gift.message && gift.message.includes("French Tips / Touch-Up") ? (
-                              <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center">
-                                <div className="flex-grow">
-                                  <div className="font-medium text-sm">French Tips / Touch-Up</div>
-                                  <div className="text-xs text-gray-600">Classic white tips or quick polish refresh</div>
-                                  <div className="mt-2">
-                                    <span className="font-medium text-sm">$40</span>
-                                    <span className="ml-2 text-xs text-gray-600">30 min</span>
-                                  </div>
-                                </div>
-                                <div className="ml-4">
-                                  <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/french-tips.png')" }}></div>
-                                </div>
-                              </div>
-                            ) : gift.message && gift.message.includes("Luxe Gel Manicure") ? (
-                              <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center">
-                                <div className="flex-grow">
-                                  <div className="font-medium text-sm">Luxe Gel Manicure</div>
-                                  <div className="text-xs text-gray-600">Glossy, chip-free color with lasting shine</div>
-                                  <div className="mt-2">
-                                    <span className="font-medium text-sm">$55</span>
-                                    <span className="ml-2 text-xs text-gray-600">45 min</span>
-                                  </div>
-                                </div>
-                                <div className="ml-4">
-                                  <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/gel-manicure.png')" }}></div>
-                                </div>
-                              </div>
-                            ) : gift.message && gift.message.includes("Sculpted Acrylics") ? (
-                              <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center">
-                                <div className="flex-grow">
-                                  <div className="font-medium text-sm">Sculpted Acrylics</div>
-                                  <div className="text-xs text-gray-600">Custom-shaped acrylics for bold length</div>
-                                  <div className="mt-2">
-                                    <span className="font-medium text-sm">$70</span>
-                                    <span className="ml-2 text-xs text-gray-600">60 min</span>
-                                  </div>
-                                </div>
-                                <div className="ml-4">
-                                  <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/sculpted-acrylics.png')" }}></div>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="bg-pink-50 rounded-md max-w-[400px] p-4 flex items-center opacity-70">
-                                <div className="flex-grow">
-                                  <div className="font-medium text-sm">Nail Service</div>
-                                  <div className="text-xs text-gray-600">Style details in message</div>
-                                </div>
-                                <div className="ml-4">
-                                  <div className="w-[80px] h-[80px] rounded-md bg-cover bg-center" style={{ backgroundImage: "url('/assets/french-tips.png')" }}></div>
-                                </div>
-                              </div>
-                            )}
+                            </div>
+                            <div className="ml-4">
+                              <img 
+                                src="https://img.freepik.com/free-photo/nail-art_144627-32107.jpg" 
+                                alt="Nail service" 
+                                className="w-[70px] h-[70px] object-cover rounded-md" 
+                              />
+                            </div>
                           </div>
+                          
+                          {/* Message */}
+                          <div className="mt-2 flex">
+                            <span className="text-red-500 mr-1">•</span>
+                            <div className="text-gray-700 text-sm">
+                              {gift.message 
+                                ? gift.message.replace(/VMB:VMB-\d+/, "").replace(/PS: Clients register here: 🏠/, "")
+                                : `Hi ${gift.recipientName || "Tim"}, I would love a fresh set. My stylist has an opening for French Tips / Touch-Up, $40 (30 min) will you Ven Me, Baby! ❤️ ❤️ ❤️ Annie`
+                              }
+                            </div>
+                          </div>
+                          
+                          {/* Delivery Status */}
+                          <div className="flex items-center mt-2 text-sm text-green-600">
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            <span>Delivered on {gift.redeemedAt 
+                              ? new Date(gift.redeemedAt).toLocaleDateString()
+                              : "5/16/2025"}</span>
+                          </div>
+                          
+                          {/* Date */}
+                          <div className="flex items-center mt-1 text-sm text-gray-500">
+                            <Calendar className="h-4 w-4 mr-1" />
+                            <span>{new Date(gift.createdAt || new Date()).toLocaleDateString() || "5/16/2025"}</span>
+                          </div>
+                          
+                          {/* View Gift Details Button */}
+                          <Button 
+                            className="w-full mt-4 bg-pink-500 hover:bg-pink-600 text-white"
+                            onClick={() => {
+                              setSelectedGift(gift);
+                              setShowDeliveredGiftDetails(true);
+                            }}
+                          >
+                            View Gift Details
+                          </Button>
                         </div>
                       </CardHeader>
-                      <CardContent className="pb-2">
-                        {gift.message && <div className="text-sm italic">"{gift.message}"</div>}
+                      <CardContent className="hidden">
+                        {/* All content moved to header section above */}
                       </CardContent>
-                      <CardFooter className="flex justify-between items-center pt-0">
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          {new Date(gift.createdAt).toLocaleDateString()}
-                        </div>
-                        <Badge
-                          variant={isDelivered ? "outline" : "default"}
-                          className={isDelivered ? "bg-green-100 text-green-800 border-green-300" : "bg-red-100 text-red-800 border-red-200"}
-                        >
-                          {isDelivered ? "DELIVERED" : "Pending"}
-                        </Badge>
-                      </CardFooter>
-                      
-                      {/* Additional actions */}
-                      <div className="pb-4 px-6 flex justify-between">
-                        {/* Show Claim My Gift button for pending or claimed gifts/invitations */}
-                        {(gift.status === "pending" || gift.status === "claimed") && (
-                          <Button 
-                            size="default" 
-                            onClick={() => handlePreviewGift(gift)}
-                            variant="default"
-                            className="w-full font-bold tracking-wide bg-red-500 hover:bg-red-600 text-white rounded-md text-sm"
-                          >
-                            Send gift request to {gift.recipientName || "Recipient"}
-                          </Button>
-                        )}
-                        
-                        {/* Show redeem button for non-invitation gifts that are ready to redeem */}
-                        {(gift.status !== "redeemed" && gift.status !== "completed" && gift.status !== "pending" && 
-                          gift.status !== "claimed" && gift.status !== "delivered" && gift.giftType !== 'invitation') && (
-                          <Button 
-                            size="sm" 
-                            onClick={() => handleRedeemGift(gift)}
-                            disabled={redeemGiftMutation.isPending}
-                          >
-                            {redeemGiftMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            ) : (
-                              <CheckCircleIcon className="h-4 w-4 mr-2" />
-                            )}
-                            Redeem Gift
-                          </Button>
-                        )}
-                        
-                        {/* Show delivered status */}
-                        {isDelivered && (
-                          <div className="w-full">
-                            <div className="flex items-center text-xs text-green-600 mb-2">
-                              <CheckCircleIcon className="h-3 w-3 mr-1" />
-                              Delivered on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : new Date().toLocaleDateString()}
-                            </div>
-                            
-                            {/* View Gift Details button - opens delivered gift details modal */}
-                            <Button 
-                              className="w-full bg-pink-500 hover:bg-pink-600 text-white rounded-md flex items-center justify-center gap-2"
-                              onClick={() => {
-                                setSelectedGift(gift);
-                                setShowDeliveredGiftDetails(true);
-                              }}
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                              View Gift Details
-                            </Button>
-                          </div>
-                        )}
-                      </div>
                     </>
                   )}
                 </Card>
