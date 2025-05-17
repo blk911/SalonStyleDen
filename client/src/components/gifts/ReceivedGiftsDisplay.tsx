@@ -434,34 +434,65 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         </a>
                       </div>
                       
-                      {/* Service card */}
-                      <div className="bg-pink-50 rounded-md p-4 flex items-center w-full mb-3">
-                        <div className="flex-grow">
-                          <div className="font-bold">
-                            {gift.styleName || "French Tips / Touch-Up"}
+                      {/* Service card - Only show for regular gifts, not invitations */}
+                      {gift.giftType !== "invitation" && (
+                        <div className="bg-pink-50 rounded-md p-4 flex items-center w-full mb-3">
+                          <div className="flex-grow">
+                            <div className="font-bold">
+                              {gift.styleName || "French Tips / Touch-Up"}
+                            </div>
+                            <div className="text-sm text-gray-600 mt-1">
+                              {"Classic white tips or quick polish refresh"}
+                            </div>
+                            <div className="mt-2 flex items-baseline">
+                              <span className="font-bold text-lg">
+                                {gift.amount > 0 
+                                  ? formatCurrency(gift.amount / 100) 
+                                  : "$40"}
+                              </span>
+                              <span className="ml-2 text-sm text-gray-500">
+                                {"30 min"}
+                              </span>
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-600 mt-1">
-                            {"Classic white tips or quick polish refresh"}
-                          </div>
-                          <div className="mt-2 flex items-baseline">
-                            <span className="font-bold text-lg">
-                              {gift.amount > 0 
-                                ? formatCurrency(gift.amount / 100) 
-                                : "$40"}
-                            </span>
-                            <span className="ml-2 text-sm text-gray-500">
-                              {"30 min"}
-                            </span>
+                          <div className="ml-4">
+                            <img 
+                              src="https://img.freepik.com/free-photo/nail-art_144627-32107.jpg" 
+                              alt="Nail service" 
+                              className="w-[70px] h-[70px] object-cover rounded-md" 
+                            />
                           </div>
                         </div>
-                        <div className="ml-4">
-                          <img 
-                            src="https://img.freepik.com/free-photo/nail-art_144627-32107.jpg" 
-                            alt="Nail service" 
-                            className="w-[70px] h-[70px] object-cover rounded-md" 
-                          />
+                      )}
+                      
+                      {/* For invitations, show a different format matching the screenshot */}
+                      {gift.giftType === "invitation" && (
+                        <div className="bg-pink-50 rounded-md p-4 flex items-center w-full mb-3">
+                          <div className="flex-grow">
+                            <div className="font-bold">
+                              French Tips / Touch-Up
+                            </div>
+                            <div className="text-sm text-gray-600 mt-1">
+                              Classic white tips or quick polish refresh
+                            </div>
+                            <div className="mt-2 flex items-baseline">
+                              <span className="font-bold text-lg">$40</span>
+                              <span className="ml-2 text-sm text-gray-500">30 min</span>
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <img 
+                              src="/assets/french-tips.png" 
+                              alt="French Tips" 
+                              className="w-[70px] h-[70px] object-cover rounded-md" 
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = "https://img.freepik.com/free-photo/nail-art_144627-32107.jpg";
+                              }}
+                            />
+                          </div>
                         </div>
-                      </div>
+                      )}
                       
                       {/* Message */}
                       <div className="flex mb-3">
