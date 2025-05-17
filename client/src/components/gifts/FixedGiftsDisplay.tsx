@@ -10,6 +10,14 @@ import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Gift as GiftIcon, CheckCircle, CheckCircleIcon, Calendar, ExternalLink } from "lucide-react";
 import { formatCurrency, formatPhoneNumber, processInvitationMessage, cleanPhoneNumber } from "@/lib/utils";
+import { 
+  DEFAULT_SALON_NAME, 
+  DEFAULT_SALON_ID, 
+  DEFAULT_SERVICE_TYPE, 
+  DEFAULT_INVITATION_TYPE,
+  DEFAULT_DATE_STRING,
+  GIFT_STATUSES
+} from "@/constants/salonConstants";
 import { GiftClaimCard } from "./GiftClaimCard";
 
 // Fixed version that properly displays gift messages consistently across all views
@@ -182,7 +190,9 @@ export function FixedGiftsDisplay({ clientId, onRedeemGift, setLocation }: Fixed
           <div className="space-y-4">
             {receivedGifts.map((gift) => {
               // Determine if this is a delivered gift
-              const isDelivered = gift.status === "redeemed" || gift.status === "completed" || gift.status === "delivered";
+              const isDelivered = gift.status === GIFT_STATUSES.REDEEMED || 
+                               gift.status === GIFT_STATUSES.COMPLETED || 
+                               gift.status === GIFT_STATUSES.DELIVERED;
               
               // Calculate collapsed state
               const isCollapsed = (collapsedGifts[gift.id] || (isDelivered && !showAllDelivered));
@@ -249,10 +259,10 @@ export function FixedGiftsDisplay({ clientId, onRedeemGift, setLocation }: Fixed
                         <span className="text-red-500 mr-1">•</span>
                         <span className="font-medium">At:</span>{' '}
                         <a 
-                          href={`/salon/${gift.salonId || 2}`}
+                          href={`/salon/${gift.salonId || DEFAULT_SALON_ID}`}
                           className="ml-1 text-pink-600 hover:underline"
                         >
-                          {gift.salonName || "Tiffany 5280 Nails Studio"}
+                          {gift.salonName || DEFAULT_SALON_NAME}
                         </a>
                       </div>
                       
@@ -261,7 +271,7 @@ export function FixedGiftsDisplay({ clientId, onRedeemGift, setLocation }: Fixed
                         <span className="text-red-500 mr-1">•</span>
                         <span className="font-medium">Style:</span>{' '}
                         <span className="ml-1">
-                          {gift.styleName || (gift.giftType === 'invitation' ? 'Salon Invitation' : 'Nail Service')}
+                          {gift.styleName || (gift.giftType === 'invitation' ? DEFAULT_INVITATION_TYPE : DEFAULT_SERVICE_TYPE)}
                           {gift.amount > 0 && ` (${formatCurrency(gift.amount / 100)})`}
                         </span>
                       </div>
@@ -277,7 +287,7 @@ export function FixedGiftsDisplay({ clientId, onRedeemGift, setLocation }: Fixed
                       {isDelivered && (
                         <div className="flex items-center mt-3 text-sm text-green-600">
                           <CheckCircle className="h-4 w-4 mr-1" />
-                          <span>Delivered on {new Date(gift.createdAt || "2025-05-16").toLocaleDateString()}</span>
+                          <span>Delivered on {new Date(gift.createdAt || DEFAULT_DATE_STRING).toLocaleDateString()}</span>
                         </div>
                       )}
                       
@@ -316,7 +326,7 @@ export function FixedGiftsDisplay({ clientId, onRedeemGift, setLocation }: Fixed
               <div className="flex flex-col items-center">
                 <GiftIcon className="h-12 w-12 text-pink-500 mb-3" />
                 <div className="text-center font-bold text-lg mb-3">
-                  {selectedGift.styleName || (selectedGift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
+                  {selectedGift.styleName || (selectedGift.giftType === 'invitation' ? DEFAULT_INVITATION_TYPE : DEFAULT_SERVICE_TYPE)}
                   {selectedGift.amount > 0 && (
                     <div className="font-semibold text-base text-pink-600 mt-1">
                       Value: {formatCurrency(selectedGift.amount / 100)}
