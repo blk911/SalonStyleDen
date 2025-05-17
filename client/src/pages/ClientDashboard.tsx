@@ -711,23 +711,23 @@ export default function ClientDashboard() {
                 </div>
               </TabsTrigger>
               <TabsTrigger 
-                value="activity" 
+                value="appointments" 
                 className="bg-white shadow-md rounded-md transition-all duration-200 
                            border border-gray-100
-                           hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100
+                           hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100
                            hover:shadow-lg hover:scale-105
-                           data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-50 data-[state=active]:to-green-100
-                           data-[state=active]:shadow-lg data-[state=active]:border-b-2 data-[state=active]:border-green-500
-                           data-[state=active]:border-t data-[state=active]:border-t-green-200
-                           data-[state=active]:border-l data-[state=active]:border-l-green-200
-                           data-[state=active]:border-r data-[state=active]:border-r-green-200"
+                           data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-50 data-[state=active]:to-blue-100
+                           data-[state=active]:shadow-lg data-[state=active]:border-b-2 data-[state=active]:border-blue-500
+                           data-[state=active]:border-t data-[state=active]:border-t-blue-200
+                           data-[state=active]:border-l data-[state=active]:border-l-blue-200
+                           data-[state=active]:border-r data-[state=active]:border-r-blue-200"
               >
                 <div className="w-full text-center py-2">
-                  <div className="font-semibold text-gray-800">Activity</div>
+                  <div className="font-semibold text-gray-800">Appointments</div>
                   <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
-                    <span>Recent</span>
+                    <span>Pending</span>
                     <span className="text-muted-foreground/30 px-1">|</span>
-                    <span>History</span>
+                    <span>Booked</span>
                   </div>
                 </div>
               </TabsTrigger>
@@ -792,26 +792,9 @@ export default function ClientDashboard() {
               </div>
             </TabsContent>
             
-            <TabsContent value="activity" className="mt-12 transition-all duration-300 animate-in fade-in-50">
-              <div className="bg-white rounded-xl shadow-md p-4 border border-green-200 bg-gradient-to-b from-green-50/50 to-white">
-                <div className="p-6 text-center">
-                  <h3 className="text-xl font-semibold mb-4">Recent Activity</h3>
-                  <p className="text-gray-600 mb-4">View your recent gift exchanges and interactions with stylists.</p>
-                  <div className="flex flex-col space-y-4 max-w-lg mx-auto mt-5">
-                    {client && (
-                      <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-start">
-                        <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
-                          <CheckCircleIcon className="h-5 w-5 text-green-600" />
-                        </div>
-                        <div className="flex-grow">
-                          <h4 className="font-medium text-gray-800">Gift Received</h4>
-                          <p className="text-sm text-gray-600">You received a gift from Annie for French Tips / Touch-Up service</p>
-                          <p className="text-xs text-gray-500 mt-1">{new Date().toLocaleDateString()}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+            <TabsContent value="appointments" className="mt-12 transition-all duration-300 animate-in fade-in-50">
+              <div className="bg-white rounded-xl shadow-md p-4 border border-blue-200 bg-gradient-to-b from-blue-50/50 to-white">
+                <ClientAppointments clientId={client.id} />
               </div>
             </TabsContent>
           </Tabs>
