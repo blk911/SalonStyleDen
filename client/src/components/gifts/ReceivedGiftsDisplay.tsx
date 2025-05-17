@@ -440,7 +440,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                           href={`/salon/${gift.salonId || DEFAULT_SALON_ID}`}
                           className="text-pink-600 hover:underline font-medium ml-1"
                         >
-                          Tiffany 5280 Nails Studio
+                          {DEFAULT_SALON_NAME}
                         </a>
                       </div>
                       
