@@ -581,15 +581,15 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                         
                         {/* Show delivered status */}
                         {isDelivered && (
-                          <div className="w-full flex flex-col space-y-2">
-                            <div className="flex items-center text-xs text-green-600">
+                          <div className="w-full">
+                            <div className="flex items-center text-xs text-green-600 mb-2">
                               <CheckCircleIcon className="h-3 w-3 mr-1" />
                               Delivered on {gift.redeemedAt ? new Date(gift.redeemedAt).toLocaleDateString() : new Date().toLocaleDateString()}
                             </div>
                             
                             {/* View Gift Details button - opens delivered gift details modal */}
                             <Button 
-                              className="w-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center gap-2 mt-2"
+                              className="w-full bg-pink-500 hover:bg-pink-600 text-white rounded-md flex items-center justify-center gap-2"
                               onClick={() => {
                                 setSelectedGift(gift);
                                 setShowDeliveredGiftDetails(true);
@@ -849,7 +849,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       <Dialog open={showDeliveredGiftDetails} onOpenChange={setShowDeliveredGiftDetails}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-center text-xl font-bold text-green-600">
+            <DialogTitle className="text-center text-xl font-bold text-pink-600">
               DELIVERED GIFT DETAILS
             </DialogTitle>
             <DialogDescription className="text-center pt-2">
@@ -858,20 +858,20 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
           </DialogHeader>
           
           {selectedGift && (
-            <div className="bg-gradient-to-r from-green-50 to-white p-5 rounded-md my-4 border border-green-100 shadow-sm">
+            <div className="bg-gradient-to-r from-pink-50 to-white p-5 rounded-md my-4 border border-pink-100 shadow-sm">
               <div className="flex flex-col items-center">
-                <GiftIcon className="h-12 w-12 text-green-500 mb-3" />
+                <GiftIcon className="h-12 w-12 text-pink-500 mb-3" />
                 <div className="text-center font-bold text-lg mb-3">
                   {selectedGift.styleName || (selectedGift.giftType === 'invitation' ? 'Salon Invitation' : 'Style Card')}
                   {selectedGift.amount > 0 && (
-                    <div className="font-semibold text-base text-green-600 mt-1">
+                    <div className="font-semibold text-base text-pink-600 mt-1">
                       Value: {formatCurrency(selectedGift.amount / 100)}
                     </div>
                   )}
                 </div>
                 
                 {selectedGift.message && (
-                  <div className="mt-2 px-4 py-3 bg-white border border-green-100 rounded-md w-full text-sm italic text-gray-700">
+                  <div className="mt-2 px-4 py-3 bg-white border border-pink-100 rounded-md w-full text-sm italic text-gray-700">
                     "{selectedGift.message}"
                   </div>
                 )}
@@ -893,7 +893,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
                       <span className="text-gray-500">At:</span> 
                       <a 
                         href={`/salon/${selectedGift.salonId}`} 
-                        className="text-green-600 hover:underline font-medium"
+                        className="text-pink-600 hover:underline font-medium"
                         onClick={(e) => {
                           e.preventDefault();
                           setShowDeliveredGiftDetails(false);
@@ -921,7 +921,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
           <DialogFooter>
             <Button 
               onClick={() => setShowDeliveredGiftDetails(false)}
-              className="w-full bg-green-500 hover:bg-green-600 text-white"
+              className="w-full bg-pink-500 hover:bg-pink-600 text-white"
             >
               Close
             </Button>
