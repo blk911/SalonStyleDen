@@ -248,75 +248,61 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         </CardContent>
       </Card>
 
-      {/* Main 2-column layout: Gifts and Activity side by side */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Gifts section (Left Side) */}
-        <div className="space-y-4">
-          <div className="bg-pink-50 rounded-md p-2">
-            <div className="flex space-x-2 text-sm">
-              <div className="flex-1 text-center border-r border-pink-200 px-2">
-                <button className={`relative font-medium after:absolute after:h-0.5 after:w-full after:bottom-0 after:left-0 after:bg-pink-500`}>
-                  Sent
-                </button>
-              </div>
-              <div className="flex-1 text-center px-2">
-                <button className={`relative font-medium after:absolute after:h-0.5 after:w-full after:bottom-0 after:left-0 after:bg-pink-500`}>
-                  Received
-                </button>
-              </div>
+      {/* Gifts section */}
+      <div className="space-y-4">
+        <div className="bg-pink-50 rounded-md p-2">
+          <div className="flex space-x-2 text-sm">
+            <div className="flex-1 text-center border-r border-pink-200 px-2">
+              <button className={`relative font-medium`}>
+                Sent
+              </button>
+            </div>
+            <div className="flex-1 text-center px-2">
+              <button className={`relative font-medium`}>
+                Received
+              </button>
             </div>
           </div>
-
-          {/* Gift Content */}
-          {clientId ? (
-            <div className="space-y-4">
-              <div className="border rounded-lg p-4 bg-yellow-50">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
-                </div>
-                <FixedGiftsDisplay 
-                  clientId={clientId}
-                  setLocation={(to: string) => setLocation(to)}
-                />
-              </div>
-              
-              <div className="border rounded-lg p-4 bg-green-50">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-green-800">Gifts You've Sent</h3>
-                </div>
-                <SentGiftsDisplay 
-                  clientId={clientId}
-                  setLocation={(to: string) => setLocation(to)}
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="text-center p-4 bg-white rounded-lg border border-gray-200">
-              <p className="text-gray-800">Unable to display gifts</p>
-              <p className="text-xs text-gray-500 mt-1">Client information not available</p>
-            </div>
-          )}
         </div>
 
-        {/* Activity section (Right Side) */}
-        <div className="border rounded-lg p-4 bg-gray-50">
-          <div className="bg-white rounded-md p-2 mb-4">
-            <div className="flex space-x-2 text-sm">
-              <div className="flex-1 text-center border-r border-gray-200 px-2">
-                <button className={`relative font-medium after:absolute after:h-0.5 after:w-full after:bottom-0 after:left-0 after:bg-gray-500`}>
-                  History
-                </button>
-              </div>
-              <div className="flex-1 text-center px-2">
-                <button className={`relative font-medium`}>
-                  Stats
-                </button>
-              </div>
+        {/* Stacked Gift Sections */}
+        <div className="grid grid-cols-1 gap-4">
+          {/* Gifts Received section */}
+          <div className="border rounded-lg p-4 bg-yellow-50">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
+              <p className="text-xs text-gray-500">Gifts and invitations sent to you</p>
             </div>
+            {clientId ? (
+              <FixedGiftsDisplay 
+                clientId={clientId}
+                setLocation={(to: string) => setLocation(to)}
+              />
+            ) : (
+              <div className="text-center p-4 bg-white rounded-lg border border-yellow-200">
+                <p className="text-amber-800">Unable to display gifts</p>
+                <p className="text-xs text-gray-500 mt-1">Client information not available</p>
+              </div>
+            )}
           </div>
-          
-          <div className="text-center p-8">
-            <p className="text-gray-500">Activity history will be displayed here</p>
+
+          {/* Gifts Sent section */}
+          <div className="border rounded-lg p-4 bg-green-50">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-medium text-green-800">Gifts You've Sent</h3>
+              <p className="text-xs text-gray-500">Gifts you've sent to other clients</p>
+            </div>
+            {clientId ? (
+              <SentGiftsDisplay 
+                clientId={clientId}
+                setLocation={(to: string) => setLocation(to)}
+              />
+            ) : (
+              <div className="text-center p-4 bg-white rounded-lg border border-green-200">
+                <p className="text-green-800">Unable to display sent gifts</p>
+                <p className="text-xs text-gray-500 mt-1">Client information not available</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
