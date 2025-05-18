@@ -248,46 +248,76 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         </CardContent>
       </Card>
 
-      {/* Activity Cards section with 50/50 layout */}
+      {/* Main 2-column layout: Gifts and Activity side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Gifts Received section (Left Column) */}
-        <div>
+        {/* Gifts section (Left Side) */}
+        <div className="space-y-4">
+          <div className="bg-pink-50 rounded-md p-2">
+            <div className="flex space-x-2 text-sm">
+              <div className="flex-1 text-center border-r border-pink-200 px-2">
+                <button className={`relative font-medium after:absolute after:h-0.5 after:w-full after:bottom-0 after:left-0 after:bg-pink-500`}>
+                  Sent
+                </button>
+              </div>
+              <div className="flex-1 text-center px-2">
+                <button className={`relative font-medium after:absolute after:h-0.5 after:w-full after:bottom-0 after:left-0 after:bg-pink-500`}>
+                  Received
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Gift Content */}
           {clientId ? (
-            <FixedGiftsDisplay 
-              clientId={clientId}
-              setLocation={(to: string) => setLocation(to)}
-            />
+            <div className="space-y-4">
+              <div className="border rounded-lg p-4 bg-yellow-50">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
+                </div>
+                <FixedGiftsDisplay 
+                  clientId={clientId}
+                  setLocation={(to: string) => setLocation(to)}
+                />
+              </div>
+              
+              <div className="border rounded-lg p-4 bg-green-50">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-green-800">Gifts You've Sent</h3>
+                </div>
+                <SentGiftsDisplay 
+                  clientId={clientId}
+                  setLocation={(to: string) => setLocation(to)}
+                />
+              </div>
+            </div>
           ) : (
-            <div className="border rounded-lg p-4 bg-yellow-50">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
-              </div>
-              <div className="text-center p-4 bg-white rounded-lg border border-yellow-200">
-                <p className="text-amber-800">Unable to display gifts</p>
-                <p className="text-xs text-gray-500 mt-1">Client information not available</p>
-              </div>
+            <div className="text-center p-4 bg-white rounded-lg border border-gray-200">
+              <p className="text-gray-800">Unable to display gifts</p>
+              <p className="text-xs text-gray-500 mt-1">Client information not available</p>
             </div>
           )}
         </div>
 
-        {/* Gifts Sent section (Right Column) */}
-        <div>
-          {clientId ? (
-            <SentGiftsDisplay 
-              clientId={clientId}
-              setLocation={(to: string) => setLocation(to)}
-            />
-          ) : (
-            <div className="border rounded-lg p-4 bg-green-50">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-green-800">Gifts Sent</h3>
+        {/* Activity section (Right Side) */}
+        <div className="border rounded-lg p-4 bg-gray-50">
+          <div className="bg-white rounded-md p-2 mb-4">
+            <div className="flex space-x-2 text-sm">
+              <div className="flex-1 text-center border-r border-gray-200 px-2">
+                <button className={`relative font-medium after:absolute after:h-0.5 after:w-full after:bottom-0 after:left-0 after:bg-gray-500`}>
+                  History
+                </button>
               </div>
-              <div className="text-center p-4 bg-white rounded-lg border border-green-200">
-                <p className="text-green-800">Unable to display sent gifts</p>
-                <p className="text-xs text-gray-500 mt-1">Client information not available</p>
+              <div className="flex-1 text-center px-2">
+                <button className={`relative font-medium`}>
+                  Stats
+                </button>
               </div>
             </div>
-          )}
+          </div>
+          
+          <div className="text-center p-8">
+            <p className="text-gray-500">Activity history will be displayed here</p>
+          </div>
         </div>
       </div>
     </div>
