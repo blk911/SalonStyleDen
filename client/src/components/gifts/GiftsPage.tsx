@@ -248,41 +248,48 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         </CardContent>
       </Card>
 
-      {/* Always show Gifts Received section using the fixed gift display component */}
-      {clientId ? (
-        <FixedGiftsDisplay 
-          clientId={clientId}
-          setLocation={(to: string) => setLocation(to)}
-        />
-      ) : (
-        <div className="mt-4 border rounded-lg p-4 bg-yellow-50">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
-          </div>
-          <div className="text-center p-4 bg-white rounded-lg border border-yellow-200">
-            <p className="text-amber-800">Unable to display gifts</p>
-            <p className="text-xs text-gray-500 mt-1">Client information not available</p>
-          </div>
+      {/* Activity Cards section with 50/50 layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Gifts Received section (Left Column) */}
+        <div>
+          {clientId ? (
+            <FixedGiftsDisplay 
+              clientId={clientId}
+              setLocation={(to: string) => setLocation(to)}
+            />
+          ) : (
+            <div className="border rounded-lg p-4 bg-yellow-50">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
+              </div>
+              <div className="text-center p-4 bg-white rounded-lg border border-yellow-200">
+                <p className="text-amber-800">Unable to display gifts</p>
+                <p className="text-xs text-gray-500 mt-1">Client information not available</p>
+              </div>
+            </div>
+          )}
         </div>
-      )}
 
-      {/* Always show Gifts Sent section, with appropriate empty state */}
-      {clientId ? (
-        <SentGiftsDisplay 
-          clientId={clientId}
-          setLocation={(to: string) => setLocation(to)}
-        />
-      ) : (
-        <div className="mt-4 border rounded-lg p-4 bg-green-50">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-green-800">Gifts Sent</h3>
-          </div>
-          <div className="text-center p-4 bg-white rounded-lg border border-green-200">
-            <p className="text-green-800">Unable to display sent gifts</p>
-            <p className="text-xs text-gray-500 mt-1">Client information not available</p>
-          </div>
+        {/* Gifts Sent section (Right Column) */}
+        <div>
+          {clientId ? (
+            <SentGiftsDisplay 
+              clientId={clientId}
+              setLocation={(to: string) => setLocation(to)}
+            />
+          ) : (
+            <div className="border rounded-lg p-4 bg-green-50">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-green-800">Gifts Sent</h3>
+              </div>
+              <div className="text-center p-4 bg-white rounded-lg border border-green-200">
+                <p className="text-green-800">Unable to display sent gifts</p>
+                <p className="text-xs text-gray-500 mt-1">Client information not available</p>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
