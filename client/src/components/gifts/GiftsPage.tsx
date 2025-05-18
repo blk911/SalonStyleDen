@@ -248,64 +248,41 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         </CardContent>
       </Card>
 
-      {/* Gifts section */}
-      <div className="space-y-4">
-        <div className="bg-pink-50 rounded-md p-2">
-          <div className="flex space-x-2 text-sm">
-            <div className="flex-1 text-center border-r border-pink-200 px-2">
-              <button className={`relative font-medium`}>
-                Sent
-              </button>
-            </div>
-            <div className="flex-1 text-center px-2">
-              <button className={`relative font-medium`}>
-                Received
-              </button>
-            </div>
+      {/* Always show Gifts Received section using the fixed gift display component */}
+      {clientId ? (
+        <FixedGiftsDisplay 
+          clientId={clientId}
+          setLocation={(to: string) => setLocation(to)}
+        />
+      ) : (
+        <div className="mt-4 border rounded-lg p-4 bg-yellow-50">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
+          </div>
+          <div className="text-center p-4 bg-white rounded-lg border border-yellow-200">
+            <p className="text-amber-800">Unable to display gifts</p>
+            <p className="text-xs text-gray-500 mt-1">Client information not available</p>
           </div>
         </div>
+      )}
 
-        {/* Stacked Gift Sections */}
-        <div className="grid grid-cols-1 gap-4">
-          {/* Gifts Received section */}
-          <div className="border rounded-lg p-4 bg-yellow-50">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-amber-800">GIFT/INVITE RECEIVED</h3>
-              <p className="text-xs text-gray-500">Gifts and invitations sent to you</p>
-            </div>
-            {clientId ? (
-              <FixedGiftsDisplay 
-                clientId={clientId}
-                setLocation={(to: string) => setLocation(to)}
-              />
-            ) : (
-              <div className="text-center p-4 bg-white rounded-lg border border-yellow-200">
-                <p className="text-amber-800">Unable to display gifts</p>
-                <p className="text-xs text-gray-500 mt-1">Client information not available</p>
-              </div>
-            )}
+      {/* Always show Gifts Sent section, with appropriate empty state */}
+      {clientId ? (
+        <SentGiftsDisplay 
+          clientId={clientId}
+          setLocation={(to: string) => setLocation(to)}
+        />
+      ) : (
+        <div className="mt-4 border rounded-lg p-4 bg-green-50">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-green-800">Gifts Sent</h3>
           </div>
-
-          {/* Gifts Sent section */}
-          <div className="border rounded-lg p-4 bg-green-50">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-green-800">Gifts You've Sent</h3>
-              <p className="text-xs text-gray-500">Gifts you've sent to other clients</p>
-            </div>
-            {clientId ? (
-              <SentGiftsDisplay 
-                clientId={clientId}
-                setLocation={(to: string) => setLocation(to)}
-              />
-            ) : (
-              <div className="text-center p-4 bg-white rounded-lg border border-green-200">
-                <p className="text-green-800">Unable to display sent gifts</p>
-                <p className="text-xs text-gray-500 mt-1">Client information not available</p>
-              </div>
-            )}
+          <div className="text-center p-4 bg-white rounded-lg border border-green-200">
+            <p className="text-green-800">Unable to display sent gifts</p>
+            <p className="text-xs text-gray-500 mt-1">Client information not available</p>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
