@@ -802,9 +802,15 @@ export default function ClientDashboard() {
               </div>
             </TabsContent>
             
+            {/* Removed duplicate ClientGifts component to eliminate redundant gift display */}
             <TabsContent value="gifts" className="mt-12 transition-all duration-300 animate-in fade-in-50">
               <div className="bg-white rounded-xl shadow-md p-4 border border-blue-200 bg-gradient-to-b from-blue-50/50 to-white">
-                <ClientGifts clientId={client.id} />
+                <div className="text-center py-8">
+                  <h3 className="text-lg font-medium mb-2">Your Gifts</h3>
+                  <p className="text-gray-500">
+                    All your gifts and invitations are now displayed on the main dashboard for easier access.
+                  </p>
+                </div>
               </div>
             </TabsContent>
           </Tabs>
