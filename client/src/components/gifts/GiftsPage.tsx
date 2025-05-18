@@ -248,9 +248,9 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
         </CardContent>
       </Card>
 
-      {/* Activity Cards section with 50/50 layout */}
+      {/* 50/50 Layout for Gifts and Activity */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Gifts Received section (Left Column) */}
+        {/* Left column: Gifts Received section */}
         <div>
           {clientId ? (
             <FixedGiftsDisplay 
@@ -270,7 +270,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
           )}
         </div>
 
-        {/* Gifts Sent section (Right Column) */}
+        {/* Right column: Gifts Sent section */}
         <div>
           {clientId ? (
             <SentGiftsDisplay 
