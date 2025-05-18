@@ -20,13 +20,9 @@ import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import EditableClientInfo from "@/components/dashboard/EditableClientInfo";
 import RecentVmbInvitations from "@/components/dashboard/RecentVmbInvitations";
 import InlineVmbInvitations from "@/components/dashboard/InlineVmbInvitations";
-import PendingSalonInvitations from "@/components/dashboard/PendingSalonInvitations";
 import SentInvitations from "@/components/dashboard/SentInvitations";
 import ClientInviteForm from "@/components/dashboard/ClientInviteForm";
-import ClientGifts from "@/components/gifts/ClientGifts";
 import GiftsPage from "@/components/gifts/GiftsPage";
-import InvitationsPage from "@/components/invitations/InvitationsPage";
-import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
 import { getImageUrl, formatPhoneNumber } from "@/lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -689,27 +685,7 @@ export default function ClientDashboard() {
                   </div>
                 </div>
               </TabsTrigger>
-              <TabsTrigger 
-                value="invitations" 
-                className="bg-white shadow-md rounded-md transition-all duration-200 
-                           border border-gray-100
-                           hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100
-                           hover:shadow-lg hover:scale-105
-                           data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-50 data-[state=active]:to-indigo-100
-                           data-[state=active]:shadow-lg data-[state=active]:border-b-2 data-[state=active]:border-indigo-500
-                           data-[state=active]:border-t data-[state=active]:border-t-indigo-200 
-                           data-[state=active]:border-l data-[state=active]:border-l-indigo-200
-                           data-[state=active]:border-r data-[state=active]:border-r-indigo-200"
-              >
-                <div className="w-full text-center py-2">
-                  <div className="font-semibold text-gray-800">Invitations</div>
-                  <div className="flex items-center justify-center text-xs text-muted-foreground mt-1 space-x-1">
-                    <span>Friends</span>
-                    <span className="text-muted-foreground/30 px-1">|</span>
-                    <span>Owners</span>
-                  </div>
-                </div>
-              </TabsTrigger>
+              {/* Invitations tab removed as requested */}
               <TabsTrigger 
                 value="vmb-activity" 
                 className="bg-white shadow-md rounded-md transition-all duration-200 
@@ -795,24 +771,9 @@ export default function ClientDashboard() {
               </div>
             </TabsContent>
             
-            <TabsContent value="invitations" className="mt-12 transition-all duration-300 animate-in fade-in-50">
-              {/* Invitations Page Component */}
-              <div className="bg-white rounded-xl shadow-md p-4 border border-indigo-200 bg-gradient-to-b from-indigo-50/50 to-white">
-                <InvitationsPage />
-              </div>
-            </TabsContent>
+            {/* Invitations tab content removed as requested */}
             
-            {/* Removed duplicate ClientGifts component to eliminate redundant gift display */}
-            <TabsContent value="gifts" className="mt-12 transition-all duration-300 animate-in fade-in-50">
-              <div className="bg-white rounded-xl shadow-md p-4 border border-blue-200 bg-gradient-to-b from-blue-50/50 to-white">
-                <div className="text-center py-8">
-                  <h3 className="text-lg font-medium mb-2">Your Gifts</h3>
-                  <p className="text-gray-500">
-                    All your gifts and invitations are now displayed on the main dashboard for easier access.
-                  </p>
-                </div>
-              </div>
-            </TabsContent>
+            {/* Your Gifts section removed as requested */}
           </Tabs>
         </div>
       </main>
