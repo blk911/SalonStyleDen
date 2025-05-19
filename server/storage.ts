@@ -346,29 +346,74 @@ export class DatabaseStorage implements IStorage {
       // Remove id and createdAt from the update data (can't update primary key or timestamp in wrong format)
       const { id: _, createdAt, ...updateData } = salonData;
       
-      // Debug: Check specifically for the owner photo URL
-      console.log(`DatabaseStorage.updateSalon - Photo URL in update:`, 
-                 updateData.ownerPhotoUrl || 'No photo URL provided');
+      // Get current salon data for metadata merging and tracking
+      const currentSalon = await this.getSalon(id);
+      
+      // Handle metadata as special case for tracking registration flow
+      if (updateData.metadata && typeof updateData.metadata === 'object') {
+        // Ensure we're merging metadata objects, creating an empty one if it doesn't exist
+        const currentMetadata = currentSalon?.metadata || {};
+        
+        // Merge the metadata objects, ensuring proper type handling for JSON
+        updateData.metadata = {
+          ...currentMetadata,
+          ...updateData.metadata,
+          lastUpdated: new Date().toISOString() // Always track last update time
+        };
+        
+        console.log(`DatabaseStorage.updateSalon - Merged metadata for salon ${id}:`, 
+          JSON.stringify(updateData.metadata, null, 2));
+      }
+      
+      // Debug: Track specific fields when they're being updated
+      if (updateData.ownerPhotoUrl) {
+        console.log(`DatabaseStorage.updateSalon - Photo URL in update:`, updateData.ownerPhotoUrl);
+      }
+      
+      if (updateData.licenseNumber || updateData.licenseStatus) {
+        console.log(`DatabaseStorage.updateSalon - License update for salon ${id}:`, 
+          JSON.stringify({
+            licenseNumber: updateData.licenseNumber,
+            licenseStatus: updateData.licenseStatus,
+            licenseVerified: updateData.licenseVerified
+          }, null, 2));
+      }
       
       console.log(`DatabaseStorage.updateSalon - Full update data fields:`, 
                  Object.keys(updateData).join(', '));
       
-      console.log(`DatabaseStorage.updateSalon - Cleaned update data:`, JSON.stringify(updateData));
-      
-      // Get current salon data to check changes
-      const currentSalon = await this.getSalon(id);
-      console.log(`DatabaseStorage.updateSalon - Current ownerPhotoUrl:`, 
-                 currentSalon?.ownerPhotoUrl || 'None');
-      
+      // Execute the update with properly merged data
       const result = await db
         .update(salons)
         .set(updateData)
         .where(eq(salons.id, id))
         .returning();
       
-      console.log(`DatabaseStorage.updateSalon - Update successful`);
-      console.log(`DatabaseStorage.updateSalon - New ownerPhotoUrl:`, 
-                 result[0].ownerPhotoUrl || 'None');
+      if (result.length === 0) {
+        throw new Error(`Salon with ID ${id} not found or update failed`);
+      }
+      
+      console.log(`DatabaseStorage.updateSalon - Update successful for salon ${id}`);
+      
+      // Invalidate cache to ensure fresh data
+      this._salonsCache.timestamp = 0;
+      
+      // Log an activity record for significant updates
+      if (updateData.licenseVerified === true || updateData.licenseStatus === 'verified') {
+        await this.createActivityLog({
+          type: 'SALON_LICENSE_VERIFIED',
+          description: `License verified for salon ${result[0].name} (ID: ${id})`,
+          salonId: id,
+          timestamp: new Date(),
+          details: JSON.stringify({
+            licenseNumber: result[0].licenseNumber,
+            licenseState: result[0].licenseState,
+            licenseName: result[0].licenseName,
+            registrationStage: 'license_verified',
+            trackingId: result[0].metadata?.registrationTrackingId || `reg_recovery_${Date.now()}`
+          })
+        });
+      }
                  
       return result[0];
     } catch (error) {

@@ -40,16 +40,33 @@ router.post('/submit', async (req: Request, res: Response) => {
     try {
       // Get the registration tracking ID from salon metadata
       const salonData = await storage.getSalon(Number(salonId));
-      const registrationTrackingId = salonData?.metadata?.registrationTrackingId || `reg_recovery_${Date.now()}`;
+      
+      // Create a tracking ID if it doesn't exist
+      let registrationTrackingId = `reg_recovery_${Date.now()}`;
+      let existingMetadata = {};
+      
+      // Safely access metadata and extract tracking ID if it exists
+      if (salonData && salonData.metadata) {
+        try {
+          existingMetadata = salonData.metadata;
+          if (existingMetadata.registrationTrackingId) {
+            registrationTrackingId = existingMetadata.registrationTrackingId;
+          }
+        } catch (metadataError) {
+          console.error("Error accessing metadata:", metadataError);
+          // Continue with recovery tracking ID
+        }
+      }
       
       // Update the salon's metadata to indicate license submission
       await storage.updateSalon(Number(salonId), {
         metadata: {
-          ...salonData?.metadata,
           licenseSubmitted: true,
           licenseSubmissionTime: new Date().toISOString(),
           registrationTrackingId,
-          registrationStage: 'license_submitted'
+          registrationStage: 'license_submitted',
+          // Preserve any existing metadata
+          ...(typeof existingMetadata === 'object' ? existingMetadata : {})
         }
       });
       
@@ -66,6 +83,19 @@ router.post('/submit', async (req: Request, res: Response) => {
           licenseNumber,
           licenseState,
           registrationStage: 'license_submitted'
+        })
+      });
+      
+      // Log another activity to mark the successful completion of the registration flow
+      await storage.createActivityLog({
+        type: "REGISTRATION_COMPLETED",
+        description: `Registration flow completed for salon ${salon.name}`,
+        salonId: Number(salonId),
+        timestamp: new Date(),
+        details: JSON.stringify({
+          trackingId: registrationTrackingId,
+          registrationStage: 'completed',
+          licenseVerificationPending: true
         })
       });
       
