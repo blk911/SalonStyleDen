@@ -2539,6 +2539,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   });
   
+  // Register license routes
+  app.use("/api", licenseRoutes);
+  
   // Register API routes
   app.use("/api", apiRouter);
   
