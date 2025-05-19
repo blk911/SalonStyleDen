@@ -157,6 +157,9 @@ interface Gift {
 
 // We're now using the imported SvgVisualizer component from @/components/visualization/SvgVisualizer
 
+// Import license review dialog
+import { LicenseReviewDialog } from "@/components/admin/LicenseReviewDialog";
+
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -169,6 +172,10 @@ export default function AdminDashboard() {
   const [clientToSuspend, setClientToSuspend] = useState<Client | null>(null);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [giftToDelete, setGiftToDelete] = useState<Gift | null>(null);
+  
+  // License review dialog state
+  const [isLicenseDialogOpen, setIsLicenseDialogOpen] = useState(false);
+  const [selectedLicense, setSelectedLicense] = useState<any>(null);
   
   // Section visibility states (stored in localStorage for persistence)
   const [styleOptionsOpen, setStyleOptionsOpen] = useState(true);
@@ -856,8 +863,20 @@ export default function AdminDashboard() {
                                   className="h-7 px-2 bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    // Open license management modal or page
-                                    window.open(`/admin/license/${salon.id}`, '_blank');
+                                    // Open license management dialog
+                                    setSelectedLicense({
+                                      id: salon.id, // Using salon id as license id temporarily
+                                      salonId: salon.id,
+                                      salonName: salon.name,
+                                      ownerName: salon.ownerName,
+                                      licenseNumber: salon.licenseNumber || '',
+                                      licenseState: salon.licenseState || '',
+                                      licenseStatus: salon.licenseStatus || 'not_submitted',
+                                      licenseVerificationDate: salon.licenseVerificationDate,
+                                      submissionDate: salon.licenseNumber ? salon.createdAt : undefined,
+                                      adminNotes: ''
+                                    });
+                                    setIsLicenseDialogOpen(true);
                                   }}
                                 >
                                   <FileTextIcon className="h-3.5 w-3.5 mr-1" />
@@ -2145,6 +2164,13 @@ export default function AdminDashboard() {
         </div>
       </main>
       <Footer />
+
+      {/* License Review Dialog */}
+      <LicenseReviewDialog 
+        open={isLicenseDialogOpen} 
+        onOpenChange={setIsLicenseDialogOpen}
+        licenseData={selectedLicense}
+      />
     </div>
   );
 }
