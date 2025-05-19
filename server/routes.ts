@@ -241,21 +241,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Create activity record for this salon registration
       try {
-        await db.insert(activityLogs).values({
+        await storage.createActivityLog({
           type: 'SALON_REGISTRATION',
-          entityType: 'salon',
-          entityId: salon.id,
-          details: {
-            action: 'create',
-            source: 'registration',
-            data: {
-              name: salon.name,
-              owner: salon.ownerName,
-              contact: salon.phone
-            }
-          },
+          description: `Salon "${salon.name}" registered by owner ${salon.ownerName}`,
+          salonId: salon.id,
           timestamp: new Date()
         });
+        
+        console.log(`[REGISTRATION] Salon registration activity logged for salon ID ${salon.id}`);
       } catch (logError) {
         // Don't fail if activity logging fails, just record the error
         logger.error('ActivityLogging', 'Failed to log salon registration activity', logError);

@@ -48,6 +48,16 @@ export interface IStorage {
   getSalonInvitations(salonId: number): Promise<Invitation[]>;
   getClientInvitations(clientId: number, status?: string, limit?: number): Promise<Invitation[]>;
   updateInvitationStatus(id: number, status: string): Promise<Invitation>;
+  
+  // Activity logging methods
+  createActivityLog(log: InsertActivityLog): Promise<ActivityLog>;
+  getActivityLogs(options?: {
+    userId?: number;
+    salonId?: number;
+    clientId?: number;
+    type?: string;
+    limit?: number;
+  }): Promise<ActivityLog[]>;
   getInvitationsByPhone(phone: string, partialMatch?: boolean): Promise<Invitation[]>;
   getInvitationByHash(hash: string): Promise<Invitation | undefined>;
   deleteInvitation(id: number): Promise<boolean>;

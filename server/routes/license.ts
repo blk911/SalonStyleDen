@@ -36,6 +36,19 @@ router.post('/submit', async (req: Request, res: Response) => {
     // Log the license submission for admin review
     console.log(`[LICENSE] Salon ${salonId} (${salon.name}) license submitted: ${licenseNumber} (${licenseState})`);
     
+    // Create an activity log entry to track this step in the registration flow
+    try {
+      await storage.createActivityLog({
+        type: "LICENSE_SUBMISSION",
+        description: `Salon ${salon.name} license submission: ${licenseNumber} (${licenseState})`,
+        salonId: Number(salonId),
+        timestamp: new Date()
+      });
+    } catch (logError) {
+      console.error("Failed to log license submission activity:", logError);
+      // Don't fail the request if logging fails
+    }
+    
     return res.status(200).json({
       success: true,
       message: 'License information submitted successfully.',
