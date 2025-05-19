@@ -24,9 +24,14 @@ export function SvgVisualizer({ url, fallbackText = "No visualization selected" 
       setError(null);
       
       try {
+        // Check if URL contains /vmb_tools/ which doesn't exist in this environment
+        if (url.includes('/vmb_tools/')) {
+          throw new Error('Visualization tools not available in this environment');
+        }
+        
         const response = await fetch(url);
         if (!response.ok) {
-          throw new Error(`Failed to load SVG: ${response.status} ${response.statusText}`);
+          throw new Error(`Failed to load visualization: ${response.status} ${response.statusText}`);
         }
         
         const text = await response.text();
