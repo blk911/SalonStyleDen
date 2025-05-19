@@ -764,36 +764,36 @@ export default function SalonDashboard() {
 
   // Update local state when salon data changes
   useEffect(() => {
-    if (salon) {
-      console.log('SalonDashboard - Salon data loaded:', salon);
+    if (salonData) {
+      console.log('SalonDashboard - Salon data loaded:', salonData);
 
       // Update services if available
-      if (salon.services && Array.isArray(salon.services)) {
-        console.log('SalonDashboard - Setting services from salon data:', salon.services);
+      if (salonData.services && Array.isArray(salonData.services)) {
+        console.log('SalonDashboard - Setting services from salon data:', salonData.services);
         // Filter out the Seasonal Spring Special from VMB Style Options
-        const filteredServices = salon.services.filter((service: ServiceData) => 
+        const filteredServices = salonData.services.filter((service: ServiceData) => 
           !service.name.toLowerCase().includes('seasonal spring'));
         console.log('SalonDashboard - Filtered services (removed Seasonal Spring):', filteredServices);
         setServices(filteredServices);
       }
 
       // Update promos if available
-      if (salon.promos && Array.isArray(salon.promos)) {
-        console.log('SalonDashboard - Setting promos from salon data:', salon.promos);
-        setPromos(salon.promos);
+      if (salonData.promos && Array.isArray(salonData.promos)) {
+        console.log('SalonDashboard - Setting promos from salon data:', salonData.promos);
+        setPromos(salonData.promos);
       } else {
         console.log('SalonDashboard - No promos in salon data');
       }
       
       // Update schedule if available
-      if (salon.schedule && Array.isArray(salon.schedule)) {
-        console.log('SalonDashboard - Setting schedule from salon data:', salon.schedule);
-        setWeeklySchedule(salon.schedule);
+      if (salonData.schedule && Array.isArray(salonData.schedule)) {
+        console.log('SalonDashboard - Setting schedule from salon data:', salonData.schedule);
+        setWeeklySchedule(salonData.schedule);
       } else {
         console.log('SalonDashboard - No schedule in salon data, using default');
       }
     }
-  }, [salon]);
+  }, [salonData]);
 
 
   if (isLoading) {
@@ -810,7 +810,7 @@ export default function SalonDashboard() {
     );
   }
 
-  if (error || !salon) {
+  if (error || !salonData) {
     return (
       <div className="flex flex-col min-h-screen">
         <Navbar />
