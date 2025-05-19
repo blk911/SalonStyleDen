@@ -128,7 +128,7 @@ router.post('/verify/:salonId', async (req: Request, res: Response) => {
     });
     
     // Log the license verification
-    logger.info(`[LICENSE] Salon ${salonId} (${salon.name}) license verified by admin`);
+    console.log(`[LICENSE] Salon ${salonId} (${salon.name}) license verified by admin`);
     
     return res.status(200).json({
       success: true,
