@@ -495,9 +495,9 @@ export default function SalonDashboard() {
 
     // Save to API
     try {
-      if (!salon?.id) return;
+      if (!salonData?.id) return;
 
-      const response = await apiRequest(`/api/salons/${salon.id}/promos`, {
+      const response = await apiRequest(`/api/salons/${salonData.id}/promos`, {
         method: 'POST',
         data: { promos: updatedPromos }
       });
@@ -528,13 +528,13 @@ export default function SalonDashboard() {
   
   // Function to handle license submission
   const handleLicenseSubmission = async (data: LicenseFormValues) => {
-    if (!salon?.id) return;
+    if (!salonData?.id) return;
     
     try {
       console.log('Submitting license data:', data);
       
       // Update the salon license information
-      const response = await apiRequest(`/api/salons/${salon.id}/license`, {
+      const response = await apiRequest(`/api/salons/${salonData.id}/license`, {
         method: 'POST',
         data: {
           licenseNumber: data.licenseNumber,
@@ -543,7 +543,7 @@ export default function SalonDashboard() {
           ownerName: data.fullName,
           exactNameMatch: data.exactMatch,
           timestamp: new Date().toISOString(),
-          trackingId: salon.metadata?.registrationTrackingId || `license_${Date.now()}_${salon.id}`
+          trackingId: salonData.metadata?.registrationTrackingId || `license_${Date.now()}_${salonData.id}`
         }
       });
       
@@ -553,7 +553,7 @@ export default function SalonDashboard() {
       setLicenseDialogOpen(false);
       
       // Refresh salon data
-      queryClient.invalidateQueries({ queryKey: ['/api/salons', salon.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/salons', salonData.id] });
       
       toast({
         title: "License submitted",
@@ -1053,50 +1053,50 @@ export default function SalonDashboard() {
                                   'bg-gray-50 border-gray-100'
                                 }`}>
                                   <div className="flex items-center mb-2">
-                                    {salon.licenseStatus === 'verified' && (
+                                    {salonData?.licenseStatus === 'verified' && (
                                       <Badge className="bg-green-600">Verified</Badge>
                                     )}
-                                    {salon.licenseStatus === 'pending' && (
+                                    {salonData?.licenseStatus === 'pending' && (
                                       <Badge className="bg-yellow-600">Pending Verification</Badge>
                                     )}
-                                    {salon.licenseStatus === 'rejected' && (
+                                    {salonData?.licenseStatus === 'rejected' && (
                                       <Badge className="bg-red-600">Verification Failed</Badge>
                                     )}
-                                    {(!salon.licenseStatus || salon.licenseStatus === 'not_submitted') && (
+                                    {(!salonData?.licenseStatus || salonData?.licenseStatus === 'not_submitted') && (
                                       <Badge className="bg-gray-600">Not Submitted</Badge>
                                     )}
                                     <span className={`ml-2 text-sm ${
-                                      salon.licenseStatus === 'verified' ? 'text-green-800' : 
-                                      salon.licenseStatus === 'pending' ? 'text-yellow-800' :
-                                      salon.licenseStatus === 'rejected' ? 'text-red-800' :
+                                      salonData?.licenseStatus === 'verified' ? 'text-green-800' : 
+                                      salonData?.licenseStatus === 'pending' ? 'text-yellow-800' :
+                                      salonData?.licenseStatus === 'rejected' ? 'text-red-800' :
                                       'text-gray-800'
                                     }`}>
-                                      {salon.licenseStatus === 'verified' && 'Your license has been verified'}
-                                      {salon.licenseStatus === 'pending' && 'Your license is being verified (2-3 days)'}
-                                      {salon.licenseStatus === 'rejected' && 'License verification failed. Please resubmit.'}
-                                      {(!salon.licenseStatus || salon.licenseStatus === 'not_submitted') && 'License not submitted'}
+                                      {salonData?.licenseStatus === 'verified' && 'Your license has been verified'}
+                                      {salonData?.licenseStatus === 'pending' && 'Your license is being verified (2-3 days)'}
+                                      {salonData?.licenseStatus === 'rejected' && 'License verification failed. Please resubmit.'}
+                                      {(!salonData?.licenseStatus || salonData?.licenseStatus === 'not_submitted') && 'License not submitted'}
                                     </span>
                                   </div>
                                   
                                   <dl className="space-y-1 text-sm">
                                     <div className="flex">
                                       <dt className="w-32 font-medium text-gray-600">License Number:</dt>
-                                      <dd className="text-gray-800">{salon.licenseNumber}</dd>
+                                      <dd className="text-gray-800">{salonData?.licenseNumber}</dd>
                                     </div>
                                     <div className="flex">
                                       <dt className="w-32 font-medium text-gray-600">State:</dt>
-                                      <dd className="text-gray-800">{salon.licenseState}</dd>
+                                      <dd className="text-gray-800">{salonData?.licenseState}</dd>
                                     </div>
-                                    {salon.licenseVerificationDate && (
+                                    {salonData?.licenseVerificationDate && (
                                       <div className="flex">
                                         <dt className="w-32 font-medium text-gray-600">Verified On:</dt>
-                                        <dd className="text-gray-800">{new Date(salon.licenseVerificationDate).toLocaleDateString()}</dd>
+                                        <dd className="text-gray-800">{new Date(salonData.licenseVerificationDate).toLocaleDateString()}</dd>
                                       </div>
                                     )}
                                   </dl>
                                   
                                   {/* Show edit button if not verified */}
-                                  {salon.licenseStatus !== 'verified' && (
+                                  {salonData?.licenseStatus !== 'verified' && (
                                     <Button 
                                       variant="outline" 
                                       size="sm" 
