@@ -933,81 +933,75 @@ export default function AdminDashboard() {
                           <div className="mt-4 pt-4 border-t">
                             <h3 className="text-sm font-medium text-gray-700 mb-2">License Information</h3>
                             
-                            {/* Show appropriate content based on license status */}
+                            {/* Show appropriate content based on license status - Improved layout */}
                             {salon.licenseStatus === 'verified' && (
-                              <div className="bg-green-50 p-3 rounded-md border border-green-100">
+                              <div className="bg-green-50 p-3 rounded-md border border-green-100 overflow-hidden max-w-full">
                                 <div className="flex items-center mb-2">
                                   <Badge className="bg-green-600">Verified</Badge>
-                                  <span className="ml-2 text-sm text-green-800">License has been verified</span>
+                                  <span className="ml-2 text-sm text-green-800 truncate">License verified</span>
                                 </div>
                                 <dl className="space-y-1 text-sm">
-                                  <div className="flex">
-                                    <dt className="w-32 font-medium text-gray-600">License Number:</dt>
-                                    <dd className="text-gray-800">{salon.licenseNumber || 'Not available'}</dd>
+                                  <div className="grid grid-cols-2">
+                                    <dt className="font-medium text-gray-600 truncate">License #:</dt>
+                                    <dd className="text-gray-800 truncate">{salon.licenseNumber || 'Not available'}</dd>
                                   </div>
-                                  <div className="flex">
-                                    <dt className="w-32 font-medium text-gray-600">State:</dt>
-                                    <dd className="text-gray-800">{salon.licenseState || 'Not available'}</dd>
+                                  <div className="grid grid-cols-2">
+                                    <dt className="font-medium text-gray-600 truncate">State:</dt>
+                                    <dd className="text-gray-800 truncate">{salon.licenseState || 'Not available'}</dd>
                                   </div>
-                                  <div className="flex">
-                                    <dt className="w-32 font-medium text-gray-600">Verified On:</dt>
-                                    <dd className="text-gray-800">{salon.licenseVerificationDate || 'Not available'}</dd>
+                                  <div className="grid grid-cols-2">
+                                    <dt className="font-medium text-gray-600 truncate">Verified:</dt>
+                                    <dd className="text-gray-800 truncate">{salon.licenseVerificationDate || 'Not available'}</dd>
                                   </div>
                                 </dl>
                               </div>
                             )}
                             
                             {salon.licenseStatus === 'pending' && (
-                              <div className="bg-yellow-50 p-3 rounded-md border border-yellow-100">
+                              <div className="bg-yellow-50 p-3 rounded-md border border-yellow-100 overflow-hidden max-w-full">
                                 <div className="flex items-center mb-2">
                                   <Badge className="bg-yellow-600">Pending</Badge>
-                                  <span className="ml-2 text-sm text-yellow-800">License verification in progress</span>
+                                  <span className="ml-2 text-sm text-yellow-800 truncate">Verification in progress</span>
                                 </div>
                                 <dl className="space-y-1 text-sm">
-                                  <div className="flex">
-                                    <dt className="w-32 font-medium text-gray-600">License Number:</dt>
-                                    <dd className="text-gray-800">{salon.licenseNumber || 'Not available'}</dd>
+                                  <div className="grid grid-cols-2">
+                                    <dt className="font-medium text-gray-600 truncate">License #:</dt>
+                                    <dd className="text-gray-800 truncate">{salon.licenseNumber || 'Not available'}</dd>
                                   </div>
-                                  <div className="flex">
-                                    <dt className="w-32 font-medium text-gray-600">State:</dt>
-                                    <dd className="text-gray-800">{salon.licenseState || 'Not available'}</dd>
+                                  <div className="grid grid-cols-2">
+                                    <dt className="font-medium text-gray-600 truncate">State:</dt>
+                                    <dd className="text-gray-800 truncate">{salon.licenseState || 'Not available'}</dd>
                                   </div>
                                 </dl>
-                                <div className="mt-2 flex">
-                                  <Button size="sm" variant="outline" className="mr-2">
-                                    Verify License
-                                  </Button>
-                                  <Button size="sm" variant="destructive">
-                                    Reject
-                                  </Button>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  <Button size="sm" variant="outline">Verify</Button>
+                                  <Button size="sm" variant="destructive">Reject</Button>
                                 </div>
                               </div>
                             )}
                             
                             {salon.licenseStatus === 'rejected' && (
-                              <div className="bg-red-50 p-3 rounded-md border border-red-100">
+                              <div className="bg-red-50 p-3 rounded-md border border-red-100 overflow-hidden max-w-full">
                                 <div className="flex items-center mb-2">
                                   <Badge className="bg-red-600">Rejected</Badge>
-                                  <span className="ml-2 text-sm text-red-800">License verification failed</span>
+                                  <span className="ml-2 text-sm text-red-800 truncate">Verification failed</span>
                                 </div>
                                 <dl className="space-y-1 text-sm">
-                                  <div className="flex">
-                                    <dt className="w-32 font-medium text-gray-600">License Number:</dt>
-                                    <dd className="text-gray-800">{salon.licenseNumber || 'Not available'}</dd>
+                                  <div className="grid grid-cols-2">
+                                    <dt className="font-medium text-gray-600 truncate">License #:</dt>
+                                    <dd className="text-gray-800 truncate">{salon.licenseNumber || 'Not available'}</dd>
                                   </div>
-                                  <div className="flex">
-                                    <dt className="w-32 font-medium text-gray-600">State:</dt>
-                                    <dd className="text-gray-800">{salon.licenseState || 'Not available'}</dd>
+                                  <div className="grid grid-cols-2">
+                                    <dt className="font-medium text-gray-600 truncate">State:</dt>
+                                    <dd className="text-gray-800 truncate">{salon.licenseState || 'Not available'}</dd>
                                   </div>
-                                  <div className="flex">
-                                    <dt className="w-32 font-medium text-gray-600">Rejected On:</dt>
-                                    <dd className="text-gray-800">{salon.licenseVerificationDate || 'Not available'}</dd>
+                                  <div className="grid grid-cols-2">
+                                    <dt className="font-medium text-gray-600 truncate">Rejected:</dt>
+                                    <dd className="text-gray-800 truncate">{salon.licenseVerificationDate || 'Not available'}</dd>
                                   </div>
                                 </dl>
                                 <div className="mt-2">
-                                  <Button size="sm" variant="outline">
-                                    Reconsider
-                                  </Button>
+                                  <Button size="sm" variant="outline">Reconsider</Button>
                                 </div>
                               </div>
                             )}
