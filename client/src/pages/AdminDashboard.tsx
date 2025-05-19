@@ -193,9 +193,9 @@ export default function AdminDashboard() {
   // Set default visualization when code graph section is opened
   useEffect(() => {
     if (codeGraphOpen && !selectedVisualization) {
-      // Use local path with cache buster
-      const cacheBuster = `?cb=${Date.now()}`;
-      setSelectedVisualization(`/vmb_tools/dependency_graph/output/client_dashboard_dependencies.svg${cacheBuster}`);
+      // Skip setting a default visualization as the path doesn't exist
+      // This prevents errors from loading non-existent resources
+      console.log('Skipping default visualization - path not available');
     }
   }, [codeGraphOpen, selectedVisualization]);
   
