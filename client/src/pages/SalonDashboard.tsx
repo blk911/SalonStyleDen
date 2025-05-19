@@ -837,18 +837,18 @@ export default function SalonDashboard() {
             <div className="flex flex-row justify-between items-center">
               <div className="flex items-center gap-4">
                 <div>
-                  <h2 className="font-bold text-xl leading-tight">{salon.name}</h2>
-                  <p className="text-gray-700 text-sm">Welcome, {salon.ownerName}!</p>
+                  <h2 className="font-bold text-xl leading-tight">{salonData.name}</h2>
+                  <p className="text-gray-700 text-sm">Welcome, {salonData.ownerName}!</p>
                 </div>
                 <div>
                   <img 
-                    src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl, 'dashboard_hero') : '/assets/salon-card.png'}
-                    alt={salon.ownerName}
+                    src={salonData.ownerPhotoUrl ? getImageUrl(salonData.ownerPhotoUrl, 'dashboard_hero') : '/assets/salon-card.png'}
+                    alt={salonData.ownerName}
                     className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
                     onError={(e) => {
-                      console.log("Owner photo fallback used for:", salon.name);
+                      console.log("Owner photo fallback used for:", salonData.name);
                       // Special case for Tiffany's salon
-                      if (salon.name.includes('Tiffany') || salon.name.includes('5280')) {
+                      if (salonData.name.includes('Tiffany') || salonData.name.includes('5280')) {
                         e.currentTarget.src = '/assets/tiffany_profile.png';
                       } else {
                         // Use the standard fallback for other salons
@@ -863,7 +863,7 @@ export default function SalonDashboard() {
                   variant="outline"
                   size="sm"
                   className="text-xs h-8 border-pink-400 text-pink-700 bg-white hover:bg-pink-50"
-                  onClick={() => window.open(`/salon/${salon.id}`.replace(/\/\//g, '/'), '_blank')}
+                  onClick={() => window.open(`/salon/${salonData.id}`.replace(/\/\//g, '/'), '_blank')}
                 >
                   View Public Page
                 </Button>
@@ -876,7 +876,7 @@ export default function SalonDashboard() {
         <section className="py-2">
           <div className="container mx-auto px-2">
             <EditableSalonInfo
-              salon={salon}
+              salon={salonData}
               onSave={handleSaveSalonInfo}
               defaultEditing={shouldOpenEditForm}
             />
@@ -953,7 +953,7 @@ export default function SalonDashboard() {
               
               {invitationSectionOpen && (
                 <CardContent className="p-3 bg-white">
-                  <ClientInvitation salonId={salon?.id} />
+                  <ClientInvitation salonId={salonData?.id} />
                 </CardContent>
               )}
             </Card>
@@ -977,7 +977,7 @@ export default function SalonDashboard() {
               {scheduleSectionOpen && (
                 <CardContent className="p-3 bg-white">
                   <WeeklySchedule
-                    salonId={salon.id}
+                    salonId={salonData.id}
                     initialSchedule={weeklySchedule}
                     onScheduleSaved={handleSaveSchedule}
                   />
