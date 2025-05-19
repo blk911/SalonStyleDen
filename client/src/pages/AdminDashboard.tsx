@@ -595,46 +595,6 @@ export default function AdminDashboard() {
     }
   });
 
-  // Delete salon mutation
-  const deleteSalonMutation = useMutation({
-    mutationFn: async (salonId: number) => {
-      // Check if this is VMB LTD (ID 1) or Tiffany's salon (ID 2) - we don't allow deleting these
-      if (salonId === 1 || salonId === 2) {
-        throw new Error("Cannot delete system or Tiffany's salon");
-      }
-      
-      const response = await fetch(`/api/salons/${salonId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        }
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(errorData.error || 'Failed to delete salon');
-      }
-      return await response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Salon deleted",
-        description: "The salon has been successfully removed from the system.",
-      });
-      // Invalidate the salons query to refresh the list
-      queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
-      // Also invalidate activity logs since a new log entry will be created
-      queryClient.invalidateQueries({ queryKey: ['/api/activity-logs'] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error deleting salon",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  });
-  
   // Delete client mutation
   const deleteClientMutation = useMutation({
     mutationFn: async (clientId: number) => {
@@ -942,23 +902,6 @@ export default function AdminDashboard() {
                           >
                             Salon Page
                           </Link>
-                          
-                          {/* Delete Button - Not shown for VMB or Tiffany's salon */}
-                          {salon.id !== 1 && salon.id !== 2 && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (confirm(`Are you sure you want to delete ${salon.name}? This cannot be undone.`)) {
-                                  deleteSalonMutation.mutate(salon.id);
-                                }
-                              }}
-                              className="mr-3 px-2 py-1 text-[10px] bg-red-100 text-red-700 rounded hover:bg-red-200 flex items-center gap-1"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                              Delete
-                            </button>
-                          )}
-                          
                           {expandedSalon === salon.id ? (
                             <ChevronUp className="h-4 w-4 text-pink-600" />
                           ) : (
