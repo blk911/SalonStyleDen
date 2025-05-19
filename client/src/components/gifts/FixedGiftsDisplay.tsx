@@ -16,7 +16,11 @@ import {
   DEFAULT_SERVICE_TYPE, 
   DEFAULT_INVITATION_TYPE,
   DEFAULT_DATE_STRING,
-  GIFT_STATUSES
+  GIFT_STATUSES,
+  GIFT_REFRESH_SETTINGS,
+  GIFT_ERROR_MESSAGES,
+  INVITATION_HASH_PREFIX,
+  DEFAULT_OWNER_NAME
 } from "@/constants/salonConstants";
 import { GiftClaimCard } from "./GiftClaimCard";
 
@@ -70,7 +74,7 @@ export function FixedGiftsDisplay({ clientId, onRedeemGift, setLocation }: Fixed
     queryFn: async () => {
       const response = await fetch(`/api/gifts/received/${clientId}`);
       if (!response.ok) {
-        throw new Error("Failed to fetch received gifts");
+        throw new Error(GIFT_ERROR_MESSAGES.FETCH_FAILED);
       }
       const gifts = await response.json();
       console.log("Received gifts:", gifts);
@@ -81,10 +85,10 @@ export function FixedGiftsDisplay({ clientId, onRedeemGift, setLocation }: Fixed
         if (gift.message) {
           gift.message = processInvitationMessage(gift.message, {
             clientName: gift.recipientName,
-            salonName: gift.salonName,
-            ownerName: gift.senderName,
-            styleOption: gift.styleName || "nail service",
-            uniqueId: gift.giftHash?.replace("VMB-INV-", "") || "VMB-ID"
+            salonName: gift.salonName || DEFAULT_SALON_NAME,
+            ownerName: gift.senderName || DEFAULT_OWNER_NAME,
+            styleOption: gift.styleName || DEFAULT_SERVICE_TYPE,
+            uniqueId: gift.giftHash?.replace(INVITATION_HASH_PREFIX, "") || "VMB-ID"
           });
         }
         
@@ -93,10 +97,11 @@ export function FixedGiftsDisplay({ clientId, onRedeemGift, setLocation }: Fixed
       }) as ReceivedGift[];
     },
     enabled: !!clientId,
-    // FIXED: Add refetch settings to ensure data is fresh
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    staleTime: 10 * 1000, // Consider data stale after 10 seconds
+    // Using centralized refresh settings for consistency
+    refetchOnWindowFocus: GIFT_REFRESH_SETTINGS.REFRESH_ON_FOCUS,
+    refetchOnMount: GIFT_REFRESH_SETTINGS.REFRESH_ON_MOUNT,
+    staleTime: GIFT_REFRESH_SETTINGS.STALE_TIME,
+    refetchInterval: GIFT_REFRESH_SETTINGS.REFETCH_INTERVAL,
   });
 
   // Initialize the default collapsed state for delivered gifts when data loads
