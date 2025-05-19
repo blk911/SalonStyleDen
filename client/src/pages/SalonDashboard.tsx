@@ -365,10 +365,10 @@ export default function SalonDashboard() {
 
     // Save to API
     try {
-      if (!salon?.id) return;
+      if (!salonData?.id) return;
 
       // Save to database via API and get the updated salon data
-      const updatedSalonData = await apiRequest(`/api/salons/${salon.id}/services`, {
+      const updatedSalonData = await apiRequest(`/api/salons/${salonData.id}/services`, {
         method: 'POST',
         data: { services: updatedServices }
       });
@@ -505,7 +505,7 @@ export default function SalonDashboard() {
       console.log('SalonDashboard - API response after deleting promo:', response);
 
       // Manually invalidate the salon query to force a refresh
-      queryClient.invalidateQueries({ queryKey: ['/api/salons', salon.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/salons', salonData.id] });
 
       toast({
         title: "Promotion deleted",
@@ -1045,11 +1045,11 @@ export default function SalonDashboard() {
                               <h3 className="text-sm font-medium text-gray-700 mb-2">License Information</h3>
                               
                               {/* If license data is complete, show information */}
-                              {salon?.licenseNumber && salon?.licenseState && salon?.licenseStatus && (
+                              {salonData?.licenseNumber && salonData?.licenseState && salonData?.licenseStatus && (
                                 <div className={`p-3 rounded-md border ${
-                                  salon.licenseStatus === 'verified' ? 'bg-green-50 border-green-100' : 
-                                  salon.licenseStatus === 'pending' ? 'bg-yellow-50 border-yellow-100' :
-                                  salon.licenseStatus === 'rejected' ? 'bg-red-50 border-red-100' :
+                                  salonData?.licenseStatus === 'verified' ? 'bg-green-50 border-green-100' : 
+                                  salonData?.licenseStatus === 'pending' ? 'bg-yellow-50 border-yellow-100' :
+                                  salonData?.licenseStatus === 'rejected' ? 'bg-red-50 border-red-100' :
                                   'bg-gray-50 border-gray-100'
                                 }`}>
                                   <div className="flex items-center mb-2">
@@ -1113,7 +1113,7 @@ export default function SalonDashboard() {
                               )}
                               
                               {/* If license data is incomplete, show form */}
-                              {(!salon?.licenseNumber || !salon?.licenseState) && (
+                              {(!salonData?.licenseNumber || !salonData?.licenseState) && (
                                 <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
                                   <div className="flex items-start mb-3">
                                     <div className="flex-shrink-0">
