@@ -34,8 +34,6 @@ export const salons = pgTable("salons", {
   licenseState: text("license_state"), // State that issued the license
   licenseVerified: boolean("license_verified").default(false), // Whether license has been verified
   licenseStatus: text("license_status").default("pending"), // Status: pending, verified, rejected
-  licenseVerificationDate: text("license_verification_date"), // Date when license was verified or rejected
-  licenseRejectionReason: text("license_rejection_reason"), // Reason for license rejection if applicable
   sponsor: text("sponsor").notNull().default("VMB LTD"), // Default sponsor name
   sponsorId: integer("sponsor_id").default(1), // ID of the sponsoring salon, default to VMB LTD (1)
   createdAt: timestamp("created_at").defaultNow(),

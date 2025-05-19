@@ -30,9 +30,7 @@ export interface IStorage {
     licenseNumber?: string, 
     licenseState?: string, 
     licenseStatus?: string, 
-    licenseVerified?: boolean,
-    licenseVerificationDate?: string,
-    licenseRejectionReason?: string
+    licenseVerified?: boolean 
   }): Promise<Salon>;
   
   // Client methods

@@ -927,78 +927,10 @@ export default function AdminDashboard() {
                                   </div>
                                 </dl>
                                 <div className="mt-2 flex">
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    className="mr-2"
-                                    onClick={async (e) => {
-                                      e.stopPropagation();
-                                      try {
-                                        const response = await fetch(`/api/license/verify/${salon.id}`, {
-                                          method: 'POST',
-                                          headers: {
-                                            'Content-Type': 'application/json'
-                                          }
-                                        });
-                                        
-                                        if (response.ok) {
-                                          toast({
-                                            title: "License Verified",
-                                            description: `${salon.name}'s license has been verified successfully.`,
-                                            variant: "default"
-                                          });
-                                          // Refresh salons data
-                                          queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
-                                        } else {
-                                          const errorData = await response.json();
-                                          throw new Error(errorData.message || 'Failed to verify license');
-                                        }
-                                      } catch (error) {
-                                        toast({
-                                          title: "Error",
-                                          description: error instanceof Error ? error.message : "Failed to verify license",
-                                          variant: "destructive"
-                                        });
-                                      }
-                                    }}
-                                  >
+                                  <Button size="sm" variant="outline" className="mr-2">
                                     Verify License
                                   </Button>
-                                  <Button 
-                                    size="sm" 
-                                    variant="destructive"
-                                    onClick={async (e) => {
-                                      e.stopPropagation();
-                                      try {
-                                        const response = await fetch(`/api/license/reject/${salon.id}`, {
-                                          method: 'POST',
-                                          headers: {
-                                            'Content-Type': 'application/json'
-                                          },
-                                          body: JSON.stringify({ reason: 'Rejected by administrator' })
-                                        });
-                                        
-                                        if (response.ok) {
-                                          toast({
-                                            title: "License Rejected",
-                                            description: `${salon.name}'s license has been rejected.`,
-                                            variant: "default"
-                                          });
-                                          // Refresh salons data
-                                          queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
-                                        } else {
-                                          const errorData = await response.json();
-                                          throw new Error(errorData.message || 'Failed to reject license');
-                                        }
-                                      } catch (error) {
-                                        toast({
-                                          title: "Error",
-                                          description: error instanceof Error ? error.message : "Failed to reject license",
-                                          variant: "destructive"
-                                        });
-                                      }
-                                    }}
-                                  >
+                                  <Button size="sm" variant="destructive">
                                     Reject
                                   </Button>
                                 </div>
