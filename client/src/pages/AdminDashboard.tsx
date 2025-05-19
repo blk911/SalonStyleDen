@@ -170,6 +170,75 @@ export default function AdminDashboard() {
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [giftToDelete, setGiftToDelete] = useState<Gift | null>(null);
   
+  // License verification mutations
+  const verifyLicenseMutation = useMutation({
+    mutationFn: async (salonId: number) => {
+      const response = await fetch(`/api/license/verify/${salonId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to verify license');
+      }
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "License verified",
+        description: "The salon license has been verified successfully.",
+      });
+      // Invalidate the salons query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+      // Also invalidate activity logs since this is an important action
+      queryClient.invalidateQueries({ queryKey: ['/api/activity-logs'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error verifying license",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // License rejection mutation
+  const rejectLicenseMutation = useMutation({
+    mutationFn: async (salonId: number) => {
+      const response = await fetch(`/api/license/reject/${salonId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rejectionReason: "Information could not be verified" })
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to reject license');
+      }
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "License rejected",
+        description: "The salon license has been marked as rejected.",
+      });
+      // Invalidate the salons query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+      // Also invalidate activity logs since this is an important action
+      queryClient.invalidateQueries({ queryKey: ['/api/activity-logs'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error rejecting license",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
   // Section visibility states (stored in localStorage for persistence)
   const [styleOptionsOpen, setStyleOptionsOpen] = useState(true);
   const [networkVisualizationOpen, setNetworkVisualizationOpen] = useState(true);
@@ -927,10 +996,19 @@ export default function AdminDashboard() {
                                   </div>
                                 </dl>
                                 <div className="mt-2 flex">
-                                  <Button size="sm" variant="outline" className="mr-2">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="mr-2"
+                                    onClick={() => verifyLicenseMutation.mutate(salon.id)}
+                                  >
                                     Verify License
                                   </Button>
-                                  <Button size="sm" variant="destructive">
+                                  <Button 
+                                    size="sm" 
+                                    variant="destructive"
+                                    onClick={() => rejectLicenseMutation.mutate(salon.id)}
+                                  >
                                     Reject
                                   </Button>
                                 </div>
@@ -958,7 +1036,11 @@ export default function AdminDashboard() {
                                   </div>
                                 </dl>
                                 <div className="mt-2">
-                                  <Button size="sm" variant="outline">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => verifyLicenseMutation.mutate(salon.id)}
+                                  >
                                     Reconsider
                                   </Button>
                                 </div>
