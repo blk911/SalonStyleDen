@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -75,14 +75,14 @@ export function LicenseReviewDialog({ open, onOpenChange, licenseData, onLicense
   });
 
   // Update form values when licenseData changes
-  useEffect(() => {
+  useState(() => {
     if (licenseData) {
       form.reset({
         licenseStatus: licenseData.licenseStatus,
         adminNotes: licenseData.adminNotes || "",
       });
     }
-  }, [licenseData, form]);
+  });
 
   const handleSubmit = async (values: LicenseFormValues) => {
     if (!licenseData) return;
