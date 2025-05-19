@@ -52,6 +52,17 @@ interface EnhancedSalonInfo extends SalonInfo {
 }
 
 export default function SalonDashboard() {
+  // Setup license form
+  const licenseForm = useForm<LicenseFormValues>({
+    resolver: zodResolver(licenseFormSchema),
+    defaultValues: {
+      fullName: '',
+      licenseNumber: '',
+      licenseState: '',
+      exactMatch: true,
+      agreeToTerms: false
+    }
+  });
   const { id } = useParams();
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
@@ -154,6 +165,9 @@ export default function SalonDashboard() {
   const [bankingSectionOpen, setBankingSectionOpen] = useState(false);
   const [credentialsSectionOpen, setCredentialsSectionOpen] = useState(false);
   const [vmbPspSectionOpen, setVmbPspSectionOpen] = useState(false);
+  
+  // License dialog state
+  const [licenseDialogOpen, setLicenseDialogOpen] = useState(false);
   
   // Save section states to localStorage when they change
   useEffect(() => {
@@ -489,6 +503,65 @@ export default function SalonDashboard() {
       toast({
         title: "Error",
         description: "Failed to delete the promotion. Please try again.",
+        variant: "destructive",
+        duration: 3000
+      });
+    }
+  };
+  
+  // License form schema
+  const licenseFormSchema = z.object({
+    fullName: z.string().min(2, "Full name is required"),
+    licenseNumber: z.string().min(3, "License number is required"),
+    licenseState: z.string().min(2, "State is required"),
+    exactMatch: z.boolean().default(true),
+    agreeToTerms: z.boolean().refine(val => val === true, {
+      message: "You must agree to the terms"
+    })
+  });
+  
+  type LicenseFormValues = z.infer<typeof licenseFormSchema>;
+  
+  // Function to handle license submission
+  const handleLicenseSubmission = async (data: LicenseFormValues) => {
+    if (!salon?.id) return;
+    
+    try {
+      console.log('Submitting license data:', data);
+      
+      // Update the salon license information
+      const response = await apiRequest(`/api/salons/${salon.id}/license`, {
+        method: 'POST',
+        data: {
+          licenseNumber: data.licenseNumber,
+          licenseState: data.licenseState,
+          licenseStatus: 'pending',
+          ownerName: data.fullName,
+          exactNameMatch: data.exactMatch,
+          timestamp: new Date().toISOString(),
+          trackingId: salon.metadata?.registrationTrackingId || `license_${Date.now()}_${salon.id}`
+        }
+      });
+      
+      console.log('License submission response:', response);
+      
+      // Close the dialog
+      setLicenseDialogOpen(false);
+      
+      // Refresh salon data
+      queryClient.invalidateQueries({ queryKey: ['/api/salons', salon.id] });
+      
+      toast({
+        title: "License submitted",
+        description: "Your license information has been submitted for verification.",
+        duration: 5000
+      });
+      
+    } catch (error) {
+      console.error('Error submitting license:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit license information. Please try again.",
         variant: "destructive",
         duration: 3000
       });
@@ -1152,6 +1225,180 @@ export default function SalonDashboard() {
 
       </main>
       <Footer />
+      
+      {/* License Dialog Component */}
+      <Dialog open={licenseDialogOpen} onOpenChange={setLicenseDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Salon License Information</DialogTitle>
+            <DialogDescription>
+              To register as a salon owner, please provide your valid state license information. This is required for verification.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...licenseForm}>
+            <form onSubmit={licenseForm.handleSubmit(handleLicenseSubmission)} className="space-y-4">
+              <FormField
+                control={licenseForm.control}
+                name="fullName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Your name as listed on license</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Full legal name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={licenseForm.control}
+                name="licenseNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>License number</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter exactly as it appears on your license" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      Enter exactly as it appears on your license (letters and numbers if shown)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={licenseForm.control}
+                name="licenseState"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select state</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select state" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="AL">Alabama</SelectItem>
+                        <SelectItem value="AK">Alaska</SelectItem>
+                        <SelectItem value="AZ">Arizona</SelectItem>
+                        <SelectItem value="AR">Arkansas</SelectItem>
+                        <SelectItem value="CA">California</SelectItem>
+                        <SelectItem value="CO">Colorado</SelectItem>
+                        <SelectItem value="CT">Connecticut</SelectItem>
+                        <SelectItem value="DE">Delaware</SelectItem>
+                        <SelectItem value="FL">Florida</SelectItem>
+                        <SelectItem value="GA">Georgia</SelectItem>
+                        <SelectItem value="HI">Hawaii</SelectItem>
+                        <SelectItem value="ID">Idaho</SelectItem>
+                        <SelectItem value="IL">Illinois</SelectItem>
+                        <SelectItem value="IN">Indiana</SelectItem>
+                        <SelectItem value="IA">Iowa</SelectItem>
+                        <SelectItem value="KS">Kansas</SelectItem>
+                        <SelectItem value="KY">Kentucky</SelectItem>
+                        <SelectItem value="LA">Louisiana</SelectItem>
+                        <SelectItem value="ME">Maine</SelectItem>
+                        <SelectItem value="MD">Maryland</SelectItem>
+                        <SelectItem value="MA">Massachusetts</SelectItem>
+                        <SelectItem value="MI">Michigan</SelectItem>
+                        <SelectItem value="MN">Minnesota</SelectItem>
+                        <SelectItem value="MS">Mississippi</SelectItem>
+                        <SelectItem value="MO">Missouri</SelectItem>
+                        <SelectItem value="MT">Montana</SelectItem>
+                        <SelectItem value="NE">Nebraska</SelectItem>
+                        <SelectItem value="NV">Nevada</SelectItem>
+                        <SelectItem value="NH">New Hampshire</SelectItem>
+                        <SelectItem value="NJ">New Jersey</SelectItem>
+                        <SelectItem value="NM">New Mexico</SelectItem>
+                        <SelectItem value="NY">New York</SelectItem>
+                        <SelectItem value="NC">North Carolina</SelectItem>
+                        <SelectItem value="ND">North Dakota</SelectItem>
+                        <SelectItem value="OH">Ohio</SelectItem>
+                        <SelectItem value="OK">Oklahoma</SelectItem>
+                        <SelectItem value="OR">Oregon</SelectItem>
+                        <SelectItem value="PA">Pennsylvania</SelectItem>
+                        <SelectItem value="RI">Rhode Island</SelectItem>
+                        <SelectItem value="SC">South Carolina</SelectItem>
+                        <SelectItem value="SD">South Dakota</SelectItem>
+                        <SelectItem value="TN">Tennessee</SelectItem>
+                        <SelectItem value="TX">Texas</SelectItem>
+                        <SelectItem value="UT">Utah</SelectItem>
+                        <SelectItem value="VT">Vermont</SelectItem>
+                        <SelectItem value="VA">Virginia</SelectItem>
+                        <SelectItem value="WA">Washington</SelectItem>
+                        <SelectItem value="WV">West Virginia</SelectItem>
+                        <SelectItem value="WI">Wisconsin</SelectItem>
+                        <SelectItem value="WY">Wyoming</SelectItem>
+                        <SelectItem value="DC">District of Columbia</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={licenseForm.control}
+                name="exactMatch"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>I verify this information is accurate</FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={licenseForm.control}
+                name="agreeToTerms"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>I agree to VMB license verification terms</FormLabel>
+                      <FormDescription>
+                        By checking this box, you agree to allow VMB to verify your license information with the appropriate state board.
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              
+              <DialogFooter className="flex justify-between">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setLicenseDialogOpen(false)}
+                >
+                  Enter Later
+                </Button>
+                <Button type="submit">Enter License</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
