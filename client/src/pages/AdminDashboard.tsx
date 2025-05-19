@@ -157,9 +157,6 @@ interface Gift {
 
 // We're now using the imported SvgVisualizer component from @/components/visualization/SvgVisualizer
 
-// Import license review dialog
-import { LicenseReviewDialog } from "@/components/admin/LicenseReviewDialog";
-
 export default function AdminDashboard() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -172,10 +169,6 @@ export default function AdminDashboard() {
   const [clientToSuspend, setClientToSuspend] = useState<Client | null>(null);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [giftToDelete, setGiftToDelete] = useState<Gift | null>(null);
-  
-  // License review dialog state
-  const [isLicenseDialogOpen, setIsLicenseDialogOpen] = useState(false);
-  const [selectedLicense, setSelectedLicense] = useState<any>(null);
   
   // Section visibility states (stored in localStorage for persistence)
   const [styleOptionsOpen, setStyleOptionsOpen] = useState(true);
@@ -192,8 +185,11 @@ export default function AdminDashboard() {
   
   // Set default visualization when code graph section is opened
   useEffect(() => {
-    // Don't try to set a default visualization at all
-    // This prevents any errors from loading non-existent resources
+    if (codeGraphOpen && !selectedVisualization) {
+      // Use local path with cache buster
+      const cacheBuster = `?cb=${Date.now()}`;
+      setSelectedVisualization(`/vmb_tools/dependency_graph/output/client_dashboard_dependencies.svg${cacheBuster}`);
+    }
   }, [codeGraphOpen, selectedVisualization]);
   
   // Load section states from localStorage
@@ -793,7 +789,7 @@ export default function AdminDashboard() {
             
             {/* Salons with collapsible entries */}
             {!salonIsLoading && !salonError && salons && salons.length > 0 && (
-              <ScrollArea className="max-h-[400px] mt-2">
+              <ScrollArea className="max-h-[200px] mt-2">
                 <div className="space-y-2">
                   {salons.map((salon: Salon) => (
                     <div key={salon.id} className="border rounded-md overflow-hidden">
@@ -806,77 +802,37 @@ export default function AdminDashboard() {
                           <span className="font-medium text-pink-800">{salon.name}</span>
                           <span className="ml-2 text-xs text-pink-600">ID: {salon.id}</span>
                           
-                          {/* License Status Badge removed - now shown in the License button */}
+                          {/* License Status Badge */}
+                          {salon.licenseStatus && (
+                            <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded-full 
+                              ${salon.licenseStatus === 'verified' ? 'bg-green-100 text-green-800' : ''}
+                              ${salon.licenseStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
+                              ${salon.licenseStatus === 'rejected' ? 'bg-red-100 text-red-800' : ''}
+                              ${salon.licenseStatus === 'not_submitted' ? 'bg-gray-100 text-gray-800' : ''}
+                            `}>
+                              {salon.licenseStatus === 'verified' && 'License Verified'}
+                              {salon.licenseStatus === 'pending' && 'License Pending'}
+                              {salon.licenseStatus === 'rejected' && 'License Rejected'}
+                              {salon.licenseStatus === 'not_submitted' && 'No License Info'}
+                            </span>
+                          )}
+                          {!salon.licenseStatus && (
+                            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
+                              No License Info
+                            </span>
+                          )}
                         </div>
-                        <div className="flex items-center space-x-2">
-                          {/* Salon management action buttons */}
-                          {/* Review button removed as requested */}
-                          
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className={`h-7 px-2 ${
-                                    salon.licenseStatus === 'verified' 
-                                      ? 'bg-green-50 text-green-600 hover:bg-green-100' 
-                                      : salon.licenseStatus === 'pending'
-                                        ? 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100'
-                                        : salon.licenseStatus === 'rejected'
-                                          ? 'bg-red-50 text-red-600 hover:bg-red-100'
-                                          : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                                  }`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    // Open license management dialog
-                                    setSelectedLicense({
-                                      id: salon.id, // Using salon id as license id temporarily
-                                      salonId: salon.id,
-                                      salonName: salon.name,
-                                      ownerName: salon.ownerName,
-                                      licenseNumber: salon.licenseNumber || '',
-                                      licenseState: salon.licenseState || '',
-                                      licenseStatus: salon.licenseStatus || 'not_submitted',
-                                      licenseVerificationDate: salon.licenseVerificationDate,
-                                      submissionDate: salon.licenseNumber ? new Date().toISOString() : undefined,
-                                      adminNotes: ''
-                                    });
-                                    setIsLicenseDialogOpen(true);
-                                  }}
-                                >
-                                  <FileTextIcon className="h-3.5 w-3.5 mr-1" />
-                                  <span className="text-[10px]">
-                                    {salon.licenseStatus === 'verified' 
-                                      ? 'License Verified' 
-                                      : salon.licenseStatus === 'pending'
-                                        ? 'License Pending'
-                                        : salon.licenseStatus === 'rejected'
-                                          ? 'License Rejected'
-                                          : 'No License'}
-                                  </span>
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="text-xs">Manage license status</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                          
+                        <div className="flex items-center">
                           <Link 
                             to={`/salon/${salon.id}`}
                             onClick={(e) => {
                               e.stopPropagation();
                               setLocation(`/salon/${salon.id}`);
                             }}
-                            className="mr-1 px-2 py-1 text-[10px] h-7 flex items-center bg-pink-200 text-pink-700 rounded hover:bg-pink-300"
+                            className="mr-3 px-2 py-1 text-[10px] bg-pink-200 text-pink-700 rounded hover:bg-pink-300"
                           >
-                            <Eye className="h-3.5 w-3.5 mr-1" />
                             Salon Page
                           </Link>
-                          
-                          {/* TIFF Direct button removed as requested */}
-                          
                           {expandedSalon === salon.id ? (
                             <ChevronUp className="h-4 w-4 text-pink-600" />
                           ) : (
@@ -930,87 +886,94 @@ export default function AdminDashboard() {
                           <div className="mt-4 pt-4 border-t">
                             <h3 className="text-sm font-medium text-gray-700 mb-2">License Information</h3>
                             
-                            {/* Show appropriate content based on license status - Improved layout */}
+                            {/* Show appropriate content based on license status */}
                             {salon.licenseStatus === 'verified' && (
-                              <div className="bg-green-50 p-3 rounded-md border border-green-100 overflow-hidden max-w-full">
+                              <div className="bg-green-50 p-3 rounded-md border border-green-100">
                                 <div className="flex items-center mb-2">
                                   <Badge className="bg-green-600">Verified</Badge>
-                                  <span className="ml-2 text-sm text-green-800 truncate">License verified</span>
+                                  <span className="ml-2 text-sm text-green-800">License has been verified</span>
                                 </div>
                                 <dl className="space-y-1 text-sm">
-                                  <div className="grid grid-cols-2">
-                                    <dt className="font-medium text-gray-600 truncate">License #:</dt>
-                                    <dd className="text-gray-800 truncate">{salon.licenseNumber || 'Not available'}</dd>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">License Number:</dt>
+                                    <dd className="text-gray-800">{salon.licenseNumber || 'Not available'}</dd>
                                   </div>
-                                  <div className="grid grid-cols-2">
-                                    <dt className="font-medium text-gray-600 truncate">State:</dt>
-                                    <dd className="text-gray-800 truncate">{salon.licenseState || 'Not available'}</dd>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">State:</dt>
+                                    <dd className="text-gray-800">{salon.licenseState || 'Not available'}</dd>
                                   </div>
-                                  <div className="grid grid-cols-2">
-                                    <dt className="font-medium text-gray-600 truncate">Verified:</dt>
-                                    <dd className="text-gray-800 truncate">{salon.licenseVerificationDate || 'Not available'}</dd>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">Verified On:</dt>
+                                    <dd className="text-gray-800">{salon.licenseVerificationDate || 'Not available'}</dd>
                                   </div>
                                 </dl>
                               </div>
                             )}
                             
                             {salon.licenseStatus === 'pending' && (
-                              <div className="bg-yellow-50 p-3 rounded-md border border-yellow-100 overflow-hidden max-w-full">
+                              <div className="bg-yellow-50 p-3 rounded-md border border-yellow-100">
                                 <div className="flex items-center mb-2">
                                   <Badge className="bg-yellow-600">Pending</Badge>
-                                  <span className="ml-2 text-sm text-yellow-800 truncate">Verification in progress</span>
+                                  <span className="ml-2 text-sm text-yellow-800">License verification in progress</span>
                                 </div>
                                 <dl className="space-y-1 text-sm">
-                                  <div className="grid grid-cols-2">
-                                    <dt className="font-medium text-gray-600 truncate">License #:</dt>
-                                    <dd className="text-gray-800 truncate">{salon.licenseNumber || 'Not available'}</dd>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">License Number:</dt>
+                                    <dd className="text-gray-800">{salon.licenseNumber || 'Not available'}</dd>
                                   </div>
-                                  <div className="grid grid-cols-2">
-                                    <dt className="font-medium text-gray-600 truncate">State:</dt>
-                                    <dd className="text-gray-800 truncate">{salon.licenseState || 'Not available'}</dd>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">State:</dt>
+                                    <dd className="text-gray-800">{salon.licenseState || 'Not available'}</dd>
                                   </div>
                                 </dl>
-                                <div className="mt-2 flex flex-wrap gap-2">
-                                  <Button size="sm" variant="outline">Verify</Button>
-                                  <Button size="sm" variant="destructive">Reject</Button>
+                                <div className="mt-2 flex">
+                                  <Button size="sm" variant="outline" className="mr-2">
+                                    Verify License
+                                  </Button>
+                                  <Button size="sm" variant="destructive">
+                                    Reject
+                                  </Button>
                                 </div>
                               </div>
                             )}
                             
                             {salon.licenseStatus === 'rejected' && (
-                              <div className="bg-red-50 p-3 rounded-md border border-red-100 overflow-hidden max-w-full">
+                              <div className="bg-red-50 p-3 rounded-md border border-red-100">
                                 <div className="flex items-center mb-2">
                                   <Badge className="bg-red-600">Rejected</Badge>
-                                  <span className="ml-2 text-sm text-red-800 truncate">Verification failed</span>
+                                  <span className="ml-2 text-sm text-red-800">License verification failed</span>
                                 </div>
                                 <dl className="space-y-1 text-sm">
-                                  <div className="grid grid-cols-2">
-                                    <dt className="font-medium text-gray-600 truncate">License #:</dt>
-                                    <dd className="text-gray-800 truncate">{salon.licenseNumber || 'Not available'}</dd>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">License Number:</dt>
+                                    <dd className="text-gray-800">{salon.licenseNumber || 'Not available'}</dd>
                                   </div>
-                                  <div className="grid grid-cols-2">
-                                    <dt className="font-medium text-gray-600 truncate">State:</dt>
-                                    <dd className="text-gray-800 truncate">{salon.licenseState || 'Not available'}</dd>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">State:</dt>
+                                    <dd className="text-gray-800">{salon.licenseState || 'Not available'}</dd>
                                   </div>
-                                  <div className="grid grid-cols-2">
-                                    <dt className="font-medium text-gray-600 truncate">Rejected:</dt>
-                                    <dd className="text-gray-800 truncate">{salon.licenseVerificationDate || 'Not available'}</dd>
+                                  <div className="flex">
+                                    <dt className="w-32 font-medium text-gray-600">Rejected On:</dt>
+                                    <dd className="text-gray-800">{salon.licenseVerificationDate || 'Not available'}</dd>
                                   </div>
                                 </dl>
                                 <div className="mt-2">
-                                  <Button size="sm" variant="outline">Reconsider</Button>
+                                  <Button size="sm" variant="outline">
+                                    Reconsider
+                                  </Button>
                                 </div>
                               </div>
                             )}
                             
                             {(!salon.licenseStatus || salon.licenseStatus === 'not_submitted') && (
-                              <div className="bg-gray-50 p-3 rounded-md border border-gray-200 overflow-hidden max-w-full">
+                              <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
                                 <div className="flex items-center mb-2">
                                   <Badge className="bg-gray-500">Not Submitted</Badge>
-                                  <span className="ml-2 text-sm text-gray-600 truncate">No license information</span>
+                                  <span className="ml-2 text-sm text-gray-600">No license information has been submitted</span>
                                 </div>
-                                <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                                  Salon needs to submit license information for full platform access.
+                                <p className="text-sm text-gray-600 mb-2">
+                                  This salon has not yet submitted their license information. They need to complete this step
+                                  to get full access to the invitation platform.
                                 </p>
                                 <Button size="sm" variant="outline">
                                   Send Reminder
@@ -1979,8 +1942,7 @@ export default function AdminDashboard() {
                           setGenerating(true);
                           // Simulate API call to generate dependency graph
                           setTimeout(() => {
-                            // Disable this feature as visualization tools aren't available
-                            const outputPath = ``;
+                            const outputPath = `/vmb_tools/dependency_graph/output/${focusPath}_dependencies.svg`;
                             setSelectedVisualization(outputPath);
                             setGenerating(false);
                             
@@ -2119,30 +2081,6 @@ export default function AdminDashboard() {
         </div>
       </main>
       <Footer />
-
-      {/* License Review Dialog */}
-      <LicenseReviewDialog 
-        open={isLicenseDialogOpen} 
-        onOpenChange={setIsLicenseDialogOpen}
-        licenseData={selectedLicense}
-        onLicenseUpdated={(updatedLicense) => {
-          // Update the salon in the list with the new license status
-          if (salons && updatedLicense) {
-            const updatedSalons = salons.map(salon => 
-              salon.id === updatedLicense.salonId 
-                ? {...salon, 
-                    licenseStatus: updatedLicense.licenseStatus,
-                    licenseVerificationDate: updatedLicense.licenseVerificationDate,
-                    licenseNumber: updatedLicense.licenseNumber,
-                    licenseState: updatedLicense.licenseState
-                  }
-                : salon
-            );
-            // Update the salon data in the query client cache
-            queryClient.setQueryData(['/api/salons'], updatedSalons);
-          }
-        }}
-      />
     </div>
   );
 }

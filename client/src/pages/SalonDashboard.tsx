@@ -9,21 +9,12 @@ import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, getQueryFn, queryClient } from "@/lib/queryClient";
 import { getImageUrl } from "@/lib/utils";
-import { ChevronDown, FileText, Info } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import WeeklySchedule, { DaySchedule } from "@/components/dashboard/WeeklySchedule";
 import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSalonInfo";
 import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
 import EditableService, { ServiceData } from "@/components/dashboard/EditableService";
 import ClientInvitation from "@/components/dashboard/ClientInvitation";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 
 // Define a type for the social media object that might be in the API response
@@ -39,45 +30,21 @@ interface EnhancedSalonInfo extends SalonInfo {
   services?: ServiceData[];
   promos?: PromoData[];
   schedule?: DaySchedule[];
-  licenseNumber?: string;
-  licenseState?: string;
-  licenseStatus?: 'not_submitted' | 'pending' | 'verified' | 'rejected';
-  licenseVerificationDate?: string;
-  metadata?: {
-    registrationTrackingId?: string;
-    registrationTimestamp?: string;
-    registrationComplete?: boolean;
-    lastUpdated?: string;
-  };
 }
-
-// License form schema definition (moved outside the component to avoid duplicate declarations)
-const licenseFormSchema = z.object({
-  fullName: z.string().min(2, "Full name is required"),
-  licenseNumber: z.string().min(3, "License number is required"),
-  licenseState: z.string().min(2, "State is required"),
-  exactMatch: z.boolean().default(true),
-  agreeToTerms: z.boolean().refine(val => val === true, {
-    message: "You must agree to the terms"
-  })
-});
-
-// License form type
-type LicenseFormValues = z.infer<typeof licenseFormSchema>;
 
 export default function SalonDashboard() {
   const { id } = useParams();
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   
-  // Parse the URL search params to check if edit=true is present
+  // We want to track whether the edit form was opened from a URL parameter,
+  // but we no longer directly pass this to initiate editing mode automatically
   console.log('Current location in SalonDashboard:', location);
-  const searchParams = new URLSearchParams(window.location.search);
-  const shouldOpenEditForm = searchParams.get('edit') === 'true';
+  const shouldOpenEditForm = false; // Always start with form fields hidden
   console.log('shouldOpenEditForm value:', shouldOpenEditForm, 'URL search params:', window.location.search);
 
   // State for salon data 
-  const [salonData, setSalonData] = useState<EnhancedSalonInfo | null>(null);
+  const [salonData, setSalon] = useState<EnhancedSalonInfo | null>(null);
   
   // States for services, promos, and schedule
   const [services, setServices] = useState<ServiceData[]>([
@@ -168,21 +135,6 @@ export default function SalonDashboard() {
   const [bankingSectionOpen, setBankingSectionOpen] = useState(false);
   const [credentialsSectionOpen, setCredentialsSectionOpen] = useState(false);
   const [vmbPspSectionOpen, setVmbPspSectionOpen] = useState(false);
-  
-  // License dialog state
-  const [licenseDialogOpen, setLicenseDialogOpen] = useState(false);
-  
-  // Setup license form with default empty values
-  const licenseForm = useForm<LicenseFormValues>({
-    resolver: zodResolver(licenseFormSchema),
-    defaultValues: {
-      fullName: salonData?.ownerName || '',
-      licenseNumber: salonData?.licenseNumber || '',
-      licenseState: salonData?.licenseState || '',
-      exactMatch: true,
-      agreeToTerms: false
-    }
-  });
   
   // Save section states to localStorage when they change
   useEffect(() => {
@@ -365,10 +317,10 @@ export default function SalonDashboard() {
 
     // Save to API
     try {
-      if (!salonData?.id) return;
+      if (!salon?.id) return;
 
       // Save to database via API and get the updated salon data
-      const updatedSalonData = await apiRequest(`/api/salons/${salonData.id}/services`, {
+      const updatedSalonData = await apiRequest(`/api/salons/${salon.id}/services`, {
         method: 'POST',
         data: { services: updatedServices }
       });
@@ -495,9 +447,9 @@ export default function SalonDashboard() {
 
     // Save to API
     try {
-      if (!salonData?.id) return;
+      if (!salon?.id) return;
 
-      const response = await apiRequest(`/api/salons/${salonData.id}/promos`, {
+      const response = await apiRequest(`/api/salons/${salon.id}/promos`, {
         method: 'POST',
         data: { promos: updatedPromos }
       });
@@ -505,7 +457,7 @@ export default function SalonDashboard() {
       console.log('SalonDashboard - API response after deleting promo:', response);
 
       // Manually invalidate the salon query to force a refresh
-      queryClient.invalidateQueries({ queryKey: ['/api/salons', salonData.id] });
+      queryClient.invalidateQueries({ queryKey: ['/api/salons', salon.id] });
 
       toast({
         title: "Promotion deleted",
@@ -518,54 +470,6 @@ export default function SalonDashboard() {
       toast({
         title: "Error",
         description: "Failed to delete the promotion. Please try again.",
-        variant: "destructive",
-        duration: 3000
-      });
-    }
-  };
-  
-  /* License form schema moved up to avoid duplicated declaration errors */
-  
-  // Function to handle license submission
-  const handleLicenseSubmission = async (data: LicenseFormValues) => {
-    if (!salonData?.id) return;
-    
-    try {
-      console.log('Submitting license data:', data);
-      
-      // Update the salon license information
-      const response = await apiRequest(`/api/salons/${salonData.id}/license`, {
-        method: 'POST',
-        data: {
-          licenseNumber: data.licenseNumber,
-          licenseState: data.licenseState,
-          licenseStatus: 'pending',
-          ownerName: data.fullName,
-          exactNameMatch: data.exactMatch,
-          timestamp: new Date().toISOString(),
-          trackingId: salonData.metadata?.registrationTrackingId || `license_${Date.now()}_${salonData.id}`
-        }
-      });
-      
-      console.log('License submission response:', response);
-      
-      // Close the dialog
-      setLicenseDialogOpen(false);
-      
-      // Refresh salon data
-      queryClient.invalidateQueries({ queryKey: ['/api/salons', salonData.id] });
-      
-      toast({
-        title: "License submitted",
-        description: "Your license information has been submitted for verification.",
-        duration: 5000
-      });
-      
-    } catch (error) {
-      console.error('Error submitting license:', error);
-      toast({
-        title: "Error",
-        description: "Failed to submit license information. Please try again.",
         variant: "destructive",
         duration: 3000
       });
@@ -662,10 +566,10 @@ export default function SalonDashboard() {
     setWeeklySchedule(updatedSchedule);
     
     // Update the salon data with the new schedule to keep everything in sync
-    setSalonData(prevSalonData => {
-      if (!prevSalonData) return null;
+    setSalon(prevSalon => {
+      if (!prevSalon) return null;
       return {
-        ...prevSalonData,
+        ...prevSalon,
         schedule: updatedSchedule
       };
     });
@@ -685,7 +589,7 @@ export default function SalonDashboard() {
 
   // Enhanced query configuration with proper query key structure and error handling
   const { 
-    data: salonApiData, 
+    data: salon, 
     isLoading, 
     error,
     refetch 
@@ -764,36 +668,36 @@ export default function SalonDashboard() {
 
   // Update local state when salon data changes
   useEffect(() => {
-    if (salonData) {
-      console.log('SalonDashboard - Salon data loaded:', salonData);
+    if (salon) {
+      console.log('SalonDashboard - Salon data loaded:', salon);
 
       // Update services if available
-      if (salonData.services && Array.isArray(salonData.services)) {
-        console.log('SalonDashboard - Setting services from salon data:', salonData.services);
+      if (salon.services && Array.isArray(salon.services)) {
+        console.log('SalonDashboard - Setting services from salon data:', salon.services);
         // Filter out the Seasonal Spring Special from VMB Style Options
-        const filteredServices = salonData.services.filter((service: ServiceData) => 
+        const filteredServices = salon.services.filter((service: ServiceData) => 
           !service.name.toLowerCase().includes('seasonal spring'));
         console.log('SalonDashboard - Filtered services (removed Seasonal Spring):', filteredServices);
         setServices(filteredServices);
       }
 
       // Update promos if available
-      if (salonData.promos && Array.isArray(salonData.promos)) {
-        console.log('SalonDashboard - Setting promos from salon data:', salonData.promos);
-        setPromos(salonData.promos);
+      if (salon.promos && Array.isArray(salon.promos)) {
+        console.log('SalonDashboard - Setting promos from salon data:', salon.promos);
+        setPromos(salon.promos);
       } else {
         console.log('SalonDashboard - No promos in salon data');
       }
       
       // Update schedule if available
-      if (salonData.schedule && Array.isArray(salonData.schedule)) {
-        console.log('SalonDashboard - Setting schedule from salon data:', salonData.schedule);
-        setWeeklySchedule(salonData.schedule);
+      if (salon.schedule && Array.isArray(salon.schedule)) {
+        console.log('SalonDashboard - Setting schedule from salon data:', salon.schedule);
+        setWeeklySchedule(salon.schedule);
       } else {
         console.log('SalonDashboard - No schedule in salon data, using default');
       }
     }
-  }, [salonData]);
+  }, [salon]);
 
 
   if (isLoading) {
@@ -810,7 +714,7 @@ export default function SalonDashboard() {
     );
   }
 
-  if (error || !salonData) {
+  if (error || !salon) {
     return (
       <div className="flex flex-col min-h-screen">
         <Navbar />
@@ -837,18 +741,18 @@ export default function SalonDashboard() {
             <div className="flex flex-row justify-between items-center">
               <div className="flex items-center gap-4">
                 <div>
-                  <h2 className="font-bold text-xl leading-tight">{salonData.name}</h2>
-                  <p className="text-gray-700 text-sm">Welcome, {salonData.ownerName}!</p>
+                  <h2 className="font-bold text-xl leading-tight">{salon.name}</h2>
+                  <p className="text-gray-700 text-sm">Welcome, {salon.ownerName}!</p>
                 </div>
                 <div>
                   <img 
-                    src={salonData.ownerPhotoUrl ? getImageUrl(salonData.ownerPhotoUrl, 'dashboard_hero') : '/assets/salon-card.png'}
-                    alt={salonData.ownerName}
+                    src={salon.ownerPhotoUrl ? getImageUrl(salon.ownerPhotoUrl, 'dashboard_hero') : '/assets/salon-card.png'}
+                    alt={salon.ownerName}
                     className="w-16 h-16 rounded-full object-cover border-2 border-[#FF92A5] shadow-md"
                     onError={(e) => {
-                      console.log("Owner photo fallback used for:", salonData.name);
+                      console.log("Owner photo fallback used for:", salon.name);
                       // Special case for Tiffany's salon
-                      if (salonData.name.includes('Tiffany') || salonData.name.includes('5280')) {
+                      if (salon.name.includes('Tiffany') || salon.name.includes('5280')) {
                         e.currentTarget.src = '/assets/tiffany_profile.png';
                       } else {
                         // Use the standard fallback for other salons
@@ -863,7 +767,7 @@ export default function SalonDashboard() {
                   variant="outline"
                   size="sm"
                   className="text-xs h-8 border-pink-400 text-pink-700 bg-white hover:bg-pink-50"
-                  onClick={() => window.open(`/salon/${salonData.id}`.replace(/\/\//g, '/'), '_blank')}
+                  onClick={() => window.open(`/salon/${salon.id}`.replace(/\/\//g, '/'), '_blank')}
                 >
                   View Public Page
                 </Button>
@@ -876,7 +780,7 @@ export default function SalonDashboard() {
         <section className="py-2">
           <div className="container mx-auto px-2">
             <EditableSalonInfo
-              salon={salonData}
+              salon={salon}
               onSave={handleSaveSalonInfo}
               defaultEditing={shouldOpenEditForm}
             />
@@ -953,7 +857,7 @@ export default function SalonDashboard() {
               
               {invitationSectionOpen && (
                 <CardContent className="p-3 bg-white">
-                  <ClientInvitation salonId={salonData?.id} />
+                  <ClientInvitation salonId={salon?.id} />
                 </CardContent>
               )}
             </Card>
@@ -977,7 +881,7 @@ export default function SalonDashboard() {
               {scheduleSectionOpen && (
                 <CardContent className="p-3 bg-white">
                   <WeeklySchedule
-                    salonId={salonData.id}
+                    salonId={salon.id}
                     initialSchedule={weeklySchedule}
                     onScheduleSaved={handleSaveSchedule}
                   />
@@ -1040,109 +944,7 @@ export default function SalonDashboard() {
                       {credentialsSectionOpen && (
                         <div className="p-3 bg-white">
                           <div className="container">
-                            {/* License Information Display/Form */}
-                            <div className="mb-4">
-                              <h3 className="text-sm font-medium text-gray-700 mb-2">License Information</h3>
-                              
-                              {/* If license data is complete, show information */}
-                              {salonData?.licenseNumber && salonData?.licenseState && salonData?.licenseStatus && (
-                                <div className={`p-3 rounded-md border ${
-                                  salonData?.licenseStatus === 'verified' ? 'bg-green-50 border-green-100' : 
-                                  salonData?.licenseStatus === 'pending' ? 'bg-yellow-50 border-yellow-100' :
-                                  salonData?.licenseStatus === 'rejected' ? 'bg-red-50 border-red-100' :
-                                  'bg-gray-50 border-gray-100'
-                                }`}>
-                                  <div className="flex items-center mb-2">
-                                    {salonData?.licenseStatus === 'verified' && (
-                                      <Badge className="bg-green-600">Verified</Badge>
-                                    )}
-                                    {salonData?.licenseStatus === 'pending' && (
-                                      <Badge className="bg-yellow-600">Pending Verification</Badge>
-                                    )}
-                                    {salonData?.licenseStatus === 'rejected' && (
-                                      <Badge className="bg-red-600">Verification Failed</Badge>
-                                    )}
-                                    {(!salonData?.licenseStatus || salonData?.licenseStatus === 'not_submitted') && (
-                                      <Badge className="bg-gray-600">Not Submitted</Badge>
-                                    )}
-                                    <span className={`ml-2 text-sm ${
-                                      salonData?.licenseStatus === 'verified' ? 'text-green-800' : 
-                                      salonData?.licenseStatus === 'pending' ? 'text-yellow-800' :
-                                      salonData?.licenseStatus === 'rejected' ? 'text-red-800' :
-                                      'text-gray-800'
-                                    }`}>
-                                      {salonData?.licenseStatus === 'verified' && 'Your license has been verified'}
-                                      {salonData?.licenseStatus === 'pending' && 'Your license is being verified (2-3 days)'}
-                                      {salonData?.licenseStatus === 'rejected' && 'License verification failed. Please resubmit.'}
-                                      {(!salonData?.licenseStatus || salonData?.licenseStatus === 'not_submitted') && 'License not submitted'}
-                                    </span>
-                                  </div>
-                                  
-                                  <dl className="space-y-1 text-sm">
-                                    <div className="flex">
-                                      <dt className="w-32 font-medium text-gray-600">License Number:</dt>
-                                      <dd className="text-gray-800">{salonData?.licenseNumber}</dd>
-                                    </div>
-                                    <div className="flex">
-                                      <dt className="w-32 font-medium text-gray-600">State:</dt>
-                                      <dd className="text-gray-800">{salonData?.licenseState}</dd>
-                                    </div>
-                                    {salonData?.licenseVerificationDate && (
-                                      <div className="flex">
-                                        <dt className="w-32 font-medium text-gray-600">Verified On:</dt>
-                                        <dd className="text-gray-800">{new Date(salonData.licenseVerificationDate).toLocaleDateString()}</dd>
-                                      </div>
-                                    )}
-                                  </dl>
-                                  
-                                  {/* Show edit button if not verified */}
-                                  {salonData?.licenseStatus !== 'verified' && (
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      className="mt-3"
-                                      onClick={() => {
-                                        // Open license form dialog
-                                        setLicenseDialogOpen(true);
-                                      }}
-                                    >
-                                      Update License Information
-                                    </Button>
-                                  )}
-                                </div>
-                              )}
-                              
-                              {/* If license data is incomplete, show form */}
-                              {(!salonData?.licenseNumber || !salonData?.licenseState) && (
-                                <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
-                                  <div className="flex items-start mb-3">
-                                    <div className="flex-shrink-0">
-                                      <FileText className="h-5 w-5 text-blue-600" />
-                                    </div>
-                                    <div className="ml-3">
-                                      <h3 className="text-sm font-medium text-blue-800">VMB! Salon License Requirement</h3>
-                                      <div className="mt-1 text-sm text-blue-700">
-                                        <p>To register as a SALON OWNER, a valid state license for your specialization is REQUIRED.</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="mt-2 space-y-3 text-sm text-blue-700">
-                                    <p>Enter your license info and submit. The verification of license status typically takes 2-3 days, often it's same day, but this is not guaranteed. During this period, you will be limited to 3 client invitations.</p>
-                                    
-                                    <Button 
-                                      className="w-full mt-2 bg-blue-500 hover:bg-blue-600 text-white" 
-                                      onClick={() => {
-                                        // Open license form dialog
-                                        setLicenseDialogOpen(true);
-                                      }}
-                                    >
-                                      Submit License Information
-                                    </Button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
+                            
                           </div>
                         </div>
                       )}
@@ -1229,180 +1031,6 @@ export default function SalonDashboard() {
 
       </main>
       <Footer />
-      
-      {/* License Dialog Component */}
-      <Dialog open={licenseDialogOpen} onOpenChange={setLicenseDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Salon License Information</DialogTitle>
-            <DialogDescription>
-              To register as a salon owner, please provide your valid state license information. This is required for verification.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <Form {...licenseForm}>
-            <form onSubmit={licenseForm.handleSubmit(handleLicenseSubmission)} className="space-y-4">
-              <FormField
-                control={licenseForm.control}
-                name="fullName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Your name as listed on license</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Full legal name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={licenseForm.control}
-                name="licenseNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>License number</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Enter exactly as it appears on your license" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormDescription className="text-xs">
-                      Enter exactly as it appears on your license (letters and numbers if shown)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={licenseForm.control}
-                name="licenseState"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select state</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select state" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="AL">Alabama</SelectItem>
-                        <SelectItem value="AK">Alaska</SelectItem>
-                        <SelectItem value="AZ">Arizona</SelectItem>
-                        <SelectItem value="AR">Arkansas</SelectItem>
-                        <SelectItem value="CA">California</SelectItem>
-                        <SelectItem value="CO">Colorado</SelectItem>
-                        <SelectItem value="CT">Connecticut</SelectItem>
-                        <SelectItem value="DE">Delaware</SelectItem>
-                        <SelectItem value="FL">Florida</SelectItem>
-                        <SelectItem value="GA">Georgia</SelectItem>
-                        <SelectItem value="HI">Hawaii</SelectItem>
-                        <SelectItem value="ID">Idaho</SelectItem>
-                        <SelectItem value="IL">Illinois</SelectItem>
-                        <SelectItem value="IN">Indiana</SelectItem>
-                        <SelectItem value="IA">Iowa</SelectItem>
-                        <SelectItem value="KS">Kansas</SelectItem>
-                        <SelectItem value="KY">Kentucky</SelectItem>
-                        <SelectItem value="LA">Louisiana</SelectItem>
-                        <SelectItem value="ME">Maine</SelectItem>
-                        <SelectItem value="MD">Maryland</SelectItem>
-                        <SelectItem value="MA">Massachusetts</SelectItem>
-                        <SelectItem value="MI">Michigan</SelectItem>
-                        <SelectItem value="MN">Minnesota</SelectItem>
-                        <SelectItem value="MS">Mississippi</SelectItem>
-                        <SelectItem value="MO">Missouri</SelectItem>
-                        <SelectItem value="MT">Montana</SelectItem>
-                        <SelectItem value="NE">Nebraska</SelectItem>
-                        <SelectItem value="NV">Nevada</SelectItem>
-                        <SelectItem value="NH">New Hampshire</SelectItem>
-                        <SelectItem value="NJ">New Jersey</SelectItem>
-                        <SelectItem value="NM">New Mexico</SelectItem>
-                        <SelectItem value="NY">New York</SelectItem>
-                        <SelectItem value="NC">North Carolina</SelectItem>
-                        <SelectItem value="ND">North Dakota</SelectItem>
-                        <SelectItem value="OH">Ohio</SelectItem>
-                        <SelectItem value="OK">Oklahoma</SelectItem>
-                        <SelectItem value="OR">Oregon</SelectItem>
-                        <SelectItem value="PA">Pennsylvania</SelectItem>
-                        <SelectItem value="RI">Rhode Island</SelectItem>
-                        <SelectItem value="SC">South Carolina</SelectItem>
-                        <SelectItem value="SD">South Dakota</SelectItem>
-                        <SelectItem value="TN">Tennessee</SelectItem>
-                        <SelectItem value="TX">Texas</SelectItem>
-                        <SelectItem value="UT">Utah</SelectItem>
-                        <SelectItem value="VT">Vermont</SelectItem>
-                        <SelectItem value="VA">Virginia</SelectItem>
-                        <SelectItem value="WA">Washington</SelectItem>
-                        <SelectItem value="WV">West Virginia</SelectItem>
-                        <SelectItem value="WI">Wisconsin</SelectItem>
-                        <SelectItem value="WY">Wyoming</SelectItem>
-                        <SelectItem value="DC">District of Columbia</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={licenseForm.control}
-                name="exactMatch"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>I verify this information is accurate</FormLabel>
-                    </div>
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={licenseForm.control}
-                name="agreeToTerms"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>I agree to VMB license verification terms</FormLabel>
-                      <FormDescription>
-                        By checking this box, you agree to allow VMB to verify your license information with the appropriate state board.
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
-              
-              <DialogFooter className="flex justify-between">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setLicenseDialogOpen(false)}
-                >
-                  Enter Later
-                </Button>
-                <Button type="submit">Enter License</Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

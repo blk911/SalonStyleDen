@@ -48,16 +48,6 @@ export interface IStorage {
   getSalonInvitations(salonId: number): Promise<Invitation[]>;
   getClientInvitations(clientId: number, status?: string, limit?: number): Promise<Invitation[]>;
   updateInvitationStatus(id: number, status: string): Promise<Invitation>;
-  
-  // Activity logging methods
-  createActivityLog(log: InsertActivityLog): Promise<ActivityLog>;
-  getActivityLogs(options?: {
-    userId?: number;
-    salonId?: number;
-    clientId?: number;
-    type?: string;
-    limit?: number;
-  }): Promise<ActivityLog[]>;
   getInvitationsByPhone(phone: string, partialMatch?: boolean): Promise<Invitation[]>;
   getInvitationByHash(hash: string): Promise<Invitation | undefined>;
   deleteInvitation(id: number): Promise<boolean>;
@@ -213,26 +203,8 @@ export class DatabaseStorage implements IStorage {
       createdAt: new Date()
     };
     
-    // Create the salon record
     const result = await db.insert(salons).values(salonData).returning();
-    const newSalon = result[0];
-    
-    // Create activity log entry for the salon creation to track relationship
-    try {
-      await db.insert(activityLogs).values({
-        type: "SALON_REGISTRATION",
-        description: `Salon "${newSalon.name}" registered by owner ${newSalon.ownerName}`,
-        salonId: newSalon.id,
-        timestamp: new Date()
-      });
-      
-      console.log(`Activity log created for salon registration: ${newSalon.id} - ${newSalon.name}`);
-    } catch (error) {
-      console.error("Failed to create activity log for salon registration:", error);
-      // Don't throw the error since the salon was created successfully
-    }
-    
-    return newSalon;
+    return result[0];
   }
 
   async getAllSalons(): Promise<Salon[]> {
@@ -346,74 +318,29 @@ export class DatabaseStorage implements IStorage {
       // Remove id and createdAt from the update data (can't update primary key or timestamp in wrong format)
       const { id: _, createdAt, ...updateData } = salonData;
       
-      // Get current salon data for metadata merging and tracking
-      const currentSalon = await this.getSalon(id);
-      
-      // Handle metadata as special case for tracking registration flow
-      if (updateData.metadata && typeof updateData.metadata === 'object') {
-        // Ensure we're merging metadata objects, creating an empty one if it doesn't exist
-        const currentMetadata = currentSalon?.metadata || {};
-        
-        // Merge the metadata objects, ensuring proper type handling for JSON
-        updateData.metadata = {
-          ...currentMetadata,
-          ...updateData.metadata,
-          lastUpdated: new Date().toISOString() // Always track last update time
-        };
-        
-        console.log(`DatabaseStorage.updateSalon - Merged metadata for salon ${id}:`, 
-          JSON.stringify(updateData.metadata, null, 2));
-      }
-      
-      // Debug: Track specific fields when they're being updated
-      if (updateData.ownerPhotoUrl) {
-        console.log(`DatabaseStorage.updateSalon - Photo URL in update:`, updateData.ownerPhotoUrl);
-      }
-      
-      if (updateData.licenseNumber || updateData.licenseStatus) {
-        console.log(`DatabaseStorage.updateSalon - License update for salon ${id}:`, 
-          JSON.stringify({
-            licenseNumber: updateData.licenseNumber,
-            licenseStatus: updateData.licenseStatus,
-            licenseVerified: updateData.licenseVerified
-          }, null, 2));
-      }
+      // Debug: Check specifically for the owner photo URL
+      console.log(`DatabaseStorage.updateSalon - Photo URL in update:`, 
+                 updateData.ownerPhotoUrl || 'No photo URL provided');
       
       console.log(`DatabaseStorage.updateSalon - Full update data fields:`, 
                  Object.keys(updateData).join(', '));
       
-      // Execute the update with properly merged data
+      console.log(`DatabaseStorage.updateSalon - Cleaned update data:`, JSON.stringify(updateData));
+      
+      // Get current salon data to check changes
+      const currentSalon = await this.getSalon(id);
+      console.log(`DatabaseStorage.updateSalon - Current ownerPhotoUrl:`, 
+                 currentSalon?.ownerPhotoUrl || 'None');
+      
       const result = await db
         .update(salons)
         .set(updateData)
         .where(eq(salons.id, id))
         .returning();
       
-      if (result.length === 0) {
-        throw new Error(`Salon with ID ${id} not found or update failed`);
-      }
-      
-      console.log(`DatabaseStorage.updateSalon - Update successful for salon ${id}`);
-      
-      // Invalidate cache to ensure fresh data
-      this._salonsCache.timestamp = 0;
-      
-      // Log an activity record for significant updates
-      if (updateData.licenseVerified === true || updateData.licenseStatus === 'verified') {
-        await this.createActivityLog({
-          type: 'SALON_LICENSE_VERIFIED',
-          description: `License verified for salon ${result[0].name} (ID: ${id})`,
-          salonId: id,
-          timestamp: new Date(),
-          details: JSON.stringify({
-            licenseNumber: result[0].licenseNumber,
-            licenseState: result[0].licenseState,
-            licenseName: result[0].licenseName,
-            registrationStage: 'license_verified',
-            trackingId: result[0].metadata?.registrationTrackingId || `reg_recovery_${Date.now()}`
-          })
-        });
-      }
+      console.log(`DatabaseStorage.updateSalon - Update successful`);
+      console.log(`DatabaseStorage.updateSalon - New ownerPhotoUrl:`, 
+                 result[0].ownerPhotoUrl || 'None');
                  
       return result[0];
     } catch (error) {
@@ -1955,65 +1882,32 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getActivityLogs(options?: {
-    userId?: number;
-    salonId?: number;
-    clientId?: number;
-    type?: string;
-    limit?: number;
-  }): Promise<ActivityLog[]> {
+  async getRecentActivityLogs(limit: number = 10): Promise<ActivityLog[]> {
     let retries = 3; // Maximum number of retry attempts
     let delayMs = 500; // Starting delay in milliseconds (will increase exponentially)
     
     const performQuery = async (): Promise<ActivityLog[]> => {
       try {
-        // Build the query with filters
-        let query = db.select().from(activityLogs);
+        console.log(`DatabaseStorage.getRecentActivityLogs - Fetching ${limit} recent activity logs`);
+        const result = await db.select()
+          .from(activityLogs)
+          .orderBy(sql`${activityLogs.timestamp} DESC`)
+          .limit(limit);
         
-        if (options?.userId) {
-          query = query.where(eq(activityLogs.userId, options.userId));
-        }
-        
-        if (options?.salonId) {
-          query = query.where(eq(activityLogs.salonId, options.salonId));
-        }
-        
-        if (options?.clientId) {
-          query = query.where(eq(activityLogs.clientId, options.clientId));
-        }
-        
-        if (options?.type) {
-          query = query.where(eq(activityLogs.type, options.type));
-        }
-        
-        // Order by timestamp descending and limit results
-        query = query.orderBy(sql`${activityLogs.timestamp} DESC`);
-        
-        if (options?.limit) {
-          query = query.limit(options.limit);
-        }
-        
-        const result = await query;
-        
-        if (options?.salonId) {
-          console.log(`DatabaseStorage.getActivityLogs - Retrieved ${result.length} logs for salon ${options.salonId}`);
-        } else {
-          console.log(`DatabaseStorage.getActivityLogs - Retrieved ${result.length} logs`);
-        }
-        
+        console.log(`DatabaseStorage.getRecentActivityLogs - Retrieved ${result.length} activity logs`);
         return result;
       } catch (error) {
         console.error('Error fetching activity logs:', error);
         
         // Check if the error message indicates a rate limit issue
-        const errorMessage = String(error).toLowerCase();
+        const errorMessage = error.toString().toLowerCase();
         const isRateLimitError = errorMessage.includes('rate limit') || 
                                  errorMessage.includes('too many requests') ||
                                  errorMessage.includes('exceeded');
         
         if (retries > 0 && isRateLimitError) {
           retries--;
-          console.log(`DatabaseStorage.getActivityLogs - Rate limit detected. Retrying... (${retries} attempts left)`);
+          console.log(`DatabaseStorage.getRecentActivityLogs - Rate limit detected. Retrying... (${retries} attempts left)`);
           
           // Wait using exponential backoff before retrying
           await new Promise(resolve => setTimeout(resolve, delayMs));
@@ -2027,10 +1921,6 @@ export class DatabaseStorage implements IStorage {
     };
     
     return performQuery();
-  }
-  
-  async getRecentActivityLogs(limit: number = 10): Promise<ActivityLog[]> {
-    return this.getActivityLogs({ limit });
   }
 
   async logVmbInvitationSent(clientId: number, salonId: number, styleId: number): Promise<ActivityLog> {

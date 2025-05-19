@@ -220,67 +220,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.post("/salons", async (req: Request, res: Response) => {
     try {
       const validatedData = salonInputSchema.parse(req.body);
-      
-      // Log the salon registration attempt
-      logger.info('Registration', 'Salon registration initiated', {
-        name: validatedData.name,
-        ownerName: validatedData.ownerName,
-        email: validatedData.email,
-        timestamp: new Date().toISOString()
-      });
-      
-      // Create the salon with tracking data
       const salon = await storage.createSalon(validatedData);
-      
-      // Log successful creation with the assigned ID
-      logger.info('Registration', 'Salon created successfully', {
-        salonId: salon.id,
-        name: salon.name,
-        timestamp: new Date().toISOString()
-      });
-      
-      // Create activity record for this salon registration with tracking ID
-      try {
-        // Create a unique tracking ID for this registration flow
-        const registrationTrackingId = `reg_${Date.now()}_${salon.id}`;
-        
-        // Store the tracking ID in the salon's metadata for future reference
-        await storage.updateSalon(salon.id, {
-          metadata: {
-            ...salon.metadata,
-            registrationTrackingId,
-            registrationTimestamp: new Date().toISOString(),
-            registrationComplete: false
-          }
-        });
-        
-        // Log the registration event with the tracking ID
-        await storage.createActivityLog({
-          type: 'SALON_REGISTRATION',
-          description: `Salon "${salon.name}" registered by owner ${salon.ownerName}`,
-          salonId: salon.id,
-          timestamp: new Date(),
-          // Add detailed data to help with tracking
-          details: JSON.stringify({
-            trackingId: registrationTrackingId,
-            salonId: salon.id,
-            ownerName: salon.ownerName,
-            phone: salon.phone,
-            email: salon.email,
-            registrationStage: 'initial'
-          })
-        });
-        
-        console.log(`[REGISTRATION] Salon registration activity logged for salon ID ${salon.id} with tracking ID ${registrationTrackingId}`);
-      } catch (logError) {
-        // Don't fail if activity logging fails, just record the error
-        logger.error('ActivityLogging', 'Failed to log salon registration activity', logError);
-      }
-      
       res.status(201).json(salon);
     } catch (error) {
-      logger.error('Registration', 'Salon registration failed', { error });
-      
       if (error instanceof z.ZodError) {
         res.status(400).json({ error: error.errors });
       } else {

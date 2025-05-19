@@ -36,7 +36,6 @@ export const salons = pgTable("salons", {
   licenseStatus: text("license_status").default("pending"), // Status: pending, verified, rejected
   sponsor: text("sponsor").notNull().default("VMB LTD"), // Default sponsor name
   sponsorId: integer("sponsor_id").default(1), // ID of the sponsoring salon, default to VMB LTD (1)
-  metadata: jsonb("metadata"), // For tracking registration flow and other data
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -165,7 +164,6 @@ export const activityLogs = pgTable("activity_logs", {
   userId: integer("user_id").references(() => users.id),
   salonId: integer("salon_id").references(() => salons.id),
   clientId: integer("client_id").references(() => clients.id),
-  details: text("details"), // Additional JSON details stored as text
   timestamp: timestamp("timestamp").notNull()
 });
 
