@@ -831,36 +831,23 @@ export default function AdminDashboard() {
                         </div>
                         <div className="flex items-center space-x-2">
                           {/* Salon management action buttons */}
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  size="xs"
-                                  variant="ghost"
-                                  className="h-7 px-2 bg-blue-50 text-blue-600 hover:bg-blue-100"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    // Open salon review modal or page
-                                    window.open(`/salon/${salon.id}/review`, '_blank');
-                                  }}
-                                >
-                                  <FileTextIcon className="h-3.5 w-3.5 mr-1" />
-                                  <span className="text-[10px]">Review</span>
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="text-xs">Full salon review</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
+                          {/* Review button removed as requested */}
                           
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button
-                                  size="xs"
+                                  size="sm"
                                   variant="ghost"
-                                  className="h-7 px-2 bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
+                                  className={`h-7 px-2 ${
+                                    salon.licenseStatus === 'verified' 
+                                      ? 'bg-green-50 text-green-600 hover:bg-green-100' 
+                                      : salon.licenseStatus === 'pending'
+                                        ? 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100'
+                                        : salon.licenseStatus === 'rejected'
+                                          ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                                          : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                                  }`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     // Open license management dialog
@@ -873,14 +860,22 @@ export default function AdminDashboard() {
                                       licenseState: salon.licenseState || '',
                                       licenseStatus: salon.licenseStatus || 'not_submitted',
                                       licenseVerificationDate: salon.licenseVerificationDate,
-                                      submissionDate: salon.licenseNumber ? salon.createdAt : undefined,
+                                      submissionDate: salon.licenseNumber ? new Date().toISOString() : undefined,
                                       adminNotes: ''
                                     });
                                     setIsLicenseDialogOpen(true);
                                   }}
                                 >
                                   <FileTextIcon className="h-3.5 w-3.5 mr-1" />
-                                  <span className="text-[10px]">License</span>
+                                  <span className="text-[10px]">
+                                    {salon.licenseStatus === 'verified' 
+                                      ? 'License Verified' 
+                                      : salon.licenseStatus === 'pending'
+                                        ? 'License Pending'
+                                        : salon.licenseStatus === 'rejected'
+                                          ? 'License Rejected'
+                                          : 'No License'}
+                                  </span>
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -2170,6 +2165,22 @@ export default function AdminDashboard() {
         open={isLicenseDialogOpen} 
         onOpenChange={setIsLicenseDialogOpen}
         licenseData={selectedLicense}
+        onLicenseUpdated={(updatedLicense) => {
+          // Update the salon in the list with the new license status
+          if (salons && updatedLicense) {
+            const updatedSalons = salons.map(salon => 
+              salon.id === updatedLicense.salonId 
+                ? {...salon, 
+                    licenseStatus: updatedLicense.licenseStatus,
+                    licenseVerificationDate: updatedLicense.licenseVerificationDate,
+                    licenseNumber: updatedLicense.licenseNumber,
+                    licenseState: updatedLicense.licenseState
+                  }
+                : salon
+            );
+            setSalons(updatedSalons);
+          }
+        }}
       />
     </div>
   );

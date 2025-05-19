@@ -56,11 +56,12 @@ interface LicenseReviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   licenseData: LicenseData | null;
+  onLicenseUpdated?: (updatedLicense: LicenseData) => void;
 }
 
 type LicenseFormValues = z.infer<typeof licenseFormSchema>;
 
-export function LicenseReviewDialog({ open, onOpenChange, licenseData }: LicenseReviewDialogProps) {
+export function LicenseReviewDialog({ open, onOpenChange, licenseData, onLicenseUpdated }: LicenseReviewDialogProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -97,6 +98,19 @@ export function LicenseReviewDialog({ open, onOpenChange, licenseData }: License
           licenseId: licenseData.id
         }
       });
+
+      // Create updated license data
+      const updatedLicense = {
+        ...licenseData,
+        licenseStatus: values.licenseStatus,
+        adminNotes: values.adminNotes,
+        licenseVerificationDate: values.licenseStatus === 'verified' ? new Date().toISOString() : licenseData.licenseVerificationDate
+      };
+
+      // Notify parent component of the update if callback exists
+      if (onLicenseUpdated) {
+        onLicenseUpdated(updatedLicense);
+      }
 
       // Show success toast
       toast({
