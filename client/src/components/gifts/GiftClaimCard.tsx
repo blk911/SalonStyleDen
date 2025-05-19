@@ -14,7 +14,9 @@ import {
   DEFAULT_SALON_ID, 
   DEFAULT_SERVICE_TYPE, 
   DEFAULT_INVITATION_TYPE,
-  GIFT_STATUSES
+  GIFT_STATUSES,
+  GIFT_REFRESH_SETTINGS, 
+  GIFT_ERROR_MESSAGES
 } from "@/constants/salonConstants";
 import {
   Dialog,
@@ -102,7 +104,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
       return response.json();
     },
     onSuccess: () => {
-      // FIXED: Properly invalidate all related gift queries to ensure dashboard updates
+      // Comprehensive cache invalidation using best practices
       // 1. Invalidate received gifts for this client
       queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
       
@@ -115,6 +117,9 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
       // Show the success dialog instead of a toast
       setShowSuccessDialog(true);
       
+      // Log success for monitoring
+      console.log(`[Gift System] Gift ${gift.id} claimed successfully by client ${clientId}`);
+      
       // We still call the callback but won't immediately redirect
       if (onGiftClaimed) {
         // Only call onGiftClaimed when the dialog is closed
@@ -125,7 +130,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
       console.error("Error claiming gift:", error);
       toast({
         title: "Failed to claim gift",
-        description: "There was an error claiming your gift. Please try again.",
+        description: GIFT_ERROR_MESSAGES.REDEEM_FAILED,
         variant: "destructive",
       });
     }
