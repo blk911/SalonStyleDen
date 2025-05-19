@@ -9,12 +9,21 @@ import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, getQueryFn, queryClient } from "@/lib/queryClient";
 import { getImageUrl } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, FileText, Info } from "lucide-react";
 import WeeklySchedule, { DaySchedule } from "@/components/dashboard/WeeklySchedule";
 import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSalonInfo";
 import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
 import EditableService, { ServiceData } from "@/components/dashboard/EditableService";
 import ClientInvitation from "@/components/dashboard/ClientInvitation";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 
 // Define a type for the social media object that might be in the API response
@@ -30,6 +39,16 @@ interface EnhancedSalonInfo extends SalonInfo {
   services?: ServiceData[];
   promos?: PromoData[];
   schedule?: DaySchedule[];
+  licenseNumber?: string;
+  licenseState?: string;
+  licenseStatus?: 'not_submitted' | 'pending' | 'verified' | 'rejected';
+  licenseVerificationDate?: string;
+  metadata?: {
+    registrationTrackingId?: string;
+    registrationTimestamp?: string;
+    registrationComplete?: boolean;
+    lastUpdated?: string;
+  };
 }
 
 export default function SalonDashboard() {
@@ -944,7 +963,109 @@ export default function SalonDashboard() {
                       {credentialsSectionOpen && (
                         <div className="p-3 bg-white">
                           <div className="container">
-                            
+                            {/* License Information Display/Form */}
+                            <div className="mb-4">
+                              <h3 className="text-sm font-medium text-gray-700 mb-2">License Information</h3>
+                              
+                              {/* If license data is complete, show information */}
+                              {salon?.licenseNumber && salon?.licenseState && salon?.licenseStatus && (
+                                <div className={`p-3 rounded-md border ${
+                                  salon.licenseStatus === 'verified' ? 'bg-green-50 border-green-100' : 
+                                  salon.licenseStatus === 'pending' ? 'bg-yellow-50 border-yellow-100' :
+                                  salon.licenseStatus === 'rejected' ? 'bg-red-50 border-red-100' :
+                                  'bg-gray-50 border-gray-100'
+                                }`}>
+                                  <div className="flex items-center mb-2">
+                                    {salon.licenseStatus === 'verified' && (
+                                      <Badge className="bg-green-600">Verified</Badge>
+                                    )}
+                                    {salon.licenseStatus === 'pending' && (
+                                      <Badge className="bg-yellow-600">Pending Verification</Badge>
+                                    )}
+                                    {salon.licenseStatus === 'rejected' && (
+                                      <Badge className="bg-red-600">Verification Failed</Badge>
+                                    )}
+                                    {(!salon.licenseStatus || salon.licenseStatus === 'not_submitted') && (
+                                      <Badge className="bg-gray-600">Not Submitted</Badge>
+                                    )}
+                                    <span className={`ml-2 text-sm ${
+                                      salon.licenseStatus === 'verified' ? 'text-green-800' : 
+                                      salon.licenseStatus === 'pending' ? 'text-yellow-800' :
+                                      salon.licenseStatus === 'rejected' ? 'text-red-800' :
+                                      'text-gray-800'
+                                    }`}>
+                                      {salon.licenseStatus === 'verified' && 'Your license has been verified'}
+                                      {salon.licenseStatus === 'pending' && 'Your license is being verified (2-3 days)'}
+                                      {salon.licenseStatus === 'rejected' && 'License verification failed. Please resubmit.'}
+                                      {(!salon.licenseStatus || salon.licenseStatus === 'not_submitted') && 'License not submitted'}
+                                    </span>
+                                  </div>
+                                  
+                                  <dl className="space-y-1 text-sm">
+                                    <div className="flex">
+                                      <dt className="w-32 font-medium text-gray-600">License Number:</dt>
+                                      <dd className="text-gray-800">{salon.licenseNumber}</dd>
+                                    </div>
+                                    <div className="flex">
+                                      <dt className="w-32 font-medium text-gray-600">State:</dt>
+                                      <dd className="text-gray-800">{salon.licenseState}</dd>
+                                    </div>
+                                    {salon.licenseVerificationDate && (
+                                      <div className="flex">
+                                        <dt className="w-32 font-medium text-gray-600">Verified On:</dt>
+                                        <dd className="text-gray-800">{new Date(salon.licenseVerificationDate).toLocaleDateString()}</dd>
+                                      </div>
+                                    )}
+                                  </dl>
+                                  
+                                  {/* Show edit button if not verified */}
+                                  {salon.licenseStatus !== 'verified' && (
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="mt-3"
+                                      onClick={() => {
+                                        // Open license form dialog
+                                        setLicenseDialogOpen(true);
+                                      }}
+                                    >
+                                      Update License Information
+                                    </Button>
+                                  )}
+                                </div>
+                              )}
+                              
+                              {/* If license data is incomplete, show form */}
+                              {(!salon?.licenseNumber || !salon?.licenseState) && (
+                                <div className="bg-blue-50 p-4 rounded-md border border-blue-100">
+                                  <div className="flex items-start mb-3">
+                                    <div className="flex-shrink-0">
+                                      <FileText className="h-5 w-5 text-blue-600" />
+                                    </div>
+                                    <div className="ml-3">
+                                      <h3 className="text-sm font-medium text-blue-800">VMB! Salon License Requirement</h3>
+                                      <div className="mt-1 text-sm text-blue-700">
+                                        <p>To register as a SALON OWNER, a valid state license for your specialization is REQUIRED.</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="mt-2 space-y-3 text-sm text-blue-700">
+                                    <p>Enter your license info and submit. The verification of license status typically takes 2-3 days, often it's same day, but this is not guaranteed. During this period, you will be limited to 3 client invitations.</p>
+                                    
+                                    <Button 
+                                      className="w-full mt-2 bg-blue-500 hover:bg-blue-600 text-white" 
+                                      onClick={() => {
+                                        // Open license form dialog
+                                        setLicenseDialogOpen(true);
+                                      }}
+                                    >
+                                      Submit License Information
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       )}
