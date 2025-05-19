@@ -182,7 +182,7 @@ router.post('/reject/:salonId', async (req: Request, res: Response) => {
     });
     
     // Log the license rejection
-    logger.info(`[LICENSE] Salon ${salonId} (${salon.name}) license rejected by admin. Reason: ${reason || 'Not provided'}`);
+    console.log(`[LICENSE] Salon ${salonId} (${salon.name}) license rejected by admin. Reason: ${reason || 'Not provided'}`);
     
     return res.status(200).json({
       success: true,
