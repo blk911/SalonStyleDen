@@ -164,6 +164,7 @@ export const activityLogs = pgTable("activity_logs", {
   userId: integer("user_id").references(() => users.id),
   salonId: integer("salon_id").references(() => salons.id),
   clientId: integer("client_id").references(() => clients.id),
+  details: text("details"), // Additional JSON details stored as text
   timestamp: timestamp("timestamp").notNull()
 });
 

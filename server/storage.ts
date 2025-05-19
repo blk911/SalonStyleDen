@@ -1910,32 +1910,65 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getRecentActivityLogs(limit: number = 10): Promise<ActivityLog[]> {
+  async getActivityLogs(options?: {
+    userId?: number;
+    salonId?: number;
+    clientId?: number;
+    type?: string;
+    limit?: number;
+  }): Promise<ActivityLog[]> {
     let retries = 3; // Maximum number of retry attempts
     let delayMs = 500; // Starting delay in milliseconds (will increase exponentially)
     
     const performQuery = async (): Promise<ActivityLog[]> => {
       try {
-        console.log(`DatabaseStorage.getRecentActivityLogs - Fetching ${limit} recent activity logs`);
-        const result = await db.select()
-          .from(activityLogs)
-          .orderBy(sql`${activityLogs.timestamp} DESC`)
-          .limit(limit);
+        // Build the query with filters
+        let query = db.select().from(activityLogs);
         
-        console.log(`DatabaseStorage.getRecentActivityLogs - Retrieved ${result.length} activity logs`);
+        if (options?.userId) {
+          query = query.where(eq(activityLogs.userId, options.userId));
+        }
+        
+        if (options?.salonId) {
+          query = query.where(eq(activityLogs.salonId, options.salonId));
+        }
+        
+        if (options?.clientId) {
+          query = query.where(eq(activityLogs.clientId, options.clientId));
+        }
+        
+        if (options?.type) {
+          query = query.where(eq(activityLogs.type, options.type));
+        }
+        
+        // Order by timestamp descending and limit results
+        query = query.orderBy(sql`${activityLogs.timestamp} DESC`);
+        
+        if (options?.limit) {
+          query = query.limit(options.limit);
+        }
+        
+        const result = await query;
+        
+        if (options?.salonId) {
+          console.log(`DatabaseStorage.getActivityLogs - Retrieved ${result.length} logs for salon ${options.salonId}`);
+        } else {
+          console.log(`DatabaseStorage.getActivityLogs - Retrieved ${result.length} logs`);
+        }
+        
         return result;
       } catch (error) {
         console.error('Error fetching activity logs:', error);
         
         // Check if the error message indicates a rate limit issue
-        const errorMessage = error.toString().toLowerCase();
+        const errorMessage = String(error).toLowerCase();
         const isRateLimitError = errorMessage.includes('rate limit') || 
                                  errorMessage.includes('too many requests') ||
                                  errorMessage.includes('exceeded');
         
         if (retries > 0 && isRateLimitError) {
           retries--;
-          console.log(`DatabaseStorage.getRecentActivityLogs - Rate limit detected. Retrying... (${retries} attempts left)`);
+          console.log(`DatabaseStorage.getActivityLogs - Rate limit detected. Retrying... (${retries} attempts left)`);
           
           // Wait using exponential backoff before retrying
           await new Promise(resolve => setTimeout(resolve, delayMs));
@@ -1949,6 +1982,10 @@ export class DatabaseStorage implements IStorage {
     };
     
     return performQuery();
+  }
+  
+  async getRecentActivityLogs(limit: number = 10): Promise<ActivityLog[]> {
+    return this.getActivityLogs({ limit });
   }
 
   async logVmbInvitationSent(clientId: number, salonId: number, styleId: number): Promise<ActivityLog> {

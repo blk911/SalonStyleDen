@@ -239,16 +239,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         timestamp: new Date().toISOString()
       });
       
-      // Create activity record for this salon registration
+      // Create activity record for this salon registration with tracking ID
       try {
+        // Create a unique tracking ID for this registration flow
+        const registrationTrackingId = `reg_${Date.now()}_${salon.id}`;
+        
+        // Store the tracking ID in the salon's metadata for future reference
+        await storage.updateSalon(salon.id, {
+          metadata: {
+            ...salon.metadata,
+            registrationTrackingId,
+            registrationTimestamp: new Date().toISOString(),
+            registrationComplete: false
+          }
+        });
+        
+        // Log the registration event with the tracking ID
         await storage.createActivityLog({
           type: 'SALON_REGISTRATION',
           description: `Salon "${salon.name}" registered by owner ${salon.ownerName}`,
           salonId: salon.id,
-          timestamp: new Date()
+          timestamp: new Date(),
+          // Add detailed data to help with tracking
+          details: JSON.stringify({
+            trackingId: registrationTrackingId,
+            salonId: salon.id,
+            ownerName: salon.ownerName,
+            phone: salon.phone,
+            email: salon.email,
+            registrationStage: 'initial'
+          })
         });
         
-        console.log(`[REGISTRATION] Salon registration activity logged for salon ID ${salon.id}`);
+        console.log(`[REGISTRATION] Salon registration activity logged for salon ID ${salon.id} with tracking ID ${registrationTrackingId}`);
       } catch (logError) {
         // Don't fail if activity logging fails, just record the error
         logger.error('ActivityLogging', 'Failed to log salon registration activity', logError);

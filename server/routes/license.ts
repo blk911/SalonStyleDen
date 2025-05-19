@@ -38,12 +38,38 @@ router.post('/submit', async (req: Request, res: Response) => {
     
     // Create an activity log entry to track this step in the registration flow
     try {
+      // Get the registration tracking ID from salon metadata
+      const salonData = await storage.getSalon(Number(salonId));
+      const registrationTrackingId = salonData?.metadata?.registrationTrackingId || `reg_recovery_${Date.now()}`;
+      
+      // Update the salon's metadata to indicate license submission
+      await storage.updateSalon(Number(salonId), {
+        metadata: {
+          ...salonData?.metadata,
+          licenseSubmitted: true,
+          licenseSubmissionTime: new Date().toISOString(),
+          registrationTrackingId,
+          registrationStage: 'license_submitted'
+        }
+      });
+      
+      // Create detailed activity log for license submission
       await storage.createActivityLog({
         type: "LICENSE_SUBMISSION",
         description: `Salon ${salon.name} license submission: ${licenseNumber} (${licenseState})`,
         salonId: Number(salonId),
-        timestamp: new Date()
+        timestamp: new Date(),
+        details: JSON.stringify({
+          trackingId: registrationTrackingId,
+          salonId: Number(salonId),
+          licenseName,
+          licenseNumber,
+          licenseState,
+          registrationStage: 'license_submitted'
+        })
       });
+      
+      console.log(`[LICENSE] License submission activity logged for salon ID ${salonId} with tracking ID ${registrationTrackingId}`);
     } catch (logError) {
       console.error("Failed to log license submission activity:", logError);
       // Don't fail the request if logging fails
