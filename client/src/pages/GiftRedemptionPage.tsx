@@ -242,18 +242,10 @@ export default function GiftRedemptionPage() {
         variant: "default",
       });
       
-      // IMPROVED: More comprehensive cache invalidation for gift redemption
-      // 1. Invalidate this specific gift query
+      // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: [`/api/gifts/by-hash/${giftHash}`] });
-      queryClient.invalidateQueries({ queryKey: [`/api/gifts/${giftHash}`] });
-      
-      // 2. Invalidate client data
       queryClient.invalidateQueries({ queryKey: [`/api/clients/${data.clientId}`] });
-      
-      // 3. Invalidate all gift lists that might include this gift
       queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${data.clientId}`] });
-      queryClient.invalidateQueries({ queryKey: ['/api/gifts'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/gifts/sent'] });
     },
     onError: (error) => {
       console.error("Error redeeming gift:", error);

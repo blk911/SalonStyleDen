@@ -13,11 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2, Gift as GiftIcon, CheckCircle, Calendar, ExternalLink, Share2 } from "lucide-react";
 import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
-import { 
-  GIFT_REFRESH_SETTINGS, 
-  GIFT_ERROR_MESSAGES,
-  GIFT_STATUSES
-} from "@/constants/salonConstants";
 
 interface SentGift {
   id: number;
@@ -56,18 +51,13 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
     queryFn: async () => {
       const response = await fetch(`/api/gifts/sent/${clientId}`);
       if (!response.ok) {
-        throw new Error(GIFT_ERROR_MESSAGES.FETCH_FAILED);
+        throw new Error("Failed to fetch sent gifts");
       }
       const gifts = await response.json();
       console.log("Sent gifts:", gifts);
       return gifts as SentGift[];
     },
     enabled: !!clientId,
-    // Using centralized refresh settings for consistency across gift components
-    refetchOnWindowFocus: GIFT_REFRESH_SETTINGS.REFRESH_ON_FOCUS,
-    refetchOnMount: GIFT_REFRESH_SETTINGS.REFRESH_ON_MOUNT,
-    staleTime: GIFT_REFRESH_SETTINGS.STALE_TIME,
-    refetchInterval: GIFT_REFRESH_SETTINGS.REFETCH_INTERVAL,
   });
 
   const handleShareGift = (gift: SentGift) => {

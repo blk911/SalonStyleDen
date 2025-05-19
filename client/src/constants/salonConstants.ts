@@ -20,23 +20,6 @@ export const GIFT_STATUSES = {
   CANCELLED: "cancelled"
 };
 
-// Gift data refresh settings for consistent real-time updates
-export const GIFT_REFRESH_SETTINGS = {
-  STALE_TIME: 15000,         // 15 seconds - how long before data is considered stale
-  REFETCH_INTERVAL: 30000,   // 30 seconds - active polling interval
-  REFRESH_ON_FOCUS: true,    // Refresh when browser tab gets focus
-  REFRESH_ON_MOUNT: true,    // Refresh when component mounts
-  CACHE_TIME: 180000         // 3 minutes - how long to keep unused data
-};
-
-// Error messages for gift system (centralized for consistency)
-export const GIFT_ERROR_MESSAGES = {
-  FETCH_FAILED: "Unable to retrieve gift information. Please try again.",
-  UPDATE_FAILED: "Failed to update gift status. Please try again.",
-  SEND_FAILED: "Could not send gift. Please check your information and try again.",
-  REDEEM_FAILED: "Unable to redeem this gift. It may have expired or already been used."
-};
-
 // Default service types
 export const DEFAULT_SERVICE_TYPE = "Nail Service";
 export const DEFAULT_INVITATION_TYPE = "Salon Invitation";

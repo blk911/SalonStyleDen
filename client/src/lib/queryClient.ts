@@ -110,19 +110,11 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: true, // Enable refresh when window gets focus
-      refetchOnMount: true,      // Always refresh when component mounts
-      staleTime: 15000,          // Consider data stale after 15 seconds (reduced from 30)
+      staleTime: 30000, // Consider data stale after 30 seconds
       retry: false,
-      // Add these gift-specific default settings
-      gcTime: 3 * 60 * 1000,     // Keep unused data in cache for 3 minutes
     },
     mutations: {
       retry: false,
-      // After mutation completes, always refetch affected queries
-      onSuccess: () => {
-        // We'll add specific invalidation in components, but this helps as a fallback
-        console.log('[MUTATION] Completed successfully, consider refreshing affected data');
-      }
     },
   },
 });
