@@ -809,7 +809,25 @@ export default function AdminDashboard() {
                           <span className="font-medium text-pink-800">{salon.name}</span>
                           <span className="ml-2 text-xs text-pink-600">ID: {salon.id}</span>
                           
-                          {/* License Status Badge removed - now shown in the License button */}
+                          {/* License Status Badge */}
+                          {salon.licenseStatus && (
+                            <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded-full 
+                              ${salon.licenseStatus === 'verified' ? 'bg-green-100 text-green-800' : ''}
+                              ${salon.licenseStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
+                              ${salon.licenseStatus === 'rejected' ? 'bg-red-100 text-red-800' : ''}
+                              ${salon.licenseStatus === 'not_submitted' ? 'bg-gray-100 text-gray-800' : ''}
+                            `}>
+                              {salon.licenseStatus === 'verified' && 'License Verified'}
+                              {salon.licenseStatus === 'pending' && 'License Pending'}
+                              {salon.licenseStatus === 'rejected' && 'License Rejected'}
+                              {salon.licenseStatus === 'not_submitted' && 'No License Info'}
+                            </span>
+                          )}
+                          {!salon.licenseStatus && (
+                            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
+                              No License Info
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center space-x-2">
                           {/* Salon management action buttons */}
