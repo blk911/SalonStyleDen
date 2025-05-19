@@ -789,8 +789,8 @@ export default function AdminDashboard() {
             
             {/* Salons with collapsible entries */}
             {!salonIsLoading && !salonError && salons && salons.length > 0 && (
-              <ScrollArea className="max-h-[200px] mt-2">
-                <div className="space-y-2">
+              <ScrollArea className="max-h-[400px] mt-2">
+                <div className="space-y-2 pb-2">
                   {salons.map((salon: Salon) => (
                     <div key={salon.id} className="border rounded-md overflow-hidden">
                       {/* Salon Header - Pink Background */}
