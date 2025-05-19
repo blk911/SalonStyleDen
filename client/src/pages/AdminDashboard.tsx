@@ -897,19 +897,7 @@ export default function AdminDashboard() {
                           </Link>
                           
                           {/* Salon ID 2 is TIFF - ensure endpoint works */}
-                          {salon.id === 2 && (
-                            <Link 
-                              to="/salon/tiff"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setLocation(`/salon/tiff`);
-                              }}
-                              className="mr-1 px-2 py-1 text-[10px] h-7 flex items-center bg-purple-200 text-purple-700 rounded hover:bg-purple-300"
-                            >
-                              <ExternalLinkIcon className="h-3.5 w-3.5 mr-1" />
-                              TIFF Direct
-                            </Link>
-                          )}
+                          {/* Direct button removed as requested */}
                           
                           {expandedSalon === salon.id ? (
                             <ChevronUp className="h-4 w-4 text-pink-600" />
