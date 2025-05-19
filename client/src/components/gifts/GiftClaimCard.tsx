@@ -102,7 +102,15 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
       return response.json();
     },
     onSuccess: () => {
+      // FIXED: Properly invalidate all related gift queries to ensure dashboard updates
+      // 1. Invalidate received gifts for this client
       queryClient.invalidateQueries({ queryKey: [`/api/gifts/received/${clientId}`] });
+      
+      // 2. Also invalidate the general gifts list (affects other components)
+      queryClient.invalidateQueries({ queryKey: ['/api/gifts'] });
+      
+      // 3. Invalidate sent gifts list for other clients who might be senders
+      queryClient.invalidateQueries({ queryKey: ['/api/gifts/sent'] });
       
       // Show the success dialog instead of a toast
       setShowSuccessDialog(true);

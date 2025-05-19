@@ -58,6 +58,10 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
       return gifts as SentGift[];
     },
     enabled: !!clientId,
+    // FIXED: Add refetch settings to ensure data is fresh
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 10 * 1000, // Consider data stale after 10 seconds
   });
 
   const handleShareGift = (gift: SentGift) => {

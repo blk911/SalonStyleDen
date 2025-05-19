@@ -93,6 +93,10 @@ export function FixedGiftsDisplay({ clientId, onRedeemGift, setLocation }: Fixed
       }) as ReceivedGift[];
     },
     enabled: !!clientId,
+    // FIXED: Add refetch settings to ensure data is fresh
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    staleTime: 10 * 1000, // Consider data stale after 10 seconds
   });
 
   // Initialize the default collapsed state for delivered gifts when data loads
