@@ -51,6 +51,20 @@ interface EnhancedSalonInfo extends SalonInfo {
   };
 }
 
+// License form schema definition (moved outside the component to avoid duplicate declarations)
+const licenseFormSchema = z.object({
+  fullName: z.string().min(2, "Full name is required"),
+  licenseNumber: z.string().min(3, "License number is required"),
+  licenseState: z.string().min(2, "State is required"),
+  exactMatch: z.boolean().default(true),
+  agreeToTerms: z.boolean().refine(val => val === true, {
+    message: "You must agree to the terms"
+  })
+});
+
+// License form type
+type LicenseFormValues = z.infer<typeof licenseFormSchema>;
+
 export default function SalonDashboard() {
   const { id } = useParams();
   const [location, setLocation] = useLocation();
@@ -63,7 +77,7 @@ export default function SalonDashboard() {
   console.log('shouldOpenEditForm value:', shouldOpenEditForm, 'URL search params:', window.location.search);
 
   // State for salon data 
-  const [salonData, setSalon] = useState<EnhancedSalonInfo | null>(null);
+  const [salonData, setSalonData] = useState<EnhancedSalonInfo | null>(null);
   
   // States for services, promos, and schedule
   const [services, setServices] = useState<ServiceData[]>([
@@ -157,6 +171,18 @@ export default function SalonDashboard() {
   
   // License dialog state
   const [licenseDialogOpen, setLicenseDialogOpen] = useState(false);
+  
+  // Setup license form with default empty values
+  const licenseForm = useForm<LicenseFormValues>({
+    resolver: zodResolver(licenseFormSchema),
+    defaultValues: {
+      fullName: '',
+      licenseNumber: '',
+      licenseState: '',
+      exactMatch: true,
+      agreeToTerms: false
+    }
+  });
   
   // Save section states to localStorage when they change
   useEffect(() => {
@@ -498,18 +524,7 @@ export default function SalonDashboard() {
     }
   };
   
-  // License form schema
-  const licenseFormSchema = z.object({
-    fullName: z.string().min(2, "Full name is required"),
-    licenseNumber: z.string().min(3, "License number is required"),
-    licenseState: z.string().min(2, "State is required"),
-    exactMatch: z.boolean().default(true),
-    agreeToTerms: z.boolean().refine(val => val === true, {
-      message: "You must agree to the terms"
-    })
-  });
-  
-  type LicenseFormValues = z.infer<typeof licenseFormSchema>;
+  /* License form schema moved up to avoid duplicated declaration errors */
   
   // Function to handle license submission
   const handleLicenseSubmission = async (data: LicenseFormValues) => {
