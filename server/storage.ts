@@ -203,8 +203,26 @@ export class DatabaseStorage implements IStorage {
       createdAt: new Date()
     };
     
+    // Create the salon record
     const result = await db.insert(salons).values(salonData).returning();
-    return result[0];
+    const newSalon = result[0];
+    
+    // Create activity log entry for the salon creation to track relationship
+    try {
+      await db.insert(activityLogs).values({
+        type: "SALON_REGISTRATION",
+        description: `Salon "${newSalon.name}" registered by owner ${newSalon.ownerName}`,
+        salonId: newSalon.id,
+        timestamp: new Date()
+      });
+      
+      console.log(`Activity log created for salon registration: ${newSalon.id} - ${newSalon.name}`);
+    } catch (error) {
+      console.error("Failed to create activity log for salon registration:", error);
+      // Don't throw the error since the salon was created successfully
+    }
+    
+    return newSalon;
   }
 
   async getAllSalons(): Promise<Salon[]> {
