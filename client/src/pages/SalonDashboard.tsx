@@ -15,6 +15,7 @@ import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSal
 import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
 import EditableService, { ServiceData } from "@/components/dashboard/EditableService";
 import ClientInvitation from "@/components/dashboard/ClientInvitation";
+import LicenseForm from "@/components/dashboard/LicenseForm";
 
 
 // Define a type for the social media object that might be in the API response
@@ -30,6 +31,11 @@ interface EnhancedSalonInfo extends SalonInfo {
   services?: ServiceData[];
   promos?: PromoData[];
   schedule?: DaySchedule[];
+  licenseName?: string;
+  licenseNumber?: string;
+  licenseState?: string;
+  licenseStatus?: string;
+  licenseVerified?: boolean;
 }
 
 export default function SalonDashboard() {
@@ -631,6 +637,52 @@ export default function SalonDashboard() {
   });
   
   // Internal helper function for data consistency - not exposed in UI
+  // Handle license submission 
+  const handleSubmitLicense = async (licenseData: any) => {
+    try {
+      if (!id) return;
+      
+      // Submit license data to API
+      const response = await apiRequest(`/api/salons/${id}/license`, {
+        method: 'POST',
+        data: {
+          licenseName: licenseData.licenseName,
+          licenseNumber: licenseData.licenseNumber,
+          licenseState: licenseData.licenseState,
+          licenseStatus: 'pending' // Initial status when submitting
+        }
+      });
+      
+      // Update salon data with the response
+      if (response) {
+        setSalon(prev => ({
+          ...prev,
+          ...response
+        }));
+        
+        // Show success toast
+        toast({
+          title: "License information submitted",
+          description: "Your license information has been submitted for verification. This process usually takes 2-3 days.",
+          duration: 5000
+        });
+      }
+      
+      // Refresh salon data
+      await updateLocalDataFromServer();
+      
+    } catch (error) {
+      console.error('Error submitting license information:', error);
+      
+      toast({
+        title: "Error",
+        description: "Failed to submit license information. Please try again.",
+        variant: "destructive",
+        duration: 3000
+      });
+    }
+  };
+
   const updateLocalDataFromServer = async () => {
     console.log('SalonDashboard - Updating data for salon ID:', id);
     
@@ -944,7 +996,17 @@ export default function SalonDashboard() {
                       {credentialsSectionOpen && (
                         <div className="p-3 bg-white">
                           <div className="container">
-                            
+                            <LicenseForm 
+                              salonId={Number(id)}
+                              licenseData={{
+                                licenseName: salonData?.licenseName,
+                                licenseNumber: salonData?.licenseNumber,
+                                licenseState: salonData?.licenseState,
+                                licenseStatus: salonData?.licenseStatus,
+                                licenseVerified: salonData?.licenseVerified
+                              }}
+                              onSubmit={handleSubmitLicense}
+                            />
                           </div>
                         </div>
                       )}
