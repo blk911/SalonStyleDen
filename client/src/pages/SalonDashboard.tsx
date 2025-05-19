@@ -176,9 +176,9 @@ export default function SalonDashboard() {
   const licenseForm = useForm<LicenseFormValues>({
     resolver: zodResolver(licenseFormSchema),
     defaultValues: {
-      fullName: '',
-      licenseNumber: '',
-      licenseState: '',
+      fullName: salonData?.ownerName || '',
+      licenseNumber: salonData?.licenseNumber || '',
+      licenseState: salonData?.licenseState || '',
       exactMatch: true,
       agreeToTerms: false
     }
@@ -662,10 +662,10 @@ export default function SalonDashboard() {
     setWeeklySchedule(updatedSchedule);
     
     // Update the salon data with the new schedule to keep everything in sync
-    setSalon(prevSalon => {
-      if (!prevSalon) return null;
+    setSalonData(prevSalonData => {
+      if (!prevSalonData) return null;
       return {
-        ...prevSalon,
+        ...prevSalonData,
         schedule: updatedSchedule
       };
     });
@@ -685,7 +685,7 @@ export default function SalonDashboard() {
 
   // Enhanced query configuration with proper query key structure and error handling
   const { 
-    data: salon, 
+    data: salonApiData, 
     isLoading, 
     error,
     refetch 
