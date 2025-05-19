@@ -954,7 +954,7 @@ export default function AdminDashboard() {
                               }}
                               className="mr-3 px-2 py-1 text-[10px] bg-red-100 text-red-700 rounded hover:bg-red-200 flex items-center gap-1"
                             >
-                              <Trash2 className="h-3 w-3" />
+                              <TrashIcon className="h-3 w-3" />
                               Delete
                             </button>
                           )}

@@ -106,6 +106,40 @@ interface DataCache<T> {
 }
 
 export class DatabaseStorage implements IStorage {
+  async deleteSalon(id: number): Promise<boolean> {
+    console.log(`DatabaseStorage.deleteSalon - Attempting to delete salon ID ${id}`);
+    
+    // Protect system salons - VMB LTD (ID 1) and Tiffany's (ID 2)
+    if (id === 1 || id === 2) {
+      console.error(`DatabaseStorage.deleteSalon - Cannot delete protected salon ID ${id}`);
+      throw new Error(`Cannot delete protected salon ID ${id}`);
+    }
+    
+    return await this.withRetry(async () => {
+      // First check if the salon exists
+      const salon = await this.getSalon(id);
+      if (!salon) {
+        console.log(`DatabaseStorage.deleteSalon - Salon ID ${id} not found`);
+        throw new Error(`Salon with ID ${id} not found`);
+      }
+      
+      // Delete the salon from the database
+      const result = await db.delete(salons).where(eq(salons.id, id)).returning();
+      
+      if (result && result.length > 0) {
+        // Update the salons cache by removing the deleted salon
+        if (this._salonsCache.data && this._salonsCache.data.length > 0) {
+          this._salonsCache.data = this._salonsCache.data.filter(s => s.id !== id);
+        }
+        
+        console.log(`DatabaseStorage.deleteSalon - Successfully deleted salon ID ${id}`);
+        return true;
+      }
+      
+      console.error(`DatabaseStorage.deleteSalon - Error deleting salon ID ${id}`);
+      return false;
+    }, 'deleteSalon');
+  }
   // Add cache properties
   private _salonsCache: DataCache<Salon> = { data: [], timestamp: 0 };
   private _clientsCache: DataCache<Client> = { data: [], timestamp: 0 };

@@ -364,6 +364,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Delete salon endpoint
+  apiRouter.delete("/salons/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+      }
+      
+      // Protect VMB LTD (ID 1) and Tiffany's salon (ID 2)
+      if (id === 1 || id === 2) {
+        return res.status(403).json({ error: "Cannot delete protected salon" });
+      }
+
+      // Attempt to delete the salon
+      const success = await storage.deleteSalon(id);
+      
+      if (success) {
+        // Log the activity for tracking and auditing
+        await storage.createActivityLog({
+          type: "salon_deleted",
+          description: `Salon ID ${id} was deleted`,
+          salonId: null,
+          timestamp: new Date()
+        });
+        
+        res.json({ success: true, message: "Salon successfully deleted" });
+      } else {
+        res.status(500).json({ error: "Failed to delete salon" });
+      }
+    } catch (error) {
+      console.error('Error deleting salon:', error);
+      res.status(500).json({ error: error instanceof Error ? error.message : "Failed to delete salon" });
+    }
+  });
+  
   // PATCH handler for salon updates (needed for tests)
   apiRouter.patch("/salons/:id", async (req: Request, res: Response) => {
     try {
