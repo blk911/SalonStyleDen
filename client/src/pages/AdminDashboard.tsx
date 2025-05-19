@@ -822,17 +822,81 @@ export default function AdminDashboard() {
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center">
+                        <div className="flex items-center space-x-2">
+                          {/* Salon management action buttons */}
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="xs"
+                                  variant="ghost"
+                                  className="h-7 px-2 bg-blue-50 text-blue-600 hover:bg-blue-100"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // Open salon review modal or page
+                                    window.open(`/salon/${salon.id}/review`, '_blank');
+                                  }}
+                                >
+                                  <FileTextIcon className="h-3.5 w-3.5 mr-1" />
+                                  <span className="text-[10px]">Review</span>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs">Full salon review</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  size="xs"
+                                  variant="ghost"
+                                  className="h-7 px-2 bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // Open license management modal or page
+                                    window.open(`/admin/license/${salon.id}`, '_blank');
+                                  }}
+                                >
+                                  <FileTextIcon className="h-3.5 w-3.5 mr-1" />
+                                  <span className="text-[10px]">License</span>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs">Manage license status</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                          
                           <Link 
                             to={`/salon/${salon.id}`}
                             onClick={(e) => {
                               e.stopPropagation();
                               setLocation(`/salon/${salon.id}`);
                             }}
-                            className="mr-3 px-2 py-1 text-[10px] bg-pink-200 text-pink-700 rounded hover:bg-pink-300"
+                            className="mr-1 px-2 py-1 text-[10px] h-7 flex items-center bg-pink-200 text-pink-700 rounded hover:bg-pink-300"
                           >
+                            <Eye className="h-3.5 w-3.5 mr-1" />
                             Salon Page
                           </Link>
+                          
+                          {/* Salon ID 2 is TIFF - ensure endpoint works */}
+                          {salon.id === 2 && (
+                            <Link 
+                              to="/salon/tiff"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setLocation(`/salon/tiff`);
+                              }}
+                              className="mr-1 px-2 py-1 text-[10px] h-7 flex items-center bg-purple-200 text-purple-700 rounded hover:bg-purple-300"
+                            >
+                              <ExternalLinkIcon className="h-3.5 w-3.5 mr-1" />
+                              TIFF Direct
+                            </Link>
+                          )}
+                          
                           {expandedSalon === salon.id ? (
                             <ChevronUp className="h-4 w-4 text-pink-600" />
                           ) : (
