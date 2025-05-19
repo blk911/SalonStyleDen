@@ -1007,14 +1007,13 @@ export default function AdminDashboard() {
                             )}
                             
                             {(!salon.licenseStatus || salon.licenseStatus === 'not_submitted') && (
-                              <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+                              <div className="bg-gray-50 p-3 rounded-md border border-gray-200 overflow-hidden max-w-full">
                                 <div className="flex items-center mb-2">
                                   <Badge className="bg-gray-500">Not Submitted</Badge>
-                                  <span className="ml-2 text-sm text-gray-600">No license information has been submitted</span>
+                                  <span className="ml-2 text-sm text-gray-600 truncate">No license information</span>
                                 </div>
-                                <p className="text-sm text-gray-600 mb-2">
-                                  This salon has not yet submitted their license information. They need to complete this step
-                                  to get full access to the invitation platform.
+                                <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                                  Salon needs to submit license information for full platform access.
                                 </p>
                                 <Button size="sm" variant="outline">
                                   Send Reminder
