@@ -192,11 +192,8 @@ export default function AdminDashboard() {
   
   // Set default visualization when code graph section is opened
   useEffect(() => {
-    if (codeGraphOpen && !selectedVisualization) {
-      // Use local path with cache buster
-      const cacheBuster = `?cb=${Date.now()}`;
-      setSelectedVisualization(`/vmb_tools/dependency_graph/output/client_dashboard_dependencies.svg${cacheBuster}`);
-    }
+    // Don't try to set a default visualization at all
+    // This prevents any errors from loading non-existent resources
   }, [codeGraphOpen, selectedVisualization]);
   
   // Load section states from localStorage
@@ -1982,7 +1979,8 @@ export default function AdminDashboard() {
                           setGenerating(true);
                           // Simulate API call to generate dependency graph
                           setTimeout(() => {
-                            const outputPath = `/vmb_tools/dependency_graph/output/${focusPath}_dependencies.svg`;
+                            // Disable this feature as visualization tools aren't available
+                            const outputPath = ``;
                             setSelectedVisualization(outputPath);
                             setGenerating(false);
                             
@@ -2140,7 +2138,8 @@ export default function AdminDashboard() {
                   }
                 : salon
             );
-            setSalons(updatedSalons);
+            // Update the salon data in the query client cache
+            queryClient.setQueryData(['/api/salons'], updatedSalons);
           }
         }}
       />
