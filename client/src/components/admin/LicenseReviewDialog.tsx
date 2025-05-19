@@ -75,14 +75,14 @@ export function LicenseReviewDialog({ open, onOpenChange, licenseData, onLicense
   });
 
   // Update form values when licenseData changes
-  useState(() => {
+  useEffect(() => {
     if (licenseData) {
       form.reset({
         licenseStatus: licenseData.licenseStatus,
         adminNotes: licenseData.adminNotes || "",
       });
     }
-  });
+  }, [licenseData, form]);
 
   const handleSubmit = async (values: LicenseFormValues) => {
     if (!licenseData) return;
