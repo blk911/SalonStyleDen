@@ -1057,7 +1057,16 @@ export default function AdminDashboard() {
                                   This salon has not yet submitted their license information. They need to complete this step
                                   to get full access to the invitation platform.
                                 </p>
-                                <Button size="sm" variant="outline">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Reminder sent",
+                                      description: `Email reminder sent to ${salon.name} to submit their license information.`,
+                                    });
+                                  }}
+                                >
                                   Send Reminder
                                 </Button>
                               </div>
