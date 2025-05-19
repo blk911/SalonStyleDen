@@ -25,6 +25,7 @@ export interface IStorage {
   updateSalonServices(id: number, services: any[]): Promise<Salon>;
   updateSalonPromos(id: number, promos: any[]): Promise<Salon>;
   updateSalon(id: number, salonData: Partial<Salon>): Promise<Salon>;
+  deleteSalon(id: number): Promise<boolean>;
   updateSalonLicense(id: number, licenseData: { 
     licenseName?: string, 
     licenseNumber?: string, 
