@@ -809,25 +809,7 @@ export default function AdminDashboard() {
                           <span className="font-medium text-pink-800">{salon.name}</span>
                           <span className="ml-2 text-xs text-pink-600">ID: {salon.id}</span>
                           
-                          {/* License Status Badge */}
-                          {salon.licenseStatus && (
-                            <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded-full 
-                              ${salon.licenseStatus === 'verified' ? 'bg-green-100 text-green-800' : ''}
-                              ${salon.licenseStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
-                              ${salon.licenseStatus === 'rejected' ? 'bg-red-100 text-red-800' : ''}
-                              ${salon.licenseStatus === 'not_submitted' ? 'bg-gray-100 text-gray-800' : ''}
-                            `}>
-                              {salon.licenseStatus === 'verified' && 'License Verified'}
-                              {salon.licenseStatus === 'pending' && 'License Pending'}
-                              {salon.licenseStatus === 'rejected' && 'License Rejected'}
-                              {salon.licenseStatus === 'not_submitted' && 'No License Info'}
-                            </span>
-                          )}
-                          {!salon.licenseStatus && (
-                            <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
-                              No License Info
-                            </span>
-                          )}
+                          {/* License Status Badge removed - now shown in the License button */}
                         </div>
                         <div className="flex items-center space-x-2">
                           {/* Salon management action buttons */}
@@ -897,7 +879,19 @@ export default function AdminDashboard() {
                           </Link>
                           
                           {/* Salon ID 2 is TIFF - ensure endpoint works */}
-                          {/* Direct button removed as requested */}
+                          {salon.id === 2 && (
+                            <Link 
+                              to="/salon/tiff"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setLocation(`/salon/tiff`);
+                              }}
+                              className="mr-1 px-2 py-1 text-[10px] h-7 flex items-center bg-purple-200 text-purple-700 rounded hover:bg-purple-300"
+                            >
+                              <ExternalLinkIcon className="h-3.5 w-3.5 mr-1" />
+                              TIFF Direct
+                            </Link>
+                          )}
                           
                           {expandedSalon === salon.id ? (
                             <ChevronUp className="h-4 w-4 text-pink-600" />
