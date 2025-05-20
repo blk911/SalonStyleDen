@@ -239,6 +239,43 @@ export default function AdminDashboard() {
     }
   });
   
+  // Salon suspension mutation
+  const suspendSalonMutation = useMutation({
+    mutationFn: async (salonId: number) => {
+      const response = await fetch(`/api/salons/${salonId}/suspend`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to suspend salon');
+      }
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Salon suspended",
+        description: "The salon has been suspended successfully.",
+      });
+      // Invalidate the salons query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+      // Also invalidate activity logs since this is an important action
+      queryClient.invalidateQueries({ queryKey: ['/api/activity-logs'] });
+      // Reset state
+      setSalonToSuspend(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error suspending salon",
+        description: error.message,
+        variant: "destructive",
+      });
+      setSalonToSuspend(null);
+    }
+  });
+  
   // Section visibility states (stored in localStorage for persistence)
   const [styleOptionsOpen, setStyleOptionsOpen] = useState(true);
   const [networkVisualizationOpen, setNetworkVisualizationOpen] = useState(true);
@@ -251,6 +288,14 @@ export default function AdminDashboard() {
   
   // State to track which salon details are expanded (initially all closed)
   const [expandedSalon, setExpandedSalon] = useState<number | null>(null);
+  
+  // State for salon suspension and license viewing
+  const [salonToSuspend, setSalonToSuspend] = useState<Salon | null>(null);
+  const [licenseViewSalon, setLicenseViewSalon] = useState<Salon | null>(null);
+  
+  // State for salon suspension and license viewing
+  const [salonToSuspend, setSalonToSuspend] = useState<Salon | null>(null);
+  const [licenseViewSalon, setLicenseViewSalon] = useState<Salon | null>(null);
   
   // Set default visualization when code graph section is opened
   useEffect(() => {
@@ -943,6 +988,34 @@ export default function AdminDashboard() {
                             Salon Page
                           </Link>
                           
+                          {/* View License Button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setLicenseViewSalon(salon);
+                            }}
+                            className="mr-2 px-2 py-1 text-[10px] bg-blue-100 text-blue-700 rounded hover:bg-blue-200 flex items-center gap-1"
+                            title="View License Info"
+                          >
+                            <Eye className="h-3 w-3" />
+                            License
+                          </button>
+                          
+                          {/* Suspend Button - Not shown for VMB or Tiffany's salon */}
+                          {salon.id !== 1 && salon.id !== 2 && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSalonToSuspend(salon);
+                              }}
+                              className="mr-2 px-2 py-1 text-[10px] bg-orange-100 text-orange-700 rounded hover:bg-orange-200 flex items-center gap-1"
+                              title="Suspend Salon"
+                            >
+                              <XCircleIcon className="h-3 w-3" />
+                              Suspend
+                            </button>
+                          )}
+                          
                           {/* Delete Button - Not shown for VMB or Tiffany's salon */}
                           {salon.id !== 1 && salon.id !== 2 && (
                             <button
@@ -953,6 +1026,7 @@ export default function AdminDashboard() {
                                 }
                               }}
                               className="mr-3 px-2 py-1 text-[10px] bg-red-100 text-red-700 rounded hover:bg-red-200 flex items-center gap-1"
+                              title="Delete Salon"
                             >
                               <TrashIcon className="h-3 w-3" />
                               Delete
@@ -2230,5 +2304,112 @@ export default function AdminDashboard() {
       </main>
       <Footer />
     </div>
+  );
+    {licenseViewSalon && (
+      <AlertDialog open={!!licenseViewSalon} onOpenChange={(open) => !open && setLicenseViewSalon(null)}>
+        <AlertDialogContent className="max-w-xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>License Information - {licenseViewSalon.name}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Review and manage license information for this salon.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="py-4">
+            {/* License Status */}
+            <div className="mb-4">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Current Status</h3>
+              <div className={`px-3 py-2 rounded-md border ${
+                licenseViewSalon.licenseStatus === 'verified' ? 'bg-green-50 border-green-100 text-green-800' :
+                licenseViewSalon.licenseStatus === 'pending' ? 'bg-yellow-50 border-yellow-100 text-yellow-800' :
+                licenseViewSalon.licenseStatus === 'rejected' ? 'bg-red-50 border-red-100 text-red-800' :
+                'bg-gray-50 border-gray-100 text-gray-800'
+              }`}>
+                <span className="font-medium">
+                  {licenseViewSalon.licenseStatus === 'verified' && 'Verified'}
+                  {licenseViewSalon.licenseStatus === 'pending' && 'Pending Verification'}
+                  {licenseViewSalon.licenseStatus === 'rejected' && 'Rejected'}
+                  {(!licenseViewSalon.licenseStatus || licenseViewSalon.licenseStatus === 'not_submitted') && 'Not Submitted'}
+                </span>
+              </div>
+            </div>
+            
+            {/* License Information */}
+            <div className="mb-4">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">License Details</h3>
+              <dl className="space-y-2 border rounded-md p-3 bg-gray-50">
+                <div className="flex">
+                  <dt className="w-32 font-medium text-gray-600">License Number:</dt>
+                  <dd>{licenseViewSalon.licenseNumber || 'Not provided'}</dd>
+                </div>
+                <div className="flex">
+                  <dt className="w-32 font-medium text-gray-600">State:</dt>
+                  <dd>{licenseViewSalon.licenseState || 'Not provided'}</dd>
+                </div>
+                {licenseViewSalon.licenseVerificationDate && (
+                  <div className="flex">
+                    <dt className="w-32 font-medium text-gray-600">Verified On:</dt>
+                    <dd>{licenseViewSalon.licenseVerificationDate}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+            
+            {/* Actions */}
+            {(licenseViewSalon.licenseStatus === 'pending' || !licenseViewSalon.licenseStatus || licenseViewSalon.licenseStatus === 'not_submitted') && (
+              <div className="space-x-2 mt-4">
+                <Button 
+                  onClick={() => {
+                    verifyLicenseMutation.mutate(licenseViewSalon.id);
+                    setLicenseViewSalon(null);
+                  }}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Approve License
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    rejectLicenseMutation.mutate(licenseViewSalon.id);
+                    setLicenseViewSalon(null);
+                  }}
+                  className="text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  Reject License
+                </Button>
+              </div>
+            )}
+          </div>
+          
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    )}
+    
+    {/* Salon Suspension Confirmation Dialog */}
+    {salonToSuspend && (
+      <AlertDialog open={!!salonToSuspend} onOpenChange={(open) => !open && setSalonToSuspend(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Suspend Salon</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to suspend {salonToSuspend.name}? This will restrict their ability to send invitations
+              and process new client registrations.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => suspendSalonMutation.mutate(salonToSuspend.id)}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              Suspend Salon
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    )}
   );
 }
