@@ -17,6 +17,7 @@ import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 import { EnhancedDeleteConfirmation } from "@/components/admin/EnhancedDeleteConfirmation";
 import { AdminActionButton, ActionGroup } from "@/components/admin/AdminActionButton";
 import DebugControls from "@/components/admin/DebugControls";
+import { SimpleSalonList } from "@/components/admin/SimpleSalonList";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -67,10 +68,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { formatPhoneNumber } from "@/lib/utils";
-import { AuditLogViewer } from "@/components/admin/AuditLogViewer";
-import { TroubleshootPanel } from "@/components/admin/TroubleshootPanel";
 import { Input } from "@/components/ui/input";
-import { ReportingPanel } from "@/components/admin/ReportingPanel";
 
 interface Client {
   id: number;
@@ -695,13 +693,20 @@ export default function AdminDashboard() {
               </Card>
             </div>
             
-            {/* Reporting Panel */}
-            <ReportingPanel 
-              data={reportingData} 
-              isLoading={reportingIsLoading} 
-              period={reportPeriod}
-              onPeriodChange={setReportPeriod}
-            />
+            {/* Reporting Panel Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Performance Reports</CardTitle>
+                <CardDescription>
+                  Platform usage and performance metrics
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 flex items-center justify-center text-gray-500">
+                  Performance reporting dashboard will appear here
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
           
           {/* Salons Tab Content */}
@@ -714,190 +719,16 @@ export default function AdminDashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {salonIsLoading ? (
-                  <div className="py-8 text-center text-gray-500">Loading salons...</div>
-                ) : salonError ? (
-                  <div className="py-8 text-center text-red-500">Error loading salons</div>
-                ) : filteredSalons.length === 0 ? (
+                {searchQuery && filteredSalons && filteredSalons.length === 0 ? (
                   <div className="py-8 text-center text-gray-500">
-                    {searchQuery ? "No salons match your search" : "No salons found"}
+                    No salons match your search
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    {filteredSalons.map((salon: Salon) => (
-                      <div key={salon.id} className="border rounded-md overflow-hidden">
-                        <div 
-                          className={`px-4 py-3 flex justify-between items-center cursor-pointer ${
-                            salon.suspended ? 'bg-red-50' : 'bg-white hover:bg-gray-50'
-                          }`}
-                          onClick={() => setExpandedSalon(expandedSalon === salon.id ? null : salon.id)}
-                        >
-                          <div className="flex items-center">
-                            <span className="font-medium text-pink-800">{salon.name}</span>
-                            <span className="ml-2 text-xs text-pink-600">ID: {salon.id}</span>
-                            
-                            {/* License Status Badge */}
-                            {salon.licenseStatus && (
-                              <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded-full 
-                                ${salon.licenseStatus === 'verified' ? 'bg-green-100 text-green-800' : ''}
-                                ${salon.licenseStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''}
-                                ${salon.licenseStatus === 'rejected' ? 'bg-red-100 text-red-800' : ''}
-                                ${salon.licenseStatus === 'not_submitted' ? 'bg-gray-100 text-gray-800' : ''}
-                              `}>
-                                {salon.licenseStatus === 'verified' && 'License Verified'}
-                                {salon.licenseStatus === 'pending' && 'License Pending'}
-                                {salon.licenseStatus === 'rejected' && 'License Rejected'}
-                                {salon.licenseStatus === 'not_submitted' && 'No License Info'}
-                              </span>
-                            )}
-                            {!salon.licenseStatus && (
-                              <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-800">
-                                No License Info
-                              </span>
-                            )}
-                            
-                            {/* Suspended Badge */}
-                            {salon.suspended && (
-                              <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-800">
-                                Suspended
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center">
-                            <Link 
-                              to={`/salon/${salon.id}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setLocation(`/salon/${salon.id}`);
-                              }}
-                              className="mr-3 px-2 py-1 text-[10px] bg-pink-200 text-pink-700 rounded hover:bg-pink-300"
-                            >
-                              Salon Page
-                            </Link>
-                            
-                            {/* View License Button */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setLicenseViewSalon(salon);
-                              }}
-                              className="mr-2 px-2 py-1 text-[10px] bg-blue-100 text-blue-700 rounded hover:bg-blue-200 flex items-center gap-1"
-                              title="View License Info"
-                            >
-                              <Eye className="h-3 w-3" />
-                              License
-                            </button>
-                            
-                            {/* Suspend Button - Not shown for VMB or Tiffany's salon */}
-                            {salon.id !== 1 && salon.id !== 2 && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSalonToSuspend(salon);
-                                }}
-                                className="mr-2 px-2 py-1 text-[10px] bg-orange-100 text-orange-700 rounded hover:bg-orange-200 flex items-center gap-1"
-                                title="Suspend Salon"
-                              >
-                                <XCircleIcon className="h-3 w-3" />
-                                Suspend
-                              </button>
-                            )}
-                            
-                            {/* Delete Button - Not shown for VMB or Tiffany's salon */}
-                            {salon.id !== 1 && salon.id !== 2 && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (confirm(`Are you sure you want to delete ${salon.name}? This cannot be undone.`)) {
-                                    deleteSalonMutation.mutate(salon.id);
-                                  }
-                                }}
-                                className="mr-3 px-2 py-1 text-[10px] bg-red-100 text-red-700 rounded hover:bg-red-200 flex items-center gap-1"
-                                title="Delete Salon"
-                              >
-                                <TrashIcon className="h-3 w-3" />
-                                Delete
-                              </button>
-                            )}
-                            
-                            {expandedSalon === salon.id ? (
-                              <ChevronUp className="h-4 w-4 text-pink-600" />
-                            ) : (
-                              <ChevronDown className="h-4 w-4 text-pink-600" />
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* Salon Details - Hidden until expanded */}
-                        {expandedSalon === salon.id && (
-                          <div className="p-4 bg-white">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <h3 className="text-sm font-medium text-gray-700 mb-2">Salon Information</h3>
-                                <dl className="space-y-1 text-sm">
-                                  <div className="flex">
-                                    <dt className="w-24 font-medium text-gray-500">Owner:</dt>
-                                    <dd>{salon.ownerName}</dd>
-                                  </div>
-                                  <div className="flex">
-                                    <dt className="w-24 font-medium text-gray-500">Email:</dt>
-                                    <dd>{salon.email}</dd>
-                                  </div>
-                                  <div className="flex">
-                                    <dt className="w-24 font-medium text-gray-500">Phone:</dt>
-                                    <dd>{formatPhoneNumber(salon.phone)}</dd>
-                                  </div>
-                                  <div className="flex">
-                                    <dt className="w-24 font-medium text-gray-500">License:</dt>
-                                    <dd>
-                                      {salon.licenseNumber ? (
-                                        <span className="flex items-center gap-1">
-                                          {salon.licenseNumber}
-                                          {salon.licenseStatus === 'verified' && (
-                                            <CheckCircle2 className="h-3 w-3 text-green-600" />
-                                          )}
-                                        </span>
-                                      ) : (
-                                        <span className="text-gray-400">Not submitted</span>
-                                      )}
-                                    </dd>
-                                  </div>
-                                </dl>
-                              </div>
-                              
-                              <div>
-                                <h3 className="text-sm font-medium text-gray-700 mb-2">Service Statistics</h3>
-                                <dl className="space-y-1 text-sm">
-                                  <div className="flex">
-                                    <dt className="w-24 font-medium text-gray-500">Services:</dt>
-                                    <dd>{salon.services?.length || 0} services offered</dd>
-                                  </div>
-                                  <div className="flex">
-                                    <dt className="w-24 font-medium text-gray-500">Promos:</dt>
-                                    <dd>{salon.promos?.length || 0} active promotions</dd>
-                                  </div>
-                                </dl>
-                              </div>
-                            </div>
-                            
-                            {/* Action Buttons */}
-                            <div className="mt-4 flex justify-end gap-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setLocation(`/salon/${salon.id}`);
-                                }}
-                              >
-                                View Full Profile
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                  <SimpleSalonList 
+                    salons={filteredSalons || []} 
+                    isLoading={salonIsLoading} 
+                    error={salonError}
+                  />
                 )}
               </CardContent>
             </Card>
