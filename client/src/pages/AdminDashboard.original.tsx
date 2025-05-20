@@ -170,6 +170,112 @@ export default function AdminDashboard() {
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [giftToDelete, setGiftToDelete] = useState<Gift | null>(null);
   
+  // License verification mutations
+  const verifyLicenseMutation = useMutation({
+    mutationFn: async (salonId: number) => {
+      const response = await fetch(`/api/license/verify/${salonId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to verify license');
+      }
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "License verified",
+        description: "The salon license has been verified successfully.",
+      });
+      // Invalidate the salons query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+      // Also invalidate activity logs since this is an important action
+      queryClient.invalidateQueries({ queryKey: ['/api/activity-logs'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error verifying license",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // License rejection mutation
+  const rejectLicenseMutation = useMutation({
+    mutationFn: async (salonId: number) => {
+      const response = await fetch(`/api/license/reject/${salonId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rejectionReason: "Information could not be verified" })
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to reject license');
+      }
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "License rejected",
+        description: "The salon license has been marked as rejected.",
+      });
+      // Invalidate the salons query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+      // Also invalidate activity logs since this is an important action
+      queryClient.invalidateQueries({ queryKey: ['/api/activity-logs'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error rejecting license",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Salon suspension mutation
+  const suspendSalonMutation = useMutation({
+    mutationFn: async (salonId: number) => {
+      const response = await fetch(`/api/salons/${salonId}/suspend`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to suspend salon');
+      }
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Salon suspended",
+        description: "The salon has been suspended successfully.",
+      });
+      // Invalidate the salons query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+      // Also invalidate activity logs since this is an important action
+      queryClient.invalidateQueries({ queryKey: ['/api/activity-logs'] });
+      // Reset state
+      setSalonToSuspend(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error suspending salon",
+        description: error.message,
+        variant: "destructive",
+      });
+      setSalonToSuspend(null);
+    }
+  });
+  
   // Section visibility states (stored in localStorage for persistence)
   const [styleOptionsOpen, setStyleOptionsOpen] = useState(true);
   const [networkVisualizationOpen, setNetworkVisualizationOpen] = useState(true);
@@ -182,6 +288,10 @@ export default function AdminDashboard() {
   
   // State to track which salon details are expanded (initially all closed)
   const [expandedSalon, setExpandedSalon] = useState<number | null>(null);
+  
+  // State for salon suspension and license viewing
+  const [salonToSuspend, setSalonToSuspend] = useState<Salon | null>(null);
+  const [licenseViewSalon, setLicenseViewSalon] = useState<Salon | null>(null);
   
   // Set default visualization when code graph section is opened
   useEffect(() => {
@@ -493,16 +603,22 @@ export default function AdminDashboard() {
         }
       });
       
+      // If we get a 404, we'll consider this a "success" since the gift is already gone
+      if (response.status === 404) {
+        console.log(`Gift with ID ${giftId} not found - already deleted or doesn't exist`);
+        return { success: true, message: "Gift not found (already removed)" };
+      }
+      
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
         throw new Error(errorData.error || 'Failed to delete gift');
       }
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "Gift deleted",
-        description: "The gift has been permanently deleted from the system.",
+        description: "The gift has been removed from the system.",
         variant: "destructive"
       });
       setGiftToDelete(null);
@@ -520,6 +636,46 @@ export default function AdminDashboard() {
     }
   });
 
+  // Delete salon mutation
+  const deleteSalonMutation = useMutation({
+    mutationFn: async (salonId: number) => {
+      // Check if this is VMB LTD (ID 1) or Tiffany's salon (ID 2) - we don't allow deleting these
+      if (salonId === 1 || salonId === 2) {
+        throw new Error("Cannot delete system or Tiffany's salon");
+      }
+      
+      const response = await fetch(`/api/salons/${salonId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to delete salon');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Salon deleted",
+        description: "The salon has been successfully removed from the system.",
+      });
+      // Invalidate the salons query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ['/api/salons'] });
+      // Also invalidate activity logs since a new log entry will be created
+      queryClient.invalidateQueries({ queryKey: ['/api/activity-logs'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error deleting salon",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
   // Delete client mutation
   const deleteClientMutation = useMutation({
     mutationFn: async (clientId: number) => {
@@ -572,10 +728,21 @@ export default function AdminDashboard() {
       <Navbar />
       <main className="flex-grow p-4">
         <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-            <div className="w-full md:w-64">
-              <DebugControls />
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
+            <div>
+              <h1 className="text-2xl font-bold mb-0">Admin Dashboard</h1>
+            </div>
+            <div className="flex space-x-3">
+              <Link href="/dependencies">
+                <Button variant="outline" size="sm" className="text-xs bg-white hover:bg-gray-100">
+                  Dependencies
+                </Button>
+              </Link>
+              <Link href="/performance">
+                <Button variant="outline" size="sm" className="text-xs bg-white hover:bg-gray-100">
+                  Performance
+                </Button>
+              </Link>
             </div>
           </div>
 
@@ -584,6 +751,7 @@ export default function AdminDashboard() {
             title="Ven Me, Baby! Style Options"
             isOpen={styleOptionsOpen}
             onToggle={() => setStyleOptionsOpen(!styleOptionsOpen)}
+            className="mb-2" // Reduced margin from mb-3 to mb-2
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card className="border border-pink-200 shadow-sm hover:shadow-md transition-shadow">
@@ -771,8 +939,8 @@ export default function AdminDashboard() {
             
             {/* Salons with collapsible entries */}
             {!salonIsLoading && !salonError && salons && salons.length > 0 && (
-              <ScrollArea className="h-[280px] mt-2">
-                <div className="space-y-3">
+              <ScrollArea className="max-h-[400px] mt-2">
+                <div className="space-y-2 pb-2">
                   {salons.map((salon: Salon) => (
                     <div key={salon.id} className="border rounded-md overflow-hidden">
                       {/* Salon Header - Pink Background */}
@@ -815,6 +983,52 @@ export default function AdminDashboard() {
                           >
                             Salon Page
                           </Link>
+                          
+                          {/* View License Button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setLicenseViewSalon(salon);
+                            }}
+                            className="mr-2 px-2 py-1 text-[10px] bg-blue-100 text-blue-700 rounded hover:bg-blue-200 flex items-center gap-1"
+                            title="View License Info"
+                          >
+                            <Eye className="h-3 w-3" />
+                            License
+                          </button>
+                          
+                          {/* Suspend Button - Not shown for VMB or Tiffany's salon */}
+                          {salon.id !== 1 && salon.id !== 2 && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSalonToSuspend(salon);
+                              }}
+                              className="mr-2 px-2 py-1 text-[10px] bg-orange-100 text-orange-700 rounded hover:bg-orange-200 flex items-center gap-1"
+                              title="Suspend Salon"
+                            >
+                              <XCircleIcon className="h-3 w-3" />
+                              Suspend
+                            </button>
+                          )}
+                          
+                          {/* Delete Button - Not shown for VMB or Tiffany's salon */}
+                          {salon.id !== 1 && salon.id !== 2 && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm(`Are you sure you want to delete ${salon.name}? This cannot be undone.`)) {
+                                  deleteSalonMutation.mutate(salon.id);
+                                }
+                              }}
+                              className="mr-3 px-2 py-1 text-[10px] bg-red-100 text-red-700 rounded hover:bg-red-200 flex items-center gap-1"
+                              title="Delete Salon"
+                            >
+                              <TrashIcon className="h-3 w-3" />
+                              Delete
+                            </button>
+                          )}
+                          
                           {expandedSalon === salon.id ? (
                             <ChevronUp className="h-4 w-4 text-pink-600" />
                           ) : (
@@ -909,10 +1123,19 @@ export default function AdminDashboard() {
                                   </div>
                                 </dl>
                                 <div className="mt-2 flex">
-                                  <Button size="sm" variant="outline" className="mr-2">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="mr-2"
+                                    onClick={() => verifyLicenseMutation.mutate(salon.id)}
+                                  >
                                     Verify License
                                   </Button>
-                                  <Button size="sm" variant="destructive">
+                                  <Button 
+                                    size="sm" 
+                                    variant="destructive"
+                                    onClick={() => rejectLicenseMutation.mutate(salon.id)}
+                                  >
                                     Reject
                                   </Button>
                                 </div>
@@ -940,7 +1163,11 @@ export default function AdminDashboard() {
                                   </div>
                                 </dl>
                                 <div className="mt-2">
-                                  <Button size="sm" variant="outline">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => verifyLicenseMutation.mutate(salon.id)}
+                                  >
                                     Reconsider
                                   </Button>
                                 </div>
@@ -957,7 +1184,16 @@ export default function AdminDashboard() {
                                   This salon has not yet submitted their license information. They need to complete this step
                                   to get full access to the invitation platform.
                                 </p>
-                                <Button size="sm" variant="outline">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Reminder sent",
+                                      description: `Email reminder sent to ${salon.name} to submit their license information.`,
+                                    });
+                                  }}
+                                >
                                   Send Reminder
                                 </Button>
                               </div>
@@ -1279,8 +1515,8 @@ export default function AdminDashboard() {
               
               {/* Data table */}
               {!clientIsLoading && !clientError && clients && clients.filter((client: Client) => client.isCurrentClient).length > 0 && (
-                <ScrollArea className="h-[300px]">
-                  <Table>
+                <ScrollArea className="max-h-[200px]">
+                  <Table className="text-xs">
                     <TableHeader>
                       <TableRow className="max-h-[30px]">
                         <TableHead className="max-h-[30px] py-1 text-center">Name</TableHead>
@@ -1558,8 +1794,8 @@ export default function AdminDashboard() {
               
               {/* Data table */}
               {!giftsIsLoading && !giftsError && pendingGifts && pendingGifts.length > 0 && (
-                <ScrollArea className="h-[300px]">
-                  <Table>
+                <ScrollArea className="max-h-[200px]">
+                  <Table className="text-xs">
                     <TableHeader>
                       <TableRow className="max-h-[30px]">
                         <TableHead className="max-h-[30px] py-1 text-center">From</TableHead>
@@ -2064,5 +2300,112 @@ export default function AdminDashboard() {
       </main>
       <Footer />
     </div>
+  );
+    {licenseViewSalon && (
+      <AlertDialog open={!!licenseViewSalon} onOpenChange={(open) => !open && setLicenseViewSalon(null)}>
+        <AlertDialogContent className="max-w-xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>License Information - {licenseViewSalon.name}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Review and manage license information for this salon.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="py-4">
+            {/* License Status */}
+            <div className="mb-4">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Current Status</h3>
+              <div className={`px-3 py-2 rounded-md border ${
+                licenseViewSalon.licenseStatus === 'verified' ? 'bg-green-50 border-green-100 text-green-800' :
+                licenseViewSalon.licenseStatus === 'pending' ? 'bg-yellow-50 border-yellow-100 text-yellow-800' :
+                licenseViewSalon.licenseStatus === 'rejected' ? 'bg-red-50 border-red-100 text-red-800' :
+                'bg-gray-50 border-gray-100 text-gray-800'
+              }`}>
+                <span className="font-medium">
+                  {licenseViewSalon.licenseStatus === 'verified' && 'Verified'}
+                  {licenseViewSalon.licenseStatus === 'pending' && 'Pending Verification'}
+                  {licenseViewSalon.licenseStatus === 'rejected' && 'Rejected'}
+                  {(!licenseViewSalon.licenseStatus || licenseViewSalon.licenseStatus === 'not_submitted') && 'Not Submitted'}
+                </span>
+              </div>
+            </div>
+            
+            {/* License Information */}
+            <div className="mb-4">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">License Details</h3>
+              <dl className="space-y-2 border rounded-md p-3 bg-gray-50">
+                <div className="flex">
+                  <dt className="w-32 font-medium text-gray-600">License Number:</dt>
+                  <dd>{licenseViewSalon.licenseNumber || 'Not provided'}</dd>
+                </div>
+                <div className="flex">
+                  <dt className="w-32 font-medium text-gray-600">State:</dt>
+                  <dd>{licenseViewSalon.licenseState || 'Not provided'}</dd>
+                </div>
+                {licenseViewSalon.licenseVerificationDate && (
+                  <div className="flex">
+                    <dt className="w-32 font-medium text-gray-600">Verified On:</dt>
+                    <dd>{licenseViewSalon.licenseVerificationDate}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+            
+            {/* Actions */}
+            {(licenseViewSalon.licenseStatus === 'pending' || !licenseViewSalon.licenseStatus || licenseViewSalon.licenseStatus === 'not_submitted') && (
+              <div className="space-x-2 mt-4">
+                <Button 
+                  onClick={() => {
+                    verifyLicenseMutation.mutate(licenseViewSalon.id);
+                    setLicenseViewSalon(null);
+                  }}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Approve License
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    rejectLicenseMutation.mutate(licenseViewSalon.id);
+                    setLicenseViewSalon(null);
+                  }}
+                  className="text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  Reject License
+                </Button>
+              </div>
+            )}
+          </div>
+          
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    )}
+    
+    {/* Salon Suspension Confirmation Dialog */}
+    {salonToSuspend && (
+      <AlertDialog open={!!salonToSuspend} onOpenChange={(open) => !open && setSalonToSuspend(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Suspend Salon</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to suspend {salonToSuspend.name}? This will restrict their ability to send invitations
+              and process new client registrations.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => suspendSalonMutation.mutate(salonToSuspend.id)}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              Suspend Salon
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    )}
   );
 }

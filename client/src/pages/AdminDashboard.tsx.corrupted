@@ -169,8 +169,6 @@ export default function AdminDashboard() {
   const [clientToSuspend, setClientToSuspend] = useState<Client | null>(null);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [giftToDelete, setGiftToDelete] = useState<Gift | null>(null);
-  const [salonToSuspend, setSalonToSuspend] = useState<Salon | null>(null);
-  const [licenseViewSalon, setLicenseViewSalon] = useState<Salon | null>(null);
   
   // License verification mutations
   const verifyLicenseMutation = useMutation({
