@@ -17,6 +17,7 @@ import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 import { EnhancedDeleteConfirmation } from "@/components/admin/EnhancedDeleteConfirmation";
 import { AdminActionButton, ActionGroup } from "@/components/admin/AdminActionButton";
 import DebugControls from "@/components/admin/DebugControls";
+import DeveloperGuide from "@/components/admin/DeveloperGuide";
 import { 
   Select, 
   SelectContent, 
@@ -248,6 +249,7 @@ export default function AdminDashboard() {
   const [activityLogsOpen, setActivityLogsOpen] = useState(true);
   const [salonDirectoryOpen, setSalonDirectoryOpen] = useState(false);
   const [giftRequestsOpen, setGiftRequestsOpen] = useState(true);
+  const [developerGuideOpen, setDeveloperGuideOpen] = useState(false);
   
   // State to track which salon details are expanded (initially all closed)
   const [expandedSalon, setExpandedSalon] = useState<number | null>(null);
