@@ -4,9 +4,11 @@
 VMB is a comprehensive salon management platform that enables salons to manage services, clients, invitations, and promotional campaigns. The platform includes both admin and salon-specific dashboards with real-time monitoring capabilities.
 
 ## Recent Changes
-- Added server auto-refresh script for development stability
-- Working on implementing guide tab in admin dashboard
-- Setting up Storybook for component documentation and visualization
+- Fixed server startup issues - eliminated port conflicts
+- Added comprehensive Storybook setup for component documentation
+- Created interactive component stories for UI elements and VMB platform components
+- Configured Storybook with proper Tailwind CSS and TypeScript support
+- Set up component documentation with examples and interactive controls
 
 ## Project Architecture
 ### Frontend Structure
