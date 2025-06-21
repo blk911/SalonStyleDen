@@ -275,6 +275,7 @@ export default function AdminDashboard() {
         const logs = localStorage.getItem('adminDashboard_activityLogsOpen');
         const salons = localStorage.getItem('adminDashboard_salonDirectoryOpen');
         const gifts = localStorage.getItem('adminDashboard_giftRequestsOpen');
+        const devGuide = localStorage.getItem('adminDashboard_developerGuideOpen');
         const expanded = localStorage.getItem('adminDashboard_expandedSalon');
         
         if (styleOpt !== null) setStyleOptionsOpen(styleOpt === 'true');
@@ -285,6 +286,7 @@ export default function AdminDashboard() {
         if (logs !== null) setActivityLogsOpen(logs === 'true');
         if (salons !== null) setSalonDirectoryOpen(salons === 'true');
         if (gifts !== null) setGiftRequestsOpen(gifts === 'true');
+        if (devGuide !== null) setDeveloperGuideOpen(devGuide === 'true');
         if (expanded !== null) setExpandedSalon(parseInt(expanded, 10));
       } catch (error) {
         console.error('Error loading section states from localStorage:', error);
@@ -305,10 +307,11 @@ export default function AdminDashboard() {
       localStorage.setItem('adminDashboard_activityLogsOpen', activityLogsOpen.toString());
       localStorage.setItem('adminDashboard_salonDirectoryOpen', salonDirectoryOpen.toString());
       localStorage.setItem('adminDashboard_giftRequestsOpen', giftRequestsOpen.toString());
+      localStorage.setItem('adminDashboard_developerGuideOpen', developerGuideOpen.toString());
     } catch (error) {
       console.error('Error saving section states to localStorage:', error);
     }
-  }, [styleOptionsOpen, networkVisualizationOpen, codeGraphOpen, invitationsOpen, clientsOpen, activityLogsOpen, salonDirectoryOpen, giftRequestsOpen]);
+  }, [styleOptionsOpen, networkVisualizationOpen, codeGraphOpen, invitationsOpen, clientsOpen, activityLogsOpen, salonDirectoryOpen, giftRequestsOpen, developerGuideOpen]);
   
   // Save expanded salon state to localStorage when it changes
   useEffect(() => {
@@ -2226,6 +2229,16 @@ export default function AdminDashboard() {
                   )}
                 </div>
               </div>
+            </CollapsibleCard>
+
+            {/* Developer Guide Section */}
+            <CollapsibleCard
+              title="Developer Guide & Documentation"
+              description="Platform documentation, Storybook setup, and development resources"
+              isOpen={developerGuideOpen}
+              onToggle={() => setDeveloperGuideOpen(!developerGuideOpen)}
+            >
+              {developerGuideOpen && <DeveloperGuide />}
             </CollapsibleCard>
           </div>
         </div>
