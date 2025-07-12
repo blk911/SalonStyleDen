@@ -193,25 +193,27 @@ export default function TeaserCarousel() {
   const progressPercentage = ((currentSlide + 1) / campaignSlides.length) * 100;
 
   return (
-    <div 
+    <div className="w-full">
+      {/* Carousel Section */}
+      <div 
         className="relative overflow-hidden rounded-xl border shadow-xl"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-      {/* Small tagline indicator (hidden) */}
-      <div className="hidden">
-        {tagline}
-      </div>
+        {/* Small tagline indicator (hidden) */}
+        <div className="hidden">
+          {tagline}
+        </div>
 
-      <div className="absolute top-2 left-2 right-2 z-10">
-        <Progress 
-          value={progressPercentage} 
-          className="h-1.5 bg-gray-200/50"
-        />
-      </div>
+        <div className="absolute top-2 left-2 right-2 z-10">
+          <Progress 
+            value={progressPercentage} 
+            className="h-1.5 bg-gray-200/50"
+          />
+        </div>
 
-      <Carousel 
+        <Carousel 
         className="w-full" 
         opts={{
           loop: true,
@@ -262,6 +264,7 @@ export default function TeaserCarousel() {
           <CarouselNext className="relative border-0 bg-white/80 hover:bg-white text-pink-600" />
         </div>
       </Carousel>
+      </div>
 
       {/* Testimonial Cards - positioned after carousel */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -286,7 +289,7 @@ export default function TeaserCarousel() {
               </span>
             </button>
           </div>
-          
+
           {expandedCard === 'salon' && (
             <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-200">
               <p className="text-sm text-gray-700 italic mb-3">
@@ -321,7 +324,7 @@ export default function TeaserCarousel() {
               </span>
             </button>
           </div>
-          
+
           {expandedCard === 'client' && (
             <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-200">
               <p className="text-sm text-gray-700 italic mb-3">
