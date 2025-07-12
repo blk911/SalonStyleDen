@@ -1258,7 +1258,7 @@ export default function ClientRegistrationPage() {
                             />
                           </FormControl>
                           <div className="space-y-1 leading-none">
-                            <FormLabel className="text-xs font-medium cursor-pointer" onClick={() => {
+                            <FormLabel className="text-sm font-medium cursor-pointer" onClick={() => {
                               // Handle label click as a backup for the checkbox
                               const currentValue = form.getValues().acceptTerms;
                               console.log("Terms label clicked, setting checkbox to:", !currentValue);
