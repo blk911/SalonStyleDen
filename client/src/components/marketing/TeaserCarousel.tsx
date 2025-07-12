@@ -157,8 +157,7 @@ export default function TeaserCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [api, setApi] = useState<any>(null);
   const tagline = "a connection-driven personal gifting platform";
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  
 
   // Touch/swipe handling
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -266,78 +265,7 @@ export default function TeaserCarousel() {
       </Carousel>
       </div>
 
-      {/* Testimonial Cards - positioned after carousel */}
-      <div className="testimonial-section mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Salon Owner Benefits Card */}
-        <div className="vmb-testimonial-card vmb-salon-card bg-white rounded-lg shadow-md border transition-all duration-300 cursor-pointer hover:shadow-lg overflow-hidden">
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <span className="text-lg">👩‍💼</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-base text-blue-800 leading-tight">Salon Owner Benefits</h3>
-                <p className="text-xs text-gray-600 truncate">Michelle S., VMB Certified Stylist</p>
-              </div>
-            </div>
-            <button 
-              onClick={() => setExpandedCard(expandedCard === 'salon' ? null : 'salon')}
-              className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 transition-transform duration-200 hover:scale-110"
-            >
-              <span className="text-white text-[10px] font-bold leading-none">
-                {expandedCard === 'salon' ? '−' : '+'}
-              </span>
-            </button>
-          </div>
-
-          {expandedCard === 'salon' && (
-            <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-200">
-              <p className="text-sm text-gray-700 italic mb-3">
-                "VMB has transformed how I connect with clients. The personalized invitation feature makes client acquisition effortless, and I've seen a 40% increase in client retention! The system's intuitive design has streamlined my scheduling process so I can focus on what matters - delivering exceptional service."
-              </p>
-              <div className="flex items-center gap-1 text-yellow-500 text-sm">
-                <span>⭐⭐⭐⭐⭐</span>
-                <span className="text-gray-600 ml-2">Verified VMB Partner</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Client Success Stories Card */}
-        <div className="vmb-testimonial-card vmb-client-card bg-white rounded-lg shadow-md border transition-all duration-300 cursor-pointer hover:shadow-lg overflow-hidden">
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                <span className="text-lg">💅</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-base text-green-800 leading-tight">Client Success Stories</h3>
-                <p className="text-xs text-gray-600 truncate">Kendra T., Premium Client</p>
-              </div>
-            </div>
-            <button 
-              onClick={() => setExpandedCard(expandedCard === 'client' ? null : 'client')}
-              className="w-4 h-4 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0 transition-transform duration-200 hover:scale-110"
-            >
-              <span className="text-white text-[10px] font-bold leading-none">
-                {expandedCard === 'client' ? '−' : '+'}
-              </span>
-            </button>
-          </div>
-
-          {expandedCard === 'client' && (
-            <div className="px-4 pb-4 animate-in slide-in-from-top-2 duration-200">
-              <p className="text-sm text-gray-700 italic mb-3">
-                "I adore the personalized VMB experience! Receiving an invitation makes me feel valued and special. The style selection is intuitive and helps me explore new options. Since discovering VMB, I've scheduled all my appointments through the platform - it's become essential to my self-care routine and I recommend it to everyone!"
-              </p>
-              <div className="flex items-center gap-1 text-yellow-500 text-sm">
-                <span>⭐⭐⭐⭐⭐</span>
-                <span className="text-gray-600 ml-2">VMB Member since 2024</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      
     </div>
   );
 }
