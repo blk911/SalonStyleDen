@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/utils";
 import { Loader2, SendIcon } from "lucide-react";
+import { safeParse } from "../../../shared/utils/json.js";
 import {
   Dialog,
   DialogContent,
@@ -281,7 +282,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       const styleOptionsElement = document.getElementById('styleOptions') as HTMLInputElement;
       if (styleOptionsElement && styleOptionsElement.value) {
         try {
-          const styleData = JSON.parse(styleOptionsElement.value);
+          const styleData = safeParse(styleOptionsElement.value);
           
           // Make sure we have a valid style ID (not -1 which is the initialization value)
           if (styleData && styleData.styleId && styleData.styleId !== -1) {

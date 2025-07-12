@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { InstructionPopup } from "./InstructionPopup";
 import { InfoIcon, ArrowRightCircle, CheckCircle2 } from "lucide-react";
+import { safeParse } from "../../../shared/utils/json.js";
 
 // Define the structure of a tour step
 interface TourStep {
@@ -38,7 +39,7 @@ export function GuidedTour({
     try {
       const completedTours = localStorage.getItem("vmb-completed-tours");
       if (completedTours) {
-        const parsed = JSON.parse(completedTours);
+        const parsed = safeParse<string[]>(completedTours) ?? [];
         if (parsed.includes(tourId)) {
           setHasCompletedTour(true);
         }
@@ -59,7 +60,7 @@ export function GuidedTour({
   const markTourAsCompleted = () => {
     try {
       const completedTours = localStorage.getItem("vmb-completed-tours");
-      const parsed = completedTours ? JSON.parse(completedTours) : [];
+      const parsed = completedTours ? safeParse<string[]>(completedTours) ?? [] : [];
       if (!parsed.includes(tourId)) {
         parsed.push(tourId);
         localStorage.setItem("vmb-completed-tours", JSON.stringify(parsed));
