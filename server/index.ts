@@ -75,15 +75,24 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Start server on port 5000 or environment PORT
-  const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
+  // Import port monitoring utilities
+  const { ensurePortAvailable } = await import('./monitor-ports.js');
+
+  // Start server on available port starting from 5000 or environment PORT
+  const preferredPort = process.env.PORT ? parseInt(process.env.PORT) : 5000;
   
-  server.listen({
-    port,
-    host: "0.0.0.0",
-  }, () => {
-    log(`Server is running on port ${port}`);
-  });
+  try {
+    const availablePort = await ensurePortAvailable(preferredPort);
+    server.listen({
+      port: availablePort,
+      host: "0.0.0.0",
+    }, () => {
+      log(`Server is running on port ${availablePort}`);
+    });
+  } catch (error) {
+    log(`Failed to start server: ${error}`);
+    process.exit(1);
+  }
 
   // Simple startup verification
   startupMonitor.verifyService('HTTP Server', async () => {
