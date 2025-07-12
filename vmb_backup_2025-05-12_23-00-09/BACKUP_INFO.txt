@@ -1,4 +1,0 @@
-VMB Backup
-Timestamp: 2025-05-12_23-00-09
-Created on: Mon 12 May 2025 11:00:09 PM UTC
-Backup directory: vmb_backup_2025-05-12_23-00-09
