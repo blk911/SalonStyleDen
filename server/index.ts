@@ -75,24 +75,42 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Import port monitoring utilities
-  const { ensurePortAvailable } = await import('./monitor-ports.js');
-
-  // Start server on available port starting from 5000 or environment PORT
-  const preferredPort = process.env.PORT ? parseInt(process.env.PORT) : 5000;
+  // Force port 5000 for Replit workflow compatibility
+  const port = 5000;
   
-  try {
-    const availablePort = await ensurePortAvailable(preferredPort);
-    server.listen({
-      port: availablePort,
-      host: "0.0.0.0",
-    }, () => {
-      log(`Server is running on port ${availablePort}`);
+  // Kill any existing processes and start fresh
+  process.on('SIGTERM', () => {
+    log('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+      process.exit(0);
     });
-  } catch (error) {
-    log(`Failed to start server: ${error}`);
-    process.exit(1);
-  }
+  });
+
+  server.listen({
+    port,
+    host: "0.0.0.0",
+  }, () => {
+    log(`Server is running on port ${port}`);
+    console.log(`Server listening on port ${port}`);
+  });
+
+  server.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      log(`Port ${port} is in use. Attempting graceful restart...`);
+      setTimeout(() => {
+        server.close();
+        server.listen({
+          port,
+          host: "0.0.0.0",
+        }, () => {
+          log(`Server restarted on port ${port}`);
+        });
+      }, 1000);
+    } else {
+      log(`Server error: ${err.message}`);
+      throw err;
+    }
+  });
 
   // Simple startup verification
   startupMonitor.verifyService('HTTP Server', async () => {
