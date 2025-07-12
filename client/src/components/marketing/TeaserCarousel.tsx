@@ -261,7 +261,7 @@ export default function TeaserCarousel() {
         </div>
       </Carousel>
 
-      {/* Existing testimonial cards with collapse functionality */}
+      {/* Collapsible testimonial cards */}
       <div className="mt-6 space-y-4">
         {/* Salon Owner Benefits Card */}
         <div 
@@ -269,6 +269,7 @@ export default function TeaserCarousel() {
           onMouseEnter={() => setSalonCardExpanded(true)}
           onMouseLeave={() => setSalonCardExpanded(false)}
         >
+          {/* Always visible header */}
           <div className="flex items-center space-x-4 p-4 cursor-pointer">
             <img 
               src="/assets/tiffany_profile.png" 
@@ -279,12 +280,13 @@ export default function TeaserCarousel() {
               <h3 className="text-lg font-semibold text-blue-600">Salon Owner Benefits</h3>
               <p className="text-sm text-gray-500">Michelle S., VMB Certified Stylist</p>
             </div>
-            <div className="text-blue-600 text-xl transition-transform duration-200">
+            <div className="text-blue-600 text-xl font-bold transition-transform duration-200">
               {salonCardExpanded ? '−' : '+'}
             </div>
           </div>
 
-          <div className={`transition-all duration-300 ease-in-out ${
+          {/* Collapsible content */}
+          <div className={`transition-all duration-500 ease-in-out ${
             salonCardExpanded 
               ? 'max-h-96 opacity-100' 
               : 'max-h-0 opacity-0'
@@ -295,13 +297,13 @@ export default function TeaserCarousel() {
                 acquisition effortless, and I've seen a 40% increase in client retention! The system's intuitive design has 
                 streamlined my scheduling process so I can focus on what matters - delivering exceptional service."
               </p>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 mb-3">
                 {[...Array(5)].map((_, i) => (
                   <span key={i} className="text-yellow-400">⭐</span>
                 ))}
                 <span className="text-sm text-gray-500 ml-2">Verified VMB Partner</span>
               </div>
-              <button className="mt-3 bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors">
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors">
                 See How Easy! →
               </button>
             </div>
@@ -314,6 +316,7 @@ export default function TeaserCarousel() {
           onMouseEnter={() => setClientCardExpanded(true)}
           onMouseLeave={() => setClientCardExpanded(false)}
         >
+          {/* Always visible header */}
           <div className="flex items-center space-x-4 p-4 cursor-pointer">
             <img 
               src="/assets/kendra.png" 
@@ -324,12 +327,13 @@ export default function TeaserCarousel() {
               <h3 className="text-lg font-semibold text-green-600">Client Success Stories</h3>
               <p className="text-sm text-gray-500">Kendra T., Premium Client</p>
             </div>
-            <div className="text-green-600 text-xl transition-transform duration-200">
+            <div className="text-green-600 text-xl font-bold transition-transform duration-200">
               {clientCardExpanded ? '−' : '+'}
             </div>
           </div>
 
-          <div className={`transition-all duration-300 ease-in-out ${
+          {/* Collapsible content */}
+          <div className={`transition-all duration-500 ease-in-out ${
             clientCardExpanded 
               ? 'max-h-96 opacity-100' 
               : 'max-h-0 opacity-0'
@@ -341,13 +345,13 @@ export default function TeaserCarousel() {
                 all my appointments through the platform - it's become essential to my self-care routine and I 
                 recommend it to everyone!"
               </p>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 mb-3">
                 {[...Array(5)].map((_, i) => (
                   <span key={i} className="text-yellow-400">⭐</span>
                 ))}
                 <span className="text-sm text-gray-500 ml-2">VMB Member since 2024</span>
               </div>
-              <button className="mt-3 bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700 transition-colors">
+              <button className="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700 transition-colors">
                 Create Your Gift! 🎁
               </button>
             </div>
