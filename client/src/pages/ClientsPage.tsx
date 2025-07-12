@@ -136,7 +136,7 @@ export default function ClientsPage() {
 
             {/* Cards now always stack vertically on all devices */}
             <div className="grid grid-cols-1 gap-6">
-              {/* Salon Testimonial */}
+              {/* Salon Owner Testimonial */}
               <CollapsibleCard
                 title="Salon Owner Benefits"
                 description="Michelle S., VMB Certified Stylist"
@@ -144,14 +144,10 @@ export default function ClientsPage() {
                 onToggle={() => setSalonCardOpen(!salonCardOpen)}
                 className="vmb-testimonial-card vmb-salon-card bg-gradient-to-br from-blue-50 via-blue-25 to-white border-l-4 border-l-blue-500 shadow-lg hover:shadow-xl transition-all duration-300"
                 action={
-                  <Link href="/salon/2">
-                    <Button 
-                      variant="default" 
-                      size="sm" 
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm hover:shadow transition-all"
-                    >
-                      VIEW
-                    </Button>
+                  <Link href="/client-registration">
+                    <span className="text-xs font-medium text-blue-600 hover:text-blue-800 cursor-pointer hover:underline">
+                      Register
+                    </span>
                   </Link>
                 }
               >
@@ -181,14 +177,10 @@ export default function ClientsPage() {
                 onToggle={() => setClientCardOpen(!clientCardOpen)}
                 className="vmb-testimonial-card vmb-client-card bg-gradient-to-br from-green-50 via-green-25 to-white border-l-4 border-l-green-500 shadow-lg hover:shadow-xl transition-all duration-300"
                 action={
-                  <Link href="/salon/2">
-                    <Button 
-                      variant="default" 
-                      size="sm" 
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm hover:shadow transition-all"
-                    >
-                      VIEW
-                    </Button>
+                  <Link href="/client-registration">
+                    <span className="text-xs font-medium text-green-600 hover:text-green-800 cursor-pointer hover:underline">
+                      Register
+                    </span>
                   </Link>
                 }
               >
