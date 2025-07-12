@@ -106,10 +106,7 @@ const CarouselSlide = ({
           slide.bgClass
         )}
       >
-        {/* Visual Indicator (hidden) */}
-        <div className="hidden">
-          {index + 1}/{totalSlides}
-        </div>
+        
 
         <div className="flex w-full h-full">
           {/* Text Content Side */}
@@ -200,10 +197,7 @@ export default function TeaserCarousel() {
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        {/* Small tagline indicator (hidden) */}
-        <div className="hidden">
-          {tagline}
-        </div>
+        
 
         <div className="absolute top-2 left-2 right-2 z-10">
           <Progress 
