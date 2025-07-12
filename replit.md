@@ -9,6 +9,9 @@ VMB is a comprehensive salon management platform that enables salons to manage s
 - Created interactive component stories for UI elements and VMB platform components
 - Configured Storybook with proper Tailwind CSS and TypeScript support
 - Set up component documentation with examples and interactive controls
+- Removed unwanted toast notification from carousel component (July 12, 2025)
+- Eliminated ThoughtBubble component from ClientsPage that was showing "Ven Me Baby gifting" message
+- Cleaned up imports and state management for better code organization
 
 ## Project Architecture
 ### Frontend Structure
