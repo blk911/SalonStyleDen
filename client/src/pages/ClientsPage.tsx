@@ -4,14 +4,8 @@ import { Link } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { 
-  Card, 
-  CardContent, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { CollapsibleCard } from "@/components/ui/card-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -62,6 +56,8 @@ export default function ClientsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all-clients");
   const [showThoughtBubble, setShowThoughtBubble] = useState(true);
+  const [salonCardOpen, setSalonCardOpen] = useState(false);
+  const [clientCardOpen, setClientCardOpen] = useState(false);
 
   // Fetch clients data
   const { data: clients = [], isLoading: clientsLoading } = useQuery<Client[]>({
@@ -74,7 +70,7 @@ export default function ClientsPage() {
       return response.json();
     }
   });
-  
+
   // Fetch invitations data
   const { data: invitations = [], isLoading: invitationsLoading } = useQuery<Invitation[]>({
     queryKey: ['/api/invitations'],
@@ -93,7 +89,7 @@ export default function ClientsPage() {
     client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.phone.includes(searchTerm)
   );
-  
+
   // Filter invitations based on search term
   const filteredInvitations = invitations.filter(invite => 
     invite.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -101,7 +97,7 @@ export default function ClientsPage() {
     invite.phone.includes(searchTerm) ||
     (invite.inviteHash && invite.inviteHash.toLowerCase().includes(searchTerm.toLowerCase()))
   );
-  
+
   // Get statistics
   const totalClients = clients.length;
   const activeClients = clients.filter(client => client.isCurrentClient).length;
@@ -111,27 +107,27 @@ export default function ClientsPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      
+
       <main className="flex-grow">
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-[#ffd8e6] to-white py-3 lg:py-3 border-b border-pink-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="flex justify-center" style={{ marginBottom: '15px' }}>
               <h1 className="logo logo-lg">
-                <span className="ven-me">Ven Me, </span>
+                <span className="ven-me">Ven Me, </span> 
                 <span className="baby">Baby!</span>
               </h1>
             </div>
             <p className="text-lg md:text-xl max-w-2xl mx-auto mb-4 leading-relaxed text-gray-700">Empowering. Personal. Connection.</p>
           </div>
         </section>
-        
+
         {/* Main Content */}
         <section className="py-4 md:py-8">
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             {/* Marketing Teaser Campaign Carousel */}
             <div className="mb-6">
-              
+
               {/* Import and use TeaserCarousel component */}
               <div className="overflow-hidden rounded-xl border shadow-md">
                 <TeaserCarousel />
@@ -141,89 +137,71 @@ export default function ClientsPage() {
             {/* Cards now always stack vertically on all devices */}
             <div className="grid grid-cols-1 gap-2">
               {/* Salon Testimonial */}
-              <Card className="bg-gradient-to-br from-blue-50 to-white shadow-md hover:shadow-xl transition-all border border-blue-100 h-full">
-                <CardContent className="p-2 flex flex-col h-full">
-                  <div className="flex flex-col sm:flex-row items-center mb-2">
-                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-blue-200 mb-1 sm:mb-0 sm:mr-2 flex-shrink-0">
-                      <img 
-                        src="/assets/MS-VMBLTD.jpg" 
-                        alt="Michelle, Salon Owner" 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="text-center sm:text-left flex-grow">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <h3 className="text-base md:text-lg font-serif font-semibold text-blue-800">Salon Owner Benefits</h3>
-                          <p className="text-blue-600 text-xs font-medium">Michelle S., VMB Certified Stylist</p>
-                        </div>
-                        <div className="mt-1 sm:mt-0 sm:ml-2">
-                          <Link href="/salon/2">
-                            <Button className="px-2 bg-blue-600 hover:bg-blue-700 text-white py-0.5 text-xs flex items-center">
-                              See How Easy!
-                              <svg className="ml-1" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M5 12h14m-7-7 7 7-7 7"/>
-                              </svg>
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
+              <CollapsibleCard
+                title="Salon Owner Benefits"
+                description="Michelle S., VMB Certified Stylist"
+                isOpen={salonCardOpen}
+                onToggle={() => setSalonCardOpen(!salonCardOpen)}
+                className="bg-gradient-to-br from-blue-50 to-white shadow-md hover:shadow-xl transition-all border border-blue-100"
+                action={
+                  <Link href="/salon/2">
+                    <span className="text-blue-600 hover:text-blue-800 text-sm font-medium cursor-pointer">VIEW</span>
+                  </Link>
+                }
+              >
+                <div className="flex flex-col sm:flex-row items-center">
+                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-blue-200 mb-1 sm:mb-0 sm:mr-2 flex-shrink-0">
+                    <img 
+                      src="/assets/MS-VMBLTD.jpg" 
+                      alt="Michelle, Salon Owner" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <div className="text-gray-700 flex-grow mb-1">
-                    <p className="italic text-xs leading-tight">"VMB has transformed how I connect with clients. The personalized invitation feature makes client acquisition effortless, and I've seen a 40% increase in client retention! The system's intuitive design has streamlined my scheduling process so I can focus on what matters - delivering exceptional service."</p>
-                    <div className="mt-1 flex flex-col sm:flex-row items-center">
-                      <div className="text-yellow-500 mr-1">★★★★★</div>
-                      <span className="text-xs text-gray-500">Verified VMB Partner</span>
-                    </div>
+                  <div className="text-center sm:text-left flex-grow">
+                    <p className="text-blue-700 text-sm">
+                      Discover how Ven Me, Baby transforms salon business by creating deeper client connections, 
+                      increasing service bookings, and building lasting relationships through personalized gift experiences.
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </CollapsibleCard>
 
               {/* Client Testimonial */}
-              <Card className="bg-gradient-to-br from-green-50 to-white shadow-md hover:shadow-xl transition-all border border-green-100 h-full">
-                <CardContent className="p-2 flex flex-col h-full">
-                  <div className="flex flex-col sm:flex-row items-center mb-2">
-                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-green-200 mb-1 sm:mb-0 sm:mr-2 flex-shrink-0">
-                      <img 
-                        src="/assets/kendra.png" 
-                        alt="Kendra, Client" 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="text-center sm:text-left flex-grow">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <h3 className="text-base md:text-lg font-serif font-semibold text-green-800">Client Success Stories</h3>
-                          <p className="text-green-600 text-xs font-medium">Kendra T., Premium Client</p>
-                        </div>
-                        <div className="mt-1 sm:mt-0 sm:ml-2">
-                          <Link href="/salon/2">
-                            <Button className="px-2 bg-green-600 hover:bg-green-700 text-white py-0.5 text-xs">
-                              Create Your Gift!
-                              <GiftIcon className="ml-1 h-2.5 w-2.5" stroke="gold" strokeWidth={2.5} />
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
+              <CollapsibleCard
+                title="Client Success Stories"
+                description="Kendra T., Premium Client"
+                isOpen={clientCardOpen}
+                onToggle={() => setClientCardOpen(!clientCardOpen)}
+                className="bg-gradient-to-br from-green-50 to-white shadow-md hover:shadow-xl transition-all border border-green-100"
+                action={
+                  <Link href="/salon/2">
+                    <span className="text-green-600 hover:text-green-800 text-sm font-medium cursor-pointer">VIEW</span>
+                  </Link>
+                }
+              >
+                <div className="flex flex-col sm:flex-row items-center">
+                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-green-200 mb-1 sm:mb-0 sm:mr-2 flex-shrink-0">
+                    <img 
+                      src="/assets/kendra.png" 
+                      alt="Kendra, Client" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <div className="text-gray-700 flex-grow mb-1">
-                    <p className="italic text-xs leading-tight">"I adore the personalized VMB experience! Receiving an invitation makes me feel valued and special. The style selection is intuitive and helps me explore new options. Since discovering VMB, I've scheduled all my appointments through the platform - it's become essential to my self-care routine and I recommend it to everyone!"</p>
-                    <div className="mt-1 flex flex-col sm:flex-row items-center">
-                      <div className="text-yellow-500 mr-1">★★★★★</div>
-                      <span className="text-xs text-gray-500">VMB Member since 2024</span>
-                    </div>
+                  <div className="text-center sm:text-left flex-grow">
+                    <p className="text-green-700 text-sm">
+                      Experience the joy of receiving personalized nail service gifts from people who care. 
+                      See how clients build stronger connections and enjoy premium beauty experiences through Ven Me, Baby.
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </CollapsibleCard>
             </div>
           </div>
         </section>
       </main>
-      
+
       <Footer />
-      
+
       {/* Welcome ThoughtBubble - Positioned to right side of carousel with padding */}
       <ThoughtBubble
         position="top-right"
@@ -264,26 +242,26 @@ function ClientCard({ client }: { client: Client }) {
           </Badge>
         </div>
       </CardHeader>
-      
+
       <CardContent className="pb-2">
         <div className="space-y-1 text-sm">
           <div className="flex items-center text-gray-600">
             <PhoneIcon className="h-3 w-3 mr-2" />
             <span>{formatPhoneNumber(client.phone)}</span>
           </div>
-          
+
           <div className="flex items-center text-gray-600">
             <AtSignIcon className="h-3 w-3 mr-2" />
             <span className="truncate">{client.email}</span>
           </div>
-          
+
           <div className="flex items-center text-gray-600">
             <CalendarIcon className="h-3 w-3 mr-2" />
             <span>Since {new Date(client.createdAt).toLocaleDateString()}</span>
           </div>
         </div>
       </CardContent>
-      
+
       <CardFooter className="pt-2">
         <Link href={`/client/${client.id}`}>
           <Button variant="outline" size="sm" className="w-full">View Profile</Button>
@@ -320,27 +298,27 @@ function InvitationCard({ invitation }: { invitation: Invitation }) {
           </Badge>
         </div>
       </CardHeader>
-      
+
       <CardContent className="pb-2">
         <div className="space-y-1 text-sm">
           <div className="flex items-center text-gray-600">
             <PhoneIcon className="h-3 w-3 mr-2" />
             <span>{formatPhoneNumber(invitation.phone)}</span>
           </div>
-          
+
           {invitation.email && (
             <div className="flex items-center text-gray-600">
               <AtSignIcon className="h-3 w-3 mr-2" />
               <span className="truncate">{invitation.email}</span>
             </div>
           )}
-          
+
           {invitation.inviteHash && (
             <div className="flex items-center text-gray-500 text-xs mt-1">
               <span className="font-mono">#{invitation.inviteHash}</span>
             </div>
           )}
-          
+
           {invitation.firstServiceDate && (
             <div className="flex items-center text-gray-600">
               <CalendarIcon className="h-3 w-3 mr-2" />
@@ -349,7 +327,7 @@ function InvitationCard({ invitation }: { invitation: Invitation }) {
           )}
         </div>
       </CardContent>
-      
+
       <CardFooter className="pt-2">
         <Button variant="outline" size="sm" className="w-full">View Details</Button>
       </CardFooter>
