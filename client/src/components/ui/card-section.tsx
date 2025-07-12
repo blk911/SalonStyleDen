@@ -29,7 +29,7 @@ export function CollapsibleCard({
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="text-base font-semibold">{title}</CardTitle> {/* Reduced font size from text-lg to text-base */}
-              {description && <CardDescription className="text-sm">{description}</CardDescription>}
+              {description && <CardDescription className="text-xs">{description}</CardDescription>}
             </div>
             <div className="flex items-center gap-2"> {/* Reduced gap from gap-3 to gap-2 */}
               {action && (
