@@ -157,6 +157,7 @@ export default function TeaserCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [api, setApi] = useState<any>(null);
   const tagline = "a connection-driven personal gifting platform";
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   // Touch/swipe handling
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -260,6 +261,95 @@ export default function TeaserCarousel() {
           <CarouselNext className="relative border-0 bg-white/80 hover:bg-white text-pink-600" />
         </div>
       </Carousel>
+
+      {/* Testimonial Cards - positioned after carousel */}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Salon Owner Benefits Card */}
+        <div 
+          className={cn(
+            "vmb-testimonial-card vmb-salon-card bg-white rounded-lg shadow-md p-4 border transition-all duration-300 cursor-pointer",
+            hoveredCard === 'salon' ? "shadow-lg transform scale-105" : "hover:shadow-lg"
+          )}
+          onMouseEnter={() => setHoveredCard('salon')}
+          onMouseLeave={() => setHoveredCard(null)}
+        >
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+              <span className="text-2xl">👩‍💼</span>
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-lg text-blue-800">Salon Owner Benefits</h3>
+              <p className="text-sm text-gray-600">Michelle S., VMB Certified Stylist</p>
+            </div>
+            <div className={cn(
+              "w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center transition-transform duration-200",
+              hoveredCard === 'salon' ? "rotate-45" : ""
+            )}>
+              <span className="text-white text-sm font-bold">+</span>
+            </div>
+          </div>
+
+          {hoveredCard === 'salon' && (
+            <div className="mt-4 space-y-3 animate-in slide-in-from-top duration-200">
+              <p className="text-gray-700 text-sm leading-relaxed">
+                "VMB has transformed how I connect with clients. The personalized invitation feature makes client acquisition effortless, and I've seen a 40% increase in client retention! The system's intuitive design has streamlined my scheduling process so I can focus on what matters - delivering exceptional service."
+              </p>
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} className="text-yellow-400 text-sm">⭐</span>
+                ))}
+                <span className="text-sm text-gray-600 ml-2">Verified VMB Partner</span>
+              </div>
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                See How Easy! →
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Client Success Stories Card */}
+        <div 
+          className={cn(
+            "vmb-testimonial-card vmb-client-card bg-white rounded-lg shadow-md p-4 border transition-all duration-300 cursor-pointer",
+            hoveredCard === 'client' ? "shadow-lg transform scale-105" : "hover:shadow-lg"
+          )}
+          onMouseEnter={() => setHoveredCard('client')}
+          onMouseLeave={() => setHoveredCard(null)}
+        >
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+              <span className="text-2xl">💅</span>
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-lg text-green-800">Client Success Stories</h3>
+              <p className="text-sm text-gray-600">Kendra T., Premium Client</p>
+            </div>
+            <div className={cn(
+              "w-6 h-6 rounded-full bg-green-600 flex items-center justify-center transition-transform duration-200",
+              hoveredCard === 'client' ? "rotate-45" : ""
+            )}>
+              <span className="text-white text-sm font-bold">+</span>
+            </div>
+          </div>
+
+          {hoveredCard === 'client' && (
+            <div className="mt-4 space-y-3 animate-in slide-in-from-top duration-200">
+              <p className="text-gray-700 text-sm leading-relaxed">
+                "I adore the personalized VMB experience! Receiving an invitation makes me feel valued and special. The style selection is intuitive and helps me explore new options. Since discovering VMB, I've scheduled all my appointments through the platform - it's become essential to my self-care routine and I recommend it to everyone!"
+              </p>
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} className="text-yellow-400 text-sm">⭐</span>
+                ))}
+                <span className="text-sm text-gray-600 ml-2">VMB Member since 2024</span>
+              </div>
+              <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                Create Your Gift! 🎁
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

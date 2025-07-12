@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
@@ -159,13 +158,13 @@
   :root {
     --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   }
-  
+
   body {
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  
+
   * {
     @apply border-border;
   }
@@ -181,76 +180,117 @@
   .container {
     @apply px-2 py-2;
   }
-  
+
   /* Form specific padding reductions */
   form {
     @apply p-2;
   }
-  
+
   /* Input field padding adjustments */
   input, select, textarea {
     @apply px-2 py-1;
   }
-  
+
   /* Card and panel padding reductions */
   .card, .form-container {
     @apply p-2;
   }
-  
+
   /* Navigation components */
   nav, header, footer {
     @apply px-2 py-1;
   }
-  
+
   /* Button padding adjustment */
   button {
     @apply px-2 py-1;
   }
-  
+
   /* Centered content sections */
   .content-section {
     @apply flex flex-wrap justify-center items-center gap-2 text-xs;
   }
-  
+
   /* Standardized card styles */
   .card-content {
     @apply p-1;
   }
-  
+
   /* Compact text styles */
   .text-compact {
     @apply text-xs;
   }
-  
+
   .text-mini {
     @apply text-[10px];
   }
-  
+
   .text-micro {
     @apply text-[9px] text-gray-500;
   }
-  
+
   /* Standard vertical spacing */
   .vspace-xs {
     @apply mt-1;
   }
-  
+
   .vspace-sm {
     @apply mt-2;
   }
-  
+
   /* Section dividers */
   .section-divider {
     @apply border-t border-pink-100 pt-1 mt-2;
   }
-  
+
   /* Centered button containers */
   .button-container {
     @apply mt-2 text-center;
   }
-  
+
   /* Content grids */
   .grid-cols-responsive {
     @apply grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-2;
+  }
+
+  .card {
+    @apply bg-background text-card-foreground;
+  }
+
+  /* Testimonial Cards - Custom styling that won't affect carousel */
+  .vmb-testimonial-card {
+    position: relative;
+    z-index: 1;
+  }
+
+  .vmb-salon-card {
+    /* Custom styles for salon owner card */
+    border-left: 4px solid #2563eb;
+  }
+
+  .vmb-client-card {
+    /* Custom styles for client card */
+    border-left: 4px solid #16a34a;
+  }
+
+  /* Hover effects specific to testimonial cards */
+  .vmb-testimonial-card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Animation classes for testimonial cards */
+  .vmb-testimonial-card .animate-in {
+    animation: slideInFromTop 0.3s ease-out;
+  }
+
+  @keyframes slideInFromTop {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
