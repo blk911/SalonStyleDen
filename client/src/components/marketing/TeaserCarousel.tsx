@@ -157,7 +157,7 @@ export default function TeaserCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [api, setApi] = useState<any>(null);
   const tagline = "a connection-driven personal gifting platform";
-
+  
 
   // Touch/swipe handling
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -265,7 +265,7 @@ export default function TeaserCarousel() {
       </Carousel>
       </div>
 
-
+      
     </div>
   );
 }
