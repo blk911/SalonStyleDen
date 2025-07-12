@@ -1,0 +1,59 @@
+Understanding the problem
+The error message "Error loading owner photo in hero" indicates that there was a problem loading the owner's photo in the hero section of your application. Looking at the stack trace, the error originated from SalonDashboard.tsx on line 665 within the onError function. This suggests that an image loading error occurred and triggered the onError handler. The error is further propagated through React's event handling system, as evidenced by the presence of functions like dispatchEvent, batchedUpdates, and processDispatchQueue.
+
+The provided code snippet doesn't directly relate to image loading, but rather to console overriding and global error handling. Therefore, it's unlikely the issue resides within this code. The error is likely within the SalonDashboard.tsx file, where the image is being loaded and the onError handler is defined.
+
+How to verify
+To confirm that this is indeed an image loading error, you can:
+
+Inspect the Network tab in Chrome DevTools: Check if the image request for the owner's photo is failing (e.g., returning a 404 or other error status). This will tell you if the image URL is incorrect or if there are server-side issues.
+Examine the SalonDashboard.tsx file: Look at the code responsible for rendering the owner's photo in the hero section. Pay close attention to how the image URL is constructed and passed to the img element or relevant component. Also, examine the onError handler logic on line 665 to see how it handles image loading failures. It might be logging the error, setting a fallback image, or performing other actions.
+Suggested fix
+Without seeing the relevant code from SalonDashboard.tsx, it's difficult to provide a precise fix. However, here are some common causes and potential solutions:
+
+Incorrect image URL: The most likely cause is an invalid URL for the owner's photo. Ensure the URL is correct, points to a valid image file, and is accessible from the browser. You might need to update the URL if the image has been moved or renamed.
+Network issues: Transient network problems could prevent the image from loading. If this is the case, implementing a retry mechanism or displaying a placeholder image with a message to try again later could improve the user experience.
+Server-side problems: If the image URL is correct but still fails to load, there might be an issue on the server hosting the image. Verify that the image file exists, has the correct permissions, and that the web server is functioning correctly.
+Error handling in onError: If the issue is with the image URL itself, consider implementing a fallback image in the onError handler to improve the user experience. For example, if the image fails to load, you can display a default avatar or a placeholder image.
+Example fix in SalonDashboard.tsx (assuming a simple img element):
+
+Code
+
+tsx
+// In SalonDashboard.tsx, within the component rendering the owner's photo:
+import React, { useState } from 'react';
+
+function SalonDashboard() {
+  const [imageUrl, setImageUrl] = useState('/* your initial image URL here */');
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageError = () => {
+    console.error("Error loading owner photo"); // Existing error logging
+    setImageError(true);
+  };
+
+  const renderImage = () => {
+    if (imageError) {
+      return <img src="/path/to/fallback-image.png" alt="Owner" />; // Render fallback
+    }
+    return <img src={imageUrl} alt="Owner" onError={handleImageError} />;
+  };
+
+  return (
+    <div>
+      {/* ... other content ... */}
+      <div className="hero">
+        {renderImage()}
+        {/* ... other hero content ... */}
+      </div>
+      {/* ... rest of the component ... */}
+    </div>
+  );
+}
+Use code snippets with caution
+
+In this example, a state variable imageError is used to track if the image failed to load. If it does, a fallback image is rendered. The onError attribute on the img element triggers the handleImageError function, which updates the imageError state and sets the fallback. Remember to replace placeholders like /path/to/fallback-image.png and the initial image URL with your actual values.
+
+Summary
+The error "Error loading owner photo in hero" indicates a failure to load the owner's image, likely due to an incorrect URL or network issues. Verify the image URL, check for server-side problems, and consider implementing a fallback image in the onError handler within SalonDashboard.tsx for a better user experience.
+

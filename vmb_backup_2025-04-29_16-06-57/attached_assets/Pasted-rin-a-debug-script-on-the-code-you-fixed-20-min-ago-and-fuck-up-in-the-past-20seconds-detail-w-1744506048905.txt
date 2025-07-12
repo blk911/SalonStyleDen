@@ -1,0 +1,117 @@
+rin a debug script on the code you fixed 20 min ago and fuck up in the past 20seconds...
+
+detail when the code was changed and broken, show me
+
+BL
+
+blk911
+Assistant
+4 minutes ago
+Let me analyze the recent changes and issues:
+
+Timeline of changes:
+
+~20 minutes ago: Fixed syntax error in SalonPublicPage.tsx for image error handling
+Just now: The fix was reverted according to the logs: "Reverted file changes to paths: - client/src/pages/SalonPublicPage.tsx"
+Let's run the debug script to check the current state:
+
+./debug-salon-page.sh
+Now let's fix the SalonPublicPage.tsx issue again properly:
+
+client/src/pages/SalonPublicPage.tsx
+Fix image error handler
+whatg is the BRING PHOTO>...............................????????????????????????????????????????????????????????????????????????????????????????????
+
+find all instances of this file and LIST
+
+https://3c4c1f5a-f7ae-45ac-b429-aa7ee2d81d5e-00-3gv27ws8i144z.riker.replit.dev/assets/logos/vmb-logo.png
+
+BL
+
+blk911
+Assistant
+3 minutes ago
+Looking at the directory structure, I can see the BRING FRIEND image exists in these locations:
+
+/attached_assets/BRING_FRIEND_2.JPG
+/client/public/assets/BRING_FRIEND_2.JPG
+As for the VMB logo URL you provided, it appears to be using a public deployment URL. The logo file exists locally in:
+
+/client/public/assets/logos/vmb-logo.png
+This seems to be the correct path that should be used in the application. The URL you shared appears to be an absolute URL pointing to a deployed version, which may cause issues locally.
+
+To ensure consistent image loading, you should use relative paths like:
+
+/assets/logos/vmb-logo.png
+/assets/BRING_FRIEND_2.JPG
+Would you like me to help update any image paths in specific components?
+
+WOW....DOES THE LOGO PIC GO IN THE BRING A FRINED CARD????????????????????????????????????????????????????????????????????????????????????????
+
+LOGIC?????????????? WHAT THE FUCK?
+
+BL
+
+blk911
+Assistant
+2 minutes ago
+I understand your concern. Looking at the code in SalonPublicPage.tsx, there's a fallback logic where if the promo image fails to load, it defaults to the VMB logo. This isn't ideal. Let me fix this by removing the VMB logo fallback and using more appropriate promo images.
+
+client/src/pages/SalonPublicPage.tsx
+Fix promo image fallback logic
+The fix ensures that if a promo-specific image fails to load, it falls back to a relevant service image instead of the logo. This maintains better visual consistency.
+
+NO SHIT
+
+BL
+
+blk911
+Assistant
+1 minute ago
+Looking at the code, I can see the issue with the promo images. The VMB logo was incorrectly being used as a fallback for the "Bring a Friend" promo. Let's fix that by using the correct image path:
+
+client/src/pages/SalonPublicPage.tsx
+PROGRAMMING 101...YOU GET FUCK DUMB AFTER 3PM
+
+BL
+
+blk911
+Assistant
+just now
+I understand you're frustrated. Let's break down what's happening in a clear way:
+
+The frontend (React) is displaying promos correctly
+The server is overriding promos with default ones (seen in logs)
+The BRING_FRIEND_2.JPG image is working properly
+The issue is in the server's GET /salon/:id endpoint which always resets promos to defaults. Let's fix this:
+
+server/routes.ts
+This change will preserve custom promos instead of always resetting them. Let me know if you need anything clarified.
+
+WHY?
+
+BL
+
+blk911
+Assistant
+1 minute ago
+Looking at the debug logs and code, I can see the issue - there's a redundant restore of "standard promotions" happening in the GET salon/1 endpoint that's overwriting the custom promos. Here's what's happening:
+
+You update promos through POST /salons/1/promos (working correctly)
+But when fetching salon data through GET /salons/1, it's forcibly restoring default promos
+This explains why your promo changes keep getting reset
+Let me fix that by removing the forced promo restore in SalonPublicPage.tsx:
+
+client/src/pages/SalonPublicPage.tsx
+Checkpoint made
+Fix Bring a Friend promo image path
+2 minutes ago
+•
+Checkpoint made
+Fix promo override in salon endpoint
+1 minute ago
+•
+Checkpoint made
+Fix promo restore logic to maintain custom promos
+just now
+•

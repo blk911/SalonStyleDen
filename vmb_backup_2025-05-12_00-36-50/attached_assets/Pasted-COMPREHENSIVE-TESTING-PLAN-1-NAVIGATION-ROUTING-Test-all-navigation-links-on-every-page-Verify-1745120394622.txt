@@ -1,0 +1,69 @@
+COMPREHENSIVE TESTING PLAN
+1. NAVIGATION & ROUTING
+Test all navigation links on every page
+Verify correct routing between pages
+Check mobile navigation behavior
+2. CLIENT DASHBOARD
+Test client profile display
+Test profile editing functionality
+Verify style selection cards display correctly
+Verify "Select This Style" button functionality for all styles
+Test confirmation dialog flow
+Test invitation creation process
+Test recent invitations display
+3. SALON DASHBOARD
+Test salon profile display and editing
+Test service management (add, edit, delete)
+Test promotion management
+Test client list display
+Test invitation management
+Test salon statistics display
+4. SALON PUBLIC PAGE
+Test service display for each salon
+Test promotion display
+Test style selection options
+Test "Select This Style" button for all styles
+Verify image loading for all services
+Test contact information display
+5. INVITATION SYSTEM
+Test invitation creation on salon dashboard
+Test invitation display in client dashboard
+Test invitation acceptance flow
+Test "Accept Invitation" button functionality
+Verify invitation hash generation
+Test invitation status tracking
+6. REGISTRATION FORMS
+Test client registration form validation
+Test salon registration form validation
+Test duplicate detection
+Test form submission process
+Test error handling for all form fields
+7. API ENDPOINTS
+Test all GET endpoints for proper data retrieval
+Test all POST endpoints for proper data creation
+Test all PUT endpoints for proper data updates
+Test all DELETE endpoints for proper data removal
+Test error handling for invalid requests
+8. VMB STYLE OPTIONS ENGINE
+Test style cards display
+Test style selection process
+Test style confirmation dialog
+Test style selection saving to database
+Test previously selected styles display
+9. CLIENT VMB PROMO ENGINE
+Test promotion creation
+Test promotion display
+Test promotion validation
+Test code-based promotion redemption
+10. DATA CONSISTENCY
+Verify client-salon relationships
+Verify invitation-client relationships
+Verify style selection persistence
+Verify sponsorship rules enforcement
+For each test, I will:
+
+Show the page and component being tested
+Describe the test being performed
+Show the relevant code path
+Display console logs of the test execution
+Report the test result

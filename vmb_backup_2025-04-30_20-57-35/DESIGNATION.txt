@@ -1,0 +1,7 @@
+CL-MKT-ID;MVP-1A
+Backup created on Wed 30 Apr 2025 08:57:35 PM UTC
+
+Additional backup notes:
+- Special marketing test page (CL-MKT-ID;MVP-1A) with fixed layout
+- Carousel timing: 3.5 seconds per slide, 1.75 seconds freeze on last slide
+- Pre-index-page conversion backup

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ven Me Baby</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      font-family: 'Playfair Display', serif;
+      color: #111;
+    }
+
+    .hero-container {
+      background: linear-gradient(to bottom, #ffd8e6, #fff);
+      padding: 5rem 2rem;
+      text-align: center;
+    }
+
+    .logo-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 4rem;
+      letter-spacing: 2px;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo-script {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2rem;
+      color: #c4005a;
+      margin-bottom: 2rem;
+    }
+
+    .hero-tagline {
+      font-size: 1.2rem;
+      font-weight: 400;
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.6;
+    }
+
+    .hero-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-buttons button {
+      background: #e91e63;
+      border: none;
+      padding: 0.9rem 1.5rem;
+      color: white;
+      font-size: 1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-family: 'Playfair Display', serif;
+    }
+
+    .hero-buttons button.outline {
+      background: transparent;
+      border: 2px solid #e91e63;
+      color: #e91e63;
+    }
+
+    .hero-buttons button:hover {
+      background: #c2185b;
+    }
+
+    .hero-buttons button.outline:hover {
+      background: #e91e63;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <section class="hero-container">
+    <div class="logo-title">VMB</div>
+    <div class="logo-script">Ven Me, Baby</div>
+    <p class="hero-tagline">
+      Because beauty doesn’t wait. Let her choose the glam. Let him say yes.  
+      <br>Welcome to the new standard in personal care gifting.
+    </p>
+    <div class="hero-buttons">
+      <button>I’m a Salon Owner</button>
+      <button class="outline">I’m a Client</button>
+    </div>
+  </section>
+
+</body>
+</html>
