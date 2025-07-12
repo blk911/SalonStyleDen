@@ -77,15 +77,15 @@ const CarouselSlide = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const isLastSlide = index === totalSlides - 1;
-  
+
   // Special handling for videos
   useEffect(() => {
     if (!isActive || !videoRef.current || !slide.videoUrl) return;
-    
+
     // For all slides, reset to beginning when they appear
     videoRef.current.currentTime = 0;
     videoRef.current.play();
-    
+
     // Special handling for the last slide (freeze frame after 2.25 seconds)
     if (isLastSlide) {
       const timer = setTimeout(() => {
@@ -93,11 +93,11 @@ const CarouselSlide = ({
           videoRef.current.pause();
         }
       }, 2250); // 2.25 seconds
-      
+
       return () => clearTimeout(timer);
     }
   }, [isActive, slide.videoUrl, isLastSlide]);
-  
+
   return (
     <CarouselItem key={index}>
       <div 
@@ -110,7 +110,7 @@ const CarouselSlide = ({
         <div className="hidden">
           {index + 1}/{totalSlides}
         </div>
-        
+
         <div className="flex w-full h-full">
           {/* Text Content Side */}
           <div className="w-1/2 flex flex-col justify-center pr-4 text-left">
@@ -121,7 +121,7 @@ const CarouselSlide = ({
               {slide.content}
             </div>
           </div>
-          
+
           {/* Visual Cue Side */}
           <div className="w-1/2 flex items-center justify-center">
             <div className="w-full h-[200px] rounded-lg overflow-hidden">
@@ -161,20 +161,20 @@ export default function TeaserCarousel() {
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [api, setApi] = useState<any>(null);
   const tagline = "a connection-driven personal gifting platform";
-  
+
   // Auto-play functionality with fixed timing (4.5 seconds per slide)
   useEffect(() => {
     if (!api || !isAutoPlaying) return;
-    
+
     const slideInterval = 4500;
-    
+
     const interval = setInterval(() => {
       api.scrollNext();
     }, slideInterval);
-    
+
     return () => clearInterval(interval);
   }, [api, isAutoPlaying]);
-  
+
   // Calculate progress percentage
   const progressPercentage = ((currentSlide + 1) / campaignSlides.length) * 100;
 
@@ -184,14 +184,14 @@ export default function TeaserCarousel() {
       <div className="hidden">
         {tagline}
       </div>
-      
+
       <div className="absolute top-2 left-2 right-2 z-10">
         <Progress 
           value={progressPercentage} 
           className="h-1.5 bg-gray-200/50"
         />
       </div>
-      
+
       <Carousel 
         className="w-full" 
         opts={{
@@ -216,10 +216,10 @@ export default function TeaserCarousel() {
             />
           ))}
         </CarouselContent>
-        
+
         <div className="flex items-center justify-between absolute bottom-4 left-4 right-4 z-10">
           <CarouselPrevious className="relative border-0 bg-white/80 hover:bg-white text-pink-600" />
-          
+
           <div className="flex items-center gap-2">
             {campaignSlides.map((_, index) => (
               <Button 
@@ -237,7 +237,7 @@ export default function TeaserCarousel() {
               />
             ))}
           </div>
-          
+
           <CarouselNext className="relative border-0 bg-white/80 hover:bg-white text-pink-600" />
         </div>
       </Carousel>

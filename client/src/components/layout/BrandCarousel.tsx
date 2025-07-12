@@ -1,211 +1,154 @@
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Check } from "lucide-react";
-import LogoText from '../shared/LogoText'; // Added import statement
-import { ReactNode } from "react";
+import React, { useState, useRef } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-interface CardContentItem {
-  text: string;
-  isBold: boolean;
-  suffix?: string;
-  textComponent?: ReactNode;
-}
+const BrandCarousel: React.FC = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [translateX, setTranslateX] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
-type CardContent = 
-  | CardContentItem[]
-  | Array<CardContentItem[]>
-  | Array<[string, string, string]>;
+  const slides = [
+    {
+      id: 1,
+      title: "French Tips & Touch-Ups",
+      image: "/assets/french-tips.png",
+      description: "Classic French manicure perfection"
+    },
+    {
+      id: 2, 
+      title: "Gel Manicure Luxury",
+      image: "/assets/gel-manicure.png",
+      description: "Long-lasting gel nail treatments"
+    },
+    {
+      id: 3,
+      title: "Custom Glam Design",
+      image: "/assets/glam-design.png", 
+      description: "Personalized nail art creations"
+    },
+    {
+      id: 4,
+      title: "Sculpted Acrylics",
+      image: "/assets/sculpted-acrylics.png",
+      description: "Professional acrylic nail extensions"
+    }
+  ];
 
-interface CarouselCard {
-  title: string;
-  titleComponent?: ReactNode;
-  titleSuffix?: string;
-  content: CardContent;
-  imagesComponent?: ReactNode;
-}
+  // Swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    setStartX(e.touches[0].clientX);
+  };
 
-const carouselItems: CarouselCard[] = [
-  {
-    title: 'Why ', 
-    titleComponent: <div className="logo logo-md" style={{ fontSize: '36px', display: 'inline' }}><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></div>, 
-    titleSuffix: '',
-    content: [
-      { text: "He's fishing for attention", isBold: true, suffix: " — you're inviting connection." },
-      { text: "Seeing your message,", isBold: true, suffix: " you're top of mind." },
-      { text: "His thoughtful click says,", isBold: true, suffix: " \"I notice. I care. I see you!\"" },
-      { text: "He steps up. You glow up.", isBold: true, suffix: " It's a twin-win!!" },
-      { text: "Words are free", isBold: true, suffix: " — attention is priceless!" }
-    ]
-  },
-  {
-    title: "",
-    titleComponent: <div className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span> Says "I value you"</div>,
-    titleSuffix: '',
-    content: [
-      { text: "He's not guessing", isBold: true, suffix: " — you've made it clear." },
-      { text: "Your stylist has a spot today", isBold: true, suffix: " — and he's the one you thought of." },
-      { text: "He gets the nudge", isBold: true, suffix: " — you? Top of mind... or no." },
-      { text: "One click turns timing", isBold: true, suffix: " into thoughtfulness." },
-      { text: "Bottom line: Your time and attention is valuable.", isBold: true },
-      { text: "How valuable:", isBold: true, suffix: " You'll both find out." }
-    ]
-  },
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setStartX(e.clientX);
+    e.preventDefault();
+  };
 
-  {
-    title: "",
-    titleComponent: <div className="font-serif"><span className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span> Gifting Redefined!</div>,
-    content: [
-      { text: "The gift card trap", isBold: true, suffix: " — impersonal, untimely, and UNUSED." },
-      { text: "You choose. They respond.", isBold: true, suffix: " No guessing. No missed signals." },
-      { text: "Personally curated care", isBold: true, suffix: " — when it fits your schedule." },
-      { text: "He shows up. You feel seen.", isBold: true, suffix: " The perfect \"twin-win\"!" },
-      { text: "Prepaid = revenue locked in.", isBold: true, suffix: " No no-shows. No ghosting." },
-      { text: "Yes,", isBold: true, suffix: " clients love promoting you in their BFF circles." }
-    ]
-  },
-  {
-    title: "",
-    titleComponent: <div className="font-serif">One, Two, Three! <span className="logo logo-md"><span className="ven-me">Ven Me, </span><span className="baby">Baby!</span></span></div>,
-    content: [],
-    imagesComponent: (
-      <div className="flex justify-between items-start gap-8 mt-8">
-        <div className="flex-1 flex flex-col items-center text-center">
-          <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
-            <img 
-              src="/assets/french_tips.jpg" 
-              alt="French Tips" 
-              className="object-cover w-full h-full"
-              onError={(e) => {
-                e.currentTarget.src = "https://via.placeholder.com/150?text=French+Tips";
-                e.currentTarget.onerror = null;
-              }} 
-            />
-          </div>
-          <span className="text-base font-semibold text-gray-700">1. Pick your style</span>
-        </div>
-        
-        <div className="flex-1 flex flex-col items-center text-center">
-          <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
-            <img 
-              src="/assets/gift-request.png" 
-              alt="Gift Request" 
-              className="object-cover w-full h-full"
-              onError={(e) => {
-                e.currentTarget.src = "/assets/glam-design.png";
-                e.currentTarget.onerror = null;
-              }} 
-            />
-          </div>
-          <span className="text-base font-semibold text-gray-700">2. Create your gift request</span>
-        </div>
-        
-        <div className="flex-1 flex flex-col items-center text-center">
-          <div className="bg-white rounded-lg overflow-hidden shadow-md h-40 w-full mb-4 flex items-center justify-center">
-            <img 
-              src="/assets/sculpted-acrylics.png" 
-              alt="New Set" 
-              className="object-cover w-full h-full"
-              onError={(e) => {
-                e.currentTarget.src = "/assets/Sculpted_Acrylics.png";
-                e.currentTarget.onerror = null;
-              }} 
-            />
-          </div>
-          <span className="text-base font-semibold text-gray-700">3. Enjoy your new set!</span>
-        </div>
-      </div>
-    )
-  },
-];
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const currentX = e.touches[0].clientX;
+    const diff = startX - currentX;
+    setTranslateX(-diff);
+  };
 
-export default function BrandCarousel() {
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const currentX = e.clientX;
+    const diff = startX - currentX;
+    setTranslateX(-diff);
+  };
+
+  const handleTouchEnd = () => {
+    if (!isDragging) return;
+    handleSwipeEnd();
+  };
+
+  const handleMouseUp = () => {
+    if (!isDragging) return;
+    handleSwipeEnd();
+  };
+
+  const handleSwipeEnd = () => {
+    setIsDragging(false);
+    const threshold = 50;
+
+    if (translateX > threshold) {
+      // Swipe right - previous slide
+      setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    } else if (translateX < -threshold) {
+      // Swipe left - next slide
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }
+
+    setTranslateX(0);
+  };
+
   return (
-    <div className="py-3 relative max-w-3xl mx-auto">
-      <Carousel
-        opts={{
-          align: "center",
-          loop: true,
-          slidesToScroll: 1,
-          startIndex: 0,
-        }}
-        className="w-full relative"
+    <div className="relative w-full max-w-4xl mx-auto bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl overflow-hidden shadow-lg">
+      <div 
+        ref={carouselRef}
+        className="relative h-64 sm:h-80 cursor-grab active:cursor-grabbing"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
       >
-        <CarouselContent>
-          {carouselItems.map((item, index) => (
-            <CarouselItem key={index}>
-              <div className="min-h-[500px] w-[90%] mx-auto p-6 rounded-2xl bg-gradient-to-br from-white via-white/95 to-pink-50/90 backdrop-blur-sm border border-pink-100 shadow-2xl hover:shadow-pink-100/20 transition-all flex flex-col justify-center">
-                <h3 className="mb-8 text-[#FF92A5] leading-tight text-center font-serif" style={{ fontSize: '36px' }}>
-                  {item.title}
-                  {item.titleComponent}
-                  {item.titleSuffix}
-                </h3>
-                {item.imagesComponent}
-                <div className="space-y-4 flex-grow text-center">
-                  {item.content && item.content.map((line, i) => {
-                    // Handle string arrays with 3 elements (special format)
-                    if (Array.isArray(line) && line.length === 3 && typeof line[0] === 'string') {
-                      return (
-                        <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-4 text-center">
-                          {line[0]}
-                          <span className="font-bold">{line[1]}</span>
-                          {line[2]}
-                        </p>
-                      );
-                    }
-                    
-                    // Handle arrays of CardContentItem objects
-                    if (Array.isArray(line) && line.length === 2 && 
-                        typeof line[0] === 'object' && 'text' in line[0] && 
-                        typeof line[1] === 'object' && 'text' in line[1]) {
-                      return (
-                        <div key={i} className="mb-4 text-center">
-                          <p className="text-lg font-bold text-gray-700 leading-relaxed tracking-wide mb-1 text-center">
-                            {line[0].text}
-                          </p>
-                          <p className="text-lg text-gray-700 leading-relaxed tracking-wide mb-2 text-center">
-                            {line[1].text}
-                          </p>
-                        </div>
-                      );
-                    }
-                    
-                    // Handle CardContentItem objects
-                    if (!Array.isArray(line) && typeof line === 'object' && 'text' in line) {
-                      return (
-                        <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-4 text-center">
-                          {line.isBold ? (
-                            <span className="font-bold">
-                              {line.text}
-                              {line.textComponent}
-                            </span>
-                          ) : line.text}
-                          {line.suffix}
-                        </p>
-                      );
-                    }
-                    
-                    // Handle string content (unlikely with our typed structure but kept for legacy)
-                    if (typeof line === 'string') {
-                      if (line.startsWith('✔️')) {
-                        return (
-                          <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide flex items-center justify-center gap-2 mb-4 text-center">
-                            <Check className="h-5 w-5 text-green-500" strokeWidth={3} />
-                            {line.replace('✔️', '')}
-                          </p>
-                        );
-                      }
-                      return <p key={i} className="text-lg text-gray-700 leading-relaxed tracking-wide mb-4 text-center">{line}</p>;
-                    }
-                    
-                    return null;
-                  })}
-                </div>
+        {slides.map((slide, index) => (
+          <div
+            key={slide.id}
+            className={`absolute inset-0 transition-transform duration-300 ease-out ${
+              index === currentSlide ? 'translate-x-0' : 
+              index < currentSlide ? '-translate-x-full' : 'translate-x-full'
+            }`}
+            style={{
+              transform: isDragging && index === currentSlide 
+                ? `translateX(${translateX}px)` 
+                : undefined
+            }}
+          >
+            <div className="flex items-center justify-between h-full p-8">
+              <div className="flex-1 space-y-4">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
+                  {slide.title}
+                </h2>
+                <p className="text-gray-600 text-lg">
+                  {slide.description}
+                </p>
               </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious className="absolute -left-12 bg-white hover:bg-pink-50 border-pink-100" />
-        <CarouselNext className="absolute -right-12 bg-white hover:bg-pink-50 border-pink-100" />
-      </Carousel>
+              <div className="flex-1 flex justify-center">
+                <img
+                  src={slide.image}
+                  alt={slide.title}
+                  className="w-32 h-32 sm:w-48 sm:h-48 object-cover rounded-lg shadow-md pointer-events-none"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="absolute top-1/2 transform -translate-y-1/2 w-full flex justify-between items-center px-4">
+        <button
+          onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
+          className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
+        >
+          <ChevronLeft className="w-6 h-6 text-gray-600" />
+        </button>
+        <button
+          onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
+          className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
+        >
+          <ChevronRight className="w-6 h-6 text-gray-600" />
+        </button>
+      </div>
     </div>
   );
-}
+};
+
+export default BrandCarousel;
