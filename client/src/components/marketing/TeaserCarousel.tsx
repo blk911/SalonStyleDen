@@ -145,9 +145,6 @@ const CarouselSlide = ({
                   className="w-full h-full object-cover"
                 />
               )}
-              <div className="z-10 bg-transparent px-0 py-0 text-xs text-black/60 text-center mt-auto mb-0 max-w-[1px] h-0 overflow-hidden">
-                {slide.visualCue}
-              </div>
             </div>
           </div>
         </div>
