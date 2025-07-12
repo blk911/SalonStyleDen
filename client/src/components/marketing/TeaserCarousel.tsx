@@ -114,10 +114,10 @@ const CarouselSlide = ({
         <div className="flex w-full h-full">
           {/* Text Content Side */}
           <div className="w-1/2 flex flex-col justify-center pr-4 text-left">
-            <h2 className="text-2xl font-semibold font-serif text-pink-800 leading-tight mb-3">
+            <h2 className="text-lg font-semibold font-serif text-pink-800 leading-tight mb-2">
               {slide.title}
             </h2>
-            <div className="text-lg font-medium text-pink-600 whitespace-pre-line">
+            <div className="text-sm font-medium text-pink-600 whitespace-pre-line">
               {slide.content}
             </div>
           </div>
