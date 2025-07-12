@@ -158,22 +158,8 @@ const CarouselSlide = ({
 
 export default function TeaserCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [api, setApi] = useState<any>(null);
   const tagline = "a connection-driven personal gifting platform";
-
-  // Auto-play functionality with fixed timing (4.5 seconds per slide)
-  useEffect(() => {
-    if (!api || !isAutoPlaying) return;
-
-    const slideInterval = 4500;
-
-    const interval = setInterval(() => {
-      api.scrollNext();
-    }, slideInterval);
-
-    return () => clearInterval(interval);
-  }, [api, isAutoPlaying]);
 
   // Calculate progress percentage
   const progressPercentage = ((currentSlide + 1) / campaignSlides.length) * 100;
@@ -197,6 +183,8 @@ export default function TeaserCarousel() {
         opts={{
           loop: true,
           align: "center",
+          dragFree: true,
+          containScroll: "trimSnaps"
         }}
         setApi={(carouselApi) => {
           setApi(carouselApi);
