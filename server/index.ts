@@ -75,14 +75,32 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Start server on port 5000 or environment PORT
+  // Use environment PORT or default to 5000
   const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
   
   server.listen({
     port,
     host: "0.0.0.0",
   }, () => {
-    log(`Server is running on port ${port}`);
+    const actualPort = (server.address() as any)?.port || port;
+    log(`Server is running on port ${actualPort}`);
+    console.log(`🚀 VMB Platform ready at http://localhost:${actualPort}`);
+  });
+
+  // Enhanced error handling for server startup
+  server.on('error', (error: any) => {
+    if (error.code === 'EADDRINUSE') {
+      log(`Port conflict detected. Restarting with dynamic port...`);
+      // Use port 0 to let OS choose an available port
+      server.listen({ port: 0, host: "0.0.0.0" }, () => {
+        const newPort = (server.address() as any)?.port;
+        log(`Server restarted successfully on port ${newPort}`);
+        console.log(`🚀 VMB Platform ready at http://localhost:${newPort}`);
+      });
+    } else {
+      log(`Server error: ${error.message}`);
+      throw error;
+    }
   });
 
   // Simple startup verification
