@@ -35,6 +35,36 @@ const BrandCarousel: React.FC = () => {
     }
   ];
 
+  // Touch/swipe handling
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextSlide();
+    } else if (isRightSwipe) {
+      prevSlide();
+    }
+  };
+
+
   // Swipe handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true);
@@ -85,6 +115,14 @@ const BrandCarousel: React.FC = () => {
 
     setTranslateX(0);
   };
+
+    const nextSlide = () => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+    };
+
+    const prevSlide = () => {
+        setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    };
 
   return (
     <div className="relative w-full max-w-4xl mx-auto bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl overflow-hidden shadow-lg">
