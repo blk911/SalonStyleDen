@@ -257,38 +257,59 @@
     @apply bg-background text-card-foreground;
   }
 
-  /* Testimonial Cards - Custom styling that won't affect carousel */
+  /* Testimonial Cards - Positioned below carousel only */
   .vmb-testimonial-card {
     position: relative;
     z-index: 1;
-    height: 68px; /* Fixed height for collapsed state */
+    height: auto;
+    min-height: 68px;
     overflow: hidden;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
 
   .vmb-salon-card {
-    /* Custom styles for salon owner card */
     border-left: 4px solid #2563eb;
   }
 
   .vmb-client-card {
-    /* Custom styles for client card */
     border-left: 4px solid #16a34a;
   }
 
   /* Hover effects specific to testimonial cards */
   .vmb-testimonial-card:hover {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
   }
 
-  /* Ensure text stays clean and readable in collapsed state */
+  /* Ensure testimonial cards don't interfere with carousel */
+  .vmb-testimonial-card {
+    display: block;
+    clear: both;
+    width: 100%;
+  }
+
+  /* Ensure text stays clean and readable */
   .vmb-testimonial-card h3 {
     font-family: 'Inter', system-ui, sans-serif;
     font-weight: 700;
     letter-spacing: -0.025em;
+    margin: 0;
   }
 
   .vmb-testimonial-card p {
     font-family: 'Inter', system-ui, sans-serif;
     font-weight: 400;
+    margin: 0;
+  }
+
+  /* Ensure testimonial section is clearly separated from carousel */
+  .testimonial-section {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
   }
 }
