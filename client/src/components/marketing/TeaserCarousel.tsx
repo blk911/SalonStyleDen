@@ -267,7 +267,7 @@ export default function TeaserCarousel() {
       </div>
 
       {/* Testimonial Cards - positioned after carousel */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="testimonial-section mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Salon Owner Benefits Card */}
         <div className="vmb-testimonial-card vmb-salon-card bg-white rounded-lg shadow-md border transition-all duration-300 cursor-pointer hover:shadow-lg overflow-hidden">
           <div className="flex items-center justify-between p-4">
