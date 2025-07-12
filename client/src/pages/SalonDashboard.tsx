@@ -16,7 +16,7 @@ import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
 import EditableService, { ServiceData } from "@/components/dashboard/EditableService";
 import ClientInvitation from "@/components/dashboard/ClientInvitation";
 import LicenseForm from "@/components/dashboard/LicenseForm";
-import { safeParse } from "../../shared/utils/json.js";
+import { safeParse } from "@shared/utils/json";
 
 
 // Define a type for the social media object that might be in the API response

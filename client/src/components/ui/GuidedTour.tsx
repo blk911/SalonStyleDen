@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { InstructionPopup } from "./InstructionPopup";
 import { InfoIcon, ArrowRightCircle, CheckCircle2 } from "lucide-react";
-import { safeParse } from "../../../shared/utils/json.js";
+import { safeParse } from "@shared/utils/json";
 
 // Define the structure of a tour step
 interface TourStep {

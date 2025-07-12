@@ -12,7 +12,7 @@
  * ensuring no object leaves the API without proper relationship tracking.
  */
 import { Request, Response, NextFunction } from 'express';
-import { smartJsonHandler } from '../../shared/utils/json.js';
+import { smartJsonHandler } from '../../shared/utils/json';
 
 export const sponsorValidator = (req: Request, res: Response, next: NextFunction) => {
   // Store original send method

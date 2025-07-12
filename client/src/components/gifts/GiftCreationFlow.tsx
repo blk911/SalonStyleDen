@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/utils";
 import { Loader2, SendIcon } from "lucide-react";
-import { safeParse } from "../../../shared/utils/json.js";
+import { safeParse } from "@shared/utils/json";
 import {
   Dialog,
   DialogContent,

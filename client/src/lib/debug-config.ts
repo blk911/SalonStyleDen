@@ -5,7 +5,7 @@
  * Simplified version that maintains the same interface.
  */
 
-import { safeParse } from "../../shared/utils/json.js";
+import { safeParse } from "@shared/utils/json";
 
 // Local storage key for configuration persistence
 export const DEBUG_CONFIG_KEY = 'vmb_debug_config';

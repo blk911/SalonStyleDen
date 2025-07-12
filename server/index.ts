@@ -3,7 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from 'path';
 import { startupMonitor } from './startup-monitor'; // Import the startup monitor utility
-import { enableJsonParseMonkeyPatch } from '../shared/utils/json.js';
+import { enableJsonParseMonkeyPatch } from '../shared/utils/json';
 
 
 const app = express();

@@ -12,7 +12,7 @@ import { PhoneIcon, MailIcon, CalendarIcon, UserIcon, ClockIcon, BuildingIcon, C
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { safeParse } from "../../shared/utils/json.js";
+import { safeParse } from "@shared/utils/json";
 
 interface Invitation {
   id: number;

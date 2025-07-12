@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { InstructionPopup } from "./InstructionPopup";
 import { Button } from "./button";
 import { HelpCircle } from "lucide-react";
-import { safeParse } from "../../../shared/utils/json.js";
+import { safeParse } from "@shared/utils/json";
 
 interface ContextualHelpProps {
   id: string; // Unique ID for this help tip (used for persistence)
