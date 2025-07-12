@@ -158,6 +158,10 @@ export default function TeaserCarousel() {
   const [api, setApi] = useState<any>(null);
   const tagline = "a connection-driven personal gifting platform";
 
+  // Collapsible cards state with mouseover functionality
+  const [salonCardExpanded, setSalonCardExpanded] = useState(false);
+  const [clientCardExpanded, setClientCardExpanded] = useState(false);
+
   // Touch/swipe handling
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -260,6 +264,107 @@ export default function TeaserCarousel() {
           <CarouselNext className="relative border-0 bg-white/80 hover:bg-white text-pink-600" />
         </div>
       </Carousel>
+      {/* Collapsible Testimonial Cards with Mouseover */}
+      <div className="mt-6 space-y-4">
+        {/* Salon Owner Benefits Card */}
+        <div 
+          className="bg-white rounded-lg border shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md"
+          onMouseEnter={() => setSalonCardExpanded(true)}
+          onMouseLeave={() => setSalonCardExpanded(false)}
+        >
+          <div className="w-full px-4 py-3 flex items-center justify-between cursor-pointer">
+            <h3 className="text-lg font-semibold text-gray-900">Salon Owner Benefits</h3>
+            <div className="text-blue-600 text-xl transition-transform duration-200">
+              {salonCardExpanded ? '−' : '+'}
+            </div>
+          </div>
+
+          <div className={`transition-all duration-300 ease-in-out ${
+            salonCardExpanded 
+              ? 'max-h-96 opacity-100' 
+              : 'max-h-0 opacity-0'
+          } overflow-hidden`}>
+            <div className="px-4 pb-4 border-t border-gray-100">
+              <div className="flex items-start space-x-4 pt-4">
+                <img 
+                  src="/assets/tiffany_profile.png" 
+                  alt="Michelle S., VMB Certified Stylist"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <div className="mb-2">
+                    <h4 className="text-blue-600 font-semibold">Michelle S., VMB Certified Stylist</h4>
+                  </div>
+                  <p className="text-gray-600 italic mb-3">
+                    "VMB has transformed how I connect with clients. The personalized invitation feature makes client 
+                    acquisition effortless, and I've seen a 40% increase in client retention. The system's intuitive design has 
+                    streamlined my scheduling process so I can focus on what matters - delivering exceptional service."
+                  </p>
+                  <div className="flex items-center space-x-1">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className="text-yellow-400">⭐</span>
+                    ))}
+                    <span className="text-sm text-gray-500 ml-2">Verified VMB Partner</span>
+                  </div>
+                  <button className="mt-3 bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors">
+                    See How Easy! →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Client Success Stories Card */}
+        <div 
+          className="bg-white rounded-lg border shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md"
+          onMouseEnter={() => setClientCardExpanded(true)}
+          onMouseLeave={() => setClientCardExpanded(false)}
+        >
+          <div className="w-full px-4 py-3 flex items-center justify-between cursor-pointer">
+            <h3 className="text-lg font-semibold text-gray-900">Client Success Stories</h3>
+            <div className="text-green-600 text-xl transition-transform duration-200">
+              {clientCardExpanded ? '−' : '+'}
+            </div>
+          </div>
+
+          <div className={`transition-all duration-300 ease-in-out ${
+            clientCardExpanded 
+              ? 'max-h-96 opacity-100' 
+              : 'max-h-0 opacity-0'
+          } overflow-hidden`}>
+            <div className="px-4 pb-4 border-t border-gray-100">
+              <div className="flex items-start space-x-4 pt-4">
+                <img 
+                  src="/assets/kendra.png" 
+                  alt="Kendra T., Premium Client"
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <div className="mb-2">
+                    <h4 className="text-green-600 font-semibold">Kendra T., Premium Client</h4>
+                  </div>
+                  <p className="text-gray-600 italic mb-3">
+                    "I adore the personalized VMB experience! Receiving an invitation makes me feel valued and special. 
+                    The style selection is intuitive and helps me explore new options. Since discovering VMB, I've scheduled 
+                    all my appointments through the platform - it's become essential to my self-care routine and I 
+                    recommend it to everyone!"
+                  </p>
+                  <div className="flex items-center space-x-1">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className="text-yellow-400">⭐</span>
+                    ))}
+                    <span className="text-sm text-gray-500 ml-2">VMB Member since 2024</span>
+                  </div>
+                  <button className="mt-3 bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700 transition-colors">
+                    Create Your Gift! 🎁
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
