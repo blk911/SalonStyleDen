@@ -23,7 +23,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getImageUrl, formatPhoneNumber } from "@/lib/utils";
 import TeaserCarousel from "@/components/marketing/TeaserCarousel";
-import { ThoughtBubble } from "@/components/ui/ThoughtBubble";
+
 
 // Define interfaces
 interface Client {
@@ -55,7 +55,7 @@ interface Invitation {
 export default function ClientsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all-clients");
-  const [showThoughtBubble, setShowThoughtBubble] = useState(true);
+
   const [salonCardOpen, setSalonCardOpen] = useState(false);
   const [clientCardOpen, setClientCardOpen] = useState(false);
 
@@ -208,13 +208,7 @@ export default function ClientsPage() {
 
       <Footer />
 
-      {/* Welcome ThoughtBubble - Positioned to right side of carousel with padding */}
-      <ThoughtBubble
-        position="top-right"
-        isOpen={showThoughtBubble}
-        onClose={() => setShowThoughtBubble(false)}
-        className="z-50 fixed top-[450px] right-[50px] max-w-[280px]"
-      />
+
     </div>
   );
 }
