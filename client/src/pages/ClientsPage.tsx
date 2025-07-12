@@ -135,30 +135,37 @@ export default function ClientsPage() {
             </div>
 
             {/* Cards now always stack vertically on all devices */}
-            <div className="grid grid-cols-1 gap-2">
+            <div className="grid grid-cols-1 gap-6">
               {/* Salon Testimonial */}
               <CollapsibleCard
                 title="Salon Owner Benefits"
                 description="Michelle S., VMB Certified Stylist"
                 isOpen={salonCardOpen}
                 onToggle={() => setSalonCardOpen(!salonCardOpen)}
-                className="bg-gradient-to-br from-blue-50 to-white shadow-md hover:shadow-xl transition-all border border-blue-100"
+                className="vmb-testimonial-card vmb-salon-card bg-gradient-to-br from-blue-50 via-blue-25 to-white border-l-4 border-l-blue-500 shadow-lg hover:shadow-xl transition-all duration-300"
                 action={
                   <Link href="/salon/2">
-                    <span className="text-blue-600 hover:text-blue-800 text-sm font-medium cursor-pointer">VIEW</span>
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm hover:shadow transition-all"
+                    >
+                      VIEW
+                    </Button>
                   </Link>
                 }
               >
-                <div className="flex flex-col sm:flex-row items-center">
-                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-blue-200 mb-1 sm:mb-0 sm:mr-2 flex-shrink-0">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-3 border-blue-300 shadow-md flex-shrink-0">
                     <img 
                       src="/assets/MS-VMBLTD.jpg" 
                       alt="Michelle, Salon Owner" 
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="text-center sm:text-left flex-grow">
-                    <p className="text-blue-700 text-sm">
+                  <div className="flex-grow">
+                    <h4 className="text-lg font-semibold text-blue-800 mb-2">Transform Your Salon Business</h4>
+                    <p className="text-blue-700 text-sm leading-relaxed">
                       Discover how Ven Me, Baby transforms salon business by creating deeper client connections, 
                       increasing service bookings, and building lasting relationships through personalized gift experiences.
                     </p>
@@ -172,23 +179,30 @@ export default function ClientsPage() {
                 description="Kendra T., Premium Client"
                 isOpen={clientCardOpen}
                 onToggle={() => setClientCardOpen(!clientCardOpen)}
-                className="bg-gradient-to-br from-green-50 to-white shadow-md hover:shadow-xl transition-all border border-green-100"
+                className="vmb-testimonial-card vmb-client-card bg-gradient-to-br from-green-50 via-green-25 to-white border-l-4 border-l-green-500 shadow-lg hover:shadow-xl transition-all duration-300"
                 action={
                   <Link href="/salon/2">
-                    <span className="text-green-600 hover:text-green-800 text-sm font-medium cursor-pointer">VIEW</span>
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow-sm hover:shadow transition-all"
+                    >
+                      VIEW
+                    </Button>
                   </Link>
                 }
               >
-                <div className="flex flex-col sm:flex-row items-center">
-                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-green-200 mb-1 sm:mb-0 sm:mr-2 flex-shrink-0">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-3 border-green-300 shadow-md flex-shrink-0">
                     <img 
                       src="/assets/kendra.png" 
                       alt="Kendra, Client" 
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="text-center sm:text-left flex-grow">
-                    <p className="text-green-700 text-sm">
+                  <div className="flex-grow">
+                    <h4 className="text-lg font-semibold text-green-800 mb-2">Premium Client Experience</h4>
+                    <p className="text-green-700 text-sm leading-relaxed">
                       Experience the joy of receiving personalized nail service gifts from people who care. 
                       See how clients build stronger connections and enjoy premium beauty experiences through Ven Me, Baby.
                     </p>
