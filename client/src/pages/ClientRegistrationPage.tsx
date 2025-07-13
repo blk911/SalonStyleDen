@@ -917,12 +917,12 @@ export default function ClientRegistrationPage() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  {form.getValues('clientType') === 'giftInvite' ? 'Redeem Gift/Account Log-in' : 'REGISTRATION'}
+                  {form.getValues('clientType') === 'giftInvite' ? 'GIFT/INVITATION REDEMPTION' : 'REGISTRATION'}
                 </CardTitle>
                 {isCompleteRegistrationMode ? (
                   <CardDescription>
                     {form.getValues('clientType') === 'giftInvite'
-                      ? ''
+                      ? 'Enter your phone number to find your gift or invitation'
                       : `Complete your registration for ${invitation?.sponsor || salon?.name || 'Tiffany 5280 Nails Studio'} ${invitation?.salonId ? `[ID: ${invitation.salonId}]` : ''}`
                     }
                   </CardDescription>
