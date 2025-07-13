@@ -1,0 +1,133 @@
+we have a crash problem, here is the solution, install all components/changes,
+
+report the isntall and test of each, report here, show gren./red pass / fail
+
+explain your process and wait
+
+Introduce a single, central helper and ban raw JSON.parse
+Create src/utils/safeJson.ts:
+ts
+Copy
+Edit
+// utils/safeJson.ts
+export function safeParse<T = unknown>(value: unknown): T | null {
+if (typeof value !== 'string') return null; // already an object → nothing to parse
+try {
+return JSON.parse(value) as T;
+} catch (err) {
+console.error('🚨 JSON parse failed', { value, err });
+return null;
+}
+}
+
+export function safeStringify(value: unknown): string {
+try {
+return JSON.stringify(value);
+} catch (err) {
+console.error('🚨 JSON stringify failed', { value, err });
+return 'null';
+}
+}
+Usage pattern:
+
+ts
+Copy
+Edit
+// parse server response
+const data = safeParse<MyType>(await res.text());
+if (!data) throw new Error('Bad JSON from server');
+ts
+Copy
+Edit
+// store to localStorage
+localStorage.setItem('session', safeStringify(sessionObj));
+
+Lint rule to block future direct parses
+Add to .eslintrc (or eslint.config.js):
+js
+Copy
+Edit
+{
+"rules": {
+"no-restricted-globals": [
+"error",
+{
+"name": "JSON.parse",
+"message": "Use safeParse() instead of JSON.parse()"
+},
+{
+"name": "JSON.stringify",
+"message": "Use safeStringify() instead of JSON.stringify()"
+}
+]
+}
+}
+This fails CI if any new JSON.parse( sneaks in.
+
+Edge-proof every existing hotspot
+Search once:
+bash
+Copy
+Edit
+grep -R --line-number "JSON.parse(" src | grep -v safeParse
+For each hit, replace:
+
+Old pattern Replace with
+JSON.parse(req.body) typeof req.body === 'string' ? safeParse(req.body) : req.body
+JSON.parse(localStorage.getItem('x')!) safeParse(localStorage.getItem('x')) ?? defaultVal
+const meta = JSON.parse(file.meta) const meta = safeParse(file.meta) ?? {};
+
+Don’t parse what you never stringified
+Many crashes come from double serialisation loops. Golden rules:
+Receive → check type → parse only if string
+
+ts
+Copy
+Edit
+const body = typeof resBody === 'string' ? safeParse(resBody) : resBody;
+Send → serialise explicitly once
+
+ts
+Copy
+Edit
+body: safeStringify(payload)
+Never rely on implicit coercion ('' + obj or template‐literals with objects).
+
+Optional runtime guard (development only)
+Until all old code is cleaned:
+ts
+Copy
+Edit
+if (import.meta.env.DEV) {
+const realParse = JSON.parse;
+JSON.parse = (input: any) => {
+if (typeof input !== 'string') {
+console.warn('⚠️ JSON.parse called with non-string:', input);
+return input; // return as-is instead of crashing
+}
+return realParse(input);
+};
+}
+6. Unit-test the helper once; let ESLint & CI guard forever
+ts
+Copy
+Edit
+import { safeParse, safeStringify } from './safeJson';
+
+test('safeParse returns object for good JSON', () => {
+expect(safeParse('{"a":1}')).toEqual({ a: 1 });
+});
+test('safeParse returns null for object input', () => {
+expect(safeParse({ a: 1 })).toBeNull();
+});
+🚀 After these steps
+No code path can crash on [object Object].
+
+ESLint prevents teammates from re-introducing raw JSON.parse.
+
+CI fails immediately if the rule is violated.
+
+Development guard warns instead of killing the app, so you spot leftover offenders.
+
+Do the search-and-replace once, add the lint rule, and the bug is gone for good.
+
