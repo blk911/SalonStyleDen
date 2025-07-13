@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { importSalons, importClients } from './importData.js';
+import { safeParse } from './safeJson.js';
 
 // Get the directory name (ES modules version of __dirname)
 const __filename = fileURLToPath(import.meta.url);
@@ -17,7 +18,7 @@ async function loadSampleData() {
     
     // Load sample salons
     const salonsPath = path.join(__dirname, 'sampleSalons.json');
-    const salonsData = JSON.parse(fs.readFileSync(salonsPath, 'utf8'));
+    const salonsData = safeParse(fs.readFileSync(salonsPath, 'utf8')) ?? [];
     console.log(`Found ${salonsData.length} sample salons`);
     
     // Import salons
@@ -26,7 +27,7 @@ async function loadSampleData() {
     
     // Load sample clients
     const clientsPath = path.join(__dirname, 'sampleClients.json');
-    const clientsData = JSON.parse(fs.readFileSync(clientsPath, 'utf8'));
+    const clientsData = safeParse(fs.readFileSync(clientsPath, 'utf8')) ?? [];
     console.log(`Found ${clientsData.length} sample clients`);
     
     // Import clients
