@@ -4,10 +4,12 @@
 VMB is a comprehensive salon management platform that enables salons to manage services, clients, invitations, and promotional campaigns. The platform includes both admin and salon-specific dashboards with real-time monitoring capabilities.
 
 ## Recent Changes
-- **MEMORY RESET:** Starting fresh session (July 13, 2025)
-  - Previous session context cleared
-  - Ready for new instructions and tasks
-  - All prior context and state information cleared
+- **CRITICAL FIX:** Resolved restart loop issue (July 13, 2025)
+  - Fixed server error handling that was causing infinite restart attempts
+  - Reverted problematic "graceful restart" code that created MaxListenersExceededWarning
+  - Server now starts successfully without crashes or memory leaks
+  - Asset path issues resolved by copying VMB logo to public directory
+  - Cleared Vite cache to fix React JSX runtime loading errors
 
 ## Project Architecture
 ### Frontend Structure
