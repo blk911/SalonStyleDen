@@ -937,15 +937,6 @@ export default function ClientRegistrationPage() {
               <CardContent>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-                    {/* Show appropriate notice for gift/invite redemption */}
-                    {isCompleteRegistrationMode && form.getValues('clientType') === 'giftInvite' && (
-                      <div className="mb-4 p-4 bg-pink-50 border border-pink-200 rounded-md">
-                        <h3 className="font-medium text-pink-800 mb-2">Gift/Invitation Redemption</h3>
-                        <p className="text-pink-700 text-sm">
-                          Please enter your phone number to claim your gift or invitation. Once found, you'll need to complete your registration.
-                        </p>
-                      </div>
-                    )}
                     {/* Client Type Selection */}
                     {!isCompleteRegistrationMode && (
                       <FormField
