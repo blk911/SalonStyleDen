@@ -47,3 +47,25 @@ export async function apiRequest(
     throw error;
   }
 }
+
+// Helper function for safe JSON response parsing
+export async function parseJsonResponse(response: Response): Promise<any> {
+  try {
+    const text = await response.text();
+    
+    if (!text || text.trim() === '') {
+      console.warn('parseJsonResponse: Empty response body');
+      return null;
+    }
+    
+    if (text === '[object Object]') {
+      console.warn('parseJsonResponse: Received "[object Object]" as response');
+      return null;
+    }
+    
+    return JSON.parse(text);
+  } catch (error) {
+    console.error('parseJsonResponse: Failed to parse JSON response:', error, 'Response text:', text);
+    throw new Error(`Invalid JSON response: ${error.message}`);
+  }
+}

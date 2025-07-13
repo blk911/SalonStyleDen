@@ -107,7 +107,7 @@ export function initMonitoring(): void {
       const target = event.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
       const componentName = findComponentName(target);
       const fieldName = target.name || target.id || 'unknown';
-      
+
       activityMonitor.trackActivity('keystroke', componentName, {
         fieldName,
         key: event.key,
@@ -122,7 +122,7 @@ export function initMonitoring(): void {
     if (event.target instanceof Element) {
       const target = event.target as Element;
       const componentName = findComponentName(target);
-      
+
       if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.closest('button') || target.closest('a')) {
         activityMonitor.trackActivity('click', componentName, {
           element: target.tagName,
@@ -139,7 +139,7 @@ export function initMonitoring(): void {
     if (event.target instanceof HTMLFormElement) {
       const form = event.target as HTMLFormElement;
       const componentName = findComponentName(form);
-      
+
       activityMonitor.trackActivity('submit', componentName, {
         formId: form.id || 'unknown',
         action: form.action || 'unknown',
@@ -164,16 +164,16 @@ export function initMonitoring(): void {
     const method = init?.method || (typeof input === 'string' ? 'GET' : input instanceof Request ? input.method : 'GET');
     const requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
-    
+
     console.log(`[API-REQ] ${method} ${url} - ID: ${requestId}`, init?.body || 'No Body');
-    
+
     try {
       const response = await originalFetch.apply(this, [input, init]);
       const endTime = Date.now();
       const duration = endTime - startTime;
-      
+
       console.log(`[API-RES] ${method} ${url} - ID: ${requestId} - Duration: ${duration}ms - Status: ${response.status}`);
-      
+
       activityMonitor.trackActivity('api', url, {
         requestId,
         method,
@@ -183,15 +183,15 @@ export function initMonitoring(): void {
         requestData: init?.body,
         timestamp: new Date().toISOString()
       });
-      
+
       return response;
     } catch (err) {
       const endTime = Date.now();
       const duration = endTime - startTime;
       const error = err as Error;
-      
+
       console.error(`[API-ERR] ${method} ${url} - ID: ${requestId} - Duration: ${duration}ms`, error);
-      
+
       activityMonitor.trackActivity('api', url, {
         requestId,
         method,
@@ -201,12 +201,50 @@ export function initMonitoring(): void {
         requestData: init?.body,
         timestamp: new Date().toISOString()
       });
-      
+
       throw error;
     }
   };
 
   console.log('[VMB Monitoring] Monitoring system initialized');
+}
+
+// Helper function to safely parse JSON with error handling
+function safeJSONParse(jsonString: string, fallback: any = null) {
+  try {
+    if (typeof jsonString !== 'string') {
+      console.warn('safeJSONParse: Input is not a string:', typeof jsonString, jsonString);
+      return fallback;
+    }
+
+    if (jsonString === '[object Object]' || jsonString === 'undefined' || jsonString === 'null') {
+      console.warn('safeJSONParse: Detected invalid JSON string, returning fallback:', jsonString);
+      return fallback;
+    }
+
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.warn('safeJSONParse: Failed to parse JSON:', error, 'Input:', jsonString);
+    return fallback;
+  }
+}
+
+// Helper function to safely stringify objects
+function safeJSONStringify(obj: any): string {
+  try {
+    if (obj === null || obj === undefined) {
+      return 'null';
+    }
+
+    if (typeof obj === 'string') {
+      return obj; // Already a string, don't double-stringify
+    }
+
+    return JSON.stringify(obj);
+  } catch (error) {
+    console.warn('safeJSONStringify: Failed to stringify object:', error, 'Input:', obj);
+    return 'null';
+  }
 }
 
 // Helper function to find React component name from DOM element
@@ -216,7 +254,7 @@ function findComponentName(element: Element): string {
   if (componentAttr) {
     return componentAttr.getAttribute('data-component') || 'unknown';
   }
-  
+
   // Try to find by class names with common React patterns
   const reactComponent = element.closest('[class*="component-"], [class*="-component"], [id*="component-"], [id*="-component"]');
   if (reactComponent) {
@@ -224,11 +262,11 @@ function findComponentName(element: Element): string {
     const match = /(?:^|\s)([\w-]+(?:component|Component)[\w-]*)(?:\s|$)/.exec(classOrId);
     if (match) return match[1];
   }
-  
+
   // Fallback: use closest parent with an id or distinct class
   let parent = element.closest('[id]');
   if (parent && parent.id) return `element-${parent.id}`;
-  
+
   // If all else fails, generate path from tag hierarchy
   let path = '';
   let current: Element | null = element;
@@ -238,6 +276,6 @@ function findComponentName(element: Element): string {
     current = current.parentElement;
     depth++;
   }
-  
+
   return `dom-${path}`;
 }
