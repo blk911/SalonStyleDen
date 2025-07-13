@@ -1,0 +1,121 @@
+1 ▶ Confirm which file can’t be found
+Open DevTools → Network → filter by “Status ≠ 200”.
+Note the exact path that returns 404.
+
+Typical patterns you’ll see:
+
+Failing URL	Root cause
+/src/assets/logo.png	Imported with an absolute path instead of relative in JSX
+/@fs/home/runner/...	Vite dev server is trying to proxy a file that doesn’t exist on disk
+/static/js/main-abc123.js (only after deploy)	base path wrong in vite.config.ts
+/audio/voice_123.wav	File created at runtime but never written to the Replit filesystem
+
+2 ▶ Fix by category
+A. Asset imported with the wrong path
+tsx
+Copy
+Edit
+// ❌ triggers 404 in Vite
+<img src="/src/assets/logo.png" />
+
+// ✅ use relative path or Vite import
+import Logo from '@/assets/logo.png';
+<img src={Logo} />
+B. Missing file in public/
+Every file placed in /public is served from / at runtime.
+
+tsx
+Copy
+Edit
+// ❌ Will 404 if the file sits in public/ but path has ./public prefix
+fetch('/public/config.json');
+
+// ✅ correct
+fetch('/config.json');
+C. base mis-set for production
+If your deployed URLs look like /react_jsx-dev-runtime.js instead of /myapp/react_jsx-dev-runtime.js, add:
+
+ts
+Copy
+Edit
+// vite.config.ts
+export default defineConfig({
+  base: '/myapp/',          // Folder or path your app is hosted from
+});
+D. Runtime-generated audio / images
+If your backend writes files to ./uploads:
+
+ts
+Copy
+Edit
+// ensure folder exists **once** on Replit boot
+import fs from 'fs';
+if (!fs.existsSync('./uploads')) fs.mkdirSync('./uploads');
+Then serve them:
+
+ts
+Copy
+Edit
+app.use('/audio', express.static('uploads'));
+3 ▶ Make 404s obvious during dev
+Add Vite middleware: vite.config.ts
+
+ts
+Copy
+Edit
+export default defineConfig({
+  plugins: [
+    {
+      name: 'watch-404',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          res.once('finish', () => {
+            if (res.statusCode === 404) {
+              console.warn('🚩 404 →', req.url);
+            }
+          });
+          next();
+        });
+      }
+    }
+  ]
+});
+Now every missing asset logs a red flag in your terminal so you can catch it immediately.
+
+4 ▶ Restart clean after file fixes
+Delete Vite cache (optional but helpful):
+
+bash
+Copy
+Edit
+rm -rf node_modules/.vite
+Stop → Run in Replit so the dev server restarts with fresh paths.
+
+TL;DR checklist
+Locate the failing URL in the Network tab.
+
+Match it to the asset/import that generates it.
+
+Fix by:
+
+Using relative/import paths for images & ES assets.
+
+Placing static files in /public and referencing them root-relative.
+
+Setting base in vite.config.ts for deploy paths.
+
+Ensuring runtime-generated files are written & served.
+
+Add the watch-404 middleware so future 404s shout at you instead of silently killing the UI.
+
+Send me the exact 404 path you’re seeing, and I can point to the exact line that needs to change.
+
+
+
+
+
+
+
+
+
+Ask ChatGPT
