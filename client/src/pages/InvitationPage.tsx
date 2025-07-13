@@ -132,7 +132,7 @@ export default function InvitationPage() {
       return false;
     }
     const saved = localStorage.getItem('vmb-invite-style-section-open');
-    return saved ? safeParse<boolean>(saved) ?? true : true; // Default to open for better UX
+    return saved !== 'false'; // Default to open for better UX
   });
   
   // For preview mode, we want to skip to step 3
