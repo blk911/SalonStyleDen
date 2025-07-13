@@ -5,8 +5,6 @@
  * Simplified version that maintains the same interface.
  */
 
-import { safeParse } from "@shared/utils/json";
-
 // Local storage key for configuration persistence
 export const DEBUG_CONFIG_KEY = 'vmb_debug_config';
 
@@ -25,7 +23,7 @@ export function getDebugConfig() {
     try {
       const saved = localStorage.getItem(DEBUG_CONFIG_KEY);
       if (saved) {
-        return safeParse<boolean>(saved) ?? false;
+        return JSON.parse(saved);
       }
     } catch (err) {
       console.error('Failed to parse debug config', err);

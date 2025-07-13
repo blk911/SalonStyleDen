@@ -1,44 +1,41 @@
 
+import { exec } from 'child_process';
 import { log } from './vite';
-import * as net from 'net';
 
-export function checkPortAvailable(port: number): Promise<boolean> {
-  return new Promise((resolve) => {
-    const server = net.createServer();
-    server.once('error', () => {
-      resolve(false);
+function killProcessOnPort(port: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    exec(`lsof -i :${port} -t`, (error, stdout) => {
+      if (stdout) {
+        exec(`kill -9 ${stdout.split('\n').filter(Boolean).join(' ')}`, (killError) => {
+          if (killError) {
+            log(`Error killing processes on port ${port}: ${killError}`);
+          } else {
+            log(`Successfully killed processes on port ${port}`);
+          }
+          resolve();
+        });
+      } else {
+        log(`No process running on port ${port}`);
+        resolve();
+      }
     });
-    server.once('listening', () => {
-      server.close();
-      resolve(true);
-    });
-    server.listen(port, '0.0.0.0');
   });
 }
 
-export async function findAvailablePort(startPort: number): Promise<number> {
-  for (let port = startPort; port < startPort + 100; port++) {
-    if (await checkPortAvailable(port)) {
-      return port;
-    }
-  }
-  throw new Error(`No available port found starting from ${startPort}`);
-}
-
-export async function ensurePortAvailable(port: number): Promise<number> {
+export async function ensurePortAvailable(port: number): Promise<void> {
   try {
-    const isAvailable = await checkPortAvailable(port);
-    if (isAvailable) {
-      log(`Port ${port} is available`);
-      return port;
-    } else {
-      log(`Port ${port} is in use, finding alternative...`);
-      const alternativePort = await findAvailablePort(port + 1);
-      log(`Using port ${alternativePort} instead`);
-      return alternativePort;
-    }
+    await killProcessOnPort(port);
   } catch (error) {
     log(`Error managing port ${port}: ${error}`);
-    throw error;
   }
+}
+
+export function setupPortMonitoring(port: number): void {
+  setInterval(async () => {
+    try {
+      await ensurePortAvailable(port);
+    } catch (error) {
+      log(`Port monitoring error: ${error}`);
+    }
+  }, 5000);
 }

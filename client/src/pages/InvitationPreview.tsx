@@ -568,7 +568,7 @@ export default function InvitationPreview() {
             <>
               <div className="bg-gradient-to-r from-amber-100 to-amber-50 p-4 border-b border-amber-200">
                 <DialogTitle className="text-center text-amber-800 text-xl flex justify-center items-center gap-2">
-                  <img src="/VMB LOGO sized1.png" alt="VMB Logo" className="h-6" />
+                  <img src="/assets/VMB_LOGO.png" alt="VMB Logo" className="h-6" />
                   Accept Salon Offer
                 </DialogTitle>
                 <DialogDescription className="text-center">

@@ -7,24 +7,6 @@ import { initTestFlows } from "./lib/test-flows";
 import FlowLogger from "./lib/flow-logger";
 import "./lib/dev-tools";
 
-// Import and enable JSON parsing fix
-import { enableJsonParseMonkeyPatch } from "@shared/utils/json";
-
-// Enable JSON.parse debugging in development mode
-if (import.meta.env.DEV) {
-  enableJsonParseMonkeyPatch();
-  
-  // Additional runtime guard
-  const realParse = JSON.parse;
-  JSON.parse = (input: any) => {
-    if (typeof input !== 'string') {
-      console.warn('⚠️  JSON.parse called with non-string:', input);
-      return input;   // return as-is instead of crashing
-    }
-    return realParse(input);
-  };
-}
-
 // Initialize application
 const initApp = () => {
   // Log application startup
