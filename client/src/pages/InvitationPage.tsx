@@ -12,7 +12,6 @@ import { PhoneIcon, MailIcon, CalendarIcon, UserIcon, ClockIcon, BuildingIcon, C
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { safeParse } from "@shared/utils/json";
 
 interface Invitation {
   id: number;
@@ -132,7 +131,7 @@ export default function InvitationPage() {
       return false;
     }
     const saved = localStorage.getItem('vmb-invite-style-section-open');
-    return saved ? safeParse<boolean>(saved) ?? true : true; // Default to open for better UX
+    return saved ? JSON.parse(saved) : true; // Default to open for better UX
   });
   
   // For preview mode, we want to skip to step 3

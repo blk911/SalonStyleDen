@@ -7,14 +7,6 @@ import { initTestFlows } from "./lib/test-flows";
 import FlowLogger from "./lib/flow-logger";
 import "./lib/dev-tools";
 
-// Import and enable JSON parsing fix
-import { enableJsonParseMonkeyPatch } from "@shared/utils/json";
-
-// Enable JSON.parse debugging in development mode
-if (import.meta.env.DEV) {
-  enableJsonParseMonkeyPatch();
-}
-
 // Initialize application
 const initApp = () => {
   // Log application startup
