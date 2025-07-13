@@ -874,8 +874,7 @@ export default function ClientRegistrationPage() {
                         </li>
                       </ul>
                     ) : (
-                      <ul className="space-y-3">
-                        <li className="flex items-start">
+                      <ul className="space-y-3"><li className="flex items-start">
                           <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                           <span className="text-gray-600">You'll be redirected to your new dashboard</span>
                         </li>
@@ -917,7 +916,7 @@ export default function ClientRegistrationPage() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  {form.getValues('clientType') === 'giftInvite' ? 'GIFT/INVITATION REDEMPTION' : 'REGISTRATION'}
+                  {form.getValues('clientType') === 'giftInvite' ? 'Redeem Gift/Account Log-in' : 'REGISTRATION'}
                 </CardTitle>
                 {isCompleteRegistrationMode ? (
                   <CardDescription>
@@ -938,14 +937,7 @@ export default function ClientRegistrationPage() {
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
                     {/* Show appropriate notice for gift/invite redemption */}
-                    {isCompleteRegistrationMode && form.getValues('clientType') === 'giftInvite' && (
-                      <div className="mb-4 p-4 bg-pink-50 border border-pink-200 rounded-md">
-                        <h3 className="font-medium text-pink-800 mb-2">Gift/Invitation Redemption</h3>
-                        <p className="text-pink-700 text-sm">
-                          Please enter your phone number to claim your gift or invitation. Once found, you'll need to complete your registration.
-                        </p>
-                      </div>
-                    )}
+                    {/* Remove duplicate pink notification box */}
                     {/* Client Type Selection */}
                     {!isCompleteRegistrationMode && (
                       <FormField
