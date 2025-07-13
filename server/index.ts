@@ -78,11 +78,35 @@ app.use((req, res, next) => {
   // Start server on port 5000 or environment PORT
   const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
   
+  // Enhanced port management with error handling
   server.listen({
     port,
     host: "0.0.0.0",
   }, () => {
     log(`Server is running on port ${port}`);
+  }).on('error', (error: any) => {
+    if (error.code === 'EADDRINUSE') {
+      console.error(`Port ${port} is already in use. Trying to kill existing processes...`);
+      
+      // Try to kill processes on the port and restart
+      import('./monitor-ports').then(({ ensurePortAvailable }) => {
+        ensurePortAvailable(port).then(() => {
+          console.log(`Port ${port} is now available. Retrying server startup...`);
+          server.listen({
+            port,
+            host: "0.0.0.0",
+          }, () => {
+            log(`Server is running on port ${port} after port cleanup`);
+          });
+        }).catch(portError => {
+          console.error(`Failed to cleanup port ${port}:`, portError);
+          process.exit(1);
+        });
+      });
+    } else {
+      console.error('Server startup error:', error);
+      process.exit(1);
+    }
   });
 
   // Simple startup verification

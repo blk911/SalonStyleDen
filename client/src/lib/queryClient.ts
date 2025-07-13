@@ -60,12 +60,50 @@ export async function apiRequest<T = any>(
     await throwIfResNotOk(res);
     
     try {
-      const data = await res.json();
-      console.log(`API response data:`, data);
-      return data;
+      // Check if response is JSON before trying to parse it
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        console.log(`API response data:`, data);
+        return data;
+      } else {
+        // Handle non-JSON responses
+        const text = await res.text();
+        console.log(`API response text:`, text);
+        
+        // If it looks like JSON but wasn't marked as such, try to parse it
+        if (text.startsWith('{') || text.startsWith('[')) {
+          try {
+            const data = JSON.parse(text);
+            console.log(`API response data (parsed from text):`, data);
+            return data;
+          } catch (parseError) {
+            console.error('Error parsing JSON-like text response:', parseError);
+            console.error('Raw response text:', text);
+            throw new Error(`Failed to parse response: ${text}`);
+          }
+        }
+        
+        return { success: true, message: text } as unknown as T;
+      }
     } catch (jsonError) {
       console.error('Error parsing JSON response:', jsonError);
-      return { success: true } as unknown as T; // Return a simple success object for non-JSON responses
+      
+      // Get response text for debugging
+      try {
+        const text = await res.text();
+        console.error('Raw response text:', text);
+        
+        // Check if the response is the problematic "[object Object]" string
+        if (text.includes('[object Object]')) {
+          throw new Error('Server returned [object Object] - likely a JSON serialization error on the server side');
+        }
+        
+        throw new Error(`Failed to parse JSON response: ${text}`);
+      } catch (textError) {
+        console.error('Error getting response text:', textError);
+        throw new Error('Failed to parse response and unable to get response text');
+      }
     }
   } catch (error) {
     console.error(`API request error for ${url}:`, error);
@@ -92,7 +130,27 @@ export const getQueryFn = <T,>(options: {
       // Check if response is JSON before trying to parse it
       const contentType = res.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
-        return await res.json();
+        try {
+          return await res.json();
+        } catch (jsonError) {
+          console.error('Error parsing JSON response in getQueryFn:', jsonError);
+          
+          // Try to get response text for debugging
+          try {
+            const text = await res.text();
+            console.error('Raw response text:', text);
+            
+            // Check if the response is the problematic "[object Object]" string
+            if (text.includes('[object Object]')) {
+              throw new Error('Server returned [object Object] - likely a JSON serialization error on the server side');
+            }
+            
+            throw new Error(`Failed to parse JSON response: ${text}`);
+          } catch (textError) {
+            console.error('Error getting response text:', textError);
+            throw new Error('Failed to parse response and unable to get response text');
+          }
+        }
       }
       
       // For non-JSON responses, return a simple object

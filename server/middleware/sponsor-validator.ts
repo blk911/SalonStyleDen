@@ -22,7 +22,18 @@ export const sponsorValidator = (req: Request, res: Response, next: NextFunction
     // Only process JSON responses
     try {
       // If data is a string, try to parse it as JSON
-      let responseBody = typeof data === 'string' ? JSON.parse(data) : data;
+      let responseBody;
+      if (typeof data === 'string') {
+        // Check if it's actually JSON before parsing
+        try {
+          responseBody = JSON.parse(data);
+        } catch (parseError) {
+          // If it's not valid JSON, don't process it
+          return originalSend.call(this, data);
+        }
+      } else {
+        responseBody = data;
+      }
       
       // If it's an array, validate each item
       if (Array.isArray(responseBody)) {
