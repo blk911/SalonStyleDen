@@ -4,10 +4,6 @@ import { setupVite, serveStatic, log } from "./vite";
 import path from 'path';
 import { startupMonitor } from './startup-monitor'; // Import the startup monitor utility
 import { enableJsonParseMonkeyPatch } from '../shared/utils/json';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
 
 
 const app = express();
@@ -131,53 +127,31 @@ app.use((req, res, next) => {
   const port = 5000;
   
   // Clean shutdown handling
-  const gracefulShutdown = () => {
-    log('Graceful shutdown initiated...');
+  process.on('SIGTERM', () => {
+    log('SIGTERM received, shutting down gracefully');
     server.close(() => {
-      log('Server closed successfully');
       process.exit(0);
     });
-  };
+  });
 
-  process.on('SIGTERM', gracefulShutdown);
-  process.on('SIGINT', gracefulShutdown);
-  process.on('SIGUSR2', gracefulShutdown);
+  // Simple server startup without retry loops
+  server.listen({
+    port,
+    host: "0.0.0.0",
+  }, () => {
+    log(`Server is running on port ${port}`);
+    console.log(`Server listening on port ${port}`);
+  });
 
-  // Start the server with kill-port cleanup
-  const startServer = async () => {
-    try {
-      // Use kill-port to clean up port 5000 first
-      log('Cleaning up port 5000...');
-      await execAsync('npx kill-port 5000 || true');
-      log('Port cleanup completed');
-
-      // Start the server
-      server.listen({
-        port,
-        host: "0.0.0.0",
-      }, () => {
-        log(`Server is running on port ${port}`);
-        console.log(`Server listening on port ${port}`);
-      });
-
-      server.on('error', (err: any) => {
-        if (err.code === 'EADDRINUSE') {
-          log(`Port ${port} is in use. Exiting to allow restart.`);
-          process.exit(1);
-        } else {
-          log(`Server error: ${err.message}`);
-          throw err;
-        }
-      });
-      
-    } catch (error) {
-      log(`Server startup failed: ${error.message}`);
+  server.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      log(`Port ${port} is in use. Exiting to allow restart.`);
       process.exit(1);
+    } else {
+      log(`Server error: ${err.message}`);
+      throw err;
     }
-  };
-
-  // Start the server
-  startServer();
+  });
 
   // Simple startup verification
   startupMonitor.verifyService('HTTP Server', async () => {
