@@ -8,6 +8,11 @@ VMB is a comprehensive salon management platform that enables salons to manage s
   - Previous session context cleared
   - Ready for new instructions and tasks
   - All prior context and state information cleared
+- **PORT CONFLICT FIXED:** Installed kill-port tool and automated port cleanup (July 13, 2025)
+  - Added kill-port dependency for reliable port management
+  - Implemented automatic port 5000 cleanup before server startup
+  - Fixed recurring "Port 5000 is in use" crash issue
+  - Server now starts successfully without port conflicts
 
 ## Project Architecture
 ### Frontend Structure
