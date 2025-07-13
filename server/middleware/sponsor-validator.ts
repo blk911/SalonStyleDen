@@ -12,6 +12,7 @@
  * ensuring no object leaves the API without proper relationship tracking.
  */
 import { Request, Response, NextFunction } from 'express';
+import { smartJsonHandler } from '../../shared/utils/json';
 
 export const sponsorValidator = (req: Request, res: Response, next: NextFunction) => {
   // Store original send method
@@ -21,8 +22,13 @@ export const sponsorValidator = (req: Request, res: Response, next: NextFunction
   res.send = function(data) {
     // Only process JSON responses
     try {
-      // If data is a string, try to parse it as JSON
-      let responseBody = typeof data === 'string' ? JSON.parse(data) : data;
+      // Use smart JSON handler to safely handle both strings and objects
+      let responseBody = smartJsonHandler(data);
+      
+      // If parsing failed, use original data
+      if (responseBody === null) {
+        responseBody = data;
+      }
       
       // If it's an array, validate each item
       if (Array.isArray(responseBody)) {

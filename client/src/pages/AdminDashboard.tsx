@@ -278,21 +278,16 @@ export default function AdminDashboard() {
         const devGuide = localStorage.getItem('adminDashboard_developerGuideOpen');
         const expanded = localStorage.getItem('adminDashboard_expandedSalon');
         
-        // Safe boolean parsing with validation
-        if (styleOpt !== null && styleOpt !== '[object Object]') setStyleOptionsOpen(styleOpt === 'true');
-        if (networkVis !== null && networkVis !== '[object Object]') setNetworkVisualizationOpen(networkVis === 'true');
-        if (codeGraph !== null && codeGraph !== '[object Object]') setCodeGraphOpen(codeGraph === 'true');
-        if (invites !== null && invites !== '[object Object]') setInvitationsOpen(invites === 'true');
-        if (clients !== null && clients !== '[object Object]') setClientsOpen(clients === 'true');
-        if (logs !== null && logs !== '[object Object]') setActivityLogsOpen(logs === 'true');
-        if (salons !== null && salons !== '[object Object]') setSalonDirectoryOpen(salons === 'true');
-        if (gifts !== null && gifts !== '[object Object]') setGiftRequestsOpen(gifts === 'true');
-        if (devGuide !== null && devGuide !== '[object Object]') setDeveloperGuideOpen(devGuide === 'true');
-        
-        // Safe number parsing with validation
-        if (expanded !== null && expanded !== '[object Object]' && !isNaN(parseInt(expanded, 10))) {
-          setExpandedSalon(parseInt(expanded, 10));
-        }
+        if (styleOpt !== null) setStyleOptionsOpen(styleOpt === 'true');
+        if (networkVis !== null) setNetworkVisualizationOpen(networkVis === 'true');
+        if (codeGraph !== null) setCodeGraphOpen(codeGraph === 'true');
+        if (invites !== null) setInvitationsOpen(invites === 'true');
+        if (clients !== null) setClientsOpen(clients === 'true');
+        if (logs !== null) setActivityLogsOpen(logs === 'true');
+        if (salons !== null) setSalonDirectoryOpen(salons === 'true');
+        if (gifts !== null) setGiftRequestsOpen(gifts === 'true');
+        if (devGuide !== null) setDeveloperGuideOpen(devGuide === 'true');
+        if (expanded !== null) setExpandedSalon(parseInt(expanded, 10));
       } catch (error) {
         console.error('Error loading section states from localStorage:', error);
       }

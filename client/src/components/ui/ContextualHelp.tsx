@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { InstructionPopup } from "./InstructionPopup";
 import { Button } from "./button";
 import { HelpCircle } from "lucide-react";
+import { safeParse } from "@shared/utils/json";
 
 interface ContextualHelpProps {
   id: string; // Unique ID for this help tip (used for persistence)
@@ -19,7 +20,7 @@ const isDismissed = (id: string): boolean => {
   try {
     const stored = localStorage.getItem(localStorageKey);
     if (!stored) return false;
-    const dismissed = JSON.parse(stored) as string[];
+    const dismissed = safeParse<string[]>(stored) ?? [];
     return dismissed.includes(id);
   } catch (e) {
     console.error("Error checking dismissed help:", e);
@@ -30,7 +31,7 @@ const isDismissed = (id: string): boolean => {
 const markDismissed = (id: string): void => {
   try {
     const stored = localStorage.getItem(localStorageKey);
-    const dismissed = stored ? JSON.parse(stored) as string[] : [];
+    const dismissed = stored ? safeParse<string[]>(stored) ?? [] : [];
     if (!dismissed.includes(id)) {
       dismissed.push(id);
       localStorage.setItem(localStorageKey, JSON.stringify(dismissed));

@@ -16,6 +16,7 @@ import EditablePromo, { PromoData } from "@/components/dashboard/EditablePromo";
 import EditableService, { ServiceData } from "@/components/dashboard/EditableService";
 import ClientInvitation from "@/components/dashboard/ClientInvitation";
 import LicenseForm from "@/components/dashboard/LicenseForm";
+import { safeParse } from "@shared/utils/json";
 
 
 // Define a type for the social media object that might be in the API response
@@ -119,22 +120,22 @@ export default function SalonDashboard() {
   // State for section visibility with localStorage persistence
   const [styleSectionOpen, setStyleSectionOpen] = useState(() => {
     const saved = localStorage.getItem('vmb-style-section-open');
-    return saved ? JSON.parse(saved) : false;
+    return saved ? safeParse<boolean>(saved) ?? false : false;
   });
   
   const [scheduleSectionOpen, setScheduleSectionOpen] = useState(() => {
     const saved = localStorage.getItem('vmb-schedule-section-open');
-    return saved ? JSON.parse(saved) : false;
+    return saved ? safeParse<boolean>(saved) ?? false : false;
   });
   
   const [invitationSectionOpen, setInvitationSectionOpen] = useState(() => {
     const saved = localStorage.getItem('vmb-invitation-section-open');
-    return saved ? JSON.parse(saved) : false;
+    return saved ? safeParse<boolean>(saved) ?? false : false;
   });
   
   const [accountSectionOpen, setAccountSectionOpen] = useState(() => {
     const saved = localStorage.getItem('vmb-account-section-open');
-    return saved ? JSON.parse(saved) : false;
+    return saved ? safeParse<boolean>(saved) ?? false : false;
   });
   
   // Sub-sections inside Account Management

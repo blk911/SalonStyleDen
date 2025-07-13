@@ -916,9 +916,9 @@ export default function ClientRegistrationPage() {
           <div className="md:col-span-3">
             <Card>
               <CardHeader>
-                <div className="text-base font-semibold">
-                  {form.getValues('clientType') === 'giftInvite' ? 'GIFT/INVITATION REDEMPTION' : 'Register: You, Your Salon, A Friend!'}
-                </div>
+                <CardTitle>
+                  {form.getValues('clientType') === 'giftInvite' ? 'GIFT/INVITATION REDEMPTION' : 'REGISTRATION'}
+                </CardTitle>
                 {isCompleteRegistrationMode ? (
                   <CardDescription>
                     {form.getValues('clientType') === 'giftInvite'

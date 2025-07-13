@@ -3,9 +3,16 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from 'path';
 import { startupMonitor } from './startup-monitor'; // Import the startup monitor utility
+import { enableJsonParseMonkeyPatch } from '../shared/utils/json';
 
 
 const app = express();
+
+// Enable JSON.parse debugging in development mode
+if (process.env.NODE_ENV !== 'production') {
+  enableJsonParseMonkeyPatch();
+}
+
 // Increase payload size limit to 50MB for handling larger requests
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
@@ -58,12 +65,53 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  // Enhanced error handling middleware with JSON parse error detection
+  app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    let message = err.message || "Internal Server Error";
+
+    // Special handling for JSON parse errors
+    if (err.message && err.message.includes('[object Object] is not valid JSON')) {
+      log('🚨 Detected JSON parse error - "[object Object]" issue');
+      console.error('JSON Parse Error Details:', {
+        url: req.url,
+        method: req.method,
+        body: req.body,
+        headers: req.headers,
+        stack: err.stack
+      });
+      
+      message = 'Invalid JSON format in request';
+      res.status(400).json({ 
+        error: 'Bad Request',
+        message: 'Malformed JSON data',
+        code: 'JSON_PARSE_ERROR'
+      });
+      return;
+    }
+
+    // Handle other SyntaxError types that might be JSON-related
+    if (err instanceof SyntaxError && err.message.includes('JSON')) {
+      log(`🚨 JSON Syntax Error: ${err.message}`);
+      res.status(400).json({ 
+        error: 'Bad Request',
+        message: 'Invalid JSON syntax',
+        code: 'JSON_SYNTAX_ERROR'
+      });
+      return;
+    }
+
+    // Log all other errors for debugging
+    log(`❌ Server Error: ${message}`);
+    console.error('Error Details:', {
+      status,
+      message,
+      url: req.url,
+      method: req.method,
+      stack: err.stack
+    });
 
     res.status(status).json({ message });
-    throw err;
   });
 
   // importantly only setup vite in development and after
@@ -75,24 +123,42 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Import port monitoring utilities
-  const { ensurePortAvailable } = await import('./monitor-ports.js');
-
-  // Start server on available port starting from 5000 or environment PORT
-  const preferredPort = process.env.PORT ? parseInt(process.env.PORT) : 5000;
+  // Force port 5000 for Replit workflow compatibility
+  const port = 5000;
   
-  try {
-    const availablePort = await ensurePortAvailable(preferredPort);
-    server.listen({
-      port: availablePort,
-      host: "0.0.0.0",
-    }, () => {
-      log(`Server is running on port ${availablePort}`);
+  // Kill any existing processes and start fresh
+  process.on('SIGTERM', () => {
+    log('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+      process.exit(0);
     });
-  } catch (error) {
-    log(`Failed to start server: ${error}`);
-    process.exit(1);
-  }
+  });
+
+  server.listen({
+    port,
+    host: "0.0.0.0",
+  }, () => {
+    log(`Server is running on port ${port}`);
+    console.log(`Server listening on port ${port}`);
+  });
+
+  server.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      log(`Port ${port} is in use. Attempting graceful restart...`);
+      setTimeout(() => {
+        server.close();
+        server.listen({
+          port,
+          host: "0.0.0.0",
+        }, () => {
+          log(`Server restarted on port ${port}`);
+        });
+      }, 1000);
+    } else {
+      log(`Server error: ${err.message}`);
+      throw err;
+    }
+  });
 
   // Simple startup verification
   startupMonitor.verifyService('HTTP Server', async () => {
