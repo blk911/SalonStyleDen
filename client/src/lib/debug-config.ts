@@ -25,7 +25,7 @@ export function getDebugConfig() {
     try {
       const saved = localStorage.getItem(DEBUG_CONFIG_KEY);
       if (saved) {
-        return safeParse<typeof defaultDebugConfig>(saved) ?? { ...defaultDebugConfig };
+        return safeParse<boolean>(saved) ?? false;
       }
     } catch (err) {
       console.error('Failed to parse debug config', err);

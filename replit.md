@@ -4,14 +4,12 @@
 VMB is a comprehensive salon management platform that enables salons to manage services, clients, invitations, and promotional campaigns. The platform includes both admin and salon-specific dashboards with real-time monitoring capabilities.
 
 ## Recent Changes
-- **CRITICAL:** Fixed recurring "[object Object] is not valid JSON" bug (July 13, 2025)
-  - Identified root cause: incorrect use of `safeParse<boolean>()` for localStorage values
-  - Fixed all instances in SalonDashboard.tsx, InvitationPage.tsx, and debug-config.ts
-  - Replaced JSON parsing with simple string comparison for boolean values
-  - Added comprehensive localStorage cleanup script
-  - Server now runs stable without JSON parsing crashes
-- **Server Stability:** Fixed port conflict restart loop issues
-- **Asset Path Corrections:** Fixed missing logo paths by copying to public directory
+- **CRITICAL FIX:** Resolved restart loop issue (July 13, 2025)
+  - Fixed server error handling that was causing infinite restart attempts
+  - Reverted problematic "graceful restart" code that created MaxListenersExceededWarning
+  - Server now starts successfully without crashes or memory leaks
+  - Asset path issues resolved by copying VMB logo to public directory
+  - Cleared Vite cache to fix React JSX runtime loading errors
 
 ## Project Architecture
 ### Frontend Structure

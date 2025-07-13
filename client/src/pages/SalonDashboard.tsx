@@ -120,22 +120,22 @@ export default function SalonDashboard() {
   // State for section visibility with localStorage persistence
   const [styleSectionOpen, setStyleSectionOpen] = useState(() => {
     const saved = localStorage.getItem('vmb-style-section-open');
-    return saved === 'true';
+    return saved ? safeParse<boolean>(saved) ?? false : false;
   });
   
   const [scheduleSectionOpen, setScheduleSectionOpen] = useState(() => {
     const saved = localStorage.getItem('vmb-schedule-section-open');
-    return saved === 'true';
+    return saved ? safeParse<boolean>(saved) ?? false : false;
   });
   
   const [invitationSectionOpen, setInvitationSectionOpen] = useState(() => {
     const saved = localStorage.getItem('vmb-invitation-section-open');
-    return saved === 'true';
+    return saved ? safeParse<boolean>(saved) ?? false : false;
   });
   
   const [accountSectionOpen, setAccountSectionOpen] = useState(() => {
     const saved = localStorage.getItem('vmb-account-section-open');
-    return saved === 'true';
+    return saved ? safeParse<boolean>(saved) ?? false : false;
   });
   
   // Sub-sections inside Account Management
