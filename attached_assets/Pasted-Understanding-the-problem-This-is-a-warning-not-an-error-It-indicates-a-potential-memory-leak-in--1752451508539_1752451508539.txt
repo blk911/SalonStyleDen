@@ -1,0 +1,38 @@
+Understanding the problem
+This is a warning, not an error. It indicates a potential memory leak in your application related to event listeners. The default limit for event listeners on an EventEmitter is 10. When more than 10 listeners are added to a single event, this warning is triggered to alert you to the possibility of a leak. In this case, 11 'changes' listeners were added.
+
+Suggested fix
+To address this warning, you can increase the maximum number of listeners allowed for the EventEmitter using the setMaxListeners() method. This tells the emitter that it's expected to have more listeners than the default.
+
+js
+
+function e1() {
+            "console"in el.OW && H.Ow.forEach(function(e) {
+                e in el.OW.console && (0,
+                en.GS)(el.OW.console, e, function(t) {
+                    return H.Z9[e] = t,
+                    function(...t) {
+                        ey("console", {
+                            args: t,
+                            level: e
+                        });
+                        let r = H.Z9[e];
+                        r && r.apply(el.OW.console, t)
+                    }
+                })
+            })
+        }
+        let e2 = el.OW;
+
+        // Add this line to increase the max listeners.
+        // Replace `yourEventEmitter` with the actual EventEmitter instance.
+        // Replace `20` with a number appropriate for your application.
+        yourEventEmitter.setMaxListeners(20);
+
+Use code snippets with caution
+
+Note: Replace yourEventEmitter with the actual EventEmitter instance that is triggering the warning, and choose a number for setMaxListeners() that is appropriate for your application's needs. Setting this value too high can still mask potential memory leaks.
+
+Summary
+The "MaxListenersExceededWarning" indicates a potential memory leak due to adding more than the default number of listeners to an EventEmitter. You can resolve this by increasing the maximum listener limit using emitter.setMaxListeners().
+
