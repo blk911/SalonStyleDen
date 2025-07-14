@@ -1025,7 +1025,7 @@ export default function ClientRegistrationPage() {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>F</FormLabel>
+                            <FormLabel>Full Name</FormLabel>
                             <FormControl>
                               <Input 
                                 placeholder="Enter full name" 
@@ -1052,7 +1052,7 @@ export default function ClientRegistrationPage() {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>P</FormLabel>
+                            <FormLabel>Phone Number</FormLabel>
                             <FormControl>
                               <PhoneInputField 
                                 placeholder="Enter cell number" 
