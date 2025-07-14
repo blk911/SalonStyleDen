@@ -1301,7 +1301,7 @@ export default function ClientRegistrationPage() {
           <div className="md:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle>Welcome to the VMB Network</CardTitle>
+                <CardTitle>Welcome to Ven Me Baby!</CardTitle>
                 <CardDescription>
                   A connection-driven personal gifting platform
                 </CardDescription>
