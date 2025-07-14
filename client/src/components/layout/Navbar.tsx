@@ -98,7 +98,7 @@ export default function Navbar() {
                 className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer"
                 onClick={() => setLoginDialogOpen(true)}
               >
-                Log In
+                I am a NEW or EXISTING:
               </div>
             </div>
             <LoadingIndicator />
@@ -145,7 +145,7 @@ export default function Navbar() {
             className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer"
             onClick={() => setLoginDialogOpen(true)}
           >
-            Log In
+            I am a NEW or EXISTING:
           </div>
         </div>
       </div>

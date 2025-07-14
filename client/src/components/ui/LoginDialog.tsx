@@ -39,7 +39,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
           const client = clients[0];
           
           toast({
-            title: "Login Successful",
+            title: "Welcome Back!",
             description: `Welcome back, ${client.name || 'valued client'}!`,
           });
           
@@ -47,19 +47,21 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
           setLocation(`/client/${client.id}`);
         } else {
           toast({
-            title: "No Account Found",
-            description: "No account found with this phone number. Please register first.",
-            variant: "destructive",
+            title: "New User",
+            description: "Redirecting you to registration...",
           });
+          
+          onOpenChange(false);
+          setLocation(`/client-registration?phone=${encodeURIComponent(cleanPhone)}`);
         }
       } else {
         throw new Error('Failed to lookup client');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Phone lookup error:', error);
       toast({
-        title: "Login Error",
-        description: "There was an error logging you in. Please try again.",
+        title: "Error",
+        description: "There was an error processing your request. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -78,9 +80,9 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-center">Log In</DialogTitle>
+          <DialogTitle className="text-center">NEW or EXISTING User</DialogTitle>
           <DialogDescription className="text-center">
-            Enter your phone number to access your account
+            Enter your phone number - we'll route you to the right place
           </DialogDescription>
         </DialogHeader>
         
@@ -108,7 +110,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                 disabled={loading || !phoneNumber}
                 className="flex-1"
               >
-                {loading ? "Logging in..." : "Log In"}
+                {loading ? "Processing..." : "Continue"}
               </Button>
             </div>
           </div>
