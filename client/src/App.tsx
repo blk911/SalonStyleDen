@@ -33,6 +33,8 @@ import GiftRedemptionPage from "@/pages/GiftRedemptionPage";
 import GiftDetailPage from "@/pages/GiftDetailPage";
 import AboutPage from "@/pages/AboutPage";
 import TestFinalStep3 from "@/pages/TestFinalStep3";
+import EditResetButton from '@/components/shared/EditResetButton';
+import { useGlobalKeyboardShortcuts } from '@/hooks/useGlobalKeyboardShortcuts';
 
 function Router() {
   return (
@@ -119,18 +121,20 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
 }
 
 function App() {
+  useGlobalKeyboardShortcuts();
+
   // State to track visibility of monitoring dashboard
   const [showMonitoring, setShowMonitoring] = useState(shouldShowMonitoringDashboard());
-  
+
   // Initialize error monitoring on app startup
   useEffect(() => {
     initMonitoring();
-    
+
     // Update monitoring visibility when debug config changes
     const intervalId = setInterval(() => {
       setShowMonitoring(shouldShowMonitoringDashboard());
     }, 1000);
-    
+
     return () => clearInterval(intervalId);
   }, []);
 
@@ -140,6 +144,7 @@ function App() {
         <StatusProvider>
           <MonitoringProvider>
             <NavigationProvider>
+              <EditResetButton />
               <Router />
               {/* Only render MonitoringDashboard when debug config enables it */}
               {showMonitoring && <MonitoringDashboard />}

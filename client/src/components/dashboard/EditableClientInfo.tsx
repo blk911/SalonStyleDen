@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatPhoneNumber, getImageUrl } from "@/lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useEditState } from "@/lib/edit-state-manager";
 import { 
   PhoneIcon, 
   AtSignIcon,
@@ -52,6 +53,9 @@ interface EditableClientInfoProps {
 }
 
 export default function EditableClientInfo({ client, onSave, defaultEditing = false, isDialog = false }: EditableClientInfoProps) {
+  const componentId = `client-${client.id}`;
+  const { isEditingEnabled } = useEditState();
+  
   // State for UI controls and edited client data
   const [isEditing, setIsEditing] = useState(true); // Always keep this true for the component to work
   const [showEditForm, setShowEditForm] = useState(defaultEditing);
