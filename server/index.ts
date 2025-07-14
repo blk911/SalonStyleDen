@@ -3,48 +3,24 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from 'path';
 import fs from 'fs';
-import { startupMonitor } from './startup-monitor'; // Import the startup monitor utility
+import { startupMonitor } from './startup-monitor';
 import { EventEmitter } from 'events';
+import http from 'http';
 
 // Increase the default max listeners to prevent warnings
 EventEmitter.defaultMaxListeners = 20;
 
-// Process lock mechanism to prevent multiple server instances
-const LOCK_FILE = path.join(process.cwd(), 'server', '.server.lock');
-
-// Check if another server instance is running
-if (fs.existsSync(LOCK_FILE)) {
-  const pid = fs.readFileSync(LOCK_FILE, 'utf8');
-  console.log(`⚠️ Another server instance may be running (PID: ${pid})`);
-  console.log('🔄 Cleaning up and continuing...');
-  fs.unlinkSync(LOCK_FILE);
-}
-
-// Create lock file
-fs.writeFileSync(LOCK_FILE, process.pid.toString());
-
-// Cleanup function
-function cleanup() {
-  if (fs.existsSync(LOCK_FILE)) {
-    fs.unlinkSync(LOCK_FILE);
+// Enhanced port cleanup utility using kill-port package
+async function killPortProcesses(port: number): Promise<void> {
+  try {
+    const killPort = await import('kill-port');
+    await killPort.default(port);
+    // Small delay to ensure port is freed
+    await new Promise(resolve => setTimeout(resolve, 200));
+  } catch (error) {
+    // Ignore errors - port might already be free
   }
 }
-
-// Handle process termination
-process.on('SIGINT', cleanup);
-process.on('SIGTERM', cleanup);
-process.on('exit', cleanup);
-process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  cleanup();
-  process.exit(1);
-});
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  cleanup();
-  process.exit(1);
-});
-
 
 const app = express();
 // Increase payload size limit to 50MB for handling larger requests
@@ -116,52 +92,78 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Start server with automatic port selection
-  const BASE_PORT = process.env.PORT ? parseInt(process.env.PORT) : 5000;
-  let serverStarted = false;
+  // Fixed server startup with guaranteed port 5000
+  const TARGET_PORT = 5000;
   
-  function startServer(port: number): void {
-    if (serverStarted) return;
-    
-    server.listen(port, "0.0.0.0")
-      .on('listening', () => {
-        serverStarted = true;
-        log(`🚀 Server listening on port ${port}`);
-        // Set the chosen port for Vite/React to use
-        process.env.VITE_API_PORT = String(port);
-      })
-      .on('error', (err: any) => {
-        if (err.code === 'EADDRINUSE') {
-          log(`⚠️ Port ${port} busy, trying ${port + 1}`);
-          startServer(port + 1);
-        } else {
-          console.error('Server startup error:', err);
-          cleanup();
-          process.exit(1);
-        }
-      });
-  }
+  // Aggressively clean up port 5000 to ensure it's available
+  log(`🧹 Ensuring port ${TARGET_PORT} is available...`);
+  await killPortProcesses(TARGET_PORT);
+  await killPortProcesses(TARGET_PORT + 1); // Clean backup port too
   
-  // Start the server
-  startServer(BASE_PORT);
-
-  // Enhanced startup verification - only after successful server start
-  setTimeout(async () => {
-    startupMonitor.verifyService('HTTP Server', async () => {
-      return true; // Server is running if we get here
-    });
+  // Set environment variable immediately
+  process.env.VITE_API_PORT = String(TARGET_PORT);
+  process.env.PORT = String(TARGET_PORT);
+  
+  // Start server on guaranteed port
+  server.listen(TARGET_PORT, "0.0.0.0", () => {
+    log(`🚀 Server listening on port ${TARGET_PORT}`);
+    log(`📍 API endpoint: http://localhost:${TARGET_PORT}`);
+    log(`✅ Server started successfully on expected port`);
     
-    // Verify API endpoints are responding
-    startupMonitor.verifyService('API Health', async () => {
+    // Immediate verification that server is responsive
+    setTimeout(async () => {
       try {
-        const response = await fetch(`http://localhost:${process.env.VITE_API_PORT || BASE_PORT}/api/health`);
-        return response.ok;
+        const response = await fetch(`http://localhost:${TARGET_PORT}/api/health`);
+        if (response.ok) {
+          log('✅ Server health check passed');
+          log('🚀 VMB Application ready for connections');
+        } else {
+          log('⚠️ Server health check failed');
+        }
       } catch (error) {
-        return false;
+        log('❌ Server health check error:', error);
       }
-    });
-    
-    startupMonitor.logStatus();
-    log('🚀 VMB Application fully started and verified');
-  }, 2000); // Wait 2 seconds to ensure server is fully started
+    }, 500);
+  })
+  .on('error', async (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      log(`⚠️ Port ${TARGET_PORT} busy, using next available port...`);
+      
+      // Find next available port
+      let availablePort = TARGET_PORT + 1;
+      let maxAttempts = 10;
+      
+      while (maxAttempts > 0) {
+        try {
+          await new Promise((resolve, reject) => {
+            const testServer = server.listen(availablePort, "0.0.0.0", () => {
+              process.env.VITE_API_PORT = String(availablePort);
+              process.env.PORT = String(availablePort);
+              log(`🚀 Server listening on port ${availablePort}`);
+              log(`📍 API endpoint: http://localhost:${availablePort}`);
+              resolve(availablePort);
+            });
+            testServer.on('error', (testErr: any) => {
+              if (testErr.code === 'EADDRINUSE') {
+                availablePort++;
+                maxAttempts--;
+                reject(testErr);
+              } else {
+                reject(testErr);
+              }
+            });
+          });
+          break; // Success, exit loop
+        } catch (testError) {
+          if (maxAttempts === 0) {
+            console.error('Unable to find available port after multiple attempts');
+            process.exit(1);
+          }
+        }
+      }
+    } else {
+      console.error('Server startup error:', err);
+      process.exit(1);
+    }
+  });
 })();

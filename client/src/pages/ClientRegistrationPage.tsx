@@ -1300,7 +1300,7 @@ export default function ClientRegistrationPage() {
           {/* Information Column */}
           <div className="md:col-span-2">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-col space-y-1.5 p-6 pt-[16px] pb-[16px]">
                 <CardTitle>Welcome to Ven Me Baby!</CardTitle>
                 <CardDescription>
                   A connection-driven personal gifting platform

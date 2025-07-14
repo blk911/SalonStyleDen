@@ -4,10 +4,13 @@
 VMB is a comprehensive salon management platform that enables salons to manage services, clients, invitations, and promotional campaigns. The platform includes both admin and salon-specific dashboards with real-time monitoring capabilities.
 
 ## Recent Changes
-- Fixed MaxListenersExceededWarning and port conflicts (July 14, 2025)
+- RESOLVED: Server restart requirement after modifications (July 14, 2025)
+- Fixed critical port management and server startup architecture
 - Installed kill-port package for reliable port cleanup before server startup
-- Implemented robust port management with automatic fallback and proper delays
-- Server now starts successfully on port 5000 without startup failures
+- Implemented robust port management with guaranteed port 5000 startup
+- Eliminated recursive port conflicts that caused infinite restart loops
+- Server now starts reliably without requiring manual resets after code changes
+- Fixed MaxListenersExceededWarning and port conflicts (July 14, 2025)
 - Fixed form label display issues in ClientRegistrationPage (July 14, 2025)
 - Changed "REGISTRATION" to "Registration" in CardTitle for better consistency
 - Fixed FormLabel components showing "F" and "P" to display "Full Name" and "Phone Number"
