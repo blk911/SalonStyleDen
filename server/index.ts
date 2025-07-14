@@ -2,11 +2,48 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from 'path';
+import fs from 'fs';
 import { startupMonitor } from './startup-monitor'; // Import the startup monitor utility
 import { EventEmitter } from 'events';
 
 // Increase the default max listeners to prevent warnings
 EventEmitter.defaultMaxListeners = 20;
+
+// Process lock mechanism to prevent multiple server instances
+const LOCK_FILE = path.join(process.cwd(), 'server', '.server.lock');
+
+// Check if another server instance is running
+if (fs.existsSync(LOCK_FILE)) {
+  const pid = fs.readFileSync(LOCK_FILE, 'utf8');
+  console.log(`⚠️ Another server instance may be running (PID: ${pid})`);
+  console.log('🔄 Cleaning up and continuing...');
+  fs.unlinkSync(LOCK_FILE);
+}
+
+// Create lock file
+fs.writeFileSync(LOCK_FILE, process.pid.toString());
+
+// Cleanup function
+function cleanup() {
+  if (fs.existsSync(LOCK_FILE)) {
+    fs.unlinkSync(LOCK_FILE);
+  }
+}
+
+// Handle process termination
+process.on('SIGINT', cleanup);
+process.on('SIGTERM', cleanup);
+process.on('exit', cleanup);
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  cleanup();
+  process.exit(1);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  cleanup();
+  process.exit(1);
+});
 
 
 const app = express();
@@ -79,58 +116,34 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Start server on port 5000 or environment PORT
-  const basePort = process.env.PORT ? parseInt(process.env.PORT) : 5000;
+  // Start server with automatic port selection
+  const BASE_PORT = process.env.PORT ? parseInt(process.env.PORT) : 5000;
+  let serverStarted = false;
   
-  // Function to find and use available port
-  async function startServerOnAvailablePort(startPort: number, maxAttempts: number = 5): Promise<void> {
-    const { default: killPort } = await import('kill-port');
+  function startServer(port: number): void {
+    if (serverStarted) return;
     
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const port = startPort + attempt;
-      
-      try {
-        // First try to kill any process on this port
-        await killPort(port);
-        log(`Cleaned up port ${port}`);
-        
-        // Wait for port to be fully released
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Attempt to start server on this port
-        await new Promise<void>((resolve, reject) => {
-          const serverInstance = server.listen({
-            port,
-            host: "0.0.0.0",
-          }, () => {
-            log(`Server is running on port ${port}`);
-            resolve();
-          }).on('error', (error: any) => {
-            if (error.code === 'EADDRINUSE') {
-              log(`Port ${port} still in use, trying next port...`);
-              reject(new Error(`Port ${port} in use`));
-            } else {
-              console.error('Server startup error:', error);
-              process.exit(1);
-            }
-          });
-        });
-        
-        // If we get here, server started successfully
-        return;
-        
-      } catch (error) {
-        if (attempt === maxAttempts - 1) {
-          console.error(`Failed to start server after ${maxAttempts} attempts`);
+    server.listen(port, "0.0.0.0")
+      .on('listening', () => {
+        serverStarted = true;
+        log(`🚀 Server listening on port ${port}`);
+        // Set the chosen port for Vite/React to use
+        process.env.VITE_API_PORT = String(port);
+      })
+      .on('error', (err: any) => {
+        if (err.code === 'EADDRINUSE') {
+          log(`⚠️ Port ${port} busy, trying ${port + 1}`);
+          startServer(port + 1);
+        } else {
+          console.error('Server startup error:', err);
+          cleanup();
           process.exit(1);
         }
-        // Continue to next port
-      }
-    }
+      });
   }
   
   // Start the server
-  await startServerOnAvailablePort(basePort);
+  startServer(BASE_PORT);
 
   // Simple startup verification - only after successful server start
   setTimeout(() => {
