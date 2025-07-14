@@ -1010,9 +1010,7 @@ export default function ClientRegistrationPage() {
                               }}
                             >
                               <Gift className={`h-8 w-8 mb-2 ${field.value === 'giftInvite' ? 'text-[#FF92A5]' : 'text-gray-500'}`} />
-                              <span className={`font-medium ${field.value === 'giftInvite' ? 'text-[#FF92A5]' : 'text-gray-700'}`}>
-                                Gift/Invite
-                              </span>
+                              <span className={`font-medium ${field.value === 'giftInvite' ? 'text-[#FF92A5]' : 'text-gray-700'}`}>My Gift</span>
                             </div>
                           </div>
                         </FormItem>
@@ -1086,7 +1084,7 @@ export default function ClientRegistrationPage() {
                     {/* Salon Information - Show selected salon or default */}
                     {isCompleteRegistrationMode ? (
                       /* In Complete Registration mode, show salon info instead of selection dropdown */
-                      <div className="mb-4">
+                      (<div className="mb-4">
                         <FormLabel className="block mb-1">Salon</FormLabel>
                         <div className="border rounded-md p-3 bg-gray-50">
                           {(() => {
@@ -1177,7 +1175,7 @@ export default function ClientRegistrationPage() {
                           name="sponsorSalonId" 
                           value={localSalon?.id || form.getValues('sponsorSalonId') || invitation?.salonId || salon?.id || 2} 
                         />
-                      </div>
+                      </div>)
                     ) : (
                       <FormField
                         control={form.control}
@@ -1355,10 +1353,8 @@ export default function ClientRegistrationPage() {
           </div>
         </div>
       </main>
-      
       {/* Address Collection Dialog */}
       {/* Address dialog removed as requested */}
-      
       <Footer />
     </div>
   );
