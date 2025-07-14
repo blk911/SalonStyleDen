@@ -104,7 +104,8 @@ const invitationInputSchema = z.object({
     invalid_type_error: "Salon ID must be a number"
   }).default(1), // Default to VMB LTD (ID: 1) if not provided
   salonName: z.string().optional(),
-  sponsor: z.string().default("VMB LTD"), // Default sponsor field
+  sponsor: z.string().default("VMB LTD"),
+  sponsorName: z.string().default("VMB LTD"), // Default sponsor field
   // [RULE: UniqueInvitationID] Invitations must have unique hash identifiers
   // Note: We handle the generation of hash in the route handler for both cases:
   // 1. If client provides a hash, we validate and potentially replace it
@@ -129,6 +130,8 @@ const giftInputSchema = z.object({
     invalid_type_error: "Sender ID must be a number"
   }),
   senderName: z.string().optional(),
+  styleId: z.number().optional(),
+  styleName: z.string().optional(),
   recipientName: z.string({
     required_error: "Recipient name is required",
     invalid_type_error: "Recipient name must be a string"
@@ -1513,7 +1516,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
             notes: validatedData.notes,
             favoriteServices: validatedData.favoriteServices,
             salonId: validatedData.salonId,
-            salonName: validatedData.salonName,
             sponsor: validatedData.sponsor,
             sponsorName: validatedData.sponsorName,
             inviteHash: validatedData.inviteHash, // Now guaranteed to exist
@@ -1571,12 +1573,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   apiRouter.get("/invitations", async (req: Request, res: Response) => {
+    // Get query parameters at the top level so they're accessible in catch block
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+    const salonId = req.query.salonId ? parseInt(req.query.salonId as string) : undefined;
+    const clientId = req.query.clientId ? parseInt(req.query.clientId as string) : undefined;
+    const status = req.query.status as string | undefined;
+    
     try {
-      // Get query parameters
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
-      const salonId = req.query.salonId ? parseInt(req.query.salonId as string) : undefined;
-      const clientId = req.query.clientId ? parseInt(req.query.clientId as string) : undefined;
-      const status = req.query.status as string | undefined;
       
       let invitations;
       
@@ -2731,7 +2734,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: inv.notes || inv.message || 'You received an invitation',
         status: inv.status,
         salonId: inv.salonId,
-        salonName: inv.salonName || null,
+        salonName: null,
         giftHash: inv.inviteHash,
         senderName: inv.sponsor || 'VMB LTD',
         expiresAt: null,
@@ -2833,8 +2836,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // [RULE: SponsorClientRelationship] Every gift must have a salon relationship
         salonId,
         // Additional fields that might be optional but useful
-        styleId: validatedData.styleId,
-        styleName: validatedData.styleName
+        styleId: validatedData.styleId || null,
+        styleName: validatedData.styleName || null
       };
       
       // Create the gift
@@ -2939,19 +2942,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Process gifts to extract recipient names from messages if not available
       const processedGifts = pendingGifts.map(gift => {
+        let processedGift = { ...gift };
+        
         // Only process gifts that don't have recipient names
-        if (!gift.recipientName && gift.message) {
-          // Extract name from message if it starts with "Hi [Name],"
-          const nameMatch = gift.message.match(/^Hi\s+([^,]+),/i);
-          if (nameMatch && nameMatch[1]) {
-            console.log(`[API] Extracted recipient name "${nameMatch[1].trim()}" from gift message`);
-            return {
-              ...gift,
-              recipientName: nameMatch[1].trim()
-            };
-          }
+        if (!gift.message) {
+          return processedGift;
         }
-        return gift;
+        
+        // Extract name from message if it starts with "Hi [Name],"
+        const nameMatch = gift.message.match(/^Hi\s+([^,]+),/i);
+        if (nameMatch && nameMatch[1]) {
+          console.log(`[API] Extracted recipient name "${nameMatch[1].trim()}" from gift message`);
+          processedGift = {
+            ...processedGift,
+            recipientName: nameMatch[1].trim()
+          } as any;
+        }
+        return processedGift;
       });
       
       return res.json(processedGifts);
@@ -2986,40 +2993,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // If the gift is found, fetch additional info and enhance it
+      let enhancedGift = { ...gift };
+      
       // Check if gift is already redeemed
       if (gift.status === "redeemed") {
         console.log(`[API] GET /gifts/by-hash/${hash} - Gift found but already redeemed`);
       } else {
         console.log(`[API] GET /gifts/by-hash/${hash} - Gift found, status: ${gift.status}`);
-        
-        // If the gift is found but not linked to the sender, fetch sender info
-        if (gift.senderId) {
-          try {
-            const sender = await storage.getClient(gift.senderId);
-            if (sender) {
-              gift.senderName = sender.name;
-            }
-          } catch (error) {
-            console.error(`Error fetching sender for gift ${gift.id}:`, error);
-            // Non-blocking error, continue without sender name
+      }
+      
+      // If the gift is found but not linked to the sender, fetch sender info
+      if (gift.senderId) {
+        try {
+          const sender = await storage.getClient(gift.senderId);
+          if (sender) {
+            enhancedGift = { ...enhancedGift, senderName: sender.name } as any;
           }
-        }
-        
-        // If gift is linked to a salon, fetch salon info
-        if (gift.salonId) {
-          try {
-            const salon = await storage.getSalon(gift.salonId);
-            if (salon) {
-              gift.salonName = salon.name;
-            }
-          } catch (error) {
-            console.error(`Error fetching salon for gift ${gift.id}:`, error);
-            // Non-blocking error, continue without salon name
-          }
+        } catch (error) {
+          console.error(`Error fetching sender for gift ${gift.id}:`, error);
+          // Non-blocking error, continue without sender name
         }
       }
       
-      return res.json(gift);
+      // If gift is linked to a salon, fetch salon info
+      if (gift.salonId) {
+        try {
+          const salon = await storage.getSalon(gift.salonId);
+          if (salon) {
+            enhancedGift = { ...enhancedGift, salonName: salon.name } as any;
+          }
+        } catch (error) {
+          console.error(`Error fetching salon for gift ${gift.id}:`, error);
+          // Non-blocking error, continue without salon name
+        }
+      }
+      
+      return res.json(enhancedGift);
     } catch (error) {
       console.error("Error fetching gift by hash:", error);
       return res.status(500).json({

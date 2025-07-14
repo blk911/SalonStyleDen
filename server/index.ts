@@ -13,6 +13,7 @@ EventEmitter.defaultMaxListeners = 20;
 // Enhanced port cleanup utility using kill-port package
 async function killPortProcesses(port: number): Promise<void> {
   try {
+    // @ts-ignore
     const killPort = await import('kill-port');
     await killPort.default(port);
     // Small delay to ensure port is freed
@@ -130,7 +131,7 @@ app.use((req, res, next) => {
               log('🚀 VMB Application ready for connections');
             }
           } catch (error) {
-            log('⚠️ Server health check error:', error);
+            log('⚠️ Server health check error:', String(error));
           }
         }, 500);
       });
@@ -161,7 +162,7 @@ app.use((req, res, next) => {
             log('🚀 VMB Application ready for connections');
           }
         } catch (error) {
-          log('⚠️ Server health check error:', error);
+          log('⚠️ Server health check error:', String(error));
         }
       }, 500);
     }

@@ -8,7 +8,7 @@ import {
   gifts, type Gift, type InsertGift
 } from "@shared/schema";
 import { db, pool } from "./db";
-import { eq, sql, and, or } from "drizzle-orm";
+import { eq, sql, and, or, desc, count, isNull, isNotNull } from "drizzle-orm";
 import { cleanPhoneNumber, formatPhoneForDisplay, phonesMatch } from "./utils";
 
 export interface IStorage {
@@ -731,7 +731,7 @@ export class DatabaseStorage implements IStorage {
         return result;
       },
       'clients',
-      this._clientsCache
+      this._clientsCache as any
     );
   }
 
@@ -816,6 +816,7 @@ export class DatabaseStorage implements IStorage {
           // profileComplete field is not in the schema
           profilePromptShown: result.rows[0].profile_prompt_shown,
           photoUrl: result.rows[0].photo_url,
+          inviteHash: result.rows[0].invite_hash || '',
           // status field is not in the schema
           createdAt: result.rows[0].created_at
         };
@@ -1495,7 +1496,6 @@ export class DatabaseStorage implements IStorage {
           styleDuration: row.style_duration || null,
           // For salon invitations, use the salon name as sponsorName for display
           sponsorName: row.salon_name || row.sponsor,
-          salonName: row.salon_name,
           senderId: row.sender_id || null
         };
       } finally {
@@ -1935,7 +1935,7 @@ export class DatabaseStorage implements IStorage {
         console.error('Error fetching activity logs:', error);
         
         // Check if the error message indicates a rate limit issue
-        const errorMessage = error.toString().toLowerCase();
+        const errorMessage = String(error).toLowerCase();
         const isRateLimitError = errorMessage.includes('rate limit') || 
                                  errorMessage.includes('too many requests') ||
                                  errorMessage.includes('exceeded');
@@ -2498,8 +2498,8 @@ export class DatabaseStorage implements IStorage {
       // Execute the query directly
       const client = await pool.connect();
       try {
-        const result = await client.query(baseQuery);
-        const gifts = result.rows.map(row => ({
+        const result = await client.query(baseQuery) as any;
+        const gifts = result.rows.map((row: any) => ({
           id: row.id,
           senderId: row.sender_id,
           recipientId: row.recipient_id,
@@ -2607,7 +2607,7 @@ export class DatabaseStorage implements IStorage {
                 ...updatedGift,
                 senderName: sender.name,
                 senderPhone: sender.phone
-              };
+              } as any;
             }
           } catch (error) {
             console.error(`Error fetching client sender info for gift ${gift.id}:`, error);
@@ -2622,7 +2622,7 @@ export class DatabaseStorage implements IStorage {
                 ...updatedGift,
                 senderName: salon.name,
                 senderId: salon.id // Add salon ID as senderId for proper linking
-              };
+              } as any;
             }
           } catch (error) {
             console.error(`Error fetching salon sender info for invitation gift ${gift.id}:`, error);
@@ -2653,7 +2653,7 @@ export class DatabaseStorage implements IStorage {
       // Create activity log for deletion
       await this.createActivityLog({
         type: 'gift_deleted',
-        description: `Gift from ${gift.senderName || `sender ID ${gift.senderId}`} to ${gift.recipientName || gift.recipientPhone} was deleted.`,
+        description: `Gift from ${(gift as any).senderName || `sender ID ${gift.senderId}`} to ${(gift as any).recipientName || gift.recipientPhone} was deleted.`,
         userId: null,
         salonId: gift.salonId,
         clientId: gift.senderId,
