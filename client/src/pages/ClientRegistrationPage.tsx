@@ -113,45 +113,45 @@ interface Salon {
 
 export default function ClientRegistrationPage() {
   const [location, navigate] = useLocation();
-  
+
   // Extract invite hash from URL if present
   const inviteHash = location.includes('/invite/') 
     ? location.split('/invite/')[1]
     : null;
-    
+
   // Extract salon ID from URL if present
   const salonIdParam = location.includes('/salon/') 
     ? location.split('/salon/')[1]
     : null;
-  
+
   // Parse URL query parameters
   const urlParams = new URLSearchParams(window.location.search);
   const salonIdQueryParam = urlParams.get('salonId');
-  
+
   // Use salonId from query parameter if available, otherwise from URL path
   const salonId = salonIdQueryParam 
     ? parseInt(salonIdQueryParam, 10) 
     : (salonIdParam ? parseInt(salonIdParam, 10) : undefined);
-  
+
   // Check if coming from "Complete Registration" button click (from invitation)
   const isCompleteRegistrationMode = urlParams.get('registrationMode') === 'complete';
-  
+
   // Determine source of registration (direct, invitation, gift)
   const invitationSource = urlParams.get('invitationSource');
   const isFromGift = invitationSource === 'gift';
-  
 
-  
+
+
   // State management for form submission
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [registeredClientId, setRegisteredClientId] = useState<number | null>(null);
   const [isExistingClient, setIsExistingClient] = useState(false);
-  
+
   // Create a state for the salon to force UI updates when salon changes
   const [localSalon, setLocalSalon] = useState<{id: number, name: string, ownerName?: string} | null>(null);
   // Note: Address dialog state variables removed
-  
+
   // We'll use a direct approach to the terms checkbox element
   const focusTermsCheckbox = () => {
     console.log('Focusing terms checkbox - direct approach');
@@ -178,7 +178,7 @@ export default function ClientRegistrationPage() {
       }, 10);
     }
   };
-  
+
   // Form definition with zod validation - enhanced for reliability
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
@@ -200,9 +200,9 @@ export default function ClientRegistrationPage() {
     },
     mode: 'onChange', // Validate fields as they change for better user feedback
   });
-  
+
   // Removed redundant direct submit event listener to fix duplicate submissions
-  
+
   // Contact validation hook for phone validation and gift checking
   const { 
     validateContact, 
@@ -210,14 +210,14 @@ export default function ClientRegistrationPage() {
     requiresAddress,
     validationResult
   } = useContactValidation();
-  
+
   // Track whether invitation has been loaded
   const [invitationDataLoaded, setInvitationDataLoaded] = useState(false);
 
   // Function to handle phone validation - checks if phone is valid and if it has unredeemed gifts
   const handlePhoneValidation = async (isValid: boolean, phoneNumber?: string) => {
     logFlow(`Phone validation ${isValid ? 'passed' : 'failed'}`);
-    
+
     // Only show a toast for invalid phone numbers to help user correct them immediately
     if (!isValid) {
       toast({
@@ -227,17 +227,17 @@ export default function ClientRegistrationPage() {
       });
       return;
     }
-    
+
     // If phone is valid and we're in Gift/Invite mode, look up the invitation ID directly
     if (isValid && phoneNumber) {
       const clientType = form.getValues('clientType');
-      
+
       if (clientType === 'giftInvite') {
         // Check if we're already in the right view and have an invitation ID in the URL
         // If we do, we don't need to reload or redirect
         const currentInvitationId = urlParams.get('invitationId');
         const currentPhone = urlParams.get('phone');
-        
+
         // If we already have the right invitation ID and phone, skip further API calls
         if (isCompleteRegistrationMode && currentInvitationId && currentPhone === phoneNumber) {
           logFlow('Already have invitation data, skipping lookup');
@@ -247,72 +247,72 @@ export default function ClientRegistrationPage() {
         try {
           // Check for invitations first
           const inviteResponse = await fetch(`/api/invitations?phone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
-          
+
           if (inviteResponse.ok) {
             const invites = await inviteResponse.json();
-            
+
             if (invites && invites.length > 0) {
               const invite = invites[0]; // Get the first matching invitation
               logFlow('Found invitation for phone number', invite);
-              
+
               // Show success message
               toast({
                 title: 'Invitation Found!',
                 description: `Found your invitation from ${invite.sponsor || 'a salon'}. Complete the form to accept it.`,
                 variant: 'default',
               });
-              
+
               // Auto-populate salon information from invitation data
               if (invite.salonId) {
                 logFlow('Auto-populating form with salon data from invitation', {
                   salonId: invite.salonId,
                   salonName: invite.sponsor || 'Unknown Salon'
                 });
-                
+
                 // Set form value
                 form.setValue('sponsorSalonId', invite.salonId);
-                
+
                 // Update local salon state for UI display
                 setLocalSalon({
                   id: invite.salonId,
                   name: invite.sponsor || 'Tiffany 5280 Nails Studio',
                   ownerName: invite.sponsorName || 'Tiffany'
                 });
-                
+
                 // Store invitation ID for later association during registration
                 form.setValue('invitationId', invite.id);
               }
-              
+
               return;
             } else {
               // No invitation found, check for gifts
               logFlow('No invitation found, checking for gifts');
               const giftsResponse = await fetch(`/api/gifts?recipientPhone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
-              
+
               if (giftsResponse.ok) {
                 const gifts = await giftsResponse.json();
-                
+
                 if (gifts && gifts.length > 0) {
                   const gift = gifts[0]; // Get the first matching gift
                   logFlow('Found gift for phone number', gift);
-                  
+
                   // Show success message
                   toast({
                     title: 'Gift Found!',
                     description: `Found a gift from ${gift.senderName || 'someone special'}! Complete registration to claim it.`,
                     variant: 'default',
                   });
-                  
+
                   // Auto-populate salon information from gift data
                   if (gift.salonId) {
                     logFlow('Auto-populating form with salon data from gift', {
                       salonId: gift.salonId,
                       senderName: gift.senderName || 'Unknown Sender'
                     });
-                    
+
                     // Set form value
                     form.setValue('sponsorSalonId', gift.salonId);
-                    
+
                     // Try to get salon info if available
                     fetch(`/api/salons/${gift.salonId}`)
                       .then(response => response.ok ? response.json() : null)
@@ -329,15 +329,15 @@ export default function ClientRegistrationPage() {
                       .catch(err => {
                         console.warn('Failed to fetch salon details for gift', err);
                       });
-                    
+
                     // Store gift ID for later association during registration
                     form.setValue('giftId', gift.id);
                   }
-                  
+
                   return;
                 }
               }
-              
+
               // Neither invitation nor gift found
               logFlow('No matching invitation or gift found');
               toast({
@@ -363,19 +363,19 @@ export default function ClientRegistrationPage() {
   useEffect(() => {
     if (isCompleteRegistrationMode && form && !invitationDataLoaded) {
       logFlow('Setting up complete registration mode for gift/invite');
-      
+
       // Force client type to be gift/invite when in complete registration mode
       form.setValue('clientType', 'giftInvite');
-      
+
       // Auto-populate with parameters from URL if available
       const phone = urlParams.get('phone');
       if (phone) {
         form.setValue('phone', phone);
-        
+
         // Only auto-validate if we don't already have invitation data in the URL
         const currentInvitationId = urlParams.get('invitationId');
         const currentGiftId = urlParams.get('giftId');
-        
+
         // If we have a phone but no invitation/gift ID, try to find it
         if (!currentInvitationId && !currentGiftId) {
           setTimeout(() => {
@@ -388,25 +388,25 @@ export default function ClientRegistrationPage() {
           }, 100);
         }
       }
-      
+
       const name = urlParams.get('name');
       if (name) {
         form.setValue('name', name);
       }
-      
+
       const email = urlParams.get('email');
       if (email) {
         form.setValue('email', email);
       }
-      
+
       // Get invitationId from URL parameter
       const invitationId = urlParams.get('invitationId');
       if (invitationId) {
         logFlow(`Found invitation ID in URL: ${invitationId}`);
-        
+
         // Mark as loaded to prevent duplicate API calls
         setInvitationDataLoaded(true);
-        
+
         // Attempt to fetch the invitation details
         fetch(`/api/invitations/${invitationId}`)
           .then(response => {
@@ -417,17 +417,17 @@ export default function ClientRegistrationPage() {
           })
           .then(inviteData => {
             logFlow('Loaded invitation data from ID:', inviteData);
-            
+
             if (inviteData && inviteData.salonId) {
               form.setValue('sponsorSalonId', inviteData.salonId);
-              
+
               // Set the localSalon state to force UI update
               setLocalSalon({
                 id: inviteData.salonId,
                 name: inviteData.sponsor || 'Tiffany 5280 Nails Studio',
                 ownerName: inviteData.sponsorName || 'Tiffany'
               });
-              
+
               toast({
                 title: 'Invitation Found!',
                 description: `We found your invitation from ${inviteData.sponsor || 'a salon'}. Complete registration to accept it.`,
@@ -455,7 +455,7 @@ export default function ClientRegistrationPage() {
       }
     }
   }, [isCompleteRegistrationMode, urlParams, form, invitationDataLoaded]);
-  
+
   // Load invitation data if invite hash is present
   const { 
     data: invitation,
@@ -464,7 +464,7 @@ export default function ClientRegistrationPage() {
     queryKey: ['/api/invitations/hash', inviteHash],
     queryFn: async () => {
       if (!inviteHash) return null;
-      
+
       const response = await fetch(`/api/invitations/hash/${inviteHash}`);
       if (!response.ok) {
         throw new Error('Failed to load invitation');
@@ -473,7 +473,7 @@ export default function ClientRegistrationPage() {
     },
     enabled: !!inviteHash,
   });
-  
+
   // Load salon data if salon ID is present
   const { 
     data: salon,
@@ -482,7 +482,7 @@ export default function ClientRegistrationPage() {
     queryKey: ['/api/salons', salonId],
     queryFn: async () => {
       if (!salonId) return null;
-      
+
       const response = await fetch(`/api/salons/${salonId}`);
       if (!response.ok) {
         throw new Error('Failed to load salon information');
@@ -491,7 +491,7 @@ export default function ClientRegistrationPage() {
     },
     enabled: !!salonId,
   });
-  
+
   // Load all salons for the dropdown
   const {
     data: allSalons,
@@ -506,7 +506,7 @@ export default function ClientRegistrationPage() {
       return response.json();
     },
   });
-  
+
   // If invitation data is loaded or in complete registration mode, prefill the form
   useEffect(() => {
     if (invitation) {
@@ -522,7 +522,7 @@ export default function ClientRegistrationPage() {
         // Make sure client type is set to newClient
         clientType: 'newClient',
       });
-      
+
       // Log that form is pre-filled for complete registration
       if (isCompleteRegistrationMode) {
         logFlow('Auto-filled client info for complete registration', {
@@ -533,10 +533,10 @@ export default function ClientRegistrationPage() {
       }
     }
   }, [invitation, form, salonId, isCompleteRegistrationMode, salon]);
-  
+
   // Create a ref to track if we've already shown a processing toast
   const processingToastShown = React.useRef(false);
-  
+
   const onSubmit = async (data: ClientFormValues) => {
     // Critical Debug: Show form submission occurred in browser console
     console.log('[CRITICAL DEBUG] CLIENT REGISTRATION FORM SUBMITTED', data);
@@ -562,20 +562,20 @@ export default function ClientRegistrationPage() {
         acceptTerms: data.acceptTerms,
         hasAddress: Boolean(data.address || data.city || data.state || data.zipCode)
       });
-      
+
       // Clean up any leftover address state attributes
       if (document.body.hasAttribute('data-address-shown')) {
         logFlow('Cleaning up address state attributes');
         document.body.removeAttribute('data-address-shown');
       }
-      
+
       // Skip address popup dialog as requested
       logFlow('Address dialog skipped per client request');
-      
+
       // If client has an unredeemed gift, inform them they can add address in dashboard
       if (hasUnredeemedGift) {
         logFlow('Client has unredeemed gift - showing notification about adding address in dashboard');
-        
+
         // Show toast to inform user they need to add address later
         toast({
           title: 'Complete Your Gift Profile',
@@ -583,16 +583,16 @@ export default function ClientRegistrationPage() {
           variant: 'default',
         });
       }
-      
+
       logFlow('Address validation passed, continuing with form submission');
-      
+
       setIsSubmitting(true);
-      
+
       // Add client type and sponsor information
       // Get gift or invitation ID from URL params or form values
       const giftIdFromUrl = urlParams.get('giftId') ? parseInt(urlParams.get('giftId')!) : undefined;
       const invitationIdFromUrl = urlParams.get('invitationId') ? parseInt(urlParams.get('invitationId')!) : undefined;
-      
+
       const clientData = {
         ...data,
         type: data.clientType === 'salonOwner' ? 'salonOwner' : 'client', // Set type based on selection
@@ -606,15 +606,15 @@ export default function ClientRegistrationPage() {
         invitationId: data.invitationId || invitationIdFromUrl || invitation?.id, // Add invitation ID for linking
         giftId: data.giftId || giftIdFromUrl // Add gift ID for linking to pending gifts
       };
-      
+
       // Log the IDs being passed for debugging
       logFlow('Registering client with gift/invitation IDs', {
         invitationId: data.invitationId || invitationIdFromUrl || invitation?.id,
         giftId: data.giftId || giftIdFromUrl
       });
-      
+
       console.log('Submitting client data:', clientData);
-      
+
       try {
         // Create the client with better error handling
         const clientResponse = await fetch('/api/clients', {
@@ -624,7 +624,7 @@ export default function ClientRegistrationPage() {
           },
           body: JSON.stringify(clientData),
         });
-        
+
         // Ensure we can parse the response - wrap in try-catch to handle json parse errors
         let responseData;
         try {
@@ -639,18 +639,18 @@ export default function ClientRegistrationPage() {
           });
           return;
         }
-        
+
         // Handle duplicate client scenario (HTTP 409 Conflict)
         if (clientResponse.status === 409 && responseData.status === 'duplicate') {
           console.log('Duplicate client detected:', responseData);
-          
+
           // Show a toast about the duplicate account
           toast({
             title: 'Account Already Exists',
             description: responseData.message || `A client with this ${responseData.field} already exists.`,
             variant: 'default',
           });
-          
+
           // TODO: CRITICAL FEATURE - IMPLEMENT LOGIN PROMPT FLOW
           // This section needs to be enhanced with a comprehensive login prompt flow
           // that includes the following features:
@@ -660,29 +660,29 @@ export default function ClientRegistrationPage() {
           // 4. Option to continue with different phone number
           // 5. Help resources for users who don't recognize the account
           // This will be implemented during the next development phase
-          
+
           // Try to find existing client by the duplicate contact information
           let existingClientId: number | undefined;
-          
+
           // Search for existing client with this phone or email
           const fieldValue = data[responseData.field as keyof ClientFormValues] as string;
           if (!fieldValue) {
             throw new Error(`Missing ${responseData.field} value for duplicate client lookup`);
           }
-          
+
           try {
             const searchResponse = await fetch(`/api/clients?${responseData.field}=${encodeURIComponent(fieldValue)}`, {
               method: 'GET'
             });
-            
+
             if (searchResponse.ok) {
               const foundClients = await searchResponse.json();
-              
+
               if (foundClients && foundClients.length > 0) {
                 // Use the first matching client
                 existingClientId = foundClients[0].id;
                 console.log('Found existing client with ID:', existingClientId);
-                
+
                 // Update invitation status if we have an invitation ID
                 if (invitation?.id) {
                   try {
@@ -700,47 +700,47 @@ export default function ClientRegistrationPage() {
                     console.warn('Failed to update invitation for existing client:', inviteError);
                   }
                 }
-                
+
                 // Set registration as complete and store client ID for improved UX
                 setRegistrationComplete(true);
                 setIsExistingClient(true); // Flag this as an existing client for different UI messaging
                 if (existingClientId) {
                   setRegisteredClientId(existingClientId);
                 }
-                
+
                 // IMMEDIATE REDIRECT to existing client's dashboard - critical fix
                 console.log('REDIRECTING TO EXISTING CLIENT DASHBOARD IMMEDIATELY:', existingClientId);
                 logFlow('CRITICAL FIX: Redirecting to existing client dashboard immediately', existingClientId);
-                
+
                 // Show success toast for existing client
                 toast({
                   title: 'Account Found!',
                   description: 'Your existing account was found. Redirecting to your dashboard...',
                   variant: 'default',
                 });
-                
+
                 navigate(`/client/${existingClientId}`);
-                
+
                 return;
               }
             }
           } catch (searchError) {
             console.error('Error searching for existing client:', searchError);
           }
-          
+
           // If we can't find a matching client, show an error
           throw new Error(`A client with this ${responseData.field} already exists. Please use a different ${responseData.field} or contact support.`);
         }
-        
+
         // Handle invalid/error response
         if (!clientResponse.ok) {
           throw new Error(`Failed to register client: ${responseData.error || JSON.stringify(responseData)}`);
         }
-        
+
         // Handle successful client creation (HTTP 201 Created)
         const createdClient = responseData;
         console.log('Created client:', createdClient);
-        
+
         // Update invitation status if we have an invitation ID
         if (invitation?.id) {
           try {
@@ -754,7 +754,7 @@ export default function ClientRegistrationPage() {
                 clientId: createdClient.id // Link invitation to new client
               }),
             });
-            
+
             if (!inviteResponse.ok) {
               console.warn('Failed to update invitation status, but client was created');
             }
@@ -762,26 +762,26 @@ export default function ClientRegistrationPage() {
             console.warn('Error updating invitation after client creation:', inviteError);
           }
         }
-        
+
         // Update registration state and store client ID
         setRegistrationComplete(true);
-        
+
         const clientId = createdClient?.id;
         if (clientId) {
           setRegisteredClientId(clientId);
           console.log('Client created with ID:', clientId);
-          
+
           // IMMEDIATE REDIRECT to client dashboard - critical fix for user flow
         console.log('REDIRECTING TO CLIENT DASHBOARD IMMEDIATELY:', clientId);
         logFlow('CRITICAL FIX: Redirecting to client dashboard immediately', clientId);
-                
+
         // Enhanced toast message for better feedback on redirect
         toast({
           title: 'Registration Complete!',
           description: 'Your account has been created. Redirecting to your dashboard...',
           variant: 'default',
         });
-                
+
         navigate(`/client/${clientId}`);
         } else {
           // Fallback if we don't have the client ID
@@ -853,7 +853,7 @@ export default function ClientRegistrationPage() {
                   </div>
                 </div>
               </div>
-              
+
               <CardContent className="pt-6">
                 <div className="space-y-6">
                   <div className="bg-white p-4 rounded-lg border border-gray-100">
@@ -890,7 +890,7 @@ export default function ClientRegistrationPage() {
                       </ul>
                     )}
                   </div>
-                  
+
                   <div className="flex items-center justify-center pt-2">
                     <div className="flex items-center space-x-2 bg-gray-50 py-2 px-4 rounded-full">
                       <Loader2Icon className="animate-spin h-4 w-4 text-pink-500" />
@@ -967,7 +967,7 @@ export default function ClientRegistrationPage() {
                                 CLIENT
                               </span>
                             </div>
-                            
+
                             <div 
                               className={`p-4 rounded-lg border-2 cursor-pointer transition-all flex flex-col items-center justify-center
                                 ${field.value === 'salonOwner' 
@@ -980,7 +980,7 @@ export default function ClientRegistrationPage() {
                                 Salon<br/>Owner
                               </span>
                             </div>
-                            
+
                             <div 
                               className={`p-4 rounded-lg border-2 cursor-pointer transition-all flex flex-col items-center justify-center
                                 ${field.value === 'giftInvite' 
@@ -988,10 +988,10 @@ export default function ClientRegistrationPage() {
                                   : 'border-gray-200 hover:border-[#FF92A5] hover:bg-pink-50'}`}
                               onClick={() => {
                                 field.onChange('giftInvite');
-                                
+
                                 // When Gift/Invite is selected, initiate the redemption flow
                                 logFlow('Gift/Invite option selected, initiating redemption flow');
-                                
+
                                 // Check the current URL parameters first to prevent redirection loops
                                 if (!isCompleteRegistrationMode && !window.location.href.includes('registrationMode=complete')) {
                                   console.log('Redirecting to complete mode (not already in complete mode)');
@@ -1017,7 +1017,7 @@ export default function ClientRegistrationPage() {
                       )}
                     />
                     )}
-                    
+
                     {/* FIRST ROW: Name and Phone side by side */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <FormField
@@ -1025,7 +1025,6 @@ export default function ClientRegistrationPage() {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>F</FormLabel>
                             <FormControl>
                               <Input 
                                 placeholder="Enter full name" 
@@ -1046,20 +1045,19 @@ export default function ClientRegistrationPage() {
                           </FormItem>
                         )}
                       />
-                      
+
                       <FormField
                         control={form.control}
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>P</FormLabel>
                             <FormControl>
                               <PhoneInputField 
                                 placeholder="Enter cell number" 
                                 value={field.value} 
                                 onChange={(value) => {
                                   field.onChange(value);
-                                  
+
                                   // If gift/invite is selected, automatically validate 
                                   // as soon as a valid phone number is entered
                                   const clientType = form.getValues('clientType');
@@ -1080,7 +1078,7 @@ export default function ClientRegistrationPage() {
                         )}
                       />
                     </div>
-                    
+
                     {/* Salon Information - Show selected salon or default */}
                     {isCompleteRegistrationMode ? (
                       /* In Complete Registration mode, show salon info instead of selection dropdown */
@@ -1101,16 +1099,16 @@ export default function ClientRegistrationPage() {
                                 </div>
                               );
                             }
-                            
+
                             // If no localSalon, fall back to form values
                             const currentSalonId = form.getValues('sponsorSalonId') || 2; // Default to Tiffany if not set
                             console.log('Current salon ID from form (display logic):', currentSalonId);
-                            
+
                             // If we have salons from the API call
                             if (allSalons && allSalons.length > 0) {
                               // Find the matching salon from the list
                               const selectedSalon = allSalons.find(s => s.id === currentSalonId);
-                              
+
                               if (selectedSalon) {
                                 // If we have a selected salon from the form value
                                 return (
@@ -1123,7 +1121,7 @@ export default function ClientRegistrationPage() {
                                 );
                               }
                             }
-                            
+
                             // Fallbacks if salon not found in the list
                             if (invitation?.sponsor && invitation?.salonId) {
                               // Fallback to invitation data
@@ -1224,7 +1222,7 @@ export default function ClientRegistrationPage() {
                         )}
                       />
                     )}
-                    
+
                     {/* Terms and Conditions Checkbox - CRITICALLY ENHANCED for visibility and reliability */}
                     <FormField
                       control={form.control}
@@ -1270,7 +1268,7 @@ export default function ClientRegistrationPage() {
                         </FormItem>
                       )}
                     />
-                    
+
                     {/* Submit Button */}
                     <div className="mt-6">
                       <Button 
@@ -1298,7 +1296,7 @@ export default function ClientRegistrationPage() {
               </CardContent>
             </Card>
           </div>
-          
+
           {/* Information Column */}
           <div className="md:col-span-2">
             <Card>
@@ -1319,7 +1317,7 @@ export default function ClientRegistrationPage() {
                       <p className="text-sm text-gray-500">Unlock personalized recommendations from top salons.</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start space-x-3">
                     <div className="bg-pink-100 p-2 rounded-full">
                       <Scissors className="h-5 w-5 text-pink-600" />
@@ -1329,7 +1327,7 @@ export default function ClientRegistrationPage() {
                       <p className="text-sm text-gray-500">Access to special promotions and member-only services.</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start space-x-3">
                     <div className="bg-pink-100 p-2 rounded-full">
                       <Sparkles className="h-5 w-5 text-pink-600" />
@@ -1339,7 +1337,7 @@ export default function ClientRegistrationPage() {
                       <p className="text-sm text-gray-500">Join a community that values personal connection and gifting.</p>
                     </div>
                   </div>
-                  
+
                   <div className="bg-gray-50 p-4 rounded-lg mt-6">
                     <p className="text-sm text-gray-700">
                       By joining Ven Me, Baby!, you're entering a network of salons and clients focused on authentic connections and personalized beauty experiences.
