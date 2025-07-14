@@ -2487,42 +2487,22 @@ export class DatabaseStorage implements IStorage {
       const cleanPhone = phone.replace(/\D/g, '');
       console.log(`DatabaseStorage.getGiftsByRecipientPhone - Looking for gifts with recipient phone ${cleanPhone} (digits only)`);
       
-      // Build SQL query using SQL template for custom PostgreSQL regexp_replace function
-      const baseQuery = sql`
-        SELECT * FROM gifts 
-        WHERE regexp_replace(recipient_phone, '[^0-9]', '', 'g') = ${cleanPhone}
-        ${status ? sql` AND status = ${status}` : sql``}
-        ORDER BY created_at DESC
-      `;
+      const phoneCondition = sql`regexp_replace(${gifts.recipientPhone}, '[^0-9]', '', 'g') = ${cleanPhone}`;
       
-      // Execute the query directly
-      const client = await pool.connect();
-      try {
-        const result: any = await client.query(baseQuery);
-        const gifts = result.rows.map((row: any) => ({
-          id: row.id,
-          senderId: row.sender_id,
-          recipientId: row.recipient_id,
-          recipientPhone: row.recipient_phone,
-          recipientEmail: row.recipient_email,
-          recipientName: row.recipient_name,
-          amount: row.amount,
-          message: row.message,
-          status: row.status,
-          salonId: row.salon_id,
-          giftHash: row.gift_hash,
-          expiresAt: row.expires_at,
-          redeemedAt: row.redeemed_at,
-          createdAt: row.created_at,
-          giftType: row.gift_type || 'style_card'
-        }));
-        
-        console.log(`DatabaseStorage.getGiftsByRecipientPhone - Found ${gifts.length} matching gifts with phone ${cleanPhone}${status ? ` and status ${status}` : ''}`);
-        
-        return gifts;
-      } finally {
-        client.release();
-      }
+      // Add status filter if provided
+      const whereCondition = status 
+        ? and(phoneCondition, eq(gifts.status, status))!
+        : phoneCondition;
+      
+      const results = await db
+        .select()
+        .from(gifts)
+        .where(whereCondition)
+        .orderBy(desc(gifts.createdAt));
+      
+      console.log(`DatabaseStorage.getGiftsByRecipientPhone - Found ${results.length} matching gifts with phone ${cleanPhone}${status ? ` and status ${status}` : ''}`);
+      
+      return results;
     } catch (error) {
       console.error(`Error getting gifts by recipient phone:`, error);
       throw error;
