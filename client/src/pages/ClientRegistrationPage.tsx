@@ -1025,7 +1025,7 @@ export default function ClientRegistrationPage() {
                         name="name"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Full Name</FormLabel>
+                            <FormLabel>F</FormLabel>
                             <FormControl>
                               <Input 
                                 placeholder="Enter full name" 
