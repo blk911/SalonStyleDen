@@ -1052,7 +1052,7 @@ export default function ClientRegistrationPage() {
                         name="phone"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Phone Number</FormLabel>
+                            <FormLabel>P</FormLabel>
                             <FormControl>
                               <PhoneInputField 
                                 placeholder="Enter cell number" 
