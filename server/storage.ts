@@ -2498,7 +2498,7 @@ export class DatabaseStorage implements IStorage {
       // Execute the query directly
       const client = await pool.connect();
       try {
-        const result = await client.query(baseQuery) as any;
+        const result: any = await client.query(baseQuery);
         const gifts = result.rows.map((row: any) => ({
           id: row.id,
           senderId: row.sender_id,
