@@ -31,7 +31,6 @@ localPort = 8080
 externalPort = 8080
 
 [workflows]
-runButton = "Restart Application"
 
 [[workflows.workflow]]
 name = "Project"
@@ -120,12 +119,3 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node test-photo-handler.js"
-
-[[workflows.workflow]]
-name = "Restart Application"
-author = 29677669
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"

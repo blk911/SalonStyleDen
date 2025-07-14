@@ -114,68 +114,43 @@ interface Salon {
 export default function ClientRegistrationPage() {
   const [location, navigate] = useLocation();
   
-  // ROBUST URL PARSING with regex patterns
-  const parseUrlParams = () => {
-    try {
-      // Robust invite hash extraction
-      const inviteMatch = location.match(/\/invite\/([^?\/]+)/);
-      const inviteHash = inviteMatch ? inviteMatch[1] : null;
-      
-      // Robust salon ID extraction
-      const salonMatch = location.match(/\/salon\/(\d+)/);
-      const salonIdFromPath = salonMatch ? parseInt(salonMatch[1], 10) : null;
-      
-      // Safe URL params parsing
-      const urlParams = new URLSearchParams(window.location.search);
-      
-      // Prioritized salon ID resolution
-      const salonIdFromQuery = urlParams.get('salonId');
-      const resolvedSalonId = salonIdFromQuery 
-        ? parseInt(salonIdFromQuery, 10) 
-        : salonIdFromPath;
-      
-      return {
-        inviteHash,
-        salonId: resolvedSalonId,
-        isCompleteRegistrationMode: urlParams.get('registrationMode') === 'complete',
-        invitationSource: urlParams.get('invitationSource'),
-        isFromGift: urlParams.get('invitationSource') === 'gift',
-        urlParams
-      };
-    } catch (error) {
-      console.error('URL parsing error:', error);
-      // Fallback to safe defaults
-      return {
-        inviteHash: null,
-        salonId: null,
-        isCompleteRegistrationMode: false,
-        invitationSource: null,
-        isFromGift: false,
-        urlParams: new URLSearchParams()
-      };
-    }
-  };
-
-  // CENTRALIZED URL STATE
-  const urlState = parseUrlParams();
-  const { inviteHash, salonId, isCompleteRegistrationMode, invitationSource, isFromGift, urlParams } = urlState;
+  // Extract invite hash from URL if present
+  const inviteHash = location.includes('/invite/') 
+    ? location.split('/invite/')[1]
+    : null;
+    
+  // Extract salon ID from URL if present
+  const salonIdParam = location.includes('/salon/') 
+    ? location.split('/salon/')[1]
+    : null;
+  
+  // Parse URL query parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const salonIdQueryParam = urlParams.get('salonId');
+  
+  // Use salonId from query parameter if available, otherwise from URL path
+  const salonId = salonIdQueryParam 
+    ? parseInt(salonIdQueryParam, 10) 
+    : (salonIdParam ? parseInt(salonIdParam, 10) : undefined);
+  
+  // Check if coming from "Complete Registration" button click (from invitation)
+  const isCompleteRegistrationMode = urlParams.get('registrationMode') === 'complete';
+  
+  // Determine source of registration (direct, invitation, gift)
+  const invitationSource = urlParams.get('invitationSource');
+  const isFromGift = invitationSource === 'gift';
   
 
   
-  // CENTRALIZED STATE MANAGEMENT
-  const [formState, setFormState] = useState({
-    isSubmitting: false,
-    registrationComplete: false,
-    registeredClientId: null as number | null,
-    isExistingClient: false,
-    localSalon: null as {id: number, name: string, ownerName?: string} | null,
-    invitationDataLoaded: false
-  });
-
-  // State update helper with validation
-  const updateFormState = (updates: Partial<typeof formState>) => {
-    setFormState(prev => ({ ...prev, ...updates }));
-  };
+  // State management for form submission
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
+  const [registeredClientId, setRegisteredClientId] = useState<number | null>(null);
+  const [isExistingClient, setIsExistingClient] = useState(false);
+  
+  // Create a state for the salon to force UI updates when salon changes
+  const [localSalon, setLocalSalon] = useState<{id: number, name: string, ownerName?: string} | null>(null);
+  // Note: Address dialog state variables removed
   
   // We'll use a direct approach to the terms checkbox element
   const focusTermsCheckbox = () => {
@@ -236,12 +211,14 @@ export default function ClientRegistrationPage() {
     validationResult
   } = useContactValidation();
   
-  // All state now managed through formState object
+  // Track whether invitation has been loaded
+  const [invitationDataLoaded, setInvitationDataLoaded] = useState(false);
 
-  // ENHANCED PHONE VALIDATION with proper state management
+  // Function to handle phone validation - checks if phone is valid and if it has unredeemed gifts
   const handlePhoneValidation = async (isValid: boolean, phoneNumber?: string) => {
     logFlow(`Phone validation ${isValid ? 'passed' : 'failed'}`);
     
+    // Only show a toast for invalid phone numbers to help user correct them immediately
     if (!isValid) {
       toast({
         title: 'Invalid Phone Number',
@@ -251,20 +228,19 @@ export default function ClientRegistrationPage() {
       return;
     }
     
+    // If phone is valid and we're in Gift/Invite mode, look up the invitation ID directly
     if (isValid && phoneNumber) {
       const clientType = form.getValues('clientType');
       
       if (clientType === 'giftInvite') {
-        // IMPROVED STATE CHECKING
+        // Check if we're already in the right view and have an invitation ID in the URL
+        // If we do, we don't need to reload or redirect
         const currentInvitationId = urlParams.get('invitationId');
         const currentPhone = urlParams.get('phone');
         
-        // Prevent redundant API calls with better state coordination
-        if (isCompleteRegistrationMode && 
-            currentInvitationId && 
-            currentPhone === phoneNumber && 
-            formState.invitationDataLoaded) {
-          logFlow('Invitation data already loaded, skipping lookup');
+        // If we already have the right invitation ID and phone, skip further API calls
+        if (isCompleteRegistrationMode && currentInvitationId && currentPhone === phoneNumber) {
+          logFlow('Already have invitation data, skipping lookup');
           return;
         }
 
@@ -296,13 +272,11 @@ export default function ClientRegistrationPage() {
                 // Set form value
                 form.setValue('sponsorSalonId', invite.salonId);
                 
-                // Update centralized salon state
-                updateFormState({
-                  localSalon: {
-                    id: invite.salonId,
-                    name: invite.sponsor || 'Tiffany 5280 Nails Studio',
-                    ownerName: invite.sponsorName || 'Tiffany'
-                  }
+                // Update local salon state for UI display
+                setLocalSalon({
+                  id: invite.salonId,
+                  name: invite.sponsor || 'Tiffany 5280 Nails Studio',
+                  ownerName: invite.sponsorName || 'Tiffany'
                 });
                 
                 // Store invitation ID for later association during registration
@@ -385,84 +359,102 @@ export default function ClientRegistrationPage() {
     }
   };
 
-  // ENHANCED INVITATION SETUP with centralized state management
+  // Special useEffect to handle gift/invite mode properly when form is ready
   useEffect(() => {
-    if (isCompleteRegistrationMode && form && !formState.invitationDataLoaded) {
+    if (isCompleteRegistrationMode && form && !invitationDataLoaded) {
       logFlow('Setting up complete registration mode for gift/invite');
-      
-      // ATOMIC STATE UPDATE - prevent race conditions
-      updateFormState({ invitationDataLoaded: true });
       
       // Force client type to be gift/invite when in complete registration mode
       form.setValue('clientType', 'giftInvite');
       
-      // COORDINATED FORM POPULATION
-      const populateFormFromUrl = () => {
-        const phone = urlParams.get('phone');
-        const name = urlParams.get('name');
-        const email = urlParams.get('email');
+      // Auto-populate with parameters from URL if available
+      const phone = urlParams.get('phone');
+      if (phone) {
+        form.setValue('phone', phone);
         
-        if (phone) form.setValue('phone', phone);
-        if (name) form.setValue('name', name);
-        if (email) form.setValue('email', email);
+        // Only auto-validate if we don't already have invitation data in the URL
+        const currentInvitationId = urlParams.get('invitationId');
+        const currentGiftId = urlParams.get('giftId');
         
-        return { phone, name, email };
-      };
-      
-      const { phone } = populateFormFromUrl();
-      
-      // IMPROVED INVITATION HANDLING
-      const invitationId = urlParams.get('invitationId');
-      if (invitationId) {
-        logFlow(`Processing invitation ID: ${invitationId}`);
-        
-        fetch(`/api/invitations/${invitationId}`)
-          .then(response => response.ok ? response.json() : Promise.reject('Failed to fetch'))
-          .then(inviteData => {
-            logFlow('Loaded invitation data:', inviteData);
-            
-            if (inviteData?.salonId) {
-              form.setValue('sponsorSalonId', inviteData.salonId);
-              
-              updateFormState({
-                localSalon: {
-                  id: inviteData.salonId,
-                  name: inviteData.sponsor || 'Tiffany 5280 Nails Studio',
-                  ownerName: inviteData.sponsorName || 'Tiffany'
-                }
-              });
-              
-              toast({
-                title: 'Invitation Found!',
-                description: `We found your invitation from ${inviteData.sponsor || 'a salon'}.`,
-                variant: 'default',
-              });
-            }
-          })
-          .catch(error => {
-            console.error('Error fetching invitation:', error);
-            updateFormState({ invitationDataLoaded: false });
-          });
-      } else {
-        // Handle cases without invitation ID
-        const providedSalonId = urlParams.get('salonId');
-        if (providedSalonId && !isNaN(parseInt(providedSalonId, 10))) {
-          form.setValue('sponsorSalonId', parseInt(providedSalonId, 10));
-        }
-        
-        // Auto-validate phone if provided but no invitation ID
-        if (phone && !urlParams.get('giftId')) {
+        // If we have a phone but no invitation/gift ID, try to find it
+        if (!currentInvitationId && !currentGiftId) {
           setTimeout(() => {
+            // Need a slight timeout to ensure form state is ready
             const cleanedPhone = cleanPhoneNumber(phone);
             if (cleanedPhone.length === 10) {
-              logFlow('Auto-triggering phone validation from URL');
+              logFlow('Auto-triggering phone validation from URL parameter');
               handlePhoneValidation(true, phone);
             }
           }, 100);
         }
       }
+      
+      const name = urlParams.get('name');
+      if (name) {
+        form.setValue('name', name);
+      }
+      
+      const email = urlParams.get('email');
+      if (email) {
+        form.setValue('email', email);
+      }
+      
+      // Get invitationId from URL parameter
+      const invitationId = urlParams.get('invitationId');
+      if (invitationId) {
+        logFlow(`Found invitation ID in URL: ${invitationId}`);
+        
+        // Mark as loaded to prevent duplicate API calls
+        setInvitationDataLoaded(true);
+        
+        // Attempt to fetch the invitation details
+        fetch(`/api/invitations/${invitationId}`)
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Failed to fetch invitation');
+          })
+          .then(inviteData => {
+            logFlow('Loaded invitation data from ID:', inviteData);
+            
+            if (inviteData && inviteData.salonId) {
+              form.setValue('sponsorSalonId', inviteData.salonId);
+              
+              // Set the localSalon state to force UI update
+              setLocalSalon({
+                id: inviteData.salonId,
+                name: inviteData.sponsor || 'Tiffany 5280 Nails Studio',
+                ownerName: inviteData.sponsorName || 'Tiffany'
+              });
+              
+              toast({
+                title: 'Invitation Found!',
+                description: `We found your invitation from ${inviteData.sponsor || 'a salon'}. Complete registration to accept it.`,
+                variant: 'default',
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching invitation by ID:', error);
+            // Reset the flag to allow retrying in case of error
+            setInvitationDataLoaded(false);
+          });
+      } else {
+        // Set VMB LTD as default salon if no invitation ID
+        const providedSalonId = urlParams.get('salonId');
+        if (providedSalonId && !isNaN(parseInt(providedSalonId, 10))) {
+          form.setValue('sponsorSalonId', parseInt(providedSalonId, 10));
+        } else {
+          // No default salon - user must select one
+          // Clear the value in the form, don't set undefined
+          form.unregister('sponsorSalonId');
+        }
+        // Mark as loaded since we don't need to fetch invitation data
+        setInvitationDataLoaded(true);
+      }
     }
-  }, [isCompleteRegistrationMode, urlParams, form, formState.invitationDataLoaded]);
+  }, [isCompleteRegistrationMode, urlParams, form, invitationDataLoaded]);
   
   // Load invitation data if invite hash is present
   const { 
@@ -594,7 +586,7 @@ export default function ClientRegistrationPage() {
       
       logFlow('Address validation passed, continuing with form submission');
       
-      updateFormState({ isSubmitting: true });
+      setIsSubmitting(true);
       
       // Add client type and sponsor information
       // Get gift or invitation ID from URL params or form values
@@ -709,12 +701,12 @@ export default function ClientRegistrationPage() {
                   }
                 }
                 
-                // CENTRALIZED SUCCESS STATE UPDATE
-                updateFormState({
-                  registrationComplete: true,
-                  isExistingClient: true,
-                  registeredClientId: existingClientId || null
-                });
+                // Set registration as complete and store client ID for improved UX
+                setRegistrationComplete(true);
+                setIsExistingClient(true); // Flag this as an existing client for different UI messaging
+                if (existingClientId) {
+                  setRegisteredClientId(existingClientId);
+                }
                 
                 // IMMEDIATE REDIRECT to existing client's dashboard - critical fix
                 console.log('REDIRECTING TO EXISTING CLIENT DASHBOARD IMMEDIATELY:', existingClientId);
@@ -771,14 +763,12 @@ export default function ClientRegistrationPage() {
           }
         }
         
-        // CENTRALIZED SUCCESS STATE FOR NEW CLIENT
-        const clientId = createdClient?.id;
-        updateFormState({
-          registrationComplete: true,
-          registeredClientId: clientId || null
-        });
+        // Update registration state and store client ID
+        setRegistrationComplete(true);
         
+        const clientId = createdClient?.id;
         if (clientId) {
+          setRegisteredClientId(clientId);
           console.log('Client created with ID:', clientId);
           
           // IMMEDIATE REDIRECT to client dashboard - critical fix for user flow
@@ -816,7 +806,7 @@ export default function ClientRegistrationPage() {
         variant: 'destructive',
       });
     } finally {
-      updateFormState({ isSubmitting: false });
+      setIsSubmitting(false);
     }
   };
 
@@ -841,7 +831,7 @@ export default function ClientRegistrationPage() {
   }
 
   // Enhanced success state with animation and better feedback
-  if (formState.registrationComplete) {
+  if (registrationComplete) {
     return (
       <div className="flex flex-col min-h-screen bg-gradient-to-b from-white to-pink-50">
         <Navbar />
@@ -856,7 +846,7 @@ export default function ClientRegistrationPage() {
                   <div>
                     <h2 className="text-2xl font-bold text-gray-800">Registration Complete!</h2>
                     <p className="text-gray-600">
-                      {formState.isExistingClient 
+                      {isExistingClient 
                         ? 'Welcome back! Your existing account was found' 
                         : 'Your account has been created successfully'}
                     </p>
@@ -1101,14 +1091,14 @@ export default function ClientRegistrationPage() {
                         <div className="border rounded-md p-3 bg-gray-50">
                           {(() => {
                             // This is a crucial part for salon display logic
-                            // First, prioritize our centralized salon state if it exists
-                            if (formState.localSalon) {
-                              console.log('Using centralized salon state for display:', formState.localSalon);
+                            // First, prioritize our local salon state if it exists
+                            if (localSalon) {
+                              console.log('Using localSalon state for display:', localSalon);
                               return (
                                 <div className="flex items-center gap-2">
                                   <Building2 className="h-4 w-4 text-gray-500" />
                                   <span className="font-medium">
-                                    {formState.localSalon.name} [ID: {formState.localSalon.id}]
+                                    {localSalon.name} [ID: {localSalon.id}]
                                   </span>
                                 </div>
                               );
@@ -1185,7 +1175,7 @@ export default function ClientRegistrationPage() {
                         <input 
                           type="hidden" 
                           name="sponsorSalonId" 
-                          value={formState.localSalon?.id || form.getValues('sponsorSalonId') || invitation?.salonId || salon?.id || 2} 
+                          value={localSalon?.id || form.getValues('sponsorSalonId') || invitation?.salonId || salon?.id || 2} 
                         />
                       </div>
                     ) : (
@@ -1290,11 +1280,11 @@ export default function ClientRegistrationPage() {
                       <Button 
                         type="submit" 
                         className="w-full"
-                        disabled={formState.isSubmitting}
-                        variant={formState.isSubmitting ? "outline" : "default"}
+                        disabled={isSubmitting}
+                        variant={isSubmitting ? "outline" : "default"}
                         // Removed onClick handler to prevent duplicate submissions
                       >
-                        {formState.isSubmitting ? (
+                        {isSubmitting ? (
                           <>
                             <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
                             Processing Registration...
