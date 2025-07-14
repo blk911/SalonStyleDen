@@ -1218,9 +1218,7 @@ export default function ClientRegistrationPage() {
                                 )}
                               </SelectContent>
                             </Select>
-                            <FormDescription>
-                              Salon selection is required. Please choose your salon.
-                            </FormDescription>
+                            <FormDescription>Salon selection is required. Choose your salon.</FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
