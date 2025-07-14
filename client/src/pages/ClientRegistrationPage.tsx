@@ -1018,34 +1018,8 @@ export default function ClientRegistrationPage() {
                     />
                     )}
 
-                    {/* FIRST ROW: Name and Phone side by side */}
+                    {/* FIRST ROW: Phone and Name side by side */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input 
-                                placeholder="Enter full name" 
-                                {...field} 
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    // Focus the phone field when Enter is pressed in name field
-                                    const phoneInput = document.querySelector('input[placeholder="Phone Number"]');
-                                    if (phoneInput instanceof HTMLElement) {
-                                      phoneInput.focus();
-                                    }
-                                  }
-                                }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
                       <FormField
                         control={form.control}
                         name="phone"
@@ -1071,6 +1045,32 @@ export default function ClientRegistrationPage() {
                                 }}
                                 onValidationComplete={handlePhoneValidation}
                                 clearField={() => form.setValue('phone', '')}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input 
+                                placeholder="Enter full name" 
+                                {...field} 
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    // Focus the terms checkbox when Enter is pressed in name field
+                                    const termsCheckbox = document.getElementById('acceptTerms');
+                                    if (termsCheckbox instanceof HTMLElement) {
+                                      termsCheckbox.focus();
+                                    }
+                                  }
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
