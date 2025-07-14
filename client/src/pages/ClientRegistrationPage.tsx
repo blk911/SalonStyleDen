@@ -953,7 +953,7 @@ export default function ClientRegistrationPage() {
                         name="clientType"
                         render={({ field }) => (
                           <FormItem className="mb-4">
-                            <div className="mb-2 font-medium">I AM:</div>
+                            <div className="mb-2 font-medium">I am a new:</div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div 
                               className={`p-4 rounded-lg border-2 cursor-pointer transition-all flex flex-col items-center justify-center
