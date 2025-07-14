@@ -12,6 +12,7 @@ VMB is a comprehensive salon management platform that enables salons to manage s
 - Changed "REGISTRATION" to "Registration" in CardTitle for better consistency
 - Fixed FormLabel components showing "F" and "P" to display "Full Name" and "Phone Number"
 - Resolved ELEM Editor issues where abbreviated labels were persisting after edits
+- Updated client type selector text from "New Client" to "CLIENT" for cleaner UI (July 14, 2025)
 - Fixed server startup infinite loop issue (July 13, 2025)
 - Resolved port conflict management causing recursive retry failures
 - Improved port cleanup logic using netstat instead of lsof for better compatibility

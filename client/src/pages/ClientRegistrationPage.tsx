@@ -964,7 +964,7 @@ export default function ClientRegistrationPage() {
                             >
                               <UserCircle className={`h-8 w-8 mb-2 ${field.value === 'newClient' ? 'text-[#FF92A5]' : 'text-gray-500'}`} />
                               <span className={`font-medium text-center ${field.value === 'newClient' ? 'text-[#FF92A5]' : 'text-gray-700'}`}>
-                                New<br/>Client
+                                CLIENT
                               </span>
                             </div>
                             
