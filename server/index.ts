@@ -145,11 +145,23 @@ app.use((req, res, next) => {
   // Start the server
   startServer(BASE_PORT);
 
-  // Simple startup verification - only after successful server start
-  setTimeout(() => {
+  // Enhanced startup verification - only after successful server start
+  setTimeout(async () => {
     startupMonitor.verifyService('HTTP Server', async () => {
       return true; // Server is running if we get here
     });
+    
+    // Verify API endpoints are responding
+    startupMonitor.verifyService('API Health', async () => {
+      try {
+        const response = await fetch(`http://localhost:${process.env.VITE_API_PORT || BASE_PORT}/api/health`);
+        return response.ok;
+      } catch (error) {
+        return false;
+      }
+    });
+    
     startupMonitor.logStatus();
-  }, 1000); // Wait 1 second to ensure server is fully started
+    log('🚀 VMB Application fully started and verified');
+  }, 2000); // Wait 2 seconds to ensure server is fully started
 })();

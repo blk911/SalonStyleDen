@@ -39,6 +39,7 @@ localPort = 8080
 externalPort = 8080
 
 [workflows]
+runButton = "Run Application"
 
 [[workflows.workflow]]
 name = "Project"
@@ -71,7 +72,15 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
+args = "npm run dev &"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "sleep 3"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node health-check.js"
 
 [[workflows.workflow]]
 name = "Monitor System"
@@ -127,3 +136,12 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node test-photo-handler.js"
+
+[[workflows.workflow]]
+name = "Run Application"
+author = 29677669
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
