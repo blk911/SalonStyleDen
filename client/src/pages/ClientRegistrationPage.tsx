@@ -915,7 +915,7 @@ export default function ClientRegistrationPage() {
           {/* Form Column */}
           <div className="md:col-span-3">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-col space-y-1.5 p-6 pt-[16px] pb-[16px]">
                 <CardTitle>
                   {form.getValues('clientType') === 'giftInvite' ? 'Need to Claim a Gift? Accept an Invitation...' : 'Registration'}
                 </CardTitle>
