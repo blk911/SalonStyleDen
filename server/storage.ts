@@ -426,133 +426,97 @@ export class DatabaseStorage implements IStorage {
   async isDuplicateContact(phone: string, email: string, sponsor?: string, excludeId?: number): Promise<{isDuplicate: boolean, field: string}> {
     console.log(`DatabaseStorage.isDuplicateContact - Checking: phone='${phone}', email='${email}'`);
     
-    // Standardize phone format - get only digits for comparison
-    const cleanPhone = phone.replace(/\D/g, '');
-    console.log(`DatabaseStorage.isDuplicateContact - Standardized phone (digits only): '${cleanPhone}'`);
-    
-    // Get all clients, invitations, and salons
-    const allClients = await db.select().from(clients);
-    const allInvitations = await db.select().from(invitations);
-    const allSalons = await db.select().from(salons);
-    
-    // Filter clients with matching phone (removing formatting)
-    const clientPhone = allClients.filter(client => 
-      client.phone && client.phone.replace(/\D/g, '') === cleanPhone
-    );
-    console.log(`DatabaseStorage.isDuplicateContact - Clients found with same phone: ${clientPhone.length}`);
-    if (clientPhone.length > 0) {
-      console.log(`DatabaseStorage.isDuplicateContact - Matching client record:`, clientPhone[0]);
-    }
-    
-    // Filter invitations with matching phone (removing formatting)
-    const invitePhone = allInvitations.filter(invitation => 
-      invitation.phone && invitation.phone.replace(/\D/g, '') === cleanPhone
-    );
-    console.log(`DatabaseStorage.isDuplicateContact - Invitations found with same phone: ${invitePhone.length}`);
-    
-    // Add special debugging for 5125551213
-    if (cleanPhone === '5125551213') {
-      console.log(`DEBUG: Special check for phone 5125551213`);
-      console.log(`DEBUG: Found ${clientPhone.length} matching clients`);
-      console.log(`DEBUG: Found ${invitePhone.length} matching invitations`);
-      if (invitePhone.length > 0) {
-        console.log(`DEBUG: First matching invitation:`, invitePhone[0]);
-      }
-    }
-    
-    // Filter salons with matching phone (removing formatting)
-    const salonPhone = allSalons.filter(salon => 
-      salon.phone && salon.phone.replace(/\D/g, '') === cleanPhone
-    );
-    console.log(`DatabaseStorage.isDuplicateContact - Salons found with same phone: ${salonPhone.length}`);
-    
-    // For email, implement case-insensitive comparison using filter
-    // We already have allClients, allInvitations, and allSalons from above
-    
-    let clientEmail: Client[] = [];
-    let inviteEmail: Invitation[] = [];
-    let salonEmail: Salon[] = [];
-    
-    if (email && email.trim() !== '') {
-      // Standardize email format (lowercase for comparison)
-      const lowercaseEmail = email.toLowerCase();
-      console.log(`DatabaseStorage.isDuplicateContact - Standardized email (lowercase): '${lowercaseEmail}'`);
+    try {
+      const cleanPhone = cleanPhoneNumber(phone);
+      console.log(`DatabaseStorage.isDuplicateContact - Standardized phone: ${cleanPhone}`);
       
-      // Filter clients with matching email (case-insensitive)
-      clientEmail = allClients.filter(client =>
-        client.email && client.email.toLowerCase() === lowercaseEmail
-      );
-      console.log(`DatabaseStorage.isDuplicateContact - Clients found with same email: ${clientEmail.length}`);
-      if (clientEmail.length > 0) {
-        console.log(`DatabaseStorage.isDuplicateContact - Matching client record:`, clientEmail[0]);
-      }
-      
-      // Filter invitations with matching email (case-insensitive)
-      inviteEmail = allInvitations.filter(invitation =>
-        invitation.email && invitation.email.toLowerCase() === lowercaseEmail
-      );
-      console.log(`DatabaseStorage.isDuplicateContact - Invitations found with same email: ${inviteEmail.length}`);
-      
-      // Filter salons with matching email (case-insensitive)
-      salonEmail = allSalons.filter(salon =>
-        salon.email && salon.email.toLowerCase() === lowercaseEmail
-      );
-      console.log(`DatabaseStorage.isDuplicateContact - Salons found with same email: ${salonEmail.length}`);
-    } else {
-      console.log(`DatabaseStorage.isDuplicateContact - No email provided, skipping email check`);
-    }
-
-    // Check sponsor duplication
-    if (sponsor && sponsor.trim() !== '') {
-      const sponsorExists = await db.select()
-        .from(invitations)
-        .where(eq(invitations.sponsor, sponsor))
-        .limit(1);
+      // Check for phone duplicates with targeted queries instead of fetching all records
+      if (cleanPhone && cleanPhone.length >= 10) {
+        // Check clients table for phone duplicates
+        const clientsWithPhone = await db.select({ id: clients.id, phone: clients.phone })
+          .from(clients)
+          .where(sql`REPLACE(REPLACE(REPLACE(${clients.phone}, '-', ''), '(', ''), ')', '') = ${cleanPhone}`);
         
-      if (sponsorExists.length > 0) {
-        console.log(`DatabaseStorage.isDuplicateContact - Duplicate sponsor found: ${sponsor}`);
-        return { isDuplicate: true, field: 'sponsor' };
-      }
-    }
-
-    // Check for duplicate phone in client, invitations, or salons
-    // Only check if a non-empty phone is provided
-    if (cleanPhone && cleanPhone.length > 0) {
-      // For clients, we only care about existing clients or salons with the same phone
-      // We don't consider invitations as duplicates for client registration
-      if ((clientPhone.length > 0 && (excludeId === undefined || clientPhone[0].id !== excludeId)) || 
-          salonPhone.length > 0) {
-        console.log(`DatabaseStorage.isDuplicateContact - DUPLICATE PHONE DETECTED: ${cleanPhone}`);
-        return { isDuplicate: true, field: 'phone' };
-      }
-      
-      // Log invitation info but don't treat as duplicate for registration
-      if (invitePhone.length > 0) {
-        console.log(`DatabaseStorage.isDuplicateContact - Phone exists in invitations but NOT treating as duplicate for registration: ${cleanPhone}`);
-      }
-    } else {
-      console.log('DatabaseStorage.isDuplicateContact - Empty phone provided, skipping phone duplicate check');
-    }
-    
-    // Check for duplicate email in client, invitations, or salons
-    if (email && email.trim().length > 0) {
-      // For clients, we only care about existing clients or salons with the same email
-      // We don't consider invitations as duplicates for client registration
-      if ((clientEmail.length > 0 && (excludeId === undefined || clientEmail[0].id !== excludeId)) || 
-          salonEmail.length > 0) {
-        console.log(`DatabaseStorage.isDuplicateContact - DUPLICATE EMAIL DETECTED: ${email.toLowerCase()}`);
-        return { isDuplicate: true, field: 'email' };
+        if (clientsWithPhone.length > 0 && (excludeId === undefined || clientsWithPhone[0].id !== excludeId)) {
+          console.log(`DatabaseStorage.isDuplicateContact - Found duplicate phone in clients table`);
+          return { isDuplicate: true, field: 'phone' };
+        }
+        
+        // Check salons table for phone duplicates
+        const salonsWithPhone = await db.select({ id: salons.id, phone: salons.phone })
+          .from(salons)
+          .where(sql`REPLACE(REPLACE(REPLACE(${salons.phone}, '-', ''), '(', ''), ')', '') = ${cleanPhone}`);
+          
+        if (salonsWithPhone.length > 0) {
+          console.log(`DatabaseStorage.isDuplicateContact - Found duplicate phone in salons table`);
+          return { isDuplicate: true, field: 'phone' };
+        }
+        
+        // Check invitations table for phone duplicates but log only (maintain existing behavior)
+        const invitationsWithPhone = await db.select({ id: invitations.id, phone: invitations.phone })
+          .from(invitations)
+          .where(sql`REPLACE(REPLACE(REPLACE(${invitations.phone}, '-', ''), '(', ''), ')', '') = ${cleanPhone}`);
+          
+        if (invitationsWithPhone.length > 0) {
+          console.log(`DatabaseStorage.isDuplicateContact - Phone exists in invitations but NOT treating as duplicate for registration: ${cleanPhone}`);
+        }
       }
       
-      // Log invitation info but don't treat as duplicate for registration
-      if (inviteEmail.length > 0) {
-        console.log(`DatabaseStorage.isDuplicateContact - Email exists in invitations but NOT treating as duplicate for registration: ${email.toLowerCase()}`);
+      // Check for email duplicates with targeted queries
+      if (email && email.trim() !== '') {
+        const lowercaseEmail = email.toLowerCase();
+        console.log(`DatabaseStorage.isDuplicateContact - Standardized email: '${lowercaseEmail}'`);
+        
+        // Check clients table for email duplicates
+        const clientsWithEmail = await db.select({ id: clients.id, email: clients.email })
+          .from(clients)
+          .where(sql`LOWER(${clients.email}) = ${lowercaseEmail}`);
+          
+        if (clientsWithEmail.length > 0 && (excludeId === undefined || clientsWithEmail[0].id !== excludeId)) {
+          console.log(`DatabaseStorage.isDuplicateContact - Found duplicate email in clients table`);
+          return { isDuplicate: true, field: 'email' };
+        }
+        
+        // Check salons table for email duplicates
+        const salonsWithEmail = await db.select({ id: salons.id, email: salons.email })
+          .from(salons)
+          .where(sql`LOWER(${salons.email}) = ${lowercaseEmail}`);
+          
+        if (salonsWithEmail.length > 0) {
+          console.log(`DatabaseStorage.isDuplicateContact - Found duplicate email in salons table`);
+          return { isDuplicate: true, field: 'email' };
+        }
+        
+        // Check invitations table for email duplicates but log only (maintain existing behavior)
+        const invitationsWithEmail = await db.select({ id: invitations.id, email: invitations.email })
+          .from(invitations)
+          .where(sql`LOWER(${invitations.email}) = ${lowercaseEmail}`);
+          
+        if (invitationsWithEmail.length > 0) {
+          console.log(`DatabaseStorage.isDuplicateContact - Email exists in invitations but NOT treating as duplicate for registration: ${email.toLowerCase()}`);
+        }
       }
-    } else {
-      console.log('DatabaseStorage.isDuplicateContact - Empty email provided, skipping email duplicate check');
+      
+      // Check sponsor logic if provided (maintain existing behavior)
+      if (sponsor && sponsor.trim() !== '') {
+        const sponsorExists = await db.select({ id: invitations.id })
+          .from(invitations)
+          .where(eq(invitations.sponsor, sponsor))
+          .limit(1);
+          
+        if (sponsorExists.length > 0) {
+          console.log(`DatabaseStorage.isDuplicateContact - Duplicate sponsor found: ${sponsor}`);
+          return { isDuplicate: true, field: 'sponsor' };
+        }
+      }
+      
+      console.log(`DatabaseStorage.isDuplicateContact - No duplicates found`);
+      return { isDuplicate: false, field: '' };
+      
+    } catch (error) {
+      console.error('DatabaseStorage.isDuplicateContact - Error checking duplicates:', error);
+      return { isDuplicate: false, field: '' };
     }
-
-    return { isDuplicate: false, field: '' };
   }
 
   async createClient(insertClient: InsertClient): Promise<Client> {
