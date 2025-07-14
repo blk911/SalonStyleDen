@@ -92,78 +92,78 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // Fixed server startup with guaranteed port 5000
+  // Simplified server startup
   const TARGET_PORT = 5000;
   
-  // Aggressively clean up port 5000 to ensure it's available
+  // Clean up port 5000 first
   log(`🧹 Ensuring port ${TARGET_PORT} is available...`);
   await killPortProcesses(TARGET_PORT);
-  await killPortProcesses(TARGET_PORT + 1); // Clean backup port too
   
-  // Set environment variable immediately
+  // Set environment variables
   process.env.VITE_API_PORT = String(TARGET_PORT);
   process.env.PORT = String(TARGET_PORT);
   
-  // Start server on guaranteed port
-  server.listen(TARGET_PORT, "0.0.0.0", () => {
-    log(`🚀 Server listening on port ${TARGET_PORT}`);
-    log(`📍 API endpoint: http://localhost:${TARGET_PORT}`);
-    log(`✅ Server started successfully on expected port`);
-    
-    // Immediate verification that server is responsive
-    setTimeout(async () => {
-      try {
-        const response = await fetch(`http://localhost:${TARGET_PORT}/api/health`);
-        if (response.ok) {
-          log('✅ Server health check passed');
-          log('🚀 VMB Application ready for connections');
-        } else {
-          log('⚠️ Server health check failed');
-        }
-      } catch (error) {
-        log('❌ Server health check error:', error);
-      }
-    }, 500);
-  })
-  .on('error', async (err: any) => {
-    if (err.code === 'EADDRINUSE') {
-      log(`⚠️ Port ${TARGET_PORT} busy, using next available port...`);
+  // Simple server startup with single instance protection
+  let serverStarted = false;
+  
+  server.on('error', (err: any) => {
+    if (!serverStarted && err.code === 'EADDRINUSE') {
+      log(`⚠️ Port ${TARGET_PORT} busy, trying port ${TARGET_PORT + 1}...`);
+      serverStarted = true;
       
-      // Find next available port
-      let availablePort = TARGET_PORT + 1;
-      let maxAttempts = 10;
-      
-      while (maxAttempts > 0) {
-        try {
-          await new Promise((resolve, reject) => {
-            const testServer = server.listen(availablePort, "0.0.0.0", () => {
-              process.env.VITE_API_PORT = String(availablePort);
-              process.env.PORT = String(availablePort);
-              log(`🚀 Server listening on port ${availablePort}`);
-              log(`📍 API endpoint: http://localhost:${availablePort}`);
-              resolve(availablePort);
-            });
-            testServer.on('error', (testErr: any) => {
-              if (testErr.code === 'EADDRINUSE') {
-                availablePort++;
-                maxAttempts--;
-                reject(testErr);
-              } else {
-                reject(testErr);
-              }
-            });
-          });
-          break; // Success, exit loop
-        } catch (testError) {
-          if (maxAttempts === 0) {
-            console.error('Unable to find available port after multiple attempts');
-            process.exit(1);
+      // Try next port
+      server.listen(TARGET_PORT + 1, "0.0.0.0", () => {
+        log(`🚀 Server listening on port ${TARGET_PORT + 1}`);
+        log(`📍 API endpoint: http://localhost:${TARGET_PORT + 1}`);
+        log(`✅ Server started successfully on fallback port`);
+        
+        // Update environment variables
+        process.env.VITE_API_PORT = String(TARGET_PORT + 1);
+        process.env.PORT = String(TARGET_PORT + 1);
+        
+        // Health check after startup
+        setTimeout(async () => {
+          try {
+            const response = await fetch(`http://localhost:${TARGET_PORT + 1}/api/health`);
+            if (response.ok) {
+              log('✅ Server health check passed');
+              log('🚀 VMB Application ready for connections');
+            }
+          } catch (error) {
+            log('⚠️ Server health check error:', error);
           }
-        }
-      }
-    } else {
+        }, 500);
+      });
+    } else if (!serverStarted) {
       console.error('Server startup error:', err);
       process.exit(1);
+    }
+    // Ignore errors if server already started
+  });
+  
+  server.listen(TARGET_PORT, "0.0.0.0", () => {
+    if (!serverStarted) {
+      serverStarted = true;
+      log(`🚀 Server listening on port ${TARGET_PORT}`);
+      log(`📍 API endpoint: http://localhost:${TARGET_PORT}`);
+      log(`✅ Server started successfully`);
+      
+      // Update environment variables
+      process.env.VITE_API_PORT = String(TARGET_PORT);
+      process.env.PORT = String(TARGET_PORT);
+      
+      // Health check after startup
+      setTimeout(async () => {
+        try {
+          const response = await fetch(`http://localhost:${TARGET_PORT}/api/health`);
+          if (response.ok) {
+            log('✅ Server health check passed');
+            log('🚀 VMB Application ready for connections');
+          }
+        } catch (error) {
+          log('⚠️ Server health check error:', error);
+        }
+      }, 500);
     }
   });
 })();

@@ -57,18 +57,7 @@ export function MonitoringProvider({ children }: { children: ReactNode }) {
     }
   }, []);
   
-  // Update state with current history every 1 second
-  useEffect(() => {
-    if (!isMonitoringEnabled) return;
-    
-    const interval = setInterval(() => {
-      setKeystrokeHistory(activityMonitor.getKeystrokeHistory());
-      setApiHistory(activityMonitor.getApiHistory());
-      setActivityHistory(activityMonitor.getActivityHistory());
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, [isMonitoringEnabled]);
+  // Monitoring state updates disabled to prevent reload loops
   
   const enableMonitoring = useCallback(() => {
     setIsMonitoringEnabled(true);

@@ -67,25 +67,7 @@ export function initMonitoring(): void {
       });
     });
 
-  // Setup periodic health checks
-  setInterval(() => {
-    fetch('/api/health')
-      .then(res => {
-        if (res.headers.get('content-type')?.includes('application/json')) {
-          return res.json();
-        } else {
-          // Handle non-JSON responses gracefully
-          return { status: 'ok' };
-        }
-      })
-      .catch(err => {
-        // Silently handle expected health check errors
-        activityMonitor.trackActivity('api', 'health-check', { 
-          status: 'failed',
-          error: err.message
-        });
-      });
-  }, 30000);
+  // Periodic health checks disabled to prevent reload loops
 
   // Track page navigation
   const originalPushState = history.pushState;

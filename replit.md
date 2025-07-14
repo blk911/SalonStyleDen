@@ -4,6 +4,12 @@
 VMB is a comprehensive salon management platform that enables salons to manage services, clients, invitations, and promotional campaigns. The platform includes both admin and salon-specific dashboards with real-time monitoring capabilities.
 
 ## Recent Changes
+- RESOLVED: Dual server startup issue - eliminated duplicate server instances (July 14, 2025)
+- Fixed race condition in server startup logic causing two servers to start simultaneously
+- Implemented single instance protection with serverStarted flag
+- Removed redundant server startup scripts (server_refresh_script.js, port-backup.js)
+- Disabled automatic logging initialization messages that were creating duplicate logs
+- Server now starts cleanly with single instance on available port (5000 or 5001)
 - RESOLVED: Server restart requirement after modifications (July 14, 2025)
 - Fixed critical port management and server startup architecture
 - Installed kill-port package for reliable port cleanup before server startup

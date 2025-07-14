@@ -111,13 +111,4 @@ export const logger = {
     addLogEntry('error', component, message, data),
 };
 
-// Seed some initial logs for testing
-if (process.env.NODE_ENV !== 'production') {
-  logger.info('System', 'Logging system initialized');
-  logger.info('API Service', 'API server started successfully');
-  logger.info('Database', 'Database connection established');
-  logger.info('Authentication', 'Authentication service ready');
-  logger.info('Gift System', 'Gift processing system online');
-  logger.info('Invitation System', 'Invitation system initialized');
-  logger.warn('Invitation System', 'High latency detected in invitation processing');
-}
+// Logging system ready - initialization messages removed to prevent duplicate server startup logs
