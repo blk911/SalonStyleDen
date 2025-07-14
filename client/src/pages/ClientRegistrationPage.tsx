@@ -917,7 +917,7 @@ export default function ClientRegistrationPage() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  {form.getValues('clientType') === 'giftInvite' ? 'GIFT/INVITATION REDEMPTION' : 'Registration'}
+                  {form.getValues('clientType') === 'giftInvite' ? 'Need to Claim a Gift? Accept an Invitation...' : 'Registration'}
                 </CardTitle>
                 {isCompleteRegistrationMode ? (
                   <CardDescription>
