@@ -80,33 +80,57 @@ app.use((req, res, next) => {
   }
 
   // Start server on port 5000 or environment PORT
-  const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
+  const basePort = process.env.PORT ? parseInt(process.env.PORT) : 5000;
   
-  // Start the server with improved error handling
-  server.listen({
-    port,
-    host: "0.0.0.0",
-  }, () => {
-    log(`Server is running on port ${port}`);
-  }).on('error', (error: any) => {
-    if (error.code === 'EADDRINUSE') {
-      log(`Port ${port} is already in use. Attempting to use a different port.`);
-      // Try port 5001 if 5000 is in use
-      const fallbackPort = port + 1;
-      server.listen({
-        port: fallbackPort,
-        host: "0.0.0.0",
-      }, () => {
-        log(`Server is running on fallback port ${fallbackPort}`);
-      }).on('error', (fallbackError: any) => {
-        console.error('Server startup error on fallback port:', fallbackError);
-        process.exit(1);
-      });
-    } else {
-      console.error('Server startup error:', error);
-      process.exit(1);
+  // Function to find and use available port
+  async function startServerOnAvailablePort(startPort: number, maxAttempts: number = 5): Promise<void> {
+    const { default: killPort } = await import('kill-port');
+    
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const port = startPort + attempt;
+      
+      try {
+        // First try to kill any process on this port
+        await killPort(port);
+        log(`Cleaned up port ${port}`);
+        
+        // Wait for port to be fully released
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Attempt to start server on this port
+        await new Promise<void>((resolve, reject) => {
+          const serverInstance = server.listen({
+            port,
+            host: "0.0.0.0",
+          }, () => {
+            log(`Server is running on port ${port}`);
+            resolve();
+          }).on('error', (error: any) => {
+            if (error.code === 'EADDRINUSE') {
+              log(`Port ${port} still in use, trying next port...`);
+              reject(new Error(`Port ${port} in use`));
+            } else {
+              console.error('Server startup error:', error);
+              process.exit(1);
+            }
+          });
+        });
+        
+        // If we get here, server started successfully
+        return;
+        
+      } catch (error) {
+        if (attempt === maxAttempts - 1) {
+          console.error(`Failed to start server after ${maxAttempts} attempts`);
+          process.exit(1);
+        }
+        // Continue to next port
+      }
     }
-  });
+  }
+  
+  // Start the server
+  await startServerOnAvailablePort(basePort);
 
   // Simple startup verification - only after successful server start
   setTimeout(() => {
