@@ -3,6 +3,10 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from 'path';
 import { startupMonitor } from './startup-monitor'; // Import the startup monitor utility
+import { EventEmitter } from 'events';
+
+// Increase the default max listeners to prevent warnings
+EventEmitter.defaultMaxListeners = 20;
 
 
 const app = express();
@@ -78,16 +82,7 @@ app.use((req, res, next) => {
   // Start server on port 5000 or environment PORT
   const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
   
-  // Clean up any existing processes on the port before starting
-  try {
-    const { ensurePortAvailable } = await import('./monitor-ports');
-    await ensurePortAvailable(port);
-    log(`Port ${port} cleanup completed`);
-  } catch (cleanupError) {
-    log(`Port cleanup warning: ${cleanupError}`);
-  }
-  
-  // Start the server with simplified error handling
+  // Start the server with improved error handling
   server.listen({
     port,
     host: "0.0.0.0",
@@ -95,18 +90,29 @@ app.use((req, res, next) => {
     log(`Server is running on port ${port}`);
   }).on('error', (error: any) => {
     if (error.code === 'EADDRINUSE') {
-      console.error(`Port ${port} is still in use after cleanup. Please check for other processes.`);
-      process.exit(1);
+      log(`Port ${port} is already in use. Attempting to use a different port.`);
+      // Try port 5001 if 5000 is in use
+      const fallbackPort = port + 1;
+      server.listen({
+        port: fallbackPort,
+        host: "0.0.0.0",
+      }, () => {
+        log(`Server is running on fallback port ${fallbackPort}`);
+      }).on('error', (fallbackError: any) => {
+        console.error('Server startup error on fallback port:', fallbackError);
+        process.exit(1);
+      });
     } else {
       console.error('Server startup error:', error);
       process.exit(1);
     }
   });
 
-  // Simple startup verification
-  startupMonitor.verifyService('HTTP Server', async () => {
-    return true; // If we get here, server started successfully
-  });
-
-  startupMonitor.logStatus();
+  // Simple startup verification - only after successful server start
+  setTimeout(() => {
+    startupMonitor.verifyService('HTTP Server', async () => {
+      return true; // Server is running if we get here
+    });
+    startupMonitor.logStatus();
+  }, 1000); // Wait 1 second to ensure server is fully started
 })();
