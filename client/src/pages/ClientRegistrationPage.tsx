@@ -1010,7 +1010,7 @@ export default function ClientRegistrationPage() {
                               }}
                             >
                               <Gift className={`h-8 w-8 mb-2 ${field.value === 'giftInvite' ? 'text-[#FF92A5]' : 'text-gray-500'}`} />
-                              <span className={`font-medium ${field.value === 'giftInvite' ? 'text-[#FF92A5]' : 'text-gray-700'}`}>My Gift</span>
+                              <span className={`font-medium ${field.value === 'giftInvite' ? 'text-[#FF92A5]' : 'text-gray-700'}`}>Gift Claim</span>
                             </div>
                           </div>
                         </FormItem>
