@@ -38,6 +38,7 @@ import {
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { formatPhoneNumber, cleanPhoneNumber, isValidPhone } from '@/lib/utils';
+import { LoginDialog } from '@/components/ui/LoginDialog';
 
 // Simple logging helper (replaced test flow logger)
 const logFlow = (step: string, data?: any) => {
@@ -113,6 +114,7 @@ interface Salon {
 
 export default function ClientRegistrationPage() {
   const [location, navigate] = useLocation();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   // Extract invite hash from URL if present
   const inviteHash = location.includes('/invite/') 
@@ -916,9 +918,18 @@ export default function ClientRegistrationPage() {
           <div className="md:col-span-3">
             <Card>
               <CardHeader className="flex flex-col space-y-1.5 p-6 pt-[16px] pb-[16px]">
-                <CardTitle>
-                  {form.getValues('clientType') === 'giftInvite' ? 'Need to Claim a Gift? Accept an Invitation...' : 'Registration'}
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>
+                    {form.getValues('clientType') === 'giftInvite' ? 'Need to Claim a Gift? Accept an Invitation...' : 'Registration'}
+                  </CardTitle>
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginDialog(true)}
+                    className="text-sm text-gray-600 hover:text-gray-800 underline"
+                  >
+                    Log In
+                  </button>
+                </div>
                 {isCompleteRegistrationMode ? (
                   <CardDescription>
                     {form.getValues('clientType') === 'giftInvite'
@@ -1351,6 +1362,13 @@ export default function ClientRegistrationPage() {
       </main>
       {/* Address Collection Dialog */}
       {/* Address dialog removed as requested */}
+      
+      {/* Login Dialog */}
+      <LoginDialog 
+        open={showLoginDialog} 
+        onOpenChange={setShowLoginDialog} 
+      />
+      
       <Footer />
     </div>
   );

@@ -3,7 +3,6 @@ import { Link } from "wouter";
 import BrandName from "@/components/ui/BrandName";
 import { LoadingIndicator } from "@/components/ui/loading-indicator";
 import { useStatus } from "@/contexts/StatusContext";
-import { LoginDialog } from "@/components/ui/LoginDialog";
 
 // Placeholder Admin Dashboard component
 const AdminDash = () => {
@@ -25,7 +24,6 @@ const AdminDash = () => {
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [loginDialogOpen, setLoginDialogOpen] = useState(false);
   const { isProcessing, startProcessing, completeProcessing } = useStatus();
   
   // Temporarily disabled processing script
@@ -94,12 +92,6 @@ export default function Navbar() {
               <Link href="/about">
                 <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
               </Link>
-              <div 
-                className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer"
-                onClick={() => setLoginDialogOpen(true)}
-              >
-                I am a NEW or EXISTING:
-              </div>
             </div>
             <LoadingIndicator />
           </div>
@@ -141,17 +133,8 @@ export default function Navbar() {
             <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">Performance</div>
           </Link>
           <div className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer">About</div>
-          <div 
-            className="text-gray-500 text-sm font-medium hover:text-[#FF92A5] cursor-pointer"
-            onClick={() => setLoginDialogOpen(true)}
-          >
-            I am a NEW or EXISTING:
-          </div>
         </div>
       </div>
-      
-      {/* Login Dialog */}
-      <LoginDialog open={loginDialogOpen} onOpenChange={setLoginDialogOpen} />
     </nav>
   );
 }
