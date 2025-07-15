@@ -920,7 +920,7 @@ export default function ClientRegistrationPage() {
               <CardHeader className="flex flex-col space-y-1.5 p-6 pt-[16px] pb-[16px]">
                 <div className="flex items-center justify-between">
                   <CardTitle>
-                    {form.getValues('clientType') === 'giftInvite' ? 'Need to Claim a Gift? Accept an Invitation...' : 'Registration'}
+                    {form.getValues('clientType') === 'giftInvite' ? 'Claim your gift or invitation!' : 'Registration'}
                   </CardTitle>
                   <button
                     type="button"
