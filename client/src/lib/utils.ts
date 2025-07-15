@@ -121,7 +121,12 @@ export async function validateClientContact(contact: string): Promise<{
   exists: boolean, 
   field: string, 
   hasUnredeemedGift?: boolean, 
-  requiresAddress?: boolean
+  requiresAddress?: boolean,
+  clientData?: {
+    id: number;
+    name: string;
+    phone: string;
+  };
 }> {
   try {
     const contactType = detectInputType(contact);
@@ -170,11 +175,12 @@ export async function validateClientContact(contact: string): Promise<{
       exists: result.exists,
       field: result.field,
       hasUnredeemedGift: result.hasUnredeemedGift,
-      requiresAddress: result.requiresAddress
+      requiresAddress: result.requiresAddress,
+      clientData: result.clientData
     };
   } catch (error) {
     console.error('Error validating client contact:', error);
-    return { exists: false, field: '' };
+    return { exists: false, field: '', clientData: undefined };
   }
 }
 

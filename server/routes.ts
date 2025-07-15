@@ -577,6 +577,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const dupeResult = await storage.isDuplicateContact(phone || "", email || "");
             
             if (dupeResult.isDuplicate) {
+              // If duplicate found, get client data for enhanced response
+              if (dupeResult.field === 'phone' && phone) {
+                const cleanPhone = phone.replace(/\D/g, '');
+                
+                // First check clients table
+                const clients = await storage.getAllClients();
+                const matchingClient = clients.find(client => 
+                  client.phone && client.phone.replace(/\D/g, '') === cleanPhone
+                );
+                
+                if (matchingClient) {
+                  return res.json({
+                    exists: dupeResult.isDuplicate,
+                    field: dupeResult.field,
+                    clientData: {
+                      id: matchingClient.id,
+                      name: matchingClient.name,
+                      phone: matchingClient.phone
+                    }
+                  });
+                }
+                
+                // If not found in clients, check salons table
+                const salons = await storage.getAllSalons();
+                const matchingSalon = salons.find(salon => 
+                  salon.phone && salon.phone.replace(/\D/g, '') === cleanPhone
+                );
+                
+                if (matchingSalon) {
+                  return res.json({
+                    exists: dupeResult.isDuplicate,
+                    field: dupeResult.field,
+                    clientData: {
+                      id: matchingSalon.id,
+                      name: matchingSalon.ownerName || matchingSalon.name,
+                      phone: matchingSalon.phone
+                    }
+                  });
+                }
+              }
+              
               // If duplicate, return that info with priority
               return res.json({
                 exists: dupeResult.isDuplicate,
@@ -604,6 +645,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
         phone || "", 
         email || ""
       );
+      
+      // If duplicate found, get client data for enhanced response
+      if (result.isDuplicate && result.field === 'phone' && phone) {
+        const cleanPhone = phone.replace(/\D/g, '');
+        
+        // First check clients table
+        const clients = await storage.getAllClients();
+        const matchingClient = clients.find(client => 
+          client.phone && client.phone.replace(/\D/g, '') === cleanPhone
+        );
+        
+        if (matchingClient) {
+          return res.json({
+            exists: result.isDuplicate,
+            field: result.field,
+            clientData: {
+              id: matchingClient.id,
+              name: matchingClient.name,
+              phone: matchingClient.phone
+            }
+          });
+        }
+        
+        // If not found in clients, check salons table
+        const salons = await storage.getAllSalons();
+        const matchingSalon = salons.find(salon => 
+          salon.phone && salon.phone.replace(/\D/g, '') === cleanPhone
+        );
+        
+        if (matchingSalon) {
+          return res.json({
+            exists: result.isDuplicate,
+            field: result.field,
+            clientData: {
+              id: matchingSalon.id,
+              name: matchingSalon.ownerName || matchingSalon.name,
+              phone: matchingSalon.phone
+            }
+          });
+        }
+      }
       
       return res.json({
         exists: result.isDuplicate,

@@ -24,48 +24,20 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const handlePhoneValidation = async (isValid: boolean, phone?: string) => {
+  const handlePhoneValidation = async (isValid: boolean, phone?: string, validationResult?: any) => {
     if (!isValid || !phone) return;
 
-    setLoading(true);
-    try {
+    // Only handle NEW users - existing users are handled by PhoneInputField's dialog
+    if (validationResult === 'not_registered' || validationResult === 'has_unredeemed_gift') {
       const cleanPhone = cleanPhoneNumber(phone);
-      const response = await fetch(`/api/clients?phone=${encodeURIComponent(cleanPhone)}`);
       
-      if (response.ok) {
-        const clients = await response.json();
-        
-        if (clients.length > 0) {
-          const client = clients[0];
-          
-          toast({
-            title: "Welcome Back!",
-            description: `Welcome back, ${client.name || 'valued client'}!`,
-          });
-          
-          onOpenChange(false);
-          setLocation(`/client/${client.id}`);
-        } else {
-          toast({
-            title: "New User",
-            description: "Redirecting you to registration...",
-          });
-          
-          onOpenChange(false);
-          setLocation(`/client-registration?phone=${encodeURIComponent(cleanPhone)}`);
-        }
-      } else {
-        throw new Error('Failed to lookup client');
-      }
-    } catch (error) {
-      console.error('Phone lookup error:', error);
       toast({
-        title: "Error",
-        description: "There was an error processing your request. Please try again.",
-        variant: "destructive",
+        title: "New User",
+        description: "Redirecting you to registration...",
       });
-    } finally {
-      setLoading(false);
+      
+      onOpenChange(false);
+      setLocation(`/client-registration?phone=${encodeURIComponent(cleanPhone)}`);
     }
   };
 
