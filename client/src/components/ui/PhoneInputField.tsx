@@ -69,11 +69,11 @@ export function PhoneInputField({
     
     // Only validate if we have a value and 10 digits
     const digits = cleanPhoneNumber(value);
-    if (digits.length === 10) {
+    if (digits.length === 10 && isValidPhone(value)) {
       logFlowStep('Valid 10-digit phone detected, validating', value);
       await validatePhoneNumber();
     } else {
-      logFlowStep('Invalid/incomplete phone skipping validation', value);
+      logFlowStep('Invalid/incomplete phone skipping validation', `value: ${value}, digits: ${digits}, length: ${digits.length}, isValid: ${isValidPhone(value)}`);
     }
   };
 
@@ -123,15 +123,14 @@ export function PhoneInputField({
       e.preventDefault();
       logFlowStep('ENTER key pressed on phone field - IMMEDIATE FOCUS ON TERMS');
       
-      // SIMPLE VERSION: Always focus on terms checkbox when Enter pressed, no validation
-      // Set data attribute to prevent the address dialog
-      document.body.setAttribute('data-address-shown', 'true');
-      
-      // Directly focus terms checkbox without validation
-      moveToTermsCheckbox();
-      
-      // Also run validation in the background so it's complete by the time they submit
       if (isValidPhone(value)) {
+        // Set data attribute to prevent the address dialog
+        document.body.setAttribute('data-address-shown', 'true');
+        
+        // Directly focus terms checkbox without validation
+        moveToTermsCheckbox();
+        
+        // Also run validation in the background so it's complete by the time they submit
         validateContact(value).then(result => {
           logFlowStep('Background validation complete', result);
           if (onValidationComplete) {
@@ -140,6 +139,8 @@ export function PhoneInputField({
         }).catch(error => {
           console.error('Background validation error:', error);
         });
+      } else {
+        logFlowStep('Invalid phone number, not proceeding with Enter action');
       }
     }
   };

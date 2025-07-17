@@ -21,7 +21,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { PhoneInputField } from '@/components/ui/PhoneInputField';
-import { useContactValidation } from '@/hooks/use-contact-validation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import {
   Loader2 as Loader2Icon,
@@ -39,6 +38,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { formatPhoneNumber, cleanPhoneNumber, isValidPhone } from '@/lib/utils';
 import { LoginDialog } from '@/components/ui/LoginDialog';
+import { useContactValidation } from '@/hooks/use-contact-validation';
 
 // Simple logging helper (replaced test flow logger)
 const logFlow = (step: string, data?: any) => {
@@ -212,11 +212,13 @@ export default function ClientRegistrationPage() {
     requiresAddress,
     validationResult
   } = useContactValidation();
+  
+  const [clientData, setClientData] = useState(null);
 
   // Track whether invitation has been loaded
   const [invitationDataLoaded, setInvitationDataLoaded] = useState(false);
 
-  // Function to handle phone validation - checks if phone is valid and if it has unredeemed gifts
+  // Function to handle phone validation - UNIFIED ASSESSMENT SYSTEM
   const handlePhoneValidation = async (isValid: boolean, phoneNumber?: string) => {
     logFlow(`Phone validation ${isValid ? 'passed' : 'failed'}`);
 
@@ -230,7 +232,7 @@ export default function ClientRegistrationPage() {
       return;
     }
 
-    // If phone is valid and we're in Gift/Invite mode, look up the invitation ID directly
+    // If phone is valid, perform unified assessment
     if (isValid && phoneNumber) {
       const clientType = form.getValues('clientType');
 
@@ -247,7 +249,34 @@ export default function ClientRegistrationPage() {
         }
 
         try {
-          // Check for invitations first
+          logFlow('Step 1: Checking for existing client');
+          const clientValidationResult = await validateContact(phoneNumber);
+          
+          if (clientValidationResult === 'registered') {
+            // Check if client exists by calling the API directly
+            logFlow('Checking for existing client via API');
+            const clientResponse = await fetch(`/api/clients?phone=${encodeURIComponent(phoneNumber)}`);
+            
+            if (clientResponse.ok) {
+              const clients = await clientResponse.json();
+              if (clients && clients.length > 0) {
+                const existingClient = clients[0];
+                logFlow('Existing client found, routing to dashboard', existingClient);
+                
+                toast({
+                  title: `Welcome back, ${existingClient.name}!`,
+                  description: 'Redirecting you to your dashboard...',
+                  variant: 'default',
+                });
+                
+                // Route to client dashboard
+                navigate(`/client/${existingClient.id}`);
+                return;
+              }
+            }
+          }
+
+          logFlow('Step 2: No existing client found, checking for invitations');
           const inviteResponse = await fetch(`/api/invitations?phone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
 
           if (inviteResponse.ok) {
@@ -287,8 +316,7 @@ export default function ClientRegistrationPage() {
 
               return;
             } else {
-              // No invitation found, check for gifts
-              logFlow('No invitation found, checking for gifts');
+              logFlow('Step 3: No invitation found, checking for gifts');
               const giftsResponse = await fetch(`/api/gifts?recipientPhone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
 
               if (giftsResponse.ok) {
@@ -340,8 +368,8 @@ export default function ClientRegistrationPage() {
                 }
               }
 
-              // Neither invitation nor gift found
-              logFlow('No matching invitation or gift found');
+              // STEP 4: Neither client, invitation, nor gift found
+              logFlow('Step 4: No matching client, invitation, or gift found');
               toast({
                 title: 'No Record Found',
                 description: 'No gift or invitation was found for this phone number. Please check and try again.',
@@ -350,10 +378,10 @@ export default function ClientRegistrationPage() {
             }
           }
         } catch (error) {
-          console.error('Error checking invitation/gift status:', error);
+          console.error('Error in unified phone assessment:', error);
           toast({
             title: 'Lookup Error',
-            description: 'Failed to verify invitation status. Please try again later.',
+            description: 'Failed to verify phone number. Please try again later.',
             variant: 'destructive',
           });
         }

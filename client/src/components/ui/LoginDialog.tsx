@@ -27,7 +27,10 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   const handlePhoneValidation = async (isValid: boolean, phone?: string, validationResult?: any) => {
     if (!isValid || !phone) return;
 
-    // Only handle NEW users - existing users are handled by PhoneInputField's dialog
+    if (validationResult === 'registered') {
+      return;
+    }
+
     if (validationResult === 'not_registered' || validationResult === 'has_unredeemed_gift') {
       const cleanPhone = cleanPhoneNumber(phone);
       
