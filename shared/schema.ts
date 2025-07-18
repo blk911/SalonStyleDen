@@ -49,6 +49,7 @@ export const clients = pgTable("clients", {
   isCurrentClient: boolean("is_current_client").notNull().default(false),
   acceptedTerms: boolean("accepted_terms").default(false), // Track terms & conditions acceptance
   profilePromptShown: boolean("profile_prompt_shown").default(false), // Track if profile completion prompt has been shown
+  suspended: boolean("suspended").notNull().default(false), // Track if client account is suspended
   notes: text("notes"),
   favoriteServices: jsonb("favorite_services"), // Stores array of service names
   // [RULE: SponsorClientRelationship] Client salon relationship

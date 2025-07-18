@@ -123,21 +123,94 @@ export class DatabaseStorage implements IStorage {
         throw new Error(`Salon with ID ${id} not found`);
       }
       
-      // Delete the salon from the database
-      const result = await db.delete(salons).where(eq(salons.id, id)).returning();
-      
-      if (result && result.length > 0) {
-        // Update the salons cache by removing the deleted salon
-        if (this._salonsCache.data && this._salonsCache.data.length > 0) {
-          this._salonsCache.data = this._salonsCache.data.filter(s => s.id !== id);
+      try {
+        try {
+          await db.update(activityLogs)
+            .set({ salonId: null })
+            .where(eq(activityLogs.salonId, id));
+          console.log(`DatabaseStorage.deleteSalon - Cleared salon ID from associated activity logs`);
+        } catch (activityLogError) {
+          console.error(`DatabaseStorage.deleteSalon - Error clearing salon ID from activity logs:`, activityLogError);
+          // Continue with salon deletion anyway
         }
         
-        console.log(`DatabaseStorage.deleteSalon - Successfully deleted salon ID ${id}`);
-        return true;
+        // Create a record of this action after clearing references
+        await this.createActivityLog({
+          type: 'salon_deleted',
+          description: `Salon ${salon.name} (ID: ${id}) was permanently deleted`,
+          timestamp: new Date(),
+          salonId: null // Set to null to avoid circular reference
+        });
+        
+        // Handle any clients that have this salon as their sponsor
+        try {
+          const salonClients = await db.select().from(clients).where(eq(clients.salonId, id));
+          console.log(`DatabaseStorage.deleteSalon - Found ${salonClients.length} clients sponsored by this salon`);
+          
+          // Update clients to remove salon reference (set to null or default sponsor)
+          if (salonClients.length > 0) {
+            await db.update(clients)
+              .set({ 
+                salonId: null,
+                sponsor: 'VMB LTD' // Set to default sponsor
+              })
+              .where(eq(clients.salonId, id));
+            console.log(`DatabaseStorage.deleteSalon - Updated ${salonClients.length} clients to remove salon reference`);
+          }
+        } catch (clientError) {
+          console.error(`DatabaseStorage.deleteSalon - Error handling clients sponsored by salon:`, clientError);
+          // Continue with deletion
+        }
+        
+        // Handle any invitations from this salon
+        try {
+          const salonInvitations = await db.select().from(invitations).where(eq(invitations.salonId, id));
+          console.log(`DatabaseStorage.deleteSalon - Found ${salonInvitations.length} invitations from this salon to delete`);
+          
+          // Delete all invitations from this salon
+          if (salonInvitations.length > 0) {
+            await db.delete(invitations).where(eq(invitations.salonId, id));
+            console.log(`DatabaseStorage.deleteSalon - Deleted ${salonInvitations.length} invitations from salon`);
+          }
+        } catch (invitationError) {
+          console.error(`DatabaseStorage.deleteSalon - Error deleting invitations from salon:`, invitationError);
+          // Continue with deletion
+        }
+        
+        // Handle any gifts from this salon
+        try {
+          const salonGifts = await db.select().from(gifts).where(eq(gifts.salonId, id));
+          console.log(`DatabaseStorage.deleteSalon - Found ${salonGifts.length} gifts from this salon to delete`);
+          
+          // Delete all gifts from this salon
+          if (salonGifts.length > 0) {
+            await db.delete(gifts).where(eq(gifts.salonId, id));
+            console.log(`DatabaseStorage.deleteSalon - Deleted ${salonGifts.length} gifts from salon`);
+          }
+        } catch (giftError) {
+          console.error(`DatabaseStorage.deleteSalon - Error deleting gifts from salon:`, giftError);
+          // Continue with deletion
+        }
+        
+        // Delete the salon from the database
+        const result = await db.delete(salons).where(eq(salons.id, id)).returning();
+        
+        if (result && result.length > 0) {
+          // Update the salons cache by removing the deleted salon
+          if (this._salonsCache.data && this._salonsCache.data.length > 0) {
+            this._salonsCache.data = this._salonsCache.data.filter(s => s.id !== id);
+          }
+          
+          console.log(`DatabaseStorage.deleteSalon - Successfully deleted salon ID ${id} and all related artifacts`);
+          return true;
+        }
+        
+        console.error(`DatabaseStorage.deleteSalon - Error deleting salon ID ${id}`);
+        return false;
+      } catch (error) {
+        console.error(`DatabaseStorage.deleteSalon - Error during salon deletion process:`, error);
+        throw error;
       }
-      
-      console.error(`DatabaseStorage.deleteSalon - Error deleting salon ID ${id}`);
-      return false;
     }, 'deleteSalon');
   }
   // Add cache properties
@@ -766,12 +839,12 @@ export class DatabaseStorage implements IStorage {
         throw new Error(`Client with ID ${id} not found`);
       }
       
-      // Use raw SQL to update the status field safely
+      // Use raw SQL to update the suspended field safely
       const client_pool = await pool.connect();
       try {
         const result = await client_pool.query(`
           UPDATE clients
-          SET status = 'suspended'
+          SET suspended = true
           WHERE id = $1
           RETURNING *
         `, [id]);
@@ -804,6 +877,7 @@ export class DatabaseStorage implements IStorage {
           sponsor: result.rows[0].sponsor || 'VMB LTD',
           isCurrentClient: result.rows[0].is_current_client || false,
           acceptedTerms: result.rows[0].accepted_terms || false,
+          suspended: result.rows[0].suspended || false,
           salonName: result.rows[0].salon_name || '',
           type: result.rows[0].type,
           salonId: result.rows[0].salon_id,
@@ -817,7 +891,6 @@ export class DatabaseStorage implements IStorage {
           profilePromptShown: result.rows[0].profile_prompt_shown,
           photoUrl: result.rows[0].photo_url,
           inviteHash: result.rows[0].invite_hash || '',
-          // status field is not in the schema
           createdAt: result.rows[0].created_at
         };
         

@@ -40,6 +40,7 @@ export interface Client {
   isCurrentClient: boolean;
   acceptedTerms?: boolean;
   profilePromptShown?: boolean;
+  suspended?: boolean;
   notes?: string;
   favoriteServices?: string[];
   salonId?: number;
