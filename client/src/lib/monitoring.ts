@@ -149,8 +149,20 @@ export function initMonitoring(): void {
     
     console.log(`[API-REQ] ${method} ${url} - ID: ${requestId}`, init?.body || 'No Body');
     
+    let processedInput = input;
+    if (typeof input === 'string' && input.startsWith('/api/')) {
+      try {
+        const currentOrigin = window.location.origin;
+        const cleanOrigin = currentOrigin.replace(/\/\/[^@]+@/, '//');
+        processedInput = new URL(input, cleanOrigin).href;
+        console.log(`[API-REQ] Processed URL from ${input} to ${processedInput}`);
+      } catch (urlError) {
+        console.warn(`[API-REQ] Failed to process URL ${input}, using original:`, urlError);
+      }
+    }
+    
     try {
-      const response = await originalFetch.apply(this, [input, init]);
+      const response = await originalFetch.apply(this, [processedInput, init]);
       const endTime = Date.now();
       const duration = endTime - startTime;
       
