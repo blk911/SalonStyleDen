@@ -13,7 +13,7 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import ClientForm from "@/components/forms/ClientForm";
-import { cleanPhoneNumber } from "@/lib/utils";
+import { cleanPhoneNumber, processApiUrl } from "@/lib/utils";
 
 // Define the type for the client data returned from the invitation validation
 export interface ClientData {
@@ -116,7 +116,7 @@ export function PromoCodeDialog({
         try {
           // Check for existing clients with this phone number
           console.log(`Checking for existing clients with phone: ${phoneNumber}`);
-          const clientCheckResponse = await fetch('/api/clients', {
+          const clientCheckResponse = await fetch(processApiUrl('/api/clients'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -181,7 +181,7 @@ export function PromoCodeDialog({
       console.log("API request options:", requestOptions);
       
       // Use direct fetch instead of apiRequest for more visibility
-      const apiResponse = await fetch("/api/invitations/validate", requestOptions);
+      const apiResponse = await fetch(processApiUrl("/api/invitations/validate"), requestOptions);
       console.log("API response status:", apiResponse.status);
       
       const response = await apiResponse.json();
@@ -280,7 +280,7 @@ export function PromoCodeDialog({
         console.log("Checking for existing client with phone:", clientData.phone);
         try {
           // Get clients matching this phone number
-          const clientsResponse = await fetch('/api/clients?phone=' + encodeURIComponent(clientData.phone), {
+          const clientsResponse = await fetch(processApiUrl('/api/clients?phone=' + encodeURIComponent(clientData.phone)), {
             method: 'GET'
           });
           
@@ -317,7 +317,7 @@ export function PromoCodeDialog({
       console.log("No matching client found, proceeding with registration");
       
       // Attempt to create client with the data
-      const response = await fetch('/api/clients', {
+      const response = await fetch(processApiUrl('/api/clients'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

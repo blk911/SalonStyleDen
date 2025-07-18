@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PhoneInputField } from "@/components/ui/PhoneInputField";
 import { useToast } from "@/hooks/use-toast";
-import { cleanPhoneNumber, formatPhoneNumber } from "@/lib/utils";
+import { cleanPhoneNumber, formatPhoneNumber, processApiUrl } from "@/lib/utils";
 
 interface UnregisteredUserModalProps {
   open: boolean;
@@ -58,7 +58,7 @@ export function UnregisteredUserModal({
         type: "client" as const
       };
 
-      const response = await fetch('/api/clients', {
+      const response = await fetch(processApiUrl('/api/clients'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

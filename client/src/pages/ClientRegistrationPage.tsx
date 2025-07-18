@@ -36,7 +36,7 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { formatPhoneNumber, cleanPhoneNumber, isValidPhone } from '@/lib/utils';
+import { formatPhoneNumber, cleanPhoneNumber, isValidPhone, processApiUrl } from '@/lib/utils';
 import { LoginDialog } from '@/components/ui/LoginDialog';
 import { UnregisteredUserModal } from '@/components/ui/UnregisteredUserModal';
 import { useContactValidation, ValidationResult } from '@/hooks/use-contact-validation';
@@ -279,7 +279,7 @@ export default function ClientRegistrationPage() {
         }
 
           logFlow('Step 2: Gift/Invite mode - checking for invitations');
-          const inviteResponse = await fetch(`/api/invitations?phone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
+          const inviteResponse = await fetch(processApiUrl(`/api/invitations?phone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`));
 
           if (inviteResponse.ok) {
             const invites = await inviteResponse.json();
@@ -319,7 +319,7 @@ export default function ClientRegistrationPage() {
               return;
             } else {
               logFlow('Step 3: No invitation found, checking for gifts');
-              const giftsResponse = await fetch(`/api/gifts?recipientPhone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
+              const giftsResponse = await fetch(processApiUrl(`/api/gifts?recipientPhone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`));
 
               if (giftsResponse.ok) {
                 const gifts = await giftsResponse.json();
@@ -530,7 +530,7 @@ export default function ClientRegistrationPage() {
   } = useQuery<Salon[]>({
     queryKey: ['/api/salons'],
     queryFn: async () => {
-      const response = await fetch('/api/salons');
+      const response = await fetch(processApiUrl('/api/salons'));
       if (!response.ok) {
         throw new Error('Failed to load salon list');
       }
@@ -648,7 +648,7 @@ export default function ClientRegistrationPage() {
 
       try {
         // Create the client with better error handling
-        const clientResponse = await fetch('/api/clients', {
+        const clientResponse = await fetch(processApiUrl('/api/clients'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

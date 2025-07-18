@@ -27,7 +27,7 @@ import ClientGifts from "@/components/gifts/ClientGifts";
 import GiftsPage from "@/components/gifts/GiftsPage";
 import InvitationsPage from "@/components/invitations/InvitationsPage";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
-import { getImageUrl, formatPhoneNumber } from "@/lib/utils";
+import { getImageUrl, formatPhoneNumber, processApiUrl } from "@/lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -183,7 +183,7 @@ export default function ClientDashboard() {
     queryFn: async () => {
       // If we have a hash, fetch by hash instead of ID
       if (invitationHash) {
-        const response = await fetch(`/api/invitations/by-hash/${invitationHash}`);
+        const response = await fetch(processApiUrl(`/api/invitations/by-hash/${invitationHash}`));
         if (!response.ok) {
           throw new Error(`Failed to fetch invitation by hash: ${response.status}`);
         }
@@ -191,7 +191,7 @@ export default function ClientDashboard() {
       }
       
       // Otherwise fetch by ID - this might be either a client ID or an invitation ID
-      const response = await fetch(`/api/invitations/${numericId}`);
+      const response = await fetch(processApiUrl(`/api/invitations/${numericId}`));
       if (!response.ok) {
         throw new Error(`Failed to fetch invitation: ${response.status}`);
       }
@@ -268,7 +268,7 @@ export default function ClientDashboard() {
   const addStyleSelectionMutation = useMutation({
     mutationFn: async (data: any) => {
       try {
-        const response = await fetch(`/api/clients/${data.clientId}/style-selections`, {
+        const response = await fetch(processApiUrl(`/api/clients/${data.clientId}/style-selections`), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -376,7 +376,7 @@ export default function ClientDashboard() {
   const updateProfilePromptShown = async (clientId: number) => {
     try {
       console.log(`[FLOW] ClientDashboard - Marking profile prompt as shown for client ${clientId}`);
-      const response = await fetch(`/api/clients/${clientId}/profile-prompt-shown`, {
+      const response = await fetch(processApiUrl(`/api/clients/${clientId}/profile-prompt-shown`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
