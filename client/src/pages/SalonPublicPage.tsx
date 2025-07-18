@@ -25,7 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useEffect, useState, useCallback } from "react";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, processApiUrl } from "@/lib/utils";
 import { queryClient } from "@/lib/queryClient";
 import { DaySchedule } from "@/components/dashboard/WeeklySchedule";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
@@ -99,7 +99,7 @@ export default function SalonPublicPage() {
   const getCurrentClientId = useCallback(async () => {
     try {
       // Check if we have a client ID in the session
-      const response = await fetch('/api/session/current-client');
+      const response = await fetch(processApiUrl('/api/session/current-client'));
       if (response.ok) {
         const data = await response.json();
         if (data && data.clientId) {
@@ -133,7 +133,7 @@ export default function SalonPublicPage() {
       try {
         if (!id) throw new Error("No salon ID provided");
 
-        const response = await fetch(`/api/salons/${id}`);
+        const response = await fetch(processApiUrl(`/api/salons/${id}`));
         if (!response.ok) {
           throw new Error(`Error fetching salon: ${response.status}`);
         }

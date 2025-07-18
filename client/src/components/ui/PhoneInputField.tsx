@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Input, InputProps } from '@/components/ui/input';
-import { formatPhoneNumber, cleanPhoneNumber, isValidPhone } from '@/lib/utils';
+import { formatPhoneNumber, cleanPhoneNumber, isValidPhone, processApiUrl } from '@/lib/utils';
 import { useContactValidation, ValidationResult } from '@/hooks/use-contact-validation';
 import { ContactValidationDialog } from '@/components/ui/ContactValidationDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -172,7 +172,7 @@ export function PhoneInputField({
       setShowRegisteredDialog(false);
       
       try {
-        const response = await fetch('/api/salons');
+        const response = await fetch(processApiUrl('/api/salons'));
         const salons = await response.json();
         const matchingSalon = salons.find((salon: any) => 
           salon.phone && salon.phone.replace(/\D/g, '') === cleanOriginal

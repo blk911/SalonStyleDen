@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, processApiUrl } from "@/lib/utils";
 
 export default function TestImagePage() {
   const { id } = useParams();
@@ -15,7 +15,7 @@ export default function TestImagePage() {
   
   useEffect(() => {
     if (id) {
-      fetch(`/api/salons/${id}`)
+      fetch(processApiUrl(`/api/salons/${id}`))
         .then(res => {
           if (!res.ok) throw new Error(`Failed to fetch salon: ${res.status}`);
           return res.json();
@@ -44,7 +44,7 @@ export default function TestImagePage() {
     setTimestamp(Date.now());
     
     // Also force a refetch to get the latest data
-    fetch(`/api/salons/${id}?t=${Date.now()}`)
+    fetch(processApiUrl(`/api/salons/${id}?t=${Date.now()}`))
       .then(response => {
         if (!response.ok) throw new Error(`API error: ${response.status}`);
         return response.json();

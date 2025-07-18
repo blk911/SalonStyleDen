@@ -8,6 +8,7 @@ import { Loader2, User, Clock, Gift, ArrowLeft, ExternalLink, Heart } from 'luci
 import Navbar from "@/components/layout/Navbar";
 import { Link } from 'wouter';
 import { Separator } from '@/components/ui/separator';
+import { processApiUrl } from '@/lib/utils';
 
 interface StyleOption {
   id: number;
@@ -55,7 +56,7 @@ export default function CompleteInvitationPage() {
     if (invitation?.styleId) {
       const fetchStyle = async () => {
         try {
-          const response = await fetch(`/api/styles/${invitation.styleId}`);
+          const response = await fetch(processApiUrl(`/api/styles/${invitation.styleId}`));
           if (response.ok) {
             const styleData = await response.json();
             setStyle(styleData);

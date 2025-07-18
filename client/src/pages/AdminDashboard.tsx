@@ -65,6 +65,7 @@ import {
 import { CollapsibleCard } from "@/components/ui/card-section";
 import { useToast } from "@/hooks/use-toast";
 import { Client } from "@/types";
+import { processApiUrl } from "@/lib/utils";
 
 interface Service {
   id: number;
@@ -162,7 +163,7 @@ export default function AdminDashboard() {
   // License verification mutations
   const verifyLicenseMutation = useMutation({
     mutationFn: async (salonId: number) => {
-      const response = await fetch(`/api/license/verify/${salonId}`, {
+      const response = await fetch(processApiUrl(`/api/license/verify/${salonId}`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -196,7 +197,7 @@ export default function AdminDashboard() {
   // License rejection mutation
   const rejectLicenseMutation = useMutation({
     mutationFn: async (salonId: number) => {
-      const response = await fetch(`/api/license/reject/${salonId}`, {
+      const response = await fetch(processApiUrl(`/api/license/reject/${salonId}`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -346,7 +347,7 @@ export default function AdminDashboard() {
     queryKey: ['/api/clients'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/clients');
+        const response = await fetch(processApiUrl('/api/clients'));
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch clients: ${response.status} ${response.statusText}. Details: ${errorText}`);
@@ -364,7 +365,7 @@ export default function AdminDashboard() {
     queryKey: ['/api/salons'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/salons');
+        const response = await fetch(processApiUrl('/api/salons'));
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch salons: ${response.status} ${response.statusText}. Details: ${errorText}`);
@@ -384,7 +385,7 @@ export default function AdminDashboard() {
     queryKey: ['/api/invitations'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/invitations?limit=50'); // Get more invitations for admin view
+        const response = await fetch(processApiUrl('/api/invitations?limit=50')); // Get more invitations for admin view
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch invitations: ${response.status} ${response.statusText}. Details: ${errorText}`);
@@ -402,7 +403,7 @@ export default function AdminDashboard() {
     queryKey: ['/api/activity-logs'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/activity-logs?limit=50'); // Get more logs for admin view
+        const response = await fetch(processApiUrl('/api/activity-logs?limit=50')); // Get more logs for admin view
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch activity logs: ${response.status} ${response.statusText}. Details: ${errorText}`);
@@ -421,7 +422,7 @@ export default function AdminDashboard() {
     queryKey: ['/api/gifts-pending'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/gifts-pending');
+        const response = await fetch(processApiUrl('/api/gifts-pending'));
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch pending gift requests: ${response.status} ${response.statusText}. Details: ${errorText}`);

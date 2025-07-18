@@ -212,7 +212,7 @@ export default function ClientDashboard() {
         }
         
         console.log(`ClientDashboard - Making API request to fetch client ${numericId}`);
-        const response = await fetch(`/api/clients/${numericId}`);
+        const response = await fetch(processApiUrl(`/api/clients/${numericId}`));
         if (!response.ok) {
           const errorText = await response.text();
           console.error(`ClientDashboard - API error: ${response.status} ${errorText}`);
@@ -253,7 +253,7 @@ export default function ClientDashboard() {
     queryKey: ['/api/salons', client?.salonId],
     queryFn: async () => {
       console.log(`ClientDashboard - Fetching linked salon with ID: ${client?.salonId}`);
-      const response = await fetch(`/api/salons/${client?.salonId}`);
+      const response = await fetch(processApiUrl(`/api/salons/${client?.salonId}`));
       if (!response.ok) {
         throw new Error(`Failed to fetch salon: ${response.status}`);
       }

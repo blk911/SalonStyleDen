@@ -6,6 +6,7 @@
  * in the gift sending/claiming process by tracking state and API calls.
  */
 import { useCallback } from 'react';
+import { processApiUrl } from '@/lib/utils';
 
 interface DebugOptions {
   enabled: boolean;
@@ -47,7 +48,7 @@ export const useGiftDebugger = (customOptions?: Partial<DebugOptions>) => {
     
     if (options.logToServer) {
       // Send to server-side logging endpoint
-      fetch('/api/log-error', {
+      fetch(processApiUrl('/api/log-error'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

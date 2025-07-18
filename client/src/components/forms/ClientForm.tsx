@@ -21,7 +21,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, cleanPhoneNumber, processApiUrl } from "@/lib/utils";
 import { useContactValidation } from "@/hooks/use-contact-validation";
 import { ContactValidationDialog } from "@/components/ui/ContactValidationDialog";
 import VerificationModal from "@/components/shared/VerificationModal";
@@ -99,7 +99,7 @@ export default function ClientForm({
     queryFn: async () => {
       console.log('Fetching salons for client form...');
       try {
-        const response = await fetch('/api/salons');
+        const response = await fetch(processApiUrl('/api/salons'));
         if (!response.ok) {
           console.error('Failed to fetch salons:', response.status, response.statusText);
           // Return default fallback salons instead of throwing

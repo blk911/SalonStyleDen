@@ -8,6 +8,7 @@
  * - User interaction monitoring
  */
 import activityMonitor from './activity-monitor';
+import { processApiUrl } from './utils';
 
 // Log errors to console and server
 export function logError(type: 'frontend' | 'api' | 'network', error: Error | string): void {
@@ -24,7 +25,7 @@ export function logError(type: 'frontend' | 'api' | 'network', error: Error | st
   });
 
   // Send error to server for logging
-  fetch('/api/log-error', {
+  fetch(processApiUrl('/api/log-error'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ 
@@ -43,7 +44,7 @@ export function initMonitoring(): void {
   console.log('[VMB Monitoring] Initializing monitoring system');
 
   // Check server status
-  fetch('/api/status')
+  fetch(processApiUrl('/api/status'))
     .then(res => {
       if (res.headers.get('content-type')?.includes('application/json')) {
         return res.json();

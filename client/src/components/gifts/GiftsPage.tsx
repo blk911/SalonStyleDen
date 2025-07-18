@@ -7,6 +7,7 @@ import { SentGiftsDisplay } from "./SentGiftsDisplay";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
+import { processApiUrl } from "@/lib/utils";
 
 interface Invitation {
   id: number;
@@ -61,7 +62,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
     queryKey: ['/api/clients/data', clientId],
     queryFn: async () => {
       if (!clientId) return null;
-      const response = await fetch(`/api/clients/${clientId}`);
+      const response = await fetch(processApiUrl(`/api/clients/${clientId}`));
       if (!response.ok) throw new Error('Failed to fetch client data');
       return response.json();
     },
@@ -76,7 +77,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       
       try {
         // Get gifts received by this client (both by ID and phone)
-        const response = await fetch(`/api/gifts/received/${clientId}`);
+        const response = await fetch(processApiUrl(`/api/gifts/received/${clientId}`));
         if (!response.ok) throw new Error('Failed to fetch received gifts');
         
         const gifts = await response.json() as Gift[];
@@ -129,7 +130,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       
       try {
         // Get gifts sent by this client
-        const response = await fetch(`/api/gifts/sent/${clientId}`);
+        const response = await fetch(processApiUrl(`/api/gifts/sent/${clientId}`));
         if (!response.ok) throw new Error('Failed to fetch sent gifts');
         
         const gifts = await response.json() as Gift[];

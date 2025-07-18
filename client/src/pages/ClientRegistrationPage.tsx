@@ -245,7 +245,7 @@ export default function ClientRegistrationPage() {
         if (clientValidationResult === 'registered') {
           // Check if client exists by calling the API directly
           logFlow('Checking for existing client via API');
-          const clientResponse = await fetch(`/api/clients?phone=${encodeURIComponent(phoneNumber)}`);
+          const clientResponse = await fetch(processApiUrl(`/api/clients?phone=${encodeURIComponent(phoneNumber)}`));
           
           if (clientResponse.ok) {
             const clients = await clientResponse.json();
@@ -346,7 +346,7 @@ export default function ClientRegistrationPage() {
                     form.setValue('sponsorSalonId', gift.salonId);
 
                     // Try to get salon info if available
-                    fetch(`/api/salons/${gift.salonId}`)
+                    fetch(processApiUrl(`/api/salons/${gift.salonId}`))
                       .then(response => response.ok ? response.json() : null)
                       .then(salonData => {
                         if (salonData) {
@@ -439,7 +439,7 @@ export default function ClientRegistrationPage() {
         setInvitationDataLoaded(true);
 
         // Attempt to fetch the invitation details
-        fetch(`/api/invitations/${invitationId}`)
+        fetch(processApiUrl(`/api/invitations/${invitationId}`))
           .then(response => {
             if (response.ok) {
               return response.json();

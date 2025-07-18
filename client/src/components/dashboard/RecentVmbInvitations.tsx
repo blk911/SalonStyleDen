@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLinkIcon, XCircleIcon } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { processApiUrl } from "@/lib/utils";
 
 interface Invitation {
   id: number;
@@ -44,7 +45,7 @@ export default function RecentVmbInvitations({
   const { data: invitations, isLoading } = useQuery({
     queryKey: ['/api/invitations', clientId, salonId, limit],
     queryFn: async () => {
-      const response = await fetch(`/api/invitations?${filterParams}`);
+      const response = await fetch(processApiUrl(`/api/invitations?${filterParams}`));
       if (!response.ok) throw new Error('Network response was not ok');
       return response.json() as Promise<Invitation[]>;
     }
@@ -53,7 +54,7 @@ export default function RecentVmbInvitations({
   // Mutation for cancelling an invitation
   const cancelInvitationMutation = useMutation({
     mutationFn: async (invitationId: number) => {
-      const response = await fetch(`/api/invitations/${invitationId}/cancel`, {
+      const response = await fetch(processApiUrl(`/api/invitations/${invitationId}/cancel`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -206,7 +207,7 @@ export default function RecentVmbInvitations({
                         onClick={(e) => {
                           e.preventDefault();
                           // Check if the invitation is associated with an existing client
-                          fetch(`/api/clients/by-invitation/${invitation.id}`)
+                          fetch(processApiUrl(`/api/clients/by-invitation/${invitation.id}`))
                             .then(res => {
                               if (res.ok) {
                                 // If client exists, go to their dashboard

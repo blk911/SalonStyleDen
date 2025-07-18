@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ExternalLinkIcon, PhoneIcon, CalendarIcon, ClockIcon, GiftIcon, UserIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
-import { formatPhonePartial } from "@/lib/utils";
+import { formatPhonePartial, processApiUrl } from "@/lib/utils";
 
 interface Invitation {
   id: number;
@@ -54,7 +54,7 @@ export default function SentInvitations({
     queryKey: ['/api/invitations', clientId, limit],
     queryFn: async () => {
       console.log('[SentInvitations] Fetching invitations with params:', filterParams.toString());
-      const response = await fetch(`/api/invitations?${filterParams}`);
+      const response = await fetch(processApiUrl(`/api/invitations?${filterParams}`));
       if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
       console.log('[SentInvitations] Retrieved invitations:', data);

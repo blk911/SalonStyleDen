@@ -13,6 +13,7 @@ import { AtSignIcon, ChevronDownIcon, ChevronUpIcon, PhoneIcon, SendIcon, UserIc
 import FlowLogger from "@/lib/flow-logger";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { queryClient } from "@/lib/queryClient";
+import { processApiUrl } from "@/lib/utils";
 
 interface ClientInviteFormProps {
   clientId: number;
@@ -118,7 +119,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
       
       // Context-aware validation first
       FlowLogger.log('ClientInviteForm', 'Performing Server-Side Validation');
-      const validationResponse = await fetch("/api/invitations", {
+      const validationResponse = await fetch(processApiUrl("/api/invitations"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -148,7 +149,7 @@ export default function ClientInviteForm({ clientId, hideLabels = false, onSucce
       FlowLogger.log('ClientInviteForm', 'Server Validation Passed, Sending Invitation');
       
       // Send invitation
-      const response = await fetch("/api/invitations", {
+      const response = await fetch(processApiUrl("/api/invitations"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

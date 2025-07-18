@@ -11,7 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, cleanPhoneNumber, processApiUrl } from "@/lib/utils";
 import { Loader2, SendIcon } from "lucide-react";
 import {
   Dialog,
@@ -130,7 +130,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     queryFn: async () => {
       try {
         console.log(`GiftCreationFlow: Fetching real-time client data for client ID ${clientId}`);
-        const response = await fetch(`/api/clients/${clientId}`);
+        const response = await fetch(processApiUrl(`/api/clients/${clientId}`));
         if (!response.ok) {
           throw new Error(`Failed to fetch client data: ${response.status}`);
         }
@@ -173,7 +173,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       
       console.log("GiftCreationFlow: Transformed gift data:", giftData);
       
-      const response = await fetch("/api/gifts", {
+      const response = await fetch(processApiUrl("/api/gifts"), {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
