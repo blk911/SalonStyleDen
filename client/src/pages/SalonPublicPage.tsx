@@ -558,10 +558,10 @@ export default function SalonPublicPage() {
           isOpen={isInstructionOpen}
           onClose={() => setIsInstructionOpen(false)}
           steps={[
-            "Select your favorite nail style from the options above.",
-            "Send an invitation to someone special who might treat you.",
-            "They'll receive your invitation and can easily fulfill your request.",
-            "Visit the salon and enjoy your service when the appointment is confirmed!"
+            "Select your favorite nail style; click on pic.",
+            "Someone who wants your attention? Enter their name and number; send!",
+            "You'll know how special if they fill your request.",
+            "Your style is paid, set your appointment, ENJOY!"
           ]}
           icon={<Lightbulb className="h-5 w-5" />}
           actionText="Got it!"
