@@ -1919,7 +1919,7 @@ export default function AdminDashboard() {
                         <span className="font-medium text-gray-900">{client.name}</span>
                         <span className="text-gray-600">{formatPhoneNumber(client.phone)}</span>
                         <span className="text-sm text-gray-500">
-                          pending as of: {new Date(client.createdAt).toLocaleDateString()}
+                          pending as of: {new Date(client.createdAt || new Date()).toLocaleDateString()}
                         </span>
                       </div>
                       <Link 
