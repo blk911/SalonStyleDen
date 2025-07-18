@@ -39,7 +39,7 @@ import Footer from '@/components/layout/Footer';
 import { formatPhoneNumber, cleanPhoneNumber, isValidPhone } from '@/lib/utils';
 import { LoginDialog } from '@/components/ui/LoginDialog';
 import { UnregisteredUserModal } from '@/components/ui/UnregisteredUserModal';
-import { useContactValidation } from '@/hooks/use-contact-validation';
+import { useContactValidation, ValidationResult } from '@/hooks/use-contact-validation';
 
 // Simple logging helper (replaced test flow logger)
 const logFlow = (step: string, data?: any) => {
@@ -221,8 +221,8 @@ export default function ClientRegistrationPage() {
   const [invitationDataLoaded, setInvitationDataLoaded] = useState(false);
 
   // Function to handle phone validation - UNIFIED ASSESSMENT SYSTEM
-  const handlePhoneValidation = async (isValid: boolean, phoneNumber?: string) => {
-    logFlow(`Phone validation ${isValid ? 'passed' : 'failed'}`);
+  const handlePhoneValidation = async (isValid: boolean, phoneNumber?: string, validationResult?: ValidationResult) => {
+    logFlow(`Phone validation ${isValid ? 'passed' : 'failed'} - Phone: ${phoneNumber} - Result: ${validationResult}`);
 
     // Only show a toast for invalid phone numbers to help user correct them immediately
     if (!isValid) {
@@ -238,7 +238,35 @@ export default function ClientRegistrationPage() {
     if (isValid && phoneNumber) {
       const clientType = form.getValues('clientType');
 
-      if (clientType === 'giftInvite') {
+      try {
+        logFlow('Step 1: Checking for existing client');
+        const clientValidationResult = await validateContact(phoneNumber);
+        
+        if (clientValidationResult === 'registered') {
+          // Check if client exists by calling the API directly
+          logFlow('Checking for existing client via API');
+          const clientResponse = await fetch(`/api/clients?phone=${encodeURIComponent(phoneNumber)}`);
+          
+          if (clientResponse.ok) {
+            const clients = await clientResponse.json();
+            if (clients && clients.length > 0) {
+              const existingClient = clients[0];
+              logFlow('Existing client found, routing to dashboard', existingClient);
+              
+              toast({
+                title: `Welcome back, ${existingClient.name}!`,
+                description: 'Redirecting you to your dashboard...',
+                variant: 'default',
+              });
+              
+              // Route to client dashboard
+              navigate(`/client/${existingClient.id}`);
+              return;
+            }
+          }
+        }
+
+        if (clientType === 'giftInvite') {
         // Check if we're already in the right view and have an invitation ID in the URL
         // If we do, we don't need to reload or redirect
         const currentInvitationId = urlParams.get('invitationId');
@@ -250,35 +278,7 @@ export default function ClientRegistrationPage() {
           return;
         }
 
-        try {
-          logFlow('Step 1: Checking for existing client');
-          const clientValidationResult = await validateContact(phoneNumber);
-          
-          if (clientValidationResult === 'registered') {
-            // Check if client exists by calling the API directly
-            logFlow('Checking for existing client via API');
-            const clientResponse = await fetch(`/api/clients?phone=${encodeURIComponent(phoneNumber)}`);
-            
-            if (clientResponse.ok) {
-              const clients = await clientResponse.json();
-              if (clients && clients.length > 0) {
-                const existingClient = clients[0];
-                logFlow('Existing client found, routing to dashboard', existingClient);
-                
-                toast({
-                  title: `Welcome back, ${existingClient.name}!`,
-                  description: 'Redirecting you to your dashboard...',
-                  variant: 'default',
-                });
-                
-                // Route to client dashboard
-                navigate(`/client/${existingClient.id}`);
-                return;
-              }
-            }
-          }
-
-          logFlow('Step 2: No existing client found, checking for invitations');
+          logFlow('Step 2: Gift/Invite mode - checking for invitations');
           const inviteResponse = await fetch(`/api/invitations?phone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
 
           if (inviteResponse.ok) {
@@ -370,19 +370,22 @@ export default function ClientRegistrationPage() {
                 }
               }
 
-              // STEP 4: Neither client, invitation, nor gift found
-              logFlow('Step 4: No matching client, invitation, or gift found');
+              // STEP 4: Neither invitation nor gift found (for giftInvite mode)
+              logFlow('Step 4: No matching invitation or gift found for giftInvite mode');
               setShowUnregisteredModal(true);
             }
           }
-        } catch (error) {
-          console.error('Error in unified phone assessment:', error);
-          toast({
-            title: 'Lookup Error',
-            description: 'Failed to verify phone number. Please try again later.',
-            variant: 'destructive',
-          });
+        } else {
+          logFlow('Step 3: Non-giftInvite mode - showing registration modal for unregistered number');
+          setShowUnregisteredModal(true);
         }
+      } catch (error) {
+        console.error('Error in unified phone assessment:', error);
+        toast({
+          title: 'Lookup Error',
+          description: 'Failed to verify phone number. Please try again later.',
+          variant: 'destructive',
+        });
       }
     }
   };
