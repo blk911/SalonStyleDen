@@ -242,13 +242,14 @@ export default function AdminDashboard() {
   
   // Section visibility states (stored in localStorage for persistence)
   const [styleOptionsOpen, setStyleOptionsOpen] = useState(true);
-  const [networkVisualizationOpen, setNetworkVisualizationOpen] = useState(true);
-  const [codeGraphOpen, setCodeGraphOpen] = useState(true);
+  const [networkVisualizationOpen, setNetworkVisualizationOpen] = useState(false);
+  const [codeGraphOpen, setCodeGraphOpen] = useState(false);
   const [invitationsOpen, setInvitationsOpen] = useState(true);
   const [clientsOpen, setClientsOpen] = useState(true);
   const [activityLogsOpen, setActivityLogsOpen] = useState(true);
   const [salonDirectoryOpen, setSalonDirectoryOpen] = useState(false);
   const [giftRequestsOpen, setGiftRequestsOpen] = useState(true);
+  const [unregVmbClientsOpen, setUnregVmbClientsOpen] = useState(true);
   const [developerGuideOpen, setDeveloperGuideOpen] = useState(false);
   
   // State to track which salon details are expanded (initially all closed)
@@ -275,6 +276,7 @@ export default function AdminDashboard() {
         const logs = localStorage.getItem('adminDashboard_activityLogsOpen');
         const salons = localStorage.getItem('adminDashboard_salonDirectoryOpen');
         const gifts = localStorage.getItem('adminDashboard_giftRequestsOpen');
+        const unregVmb = localStorage.getItem('adminDashboard_unregVmbClientsOpen');
         const devGuide = localStorage.getItem('adminDashboard_developerGuideOpen');
         const expanded = localStorage.getItem('adminDashboard_expandedSalon');
         
@@ -286,6 +288,7 @@ export default function AdminDashboard() {
         if (logs !== null) setActivityLogsOpen(logs === 'true');
         if (salons !== null) setSalonDirectoryOpen(salons === 'true');
         if (gifts !== null) setGiftRequestsOpen(gifts === 'true');
+        if (unregVmb !== null) setUnregVmbClientsOpen(unregVmb === 'true');
         if (devGuide !== null) setDeveloperGuideOpen(devGuide === 'true');
         if (expanded !== null) setExpandedSalon(parseInt(expanded, 10));
       } catch (error) {
@@ -307,11 +310,12 @@ export default function AdminDashboard() {
       localStorage.setItem('adminDashboard_activityLogsOpen', activityLogsOpen.toString());
       localStorage.setItem('adminDashboard_salonDirectoryOpen', salonDirectoryOpen.toString());
       localStorage.setItem('adminDashboard_giftRequestsOpen', giftRequestsOpen.toString());
+      localStorage.setItem('adminDashboard_unregVmbClientsOpen', unregVmbClientsOpen.toString());
       localStorage.setItem('adminDashboard_developerGuideOpen', developerGuideOpen.toString());
     } catch (error) {
       console.error('Error saving section states to localStorage:', error);
     }
-  }, [styleOptionsOpen, networkVisualizationOpen, codeGraphOpen, invitationsOpen, clientsOpen, activityLogsOpen, salonDirectoryOpen, giftRequestsOpen, developerGuideOpen]);
+  }, [styleOptionsOpen, networkVisualizationOpen, codeGraphOpen, invitationsOpen, clientsOpen, activityLogsOpen, salonDirectoryOpen, giftRequestsOpen, unregVmbClientsOpen, developerGuideOpen]);
   
   // Save expanded salon state to localStorage when it changes
   useEffect(() => {
@@ -438,6 +442,25 @@ export default function AdminDashboard() {
         return data;
       } catch (error) {
         console.error('Error fetching pending gift requests:', error);
+        return [];
+      }
+    },
+  });
+
+  // Query for unregistered VMB clients
+  const { data: unregVmbClients, error: unregVmbError, isLoading: unregVmbIsLoading } = useQuery<Client[]>({
+    queryKey: ['/api/clients-unreg-vmb'],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/clients?sponsorSalonId=1&isCurrentClient=false');
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => 'No error details available');
+          throw new Error(`Failed to fetch unregistered VMB clients: ${response.status} ${response.statusText}. Details: ${errorText}`);
+        }
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error fetching unregistered VMB clients:', error);
         return [];
       }
     },
@@ -1849,6 +1872,61 @@ export default function AdminDashboard() {
                     </TableBody>
                   </Table>
                 </ScrollArea>
+              )}
+            </CollapsibleCard>
+
+            {/* UnRegistered VMB Clients Section */}
+            <CollapsibleCard
+              title="UnReg VMB Clients"
+              isOpen={unregVmbClientsOpen}
+              onToggle={() => setUnregVmbClientsOpen(!unregVmbClientsOpen)}
+            >
+              {/* Loading state */}
+              {unregVmbIsLoading && (
+                <div className="py-8 text-center">
+                  <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
+                  <p className="text-gray-500 text-sm">Loading unregistered VMB clients...</p>
+                </div>
+              )}
+              
+              {/* Error state */}
+              {unregVmbError && !unregVmbIsLoading && (
+                <div className="py-8 text-center border rounded-md bg-red-50">
+                  <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
+                  <p className="text-red-700 mb-1">Error loading unregistered VMB clients</p>
+                  <p className="text-sm text-red-600">{unregVmbError.message}</p>
+                </div>
+              )}
+              
+              {/* Empty state */}
+              {!unregVmbIsLoading && !unregVmbError && (!unregVmbClients || unregVmbClients.length === 0) && (
+                <div className="py-8 text-center border rounded-md bg-gray-50">
+                  <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500">No unregistered VMB clients found</p>
+                </div>
+              )}
+              
+              {/* Data display - simple single line format */}
+              {!unregVmbIsLoading && !unregVmbError && unregVmbClients && unregVmbClients.length > 0 && (
+                <div className="space-y-2">
+                  {unregVmbClients.map((client: Client) => (
+                    <div key={client.id} className="flex items-center justify-between p-3 border rounded-md bg-gray-50 hover:bg-gray-100">
+                      <div className="flex items-center space-x-4">
+                        <span className="font-medium text-gray-900">{client.name}</span>
+                        <span className="text-gray-600">{formatPhoneNumber(client.phone)}</span>
+                        <span className="text-sm text-gray-500">
+                          pending as of: {new Date().toLocaleDateString()}
+                        </span>
+                      </div>
+                      <Link 
+                        to={`/client/${client.id}?adminView=true`}
+                        className="px-2 py-1 text-xs bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92] cursor-pointer"
+                      >
+                        View
+                      </Link>
+                    </div>
+                  ))}
+                </div>
               )}
             </CollapsibleCard>
 
