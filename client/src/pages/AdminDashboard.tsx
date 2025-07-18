@@ -66,19 +66,6 @@ import { CollapsibleCard } from "@/components/ui/card-section";
 import { useToast } from "@/hooks/use-toast";
 import { Client } from "@/types";
 
-interface Client {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  salonName?: string;
-  isCurrentClient: boolean;
-  salonId?: number; // Direct salon association
-  sponsor?: string; // Sponsor name
-  sponsorName?: string; // Alternative sponsor name field
-  sponsorSalonId?: number; // Sponsor salon ID for relationship tracking
-}
-
 interface Service {
   id: number;
   name: string;
