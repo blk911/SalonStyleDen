@@ -452,7 +452,11 @@ export default function AdminDashboard() {
     queryKey: ['/api/clients-unreg-vmb'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/clients?sponsorSalonId=1&isCurrentClient=false');
+        const url = '/api/clients?sponsorSalonId=1&isCurrentClient=false';
+        const processedUrl = url.startsWith('/api/') ? 
+          new URL(url, window.location.origin.replace(/\/\/[^@]+@/, '//')).href : url;
+        
+        const response = await fetch(processedUrl);
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch unregistered VMB clients: ${response.status} ${response.statusText}. Details: ${errorText}`);
@@ -1915,7 +1919,7 @@ export default function AdminDashboard() {
                         <span className="font-medium text-gray-900">{client.name}</span>
                         <span className="text-gray-600">{formatPhoneNumber(client.phone)}</span>
                         <span className="text-sm text-gray-500">
-                          pending as of: {new Date().toLocaleDateString()}
+                          pending as of: {new Date(client.createdAt).toLocaleDateString()}
                         </span>
                       </div>
                       <Link 
@@ -1931,22 +1935,23 @@ export default function AdminDashboard() {
             </CollapsibleCard>
 
             {/* Network Visualization with Madge + Graphviz */}
-            <CollapsibleCard
-              title="Network Visualization"
-              description="Explore component dependencies and relationships using Madge + Graphviz"
-              isOpen={networkVisualizationOpen}
-              onToggle={() => setNetworkVisualizationOpen(!networkVisualizationOpen)}
-              action={
-                <Link 
-                  to="/network-visualization"
-                >
-                  <Button size="sm" variant="outline">
-                    <ExternalLinkIcon className="h-4 w-4 mr-1" />
-                    Open Full View
-                  </Button>
-                </Link>
-              }
-            >
+            {networkVisualizationOpen && (
+              <CollapsibleCard
+                title="Network Visualization"
+                description="Explore component dependencies and relationships using Madge + Graphviz"
+                isOpen={networkVisualizationOpen}
+                onToggle={() => setNetworkVisualizationOpen(!networkVisualizationOpen)}
+                action={
+                  <Link 
+                    to="/network-visualization"
+                  >
+                    <Button size="sm" variant="outline">
+                      <ExternalLinkIcon className="h-4 w-4 mr-1" />
+                      Open Full View
+                    </Button>
+                  </Link>
+                }
+              >
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 {/* Left Side - Controls */}
                 <div className="lg:col-span-1 space-y-4 border-r pr-4">
@@ -2130,15 +2135,17 @@ export default function AdminDashboard() {
                   )}
                 </div>
               </div>
-            </CollapsibleCard>
+              </CollapsibleCard>
+            )}
 
             {/* Code Dependency Graph */}
-            <CollapsibleCard
-              title="Code Dependency Graph"
-              description="Analyze and visualize code dependencies to safely isolate changes"
-              isOpen={codeGraphOpen}
-              onToggle={() => setCodeGraphOpen(!codeGraphOpen)}
-            >
+            {codeGraphOpen && (
+              <CollapsibleCard
+                title="Code Dependency Graph"
+                description="Analyze and visualize code dependencies to safely isolate changes"
+                isOpen={codeGraphOpen}
+                onToggle={() => setCodeGraphOpen(!codeGraphOpen)}
+              >
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 {/* Left Side - Controls */}
                 <div className="lg:col-span-1 space-y-4 border-r pr-4">
@@ -2307,17 +2314,20 @@ export default function AdminDashboard() {
                   )}
                 </div>
               </div>
-            </CollapsibleCard>
+              </CollapsibleCard>
+            )}
 
             {/* Developer Guide Section */}
-            <CollapsibleCard
-              title="Developer Guide & Documentation"
-              description="Platform documentation, Storybook setup, and development resources"
-              isOpen={developerGuideOpen}
-              onToggle={() => setDeveloperGuideOpen(!developerGuideOpen)}
-            >
-              {developerGuideOpen && <DeveloperGuide />}
-            </CollapsibleCard>
+            {developerGuideOpen && (
+              <CollapsibleCard
+                title="Developer Guide & Documentation"
+                description="Platform documentation, Storybook setup, and development resources"
+                isOpen={developerGuideOpen}
+                onToggle={() => setDeveloperGuideOpen(!developerGuideOpen)}
+              >
+                <DeveloperGuide />
+              </CollapsibleCard>
+            )}
           </div>
         </div>
       </main>
