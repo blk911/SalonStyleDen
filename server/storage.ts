@@ -2489,8 +2489,46 @@ export class DatabaseStorage implements IStorage {
         });
       }
       
-      console.log(`DatabaseStorage.getReceivedGifts - Found ${allGifts.length} gifts (${idReceivedGifts.length} by ID, ${phoneReceivedGifts.length} by phone)`);
-      return allGifts;
+      // Enhance gifts with sender information (same logic as getPendingGifts)
+      const giftsWithSenderInfo = await Promise.all(allGifts.map(async gift => {
+        let updatedGift = { ...gift };
+        
+        // Case 1: Gift sent by a client
+        if (gift.senderId) {
+          try {
+            const sender = await this.getClient(gift.senderId);
+            if (sender) {
+              updatedGift = {
+                ...updatedGift,
+                senderName: sender.name,
+                senderPhone: sender.phone
+              } as any;
+            }
+          } catch (error) {
+            console.error(`Error fetching client sender info for gift ${gift.id}:`, error);
+          }
+        } 
+        // Case 2: Gift is an invitation from a salon (giftType = 'invitation')
+        else if (gift.giftType === 'invitation' && gift.salonId) {
+          try {
+            const salon = await this.getSalon(gift.salonId);
+            if (salon) {
+              updatedGift = {
+                ...updatedGift,
+                senderName: salon.name,
+                senderId: salon.id // Add salon ID as senderId for proper linking
+              } as any;
+            }
+          } catch (error) {
+            console.error(`Error fetching salon sender info for invitation gift ${gift.id}:`, error);
+          }
+        }
+        
+        return updatedGift;
+      }));
+      
+      console.log(`DatabaseStorage.getReceivedGifts - Found ${giftsWithSenderInfo.length} gifts (${idReceivedGifts.length} by ID, ${phoneReceivedGifts.length} by phone) with sender info enhanced`);
+      return giftsWithSenderInfo;
     } catch (error) {
       console.error(`Error getting received gifts:`, error);
       throw error;
