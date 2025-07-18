@@ -38,6 +38,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { formatPhoneNumber, cleanPhoneNumber, isValidPhone } from '@/lib/utils';
 import { LoginDialog } from '@/components/ui/LoginDialog';
+import { UnregisteredUserModal } from '@/components/ui/UnregisteredUserModal';
 import { useContactValidation } from '@/hooks/use-contact-validation';
 
 // Simple logging helper (replaced test flow logger)
@@ -115,6 +116,7 @@ interface Salon {
 export default function ClientRegistrationPage() {
   const [location, navigate] = useLocation();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [showUnregisteredModal, setShowUnregisteredModal] = useState(false);
 
   // Extract invite hash from URL if present
   const inviteHash = location.includes('/invite/') 
@@ -370,11 +372,7 @@ export default function ClientRegistrationPage() {
 
               // STEP 4: Neither client, invitation, nor gift found
               logFlow('Step 4: No matching client, invitation, or gift found');
-              toast({
-                title: 'No Record Found',
-                description: 'No gift or invitation was found for this phone number. Please check and try again.',
-                variant: 'destructive',
-              });
+              setShowUnregisteredModal(true);
             }
           }
         } catch (error) {
@@ -1395,6 +1393,16 @@ export default function ClientRegistrationPage() {
       <LoginDialog 
         open={showLoginDialog} 
         onOpenChange={setShowLoginDialog} 
+      />
+      
+      {/* Unregistered User Modal */}
+      <UnregisteredUserModal 
+        open={showUnregisteredModal} 
+        onOpenChange={setShowUnregisteredModal}
+        initialPhone={form.getValues('phone')}
+        onSuccess={(clientId) => {
+          navigate(`/client/${clientId}`);
+        }}
       />
       
       <Footer />
