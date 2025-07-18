@@ -536,22 +536,20 @@ export default function SalonPublicPage() {
             <div className="bg-[#FEE1E8] rounded p-3 text-center">
               <h2 className="font-bold text-sm mb-2">Ready to look gorgeous?</h2>
               <p className="text-mini mb-2">Book your appointment at {salon.name} today!</p>
-              <div className="flex justify-between items-center gap-2">
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={() => window.location.href = '/salon-registration'}
-                    className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-sm"
-                  >
-                    Register Your Salon
-                  </Button>
-                  <Button 
-                    onClick={() => window.location.href = '/client-registration?mode=invite'}
-                    variant="outline"
-                    className="border-pink-300 text-pink-700 text-sm"
-                  >
-                    Invite your Friends
-                  </Button>
-                </div>
+              <div className="flex justify-center items-center gap-2 flex-wrap">
+                <Button 
+                  onClick={() => window.location.href = '/salon-registration'}
+                  className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-sm"
+                >
+                  Register Your Salon
+                </Button>
+                <Button 
+                  onClick={() => window.location.href = '/client-registration?mode=invite'}
+                  variant="outline"
+                  className="border-pink-300 text-pink-700 text-sm"
+                >
+                  Invite your Friends
+                </Button>
                 <Button 
                   variant="outline"
                   onClick={() => setIsInstructionOpen(true)}
