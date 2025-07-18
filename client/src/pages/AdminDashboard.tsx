@@ -64,6 +64,7 @@ import {
 } from "lucide-react";
 import { CollapsibleCard } from "@/components/ui/card-section";
 import { useToast } from "@/hooks/use-toast";
+import { Client } from "@/types";
 
 interface Client {
   id: number;
