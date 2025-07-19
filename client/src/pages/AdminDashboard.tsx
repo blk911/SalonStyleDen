@@ -159,6 +159,7 @@ export default function AdminDashboard() {
   const [clientToSuspend, setClientToSuspend] = useState<Client | null>(null);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [giftToDelete, setGiftToDelete] = useState<Gift | null>(null);
+  const [unregClientToDelete, setUnregClientToDelete] = useState<Client | null>(null);
   
   // License verification mutations
   const verifyLicenseMutation = useMutation({
@@ -689,6 +690,35 @@ export default function AdminDashboard() {
         variant: "destructive",
       });
     }
+  });
+
+  // Delete unregistered client mutation
+  const deleteUnregClientMutation = useMutation({
+    mutationFn: async (clientId: number) => {
+      const response = await fetch(`/api/clients/${clientId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'No error details available');
+        throw new Error(`Failed to delete client: ${response.status} ${response.statusText}. Details: ${errorText}`);
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Client deleted successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/clients-unreg-vmb'] });
+      setUnregClientToDelete(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete client: ${error.message}`,
+        variant: "destructive",
+      });
+    },
   });
 
   // Show global loading state only if everything is loading
@@ -1911,12 +1941,48 @@ export default function AdminDashboard() {
                           pending as of: {new Date(client.createdAt || new Date()).toLocaleDateString()}
                         </span>
                       </div>
-                      <Link 
-                        to={`/client/${client.id}?adminView=true`}
-                        className="px-2 py-1 text-xs bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92] cursor-pointer"
-                      >
-                        View
-                      </Link>
+                      <div className="flex items-center space-x-2">
+                        <Link 
+                          to={`/client/${client.id}?adminView=true`}
+                          className="px-2 py-1 text-xs bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92] cursor-pointer"
+                        >
+                          View
+                        </Link>
+                        
+                        <AlertDialog open={unregClientToDelete?.id === client.id} onOpenChange={(open) => !open && setUnregClientToDelete(null)}>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              onClick={() => setUnregClientToDelete(client)}
+                              className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
+                              title="Delete client account"
+                            >
+                              <TrashIcon className="h-3 w-3" />
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Unregistered Client</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to permanently delete {unregClientToDelete?.name}'s account? 
+                                This action cannot be undone and will remove all associated data.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => {
+                                  if (unregClientToDelete) {
+                                    deleteUnregClientMutation.mutate(unregClientToDelete.id);
+                                  }
+                                }}
+                                className="bg-red-500 hover:bg-red-600"
+                              >
+                                Delete Account
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   ))}
                 </div>
