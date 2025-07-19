@@ -208,7 +208,7 @@ export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
 export const gifts = pgTable("gifts", {
   id: serial("id").primaryKey(),
   // [RULE: SponsorClientRelationship] Every gift must have a sender
-  senderId: integer("sender_id").notNull().references(() => clients.id),
+  senderId: integer("sender_id").references(() => clients.id), // Can be null for "For Me" gifts
   // Recipient ID if already a client
   recipientId: integer("recipient_id").references(() => clients.id),
   // [RULE: PhoneFormat] Store phone as pure digits for recipient

@@ -46,6 +46,8 @@ ADD COLUMN IF NOT EXISTS custodial_amount INTEGER DEFAULT 0, -- amount held by a
 ADD COLUMN IF NOT EXISTS payment_required BOOLEAN DEFAULT FALSE, -- true for "FROM ME" gifts
 ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
+ALTER TABLE gifts ALTER COLUMN sender_id DROP NOT NULL;
+
 CREATE INDEX IF NOT EXISTS idx_payments_gift_id ON payments(gift_id);
 CREATE INDEX IF NOT EXISTS idx_payments_stripe_intent ON payments(stripe_payment_intent_id);
 CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status);

@@ -124,11 +124,10 @@ const invitationInputSchema = z.object({
 // 2. Recipient phone numbers must be properly formatted 
 // 3. Every gift must maintain a link to the original user relationships
 const giftInputSchema = z.object({
-  // [RULE: SponsorClientRelationship] All gifts must have a valid sender
+  // [RULE: SponsorClientRelationship] Sender ID is optional for "For Me" gifts
   senderId: z.number({
-    required_error: "Sender ID is required",
     invalid_type_error: "Sender ID must be a number"
-  }),
+  }).nullable().optional(),
   senderName: z.string().optional(),
   styleId: z.number().optional(),
   styleName: z.string().optional(),
@@ -152,7 +151,9 @@ const giftInputSchema = z.object({
   recipientId: z.number().optional(),
   value: z.number().optional(),
   expiresAt: z.date().optional(),
-  redeemedAt: z.date().optional()
+  redeemedAt: z.date().optional(),
+  giftType: z.string().optional(), // "for_me" or "from_me"
+  currentClientId: z.number().optional() // For "For Me" gifts, this is the requesting client
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -2878,33 +2879,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const giftHash = crypto.randomUUID();
       console.log(`[RULE ENFORCEMENT] Generated unique gift hash: ${giftHash}`);
       
-      // [RULE: SponsorClientRelationship] Get sender client to determine salon relationship
-      const senderClient = await storage.getClient(validatedData.senderId);
-      if (!senderClient) {
-        console.error(`[RULE VIOLATION] Gift creation with invalid sender ID: ${validatedData.senderId}`);
-        return res.status(400).json({
-          error: "Invalid sender",
-          details: "The specified sender doesn't exist in our records"
-        });
-      }
+      let senderClient = null;
+      let salonId = 1; // Default to VMB LTD
       
-      // [CRITICAL FIX] [RULE: SelfGiftProhibition] Check that sender and recipient are not the same
-      // A phone number CANNOT be both sender and recipient on the same gift
-      if (senderClient.phone === validatedData.recipientPhone) {
-        console.error(`[RULE VIOLATION] Gift creation with same phone number for sender and recipient: ${senderClient.phone}`);
-        return res.status(400).json({
-          error: "Invalid recipient",
-          details: "The sender and recipient cannot be the same person"
-        });
+      // Handle "From Me" gifts (with sender) vs "For Me" gifts (without sender)
+      if (validatedData.senderId) {
+        senderClient = await storage.getClient(validatedData.senderId);
+        if (!senderClient) {
+          console.error(`[RULE VIOLATION] Gift creation with invalid sender ID: ${validatedData.senderId}`);
+          return res.status(400).json({
+            error: "Invalid sender",
+            details: "The specified sender doesn't exist in our records"
+          });
+        }
+        
+        // [CRITICAL FIX] [RULE: SelfGiftProhibition] Check that sender and recipient are not the same
+        if (senderClient.phone === validatedData.recipientPhone) {
+          console.error(`[RULE VIOLATION] Gift creation with same phone number for sender and recipient: ${senderClient.phone}`);
+          return res.status(400).json({
+            error: "Invalid recipient",
+            details: "The sender and recipient cannot be the same person"
+          });
+        }
+        
+        // Get the salon relationship from the sender's sponsor salon
+        salonId = senderClient.sponsorSalonId || 1;
+        console.log(`[RULE ENFORCEMENT] Using sender's salon relationship: ${salonId}`);
+      } else if (validatedData.currentClientId) {
+        // "For Me" gift - validate current client exists and use their salon relationship
+        const currentClient = await storage.getClient(validatedData.currentClientId);
+        if (!currentClient) {
+          console.error(`[RULE VIOLATION] Gift creation with invalid current client ID: ${validatedData.currentClientId}`);
+          return res.status(400).json({
+            error: "Invalid client",
+            details: "The specified client doesn't exist in our records"
+          });
+        }
+        
+        salonId = currentClient.sponsorSalonId || 1;
+        console.log(`[RULE ENFORCEMENT] Using current client's salon relationship for "For Me" gift: ${salonId}`);
       }
-      
-      // Get the salon relationship from the sender's sponsor salon
-      const salonId = senderClient.sponsorSalonId || 1; // Default to VMB LTD if not found
-      console.log(`[RULE ENFORCEMENT] Using sender's salon relationship: ${salonId}`);
       
       // [RULE: UniqueGiftTracking] Create properly structured gift data with all required fields
       const giftData: InsertGift = {
-        senderId: validatedData.senderId,
+        senderId: validatedData.senderId || null,
         recipientPhone: validatedData.recipientPhone,
         recipientEmail: validatedData.recipientEmail || null,
         recipientId: validatedData.recipientId || null,
@@ -2919,7 +2937,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         salonId,
         // Additional fields that might be optional but useful
         styleId: validatedData.styleId || null,
-        styleName: validatedData.styleName || null
+        styleName: validatedData.styleName || null,
+        // Set payment tracking fields based on gift type
+        paymentRequired: validatedData.senderId ? true : false, // "From Me" gifts require payment
+        paymentStatus: validatedData.senderId ? 'unpaid' : 'not_required',
+        appointmentStatus: validatedData.senderId ? 'not_available' : 'available'
       };
       
       // Create the gift
