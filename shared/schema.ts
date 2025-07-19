@@ -34,6 +34,9 @@ export const salons = pgTable("salons", {
   licenseState: text("license_state"), // State that issued the license
   licenseVerified: boolean("license_verified").default(false), // Whether license has been verified
   licenseStatus: text("license_status").default("pending"), // Status: pending, verified, rejected
+  licenseVerificationDate: timestamp("license_verification_date"), // Date license was verified
+  licenseRejectionReason: text("license_rejection_reason"), // Reason for license rejection
+  metadata: jsonb("metadata"), // Additional metadata
   sponsor: text("sponsor").notNull().default("VMB LTD"), // Default sponsor name
   sponsorId: integer("sponsor_id").default(1), // ID of the sponsoring salon, default to VMB LTD (1)
   createdAt: timestamp("created_at").defaultNow(),
@@ -162,6 +165,7 @@ export const activityLogs = pgTable("activity_logs", {
   id: serial("id").primaryKey(),
   type: text("type").notNull(),
   description: text("description").notNull(),
+  details: jsonb("details"), // Additional details about the activity
   userId: integer("user_id").references(() => users.id),
   salonId: integer("salon_id").references(() => salons.id),
   clientId: integer("client_id").references(() => clients.id),
@@ -223,8 +227,14 @@ export const gifts = pgTable("gifts", {
   salonId: integer("salon_id").default(1).references(() => salons.id),
   // [RULE: UniqueGiftTracking] Every gift must have a unique tracking ID 
   giftHash: text("gift_hash").notNull().unique(), // Unique hash for tracking gifts
+  paymentStatus: text("payment_status").default("unpaid"), // unpaid, processing, paid, not_required, failed
+  appointmentStatus: text("appointment_status").default("not_available"), // not_available, available, requested, confirmed, completed
+  paymentIntentId: text("payment_intent_id"), // Stripe payment intent ID
+  custodialAmount: integer("custodial_amount").default(0), // Amount held by admin in cents
+  paymentRequired: boolean("payment_required").default(false), // true for "FROM ME" gifts
   expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
   redeemedAt: timestamp("redeemed_at"),
 });
 
@@ -246,11 +256,54 @@ export const giftsRelations = relations(gifts, ({ one }) => ({
   })
 }));
 
+export const payments = pgTable("payments", {
+  id: serial("id").primaryKey(),
+  giftId: integer("gift_id").references(() => gifts.id, { onDelete: 'cascade' }),
+  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
+  amount: integer("amount").notNull(),
+  currency: text("currency").default("usd"),
+  status: text("status").default("pending"), // pending, processing, succeeded, failed, canceled
+  custodialStatus: text("custodial_status").default("held"), // held, released, refunded
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  releasedAt: timestamp("released_at"),
+  metadata: jsonb("metadata").default({}),
+});
+
+export const adminCustody = pgTable("admin_custody", {
+  id: serial("id").primaryKey(),
+  totalFundsHeld: integer("total_funds_held").default(0),
+  giftCount: integer("gift_count").default(0),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Appointment confirmations table
+export const appointmentConfirmations = pgTable("appointment_confirmations", {
+  id: serial("id").primaryKey(),
+  giftId: integer("gift_id").references(() => gifts.id, { onDelete: 'cascade' }),
+  salonId: integer("salon_id").references(() => salons.id),
+  clientId: integer("client_id").references(() => clients.id),
+  appointmentDate: timestamp("appointment_date"),
+  appointmentTime: text("appointment_time"),
+  serviceType: text("service_type"),
+  confirmedBySalon: boolean("confirmed_by_salon").default(false),
+  confirmedByClient: boolean("confirmed_by_client").default(false),
+  salonConfirmedAt: timestamp("salon_confirmed_at"),
+  clientConfirmedAt: timestamp("client_confirmed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  notes: text("notes"),
+});
+
 // Insert schemas for new tables
 export const insertStyleSelectionSchema = createInsertSchema(styleSelections).omit({ id: true });
 export const insertActivityLogSchema = createInsertSchema(activityLogs).omit({ id: true });
 // Appointment schema removed - Gift-based model
 export const insertGiftSchema = createInsertSchema(gifts).omit({ id: true });
+export const insertPaymentSchema = createInsertSchema(payments).omit({ id: true });
+export const insertAdminCustodySchema = createInsertSchema(adminCustody).omit({ id: true });
+export const insertAppointmentConfirmationSchema = createInsertSchema(appointmentConfirmations).omit({ id: true });
 
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -275,3 +328,12 @@ export type ActivityLog = typeof activityLogs.$inferSelect;
 
 export type InsertGift = z.infer<typeof insertGiftSchema>;
 export type Gift = typeof gifts.$inferSelect;
+
+export type InsertPayment = z.infer<typeof insertPaymentSchema>;
+export type Payment = typeof payments.$inferSelect;
+
+export type InsertAdminCustody = z.infer<typeof insertAdminCustodySchema>;
+export type AdminCustody = typeof adminCustody.$inferSelect;
+
+export type InsertAppointmentConfirmation = z.infer<typeof insertAppointmentConfirmationSchema>;
+export type AppointmentConfirmation = typeof appointmentConfirmations.$inferSelect;
