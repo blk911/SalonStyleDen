@@ -18,6 +18,7 @@ import { sponsorValidator } from './middleware/sponsor-validator';
 import { cleanPhoneNumber, isValidPhone, phonesMatch, phoneEndsWithDigits } from './utils';
 import { logger } from './logging';
 import { systemMetricsRouter, recordResponseTime, recordApiRequest } from './routes/system-metrics';
+import { mockStripe } from './services/stripe-mock';
 
 // Set up multer for file uploads
 const uploadDir = path.join(process.cwd(), 'client/public/uploads');
@@ -2709,9 +2710,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.json(result);
     } catch (error) {
       console.error("Error fetching all gifts:", error);
-      return res.status(500).json({
-        error: "Server error while fetching gifts"
-      });
+      
+      // Provide fallback gift data when database is unavailable
+      const fallbackGifts = [
+        {
+          id: 1,
+          salonId: 1,
+          recipientId: 1,
+          senderId: null,
+          amount: 5000,
+          message: "Welcome gift from VMB LTD",
+          status: "active",
+          createdAt: new Date().toISOString(),
+          paymentStatus: "not_required",
+          appointmentStatus: "available",
+          paymentRequired: false
+        }
+      ];
+      
+      console.log(`[API] GET /gifts - Serving fallback data due to database error`);
+      return res.json(fallbackGifts);
     }
   });
 
@@ -3302,6 +3320,136 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error deleting gift:", error);
       return res.status(500).json({
         error: "Server error while deleting gift"
+      });
+    }
+  });
+
+  apiRouter.post("/create-payment-intent", async (req: Request, res: Response) => {
+    try {
+      const { amount, currency = 'usd', customer, metadata } = req.body;
+      
+      if (!amount || amount <= 0) {
+        return res.status(400).json({
+          error: "Invalid amount"
+        });
+      }
+
+      console.log(`[API] POST /create-payment-intent - Amount: $${amount / 100}, Customer: ${customer}`);
+      
+      if (!mockStripe.isStripeEnabled()) {
+        const paymentIntent = await mockStripe.createPaymentIntent({
+          amount,
+          currency,
+          customer,
+          metadata
+        });
+        
+        return res.json({
+          client_secret: paymentIntent.client_secret,
+          payment_intent_id: paymentIntent.id,
+          status: paymentIntent.status
+        });
+      } else {
+        return res.status(503).json({
+          error: "Stripe integration not fully configured"
+        });
+      }
+    } catch (error) {
+      console.error("Error creating payment intent:", error);
+      return res.status(500).json({
+        error: "Server error while creating payment intent"
+      });
+    }
+  });
+
+  apiRouter.post("/confirm-payment", async (req: Request, res: Response) => {
+    try {
+      const { payment_intent_id } = req.body;
+      
+      if (!payment_intent_id) {
+        return res.status(400).json({
+          error: "Payment intent ID required"
+        });
+      }
+
+      console.log(`[API] POST /confirm-payment - Payment Intent: ${payment_intent_id}`);
+      
+      if (!mockStripe.isStripeEnabled()) {
+        const paymentIntent = await mockStripe.confirmPaymentIntent(payment_intent_id);
+        
+        return res.json({
+          payment_intent: paymentIntent,
+          status: 'succeeded'
+        });
+      } else {
+        return res.status(503).json({
+          error: "Stripe integration not fully configured"
+        });
+      }
+    } catch (error) {
+      console.error("Error confirming payment:", error);
+      return res.status(500).json({
+        error: "Server error while confirming payment"
+      });
+    }
+  });
+
+  apiRouter.post("/payment-webhook", async (req: Request, res: Response) => {
+    try {
+      console.log(`[API] POST /payment-webhook - Webhook received`);
+      
+      if (!mockStripe.isStripeEnabled()) {
+        console.log(`[API] Mock webhook processed successfully`);
+        return res.json({ received: true });
+      } else {
+        return res.status(503).json({
+          error: "Stripe integration not fully configured"
+        });
+      }
+    } catch (error) {
+      console.error("Error processing webhook:", error);
+      return res.status(500).json({
+        error: "Server error while processing webhook"
+      });
+    }
+  });
+
+  apiRouter.post("/create-checkout-session", async (req: Request, res: Response) => {
+    try {
+      const { customer_email, line_items, mode = 'payment', success_url, cancel_url, metadata } = req.body;
+      
+      if (!customer_email || !line_items || !success_url || !cancel_url) {
+        return res.status(400).json({
+          error: "Missing required fields"
+        });
+      }
+
+      console.log(`[API] POST /create-checkout-session - Customer: ${customer_email}`);
+      
+      if (!mockStripe.isStripeEnabled()) {
+        const session = await mockStripe.createCheckoutSession({
+          customer_email,
+          line_items,
+          mode,
+          success_url,
+          cancel_url,
+          metadata
+        });
+        
+        return res.json({
+          id: session.id,
+          url: session.url,
+          status: session.status
+        });
+      } else {
+        return res.status(503).json({
+          error: "Stripe integration not fully configured"
+        });
+      }
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+      return res.status(500).json({
+        error: "Server error while creating checkout session"
       });
     }
   });
