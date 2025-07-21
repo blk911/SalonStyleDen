@@ -15,7 +15,7 @@ export interface IStorage {
 
   // Client methods
   getClient(id: number): Promise<any | null>;
-  isDuplicateContact(phone: string, email: string): Promise<{ isDuplicate: boolean; field?: string; existingData?: any }>;
+  isDuplicateContact(phone: string, email: string): Promise<boolean>;
   createClient(insertClient: any): Promise<any>;
   getAllClients(): Promise<any[]>;
   updateClient(id: number, updates: any): Promise<any>;
@@ -131,65 +131,34 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async isDuplicateContact(phone: string, email: string): Promise<{ isDuplicate: boolean; field?: string; existingData?: any }> {
+  async isDuplicateContact(phone: string, email: string): Promise<boolean> {
     try {
-      log(`DatabaseStorage.isDuplicateContact - Checking for duplicates: phone='${phone}', email='${email}'`, 'db');
+      log(`DatabaseStorage.isDuplicateContact - Checking for duplicate contact: ${phone}, ${email}`, 'db');
       
-      const cleanPhone = phone.replace(/\D/g, '');
-      log(`DatabaseStorage.isDuplicateContact - Standardized phone (digits only): '${cleanPhone}'`, 'db');
-      
-      const clientsWithPhone = await db.select().from(clients).where(eq(clients.phone, cleanPhone));
-      log(`DatabaseStorage.isDuplicateContact - Clients found with same phone: ${clientsWithPhone.length}`, 'db');
-      
-      if (clientsWithPhone.length > 0) {
-        return { isDuplicate: true, field: 'phone', existingData: clientsWithPhone[0] };
+      const conditions = [];
+      if (phone) {
+        conditions.push(eq(clients.phone, phone));
       }
-      
-      const invitationsWithPhone = await db.select().from(invitations).where(eq(invitations.phone, cleanPhone));
-      log(`DatabaseStorage.isDuplicateContact - Invitations found with same phone: ${invitationsWithPhone.length}`, 'db');
-      
-      if (invitationsWithPhone.length > 0) {
-        return { isDuplicate: true, field: 'phone', existingData: invitationsWithPhone[0] };
-      }
-      
-      const salonsWithPhone = await db.select().from(salons).where(eq(salons.phone, cleanPhone));
-      log(`DatabaseStorage.isDuplicateContact - Salons found with same phone: ${salonsWithPhone.length}`, 'db');
-      
-      if (salonsWithPhone.length > 0) {
-        return { isDuplicate: true, field: 'phone', existingData: salonsWithPhone[0] };
-      }
-      
       if (email) {
-        const lowerEmail = email.toLowerCase();
-        log(`DatabaseStorage.isDuplicateContact - Standardized email (lowercase): '${lowerEmail}'`, 'db');
-        
-        const clientsWithEmail = await db.select().from(clients).where(eq(clients.email, lowerEmail));
-        log(`DatabaseStorage.isDuplicateContact - Clients found with same email: ${clientsWithEmail.length}`, 'db');
-        
-        if (clientsWithEmail.length > 0) {
-          return { isDuplicate: true, field: 'email', existingData: clientsWithEmail[0] };
-        }
-        
-        const invitationsWithEmail = await db.select().from(invitations).where(eq(invitations.email, lowerEmail));
-        log(`DatabaseStorage.isDuplicateContact - Invitations found with same email: ${invitationsWithEmail.length}`, 'db');
-        
-        if (invitationsWithEmail.length > 0) {
-          return { isDuplicate: true, field: 'email', existingData: invitationsWithEmail[0] };
-        }
-        
-        const salonsWithEmail = await db.select().from(salons).where(eq(salons.email, lowerEmail));
-        log(`DatabaseStorage.isDuplicateContact - Salons found with same email: ${salonsWithEmail.length}`, 'db');
-        
-        if (salonsWithEmail.length > 0) {
-          return { isDuplicate: true, field: 'email', existingData: salonsWithEmail[0] };
-        }
+        conditions.push(eq(clients.email, email));
       }
       
-      log(`DatabaseStorage.isDuplicateContact - No duplicates found`, 'db');
-      return { isDuplicate: false };
+      if (conditions.length === 0) {
+        return false;
+      }
+      
+      const result = await db.select({ count: count() })
+        .from(clients)
+        .where(conditions.length === 1 ? conditions[0] : and(...conditions));
+      
+      const duplicateCount = result[0]?.count || 0;
+      const isDuplicate = duplicateCount > 0;
+      
+      log(`DatabaseStorage.isDuplicateContact - Found ${duplicateCount} duplicates, isDuplicate: ${isDuplicate}`, 'db');
+      return isDuplicate;
     } catch (error) {
-      log(`DatabaseStorage.isDuplicateContact - Error checking for duplicates: ${error}`, 'db');
-      return { isDuplicate: false };
+      log(`DatabaseStorage.isDuplicateContact - Error checking duplicate contact: ${error}`, 'db');
+      return false;
     }
   }
 
@@ -281,7 +250,7 @@ export class DatabaseStorage implements IStorage {
       log(`DatabaseStorage.getRecentInvitations - Getting recent invitations with limit: ${limit}`, 'db');
       let query = db.select().from(invitations).orderBy(desc(invitations.createdAt));
       if (limit) {
-        query = query.limit(limit) as any;
+        query = query.limit(limit);
       }
       return await query;
     } catch (error) {
@@ -305,12 +274,12 @@ export class DatabaseStorage implements IStorage {
     try {
       log(`DatabaseStorage.getClientInvitations - Getting invitations for client: ${clientId}`, 'db');
       
-      const whereConditions = [eq(invitations.senderId, clientId)];
+      const whereConditions = [eq(invitations.clientId, clientId)];
       
       let query = db.select().from(invitations).where(and(...whereConditions)).orderBy(desc(invitations.createdAt));
       
       if (limit) {
-        query = query.limit(limit) as any;
+        query = query.limit(limit);
       }
       
       const result = await query;
@@ -318,20 +287,6 @@ export class DatabaseStorage implements IStorage {
       return result;
     } catch (error) {
       log(`DatabaseStorage.getClientInvitations - Error getting client invitations: ${error}`, 'db');
-      throw error;
-    }
-  }
-
-  async getInvitationsByPhone(phone: string, partialMatch: boolean = false): Promise<any[]> {
-    try {
-      const cleanPhone = phone.replace(/\D/g, '');
-      log(`DatabaseStorage.getInvitationsByPhone - Searching for phone: ${phone} (cleaned: ${cleanPhone}), partialMatch: ${partialMatch}`, 'db');
-      
-      const result = await db.select().from(invitations).where(eq(invitations.phone, cleanPhone));
-      log(`DatabaseStorage.getInvitationsByPhone - Found ${result.length} invitations for phone ${cleanPhone}`, 'db');
-      return result;
-    } catch (error) {
-      log(`DatabaseStorage.getInvitationsByPhone - Error fetching invitations by phone: ${error}`, 'db');
       throw error;
     }
   }
@@ -351,7 +306,6 @@ export class DatabaseStorage implements IStorage {
   async createGift(insertGift: any): Promise<any> {
     try {
       log(`DatabaseStorage.createGift - Creating gift for recipient: ${insertGift.recipientPhone}`, 'db');
-      log(`DatabaseStorage.createGift - Input data: ${JSON.stringify(insertGift, null, 2)}`, 'db');
       
       if (!insertGift.giftHash) {
         insertGift.giftHash = createHash('sha256')
@@ -360,50 +314,11 @@ export class DatabaseStorage implements IStorage {
           .substring(0, 16);
       }
       
-      const now = new Date();
-      
-      if (!insertGift.createdAt) {
-        insertGift.createdAt = now;
-      } else if (typeof insertGift.createdAt !== 'object' || insertGift.createdAt.constructor !== Date) {
-        insertGift.createdAt = new Date(insertGift.createdAt);
-      }
-      
-      if (!insertGift.updatedAt) {
-        insertGift.updatedAt = now;
-      } else if (typeof insertGift.updatedAt !== 'object' || insertGift.updatedAt.constructor !== Date) {
-        insertGift.updatedAt = new Date(insertGift.updatedAt);
-      }
-      
-      if (insertGift.expiresAt === undefined || insertGift.expiresAt === null) {
-        insertGift.expiresAt = null;
-      } else if (typeof insertGift.expiresAt !== 'object' || insertGift.expiresAt.constructor !== Date) {
-        insertGift.expiresAt = new Date(insertGift.expiresAt);
-      }
-      
-      if (insertGift.redeemedAt === undefined || insertGift.redeemedAt === null) {
-        insertGift.redeemedAt = null;
-      } else if (typeof insertGift.redeemedAt !== 'object' || insertGift.redeemedAt.constructor !== Date) {
-        insertGift.redeemedAt = new Date(insertGift.redeemedAt);
-      }
-      
-      if (!insertGift.recipientName) {
-        insertGift.recipientName = 'Unknown Recipient';
-      }
-      
-      log(`DatabaseStorage.createGift - Processed data before insert: ${JSON.stringify({
-        ...insertGift,
-        createdAt: insertGift.createdAt?.toISOString(),
-        updatedAt: insertGift.updatedAt?.toISOString(),
-        expiresAt: insertGift.expiresAt?.toISOString() || null,
-        redeemedAt: insertGift.redeemedAt?.toISOString() || null
-      }, null, 2)}`, 'db');
-      
       const result = await db.insert(gifts).values(insertGift).returning();
       this._giftsCache = null;
       return result[0];
     } catch (error) {
       log(`DatabaseStorage.createGift - Error creating gift: ${error}`, 'db');
-      log(`DatabaseStorage.createGift - Error stack: ${error.stack}`, 'db');
       throw error;
     }
   }
@@ -456,12 +371,12 @@ export class DatabaseStorage implements IStorage {
     try {
       log(`DatabaseStorage.validateRegistration - Validating registration for: ${phone}, ${email}`, 'db');
       
-      const duplicateCheck = await this.isDuplicateContact(phone, email);
+      const isDuplicate = await this.isDuplicateContact(phone, email);
       
-      if (duplicateCheck.isDuplicate) {
+      if (isDuplicate) {
         return {
           isValid: false,
-          message: `A user with this ${duplicateCheck.field} already exists`
+          message: 'A user with this phone number or email already exists'
         };
       }
       
@@ -475,160 +390,6 @@ export class DatabaseStorage implements IStorage {
         isValid: false,
         message: 'Error validating registration'
       };
-    }
-  }
-
-  async updateSalonServices(id: number, services: any[]): Promise<any> {
-    try {
-      log(`DatabaseStorage.updateSalonServices - Updating services for salon ${id}`, 'db');
-      const servicesJson = JSON.stringify(services);
-      const result = await db.update(salons).set({ services: servicesJson }).where(eq(salons.id, id)).returning();
-      this._salonsCache = null;
-      return result[0];
-    } catch (error) {
-      log(`DatabaseStorage.updateSalonServices - Error updating salon services: ${error}`, 'db');
-      throw error;
-    }
-  }
-
-  async updateSalonPromos(id: number, promos: any[]): Promise<any> {
-    try {
-      log(`DatabaseStorage.updateSalonPromos - Updating promos for salon ${id}`, 'db');
-      const promosJson = JSON.stringify(promos);
-      const result = await db.update(salons).set({ promos: promosJson }).where(eq(salons.id, id)).returning();
-      this._salonsCache = null;
-      return result[0];
-    } catch (error) {
-      log(`DatabaseStorage.updateSalonPromos - Error updating salon promos: ${error}`, 'db');
-      throw error;
-    }
-  }
-
-  async validateInvitation(phone: string, email: string, senderId: number): Promise<{ isValid: boolean; message: string }> {
-    try {
-      log(`DatabaseStorage.validateInvitation - Validating invitation for: ${phone}, ${email}, sender: ${senderId}`, 'db');
-      
-      const duplicateCheck = await this.isDuplicateContact(phone, email);
-      
-      if (duplicateCheck.isDuplicate) {
-        return {
-          isValid: false,
-          message: `A user with this ${duplicateCheck.field} already exists`
-        };
-      }
-      
-      return {
-        isValid: true,
-        message: 'Invitation is valid'
-      };
-    } catch (error) {
-      log(`DatabaseStorage.validateInvitation - Error validating invitation: ${error}`, 'db');
-      return {
-        isValid: false,
-        message: 'Error validating invitation'
-      };
-    }
-  }
-
-  async checkUnredeemedGiftByPhone(phone: string): Promise<{ hasUnredeemedGift: boolean; giftData?: any }> {
-    try {
-      log(`DatabaseStorage.checkUnredeemedGiftByPhone - Checking unredeemed gifts for: ${phone}`, 'db');
-      const cleanPhone = phone.replace(/\D/g, '');
-      
-      const unredeemedGifts = await db.select().from(gifts)
-        .where(and(eq(gifts.recipientPhone, cleanPhone), isNull(gifts.redeemedAt)));
-      
-      if (unredeemedGifts.length > 0) {
-        return { hasUnredeemedGift: true, giftData: unredeemedGifts[0] };
-      }
-      
-      return { hasUnredeemedGift: false };
-    } catch (error) {
-      log(`DatabaseStorage.checkUnredeemedGiftByPhone - Error checking unredeemed gifts: ${error}`, 'db');
-      return { hasUnredeemedGift: false };
-    }
-  }
-
-  async createActivityLog(logData: any): Promise<any> {
-    try {
-      log(`DatabaseStorage.createActivityLog - Creating activity log: ${logData.type}`, 'db');
-      log(`Activity: ${logData.type} - ${logData.description}`, 'db');
-      return { id: Date.now(), ...logData, createdAt: new Date() };
-    } catch (error) {
-      log(`DatabaseStorage.createActivityLog - Error creating activity log: ${error}`, 'db');
-      throw error;
-    }
-  }
-
-  async getGiftsByRecipientPhone(phone: string, status?: string): Promise<any[]> {
-    try {
-      const cleanPhone = phone.replace(/\D/g, '');
-      log(`DatabaseStorage.getGiftsByRecipientPhone - Getting gifts for phone: ${cleanPhone}, status: ${status}`, 'db');
-      
-      let whereConditions = eq(gifts.recipientPhone, cleanPhone);
-      
-      if (status) {
-        whereConditions = and(whereConditions, eq(gifts.status, status)) as any;
-      }
-      
-      const result = await db.select().from(gifts).where(whereConditions);
-      log(`DatabaseStorage.getGiftsByRecipientPhone - Found ${result.length} gifts for phone ${cleanPhone}`, 'db');
-      return result;
-    } catch (error) {
-      log(`DatabaseStorage.getGiftsByRecipientPhone - Error getting gifts by recipient phone: ${error}`, 'db');
-      throw error;
-    }
-  }
-
-  async updateGift(id: number, updates: any): Promise<any> {
-    try {
-      log(`DatabaseStorage.updateGift - Updating gift with id: ${id}`, 'db');
-      
-      if (updates.updatedAt === undefined) {
-        updates.updatedAt = new Date();
-      }
-      if (updates.redeemedAt && typeof updates.redeemedAt !== 'object') {
-        updates.redeemedAt = new Date(updates.redeemedAt);
-      }
-      
-      const result = await db.update(gifts).set(updates).where(eq(gifts.id, id)).returning();
-      this._giftsCache = null;
-      return result[0];
-    } catch (error) {
-      log(`DatabaseStorage.updateGift - Error updating gift: ${error}`, 'db');
-      throw error;
-    }
-  }
-
-  async suspendClient(id: number): Promise<any> {
-    try {
-      log(`DatabaseStorage.suspendClient - Suspending client with id: ${id}`, 'db');
-      const result = await db.update(clients).set({ suspended: true }).where(eq(clients.id, id)).returning();
-      this._clientsCache = null;
-      return result[0];
-    } catch (error) {
-      log(`DatabaseStorage.suspendClient - Error suspending client: ${error}`, 'db');
-      throw error;
-    }
-  }
-
-  async hasSalonReachedInvitationLimit(salonId: number): Promise<{ hasReachedLimit: boolean; currentCount: number; limit: number }> {
-    try {
-      log(`DatabaseStorage.hasSalonReachedInvitationLimit - Checking invitation limit for salon: ${salonId}`, 'db');
-      
-      const invitationCount = await db.select({ count: count() }).from(invitations).where(eq(invitations.salonId, salonId));
-      const currentCount = invitationCount[0]?.count || 0;
-      
-      const limit = 100;
-      
-      return {
-        hasReachedLimit: currentCount >= limit,
-        currentCount,
-        limit
-      };
-    } catch (error) {
-      log(`DatabaseStorage.hasSalonReachedInvitationLimit - Error checking invitation limit: ${error}`, 'db');
-      return { hasReachedLimit: false, currentCount: 0, limit: 100 };
     }
   }
 }

@@ -1973,10 +1973,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Set redeemedAt timestamp if not already set
       try {
-        // Update directly with a SQL query
+        // Update directly with a SQL query - SQLite compatible
         await db.execute(sql`
           UPDATE invitations 
-          SET redeemed_at = NOW() 
+          SET redeemed_at = ${Math.floor(Date.now() / 1000)}
           WHERE id = ${id}
         `);
       } catch (dbError) {
@@ -2939,8 +2939,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // [RULE: UniqueGiftTracking] Create properly structured gift data with all required fields
+      const now = new Date();
       const giftData: InsertGift = {
         senderId: validatedData.senderId || null,
+        recipientName: validatedData.recipientName, // Required field from validation
         recipientPhone: validatedData.recipientPhone,
         recipientEmail: validatedData.recipientEmail || null,
         recipientId: validatedData.recipientId || null,
@@ -2959,8 +2961,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Set payment tracking fields based on gift type
         paymentRequired: validatedData.senderId ? true : false, // "From Me" gifts require payment
         paymentStatus: validatedData.senderId ? 'unpaid' : 'not_required',
-        appointmentStatus: validatedData.senderId ? 'not_available' : 'available'
+        appointmentStatus: validatedData.senderId ? 'not_available' : 'available',
+        // Add required timestamp fields as Date objects
+        createdAt: now,
+        updatedAt: now,
+        expiresAt: validatedData.expiresAt || null,
+        redeemedAt: validatedData.redeemedAt || null
       };
+      
+      // Debug: Log the exact giftData structure before database insert
+      console.log(`[DEBUG] giftData before createGift:`, JSON.stringify(giftData, null, 2));
+      console.log(`[DEBUG] giftData timestamp fields:`, {
+        createdAt: giftData.createdAt,
+        updatedAt: giftData.updatedAt,
+        expiresAt: giftData.expiresAt,
+        redeemedAt: giftData.redeemedAt
+      });
       
       // Create the gift
       const gift = await storage.createGift(giftData);
