@@ -8,6 +8,14 @@ import { startupMonitor } from './startup-monitor';
 import { EventEmitter } from 'events';
 import http from 'http';
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+});
+
 // Increase the default max listeners to prevent warnings
 EventEmitter.defaultMaxListeners = 20;
 

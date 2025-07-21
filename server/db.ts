@@ -67,8 +67,8 @@ export async function ensureConnection() {
   }
 }
 
-// Setup periodic connection check
-setInterval(ensureConnection, 30000);
+// Setup periodic connection check - TEMPORARILY DISABLED to prevent server crashes
+// setInterval(ensureConnection, 30000);
 
 // Create drizzle db instance with enhanced error handling
 export const db = drizzle({ client: pool, schema });
