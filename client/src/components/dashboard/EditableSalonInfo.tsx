@@ -311,7 +311,7 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
               </div>
             )}
             
-            {editedSalon.socialMedia && editedSalon.socialMedia.length > 0 && (
+            {Array.isArray(editedSalon.socialMedia) && editedSalon.socialMedia.length > 0 && (
               <div className="mt-3 pt-2 border-t border-gray-100 w-full">
                 <div className="flex flex-wrap gap-2 justify-center">
                   {editedSalon.socialMedia.map((social, index) => (
@@ -487,7 +487,7 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
               </div>
 
               {/* Existing social media accounts */}
-              {editedSalon.socialMedia && editedSalon.socialMedia.length > 0 && (
+              {Array.isArray(editedSalon.socialMedia) && editedSalon.socialMedia.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-2">
                   {editedSalon.socialMedia.map((social, index) => (
                     <div 
