@@ -8,7 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { GiftIcon, PhoneIcon, MailIcon, Loader2, CheckCircle, X } from "lucide-react";
-import { formatCurrency, formatPhoneNumber, cleanPhoneNumber, isValidPhone, processInvitationMessage } from "@/lib/utils";
+import { formatCurrency, formatPhoneNumber, cleanPhoneNumber, isValidPhone, processInvitationMessage, processApiUrl } from "@/lib/utils";
 import { DEFAULT_SALON_NAME, DEFAULT_SALON_ID, DEFAULT_OWNER_NAME, GIFT_STATUSES } from "@/constants/salonConstants";
 import {
   Dialog,
@@ -58,7 +58,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
   const [processedMessage] = useState(() => {
     if (gift.message) {
       return processInvitationMessage(gift.message, {
-        styleName: gift.styleName || "Style Card"
+        styleOption: gift.styleName || "Style Card"
       });
     }
     return "";
@@ -73,7 +73,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
       // Clean the phone number for submission
       const cleanedPhone = phone ? cleanPhoneNumber(phone) : "";
       
-      const response = await fetch(`/api/gifts/${gift.giftHash}/claim`, {
+      const response = await fetch(processApiUrl(`/api/gifts/${gift.giftHash}/claim`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

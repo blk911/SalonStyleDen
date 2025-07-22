@@ -3,10 +3,17 @@ import { validateClientContact, detectInputType, cleanPhoneNumber, isValidEmail,
 
 export type ValidationResult = 'loading' | 'registered' | 'not_registered' | 'invalid' | 'has_unredeemed_gift' | null;
 
+interface ClientData {
+  id: number;
+  name: string;
+  phone: string;
+}
+
 interface ValidationState {
   result: ValidationResult;
   hasUnredeemedGift?: boolean;
   requiresAddress?: boolean;
+  clientData?: ClientData;
 }
 
 interface UseContactValidationResult {
@@ -17,6 +24,7 @@ interface UseContactValidationResult {
   resetValidation: () => void;
   hasUnredeemedGift: boolean;
   requiresAddress: boolean;
+  clientData?: ClientData;
 }
 
 /**
@@ -80,7 +88,10 @@ export function useContactValidation(): UseContactValidationResult {
       
       // Handle normal cases
       if (result.exists) {
-        setValidationState({ result: 'registered' });
+        setValidationState({ 
+          result: 'registered',
+          clientData: result.clientData 
+        });
         return 'registered';
       } else {
         setValidationState({ result: 'not_registered' });
@@ -107,6 +118,7 @@ export function useContactValidation(): UseContactValidationResult {
     validatedContactType,
     resetValidation,
     hasUnredeemedGift: validationState.hasUnredeemedGift || false,
-    requiresAddress: validationState.requiresAddress || false
+    requiresAddress: validationState.requiresAddress || false,
+    clientData: validationState.clientData
   };
 }

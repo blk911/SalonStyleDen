@@ -37,7 +37,7 @@ class StartupMonitor {
       this.checks.push({
         service,
         status: 'error',
-        message: error.message
+        message: error instanceof Error ? error.message : String(error)
       });
       return false;
     }

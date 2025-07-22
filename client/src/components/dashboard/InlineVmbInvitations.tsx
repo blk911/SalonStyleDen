@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { UserIcon, CalendarIcon, CheckIcon, ClockIcon, ExternalLinkIcon, XCircleIcon } from "lucide-react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { processApiUrl } from "@/lib/utils";
 import InviteCompleteStatus from "./InviteCompleteStatus";
 
 interface Invitation {
@@ -48,7 +49,7 @@ export default function InlineVmbInvitations({
   const { data: invitations, isLoading } = useQuery({
     queryKey: ['/api/invitations', clientId, salonId, limit],
     queryFn: async () => {
-      const response = await fetch(`/api/invitations?${filterParams}`);
+      const response = await fetch(processApiUrl(`/api/invitations?${filterParams}`));
       if (!response.ok) throw new Error('Network response was not ok');
       return response.json() as Promise<Invitation[]>;
     }
@@ -57,7 +58,7 @@ export default function InlineVmbInvitations({
   // Mutation for cancelling an invitation
   const cancelInvitationMutation = useMutation({
     mutationFn: async (invitationId: number) => {
-      const response = await fetch(`/api/invitations/${invitationId}/cancel`, {
+      const response = await fetch(processApiUrl(`/api/invitations/${invitationId}/cancel`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -141,7 +142,7 @@ export default function InlineVmbInvitations({
   const goToInvitationPage = async (invitation: Invitation) => {
     try {
       // First, try to find a client with this phone number
-      const response = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
+      const response = await fetch(processApiUrl(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`));
       if (response.ok) {
         const clients = await response.json();
         if (clients && clients.length > 0) {
@@ -220,7 +221,7 @@ export default function InlineVmbInvitations({
                       
                       // Use the same client lookup logic as goToInvitationPage
                       try {
-                        const response = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
+                        const response = await fetch(processApiUrl(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`));
                         if (response.ok) {
                           const clients = await response.json();
                           if (clients && clients.length > 0) {

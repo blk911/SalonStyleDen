@@ -11,7 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, cleanPhoneNumber, processApiUrl } from "@/lib/utils";
 import { Loader2, SendIcon } from "lucide-react";
 import {
   Dialog,
@@ -52,6 +52,7 @@ interface GiftCreationFlowProps {
 export default function GiftCreationFlow({ clientId, salonId, onComplete }: GiftCreationFlowProps) {
   const { toast } = useToast();
   const [step, setStep] = useState<string>("style");
+  const [giftDirection, setGiftDirection] = useState<"forme" | "fromme">("fromme");
   const [recipientData, setRecipientData] = useState({
     name: "",
     phone: "",
@@ -129,7 +130,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     queryFn: async () => {
       try {
         console.log(`GiftCreationFlow: Fetching real-time client data for client ID ${clientId}`);
-        const response = await fetch(`/api/clients/${clientId}`);
+        const response = await fetch(processApiUrl(`/api/clients/${clientId}`));
         if (!response.ok) {
           throw new Error(`Failed to fetch client data: ${response.status}`);
         }
@@ -172,7 +173,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       
       console.log("GiftCreationFlow: Transformed gift data:", giftData);
       
-      const response = await fetch("/api/gifts", {
+      const response = await fetch(processApiUrl("/api/gifts"), {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
@@ -267,11 +268,15 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       if (selectedStyleId) {
         const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
         const styleName = selectedStyle ? selectedStyle.name : "French Tips / Touch-Up";
-        // Use placeholder text in message until user enters a recipient name
-        setPersonalMessage(`Hi ${recipientData.name || "[recipient]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${client.name}`);
+        
+        const messageTemplate = giftDirection === "forme"
+          ? `Hi ${client.name}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.name || "[recipient]"}`
+          : `Hi ${recipientData.name || "[recipient]"}, I would love to gift you a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${client.name}`;
+        
+        setPersonalMessage(messageTemplate);
       }
     }
-  }, [client, selectedStyleId, recipientData.name]);
+  }, [client, selectedStyleId, recipientData.name, giftDirection]);
 
   // Handle style selection - watches for DOM changes to detect selection from VmbStyleOptions
   useEffect(() => {
@@ -418,13 +423,15 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       return;
     }
     
-    // Create gift data
+    // Create gift data based on direction
     const giftData = {
-      name: recipientData.name,
-      phone: recipientData.phone,
+      name: giftDirection === "forme" ? client?.name : recipientData.name,
+      phone: giftDirection === "forme" ? client?.phone : recipientData.phone,
       email: recipientData.email || null,
-      message: personalMessage || `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || 'nail service'}. Will you Ven Me, Baby! ❤️❤️❤️ ${recipientData.signature || ""}`,
-      signature: recipientData.signature || client?.name || "",
+      message: personalMessage || (giftDirection === "forme" 
+        ? `Hi ${client?.name}, I would love a fresh set. My stylist has an opening for a ${selectedStyle.name}. Will you Ven Me, Baby! ❤️❤️❤️ ${recipientData.name || ""}`
+        : `Hi ${recipientData.name}, I would love to gift you a fresh set. My stylist has an opening for a ${selectedStyle.name}. Will you Ven Me, Baby! ❤️❤️❤️ ${client?.name || ""}`),
+      signature: giftDirection === "forme" ? recipientData.name : (recipientData.signature || client?.name || ""),
       styleId: selectedStyleId,
       styleOption: selectedStyle.name,
       stylePrice: selectedStyle.price * 100, // Convert to cents for database
@@ -432,10 +439,11 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
       clientId: clientId,
       salonId: useSalonId,
       status: "pending",
-      senderName: client?.name || "Client",
-      invitationType: "client_to_friend",
+      senderName: giftDirection === "forme" ? recipientData.name : client?.name || "Client",
+      invitationType: giftDirection === "forme" ? "friend_to_client" : "client_to_friend",
       styleImageUrl: selectedStyle.gifUrl,
-      senderId: clientId // Important: we need to set the sender ID to make sure gifts show up in sent list
+      senderId: giftDirection === "forme" ? null : clientId, // For "For Me", sender is the person making the request
+      recipientId: giftDirection === "forme" ? clientId : null // For "For Me", recipient is the client
     };
     
     // Log the gift data being sent
@@ -490,6 +498,31 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
     <div className="space-y-4">
       {/* Hidden field for style selection data */}
       <input type="hidden" name="styleOptions" id="styleOptions" />
+      
+      {/* Gift Direction Toggle */}
+      <div className="bg-pink-50 rounded-lg p-4 mb-4">
+        <h2 className="text-lg font-semibold text-pink-800 mb-3">Gift Style:</h2>
+        <div className="flex gap-6">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={giftDirection === "forme"}
+              onChange={(e) => setGiftDirection(e.target.checked ? "forme" : "fromme")}
+              className="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
+            />
+            <span className="text-gray-700">For Me</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={giftDirection === "fromme"}
+              onChange={(e) => setGiftDirection(e.target.checked ? "fromme" : "forme")}
+              className="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
+            />
+            <span className="text-gray-700">From Me</span>
+          </label>
+        </div>
+      </div>
       
       {/* Style Selection Step */}
       <div className="rounded-lg bg-pink-50 mb-6">
@@ -592,7 +625,7 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <h3 className="text-center mb-3 font-medium">Your Invitation Design</h3>
                 <div className="space-y-2 border-dotted border border-pink-200 rounded-md p-3">
                   <Input 
-                    placeholder="Recipient Name"
+                    placeholder={giftDirection === "forme" ? "Your Name" : "NAME TO RECEIVE GIFT"}
                     value={recipientData.name}
                     onChange={(e) => {
                       setRecipientData({...recipientData, name: e.target.value});
@@ -601,8 +634,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
                       const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
                       
-                      // Create message with placeholders filled
-                      const updatedMessage = `Hi ${e.target.value || "[recipient]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.signature || client?.name || "[SIGNED]"}`;
+                      // Create message with placeholders filled based on gift direction
+                      const updatedMessage = giftDirection === "forme" 
+                        ? `Hi ${client?.name || "[CLIENT]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || "[SIGNED]"}`
+                        : `Hi ${e.target.value || "[recipient]"}, I would love to gift you a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${client?.name || "[SIGNED]"}`;
                       setPersonalMessage(updatedMessage);
                     }}
                     required
@@ -625,7 +660,9 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                         // Update message with name when Enter is pressed
                         const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
                         const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
-                        const updatedMessage = `Hi ${recipientData.name}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.signature || "[SIGNED]"}`;
+                        const updatedMessage = giftDirection === "forme"
+                          ? `Hi ${client?.name || "[CLIENT]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.name}`
+                          : `Hi ${recipientData.name}, I would love to gift you a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${client?.name || "[SIGNED]"}`;
                         setPersonalMessage(updatedMessage);
                         
                         // Move to next field
@@ -678,8 +715,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                       const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
                       const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
                       
-                      // Create message with updated signature
-                      const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || "[SIGNED]"}`;
+                      // Create message with updated signature based on gift direction
+                      const updatedMessage = giftDirection === "forme"
+                        ? `Hi ${client?.name || "[CLIENT]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || "[SIGNED]"}`
+                        : `Hi ${recipientData.name || "[NAME]"}, I would love to gift you a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${e.target.value || "[SIGNED]"}`;
                       setPersonalMessage(updatedMessage);
                     }}
                     className="flex-1"
@@ -689,10 +728,12 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                         const clientName = client.name;
                         setRecipientData(prev => ({...prev, signature: clientName}));
                         
-                        // Update message with client name too
+                        // Update message with client name too based on gift direction
                         const selectedStyle = services?.find((s: StyleOption) => s.id === selectedStyleId);
                         const styleName = selectedStyle ? selectedStyle.name : "[STYLE]";
-                        const updatedMessage = `Hi ${recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${clientName}`;
+                        const updatedMessage = giftDirection === "forme"
+                          ? `Hi ${clientName}, I would love a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.name || "[SIGNED]"}`
+                          : `Hi ${recipientData.name || "[NAME]"}, I would love to gift you a fresh set. My stylist has an opening for a ${styleName}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${clientName}`;
                         setPersonalMessage(updatedMessage);
                       }
                     }}
@@ -725,7 +766,10 @@ export default function GiftCreationFlow({ clientId, salonId, onComplete }: Gift
                 <div className="border-dotted border border-pink-200 rounded-md p-3">
                   {/* Message preview is in the blue box */}
                   <div className="rounded-md p-3 bg-blue-100 mb-3">
-                    Hi {recipientData.name || "[NAME]"}, I would love a fresh set. My stylist has an opening for a {services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "French Tips / Touch-Up"}, will you Ven Me, Baby! <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> <span className="text-red-500">❤️</span> {recipientData.signature || "[SIGNED]"}
+                    {giftDirection === "forme" 
+                      ? `Hi ${client?.name || "[CLIENT]"}, I would love a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "French Tips / Touch-Up"}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${recipientData.name || "[SIGNED]"}`
+                      : `Hi ${recipientData.name || "[NAME]"}, I would love to gift you a fresh set. My stylist has an opening for a ${services?.find((s: StyleOption) => s.id === selectedStyleId)?.name || "French Tips / Touch-Up"}, will you Ven Me, Baby! ❤️ ❤️ ❤️ ${client?.name || "[SIGNED]"}`
+                    }
                   </div>
                   
                   {/* Style card preview */}

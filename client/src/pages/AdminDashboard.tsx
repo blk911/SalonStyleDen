@@ -64,19 +64,8 @@ import {
 } from "lucide-react";
 import { CollapsibleCard } from "@/components/ui/card-section";
 import { useToast } from "@/hooks/use-toast";
-
-interface Client {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  salonName?: string;
-  isCurrentClient: boolean;
-  salonId?: number; // Direct salon association
-  sponsor?: string; // Sponsor name
-  sponsorName?: string; // Alternative sponsor name field
-  sponsorSalonId?: number; // Sponsor salon ID for relationship tracking
-}
+import { Client } from "@/types";
+import { processApiUrl } from "@/lib/utils";
 
 interface Service {
   id: number;
@@ -170,11 +159,12 @@ export default function AdminDashboard() {
   const [clientToSuspend, setClientToSuspend] = useState<Client | null>(null);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const [giftToDelete, setGiftToDelete] = useState<Gift | null>(null);
+  const [unregClientToDelete, setUnregClientToDelete] = useState<Client | null>(null);
   
   // License verification mutations
   const verifyLicenseMutation = useMutation({
     mutationFn: async (salonId: number) => {
-      const response = await fetch(`/api/license/verify/${salonId}`, {
+      const response = await fetch(processApiUrl(`/api/license/verify/${salonId}`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -208,7 +198,7 @@ export default function AdminDashboard() {
   // License rejection mutation
   const rejectLicenseMutation = useMutation({
     mutationFn: async (salonId: number) => {
-      const response = await fetch(`/api/license/reject/${salonId}`, {
+      const response = await fetch(processApiUrl(`/api/license/reject/${salonId}`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -242,13 +232,14 @@ export default function AdminDashboard() {
   
   // Section visibility states (stored in localStorage for persistence)
   const [styleOptionsOpen, setStyleOptionsOpen] = useState(true);
-  const [networkVisualizationOpen, setNetworkVisualizationOpen] = useState(true);
-  const [codeGraphOpen, setCodeGraphOpen] = useState(true);
+  const [networkVisualizationOpen, setNetworkVisualizationOpen] = useState(false);
+  const [codeGraphOpen, setCodeGraphOpen] = useState(false);
   const [invitationsOpen, setInvitationsOpen] = useState(true);
   const [clientsOpen, setClientsOpen] = useState(true);
   const [activityLogsOpen, setActivityLogsOpen] = useState(true);
   const [salonDirectoryOpen, setSalonDirectoryOpen] = useState(false);
   const [giftRequestsOpen, setGiftRequestsOpen] = useState(true);
+  const [unregVmbClientsOpen, setUnregVmbClientsOpen] = useState(true);
   const [developerGuideOpen, setDeveloperGuideOpen] = useState(false);
   
   // State to track which salon details are expanded (initially all closed)
@@ -275,6 +266,7 @@ export default function AdminDashboard() {
         const logs = localStorage.getItem('adminDashboard_activityLogsOpen');
         const salons = localStorage.getItem('adminDashboard_salonDirectoryOpen');
         const gifts = localStorage.getItem('adminDashboard_giftRequestsOpen');
+        const unregVmb = localStorage.getItem('adminDashboard_unregVmbClientsOpen');
         const devGuide = localStorage.getItem('adminDashboard_developerGuideOpen');
         const expanded = localStorage.getItem('adminDashboard_expandedSalon');
         
@@ -286,6 +278,7 @@ export default function AdminDashboard() {
         if (logs !== null) setActivityLogsOpen(logs === 'true');
         if (salons !== null) setSalonDirectoryOpen(salons === 'true');
         if (gifts !== null) setGiftRequestsOpen(gifts === 'true');
+        if (unregVmb !== null) setUnregVmbClientsOpen(unregVmb === 'true');
         if (devGuide !== null) setDeveloperGuideOpen(devGuide === 'true');
         if (expanded !== null) setExpandedSalon(parseInt(expanded, 10));
       } catch (error) {
@@ -307,11 +300,12 @@ export default function AdminDashboard() {
       localStorage.setItem('adminDashboard_activityLogsOpen', activityLogsOpen.toString());
       localStorage.setItem('adminDashboard_salonDirectoryOpen', salonDirectoryOpen.toString());
       localStorage.setItem('adminDashboard_giftRequestsOpen', giftRequestsOpen.toString());
+      localStorage.setItem('adminDashboard_unregVmbClientsOpen', unregVmbClientsOpen.toString());
       localStorage.setItem('adminDashboard_developerGuideOpen', developerGuideOpen.toString());
     } catch (error) {
       console.error('Error saving section states to localStorage:', error);
     }
-  }, [styleOptionsOpen, networkVisualizationOpen, codeGraphOpen, invitationsOpen, clientsOpen, activityLogsOpen, salonDirectoryOpen, giftRequestsOpen, developerGuideOpen]);
+  }, [styleOptionsOpen, networkVisualizationOpen, codeGraphOpen, invitationsOpen, clientsOpen, activityLogsOpen, salonDirectoryOpen, giftRequestsOpen, unregVmbClientsOpen, developerGuideOpen]);
   
   // Save expanded salon state to localStorage when it changes
   useEffect(() => {
@@ -354,7 +348,7 @@ export default function AdminDashboard() {
     queryKey: ['/api/clients'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/clients');
+        const response = await fetch(processApiUrl('/api/clients'));
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch clients: ${response.status} ${response.statusText}. Details: ${errorText}`);
@@ -372,7 +366,7 @@ export default function AdminDashboard() {
     queryKey: ['/api/salons'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/salons');
+        const response = await fetch(processApiUrl('/api/salons'));
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch salons: ${response.status} ${response.statusText}. Details: ${errorText}`);
@@ -392,7 +386,7 @@ export default function AdminDashboard() {
     queryKey: ['/api/invitations'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/invitations?limit=50'); // Get more invitations for admin view
+        const response = await fetch(processApiUrl('/api/invitations?limit=50')); // Get more invitations for admin view
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch invitations: ${response.status} ${response.statusText}. Details: ${errorText}`);
@@ -410,7 +404,7 @@ export default function AdminDashboard() {
     queryKey: ['/api/activity-logs'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/activity-logs?limit=50'); // Get more logs for admin view
+        const response = await fetch(processApiUrl('/api/activity-logs?limit=50')); // Get more logs for admin view
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch activity logs: ${response.status} ${response.statusText}. Details: ${errorText}`);
@@ -429,7 +423,7 @@ export default function AdminDashboard() {
     queryKey: ['/api/gifts-pending'],
     queryFn: async () => {
       try {
-        const response = await fetch('/api/gifts-pending');
+        const response = await fetch(processApiUrl('/api/gifts-pending'));
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'No error details available');
           throw new Error(`Failed to fetch pending gift requests: ${response.status} ${response.statusText}. Details: ${errorText}`);
@@ -438,6 +432,29 @@ export default function AdminDashboard() {
         return data;
       } catch (error) {
         console.error('Error fetching pending gift requests:', error);
+        return [];
+      }
+    },
+  });
+
+  // Query for unregistered VMB clients
+  const { data: unregVmbClients, error: unregVmbError, isLoading: unregVmbIsLoading } = useQuery<Client[]>({
+    queryKey: ['/api/clients-unreg-vmb'],
+    queryFn: async () => {
+      try {
+        const url = '/api/clients?sponsorSalonId=1&isCurrentClient=false';
+        const processedUrl = url.startsWith('/api/') ? 
+          new URL(url, window.location.origin.replace(/\/\/[^@]+@/, '//')).href : url;
+        
+        const response = await fetch(processedUrl);
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => 'No error details available');
+          throw new Error(`Failed to fetch unregistered VMB clients: ${response.status} ${response.statusText}. Details: ${errorText}`);
+        }
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error fetching unregistered VMB clients:', error);
         return [];
       }
     },
@@ -673,6 +690,35 @@ export default function AdminDashboard() {
         variant: "destructive",
       });
     }
+  });
+
+  // Delete unregistered client mutation
+  const deleteUnregClientMutation = useMutation({
+    mutationFn: async (clientId: number) => {
+      const response = await fetch(`/api/clients/${clientId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'No error details available');
+        throw new Error(`Failed to delete client: ${response.status} ${response.statusText}. Details: ${errorText}`);
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Client deleted successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/clients-unreg-vmb'] });
+      setUnregClientToDelete(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete client: ${error.message}`,
+        variant: "destructive",
+      });
+    },
   });
 
   // Show global loading state only if everything is loading
@@ -1852,23 +1898,115 @@ export default function AdminDashboard() {
               )}
             </CollapsibleCard>
 
-            {/* Network Visualization with Madge + Graphviz */}
+            {/* UnRegistered VMB Clients Section */}
             <CollapsibleCard
-              title="Network Visualization"
-              description="Explore component dependencies and relationships using Madge + Graphviz"
-              isOpen={networkVisualizationOpen}
-              onToggle={() => setNetworkVisualizationOpen(!networkVisualizationOpen)}
-              action={
-                <Link 
-                  to="/network-visualization"
-                >
-                  <Button size="sm" variant="outline">
-                    <ExternalLinkIcon className="h-4 w-4 mr-1" />
-                    Open Full View
-                  </Button>
-                </Link>
-              }
+              title="UnReg VMB Clients"
+              isOpen={unregVmbClientsOpen}
+              onToggle={() => setUnregVmbClientsOpen(!unregVmbClientsOpen)}
             >
+              {/* Loading state */}
+              {unregVmbIsLoading && (
+                <div className="py-8 text-center">
+                  <LoaderIcon className="h-6 w-6 animate-spin text-pink-500 mx-auto mb-2" />
+                  <p className="text-gray-500 text-sm">Loading unregistered VMB clients...</p>
+                </div>
+              )}
+              
+              {/* Error state */}
+              {unregVmbError && !unregVmbIsLoading && (
+                <div className="py-8 text-center border rounded-md bg-red-50">
+                  <AlertTriangleIcon className="h-6 w-6 text-red-500 mx-auto mb-2" />
+                  <p className="text-red-700 mb-1">Error loading unregistered VMB clients</p>
+                  <p className="text-sm text-red-600">{unregVmbError.message}</p>
+                </div>
+              )}
+              
+              {/* Empty state */}
+              {!unregVmbIsLoading && !unregVmbError && (!unregVmbClients || unregVmbClients.length === 0) && (
+                <div className="py-8 text-center border rounded-md bg-gray-50">
+                  <UserIcon className="h-6 w-6 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500">No unregistered VMB clients found</p>
+                </div>
+              )}
+              
+              {/* Data display - simple single line format */}
+              {!unregVmbIsLoading && !unregVmbError && unregVmbClients && unregVmbClients.length > 0 && (
+                <div className="space-y-2">
+                  {unregVmbClients.map((client: Client) => (
+                    <div key={client.id} className="flex items-center justify-between p-3 border rounded-md bg-gray-50 hover:bg-gray-100">
+                      <div className="flex items-center space-x-4">
+                        <span className="font-medium text-gray-900">{client.name}</span>
+                        <span className="text-gray-600">{formatPhoneNumber(client.phone)}</span>
+                        <span className="text-sm text-gray-500">
+                          pending as of: {new Date(client.createdAt || new Date()).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Link 
+                          to={`/client/${client.id}?adminView=true`}
+                          className="px-2 py-1 text-xs bg-[#FF92A5] text-white rounded hover:bg-[#ff7a92] cursor-pointer"
+                        >
+                          View
+                        </Link>
+                        
+                        <AlertDialog open={unregClientToDelete?.id === client.id} onOpenChange={(open) => !open && setUnregClientToDelete(null)}>
+                          <AlertDialogTrigger asChild>
+                            <button
+                              onClick={() => setUnregClientToDelete(client)}
+                              className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200"
+                              title="Delete client account"
+                            >
+                              <TrashIcon className="h-3 w-3" />
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Unregistered Client</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to permanently delete {unregClientToDelete?.name}'s account? 
+                                This action cannot be undone and will remove all associated data.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => {
+                                  if (unregClientToDelete) {
+                                    deleteUnregClientMutation.mutate(unregClientToDelete.id);
+                                  }
+                                }}
+                                className="bg-red-500 hover:bg-red-600"
+                              >
+                                Delete Account
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CollapsibleCard>
+
+            {/* Network Visualization with Madge + Graphviz */}
+            {networkVisualizationOpen && (
+              <CollapsibleCard
+                title="Network Visualization"
+                description="Explore component dependencies and relationships using Madge + Graphviz"
+                isOpen={networkVisualizationOpen}
+                onToggle={() => setNetworkVisualizationOpen(!networkVisualizationOpen)}
+                action={
+                  <Link 
+                    to="/network-visualization"
+                  >
+                    <Button size="sm" variant="outline">
+                      <ExternalLinkIcon className="h-4 w-4 mr-1" />
+                      Open Full View
+                    </Button>
+                  </Link>
+                }
+              >
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 {/* Left Side - Controls */}
                 <div className="lg:col-span-1 space-y-4 border-r pr-4">
@@ -2052,15 +2190,17 @@ export default function AdminDashboard() {
                   )}
                 </div>
               </div>
-            </CollapsibleCard>
+              </CollapsibleCard>
+            )}
 
             {/* Code Dependency Graph */}
-            <CollapsibleCard
-              title="Code Dependency Graph"
-              description="Analyze and visualize code dependencies to safely isolate changes"
-              isOpen={codeGraphOpen}
-              onToggle={() => setCodeGraphOpen(!codeGraphOpen)}
-            >
+            {codeGraphOpen && (
+              <CollapsibleCard
+                title="Code Dependency Graph"
+                description="Analyze and visualize code dependencies to safely isolate changes"
+                isOpen={codeGraphOpen}
+                onToggle={() => setCodeGraphOpen(!codeGraphOpen)}
+              >
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 {/* Left Side - Controls */}
                 <div className="lg:col-span-1 space-y-4 border-r pr-4">
@@ -2229,17 +2369,20 @@ export default function AdminDashboard() {
                   )}
                 </div>
               </div>
-            </CollapsibleCard>
+              </CollapsibleCard>
+            )}
 
             {/* Developer Guide Section */}
-            <CollapsibleCard
-              title="Developer Guide & Documentation"
-              description="Platform documentation, Storybook setup, and development resources"
-              isOpen={developerGuideOpen}
-              onToggle={() => setDeveloperGuideOpen(!developerGuideOpen)}
-            >
-              {developerGuideOpen && <DeveloperGuide />}
-            </CollapsibleCard>
+            {developerGuideOpen && (
+              <CollapsibleCard
+                title="Developer Guide & Documentation"
+                description="Platform documentation, Storybook setup, and development resources"
+                isOpen={developerGuideOpen}
+                onToggle={() => setDeveloperGuideOpen(!developerGuideOpen)}
+              >
+                <DeveloperGuide />
+              </CollapsibleCard>
+            )}
           </div>
         </div>
       </main>

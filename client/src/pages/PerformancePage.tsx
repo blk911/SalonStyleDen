@@ -13,7 +13,7 @@ const PerformancePage: React.FC = () => {
     queryKey: ['/api/me'],
   });
   
-  const isAdmin = currentUser?.role === 'admin' || process.env.NODE_ENV === 'development';
+  const isAdmin = (currentUser as any)?.role === 'admin' || process.env.NODE_ENV === 'development';
   
   if (!isAdmin) {
     return (

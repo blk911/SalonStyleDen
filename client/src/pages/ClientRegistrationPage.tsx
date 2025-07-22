@@ -21,7 +21,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { PhoneInputField } from '@/components/ui/PhoneInputField';
-import { useContactValidation } from '@/hooks/use-contact-validation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import {
   Loader2 as Loader2Icon,
@@ -37,7 +36,10 @@ import {
 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { formatPhoneNumber, cleanPhoneNumber, isValidPhone } from '@/lib/utils';
+import { formatPhoneNumber, cleanPhoneNumber, isValidPhone, processApiUrl } from '@/lib/utils';
+import { LoginDialog } from '@/components/ui/LoginDialog';
+import { UnregisteredUserModal } from '@/components/ui/UnregisteredUserModal';
+import { useContactValidation, ValidationResult } from '@/hooks/use-contact-validation';
 
 // Simple logging helper (replaced test flow logger)
 const logFlow = (step: string, data?: any) => {
@@ -113,6 +115,8 @@ interface Salon {
 
 export default function ClientRegistrationPage() {
   const [location, navigate] = useLocation();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [showUnregisteredModal, setShowUnregisteredModal] = useState(false);
 
   // Extract invite hash from URL if present
   const inviteHash = location.includes('/invite/') 
@@ -210,13 +214,15 @@ export default function ClientRegistrationPage() {
     requiresAddress,
     validationResult
   } = useContactValidation();
+  
+  const [clientData, setClientData] = useState(null);
 
   // Track whether invitation has been loaded
   const [invitationDataLoaded, setInvitationDataLoaded] = useState(false);
 
-  // Function to handle phone validation - checks if phone is valid and if it has unredeemed gifts
-  const handlePhoneValidation = async (isValid: boolean, phoneNumber?: string) => {
-    logFlow(`Phone validation ${isValid ? 'passed' : 'failed'}`);
+  // Function to handle phone validation - UNIFIED ASSESSMENT SYSTEM
+  const handlePhoneValidation = async (isValid: boolean, phoneNumber?: string, validationResult?: ValidationResult) => {
+    logFlow(`Phone validation ${isValid ? 'passed' : 'failed'} - Phone: ${phoneNumber} - Result: ${validationResult}`);
 
     // Only show a toast for invalid phone numbers to help user correct them immediately
     if (!isValid) {
@@ -228,11 +234,39 @@ export default function ClientRegistrationPage() {
       return;
     }
 
-    // If phone is valid and we're in Gift/Invite mode, look up the invitation ID directly
+    // If phone is valid, perform unified assessment
     if (isValid && phoneNumber) {
       const clientType = form.getValues('clientType');
 
-      if (clientType === 'giftInvite') {
+      try {
+        logFlow('Step 1: Checking for existing client');
+        const clientValidationResult = await validateContact(phoneNumber);
+        
+        if (clientValidationResult === 'registered') {
+          // Check if client exists by calling the API directly
+          logFlow('Checking for existing client via API');
+          const clientResponse = await fetch(processApiUrl(`/api/clients?phone=${encodeURIComponent(phoneNumber)}`));
+          
+          if (clientResponse.ok) {
+            const clients = await clientResponse.json();
+            if (clients && clients.length > 0) {
+              const existingClient = clients[0];
+              logFlow('Existing client found, routing to dashboard', existingClient);
+              
+              toast({
+                title: `Welcome back, ${existingClient.name}!`,
+                description: 'Redirecting you to your dashboard...',
+                variant: 'default',
+              });
+              
+              // Route to client dashboard
+              navigate(`/client/${existingClient.id}`);
+              return;
+            }
+          }
+        }
+
+        if (clientType === 'giftInvite') {
         // Check if we're already in the right view and have an invitation ID in the URL
         // If we do, we don't need to reload or redirect
         const currentInvitationId = urlParams.get('invitationId');
@@ -244,9 +278,8 @@ export default function ClientRegistrationPage() {
           return;
         }
 
-        try {
-          // Check for invitations first
-          const inviteResponse = await fetch(`/api/invitations?phone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
+          logFlow('Step 2: Gift/Invite mode - checking for invitations');
+          const inviteResponse = await fetch(processApiUrl(`/api/invitations?phone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`));
 
           if (inviteResponse.ok) {
             const invites = await inviteResponse.json();
@@ -285,9 +318,8 @@ export default function ClientRegistrationPage() {
 
               return;
             } else {
-              // No invitation found, check for gifts
-              logFlow('No invitation found, checking for gifts');
-              const giftsResponse = await fetch(`/api/gifts?recipientPhone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`);
+              logFlow('Step 3: No invitation found, checking for gifts');
+              const giftsResponse = await fetch(processApiUrl(`/api/gifts?recipientPhone=${encodeURIComponent(phoneNumber)}&status=pending&limit=1`));
 
               if (giftsResponse.ok) {
                 const gifts = await giftsResponse.json();
@@ -314,7 +346,7 @@ export default function ClientRegistrationPage() {
                     form.setValue('sponsorSalonId', gift.salonId);
 
                     // Try to get salon info if available
-                    fetch(`/api/salons/${gift.salonId}`)
+                    fetch(processApiUrl(`/api/salons/${gift.salonId}`))
                       .then(response => response.ok ? response.json() : null)
                       .then(salonData => {
                         if (salonData) {
@@ -338,23 +370,22 @@ export default function ClientRegistrationPage() {
                 }
               }
 
-              // Neither invitation nor gift found
-              logFlow('No matching invitation or gift found');
-              toast({
-                title: 'No Record Found',
-                description: 'No gift or invitation was found for this phone number. Please check and try again.',
-                variant: 'destructive',
-              });
+              // STEP 4: Neither invitation nor gift found (for giftInvite mode)
+              logFlow('Step 4: No matching invitation or gift found for giftInvite mode');
+              setShowUnregisteredModal(true);
             }
           }
-        } catch (error) {
-          console.error('Error checking invitation/gift status:', error);
-          toast({
-            title: 'Lookup Error',
-            description: 'Failed to verify invitation status. Please try again later.',
-            variant: 'destructive',
-          });
+        } else {
+          logFlow('Step 3: Non-giftInvite mode - showing registration modal for unregistered number');
+          setShowUnregisteredModal(true);
         }
+      } catch (error) {
+        console.error('Error in unified phone assessment:', error);
+        toast({
+          title: 'Lookup Error',
+          description: 'Failed to verify phone number. Please try again later.',
+          variant: 'destructive',
+        });
       }
     }
   };
@@ -408,7 +439,7 @@ export default function ClientRegistrationPage() {
         setInvitationDataLoaded(true);
 
         // Attempt to fetch the invitation details
-        fetch(`/api/invitations/${invitationId}`)
+        fetch(processApiUrl(`/api/invitations/${invitationId}`))
           .then(response => {
             if (response.ok) {
               return response.json();
@@ -499,7 +530,7 @@ export default function ClientRegistrationPage() {
   } = useQuery<Salon[]>({
     queryKey: ['/api/salons'],
     queryFn: async () => {
-      const response = await fetch('/api/salons');
+      const response = await fetch(processApiUrl('/api/salons'));
       if (!response.ok) {
         throw new Error('Failed to load salon list');
       }
@@ -617,7 +648,7 @@ export default function ClientRegistrationPage() {
 
       try {
         // Create the client with better error handling
-        const clientResponse = await fetch('/api/clients', {
+        const clientResponse = await fetch(processApiUrl('/api/clients'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -916,9 +947,18 @@ export default function ClientRegistrationPage() {
           <div className="md:col-span-3">
             <Card>
               <CardHeader className="flex flex-col space-y-1.5 p-6 pt-[16px] pb-[16px]">
-                <CardTitle>
-                  {form.getValues('clientType') === 'giftInvite' ? 'Need to Claim a Gift? Accept an Invitation...' : 'Registration'}
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>
+                    {form.getValues('clientType') === 'giftInvite' ? 'Claim your gift or invitation!' : 'Registration'}
+                  </CardTitle>
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginDialog(true)}
+                    className="text-sm text-gray-600 hover:text-gray-800 underline"
+                  >
+                    Log In
+                  </button>
+                </div>
                 {isCompleteRegistrationMode ? (
                   <CardDescription>
                     {form.getValues('clientType') === 'giftInvite'
@@ -1351,6 +1391,23 @@ export default function ClientRegistrationPage() {
       </main>
       {/* Address Collection Dialog */}
       {/* Address dialog removed as requested */}
+      
+      {/* Login Dialog */}
+      <LoginDialog 
+        open={showLoginDialog} 
+        onOpenChange={setShowLoginDialog} 
+      />
+      
+      {/* Unregistered User Modal */}
+      <UnregisteredUserModal 
+        open={showUnregisteredModal} 
+        onOpenChange={setShowUnregisteredModal}
+        initialPhone={form.getValues('phone')}
+        onSuccess={(clientId) => {
+          navigate(`/client/${clientId}`);
+        }}
+      />
+      
       <Footer />
     </div>
   );

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, getQueryFn, queryClient } from "@/lib/queryClient";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, processApiUrl } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import WeeklySchedule, { DaySchedule } from "@/components/dashboard/WeeklySchedule";
 import EditableSalonInfo, { SalonInfo } from "@/components/dashboard/EditableSalonInfo";
@@ -607,7 +607,7 @@ export default function SalonDashboard() {
         if (!id) throw new Error("No salon ID provided");
         
         // Force fetch directly from API to bypass any caching
-        const response = await fetch(`/api/salons/${id}`);
+        const response = await fetch(processApiUrl(`/api/salons/${id}`));
         if (!response.ok) {
           throw new Error(`Error fetching salon: ${response.status}`);
         }

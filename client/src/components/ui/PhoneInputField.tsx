@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Input, InputProps } from '@/components/ui/input';
-import { formatPhoneNumber, cleanPhoneNumber, isValidPhone } from '@/lib/utils';
-import { useContactValidation } from '@/hooks/use-contact-validation';
+import { formatPhoneNumber, cleanPhoneNumber, isValidPhone, processApiUrl } from '@/lib/utils';
+import { useContactValidation, ValidationResult } from '@/hooks/use-contact-validation';
 import { ContactValidationDialog } from '@/components/ui/ContactValidationDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'wouter';
 
 // Simple logging helper (replaced test flow logger)
 const logFlowStep = (step: string, data?: any) => {
@@ -18,7 +20,7 @@ const logFlowStep = (step: string, data?: any) => {
 interface PhoneInputFieldProps extends Omit<InputProps, 'onChange'> {
   value: string;
   onChange: (value: string) => void;
-  onValidationComplete?: (isValid: boolean, phoneNumber?: string) => void;
+  onValidationComplete?: (isValid: boolean, phoneNumber?: string, validationResult?: ValidationResult) => void;
   onEnterPress?: () => void;
   clearField?: () => void;
 }
@@ -37,13 +39,17 @@ export function PhoneInputField({
   const [showValidationDialog, setShowValidationDialog] = useState(false);
   const [showRegisteredDialog, setShowRegisteredDialog] = useState(false);
   
+  const [confirmationPhone, setConfirmationPhone] = useState("");
   const {
     validationResult,
     validateContact,
     isValidating,
     validatedContactType,
-    resetValidation
+    resetValidation,
+    clientData
   } = useContactValidation();
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   // Format the phone number as user types
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,11 +69,11 @@ export function PhoneInputField({
     
     // Only validate if we have a value and 10 digits
     const digits = cleanPhoneNumber(value);
-    if (digits.length === 10) {
+    if (digits.length === 10 && isValidPhone(value)) {
       logFlowStep('Valid 10-digit phone detected, validating', value);
       await validatePhoneNumber();
     } else {
-      logFlowStep('Invalid/incomplete phone skipping validation', value);
+      logFlowStep('Invalid/incomplete phone skipping validation', `value: ${value}, digits: ${digits}, length: ${digits.length}, isValid: ${isValidPhone(value)}`);
     }
   };
 
@@ -101,9 +107,9 @@ export function PhoneInputField({
         moveToTermsCheckbox();
       }
       
-      // Pass phone validation status and the phone number to the callback
+      // Pass phone validation status, phone number, and result to the callback
       if (onValidationComplete) {
-        onValidationComplete(result !== 'invalid', value);
+        onValidationComplete(result !== 'invalid', value, result);
       }
     } catch (error) {
       console.error('Error validating phone:', error);
@@ -117,23 +123,24 @@ export function PhoneInputField({
       e.preventDefault();
       logFlowStep('ENTER key pressed on phone field - IMMEDIATE FOCUS ON TERMS');
       
-      // SIMPLE VERSION: Always focus on terms checkbox when Enter pressed, no validation
-      // Set data attribute to prevent the address dialog
-      document.body.setAttribute('data-address-shown', 'true');
-      
-      // Directly focus terms checkbox without validation
-      moveToTermsCheckbox();
-      
-      // Also run validation in the background so it's complete by the time they submit
       if (isValidPhone(value)) {
+        // Set data attribute to prevent the address dialog
+        document.body.setAttribute('data-address-shown', 'true');
+        
+        // Directly focus terms checkbox without validation
+        moveToTermsCheckbox();
+        
+        // Also run validation in the background so it's complete by the time they submit
         validateContact(value).then(result => {
           logFlowStep('Background validation complete', result);
           if (onValidationComplete) {
-            onValidationComplete(result !== 'invalid', value);
+            onValidationComplete(result !== 'invalid', value, result);
           }
         }).catch(error => {
           console.error('Background validation error:', error);
         });
+      } else {
+        logFlowStep('Invalid phone number, not proceeding with Enter action');
       }
     }
   };
@@ -141,6 +148,8 @@ export function PhoneInputField({
   // Handle the registered dialog close
   const handleRegisteredDialogClose = () => {
     setShowRegisteredDialog(false);
+    setConfirmationPhone("");
+    resetValidation();
     
     // Clear the field if requested
     if (clearField) {
@@ -150,6 +159,42 @@ export function PhoneInputField({
       if (inputRef.current) {
         inputRef.current.focus();
       }
+    }
+  };
+
+  const handleConfirmation = async () => {
+    if (!clientData || !confirmationPhone) return;
+    
+    const cleanOriginal = cleanPhoneNumber(value);
+    const cleanConfirmation = cleanPhoneNumber(confirmationPhone);
+    
+    if (cleanOriginal === cleanConfirmation) {
+      setShowRegisteredDialog(false);
+      
+      try {
+        const response = await fetch(processApiUrl('/api/salons'));
+        const salons = await response.json();
+        const matchingSalon = salons.find((salon: any) => 
+          salon.phone && salon.phone.replace(/\D/g, '') === cleanOriginal
+        );
+        
+        if (matchingSalon) {
+          setLocation(`/dashboard/salon/${clientData.id}`);
+        } else {
+          setLocation(`/client/${clientData.id}`);
+        }
+      } catch (error) {
+        console.error('Error checking salon status:', error);
+        // Fallback to client dashboard if API call fails
+        setLocation(`/client/${clientData.id}`);
+      }
+    } else {
+      toast({
+        title: "Phone Number Mismatch",
+        description: "The confirmation phone number doesn't match. Please try again.",
+        variant: "destructive",
+      });
+      setConfirmationPhone("");
     }
   };
 
@@ -231,21 +276,51 @@ export function PhoneInputField({
       <Dialog open={showRegisteredDialog} onOpenChange={setShowRegisteredDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Phone Already Registered</DialogTitle>
+            <DialogTitle>
+              {validationResult === 'registered' && validatedContactType === 'phone' && clientData?.name
+                ? `HI, Welcome Back ${clientData.name}`
+                : "Phone Already Registered"
+              }
+            </DialogTitle>
             <DialogDescription>
-              This phone number is already registered in our system.
+              {validationResult === 'registered' && validatedContactType === 'phone' && clientData?.name
+                ? "Confirm your number to access your dashboard"
+                : "This phone number is already registered in our system."
+              }
             </DialogDescription>
           </DialogHeader>
           
           <div className="py-6">
-            <div className="text-center p-4 bg-amber-50 border border-amber-200 rounded-md">
-              <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
-              <h3 className="text-lg font-semibold text-amber-700 mb-1">Phone Number In Use</h3>
-              <p className="text-amber-600 mb-2">
-                {value} is already registered.
-              </p>
-              <p className="font-bold mt-2 text-amber-800">IN DB</p>
-            </div>
+            {validationResult === 'registered' && validatedContactType === 'phone' && clientData ? (
+              <div className="space-y-4">
+                <div className="text-center p-4 bg-green-50 border border-green-200 rounded-md">
+                  <h3 className="text-lg font-semibold text-green-700 mb-2">Welcome Back!</h3>
+                  <p className="text-green-600 mb-2">
+                    Please confirm your phone number to continue
+                  </p>
+                </div>
+                <Input
+                  type="tel"
+                  placeholder="Confirm your phone number"
+                  value={confirmationPhone}
+                  onChange={(e) => {
+                    const formatted = formatPhoneNumber(e.target.value);
+                    setConfirmationPhone(formatted);
+                  }}
+                  autoFocus
+                  className="text-center"
+                />
+              </div>
+            ) : (
+              <div className="text-center p-4 bg-amber-50 border border-amber-200 rounded-md">
+                <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
+                <h3 className="text-lg font-semibold text-amber-700 mb-1">Phone Number In Use</h3>
+                <p className="text-amber-600 mb-2">
+                  {value} is already registered.
+                </p>
+                <p className="font-bold mt-2 text-amber-800">IN DB</p>
+              </div>
+            )}
           </div>
           
           <DialogFooter className="flex justify-between">
@@ -253,18 +328,11 @@ export function PhoneInputField({
               type="button"
               variant="outline"
               onClick={() => {
-                // Close dialog
                 setShowRegisteredDialog(false);
-                
-                // Dispatch a custom event to reset the form in parent components
                 document.dispatchEvent(new CustomEvent('vmb-form-reset'));
-                
-                // Reset the current phone field value
                 if (onChange) {
                   onChange('');
                 }
-                
-                // Return focus to phone field
                 setTimeout(() => {
                   if (inputRef.current) {
                     inputRef.current.focus();
@@ -275,12 +343,22 @@ export function PhoneInputField({
               Back
             </Button>
             
-            <Button 
-              type="button" 
-              onClick={handleRegisteredDialogClose}
-            >
-              Try Again
-            </Button>
+            {validationResult === 'registered' && validatedContactType === 'phone' && clientData ? (
+              <Button 
+                type="button" 
+                onClick={handleConfirmation}
+                disabled={!confirmationPhone}
+              >
+                Confirm and Continue
+              </Button>
+            ) : (
+              <Button 
+                type="button" 
+                onClick={handleRegisteredDialogClose}
+              >
+                Try Again
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

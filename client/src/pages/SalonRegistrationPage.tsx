@@ -17,6 +17,7 @@ import Footer from '@/components/layout/Footer';
 import { Loader2Icon, CheckCircleIcon } from 'lucide-react';
 import { PhoneInputField } from '@/components/ui/PhoneInputField';
 import LicenseVerificationDialog from '@/components/salon/LicenseVerificationDialog';
+import { processApiUrl } from '@/lib/utils';
 
 // Import necessary modules
 
@@ -113,7 +114,7 @@ export default function SalonRegistrationPage() {
       console.log('Submitting salon data:', salonFormData);
       
       // Create the salon
-      const salonResponse = await fetch('/api/salons', {
+      const salonResponse = await fetch(processApiUrl('/api/salons'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +165,7 @@ export default function SalonRegistrationPage() {
       }
       
       // Submit license data
-      const licenseResponse = await fetch('/api/license/submit', {
+      const licenseResponse = await fetch(processApiUrl('/api/license/submit'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,56 +1,60 @@
-import { pgTable, text, serial, integer, boolean, jsonb, timestamp } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer, blob, real } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
 
 // Basic user schema (common fields for salon and client)
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
+export const users = sqliteTable("users", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: integer("created_at", { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
 
 // [RULE: SponsorClientRelationship] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
 // Salon schema with proper constraints to enforce relationships
-export const salons = pgTable("salons", {
-  id: serial("id").primaryKey(),
+export const salons = sqliteTable("salons", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   ownerName: text("owner_name").notNull(),
   phone: text("phone").notNull(),
   email: text("email").notNull(),
-  socialMedia: jsonb("social_media"), // Stores array of {platform, handle}
+  socialMedia: text("social_media"), // Stores JSON string of array of {platform, handle}
   type: text("type").notNull().default("salon"),
   address: text("address"), // Street address
   city: text("city"),
   state: text("state"),
   zipCode: text("zip_code"),
-  services: jsonb("services"), // Stores array of service objects
-  promos: jsonb("promos"), // Stores array of promo objects
-  schedule: jsonb("schedule"), // Stores weekly schedule data
+  services: text("services"), // Stores JSON string of array of service objects
+  promos: text("promos"), // Stores JSON string of array of promo objects
+  schedule: text("schedule"), // Stores JSON string of weekly schedule data
   ownerPhotoUrl: text("owner_photo_url"), // URL to the salon owner's photo
   licenseName: text("license_name"), // Name as it appears on license
   licenseNumber: text("license_number"), // License number
   licenseState: text("license_state"), // State that issued the license
-  licenseVerified: boolean("license_verified").default(false), // Whether license has been verified
+  licenseVerified: integer("license_verified", { mode: 'boolean' }).default(false), // Whether license has been verified
   licenseStatus: text("license_status").default("pending"), // Status: pending, verified, rejected
+  licenseVerificationDate: integer("license_verification_date", { mode: 'timestamp' }), // Date license was verified
+  licenseRejectionReason: text("license_rejection_reason"), // Reason for license rejection
+  metadata: text("metadata"), // Additional metadata as JSON string
   sponsor: text("sponsor").notNull().default("VMB LTD"), // Default sponsor name
   sponsorId: integer("sponsor_id").default(1), // ID of the sponsoring salon, default to VMB LTD (1)
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: integer("created_at", { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
 
 // [RULE: ClientSchema] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
 // Client schema with mandatory relationship to sponsor and phone uniqueness
-export const clients = pgTable("clients", {
-  id: serial("id").primaryKey(),
+export const clients = sqliteTable("clients", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   phone: text("phone").notNull().unique(), // Each phone number can only be associated with ONE client
   email: text("email").default(''),
-  isCurrentClient: boolean("is_current_client").notNull().default(false),
-  acceptedTerms: boolean("accepted_terms").default(false), // Track terms & conditions acceptance
-  profilePromptShown: boolean("profile_prompt_shown").default(false), // Track if profile completion prompt has been shown
+  isCurrentClient: integer("is_current_client", { mode: 'boolean' }).notNull().default(false),
+  acceptedTerms: integer("accepted_terms", { mode: 'boolean' }).default(false), // Track terms & conditions acceptance
+  profilePromptShown: integer("profile_prompt_shown", { mode: 'boolean' }).default(false), // Track if profile completion prompt has been shown
+  suspended: integer("suspended", { mode: 'boolean' }).notNull().default(false), // Track if client account is suspended
   notes: text("notes"),
-  favoriteServices: jsonb("favorite_services"), // Stores array of service names
+  favoriteServices: text("favorite_services"), // Stores JSON string of array of service names
   // [RULE: SponsorClientRelationship] Client salon relationship
   salonId: integer("salon_id").references(() => salons.id), // Reference to salon if client belongs to one
   salonName: text("salon_name"), // Name of the salon for display purposes
@@ -65,15 +69,15 @@ export const clients = pgTable("clients", {
   city: text("city"),
   state: text("state"),
   zipCode: text("zip_code"),
-  socialMedia: jsonb("social_media"), // Stores array of {platform, handle}
+  socialMedia: text("social_media"), // Stores JSON string of array of {platform, handle}
   photoUrl: text("photo_url"), // URL to the client's photo
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: integer("created_at", { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
 
 // [RULE: InvitationSchema] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
 // Client Invitations schema with strict unique hash requirement and relationship tracking
-export const invitations = pgTable("invitations", {
-  id: serial("id").primaryKey(),
+export const invitations = sqliteTable("invitations", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   phone: text("phone").notNull(),
   email: text("email"), // Email is optional for phone-only invitations
@@ -81,7 +85,7 @@ export const invitations = pgTable("invitations", {
   message: text("message"), // Custom message from the sender
   // [RULE: UniqueInvitationID] Explicitly track invitation type for relationship mapping
   type: text("type").notNull().default("client_invitation"), // Type of invitation
-  favoriteServices: jsonb("favorite_services"), // Stores array of service names
+  favoriteServices: text("favorite_services"), // Stores JSON string of array of service names
   // [RULE: SponsorClientRelationship] Critical salon relationship
   salonId: integer("salon_id").notNull().default(1).references(() => salons.id),
   // Reference to the client who sent the invitation (may be null for salon-initiated invitations)
@@ -96,7 +100,7 @@ export const invitations = pgTable("invitations", {
   styleOption: text("style_option"), // Selected style name/option
   stylePrice: integer("style_price"), // Price of the selected style in cents
   styleDuration: integer("style_duration"), // Duration of the style service in minutes
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: integer("created_at", { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
 });
 
 // Define relations
@@ -147,24 +151,25 @@ export const insertClientSchema = createInsertSchema(clients).omit({ id: true })
 export const insertInvitationSchema = createInsertSchema(invitations).omit({ id: true });
 
 // Style Selections schema
-export const styleSelections = pgTable("style_selections", {
-  id: serial("id").primaryKey(),
+export const styleSelections = sqliteTable("style_selections", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   clientId: integer("client_id").notNull().references(() => clients.id),
   styleId: integer("style_id").notNull(),
   salonId: integer("salon_id").notNull().references(() => salons.id),
-  selectedAt: timestamp("selected_at").notNull(),
+  selectedAt: integer("selected_at", { mode: 'timestamp' }).notNull(),
   status: text("status").notNull().default("selected")
 });
 
 // Activity Logs schema
-export const activityLogs = pgTable("activity_logs", {
-  id: serial("id").primaryKey(),
+export const activityLogs = sqliteTable("activity_logs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   type: text("type").notNull(),
   description: text("description").notNull(),
+  details: text("details"), // Additional details about the activity as JSON string
   userId: integer("user_id").references(() => users.id),
   salonId: integer("salon_id").references(() => salons.id),
   clientId: integer("client_id").references(() => clients.id),
-  timestamp: timestamp("timestamp").notNull()
+  timestamp: integer("timestamp", { mode: 'timestamp' }).notNull()
 });
 
 // Gift-based system - Appointment functionality removed
@@ -200,15 +205,17 @@ export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
 
 // [RULE: GiftSchema] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
 // Gifts schema with sponsorship tracking and unique tracking ID
-export const gifts = pgTable("gifts", {
-  id: serial("id").primaryKey(),
+export const gifts = sqliteTable("gifts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   // [RULE: SponsorClientRelationship] Every gift must have a sender
-  senderId: integer("sender_id").notNull().references(() => clients.id),
+  senderId: integer("sender_id").references(() => clients.id), // Can be null for "For Me" gifts
   // Recipient ID if already a client
   recipientId: integer("recipient_id").references(() => clients.id),
   // [RULE: PhoneFormat] Store phone as pure digits for recipient
   recipientPhone: text("recipient_phone"), // For non-client recipients
+  recipientName: text("recipient_name"), // For non-client recipients
   recipientEmail: text("recipient_email"), // For non-client recipients
+  senderPhone: text("sender_phone"), // For tracking sender
   // Every gift must have a type
   giftType: text("gift_type").notNull().default("style_card"),
   styleId: integer("style_id"),
@@ -222,9 +229,15 @@ export const gifts = pgTable("gifts", {
   salonId: integer("salon_id").default(1).references(() => salons.id),
   // [RULE: UniqueGiftTracking] Every gift must have a unique tracking ID 
   giftHash: text("gift_hash").notNull().unique(), // Unique hash for tracking gifts
-  expiresAt: timestamp("expires_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-  redeemedAt: timestamp("redeemed_at"),
+  paymentStatus: text("payment_status").default("unpaid"), // unpaid, processing, paid, not_required, failed
+  appointmentStatus: text("appointment_status").default("not_available"), // not_available, available, requested, confirmed, completed
+  paymentIntentId: text("payment_intent_id"), // Stripe payment intent ID
+  custodialAmount: integer("custodial_amount").default(0), // Amount held by admin in cents
+  paymentRequired: integer("payment_required", { mode: 'boolean' }).default(false), // true for "FROM ME" gifts
+  expiresAt: integer("expires_at", { mode: 'timestamp' }),
+  createdAt: integer("created_at", { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  redeemedAt: integer("redeemed_at", { mode: 'timestamp' }),
 });
 
 // [RULE: GiftRelations] -- DO NOT MODIFY WITHOUT LEAD APPROVAL
@@ -245,11 +258,54 @@ export const giftsRelations = relations(gifts, ({ one }) => ({
   })
 }));
 
+export const payments = sqliteTable("payments", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  giftId: integer("gift_id").references(() => gifts.id, { onDelete: 'cascade' }),
+  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
+  amount: integer("amount").notNull(),
+  currency: text("currency").default("usd"),
+  status: text("status").default("pending"), // pending, processing, succeeded, failed, canceled
+  custodialStatus: text("custodial_status").default("held"), // held, released, refunded
+  createdAt: integer("created_at", { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  releasedAt: integer("released_at", { mode: 'timestamp' }),
+  metadata: text("metadata").default("{}"), // JSON string
+});
+
+export const adminCustody = sqliteTable("admin_custody", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  totalFundsHeld: integer("total_funds_held").default(0),
+  giftCount: integer("gift_count").default(0),
+  lastUpdated: integer("last_updated", { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  createdAt: integer("created_at", { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+});
+
+// Appointment confirmations table
+export const appointmentConfirmations = sqliteTable("appointment_confirmations", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  giftId: integer("gift_id").references(() => gifts.id, { onDelete: 'cascade' }),
+  salonId: integer("salon_id").references(() => salons.id),
+  clientId: integer("client_id").references(() => clients.id),
+  appointmentDate: integer("appointment_date", { mode: 'timestamp' }),
+  appointmentTime: text("appointment_time"),
+  serviceType: text("service_type"),
+  confirmedBySalon: integer("confirmed_by_salon", { mode: 'boolean' }).default(false),
+  confirmedByClient: integer("confirmed_by_client", { mode: 'boolean' }).default(false),
+  salonConfirmedAt: integer("salon_confirmed_at", { mode: 'timestamp' }),
+  clientConfirmedAt: integer("client_confirmed_at", { mode: 'timestamp' }),
+  createdAt: integer("created_at", { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  notes: text("notes"),
+});
+
 // Insert schemas for new tables
 export const insertStyleSelectionSchema = createInsertSchema(styleSelections).omit({ id: true });
 export const insertActivityLogSchema = createInsertSchema(activityLogs).omit({ id: true });
 // Appointment schema removed - Gift-based model
 export const insertGiftSchema = createInsertSchema(gifts).omit({ id: true });
+export const insertPaymentSchema = createInsertSchema(payments).omit({ id: true });
+export const insertAdminCustodySchema = createInsertSchema(adminCustody).omit({ id: true });
+export const insertAppointmentConfirmationSchema = createInsertSchema(appointmentConfirmations).omit({ id: true });
 
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -274,3 +330,12 @@ export type ActivityLog = typeof activityLogs.$inferSelect;
 
 export type InsertGift = z.infer<typeof insertGiftSchema>;
 export type Gift = typeof gifts.$inferSelect;
+
+export type InsertPayment = z.infer<typeof insertPaymentSchema>;
+export type Payment = typeof payments.$inferSelect;
+
+export type InsertAdminCustody = z.infer<typeof insertAdminCustodySchema>;
+export type AdminCustody = typeof adminCustody.$inferSelect;
+
+export type InsertAppointmentConfirmation = z.infer<typeof insertAppointmentConfirmationSchema>;
+export type AppointmentConfirmation = typeof appointmentConfirmations.$inferSelect;

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatPhoneNumber, getImageUrl } from "@/lib/utils";
+import { formatPhoneNumber, getImageUrl, processApiUrl } from "@/lib/utils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -109,7 +109,7 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
       // Upload the file using fetch directly to ensure proper FormData handling
       console.log('Uploading salon owner photo:', file.name);
       
-      const uploadResponse = await fetch('/api/upload', {
+      const uploadResponse = await fetch(processApiUrl('/api/upload'), {
         method: 'POST',
         body: formData,
       });
@@ -311,7 +311,7 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
               </div>
             )}
             
-            {editedSalon.socialMedia && editedSalon.socialMedia.length > 0 && (
+            {Array.isArray(editedSalon.socialMedia) && editedSalon.socialMedia.length > 0 && (
               <div className="mt-3 pt-2 border-t border-gray-100 w-full">
                 <div className="flex flex-wrap gap-2 justify-center">
                   {editedSalon.socialMedia.map((social, index) => (
@@ -487,7 +487,7 @@ export default function EditableSalonInfo({ salon, onSave, defaultEditing = fals
               </div>
 
               {/* Existing social media accounts */}
-              {editedSalon.socialMedia && editedSalon.socialMedia.length > 0 && (
+              {Array.isArray(editedSalon.socialMedia) && editedSalon.socialMedia.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-2">
                   {editedSalon.socialMedia.map((social, index) => (
                     <div 

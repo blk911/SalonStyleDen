@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { db, pool } from '../db';
+import { db } from '../db';
 import { createInsertSchema } from 'drizzle-zod';
 import { sql } from 'drizzle-orm';
 import { getLogEntries } from '../logging';
@@ -151,7 +151,7 @@ function calculateUptime(component: string): number {
 async function checkDatabaseHealth(): Promise<{ responseTime: number, status: 'healthy' | 'warning' | 'critical' }> {
   try {
     const start = Date.now();
-    await db.execute(sql`SELECT 1`);
+    await db.run(sql`SELECT 1`);
     const responseTime = Date.now() - start;
     
     recordResponseTime('Database', responseTime);

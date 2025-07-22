@@ -24,7 +24,7 @@ import { CheckIcon, Sparkles, AlertTriangle, ChevronUpIcon, ChevronDownIcon, Sen
 import { FaMoneyBillWave } from 'react-icons/fa';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '../../lib/apiRequest';
-import { getImageUrl } from '../../lib/utils';
+import { getImageUrl, processApiUrl } from '../../lib/utils';
 import { useLocation } from 'wouter';
 import { queryClient } from '../../lib/queryClient';
 import { DEFAULT_SALON_NAME, DEFAULT_OWNER_NAME, DEFAULT_SALON_ID } from '@/constants/salonConstants';
@@ -326,7 +326,7 @@ export function VmbStyleOptions({
     if (clientId) {
       const fetchSelections = async () => {
         try {
-          const response = await fetch(`/api/clients/${clientId}/style-selections`);
+          const response = await fetch(processApiUrl(`/api/clients/${clientId}/style-selections`));
           if (response.ok) {
             const data = await response.json();
             setSavedSelections(data);
@@ -1425,7 +1425,7 @@ export function VmbStyleOptions({
                       // Send invitation to the API
                       console.log("[FLOW][VmbStyleOptions] Sending invitation to API", invitationData);
                       
-                      const response = await fetch('/api/invitations', {
+                      const response = await fetch(processApiUrl('/api/invitations'), {
                         method: 'POST',
                         headers: {
                           'Content-Type': 'application/json',

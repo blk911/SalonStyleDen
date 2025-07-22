@@ -12,7 +12,7 @@ import {
   DialogTitle 
 } from "@/components/ui/dialog";
 import { Loader2, Gift as GiftIcon, CheckCircle, Calendar, ExternalLink, Share2 } from "lucide-react";
-import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
+import { formatCurrency, formatPhoneNumber, processApiUrl } from "@/lib/utils";
 
 interface SentGift {
   id: number;
@@ -49,7 +49,7 @@ export function SentGiftsDisplay({ clientId, onCreateGift }: SentGiftsDisplayPro
   const { data: sentGifts, isLoading } = useQuery({
     queryKey: [`/api/gifts/sent/${clientId}`],
     queryFn: async () => {
-      const response = await fetch(`/api/gifts/sent/${clientId}`);
+      const response = await fetch(processApiUrl(`/api/gifts/sent/${clientId}`));
       if (!response.ok) {
         throw new Error("Failed to fetch sent gifts");
       }

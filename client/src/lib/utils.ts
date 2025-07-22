@@ -51,6 +51,25 @@ export function cleanPhoneNumber(phoneNumber: string): string {
 }
 
 /**
+ * Process API URL to strip credentials from tunnel URLs to prevent fetch API errors
+ * @param url The API URL to process
+ * @returns Processed URL with credentials stripped from origin
+ */
+export function processApiUrl(url: string): string {
+  if (typeof url === 'string' && url.startsWith('/api/')) {
+    try {
+      const currentOrigin = window.location.origin;
+      const cleanOrigin = currentOrigin.replace(/\/\/[^@]+@/, '//');
+      return new URL(url, cleanOrigin).href;
+    } catch (urlError) {
+      console.warn(`[processApiUrl] Failed to process URL ${url}, using original:`, urlError);
+      return url;
+    }
+  }
+  return url;
+}
+
+/**
  * SITE-WIDE STANDARD: Formats a phone number for display with partial masking
  * for privacy/security (e.g., (123) 456-****).
  * @param phone The phone number to format with masking
@@ -121,7 +140,12 @@ export async function validateClientContact(contact: string): Promise<{
   exists: boolean, 
   field: string, 
   hasUnredeemedGift?: boolean, 
-  requiresAddress?: boolean
+  requiresAddress?: boolean,
+  clientData?: {
+    id: number;
+    name: string;
+    phone: string;
+  };
 }> {
   try {
     const contactType = detectInputType(contact);
@@ -150,7 +174,7 @@ export async function validateClientContact(contact: string): Promise<{
       context: 'registration' // Add context parameter for gift validation
     };
     
-    const response = await fetch('/api/validate-contact', {
+    const response = await fetch(processApiUrl('/api/validate-contact'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -170,11 +194,12 @@ export async function validateClientContact(contact: string): Promise<{
       exists: result.exists,
       field: result.field,
       hasUnredeemedGift: result.hasUnredeemedGift,
-      requiresAddress: result.requiresAddress
+      requiresAddress: result.requiresAddress,
+      clientData: result.clientData
     };
   } catch (error) {
     console.error('Error validating client contact:', error);
-    return { exists: false, field: '' };
+    return { exists: false, field: '', clientData: undefined };
   }
 }
 

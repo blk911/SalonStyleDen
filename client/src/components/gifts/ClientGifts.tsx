@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Gift, MapPin, HeartIcon, Calendar } from 'lucide-react';
+import { processApiUrl } from '@/lib/utils';
 import {
   Accordion,
   AccordionContent,
@@ -61,7 +62,7 @@ export default function ClientGifts({ clientId, completedInvitations = [] }: Cli
   const { data: receivedGifts, isLoading: isLoadingReceived } = useQuery({
     queryKey: [`/api/gifts/received/${clientId}`],
     queryFn: async () => {
-      const response = await fetch(`/api/gifts/received/${clientId}`);
+      const response = await fetch(processApiUrl(`/api/gifts/received/${clientId}`));
       if (!response.ok) {
         throw new Error('Failed to fetch received gifts');
       }
@@ -75,7 +76,7 @@ export default function ClientGifts({ clientId, completedInvitations = [] }: Cli
   const { data: sentGifts, isLoading: isLoadingSent } = useQuery({
     queryKey: [`/api/gifts/sent/${clientId}`],
     queryFn: async () => {
-      const response = await fetch(`/api/gifts/sent/${clientId}`);
+      const response = await fetch(processApiUrl(`/api/gifts/sent/${clientId}`));
       if (!response.ok) {
         throw new Error('Failed to fetch sent gifts');
       }

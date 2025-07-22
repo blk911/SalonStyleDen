@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Loader2, Users, ArrowLeft, Gift as GiftIcon } from "lucide-react";
-import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
+import { formatCurrency, formatPhoneNumber, processApiUrl } from "@/lib/utils";
 
 // Match the interface expected by GiftClaimCard
 interface ReceivedGift {
@@ -85,7 +85,7 @@ export default function GiftDetailPage() {
   useEffect(() => {
     if (gift?.recipientId) {
       // If recipient ID exists, fetch client data
-      fetch(`/api/clients/${gift.recipientId}`)
+      fetch(processApiUrl(`/api/clients/${gift.recipientId}`))
         .then(res => res.json())
         .then(data => {
           setRecipientClient(data);
@@ -183,7 +183,6 @@ export default function GiftDetailPage() {
                 <GiftClaimCard 
                   gift={{
                     id: gift.id,
-                    senderId: gift.senderId,
                     senderName: gift.senderName,
                     salonId: gift.salonId,
                     salonName: gift.salonName,

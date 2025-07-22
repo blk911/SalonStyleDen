@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
-import { formatPhonePartial, cleanPhoneNumber } from "@/lib/utils";
+import { formatPhonePartial, cleanPhoneNumber, processApiUrl } from "@/lib/utils";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
 
 interface Invitation {
@@ -63,7 +63,7 @@ export default function PendingSalonInvitations({
   const { data: invitations, isLoading } = useQuery({
     queryKey: ['/api/invitations/pending', clientId, limit],
     queryFn: async () => {
-      const response = await fetch(`/api/invitations?${filterParams}`);
+      const response = await fetch(processApiUrl(`/api/invitations?${filterParams}`));
       if (!response.ok) throw new Error('Network response was not ok');
       return response.json() as Promise<Invitation[]>;
     }
@@ -74,7 +74,7 @@ export default function PendingSalonInvitations({
     try {
       console.log('[FLOW] Checking if client is registered for invitation:', invitation.id);
       // Make a request to check if a client exists with this phone number
-      const response = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
+      const response = await fetch(processApiUrl(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`));
       
       if (response.ok) {
         const clients = await response.json();

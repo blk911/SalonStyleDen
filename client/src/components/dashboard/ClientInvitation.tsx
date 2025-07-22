@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatPhoneNumber, cleanPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, cleanPhoneNumber, processApiUrl } from "@/lib/utils";
 import { 
   AlertCircle, 
   ChevronDown, 
@@ -174,7 +174,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
       }
       
       // Check if contact exists in database
-      const response = await fetch(`/api/validate-contact?type=${type}&value=${encodeURIComponent(value)}`);
+      const response = await fetch(processApiUrl(`/api/validate-contact?type=${type}&value=${encodeURIComponent(value)}`));
       const data = await response.json();
       
       if (data.exists) {
@@ -235,7 +235,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
   const fetchSalonInfo = async () => {
     if (!salonId) return;
     try {
-      const response = await fetch(`/api/salons/${salonId}`);
+      const response = await fetch(processApiUrl(`/api/salons/${salonId}`));
       if (response.ok) {
         const data = await response.json();
         setSalonInfo({
@@ -243,7 +243,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         });
         
         // Check license status and invitations limit
-        const licenseResponse = await fetch(`/api/salons/${salonId}/invitation-limit`);
+        const licenseResponse = await fetch(processApiUrl(`/api/salons/${salonId}/invitation-limit`));
         if (licenseResponse.ok) {
           const licenseData = await licenseResponse.json();
           setLicenseInfo({
@@ -263,7 +263,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
     if (!salonId) return;
     
     try {
-      const response = await fetch(`/api/salons/${salonId}/invitations`);
+      const response = await fetch(processApiUrl(`/api/salons/${salonId}/invitations`));
       if (response.ok) {
         const data = await response.json();
         setRecentInvites(data);
@@ -336,7 +336,7 @@ export default function ClientInvitation({ salonId }: ClientInvitationProps) {
         selectedServices.length > 0 ? selectedServices[0] : ''
       );
       
-      const response = await fetch('/api/invitations', {
+      const response = await fetch(processApiUrl('/api/invitations'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

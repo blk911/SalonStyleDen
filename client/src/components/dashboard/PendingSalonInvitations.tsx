@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
-import { formatPhonePartial } from "@/lib/utils";
+import { formatPhonePartial, processApiUrl } from "@/lib/utils";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
 
 interface Invitation {
@@ -62,7 +62,7 @@ export default function PendingSalonInvitations({
   const { data: allInvitations, isLoading } = useQuery({
     queryKey: ['/api/invitations/pending', clientId, limit],
     queryFn: async () => {
-      const response = await fetch(`/api/invitations?${filterParams}`);
+      const response = await fetch(processApiUrl(`/api/invitations?${filterParams}`));
       if (!response.ok) throw new Error('Network response was not ok');
       return response.json() as Promise<Invitation[]>;
     }
@@ -79,7 +79,7 @@ export default function PendingSalonInvitations({
     try {
       console.log('[FLOW] Checking if client is registered for invitation:', invitation.id);
       // Make a request to check if a client exists with this phone number
-      const response = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
+      const response = await fetch(processApiUrl(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`));
       
       if (response.ok) {
         const clients = await response.json();
@@ -254,7 +254,7 @@ export default function PendingSalonInvitations({
                   if (selectedInvitation) {
                     try {
                       // First try to find client by phone
-                      const response = await fetch(`/api/clients?phone=${encodeURIComponent(selectedInvitation.phone)}`);
+                      const response = await fetch(processApiUrl(`/api/clients?phone=${encodeURIComponent(selectedInvitation.phone)}`));
                       if (response.ok) {
                         const clients = await response.json();
                         if (clients && clients.length > 0) {
@@ -313,7 +313,7 @@ export default function PendingSalonInvitations({
                   if (selectedInvitation) {
                     try {
                       // First try to find client by phone
-                      const response = await fetch(`/api/clients?phone=${encodeURIComponent(selectedInvitation.phone)}`);
+                      const response = await fetch(processApiUrl(`/api/clients?phone=${encodeURIComponent(selectedInvitation.phone)}`));
                       if (response.ok) {
                         const clients = await response.json();
                         if (clients && clients.length > 0) {

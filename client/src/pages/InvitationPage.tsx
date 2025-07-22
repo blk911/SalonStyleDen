@@ -3,6 +3,7 @@ import { useParams, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { processApiUrl } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -162,7 +163,7 @@ export default function InvitationPage() {
   } = useQuery<Invitation>({
     queryKey: ['/api/invitations/by-hash', hash],
     queryFn: async () => {
-      const response = await fetch(`/api/invitations/by-hash/${hash}`);
+      const response = await fetch(processApiUrl(`/api/invitations/by-hash/${hash}`));
       if (!response.ok) {
         throw new Error(`Failed to fetch invitation: ${response.status}`);
       }
@@ -178,7 +179,7 @@ export default function InvitationPage() {
   } = useQuery<Salon>({
     queryKey: ['/api/salons', invitation?.salonId],
     queryFn: async () => {
-      const response = await fetch(`/api/salons/${invitation?.salonId}`);
+      const response = await fetch(processApiUrl(`/api/salons/${invitation?.salonId}`));
       if (!response.ok) {
         throw new Error(`Failed to fetch salon: ${response.status}`);
       }
@@ -247,7 +248,7 @@ export default function InvitationPage() {
 
     try {
       // First, try to find if client already exists with this phone number
-      const clientResponse = await fetch(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`);
+      const clientResponse = await fetch(processApiUrl(`/api/clients?phone=${encodeURIComponent(invitation.phone)}`));
       
       // If we found a client, go directly to dashboard regardless of invitation status
       if (clientResponse.ok) {
@@ -259,7 +260,7 @@ export default function InvitationPage() {
           // Update invitation to completed if it's not already
           if (invitation.status !== 'completed') {
             try {
-              await fetch(`/api/invitations/${invitation.id}/status`, {
+              await fetch(processApiUrl(`/api/invitations/${invitation.id}/status`), {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json'
@@ -295,7 +296,7 @@ export default function InvitationPage() {
       // For pending invitations, update the status to 'accepted' first
       if (invitation.status === 'pending') {
         // Update invitation status to accepted
-        const updateResponse = await fetch(`/api/invitations/${invitation.id}/status`, {
+        const updateResponse = await fetch(processApiUrl(`/api/invitations/${invitation.id}/status`), {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'

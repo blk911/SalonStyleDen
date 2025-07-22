@@ -25,7 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useEffect, useState, useCallback } from "react";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, processApiUrl } from "@/lib/utils";
 import { queryClient } from "@/lib/queryClient";
 import { DaySchedule } from "@/components/dashboard/WeeklySchedule";
 import { VmbStyleOptions } from "@/components/promos/VmbStyleOptions";
@@ -99,7 +99,7 @@ export default function SalonPublicPage() {
   const getCurrentClientId = useCallback(async () => {
     try {
       // Check if we have a client ID in the session
-      const response = await fetch('/api/session/current-client');
+      const response = await fetch(processApiUrl('/api/session/current-client'));
       if (response.ok) {
         const data = await response.json();
         if (data && data.clientId) {
@@ -133,7 +133,7 @@ export default function SalonPublicPage() {
       try {
         if (!id) throw new Error("No salon ID provided");
 
-        const response = await fetch(`/api/salons/${id}`);
+        const response = await fetch(processApiUrl(`/api/salons/${id}`));
         if (!response.ok) {
           throw new Error(`Error fetching salon: ${response.status}`);
         }
@@ -536,8 +536,20 @@ export default function SalonPublicPage() {
             <div className="bg-[#FEE1E8] rounded p-3 text-center">
               <h2 className="font-bold text-sm mb-2">Ready to look gorgeous?</h2>
               <p className="text-mini mb-2">Book your appointment at {salon.name} today!</p>
-              <div className="flex justify-center gap-2">
-                <Button className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white">Book Now</Button>
+              <div className="flex justify-center items-center gap-2 flex-wrap">
+                <Button 
+                  onClick={() => window.location.href = '/salon-registration'}
+                  className="bg-[#FF92A5] hover:bg-[#ff7a92] text-white text-sm"
+                >
+                  Register Your Salon
+                </Button>
+                <Button 
+                  onClick={() => window.location.href = '/client-registration?mode=invite'}
+                  variant="outline"
+                  className="border-pink-300 text-pink-700 text-sm"
+                >
+                  Invite your Friends
+                </Button>
                 <Button 
                   variant="outline"
                   onClick={() => setIsInstructionOpen(true)}
@@ -558,10 +570,10 @@ export default function SalonPublicPage() {
           isOpen={isInstructionOpen}
           onClose={() => setIsInstructionOpen(false)}
           steps={[
-            "Select your favorite nail style from the options above.",
-            "Send an invitation to someone special who might treat you.",
-            "They'll receive your invitation and can easily fulfill your request.",
-            "Visit the salon and enjoy your service when the appointment is confirmed!"
+            "Select your favorite nail style; click on pic.",
+            "Someone who wants your attention? Enter their name and number; send!",
+            "You'll know how special if they fill your request.",
+            "Your style is paid, set your appointment, ENJOY!"
           ]}
           icon={<Lightbulb className="h-5 w-5" />}
           actionText="Got it!"

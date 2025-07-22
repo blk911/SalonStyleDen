@@ -3,6 +3,7 @@
  * This provides real-time validation by checking with the server
  */
 import { useState, useCallback } from 'react';
+import { processApiUrl } from '@/lib/utils';
 
 // Extend the Window interface to add our global variables for context-aware validation
 declare global {
@@ -99,7 +100,7 @@ export function useContactValidation(options: ValidationOptions = {}) {
       }
       
       // Use validation-only server request with a dedicated endpoint for contact validation
-      const response = await fetch('/api/validate-contact', {
+      const response = await fetch(processApiUrl('/api/validate-contact'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
@@ -108,7 +109,7 @@ export function useContactValidation(options: ValidationOptions = {}) {
       // Fallback to previous method if the dedicated endpoint isn't available
       if (response.status === 404) {
         console.log('Validation endpoint not found, using fallback method');
-        const fallbackResponse = await fetch('/api/invitations', {
+        const fallbackResponse = await fetch(processApiUrl('/api/invitations'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

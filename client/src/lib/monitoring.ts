@@ -8,6 +8,7 @@
  * - User interaction monitoring
  */
 import activityMonitor from './activity-monitor';
+import { processApiUrl } from './utils';
 
 // Log errors to console and server
 export function logError(type: 'frontend' | 'api' | 'network', error: Error | string): void {
@@ -24,7 +25,7 @@ export function logError(type: 'frontend' | 'api' | 'network', error: Error | st
   });
 
   // Send error to server for logging
-  fetch('/api/log-error', {
+  fetch(processApiUrl('/api/log-error'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ 
@@ -43,7 +44,7 @@ export function initMonitoring(): void {
   console.log('[VMB Monitoring] Initializing monitoring system');
 
   // Check server status
-  fetch('/api/status')
+  fetch(processApiUrl('/api/status'))
     .then(res => {
       if (res.headers.get('content-type')?.includes('application/json')) {
         return res.json();
@@ -149,8 +150,20 @@ export function initMonitoring(): void {
     
     console.log(`[API-REQ] ${method} ${url} - ID: ${requestId}`, init?.body || 'No Body');
     
+    let processedInput = input;
+    if (typeof input === 'string' && input.startsWith('/api/')) {
+      try {
+        const currentOrigin = window.location.origin;
+        const cleanOrigin = currentOrigin.replace(/\/\/[^@]+@/, '//');
+        processedInput = new URL(input, cleanOrigin).href;
+        console.log(`[API-REQ] Processed URL from ${input} to ${processedInput}`);
+      } catch (urlError) {
+        console.warn(`[API-REQ] Failed to process URL ${input}, using original:`, urlError);
+      }
+    }
+    
     try {
-      const response = await originalFetch.apply(this, [input, init]);
+      const response = await originalFetch.apply(this, [processedInput, init]);
       const endTime = Date.now();
       const duration = endTime - startTime;
       

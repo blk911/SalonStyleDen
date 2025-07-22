@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -7,12 +8,21 @@ import { startupMonitor } from './startup-monitor';
 import { EventEmitter } from 'events';
 import http from 'http';
 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+});
+
 // Increase the default max listeners to prevent warnings
 EventEmitter.defaultMaxListeners = 20;
 
 // Enhanced port cleanup utility using kill-port package
 async function killPortProcesses(port: number): Promise<void> {
   try {
+    // @ts-ignore
     const killPort = await import('kill-port');
     await killPort.default(port);
     // Small delay to ensure port is freed
@@ -130,7 +140,7 @@ app.use((req, res, next) => {
               log('🚀 VMB Application ready for connections');
             }
           } catch (error) {
-            log('⚠️ Server health check error:', error);
+            log('⚠️ Server health check error:', String(error));
           }
         }, 500);
       });
@@ -161,7 +171,7 @@ app.use((req, res, next) => {
             log('🚀 VMB Application ready for connections');
           }
         } catch (error) {
-          log('⚠️ Server health check error:', error);
+          log('⚠️ Server health check error:', String(error));
         }
       }, 500);
     }

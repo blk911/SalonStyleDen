@@ -4,9 +4,11 @@ import { ExternalLinkIcon, HeartIcon, PlusCircleIcon, XIcon } from "lucide-react
 import GiftCreationFlow from "./GiftCreationFlow";
 import { FixedGiftsDisplay } from "./FixedGiftsDisplay";
 import { SentGiftsDisplay } from "./SentGiftsDisplay";
+import { MockPaymentForm } from "../payments/MockPaymentForm";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
+import { processApiUrl } from "@/lib/utils";
 
 interface Invitation {
   id: number;
@@ -24,6 +26,8 @@ interface Invitation {
   styleOption?: string | null;
   stylePrice?: number | null;
   styleDuration?: number | null;
+  paymentRequired?: boolean;
+  amount?: number;
 }
 
 interface Gift {
@@ -54,6 +58,8 @@ interface GiftsPageProps {
 
 export default function GiftsPage({ clientId }: GiftsPageProps) {
   const [showGiftCreation, setShowGiftCreation] = useState(false);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [selectedGift, setSelectedGift] = useState<any>(null);
   const [, setLocation] = useLocation();
   
   // Query for the current client's name to use in filters
@@ -61,7 +67,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
     queryKey: ['/api/clients/data', clientId],
     queryFn: async () => {
       if (!clientId) return null;
-      const response = await fetch(`/api/clients/${clientId}`);
+      const response = await fetch(processApiUrl(`/api/clients/${clientId}`));
       if (!response.ok) throw new Error('Failed to fetch client data');
       return response.json();
     },
@@ -76,7 +82,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       
       try {
         // Get gifts received by this client (both by ID and phone)
-        const response = await fetch(`/api/gifts/received/${clientId}`);
+        const response = await fetch(processApiUrl(`/api/gifts/received/${clientId}`));
         if (!response.ok) throw new Error('Failed to fetch received gifts');
         
         const gifts = await response.json() as Gift[];
@@ -110,7 +116,8 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
           amount: gift.amount,
           styleOption: gift.styleName,
           stylePrice: gift.amount,
-          giftHash: gift.giftHash // Include gift hash for unique identification
+          giftHash: gift.giftHash, // Include gift hash for unique identification
+          paymentRequired: gift.senderId !== null // Payment required for "FROM ME" gifts
         })) as Invitation[];
       } catch (error) {
         console.error("Error fetching received gifts:", error);
@@ -129,7 +136,7 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
       
       try {
         // Get gifts sent by this client
-        const response = await fetch(`/api/gifts/sent/${clientId}`);
+        const response = await fetch(processApiUrl(`/api/gifts/sent/${clientId}`));
         if (!response.ok) throw new Error('Failed to fetch sent gifts');
         
         const gifts = await response.json() as Gift[];
@@ -170,7 +177,8 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
           amount: gift.amount,
           styleOption: gift.styleName,
           stylePrice: gift.amount,
-          giftHash: gift.giftHash // Include gift hash for unique identification
+          giftHash: gift.giftHash, // Include gift hash for unique identification
+          paymentRequired: false // Sent gifts don't require payment from recipient
         })) as Invitation[];
       } catch (error) {
         console.error("Error fetching sent gifts:", error);
@@ -184,6 +192,88 @@ export default function GiftsPage({ clientId }: GiftsPageProps) {
   // Use the transformed gifts data with safety checks
   const receivedGifts = receivedGiftsData || [];
   const sentGifts = sentGiftsData || [];
+
+  const handleRedeemGift = async (giftId: number) => {
+    const gift = receivedGifts?.find(g => g.id === giftId);
+    if (gift && gift.paymentRequired) {
+      setSelectedGift(gift);
+      setShowPaymentForm(true);
+    } else {
+      try {
+        const response = await fetch(processApiUrl(`/api/redeem-gift/${giftId}`), {
+          method: 'POST'
+        });
+        
+        if (response.ok) {
+          alert('Gift redeemed successfully!');
+          window.location.reload();
+        } else {
+          alert('Failed to redeem gift');
+        }
+      } catch (error) {
+        console.error('Error redeeming gift:', error);
+        alert('Error redeeming gift');
+      }
+    }
+  };
+
+  const handlePaymentSuccess = async (paymentIntentId: string) => {
+    try {
+      const response = await fetch(processApiUrl(`/api/redeem-gift/${selectedGift.id}`), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          payment_intent_id: paymentIntentId
+        })
+      });
+      
+      if (response.ok) {
+        alert('Payment successful! Gift redeemed.');
+        setShowPaymentForm(false);
+        setSelectedGift(null);
+        window.location.reload();
+      } else {
+        alert('Failed to complete gift redemption');
+      }
+    } catch (error) {
+      console.error('Error completing redemption:', error);
+      alert('Error completing gift redemption');
+    }
+  };
+
+  const handlePaymentCancel = () => {
+    setShowPaymentForm(false);
+    setSelectedGift(null);
+  };
+
+  if (showPaymentForm && selectedGift) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <Button 
+            variant="outline" 
+            onClick={handlePaymentCancel}
+            className="mb-4"
+          >
+            ← Back to Gifts
+          </Button>
+          <h1 className="text-2xl font-bold mb-2">Complete Gift Redemption</h1>
+          <p className="text-gray-600">
+            Complete payment to redeem your gift: {selectedGift.message}
+          </p>
+        </div>
+        
+        <MockPaymentForm
+          amount={selectedGift.amount / 100}
+          giftId={selectedGift.id}
+          onSuccess={handlePaymentSuccess}
+          onCancel={handlePaymentCancel}
+        />
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-4 w-full">

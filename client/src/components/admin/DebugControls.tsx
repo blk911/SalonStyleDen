@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bug, Terminal, RotateCcw, Activity } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { processApiUrl } from "@/lib/utils";
 import { 
   shouldLog, 
   toggleConsoleMessages,
@@ -51,7 +52,7 @@ export function DebugControls() {
       .replace('T', '_');
     
     setIsBackingUp(true);
-    fetch(`/api/admin/backup?timestamp=${timestamp}`)
+    fetch(processApiUrl(`/api/admin/backup?timestamp=${timestamp}`))
       .then(response => response.json())
       .then(data => {
         if (data.success) {

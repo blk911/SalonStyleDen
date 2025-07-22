@@ -9,7 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Gift as GiftIcon, CheckCircle, CheckCircleIcon, Calendar, ExternalLink } from "lucide-react";
-import { formatCurrency, formatPhoneNumber, processInvitationMessage, cleanPhoneNumber } from "@/lib/utils";
+import { formatCurrency, formatPhoneNumber, processInvitationMessage, cleanPhoneNumber, processApiUrl } from "@/lib/utils";
 import { 
   DEFAULT_SALON_NAME, 
   DEFAULT_SALON_ID, 
@@ -69,7 +69,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   const { data: receivedGifts, isLoading } = useQuery({
     queryKey: [`/api/gifts/received/${clientId}`],
     queryFn: async () => {
-      const response = await fetch(`/api/gifts/received/${clientId}`);
+      const response = await fetch(processApiUrl(`/api/gifts/received/${clientId}`));
       if (!response.ok) {
         throw new Error("Failed to fetch received gifts");
       }
@@ -123,7 +123,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
   // Mutation for redeeming a gift
   const redeemGiftMutation = useMutation({
     mutationFn: async (giftId: number) => {
-      const response = await fetch(`/api/gifts/${giftId}/status`, {
+      const response = await fetch(processApiUrl(`/api/gifts/${giftId}/status`), {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json"
@@ -196,7 +196,7 @@ export function ReceivedGiftsDisplay({ clientId, onRedeemGift }: ReceivedGiftsDi
       }));
       
       // Update the status to "delivered" in the database
-      fetch(`/api/gifts/${giftToClaim.id}/status`, {
+      fetch(processApiUrl(`/api/gifts/${giftToClaim.id}/status`), {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json"

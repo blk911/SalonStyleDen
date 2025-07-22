@@ -1,91 +1,58 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from 'ws';
-import * as schema from "@shared/schema";
+import Database from 'better-sqlite3';
+import { drizzle } from 'drizzle-orm/better-sqlite3';
+import * as schema from "../shared/schema";
 import { log } from "./vite";
 
-// Configure websockets for Neon serverless
-neonConfig.webSocketConstructor = ws;
+// Create SQLite database connection
+const dbPath = './salonstylden.db';
+log(`Initializing SQLite database at: ${dbPath}`, 'db');
 
-// Create postgres connection
-const connectionString = process.env.DATABASE_URL || '';
+const sqlite = new Database(dbPath);
+sqlite.pragma('journal_mode = WAL');
+sqlite.pragma('foreign_keys = ON');
 
-if (!connectionString) {
-  log('DATABASE_URL environment variable is not set', 'db');
-}
+log('SQLite database initialized successfully', 'db');
 
-// Create a connection pool with more resilient settings
-export const pool = new Pool({ 
-  connectionString,
-  max: 3, // Reduce max connections to avoid hitting rate limits
-  connectionTimeoutMillis: 15000, // Increase timeout for slower connections
-  idleTimeoutMillis: 10000, // Reduce idle timeout to release connections faster
-  allowExitOnIdle: true // Allow the pool to exit when idle
-});
-
-// Add robust error handling to pool connections
-pool.on('error', (err) => {
-  log(`Unexpected error on idle client: ${err}`, 'db');
-  // Don't crash the server on connection errors
-});
-
-// Create connection management system
-let isConnecting = false;
-let lastConnectAttempt = 0;
-const RECONNECT_INTERVAL = 5000; // 5 seconds between reconnection attempts
-
-// Function to safely get a connection with retries
+// Function to test SQLite connection
 export async function getConnection() {
   try {
-    return await pool.connect();
+    return {
+      query: (sql: string, params?: any[]) => {
+        const stmt = sqlite.prepare(sql);
+        return params ? stmt.all(params) : stmt.all();
+      },
+      release: () => {} // No-op for SQLite
+    };
   } catch (error) {
-    log(`Failed to get connection: ${error}`, 'db');
+    log(`Failed to get SQLite connection: ${error}`, 'db');
     throw error;
   }
 }
 
-// Function to reconnect the pool if needed
+// Function to ensure SQLite connection
 export async function ensureConnection() {
-  const now = Date.now();
-  if (isConnecting || (now - lastConnectAttempt < RECONNECT_INTERVAL)) {
-    return; // Avoid multiple simultaneous reconnection attempts
-  }
-  
-  isConnecting = true;
-  lastConnectAttempt = now;
-  
   try {
-    log('Testing database connection...', 'db');
-    const client = await pool.connect();
-    await client.query('SELECT 1');
-    client.release();
-    log('Database connection successfully verified', 'db');
+    log('Testing SQLite database connection...', 'db');
+    const result = sqlite.prepare('SELECT 1 as test').get();
+    log('SQLite database connection successfully verified', 'db');
+    return true;
   } catch (error) {
-    log(`Database connection error: ${error}. Will retry in ${RECONNECT_INTERVAL}ms.`, 'db');
-  } finally {
-    isConnecting = false;
+    log(`SQLite database connection error: ${error}`, 'db');
+    return false;
   }
 }
 
-// Setup periodic connection check
-setInterval(ensureConnection, 30000);
-
-// Create drizzle db instance with enhanced error handling
-export const db = drizzle({ client: pool, schema });
+// Create drizzle db instance with SQLite
+export const db = drizzle(sqlite, { schema });
 
 // Export a function to check if the database is connected
 export async function isDatabaseConnected(): Promise<boolean> {
   try {
-    const client = await pool.connect();
-    try {
-      await client.query('SELECT 1');
-      return true;
-    } finally {
-      client.release();
-    }
+    const result = sqlite.prepare('SELECT 1 as test').get();
+    log('SQLite database health check passed', 'db');
+    return true;
   } catch (error) {
-    // Replace console.error with log to maintain consistency
-    log(`Database connection error: ${error}`, 'db');
+    log(`SQLite database connection error: ${error}`, 'db');
     return false;
   }
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { processApiUrl } from '@/lib/utils';
 
 // Define types for API responses
 interface ClientResponse {
@@ -69,9 +70,9 @@ export function useSponsorHierarchy() {
         // Fetch clients, salons, and invitations in parallel
         console.log("[SPONSOR-HIERARCHY] Fetching hierarchy data...");
         const [clientsResponse, salonsResponse, invitationsResponse] = await Promise.all([
-          fetch('/api/clients'),
-          fetch('/api/salons'),
-          fetch('/api/invitations'),
+          fetch(processApiUrl('/api/clients')),
+          fetch(processApiUrl('/api/salons')),
+          fetch(processApiUrl('/api/invitations')),
         ]);
         
         if (!clientsResponse.ok || !salonsResponse.ok || !invitationsResponse.ok) {

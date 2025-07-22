@@ -9,7 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { formatCurrency, formatPhoneNumber } from "@/lib/utils";
+import { formatCurrency, formatPhoneNumber, processApiUrl } from "@/lib/utils";
 import { Loader2, Gift, CheckCircle, AlertTriangle, Phone, Mail } from "lucide-react";
 import { useNavigationContext } from "../context/NavigationContext";
 import { useForm } from "react-hook-form";
@@ -76,7 +76,7 @@ export default function GiftRedemptionPage() {
     queryKey: [`/api/gifts/by-hash/${giftHash}`],
     queryFn: async () => {
       try {
-        const response = await fetch(`/api/gifts/by-hash/${giftHash}`);
+        const response = await fetch(processApiUrl(`/api/gifts/by-hash/${giftHash}`));
         if (!response.ok) {
           if (response.status === 404) {
             throw new Error("Gift not found or has already been redeemed");
@@ -107,7 +107,7 @@ export default function GiftRedemptionPage() {
   const checkPhoneMutation = useMutation({
     mutationFn: async (phone: string) => {
       const normalizedPhone = phone.replace(/\D/g, "");
-      const response = await fetch(`/api/gifts/check-phone/${normalizedPhone}`);
+      const response = await fetch(processApiUrl(`/api/gifts/check-phone/${normalizedPhone}`));
       if (!response.ok) {
         throw new Error("Failed to check phone number");
       }
@@ -141,7 +141,7 @@ export default function GiftRedemptionPage() {
       
       // First check if this is an existing client
       try {
-        const clientCheckResponse = await fetch(`/api/gifts/check-phone/${normalizedPhone}`);
+        const clientCheckResponse = await fetch(processApiUrl(`/api/gifts/check-phone/${normalizedPhone}`));
         if (!clientCheckResponse.ok) {
           throw new Error("Failed to check client existence");
         }
@@ -150,7 +150,7 @@ export default function GiftRedemptionPage() {
         // If this is a new client, register them first
         if (!clientCheckData.existingClient && gift) {
           // Create a new client
-          const newClientResponse = await fetch("/api/clients", {
+          const newClientResponse = await fetch(processApiUrl("/api/clients"), {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
@@ -178,7 +178,7 @@ export default function GiftRedemptionPage() {
           console.log("Created new client:", newClient);
           
           // Now update the gift with the new client ID
-          const updateGiftResponse = await fetch(`/api/gifts/${gift.id}/status`, {
+          const updateGiftResponse = await fetch(processApiUrl(`/api/gifts/${gift.id}/status`), {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json"
@@ -205,7 +205,7 @@ export default function GiftRedemptionPage() {
           // This is an existing client, just update the gift
           const clientId = clientCheckData.clientId;
           
-          const updateGiftResponse = await fetch(`/api/gifts/${gift.id}/status`, {
+          const updateGiftResponse = await fetch(processApiUrl(`/api/gifts/${gift.id}/status`), {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json"

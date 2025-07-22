@@ -4,7 +4,7 @@ import { Link } from "wouter";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { CollapsibleCard } from "@/components/ui/card-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +21,7 @@ import {
   HelpCircle
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getImageUrl, formatPhoneNumber } from "@/lib/utils";
+import { getImageUrl, formatPhoneNumber, processApiUrl } from "@/lib/utils";
 import TeaserCarousel from "@/components/marketing/TeaserCarousel";
 
 
@@ -63,7 +63,7 @@ export default function ClientsPage() {
   const { data: clients = [], isLoading: clientsLoading } = useQuery<Client[]>({
     queryKey: ['/api/clients'],
     queryFn: async () => {
-      const response = await fetch('/api/clients');
+      const response = await fetch(processApiUrl('/api/clients'));
       if (!response.ok) {
         throw new Error('Failed to fetch clients');
       }
@@ -75,7 +75,7 @@ export default function ClientsPage() {
   const { data: invitations = [], isLoading: invitationsLoading } = useQuery<Invitation[]>({
     queryKey: ['/api/invitations'],
     queryFn: async () => {
-      const response = await fetch('/api/invitations');
+      const response = await fetch(processApiUrl('/api/invitations'));
       if (!response.ok) {
         throw new Error('Failed to fetch invitations');
       }

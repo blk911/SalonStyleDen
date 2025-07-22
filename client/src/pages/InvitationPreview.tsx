@@ -24,6 +24,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { RenderedInvitation } from "@/components/invitations/RenderedInvitation";
 import { useToast } from "@/hooks/use-toast";
+import { processApiUrl } from "@/lib/utils";
 
 interface Invitation {
   id: number;
@@ -95,10 +96,10 @@ export default function InvitationPreview() {
       // Use different endpoints based on hash format
       if (isGiftHash) {
         console.log(`[FLOW] Fetching gift with ID: ${giftId}`);
-        response = await fetch(`/api/gifts/${giftId}`);
+        response = await fetch(processApiUrl(`/api/gifts/${giftId}`));
       } else {
         console.log(`[FLOW] Fetching invitation with hash: ${hash}`);
-        response = await fetch(`/api/invitations/by-hash/${hash}`);
+        response = await fetch(processApiUrl(`/api/invitations/by-hash/${hash}`));
       }
       
       if (!response.ok) {
@@ -127,7 +128,7 @@ export default function InvitationPreview() {
         let senderName = '';
         if (data.senderId) {
           try {
-            const senderResponse = await fetch(`/api/clients/${data.senderId}`);
+            const senderResponse = await fetch(processApiUrl(`/api/clients/${data.senderId}`));
             if (senderResponse.ok) {
               const senderData = await senderResponse.json();
               senderName = senderData.name || '';
@@ -170,7 +171,7 @@ export default function InvitationPreview() {
     queryKey: ['/api/salons', invitation?.salonId],
     queryFn: async () => {
       console.log(`[FLOW] Fetching salon data for ID: ${invitation?.salonId}`);
-      const response = await fetch(`/api/salons/${invitation?.salonId}`);
+      const response = await fetch(processApiUrl(`/api/salons/${invitation?.salonId}`));
       if (!response.ok) {
         console.error(`[FLOW] Failed to fetch salon: ${response.status}`);
         throw new Error(`Failed to fetch salon: ${response.status}`);

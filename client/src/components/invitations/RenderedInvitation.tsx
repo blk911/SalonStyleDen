@@ -27,6 +27,7 @@ import { ShoppingBag, Calendar, CheckCircle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { DEFAULT_SALON_NAME, DEFAULT_SALON_ID, DEFAULT_OWNER_NAME } from "@/constants/salonConstants";
+import { processApiUrl } from "@/lib/utils";
 
 // Extend the Window interface to add our client ID context
 declare global {
@@ -108,7 +109,7 @@ export function RenderedInvitation({
       const invitationHash = urlParts[urlParts.length - 1];
       
       // First, get the numeric ID from the hash
-      const inviteResponse = await fetch(`/api/invitations/by-hash/${invitationHash}`);
+      const inviteResponse = await fetch(processApiUrl(`/api/invitations/by-hash/${invitationHash}`));
       if (!inviteResponse.ok) {
         throw new Error('Failed to find invitation');
       }
@@ -117,7 +118,7 @@ export function RenderedInvitation({
       const numericId = inviteData.id;
       
       // Update the invitation status to "completed" 
-      const response = await fetch(`/api/invitations/${numericId}/status`, {
+      const response = await fetch(processApiUrl(`/api/invitations/${numericId}/status`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -133,7 +134,7 @@ export function RenderedInvitation({
         try {
           // Get the client ID from context or invitation data
           // Extract the salon ID from the invitation data
-          await fetch('/api/activity-logs', {
+          await fetch(processApiUrl('/api/activity-logs'), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

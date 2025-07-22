@@ -504,8 +504,9 @@ export default function SalonForm() {
       <ContactValidationDialog 
         open={showErrorDialog}
         onOpenChange={setShowErrorDialog}
-        errorField={errorField}
-        errorMessage={errorMessage}
+        validationResult={errorField ? 'invalid' : 'loading'}
+        contactType={errorField === 'phone' ? 'phone' : errorField === 'email' ? 'email' : 'unknown'}
+        contactValue={errorMessage}
         onClose={handleDialogClose}
       />
     </>

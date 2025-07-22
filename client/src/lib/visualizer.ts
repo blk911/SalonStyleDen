@@ -6,6 +6,7 @@
  */
 
 import { apiRequest } from './apiRequest';
+import { processApiUrl } from './utils';
 
 export interface VisualizerNode {
   id: string;
@@ -43,7 +44,7 @@ export async function fetchNetworkData(options?: {
     if (options?.includeNpm !== undefined) queryParams.append('includeNpm', options.includeNpm.toString());
     
     const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    const response = await fetch(`/api/visualization/network${queryString}`);
+    const response = await fetch(processApiUrl(`/api/visualization/network${queryString}`));
     
     if (!response.ok) {
       throw new Error(`Failed to fetch network data: ${response.statusText}`);
