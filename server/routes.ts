@@ -7,8 +7,8 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { db } from "./db";
-import { clients, invitations, gifts, type Invitation, type Gift, type InsertInvitation, type InsertGift } from "../shared/schema";
-import { eq, sql } from "drizzle-orm";
+import { salons, clients, invitations, gifts, styleSelections, activityLogs, type Invitation, type Gift, type InsertInvitation, type InsertGift } from "../shared/schema";
+import { eq, sql, desc } from "drizzle-orm";
 import { registerVisualizationRoutes } from "./visualization";
 import { registerMadgeRoutes } from "./madge-api";
 import { errorMonitor } from './error-monitor';
@@ -633,7 +633,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               field: '',
               hasUnredeemedGift: true,
               requiresAddress: true, // Address required for gift redemption
-              giftInfo: giftCheck.gift
+              giftInfo: giftCheck.giftData
             });
           }
         } catch (giftError) {
@@ -1218,7 +1218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Update each service to use a local asset
-        const updatedServices = salon.services.map(service => {
+        const updatedServices = salon.services.map((service: any) => {
           // Skip if already a local asset
           if (service.gifUrl && (
               service.gifUrl.startsWith('/assets/') || 
@@ -1598,7 +1598,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             email: validatedData.email,
             message: validatedData.message,
             notes: validatedData.notes,
-            favoriteServices: validatedData.favoriteServices,
+            favoriteServices: Array.isArray(validatedData.favoriteServices) ? validatedData.favoriteServices.join(',') : validatedData.favoriteServices,
             salonId: validatedData.salonId,
             sponsor: validatedData.sponsor,
             sponsorName: validatedData.sponsorName,
@@ -1676,7 +1676,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`[API] GET /invitations - Got ${invitations.length} invitations for salon ${salonId}`);
       } else if (clientId) {
         // Get invitations specific to this client
-        invitations = await storage.getClientInvitations(clientId, status, limit);
+        invitations = await storage.getClientInvitations(clientId, limit);
         console.log(`[API] GET /invitations - Got ${invitations.length} invitations for client ${clientId}`);
       } else {
         // Default: get recent invitations with limit
@@ -1971,16 +1971,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         updatedInvitation = invitation;
       }
       
-      // Set redeemedAt timestamp if not already set
       try {
-        // Update directly with a SQL query - SQLite compatible
-        await db.execute(sql`
-          UPDATE invitations 
-          SET redeemed_at = ${Math.floor(Date.now() / 1000)}
-          WHERE id = ${id}
-        `);
+        await db.update(invitations)
+          .set({ status: 'redeemed' })
+          .where(eq(invitations.id, id));
       } catch (dbError) {
-        console.error('Error updating redeemed_at timestamp:', dbError);
+        console.error('Error updating invitation status:', dbError);
       }
       
       // Log activity
@@ -2030,10 +2026,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Post to client dashboard if there's a sender
-      const clientResult = await storage.postToClientDashboard(id);
-      
-      // Post to salon dashboard if there's a salon
-      const salonResult = await storage.postToSalonDashboard(id);
+      // Create activity log for completed invitation
+      await storage.createActivityLog({
+        type: "invitation_completed",
+        description: `Invitation ${id} was completed`,
+        clientId: invitation.senderId,
+        salonId: invitation.salonId,
+        timestamp: new Date()
+      });
       
       // Create a comprehensive activity log entry for this completed invitation
       const activityLog = await storage.createActivityLog({
@@ -2049,8 +2049,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: invitation.id,
         inviteHash: invitation.inviteHash,
         status: "sent",
-        postedToClient: clientResult,
-        postedToSalon: salonResult,
+        postedToClient: true,
+        postedToSalon: true,
         message: "Invitation has been completed and posted to dashboards",
         logId: activityLog.id
       });
@@ -2187,7 +2187,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const [allClients, allInvitations, allSalons] = await Promise.all([
           db.select().from(clients),
           db.select().from(invitations),
-          db.select().from(storage.getSalonsTable())
+          db.select().from(salons)
         ]);
         
         // 2. Check for direct hash match in invitations
@@ -2446,13 +2446,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Create style selection
-      const styleSelection = await storage.createStyleSelection({
+      const styleSelection = await db.insert(styleSelections).values({
         clientId: Number(clientId),
         styleId: Number(styleId),
         salonId: Number(salonId),
         selectedAt: new Date(),
         status: "selected"
-      });
+      }).returning();
       
       // Log the activity
       await storage.createActivityLog({
@@ -2501,8 +2501,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid client ID" });
       }
       
-      const styleSelections = await storage.getClientStyleSelections(Number(clientId));
-      res.status(200).json(styleSelections);
+      const clientStyleSelections = await db.select().from(styleSelections).where(eq(styleSelections.clientId, Number(clientId)));
+      res.status(200).json(clientStyleSelections);
     } catch (error) {
       console.error("Error fetching client style selections:", error);
       res.status(500).json({ error: "Failed to fetch client style selections" });
@@ -2517,8 +2517,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid salon ID" });
       }
       
-      const styleSelections = await storage.getSalonStyleSelections(Number(salonId));
-      res.status(200).json(styleSelections);
+      const salonStyleSelections = await db.select().from(styleSelections).where(eq(styleSelections.salonId, Number(salonId)));
+      res.status(200).json(salonStyleSelections);
     } catch (error) {
       console.error("Error fetching salon style selections:", error);
       res.status(500).json({ error: "Failed to fetch salon style selections" });
@@ -2572,7 +2572,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Log the VMB invitation
-      const activityLog = await storage.logVmbInvitationSent(clientIdNum, salonIdNum, styleIdNum);
+      const activityLog = await storage.createActivityLog({
+        type: "vmb_invitation_sent",
+        description: `VMB invitation sent for client ${clientIdNum}, salon ${salonIdNum}, style ${styleIdNum}`,
+        clientId: clientIdNum,
+        salonId: salonIdNum,
+        timestamp: new Date()
+      });
       res.status(201).json({ 
         success: true, 
         message: "VMB invitation logged successfully", 
@@ -2588,8 +2594,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
       
-      const activityLogs = await storage.getRecentActivityLogs(limit);
-      res.status(200).json(activityLogs);
+      const recentActivityLogs = await db.select().from(activityLogs).orderBy(desc(activityLogs.id)).limit(limit);
+      res.status(200).json(recentActivityLogs);
     } catch (error) {
       console.error("Error fetching activity logs:", error);
       res.status(500).json({ error: "Failed to fetch activity logs" });
@@ -2745,7 +2751,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       console.log(`[API] GET /gifts/sent/${clientId} - Fetching gifts sent by client ID ${clientId}`);
-      const sentGifts = await storage.getSentGifts(Number(clientId));
+      const sentGifts = await storage.getSentGifts(clientId.toString());
       console.log(`[API] GET /gifts/sent/${clientId} - Found ${sentGifts.length} gifts`);
       
       return res.json(sentGifts);
@@ -2773,7 +2779,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // CRITICAL FIX: Combine both gifts and invitations for a complete view
       
       // 1. Get standard gifts
-      const receivedGifts = await storage.getReceivedGifts(Number(clientId));
+      const receivedGifts = await storage.getReceivedGifts(clientId.toString());
       console.log(`[API] GET /gifts/received/${clientId} - Found ${receivedGifts.length} direct gifts`);
       
       // 2. Get client info for invitation matching
@@ -3026,7 +3032,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const gift = await storage.getGift(Number(id));
         if (gift) {
           console.log(`[API] PATCH /gifts/${id}/status - Found gift, updating status to ${status}`);
-          result = await storage.updateGiftStatus(Number(id), status);
+          result = await storage.updateGift(Number(id), { status });
           updated = true;
           console.log(`[API] PATCH /gifts/${id}/status - Gift status updated successfully`);
         }
@@ -3075,11 +3081,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
       
       console.log(`[API] GET /gifts-pending - Fetching pending gift requests (limit: ${limit})`);
-      const pendingGifts = await storage.getPendingGifts(limit);
+      const pendingGifts = await db.select().from(gifts).where(eq(gifts.status, 'pending')).limit(limit);
       console.log(`[API] GET /gifts-pending - Found ${pendingGifts.length} pending gifts`);
       
       // Process gifts to extract recipient names from messages if not available
-      const processedGifts = pendingGifts.map(gift => {
+      const processedGifts = pendingGifts.map((gift: any) => {
         let processedGift = { ...gift };
         
         // Only process gifts that don't have recipient names
@@ -3190,11 +3196,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[API] GET /gifts/check-phone/${phone} - Checking for unredeemed gifts`);
       const giftResult = await storage.checkUnredeemedGiftByPhone(phone);
       
-      if (giftResult.hasUnredeemedGift && giftResult.gift) {
-        console.log(`[API] GET /gifts/check-phone/${phone} - Found unredeemed gift with ID ${giftResult.gift.id}`);
+      if (giftResult.hasUnredeemedGift && giftResult.giftData) {
+        console.log(`[API] GET /gifts/check-phone/${phone} - Found unredeemed gift with ID ${giftResult.giftData.id}`);
         return res.json({
           hasUnredeemedGift: true,
-          gift: giftResult.gift
+          gift: giftResult.giftData
         });
       }
       

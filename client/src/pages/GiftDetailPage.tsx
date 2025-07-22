@@ -183,7 +183,6 @@ export default function GiftDetailPage() {
                 <GiftClaimCard 
                   gift={{
                     id: gift.id,
-                    senderId: gift.senderId,
                     senderName: gift.senderName,
                     salonId: gift.salonId,
                     salonName: gift.salonName,

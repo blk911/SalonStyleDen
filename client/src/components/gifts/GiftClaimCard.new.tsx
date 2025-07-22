@@ -58,7 +58,7 @@ export function GiftClaimCard({ gift, clientId, onGiftClaimed }: GiftClaimCardPr
   const [processedMessage] = useState(() => {
     if (gift.message) {
       return processInvitationMessage(gift.message, {
-        styleName: gift.styleName || "Style Card"
+        styleOption: gift.styleName || "Style Card"
       });
     }
     return "";

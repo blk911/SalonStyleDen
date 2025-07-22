@@ -1,12 +1,12 @@
 import { eq, and, desc, count, isNull, isNotNull, sql } from "drizzle-orm";
 import { db } from "./db";
-import { salons, clients, invitations, gifts } from "../shared/schema";
+import { salons, clients, invitations, gifts, styleSelections, activityLogs, payments, appointmentConfirmations } from "../shared/schema";
 import { log } from "./vite";
 import { createHash } from "crypto";
 
 export interface IStorage {
   // Salon methods
-  deleteSalon(id: number): Promise<void>;
+  deleteSalon(id: number): Promise<boolean>;
   getSalon(id: number): Promise<any | null>;
   getSalonByName(name: string): Promise<any | null>;
   createSalon(insertSalon: any): Promise<any>;
@@ -19,15 +19,18 @@ export interface IStorage {
   createClient(insertClient: any): Promise<any>;
   getAllClients(): Promise<any[]>;
   updateClient(id: number, updates: any): Promise<any>;
-  deleteClient(id: number): Promise<void>;
+  deleteClient(id: number): Promise<boolean>;
 
   // Invitation methods
   createInvitation(insertInvitation: any): Promise<any>;
   getInvitation(id: number): Promise<any | null>;
+  getInvitationByHash(hash: string): Promise<any | null>;
   getRecentInvitations(limit?: number): Promise<any[]>;
   getSalonInvitations(salonId: number): Promise<any[]>;
   getClientInvitations(clientId: number, limit?: number): Promise<any[]>;
   updateInvitationStatus(id: number, status: string): Promise<any>;
+  updateInvitationGiftStatus(id: number, status: string, styleId?: number): Promise<any>;
+  deleteInvitation(id: number): Promise<boolean>;
 
   // Gift methods
   createGift(insertGift: any): Promise<any>;
@@ -35,6 +38,7 @@ export interface IStorage {
   getGiftByHash(giftHash: string): Promise<any | null>;
   getSentGifts(senderPhone: string): Promise<any[]>;
   getReceivedGifts(recipientPhone: string): Promise<any[]>;
+  deleteGift(id: number): Promise<boolean>;
 
   // Validation methods
   validateRegistration(phone: string, email: string): Promise<{ isValid: boolean; message: string }>;
@@ -46,14 +50,30 @@ export class DatabaseStorage implements IStorage {
   private _invitationsCache: any[] | null = null;
   private _giftsCache: any[] | null = null;
 
-  async deleteSalon(id: number): Promise<void> {
+  async deleteSalon(id: number): Promise<boolean> {
     try {
       log(`DatabaseStorage.deleteSalon - Deleting salon with id: ${id}`, 'db');
-      await db.delete(salons).where(eq(salons.id, id));
+      
+      await db.delete(clients).where(eq(clients.salonId, id));
+      log(`DatabaseStorage.deleteSalon - Deleted clients for salon ${id}`, 'db');
+      
+      await db.delete(invitations).where(eq(invitations.salonId, id));
+      log(`DatabaseStorage.deleteSalon - Deleted invitations for salon ${id}`, 'db');
+      
+      await db.delete(gifts).where(eq(gifts.salonId, id));
+      log(`DatabaseStorage.deleteSalon - Deleted gifts for salon ${id}`, 'db');
+      
+      const result = await db.delete(salons).where(eq(salons.id, id));
       this._salonsCache = null;
+      this._clientsCache = null;
+      this._invitationsCache = null;
+      this._giftsCache = null;
+      
+      log(`DatabaseStorage.deleteSalon - Successfully deleted salon ${id}`, 'db');
+      return true;
     } catch (error) {
       log(`DatabaseStorage.deleteSalon - Error deleting salon: ${error}`, 'db');
-      throw error;
+      return false;
     }
   }
 
@@ -234,14 +254,36 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async deleteClient(id: number): Promise<void> {
+  async deleteClient(id: number): Promise<boolean> {
     try {
       log(`DatabaseStorage.deleteClient - Deleting client with id: ${id}`, 'db');
-      await db.delete(clients).where(eq(clients.id, id));
+      
+      await db.delete(gifts).where(eq(gifts.senderId, id));
+      log(`DatabaseStorage.deleteClient - Deleted sent gifts for client ${id}`, 'db');
+      
+      await db.delete(gifts).where(eq(gifts.recipientId, id));
+      log(`DatabaseStorage.deleteClient - Deleted received gifts for client ${id}`, 'db');
+      
+      await db.delete(invitations).where(eq(invitations.senderId, id));
+      log(`DatabaseStorage.deleteClient - Deleted sent invitations for client ${id}`, 'db');
+      
+      // Delete all style selections for this client
+      await db.delete(styleSelections).where(eq(styleSelections.clientId, id));
+      log(`DatabaseStorage.deleteClient - Deleted style selections for client ${id}`, 'db');
+      
+      await db.delete(activityLogs).where(eq(activityLogs.clientId, id));
+      log(`DatabaseStorage.deleteClient - Deleted activity logs for client ${id}`, 'db');
+      
+      const result = await db.delete(clients).where(eq(clients.id, id));
       this._clientsCache = null;
+      this._invitationsCache = null;
+      this._giftsCache = null;
+      
+      log(`DatabaseStorage.deleteClient - Successfully deleted client ${id}`, 'db');
+      return true;
     } catch (error) {
       log(`DatabaseStorage.deleteClient - Error deleting client: ${error}`, 'db');
-      throw error;
+      return false;
     }
   }
 
@@ -339,7 +381,7 @@ export class DatabaseStorage implements IStorage {
   async updateInvitationStatus(id: number, status: string): Promise<any> {
     try {
       log(`DatabaseStorage.updateInvitationStatus - Updating invitation ${id} status to: ${status}`, 'db');
-      const result = await db.update(invitations).set({ status: status as any }).where(eq(invitations.id, id)).returning();
+      const result = await db.update(invitations).set({ status: status }).where(eq(invitations.id, id)).returning();
       this._invitationsCache = null;
       return result[0];
     } catch (error) {
@@ -403,7 +445,7 @@ export class DatabaseStorage implements IStorage {
       return result[0];
     } catch (error) {
       log(`DatabaseStorage.createGift - Error creating gift: ${error}`, 'db');
-      log(`DatabaseStorage.createGift - Error stack: ${error.stack}`, 'db');
+      log(`DatabaseStorage.createGift - Error stack: ${(error as Error).stack}`, 'db');
       throw error;
     }
   }
@@ -612,6 +654,71 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async getInvitationByHash(hash: string): Promise<any | null> {
+    try {
+      log(`DatabaseStorage.getInvitationByHash - Getting invitation with hash: ${hash}`, 'db');
+      const result = await db.select().from(invitations).where(eq(invitations.inviteHash, hash)).limit(1);
+      return result[0] || null;
+    } catch (error) {
+      log(`DatabaseStorage.getInvitationByHash - Error getting invitation by hash: ${error}`, 'db');
+      throw error;
+    }
+  }
+
+  async updateInvitationGiftStatus(id: number, status: string, styleId?: number): Promise<any> {
+    try {
+      log(`DatabaseStorage.updateInvitationGiftStatus - Updating invitation ${id} status to: ${status}, styleId: ${styleId}`, 'db');
+      const updates: any = { status: status as any };
+      if (styleId !== undefined) {
+        updates.styleOption = styleId.toString();
+      }
+      const result = await db.update(invitations).set(updates).where(eq(invitations.id, id)).returning();
+      this._invitationsCache = null;
+      return result[0];
+    } catch (error) {
+      log(`DatabaseStorage.updateInvitationGiftStatus - Error updating invitation gift status: ${error}`, 'db');
+      throw error;
+    }
+  }
+
+  async deleteInvitation(id: number): Promise<boolean> {
+    try {
+      log(`DatabaseStorage.deleteInvitation - Deleting invitation with id: ${id}`, 'db');
+      
+      // Delete the invitation itself - no related artifacts to clean up based on schema
+      const result = await db.delete(invitations).where(eq(invitations.id, id));
+      this._invitationsCache = null;
+      
+      log(`DatabaseStorage.deleteInvitation - Successfully deleted invitation ${id}`, 'db');
+      return true;
+    } catch (error) {
+      log(`DatabaseStorage.deleteInvitation - Error deleting invitation: ${error}`, 'db');
+      return false;
+    }
+  }
+
+  async deleteGift(id: number): Promise<boolean> {
+    try {
+      log(`DatabaseStorage.deleteGift - Deleting gift with id: ${id}`, 'db');
+      
+      // Delete related artifacts that have proper foreign key relationships
+      await db.delete(payments).where(eq(payments.giftId, id));
+      log(`DatabaseStorage.deleteGift - Deleted payments for gift ${id}`, 'db');
+      
+      await db.delete(appointmentConfirmations).where(eq(appointmentConfirmations.giftId, id));
+      log(`DatabaseStorage.deleteGift - Deleted appointment confirmations for gift ${id}`, 'db');
+      
+      const result = await db.delete(gifts).where(eq(gifts.id, id));
+      this._giftsCache = null;
+      
+      log(`DatabaseStorage.deleteGift - Successfully deleted gift ${id}`, 'db');
+      return true;
+    } catch (error) {
+      log(`DatabaseStorage.deleteGift - Error deleting gift: ${error}`, 'db');
+      return false;
+    }
+  }
+
   async hasSalonReachedInvitationLimit(salonId: number): Promise<{ hasReachedLimit: boolean; currentCount: number; limit: number }> {
     try {
       log(`DatabaseStorage.hasSalonReachedInvitationLimit - Checking invitation limit for salon: ${salonId}`, 'db');
@@ -629,6 +736,18 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       log(`DatabaseStorage.hasSalonReachedInvitationLimit - Error checking invitation limit: ${error}`, 'db');
       return { hasReachedLimit: false, currentCount: 0, limit: 100 };
+    }
+  }
+
+  async updateSalonLicense(id: number, licenseData: any): Promise<any> {
+    try {
+      log(`DatabaseStorage.updateSalonLicense - Updating license for salon ${id}`, 'db');
+      const result = await db.update(salons).set(licenseData).where(eq(salons.id, id)).returning();
+      this._salonsCache = null;
+      return result[0];
+    } catch (error) {
+      log(`DatabaseStorage.updateSalonLicense - Error updating salon license: ${error}`, 'db');
+      throw error;
     }
   }
 }
