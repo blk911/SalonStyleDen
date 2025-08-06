@@ -33,6 +33,8 @@ import GiftRedemptionPage from "@/pages/GiftRedemptionPage";
 import GiftDetailPage from "@/pages/GiftDetailPage";
 import AboutPage from "@/pages/AboutPage";
 import TestFinalStep3 from "@/pages/TestFinalStep3";
+import LoginPage from "@/pages/LoginPage";
+import UserDashboard from "@/pages/UserDashboard";
 
 function Router() {
   return (
@@ -67,6 +69,9 @@ function Router() {
       <Route path="/promos" component={PromosPage} />
       <Route path="/sitemap" component={Sitemap} />
       <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin-dash" component={AdminDashboard} />
+      <Route path="/u-dash" component={UserDashboard} />
+      <Route path="/login" component={LoginPage} />
       <Route path="/admin/gifts/:id" component={GiftDetailPage} />
       <Route path="/admin/performance" component={PerformancePage} />
       <Route path="/performance" component={PerformancePage} />
